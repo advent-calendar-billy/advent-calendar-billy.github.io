@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Rolling Ball Game</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #f0f0f0;
+            font-family: Arial, sans-serif;
+            overscroll-behavior: contain;
+            touch-action: none;
+        }
+
+        #gameArea {
+            width: 300px;
+            height: 300px;
+            border: 3px solid #333;
+            position: relative;
+            background: white;
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        #ball {
+            width: 30px;
+            height: 30px;
+            background: #ff4444;
+            border-radius: 50%;
+            position: absolute;
+            left: 135px;
+            top: 135px;
+            transition: transform 0.1s linear;
+        }
+
+        #target {
+            width: 40px;
+            height: 40px;
+            background: #44ff44;
+            border-radius: 50%;
+            position: absolute;
+            transform: translate(-50%, -50%);
+        }
+
+        #score {
+            font-size: 24px;
+            margin: 20px 0;
+        }
+
+        #startButton {
+            padding: 10px 20px;
+            font-size: 18px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+
+        #instructions {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div id="score">Score: 0</div>
+    <div id="gameArea">
+        <div id="target"></div>
+        <div id="ball"></div>
+    </div>
+    <button id="startButton">Start Game</button>
+    <div id="instructions">
+        Tilt your device to move the red ball.<br>
+        Collect the green targets!
+    </div>
+
+    <script>
+        const ball = document.getElementById('ball');
+        const target = document.getElementById('target');
+        const scoreDisplay = document.getElementById('score');
+        const startButton = document.getElementById('startButton');
+        const gameArea = document.getElementById('gameArea');
+
+        let score = 0;
+        let ballX = 135;
+        let ballY = 135;
+        let isPlaying = false;
+
+        function moveTarget() {
+            const x = Math.random() * (gameArea.offsetWidth - 40);
+            const y = Math.random() * (gameArea.offsetHeight - 40);
+            target.style.left = x + 'px';
+            target.style.top = y + 'px';
+        }
+
+        function checkCollision() {
+            const ballRect = ball.getBoundingClientRect();
+            const targetRect = target.getBoundingClientRect();
+
+            if (!(ballRect.right < targetRect.left || 
+                  ballRect.left > targetRect.right || 
+                  ballRect.bottom < targetRect.top || 
+                  ballRect.top > targetRect.bottom)) {
+                score += 1;
+                scoreDisplay.textContent = `Score: ${score}`;
+                moveTarget();
+            }
+        }
+
+        function handleMotion(event) {
+            if (!isPlaying) return;
+
+            const accelerationX = event.accelerationIncludingGravity.x;
+            const accelerationY = event.accelerationIncludingGravity.y;
+
+            if (accelerationX && accelerationY) {
+                // Adjust these multipliers to control sensitivity
+                ballX = Math.max(0, Math.min(270, ballX + accelerationX * 0.5));
+                ballY = Math.max(0, Math.min(270, ballY + accelerationY * 0.5));
+                ball.style.transform = `translate(${ballX}px, ${ballY}px)`;
+                checkCollision();
+            }
+        }
+
+        startButton.addEventListener('click', async () => {
+            try {
+                if (typeof DeviceMotionEvent.requestPermission === 'function') {
+                    const permission = await DeviceMotionEvent.requestPermission();
+                    if (permission === 'granted') {
+                        startGame();
+                    }
+                } else {
+                    startGame();
+                }
+            } catch (error) {
+                alert('Unable to access accelerometer. This game requires a device with an accelerometer.');
+            }
+        });
+
+        function startGame() {
+            isPlaying = true;
+            score = 0;
+            scoreDisplay.textContent = 'Score: 0';
+            moveTarget();
+            startButton.textContent = 'Restart Game';
+            window.addEventListener('devicemotion', handleMotion);
+        }
+
+        // Prevent scrolling on touch devices
+        document.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
+    </script>
+</body>
+</html>
