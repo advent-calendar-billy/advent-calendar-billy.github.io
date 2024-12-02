@@ -171,10 +171,10 @@
             let accelerationY = event.accelerationIncludingGravity.x * 0.6; // and reversed direction
 
             // Update velocities with damping
-            velocityRedX = velocityRedX * 0.98 + accelerationX * 0.5;
-            velocityRedY = velocityRedY * 0.98 + accelerationY * 0.5;
-            velocityBlueX = velocityBlueX * 0.98 + accelerationX * 0.5;
-            velocityBlueY = velocityBlueY * 0.98 + accelerationY * 0.5;
+            velocityRedX = velocityRedX * 0.9 + accelerationX * 0.4; // stronger damping
+            velocityRedY = velocityRedY * 0.9 + accelerationY * 0.4;
+            velocityBlueX = velocityBlueX * 0.9 + accelerationX * 0.4;
+            velocityBlueY = velocityBlueY * 0.9 + accelerationY * 0.4;
 
             // Update positions with boundaries
             redX = Math.max(0, Math.min(gameArea.offsetWidth - 30, redX + velocityRedX));
@@ -182,9 +182,21 @@
             blueX = Math.max(0, Math.min(gameArea.offsetWidth - 30, blueX + velocityBlueX));
             blueY = Math.max(0, Math.min(gameArea.offsetHeight - 30, blueY + velocityBlueY));
 
+            // Ensure balls are within bounds after movement
+            if (redX < 0) redX = 0;
+            if (redX > gameArea.offsetWidth - 30) redX = gameArea.offsetWidth - 30;
+            if (redY < 0) redY = 0;
+            if (redY > gameArea.offsetHeight - 30) redY = gameArea.offsetHeight - 30;
+
+            if (blueX < 0) blueX = 0;
+            if (blueX > gameArea.offsetWidth - 30) blueX = gameArea.offsetWidth - 30;
+            if (blueY < 0) blueY = 0;
+            if (blueY > gameArea.offsetHeight - 30) blueY = gameArea.offsetHeight - 30;
+
             updateBallPositions();
             checkWin();
         }
+
 
         startButton.addEventListener('click', async () => {
             try {
