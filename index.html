@@ -100,7 +100,7 @@
     </div>
     <button id="startButton">Start Game</button>
     <div id="instructions">
-        (2) Tilt your device to guide both balls into their matching colored zones.<br>
+        (3) Tilt your device to guide both balls into their matching colored zones.<br>
         Both balls must be in their zones at the same time to win!
     </div>
 
@@ -167,21 +167,41 @@
             if (!isPlaying) return;
 
             // Get acceleration values (adjusted for orientation)
-            let accelerationX = event.accelerationIncludingGravity.y * 0.2; // Reduce sensitivity further
-            let accelerationY = event.accelerationIncludingGravity.x * 0.2; // Reduce sensitivity further
+            let accelerationX = event.accelerationIncludingGravity.y * 0.2; // Reduced sensitivity
+            let accelerationY = event.accelerationIncludingGravity.x * 0.2; // Reduced sensitivity
 
-            // Update velocities with stronger damping
-            velocityRedX = velocityRedX * 0.85 + accelerationX * 0.3; // Stronger damping and less acceleration influence
-            velocityRedY = velocityRedY * 0.85 + accelerationY * 0.3;
-            velocityBlueX = velocityBlueX * 0.85 + accelerationX * 0.3;
-            velocityBlueY = velocityBlueY * 0.85 + accelerationY * 0.3;
+            // Update velocities with damping
+            velocityRedX = velocityRedX * 0.9 + accelerationX * 0.3;
+            velocityRedY = velocityRedY * 0.9 + accelerationY * 0.3;
+            velocityBlueX = velocityBlueX * 0.9 + accelerationX * 0.3;
+            velocityBlueY = velocityBlueY * 0.9 + accelerationY * 0.3;
 
-            // Update positions with boundaries
-            redX = Math.max(0, Math.min(gameArea.offsetWidth - 30, redX + velocityRedX));
-            redY = Math.max(0, Math.min(gameArea.offsetHeight - 30, redY + velocityRedY));
-            blueX = Math.max(0, Math.min(gameArea.offsetWidth - 30, blueX + velocityBlueX));
-            blueY = Math.max(0, Math.min(gameArea.offsetHeight - 30, blueY + velocityBlueY));
+            // Update positions
+            redX += velocityRedX;
+            redY += velocityRedY;
+            blueX += velocityBlueX;
+            blueY += velocityBlueY;
 
+            // Check for wall collisions and bounce
+            if (redX <= 0 || redX >= gameArea.offsetWidth - 30) {
+                velocityRedX *= -1; // Reverse velocity on X-axis
+                redX = Math.max(0, Math.min(gameArea.offsetWidth - 30, redX)); // Keep within bounds
+            }
+            if (redY <= 0 || redY >= gameArea.offsetHeight - 30) {
+                velocityRedY *= -1; // Reverse velocity on Y-axis
+                redY = Math.max(0, Math.min(gameArea.offsetHeight - 30, redY)); // Keep within bounds
+            }
+
+            if (blueX <= 0 || blueX >= gameArea.offsetWidth - 30) {
+                velocityBlueX *= -1; // Reverse velocity on X-axis
+                blueX = Math.max(0, Math.min(gameArea.offsetWidth - 30, blueX)); // Keep within bounds
+            }
+            if (blueY <= 0 || blueY >= gameArea.offsetHeight - 30) {
+                velocityBlueY *= -1; // Reverse velocity on Y-axis
+                blueY = Math.max(0, Math.min(gameArea.offsetHeight - 30, blueY)); // Keep within bounds
+            }
+
+            // Update ball positions
             updateBallPositions();
             checkWin();
         }
