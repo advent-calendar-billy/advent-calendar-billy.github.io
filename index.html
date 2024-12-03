@@ -88,12 +88,6 @@
             font-size: 16px;
             max-width: 300px;
         }
-
-        #debug {
-            font-size: 12px;
-            margin-top: 10px;
-            font-family: monospace;
-        }
     </style>
 </head>
 <body>
@@ -109,7 +103,6 @@
         Tilt your device to guide both balls into their matching colored zones.<br>
         Both balls must be in their zones at the same time to win!
     </div>
-    <div id="debug"></div>
 
     <script>
         const redBall = document.getElementById('redBall');
@@ -119,7 +112,6 @@
         const message = document.getElementById('message');
         const startButton = document.getElementById('startButton');
         const gameArea = document.getElementById('gameArea');
-        const debug = document.getElementById('debug');
 
         let isPlaying = false;
         let redX = 50, redY = 50;
@@ -128,14 +120,11 @@
         let velocityBlueX = 0, velocityBlueY = 0;
         
         // Constants for physics
-        const DAMPING = 0.8;           // Reduced from 0.9
-        const ACCELERATION_SCALE = 0.1; // Reduced from 0.2
-        const VELOCITY_SCALE = 0.15;    // Reduced from 0.3
-        const MAX_VELOCITY = 15;       // New: maximum velocity cap
-        const BOUNCE_LOSS = 0.7;       // New: energy loss on bounce
-
-        // Detect Android
-        const isAndroid = /Android/i.test(navigator.userAgent);
+        const DAMPING = 0.8;           
+        const ACCELERATION_SCALE = 0.1; 
+        const VELOCITY_SCALE = 0.15;    
+        const MAX_VELOCITY = 15;       
+        const BOUNCE_LOSS = 0.7;       
 
         function resetGame() {
             redX = 50;
@@ -188,18 +177,9 @@
         function handleMotion(event) {
             if (!isPlaying) return;
 
-            // Get acceleration values, adjusting for Android if necessary
-            let accelerationX, accelerationY;
-            
-            if (isAndroid) {
-                // Android-specific acceleration handling
-                accelerationX = -event.accelerationIncludingGravity.x * ACCELERATION_SCALE;
-                accelerationY = event.accelerationIncludingGravity.y * ACCELERATION_SCALE;
-            } else {
-                // iOS and others
-                accelerationX = event.accelerationIncludingGravity.y * ACCELERATION_SCALE;
-                accelerationY = event.accelerationIncludingGravity.x * ACCELERATION_SCALE;
-            }
+            // Android-specific acceleration handling
+            const accelerationX = -event.accelerationIncludingGravity.x * ACCELERATION_SCALE;
+            const accelerationY = event.accelerationIncludingGravity.y * ACCELERATION_SCALE;
 
             // Update velocities with damping and clamping
             velocityRedX = clampVelocity(velocityRedX * DAMPING + accelerationX * VELOCITY_SCALE);
@@ -249,33 +229,14 @@
             // Update ball positions
             updateBallPositions();
             checkWin();
-
-            // Debug info
-            debug.textContent = `aX: ${accelerationX.toFixed(2)} aY: ${accelerationY.toFixed(2)}`;
         }
 
-        startButton.addEventListener('click', async () => {
-            try {
-                if (typeof DeviceMotionEvent.requestPermission === 'function') {
-                    const permission = await DeviceMotionEvent.requestPermission();
-                    if (permission === 'granted') {
-                        startGame();
-                    }
-                } else {
-                    startGame();
-                }
-            } catch (error) {
-                console.error(error);
-                alert('Unable to access accelerometer. This game requires a device with an accelerometer.');
-            }
-        });
-
-        function startGame() {
+        startButton.addEventListener('click', () => {
             isPlaying = true;
             resetGame();
             startButton.textContent = 'Restart Game';
             window.addEventListener('devicemotion', handleMotion);
-        }
+        });
 
         // Prevent scrolling on touch devices
         document.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
