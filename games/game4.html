@@ -238,7 +238,7 @@
                 ballY + 30 > relativeTop && 
                 ballY < relativeTop + 120) {
                 
-                // Determine which side was hit
+                // Determine which side was hit and adjust position
                 const fromLeft = ballX + 30 - relativeLeft;
                 const fromRight = relativeLeft + 40 - ballX;
                 const fromTop = ballY + 30 - relativeTop;
@@ -246,10 +246,15 @@
                 
                 const min = Math.min(fromLeft, fromRight, fromTop, fromBottom);
                 
-                if (min === fromLeft || min === fromRight) {
-                    return { axis: 'x', bounce: true };
+                // Return adjusted position along with collision info
+                if (min === fromLeft) {
+                    return { axis: 'x', bounce: true, adjustedX: relativeLeft - 30 };
+                } else if (min === fromRight) {
+                    return { axis: 'x', bounce: true, adjustedX: relativeLeft + 40 };
+                } else if (min === fromTop) {
+                    return { axis: 'y', bounce: true, adjustedY: relativeTop - 30 };
                 } else {
-                    return { axis: 'y', bounce: true };
+                    return { axis: 'y', bounce: true, adjustedY: relativeTop + 120 };
                 }
             }
             
@@ -330,16 +335,20 @@
             if (redObstacle.bounce) {
                 if (redObstacle.axis === 'x') {
                     velocityRedX = -velocityRedX * BOUNCE_LOSS;
+                    redX = redObstacle.adjustedX;
                 } else {
                     velocityRedY = -velocityRedY * BOUNCE_LOSS;
+                    redY = redObstacle.adjustedY;
                 }
             }
 
             if (blueObstacle.bounce) {
                 if (blueObstacle.axis === 'x') {
                     velocityBlueX = -velocityBlueX * BOUNCE_LOSS;
+                    blueX = blueObstacle.adjustedX;
                 } else {
                     velocityBlueY = -velocityBlueY * BOUNCE_LOSS;
+                    blueY = blueObstacle.adjustedY;
                 }
             }
 
