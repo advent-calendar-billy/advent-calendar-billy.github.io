@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Two Balls Challenge</title>
     <style>
+        /* Previous styles remain the same */
         body {
             margin: 0;
             padding: 20px;
@@ -47,6 +48,8 @@
             height: 80px;
             position: absolute;
             bottom: 20px;
+            border: 2px solid transparent;
+            transition: border-color 0.3s ease;
         }
 
         #redZone {
@@ -57,6 +60,17 @@
         #blueZone {
             background: rgba(0, 0, 255, 0.3);
             right: 20px;
+        }
+
+        .target-zone.active {
+            border-color: black;
+            animation: borderPulse 1s infinite;
+        }
+
+        @keyframes borderPulse {
+            0% { border-color: rgba(0, 0, 0, 0.3); }
+            50% { border-color: rgba(0, 0, 0, 1); }
+            100% { border-color: rgba(0, 0, 0, 0.3); }
         }
 
         #message {
@@ -83,6 +97,32 @@
             font-size: 16px;
             max-width: 300px;
         }
+
+        #obstacle {
+            position: absolute;
+            width: 40px;
+            height: 120px;
+            background: #666;
+            left: 130px;
+            top: 140px;
+            border-radius: 4px;
+        }
+
+        #countdown {
+            position: absolute;
+            font-size: 48px;
+            color: #333;
+            font-weight: bold;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        #countdown.visible {
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
@@ -92,14 +132,17 @@
         <div id="blueBall" class="ball"></div>
         <div id="redZone" class="target-zone"></div>
         <div id="blueZone" class="target-zone"></div>
+        <div id="obstacle"></div>
+        <div id="countdown"></div>
     </div>
     <button id="startButton">Start Game</button>
     <div id="instructions">
         Tilt your device to guide both balls into their matching colored zones.<br>
-        Both balls must be in their zones at the same time to win!
+        Both balls must be in their zones at the same time for 3 seconds to win!
     </div>
 
     <script>
+        // Previous variables remain the same
         const redBall = document.getElementById('redBall');
         const blueBall = document.getElementById('blueBall');
         const redZone = document.getElementById('redZone');
@@ -107,14 +150,17 @@
         const message = document.getElementById('message');
         const startButton = document.getElementById('startButton');
         const gameArea = document.getElementById('gameArea');
+        const countdown = document.getElementById('countdown');
+        const obstacle = document.getElementById('obstacle');
 
         let isPlaying = false;
         let redX = 50, redY = 50;
         let blueX = 200, blueY = 50;
         let velocityRedX = 0, velocityRedY = 0;
         let velocityBlueX = 0, velocityBlueY = 0;
+        let countdownTimer = null;
+        let countdownValue = 3;
         
-        // Constants for physics
         const DAMPING = 0.8;           
         const ACCELERATION_SCALE = 0.1; 
         const VELOCITY_SCALE = 0.15;    
@@ -129,6 +175,39 @@
             velocityRedX = velocityRedY = velocityBlueX = velocityBlueY = 0;
             updateBallPositions();
             message.textContent = '';
+            resetCountdown();
+            redZone.classList.remove('active');
+            blueZone.classList.remove('active');
+        }
+
+        function resetCountdown() {
+            if (countdownTimer) {
+                clearInterval(countdownTimer);
+                countdownTimer = null;
+            }
+            countdownValue = 3;
+            countdown.textContent = '';
+            countdown.classList.remove('visible');
+        }
+
+        function startCountdown() {
+            if (countdownTimer) return; // Don't start if already running
+            
+            countdownValue = 3;
+            countdown.textContent = countdownValue;
+            countdown.classList.add('visible');
+            
+            countdownTimer = setInterval(() => {
+                countdownValue--;
+                countdown.textContent = countdownValue;
+                
+                if (countdownValue <= 0) {
+                    clearInterval(countdownTimer);
+                    message.textContent = 'You Win! 🎉';
+                    isPlaying = false;
+                    countdown.classList.remove('visible');
+                }
+            }, 1000);
         }
 
         function updateBallPositions() {
@@ -147,6 +226,35 @@
             );
         }
 
+        function checkObstacleCollision(ballX, ballY, velocity) {
+            const obstacleRect = obstacle.getBoundingClientRect();
+            const gameAreaRect = gameArea.getBoundingClientRect();
+            const relativeLeft = obstacleRect.left - gameAreaRect.left;
+            const relativeTop = obstacleRect.top - gameAreaRect.top;
+
+            if (ballX + 30 > relativeLeft && 
+                ballX < relativeLeft + 40 && 
+                ballY + 30 > relativeTop && 
+                ballY < relativeTop + 120) {
+                
+                // Determine which side was hit
+                const fromLeft = ballX + 30 - relativeLeft;
+                const fromRight = relativeLeft + 40 - ballX;
+                const fromTop = ballY + 30 - relativeTop;
+                const fromBottom = relativeTop + 120 - ballY;
+                
+                const min = Math.min(fromLeft, fromRight, fromTop, fromBottom);
+                
+                if (min === fromLeft || min === fromRight) {
+                    return { axis: 'x', bounce: true };
+                } else {
+                    return { axis: 'y', bounce: true };
+                }
+            }
+            
+            return { axis: null, bounce: false };
+        }
+
         function checkWin() {
             const redInZone = checkCollision(
                 redX, 
@@ -162,8 +270,13 @@
             );
 
             if (redInZone && blueInZone) {
-                message.textContent = 'You Win! 🎉';
-                isPlaying = false;
+                redZone.classList.add('active');
+                blueZone.classList.add('active');
+                startCountdown();
+            } else {
+                redZone.classList.remove('active');
+                blueZone.classList.remove('active');
+                resetCountdown();
             }
         }
 
@@ -174,21 +287,39 @@
         function handleMotion(event) {
             if (!isPlaying) return;
 
-            // Android-specific acceleration handling
             const accelerationX = -event.accelerationIncludingGravity.x * ACCELERATION_SCALE;
             const accelerationY = event.accelerationIncludingGravity.y * ACCELERATION_SCALE;
 
-            // Update velocities with damping and clamping
             velocityRedX = clampVelocity(velocityRedX * DAMPING + accelerationX * VELOCITY_SCALE);
             velocityRedY = clampVelocity(velocityRedY * DAMPING + accelerationY * VELOCITY_SCALE);
             velocityBlueX = clampVelocity(velocityBlueX * DAMPING + accelerationX * VELOCITY_SCALE);
             velocityBlueY = clampVelocity(velocityBlueY * DAMPING + accelerationY * VELOCITY_SCALE);
 
-            // Update positions with boundary checking
+            // Update positions
             redX = redX + velocityRedX;
             redY = redY + velocityRedY;
             blueX = blueX + velocityBlueX;
             blueY = blueY + velocityBlueY;
+
+            // Check obstacle collisions
+            const redObstacle = checkObstacleCollision(redX, redY);
+            const blueObstacle = checkObstacleCollision(blueX, blueY);
+
+            if (redObstacle.bounce) {
+                if (redObstacle.axis === 'x') {
+                    velocityRedX = -velocityRedX * BOUNCE_LOSS;
+                } else {
+                    velocityRedY = -velocityRedY * BOUNCE_LOSS;
+                }
+            }
+
+            if (blueObstacle.bounce) {
+                if (blueObstacle.axis === 'x') {
+                    velocityBlueX = -velocityBlueX * BOUNCE_LOSS;
+                } else {
+                    velocityBlueY = -velocityBlueY * BOUNCE_LOSS;
+                }
+            }
 
             // Constrain positions and handle bounces
             const maxX = gameArea.offsetWidth - 30;
@@ -237,7 +368,6 @@
             window.addEventListener('devicemotion', handleMotion);
         });
 
-        // Prevent scrolling on touch devices
         document.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
     </script>
 </body>
