@@ -88,6 +88,12 @@
             font-size: 16px;
             max-width: 300px;
         }
+
+        #debug {
+            font-size: 12px;
+            margin-top: 10px;
+            font-family: monospace;
+        }
     </style>
 </head>
 <body>
@@ -100,9 +106,10 @@
     </div>
     <button id="startButton">Start Game</button>
     <div id="instructions">
-        (3) Tilt your device to guide both balls into their matching colored zones.<br>
+        Tilt your device to guide both balls into their matching colored zones.<br>
         Both balls must be in their zones at the same time to win!
     </div>
+    <div id="debug"></div>
 
     <script>
         const redBall = document.getElementById('redBall');
@@ -112,12 +119,23 @@
         const message = document.getElementById('message');
         const startButton = document.getElementById('startButton');
         const gameArea = document.getElementById('gameArea');
+        const debug = document.getElementById('debug');
 
         let isPlaying = false;
         let redX = 50, redY = 50;
         let blueX = 200, blueY = 50;
         let velocityRedX = 0, velocityRedY = 0;
         let velocityBlueX = 0, velocityBlueY = 0;
+        
+        // Constants for physics
+        const DAMPING = 0.8;           // Reduced from 0.9
+        const ACCELERATION_SCALE = 0.1; // Reduced from 0.2
+        const VELOCITY_SCALE = 0.15;    // Reduced from 0.3
+        const MAX_VELOCITY = 15;       // New: maximum velocity cap
+        const BOUNCE_LOSS = 0.7;       // New: energy loss on bounce
+
+        // Detect Android
+        const isAndroid = /Android/i.test(navigator.userAgent);
 
         function resetGame() {
             redX = 50;
@@ -163,18 +181,31 @@
             }
         }
 
+        function clampVelocity(velocity) {
+            return Math.max(Math.min(velocity, MAX_VELOCITY), -MAX_VELOCITY);
+        }
+
         function handleMotion(event) {
             if (!isPlaying) return;
 
-            // Get acceleration values (adjusted for orientation)
-            let accelerationX = event.accelerationIncludingGravity.y * 0.2; // Reduced sensitivity
-            let accelerationY = event.accelerationIncludingGravity.x * 0.2; // Reduced sensitivity
+            // Get acceleration values, adjusting for Android if necessary
+            let accelerationX, accelerationY;
+            
+            if (isAndroid) {
+                // Android-specific acceleration handling
+                accelerationX = -event.accelerationIncludingGravity.x * ACCELERATION_SCALE;
+                accelerationY = event.accelerationIncludingGravity.y * ACCELERATION_SCALE;
+            } else {
+                // iOS and others
+                accelerationX = event.accelerationIncludingGravity.y * ACCELERATION_SCALE;
+                accelerationY = event.accelerationIncludingGravity.x * ACCELERATION_SCALE;
+            }
 
-            // Update velocities with damping
-            velocityRedX = velocityRedX * 0.9 + accelerationX * 0.3;
-            velocityRedY = velocityRedY * 0.9 + accelerationY * 0.3;
-            velocityBlueX = velocityBlueX * 0.9 + accelerationX * 0.3;
-            velocityBlueY = velocityBlueY * 0.9 + accelerationY * 0.3;
+            // Update velocities with damping and clamping
+            velocityRedX = clampVelocity(velocityRedX * DAMPING + accelerationX * VELOCITY_SCALE);
+            velocityRedY = clampVelocity(velocityRedY * DAMPING + accelerationY * VELOCITY_SCALE);
+            velocityBlueX = clampVelocity(velocityBlueX * DAMPING + accelerationX * VELOCITY_SCALE);
+            velocityBlueY = clampVelocity(velocityBlueY * DAMPING + accelerationY * VELOCITY_SCALE);
 
             // Update positions
             redX += velocityRedX;
@@ -182,30 +213,46 @@
             blueX += velocityBlueX;
             blueY += velocityBlueY;
 
-            // Check for wall collisions and bounce
-            if (redX <= 0 || redX >= gameArea.offsetWidth - 30) {
-                velocityRedX *= -1; // Reverse velocity on X-axis
-                redX = Math.max(0, Math.min(gameArea.offsetWidth - 30, redX)); // Keep within bounds
+            // Improved bounce physics
+            if (redX <= 0) {
+                redX = 0;
+                velocityRedX = Math.abs(velocityRedX) * BOUNCE_LOSS;
+            } else if (redX >= gameArea.offsetWidth - 30) {
+                redX = gameArea.offsetWidth - 30;
+                velocityRedX = -Math.abs(velocityRedX) * BOUNCE_LOSS;
             }
-            if (redY <= 0 || redY >= gameArea.offsetHeight - 30) {
-                velocityRedY *= -1; // Reverse velocity on Y-axis
-                redY = Math.max(0, Math.min(gameArea.offsetHeight - 30, redY)); // Keep within bounds
+            
+            if (redY <= 0) {
+                redY = 0;
+                velocityRedY = Math.abs(velocityRedY) * BOUNCE_LOSS;
+            } else if (redY >= gameArea.offsetHeight - 30) {
+                redY = gameArea.offsetHeight - 30;
+                velocityRedY = -Math.abs(velocityRedY) * BOUNCE_LOSS;
             }
 
-            if (blueX <= 0 || blueX >= gameArea.offsetWidth - 30) {
-                velocityBlueX *= -1; // Reverse velocity on X-axis
-                blueX = Math.max(0, Math.min(gameArea.offsetWidth - 30, blueX)); // Keep within bounds
+            if (blueX <= 0) {
+                blueX = 0;
+                velocityBlueX = Math.abs(velocityBlueX) * BOUNCE_LOSS;
+            } else if (blueX >= gameArea.offsetWidth - 30) {
+                blueX = gameArea.offsetWidth - 30;
+                velocityBlueX = -Math.abs(velocityBlueX) * BOUNCE_LOSS;
             }
-            if (blueY <= 0 || blueY >= gameArea.offsetHeight - 30) {
-                velocityBlueY *= -1; // Reverse velocity on Y-axis
-                blueY = Math.max(0, Math.min(gameArea.offsetHeight - 30, blueY)); // Keep within bounds
+            
+            if (blueY <= 0) {
+                blueY = 0;
+                velocityBlueY = Math.abs(velocityBlueY) * BOUNCE_LOSS;
+            } else if (blueY >= gameArea.offsetHeight - 30) {
+                blueY = gameArea.offsetHeight - 30;
+                velocityBlueY = -Math.abs(velocityBlueY) * BOUNCE_LOSS;
             }
 
             // Update ball positions
             updateBallPositions();
             checkWin();
-        }
 
+            // Debug info
+            debug.textContent = `aX: ${accelerationX.toFixed(2)} aY: ${accelerationY.toFixed(2)}`;
+        }
 
         startButton.addEventListener('click', async () => {
             try {
@@ -218,6 +265,7 @@
                     startGame();
                 }
             } catch (error) {
+                console.error(error);
                 alert('Unable to access accelerometer. This game requires a device with an accelerometer.');
             }
         });
