@@ -10,11 +10,10 @@ for folder in FOLDERS:
 
 # List of prizes (one per day)
 PRIZES = [
-    "A Warm Hug from Billy! 🤗",
-    "A High Five! ✋",
-    "A Fist Bump! 👊",
-    "A Secret Handshake! 🤝",
-    # ... add more
+    "undefined",
+    "undefined",
+    "undefined",
+    "Un abrazo",
 ]
 
 def generate_hash(day, seed="billy2024"):
