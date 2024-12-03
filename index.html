@@ -42,7 +42,7 @@
             justify-content: center;
             font-size: 1.5em;
             cursor: pointer;
-            transition: transform 0.3s ease, background-color 0.3s ease;
+            transition: all 0.3s ease;
             text-decoration: none;
             color: white;
             position: relative;
@@ -50,20 +50,47 @@
             border: 2px solid rgba(255, 255, 255, 0.2);
         }
 
-        .day::before {
+        .day.has-game {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 215, 0, 0.5);
+        }
+
+        .day.has-game::before {
+            content: "🎮";
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            font-size: 0.5em;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+
+        .day.has-game:hover::before {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .day.has-game::after {
             content: "";
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" opacity="0.1"><path d="M12 2L9 9H2L7 14L5 21L12 17L19 21L17 14L22 9H15L12 2Z"/></svg>') center/50% no-repeat;
-            opacity: 0.1;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="gold" opacity="0.1"><path d="M12 2L9 9H2L7 14L5 21L12 17L19 21L17 14L22 9H15L12 2Z"/></svg>') center/50% no-repeat;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
-        .day:hover {
-            transform: translateY(-5px);
-            background: rgba(255, 255, 255, 0.2);
+        .day.has-game:hover {
+            transform: translateY(-5px) scale(1.05);
+            background: rgba(255, 215, 0, 0.2);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .day.has-game:hover::after {
+            opacity: 0.2;
         }
 
         .day.locked {
@@ -78,18 +105,13 @@
         .day.today {
             background: rgba(255, 215, 0, 0.3);
             border-color: gold;
+            animation: pulse 2s infinite;
         }
 
-        @media (max-width: 600px) {
-            .calendar {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 10px;
-                padding: 10px;
-            }
-            
-            .day {
-                font-size: 1.2em;
-            }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
 
         .snowflake {
@@ -103,11 +125,19 @@
         }
 
         @keyframes fall {
-            0% {
-                transform: translateY(-100vh) rotate(0deg);
+            0% { transform: translateY(-100vh) rotate(0deg); }
+            100% { transform: translateY(100vh) rotate(360deg); }
+        }
+
+        @media (max-width: 600px) {
+            .calendar {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+                padding: 10px;
             }
-            100% {
-                transform: translateY(100vh) rotate(360deg);
+            
+            .day {
+                font-size: 1.2em;
             }
         }
     </style>
@@ -139,15 +169,20 @@
             const currentDay = currentDate.getDate();
             const currentMonth = currentDate.getMonth();
 
-            // Only show December days
+            // Array of days that have games
+            const daysWithGames = [4]; // Add more days as games are added
+
             for (let day = 4; day <= 24; day++) {
-                const dayElement = document.createElement(day === 4 ? 'a' : 'div');
-                if (day === 4) {
-                    dayElement.href = '/games/game1.html';
-                }
-                dayElement.className = 'day';
+                const hasGame = daysWithGames.includes(day);
+                const dayElement = document.createElement(hasGame ? 'a' : 'div');
                 
-                // Add appropriate classes based on date
+                if (hasGame) {
+                    dayElement.href = `/games/game${day}.html`;
+                    dayElement.classList.add('has-game');
+                }
+                
+                dayElement.className = `day${hasGame ? ' has-game' : ''}`;
+                
                 if (currentMonth === 11 && day < currentDay) {
                     dayElement.classList.add('past');
                 } else if (currentMonth === 11 && day === currentDay) {
