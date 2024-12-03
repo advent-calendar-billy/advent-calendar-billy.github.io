@@ -167,31 +167,20 @@
             if (!isPlaying) return;
 
             // Get acceleration values (adjusted for orientation)
-            let accelerationX = event.accelerationIncludingGravity.y * 0.6; // switched X and Y
-            let accelerationY = event.accelerationIncludingGravity.x * 0.6; // and reversed direction
+            let accelerationX = event.accelerationIncludingGravity.y * 0.2; // Reduce sensitivity further
+            let accelerationY = event.accelerationIncludingGravity.x * 0.2; // Reduce sensitivity further
 
-            // Update velocities with damping
-            velocityRedX = velocityRedX * 0.9 + accelerationX * 0.4; // stronger damping
-            velocityRedY = velocityRedY * 0.9 + accelerationY * 0.4;
-            velocityBlueX = velocityBlueX * 0.9 + accelerationX * 0.4;
-            velocityBlueY = velocityBlueY * 0.9 + accelerationY * 0.4;
+            // Update velocities with stronger damping
+            velocityRedX = velocityRedX * 0.85 + accelerationX * 0.3; // Stronger damping and less acceleration influence
+            velocityRedY = velocityRedY * 0.85 + accelerationY * 0.3;
+            velocityBlueX = velocityBlueX * 0.85 + accelerationX * 0.3;
+            velocityBlueY = velocityBlueY * 0.85 + accelerationY * 0.3;
 
             // Update positions with boundaries
             redX = Math.max(0, Math.min(gameArea.offsetWidth - 30, redX + velocityRedX));
             redY = Math.max(0, Math.min(gameArea.offsetHeight - 30, redY + velocityRedY));
             blueX = Math.max(0, Math.min(gameArea.offsetWidth - 30, blueX + velocityBlueX));
             blueY = Math.max(0, Math.min(gameArea.offsetHeight - 30, blueY + velocityBlueY));
-
-            // Ensure balls are within bounds after movement
-            if (redX < 0) redX = 0;
-            if (redX > gameArea.offsetWidth - 30) redX = gameArea.offsetWidth - 30;
-            if (redY < 0) redY = 0;
-            if (redY > gameArea.offsetHeight - 30) redY = gameArea.offsetHeight - 30;
-
-            if (blueX < 0) blueX = 0;
-            if (blueX > gameArea.offsetWidth - 30) blueX = gameArea.offsetWidth - 30;
-            if (blueY < 0) blueY = 0;
-            if (blueY > gameArea.offsetHeight - 30) blueY = gameArea.offsetHeight - 30;
 
             updateBallPositions();
             checkWin();
