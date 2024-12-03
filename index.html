@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- [Previous head and style sections remain exactly the same] -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -33,19 +32,14 @@
             height: 30px;
             border-radius: 50%;
             position: absolute;
-            transition: transform 0.1s linear;
         }
 
         #redBall {
             background: #ff4444;
-            left: 50px;
-            top: 50px;
         }
 
         #blueBall {
             background: #4444ff;
-            left: 200px;
-            top: 50px;
         }
 
         .target-zone {
@@ -101,7 +95,7 @@
     </div>
     <button id="startButton">Start Game</button>
     <div id="instructions">
-        (1) Tilt your device to guide both balls into their matching colored zones.<br>
+        Tilt your device to guide both balls into their matching colored zones.<br>
         Both balls must be in their zones at the same time to win!
     </div>
 
@@ -137,19 +131,11 @@
             message.textContent = '';
         }
 
-        function constrainPosition(position, max) {
-            return Math.max(0, Math.min(position, max));
-        }
-
         function updateBallPositions() {
-            // Constrain positions to game area boundaries before updating transforms
-            redX = constrainPosition(redX, gameArea.offsetWidth - 30);
-            redY = constrainPosition(redY, gameArea.offsetHeight - 30);
-            blueX = constrainPosition(blueX, gameArea.offsetWidth - 30);
-            blueY = constrainPosition(blueY, gameArea.offsetHeight - 30);
-
-            redBall.style.transform = `translate(${redX}px, ${redY}px)`;
-            blueBall.style.transform = `translate(${blueX}px, ${blueY}px)`;
+            redBall.style.left = `${redX}px`;
+            redBall.style.top = `${redY}px`;
+            blueBall.style.left = `${blueX}px`;
+            blueBall.style.top = `${blueY}px`;
         }
 
         function checkCollision(ballX, ballY, zoneX, zoneY) {
@@ -198,52 +184,48 @@
             velocityBlueX = clampVelocity(velocityBlueX * DAMPING + accelerationX * VELOCITY_SCALE);
             velocityBlueY = clampVelocity(velocityBlueY * DAMPING + accelerationY * VELOCITY_SCALE);
 
-            // Calculate new positions
-            let newRedX = redX + velocityRedX;
-            let newRedY = redY + velocityRedY;
-            let newBlueX = blueX + velocityBlueX;
-            let newBlueY = blueY + velocityBlueY;
+            // Update positions with boundary checking
+            redX = redX + velocityRedX;
+            redY = redY + velocityRedY;
+            blueX = blueX + velocityBlueX;
+            blueY = blueY + velocityBlueY;
 
-            // Handle collisions with walls
-            if (newRedX <= 0) {
-                newRedX = 0;
+            // Constrain positions and handle bounces
+            const maxX = gameArea.offsetWidth - 30;
+            const maxY = gameArea.offsetHeight - 30;
+
+            if (redX < 0) {
+                redX = 0;
                 velocityRedX = Math.abs(velocityRedX) * BOUNCE_LOSS;
-            } else if (newRedX >= gameArea.offsetWidth - 30) {
-                newRedX = gameArea.offsetWidth - 30;
+            } else if (redX > maxX) {
+                redX = maxX;
                 velocityRedX = -Math.abs(velocityRedX) * BOUNCE_LOSS;
             }
-            
-            if (newRedY <= 0) {
-                newRedY = 0;
+
+            if (redY < 0) {
+                redY = 0;
                 velocityRedY = Math.abs(velocityRedY) * BOUNCE_LOSS;
-            } else if (newRedY >= gameArea.offsetHeight - 30) {
-                newRedY = gameArea.offsetHeight - 30;
+            } else if (redY > maxY) {
+                redY = maxY;
                 velocityRedY = -Math.abs(velocityRedY) * BOUNCE_LOSS;
             }
 
-            if (newBlueX <= 0) {
-                newBlueX = 0;
+            if (blueX < 0) {
+                blueX = 0;
                 velocityBlueX = Math.abs(velocityBlueX) * BOUNCE_LOSS;
-            } else if (newBlueX >= gameArea.offsetWidth - 30) {
-                newBlueX = gameArea.offsetWidth - 30;
+            } else if (blueX > maxX) {
+                blueX = maxX;
                 velocityBlueX = -Math.abs(velocityBlueX) * BOUNCE_LOSS;
             }
-            
-            if (newBlueY <= 0) {
-                newBlueY = 0;
+
+            if (blueY < 0) {
+                blueY = 0;
                 velocityBlueY = Math.abs(velocityBlueY) * BOUNCE_LOSS;
-            } else if (newBlueY >= gameArea.offsetHeight - 30) {
-                newBlueY = gameArea.offsetHeight - 30;
+            } else if (blueY > maxY) {
+                blueY = maxY;
                 velocityBlueY = -Math.abs(velocityBlueY) * BOUNCE_LOSS;
             }
 
-            // Update positions after collision checks
-            redX = newRedX;
-            redY = newRedY;
-            blueX = newBlueX;
-            blueY = newBlueY;
-
-            // Update ball positions (this function now includes additional position constraints)
             updateBallPositions();
             checkWin();
         }
