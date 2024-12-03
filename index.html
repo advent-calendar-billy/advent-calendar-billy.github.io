@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+<!-- [Previous head and style sections remain exactly the same] -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -136,7 +137,17 @@
             message.textContent = '';
         }
 
+        function constrainPosition(position, max) {
+            return Math.max(0, Math.min(position, max));
+        }
+
         function updateBallPositions() {
+            // Constrain positions to game area boundaries before updating transforms
+            redX = constrainPosition(redX, gameArea.offsetWidth - 30);
+            redY = constrainPosition(redY, gameArea.offsetHeight - 30);
+            blueX = constrainPosition(blueX, gameArea.offsetWidth - 30);
+            blueY = constrainPosition(blueY, gameArea.offsetHeight - 30);
+
             redBall.style.transform = `translate(${redX}px, ${redY}px)`;
             blueBall.style.transform = `translate(${blueX}px, ${blueY}px)`;
         }
@@ -187,46 +198,52 @@
             velocityBlueX = clampVelocity(velocityBlueX * DAMPING + accelerationX * VELOCITY_SCALE);
             velocityBlueY = clampVelocity(velocityBlueY * DAMPING + accelerationY * VELOCITY_SCALE);
 
-            // Update positions
-            redX += velocityRedX;
-            redY += velocityRedY;
-            blueX += velocityBlueX;
-            blueY += velocityBlueY;
+            // Calculate new positions
+            let newRedX = redX + velocityRedX;
+            let newRedY = redY + velocityRedY;
+            let newBlueX = blueX + velocityBlueX;
+            let newBlueY = blueY + velocityBlueY;
 
-            // Improved bounce physics
-            if (redX <= 0) {
-                redX = 0;
+            // Handle collisions with walls
+            if (newRedX <= 0) {
+                newRedX = 0;
                 velocityRedX = Math.abs(velocityRedX) * BOUNCE_LOSS;
-            } else if (redX >= gameArea.offsetWidth - 30) {
-                redX = gameArea.offsetWidth - 30;
+            } else if (newRedX >= gameArea.offsetWidth - 30) {
+                newRedX = gameArea.offsetWidth - 30;
                 velocityRedX = -Math.abs(velocityRedX) * BOUNCE_LOSS;
             }
             
-            if (redY <= 0) {
-                redY = 0;
+            if (newRedY <= 0) {
+                newRedY = 0;
                 velocityRedY = Math.abs(velocityRedY) * BOUNCE_LOSS;
-            } else if (redY >= gameArea.offsetHeight - 30) {
-                redY = gameArea.offsetHeight - 30;
+            } else if (newRedY >= gameArea.offsetHeight - 30) {
+                newRedY = gameArea.offsetHeight - 30;
                 velocityRedY = -Math.abs(velocityRedY) * BOUNCE_LOSS;
             }
 
-            if (blueX <= 0) {
-                blueX = 0;
+            if (newBlueX <= 0) {
+                newBlueX = 0;
                 velocityBlueX = Math.abs(velocityBlueX) * BOUNCE_LOSS;
-            } else if (blueX >= gameArea.offsetWidth - 30) {
-                blueX = gameArea.offsetWidth - 30;
+            } else if (newBlueX >= gameArea.offsetWidth - 30) {
+                newBlueX = gameArea.offsetWidth - 30;
                 velocityBlueX = -Math.abs(velocityBlueX) * BOUNCE_LOSS;
             }
             
-            if (blueY <= 0) {
-                blueY = 0;
+            if (newBlueY <= 0) {
+                newBlueY = 0;
                 velocityBlueY = Math.abs(velocityBlueY) * BOUNCE_LOSS;
-            } else if (blueY >= gameArea.offsetHeight - 30) {
-                blueY = gameArea.offsetHeight - 30;
+            } else if (newBlueY >= gameArea.offsetHeight - 30) {
+                newBlueY = gameArea.offsetHeight - 30;
                 velocityBlueY = -Math.abs(velocityBlueY) * BOUNCE_LOSS;
             }
 
-            // Update ball positions
+            // Update positions after collision checks
+            redX = newRedX;
+            redY = newRedY;
+            blueX = newBlueX;
+            blueY = newBlueY;
+
+            // Update ball positions (this function now includes additional position constraints)
             updateBallPositions();
             checkWin();
         }
