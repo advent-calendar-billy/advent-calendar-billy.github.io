@@ -10,9 +10,11 @@
             bottom: 0;
             width: 0;
             height: 0;
-            border-left: 10px solid transparent;
-            border-right: 10px solid transparent;
-            border-bottom: 20px solid #ff5555;
+            border-left: 7.5px solid transparent;
+            border-right: 7.5px solid transparent;
+            border-bottom: 20px solid #ff3333;
+            transform-origin: bottom;
+            transform: translateX(-50%); /* Center the spike on its position */
         }
 
         .spikes-container {
@@ -270,55 +272,48 @@
             const container = document.getElementById('spikes');
             container.innerHTML = '';
             
-            // Calculate positions for the spikes, leaving gaps for target zones
-            const spikeWidth = 20; // Width of each spike
-            const spacing = 25;    // Space between spikes
-            const leftZoneEnd = 100;  // End of red zone area
-            const rightZoneStart = 200; // Start of blue zone area
+            // Reduce spacing between spikes for more spikes
+            const spikeWidth = 15; // Make spikes slightly smaller
+            const spacing = 20;    // Reduce spacing between spikes
+            const leftZoneStart = 20;  // Start of red zone
+            const leftZoneEnd = leftZoneStart + 80;  // End of red zone
+            const rightZoneStart = gameArea.offsetWidth - 100; // Start of blue zone
+            const rightZoneEnd = rightZoneStart + 80; // End of blue zone
             
-            // Add spikes to the left of red zone
-            for (let x = 0; x < leftZoneEnd - spikeWidth; x += spacing) {
-                const spike = document.createElement('div');
-                spike.className = 'spike';
-                spike.style.left = `${x}px`;
-                container.appendChild(spike);
-            }
-            
-            // Add spikes between zones
-            for (let x = leftZoneEnd + 80; x < rightZoneStart - spikeWidth; x += spacing) {
-                const spike = document.createElement('div');
-                spike.className = 'spike';
-                spike.style.left = `${x}px`;
-                container.appendChild(spike);
-            }
-            
-            // Add spikes to the right of blue zone
-            for (let x = rightZoneStart + 80; x < gameArea.offsetWidth - spikeWidth; x += spacing) {
+            // Loop through entire width of game area
+            for (let x = 0; x < gameArea.offsetWidth - spikeWidth; x += spacing) {
+                // Skip if inside either target zone
+                if ((x >= leftZoneStart && x <= leftZoneEnd) || 
+                    (x >= rightZoneStart && x <= rightZoneEnd)) {
+                    continue;
+                }
+                
                 const spike = document.createElement('div');
                 spike.className = 'spike';
                 spike.style.left = `${x}px`;
                 container.appendChild(spike);
             }
         }
-
         function checkSpikeCollision(x, y) {
             // Only check if ball is near the bottom
-            if (y < gameArea.offsetHeight - 40) return false;
+            if (y < gameArea.offsetHeight - 45) return false;
             
-            // Don't check if ball is in target zones
-            const redZoneX = 20;
-            const blueZoneX = gameArea.offsetWidth - 100;
-            const zoneWidth = 80;
+            // Define zones where spikes shouldn't affect balls
+            const leftZoneStart = 20;
+            const leftZoneEnd = leftZoneStart + 80;
+            const rightZoneStart = gameArea.offsetWidth - 100;
+            const rightZoneEnd = rightZoneStart + 80;
             
             // Check if ball is in safe zones (target zones)
-            const inRedZone = x + 15 > redZoneX && x + 15 < redZoneX + zoneWidth;
-            const inBlueZone = x + 15 > blueZoneX && x + 15 < blueZoneX + zoneWidth;
+            const ballCenterX = x + 15;
+            const isInRedZone = ballCenterX >= leftZoneStart && ballCenterX <= leftZoneEnd;
+            const isInBlueZone = ballCenterX >= rightZoneStart && ballCenterX <= rightZoneEnd;
             
             // If in a safe zone, no collision
-            if (inRedZone || inBlueZone) return false;
+            if (isInRedZone || isInBlueZone) return false;
             
             // If near bottom and not in safe zone, collision detected
-            return y > gameArea.offsetHeight - 30;
+            return y > gameArea.offsetHeight - 35;
         }
 
         function startCountdown() {
