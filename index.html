@@ -163,14 +163,24 @@
             }, 200);
         }
 
-        function createCalendar() {
+        async function createCalendar() {
             const calendar = document.getElementById('calendar');
             const currentDate = new Date();
             const currentDay = currentDate.getDate();
             const currentMonth = currentDate.getMonth();
 
-            // Array of days that have games
-            const daysWithGames = [4]; // Add more days as games are added
+            // Create an array to store promises for each day check
+            const gameCheckPromises = [];
+            for (let day = 4; day <= 24; day++) {
+                gameCheckPromises.push(checkGameExists(day));
+            }
+
+            // Wait for all checks to complete
+            const gameExistsResults = await Promise.all(gameCheckPromises);
+            const daysWithGames = gameExistsResults.reduce((acc, exists, index) => {
+                if (exists) acc.push(index + 4);
+                return acc;
+            }, []);
 
             for (let day = 4; day <= 24; day++) {
                 const hasGame = daysWithGames.includes(day);
