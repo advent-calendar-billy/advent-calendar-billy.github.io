@@ -109,11 +109,13 @@
         #redZone {
             background: rgba(255, 0, 0, 0.3);
             left: 20px;
+            z-index: 5; /* Lower than .spikes-container */
         }
 
         #blueZone {
             background: rgba(0, 0, 255, 0.3);
             right: 20px;
+            z-index: 5; /* Lower than .spikes-container */
         }
 
         .target-zone.active {
@@ -206,9 +208,7 @@
         <div id="blower"></div>
         <div class="particles-container" id="particles"></div>
         <div id="countdown"></div>
-        <div class="spikes-container" id="spikes">
-            <!-- Spikes will be added here by JavaScript -->
-        </div>
+        <div class="spikes-container" id="spikes"></div>
     </div>
     <button id="startButton">Start Game</button>
     <div id="instructions">
@@ -283,10 +283,10 @@
             // Loop through entire width of game area
             for (let x = 0; x < gameArea.offsetWidth - spikeWidth; x += spacing) {
                 // Skip if inside either target zone
-                if ((x >= leftZoneStart && x <= leftZoneEnd) || 
-                    (x >= rightZoneStart && x <= rightZoneEnd)) {
-                    continue;
-                }
+                // if ((x >= leftZoneStart && x <= leftZoneEnd) || 
+                //     (x >= rightZoneStart && x <= rightZoneEnd)) {
+                //     continue;
+                // }
                 
                 const spike = document.createElement('div');
                 spike.className = 'spike';
