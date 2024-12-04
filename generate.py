@@ -14,6 +14,7 @@ PRIZES = [
     "undefined",
     "undefined",
     "Un abrazo",
+    "Te hago un café",
 ]
 
 def generate_hash(day, seed="billy2024"):
