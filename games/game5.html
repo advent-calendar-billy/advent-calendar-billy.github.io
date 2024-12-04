@@ -5,7 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Two Balls Challenge</title>
     <style>
-        body {
+        .particles-container {
+            position: absolute;
+            top: 30px; /* Right below the blower */
+            width: 60px;
+            height: 100px;
+            pointer-events: none;
+            animation: moveParticles 3s linear infinite;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(200, 200, 255, 0.6);
+            border-radius: 50%;
+            animation: particleFall 1s linear infinite;
+        }
+
+        @keyframes moveParticles {
+            0% { left: 0; }
+            50% { left: calc(100% - 60px); }
+            100% { left: 0; }
+        }
+
+        @keyframes particleFall {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(80px) scale(1.5);
+                opacity: 0;
+            }
+        }        body {
             margin: 0;
             padding: 20px;
             display: flex;
@@ -149,12 +183,13 @@
         <div id="blueZone" class="target-zone"></div>
         <div id="obstacle"></div>
         <div id="blower"></div>
+        <div class="particles-container" id="particles"></div>
         <div id="countdown"></div>
     </div>
     <button id="startButton">Start Game</button>
     <div id="instructions">
         Tilt your device to guide both balls into their matching colored zones.<br>
-        Both balls must be in their zones at the same time for 3 seconds to win! (2)
+        Both balls must be in their zones at the same time for 3 seconds to win! (3)
     </div>
 
     <script>
@@ -182,7 +217,7 @@
         const VELOCITY_SCALE = 0.15;    
         const MAX_VELOCITY = 15;       
         const BOUNCE_LOSS = 0.7;       
-        const AIR_FORCE = 0.3; // Increased from 0.05 to make it more noticeable
+        const AIR_FORCE = 0.5; // Increased from 0.05 to make it more noticeable
 
         function resetGame() {
             redX = 140;
@@ -235,6 +270,25 @@
             blueBall.style.top = `${blueY}px`;
         }
 
+        function createParticles() {
+            const container = document.getElementById('particles');
+            // Clear existing particles
+            container.innerHTML = '';
+            
+            // Create 15 particles
+            for (let i = 0; i < 15; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                // Random starting position within container
+                particle.style.left = `${Math.random() * 100}%`;
+                // Random delay so particles don't all animate together
+                particle.style.animationDelay = `${Math.random()}s`;
+                container.appendChild(particle);
+            }
+        }
+
+        // Call this in your resetGame function or right after the startButton click
+        createParticles();
         function checkCollision(ballX, ballY, zoneX, zoneY) {
             return (
                 ballX + 15 > zoneX && 
@@ -423,6 +477,7 @@
         startButton.addEventListener('click', () => {
             isPlaying = true;
             resetGame();
+            createParticles();  // Add this line here
             startButton.textContent = 'Restart Game';
             window.addEventListener('devicemotion', handleMotion);
         });
