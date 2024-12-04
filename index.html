@@ -183,7 +183,7 @@
                 
                 dayElement.className = `day${hasGame ? ' has-game' : ''}`;
                 
-                if (currentMonth === 11 && day < currentDay) {
+                if (currentMonth === 11 && day <= currentDay) {
                     dayElement.classList.add('past');
                 } else if (currentMonth === 11 && day === currentDay) {
                     dayElement.classList.add('today');
