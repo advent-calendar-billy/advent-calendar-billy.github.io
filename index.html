@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Billy's Advent Calendar 2024 (v2)</title>
+    <title>Billy's Advent Calendar 2024 (v3)</title>
     <style>
         body {
             margin: 0;
@@ -161,6 +161,14 @@
 
                 setTimeout(() => snowflake.remove(), 5000);
             }, 200);
+        }
+        async function checkGameExists(day) {
+            try {
+                const response = await fetch(`/games/game${day}.html`, { method: 'HEAD' });
+                return response.ok;
+            } catch (error) {
+                return false;
+            }
         }
 
         async function createCalendar() {
