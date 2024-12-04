@@ -173,7 +173,7 @@
 
         async function createCalendar() {
             const calendar = document.getElementById('calendar');
-            const currentDate = new Date();
+            const currentDate = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
             const currentDay = currentDate.getDate();
             const currentMonth = currentDate.getMonth();
 
@@ -201,7 +201,7 @@
                 
                 dayElement.className = `day${hasGame ? ' has-game' : ''}`;
                 
-                if (currentMonth === 11 && day <= currentDay) {
+                if (currentMonth === 11 && day < currentDay) {
                     dayElement.classList.add('past');
                 } else if (currentMonth === 11 && day === currentDay) {
                     dayElement.classList.add('today');
