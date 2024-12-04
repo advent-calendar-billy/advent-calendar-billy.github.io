@@ -5,6 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Two Balls Challenge</title>
     <style>
+        .spike {
+            position: absolute;
+            bottom: 0;
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-bottom: 20px solid #ff5555;
+        }
+
+        .spikes-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 20px;
+            display: flex;
+            justify-content: space-evenly;
+            pointer-events: none;
+            z-index: 2;
+        }
         .particles-container {
             position: absolute;
             top: 30px; /* Right below the blower */
@@ -185,6 +206,9 @@
         <div id="blower"></div>
         <div class="particles-container" id="particles"></div>
         <div id="countdown"></div>
+        <div class="spikes-container" id="spikes">
+            <!-- Spikes will be added here by JavaScript -->
+        </div>
     </div>
     <button id="startButton">Start Game</button>
     <div id="instructions">
@@ -226,6 +250,8 @@
             blueY = 50;
             velocityRedX = velocityRedY = velocityBlueX = velocityBlueY = 0;
             updateBallPositions();
+            createSpikes();
+            createParticles();
             message.textContent = '';
             resetCountdown();
             redZone.classList.remove('active');
@@ -241,6 +267,30 @@
             countdown.textContent = '';
             countdown.classList.remove('visible');
         }
+
+        function createSpikes() {
+            const container = document.getElementById('spikes');
+            container.innerHTML = '';
+            // Create 10 evenly spaced spikes, but not where the target zones are
+            for (let i = 0; i < 10; i++) {
+                const spike = document.createElement('div');
+                spike.className = 'spike';
+                container.appendChild(spike);
+            }
+        }
+
+        function checkSpikeCollision(x, y) {
+            // Only check if ball is near the bottom
+            if (y < gameArea.offsetHeight - 40) return false;
+            
+            // Don't check if ball is in target zones
+            const inRedZone = checkCollision(x, y, 20, gameArea.offsetHeight - 100);
+            const inBlueZone = checkCollision(x, y, gameArea.offsetWidth - 100, gameArea.offsetHeight - 100);
+            if (inRedZone || inBlueZone) return false;
+            
+            // Check if ball is touching spikes (near bottom but not in zones)
+            return y > gameArea.offsetHeight - 30;
+        }       
 
         function startCountdown() {
             if (countdownTimer) return;
@@ -469,7 +519,16 @@
                 blueY = maxY;
                 velocityBlueY = -Math.abs(velocityBlueY) * BOUNCE_LOSS;
             }
-
+            // Check spike collisions
+            if (checkSpikeCollision(redX, redY) || checkSpikeCollision(blueX, blueY)) {
+                isPlaying = false;
+                message.textContent = 'Ouch! 😵';
+                setTimeout(() => {
+                    isPlaying = true;
+                    resetGame();
+                }, 1000);
+                return;
+            }
             updateBallPositions();
             checkWin();
         }
@@ -477,7 +536,6 @@
         startButton.addEventListener('click', () => {
             isPlaying = true;
             resetGame();
-            createParticles();  // Add this line here
             startButton.textContent = 'Restart Game';
             window.addEventListener('devicemotion', handleMotion);
         });
