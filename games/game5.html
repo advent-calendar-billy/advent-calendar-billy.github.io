@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Two Balls Challenge</title>
     <style>
-        /* Styles remain mostly unchanged, with some additions */
         body {
             margin: 0;
             padding: 20px;
@@ -177,13 +176,13 @@
         let velocityBlueX = 0, velocityBlueY = 0;
         let countdownTimer = null;
         let countdownValue = 3;
-
+        
         const DAMPING = 0.8;           
         const ACCELERATION_SCALE = 0.1; 
         const VELOCITY_SCALE = 0.15;    
         const MAX_VELOCITY = 15;       
         const BOUNCE_LOSS = 0.7;       
-        const AIR_FORCE = 0.05; // Downward force applied by the blower
+        const AIR_FORCE = 0.3; // Increased from 0.05 to make it more noticeable
 
         function resetGame() {
             redX = 140;
@@ -208,6 +207,34 @@
             countdown.classList.remove('visible');
         }
 
+        function startCountdown() {
+            if (countdownTimer) return;
+            
+            countdownValue = 3;
+            countdown.textContent = countdownValue;
+            countdown.classList.add('visible');
+            
+            countdownTimer = setInterval(() => {
+                countdownValue--;
+                countdown.textContent = countdownValue;
+                
+                if (countdownValue <= 0) {
+                    clearInterval(countdownTimer);
+                    message.textContent = 'You Win! 🎉';
+                    isPlaying = false;
+                    countdown.classList.remove('visible');
+                    showQRCode();
+                }
+            }, 1000);
+        }
+
+        function updateBallPositions() {
+            redBall.style.left = `${redX}px`;
+            redBall.style.top = `${redY}px`;
+            blueBall.style.left = `${blueX}px`;
+            blueBall.style.top = `${blueY}px`;
+        }
+
         function checkCollision(ballX, ballY, zoneX, zoneY) {
             return (
                 ballX + 15 > zoneX && 
@@ -217,7 +244,7 @@
             );
         }
 
-        function checkObstacleCollision(ballX, ballY, velocity) {
+        function checkObstacleCollision(ballX, ballY) {
             const obstacleRect = obstacle.getBoundingClientRect();
             const gameAreaRect = gameArea.getBoundingClientRect();
             const relativeLeft = obstacleRect.left - gameAreaRect.left;
@@ -228,7 +255,6 @@
                 ballY + 30 > relativeTop && 
                 ballY < relativeTop + 120) {
                 
-                // Determine which side was hit and adjust position
                 const fromLeft = ballX + 30 - relativeLeft;
                 const fromRight = relativeLeft + 40 - ballX;
                 const fromTop = ballY + 30 - relativeTop;
@@ -236,7 +262,6 @@
                 
                 const min = Math.min(fromLeft, fromRight, fromTop, fromBottom);
                 
-                // Return adjusted position along with collision info
                 if (min === fromLeft) {
                     return { axis: 'x', bounce: true, adjustedX: relativeLeft - 30 };
                 } else if (min === fromRight) {
@@ -276,7 +301,9 @@
             }
         }
 
-
+        function clampVelocity(velocity) {
+            return Math.max(Math.min(velocity, MAX_VELOCITY), -MAX_VELOCITY);
+        }
 
         function showQRCode() {
             const qrContainer = document.createElement('div');
@@ -290,41 +317,12 @@
             qrContainer.style.boxShadow = '0 0 20px rgba(0,0,0,0.3)';
             qrContainer.style.textAlign = 'center';
             
-            // You can generate this QR code using any online QR code generator
-            // pointing to: https://advent-calendar-billy.github.io/win/game1
             qrContainer.innerHTML = `
                 <img src="/images/04-b637daddec.png" alt="QR Code" style="max-width: 200px">
                 <p style="margin: 10px 0 0; color: black">Scan to claim your prize!</p>
             `;
             
             document.body.appendChild(qrContainer);
-        }
-        
-        function startCountdown() {
-            if (countdownTimer) return;
-            
-            countdownValue = 3;
-            countdown.textContent = countdownValue;
-            countdown.classList.add('visible');
-            
-            countdownTimer = setInterval(() => {
-                countdownValue--;
-                countdown.textContent = countdownValue;
-                
-                if (countdownValue <= 0) {
-                    clearInterval(countdownTimer);
-                    message.textContent = 'You Win! 🎉';
-                    isPlaying = false;
-                    countdown.classList.remove('visible');
-                }
-            }, 1000);
-        }
-
-        function updateBallPositions() {
-            redBall.style.left = `${redX}px`;
-            redBall.style.top = `${redY}px`;
-            blueBall.style.left = `${blueX}px`;
-            blueBall.style.top = `${blueY}px`;
         }
 
         function handleMotion(event) {
@@ -338,17 +336,17 @@
             velocityBlueX = clampVelocity(velocityBlueX * DAMPING + accelerationX * VELOCITY_SCALE);
             velocityBlueY = clampVelocity(velocityBlueY * DAMPING + accelerationY * VELOCITY_SCALE);
 
-            // Apply downward "air" force if within blower range
+            // Apply blower force
             const blowerRect = blower.getBoundingClientRect();
             const gameAreaRect = gameArea.getBoundingClientRect();
             const blowerStartX = blowerRect.left - gameAreaRect.left;
             const blowerEndX = blowerStartX + blower.offsetWidth;
 
-            if (redX + 15 > blowerStartX && redX + 15 < blowerEndX) {
+            if (redX + 15 > blowerStartX && redX + 15 < blowerEndX && redY < 100) {
                 velocityRedY += AIR_FORCE;
             }
 
-            if (blueX + 15 > blowerStartX && blueX + 15 < blowerEndX) {
+            if (blueX + 15 > blowerStartX && blueX + 15 < blowerEndX && blueY < 100) {
                 velocityBlueY += AIR_FORCE;
             }
 
@@ -358,12 +356,68 @@
             blueX += velocityBlueX;
             blueY += velocityBlueY;
 
+            // Check obstacle collisions
+            const redObstacle = checkObstacleCollision(redX, redY);
+            const blueObstacle = checkObstacleCollision(blueX, blueY);
+
+            if (redObstacle.bounce) {
+                if (redObstacle.axis === 'x') {
+                    velocityRedX = -velocityRedX * BOUNCE_LOSS;
+                    redX = redObstacle.adjustedX;
+                } else {
+                    velocityRedY = -velocityRedY * BOUNCE_LOSS;
+                    redY = redObstacle.adjustedY;
+                }
+            }
+
+            if (blueObstacle.bounce) {
+                if (blueObstacle.axis === 'x') {
+                    velocityBlueX = -velocityBlueX * BOUNCE_LOSS;
+                    blueX = blueObstacle.adjustedX;
+                } else {
+                    velocityBlueY = -velocityBlueY * BOUNCE_LOSS;
+                    blueY = blueObstacle.adjustedY;
+                }
+            }
+
+            // Wall collision handling
+            const maxX = gameArea.offsetWidth - 30;
+            const maxY = gameArea.offsetHeight - 30;
+
+            if (redX < 0) {
+                redX = 0;
+                velocityRedX = Math.abs(velocityRedX) * BOUNCE_LOSS;
+            } else if (redX > maxX) {
+                redX = maxX;
+                velocityRedX = -Math.abs(velocityRedX) * BOUNCE_LOSS;
+            }
+
+            if (redY < 0) {
+                redY = 0;
+                velocityRedY = Math.abs(velocityRedY) * BOUNCE_LOSS;
+            } else if (redY > maxY) {
+                redY = maxY;
+                velocityRedY = -Math.abs(velocityRedY) * BOUNCE_LOSS;
+            }
+
+            if (blueX < 0) {
+                blueX = 0;
+                velocityBlueX = Math.abs(velocityBlueX) * BOUNCE_LOSS;
+            } else if (blueX > maxX) {
+                blueX = maxX;
+                velocityBlueX = -Math.abs(velocityBlueX) * BOUNCE_LOSS;
+            }
+
+            if (blueY < 0) {
+                blueY = 0;
+                velocityBlueY = Math.abs(velocityBlueY) * BOUNCE_LOSS;
+            } else if (blueY > maxY) {
+                blueY = maxY;
+                velocityBlueY = -Math.abs(velocityBlueY) * BOUNCE_LOSS;
+            }
+
             updateBallPositions();
             checkWin();
-        }
-
-        function clampVelocity(velocity) {
-            return Math.max(Math.min(velocity, MAX_VELOCITY), -MAX_VELOCITY);
         }
 
         startButton.addEventListener('click', () => {
@@ -372,6 +426,8 @@
             startButton.textContent = 'Restart Game';
             window.addEventListener('devicemotion', handleMotion);
         });
+
+        document.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
     </script>
 </body>
 </html>
