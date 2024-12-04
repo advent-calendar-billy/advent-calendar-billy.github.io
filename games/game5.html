@@ -241,7 +241,7 @@
         const VELOCITY_SCALE = 0.15;    
         const MAX_VELOCITY = 15;       
         const BOUNCE_LOSS = 0.7;       
-        const AIR_FORCE = 0.5; // Increased from 0.05 to make it more noticeable
+        const AIR_FORCE = 0.7; // Increased from 0.05 to make it more noticeable
 
         function resetGame() {
             redX = 140;
@@ -470,11 +470,11 @@
             const blowerStartX = blowerRect.left - gameAreaRect.left;
             const blowerEndX = blowerStartX + blower.offsetWidth;
 
-            if (redX + 15 > blowerStartX && redX + 15 < blowerEndX && redY < 100) {
+            if (redX + 15 > blowerStartX && redX + 15 < blowerEndX && redY < 150) {
                 velocityRedY += AIR_FORCE;
             }
 
-            if (blueX + 15 > blowerStartX && blueX + 15 < blowerEndX && blueY < 100) {
+            if (blueX + 15 > blowerStartX && blueX + 15 < blowerEndX && blueY < 150) {
                 velocityBlueY += AIR_FORCE;
             }
 
