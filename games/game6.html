@@ -79,15 +79,30 @@
             pointer-events: none;
         }
 
-        #message {
+        .header-container {
             position: fixed;
-            top: 20px;
+            width: 100%;
+            top: 0;
             left: 0;
-            right: 0;
+            padding: 20px 0;
+            background: rgba(30, 60, 114, 0.9);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            height: 120px; /* Fixed height for collision detection */
+        }
+
+        .header-container h1 {
+            margin: 0;
+            text-align: center;
+            font-size: 2em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        #message {
             text-align: center;
             font-size: 24px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            z-index: 10;
         }
 
         #startButton {
@@ -121,11 +136,14 @@
     </style>
 </head>
 <body>
-    <div id="message">Click to Start</div>
+    <div class="header-container">
+        <h1>December 2024</h1>
+        <div id="message">Click to Start</div>
+    </div>
     <div id="gameArea">
         <div class="calendar-grid" id="calendar"></div>
     </div>
-    <button id="startButton">Start Game (3)</button>
+    <button id="startButton">Start Game</button>
 
     <script>
         const gameArea = document.getElementById('gameArea');
@@ -138,7 +156,8 @@
         let isPlaying = false;
         const totalDays = 24;
         const baseSpeed = 2;
-        const shrinkRate = 0.9999;
+        const shrinkRate = 0.9997; // Slower shrinking rate
+const minScale = 0.15; // Smaller minimum size before game over
 
         function createSnowflakes() {
             const snowflakes = ['❄', '❅', '❆'];
@@ -219,26 +238,45 @@
         function updateDayPositions() {
             if (!isPlaying) return;
 
+            const headerHeight = document.querySelector('.header-container').offsetHeight;
+            let allTooSmall = true;
+            
             days.forEach(day => {
                 day.x += day.vx;
                 day.y += day.vy;
 
-                if (day.x <= 0 || day.x >= window.innerWidth - 60) {
+                // Calculate actual ball size based on scale
+                const currentBallSize = 60 * day.scale;
+
+                if (day.x <= 0 || day.x >= window.innerWidth - currentBallSize) {
                     day.vx *= -1;
                 }
-                if (day.y <= 0 || day.y >= window.innerHeight - 60) {
+                if (day.y <= headerHeight - currentBallSize/2 || day.y >= window.innerHeight - currentBallSize) {
                     day.vy *= -1;
                 }
 
-                day.x = Math.max(0, Math.min(day.x, window.innerWidth - 60));
-                day.y = Math.max(0, Math.min(day.y, window.innerHeight - 60));
+                day.x = Math.max(0, Math.min(day.x, window.innerWidth - currentBallSize));
+                day.y = Math.max(headerHeight - currentBallSize/2, Math.min(day.y, window.innerHeight - currentBallSize));
 
                 day.scale *= shrinkRate;
+                
+                // Check if any day is still big enough
+                if (day.scale > minScale) {
+                    allTooSmall = false;
+                }
                 
                 day.day.style.left = day.x + 'px';
                 day.day.style.top = day.y + 'px';
                 day.day.style.transform = `scale(${day.scale})`;
             });
+            
+            // If all days are too small, game over
+            if (allTooSmall) {
+                isPlaying = false;
+                message.textContent = 'Days too small! Game Over!';
+                startButton.style.display = 'block';
+                startButton.textContent = 'Try Again';
+            }
 
             requestAnimationFrame(updateDayPositions);
         }
