@@ -15,7 +15,7 @@ PRIZES = [
     "undefined",
     "Un abrazo",
     "Te hago un café",
-    "Agarro el controller de la PS5 y juego yo"
+    "Billy agarra el controller de la PS5 y juega él"
 ]
 
 def generate_hash(day, seed="billy2024"):
