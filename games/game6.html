@@ -132,11 +132,11 @@
 
         .sleigh {
             position: fixed;
-            top: 30%;
             font-size: 48px;
             z-index: 1000;
             display: flex;
             align-items: center;
+            gap: 5px;
             pointer-events: all;
             user-select: none;
             white-space: nowrap;
@@ -144,6 +144,20 @@
 
         .sleigh-animation {
             animation: flyAcross 4s linear;
+        }
+
+        .sled {
+            width: 60px;
+            height: 30px;
+            background-color: #8B4513;
+            border-radius: 8px;
+        }
+
+        .santa {
+            width: 40px;
+            height: 40px;
+            background-color: #ff0000;
+            border-radius: 50%;
         }
 
         @keyframes fall {
@@ -198,10 +212,31 @@
         }
 
         function createSleigh() {
+            const headerHeight = document.querySelector('.header-container').offsetHeight;
+            const maxHeight = window.innerHeight - 100; // Leave some space at bottom
+            const randomY = headerHeight + Math.random() * (maxHeight - headerHeight);
+            
             const sleigh = document.createElement('div');
             sleigh.className = 'sleigh sleigh-animation';
-            sleigh.innerHTML = '🎅🦌🛷';
+            sleigh.style.top = randomY + 'px';
             sleigh.style.pointerEvents = 'all';
+            
+            // Create reindeer (emoji)
+            const reindeer = document.createElement('span');
+            reindeer.textContent = '🦌';
+            
+            // Create sled (red rectangle)
+            const sled = document.createElement('div');
+            sled.className = 'sled';
+            
+            // Create Santa (circle)
+            const santa = document.createElement('div');
+            santa.className = 'santa';
+            
+            sleigh.appendChild(reindeer);
+            sleigh.appendChild(sled);
+            sleigh.appendChild(santa);
+            
             document.body.appendChild(sleigh);
 
             sleigh.addEventListener('animationend', () => {
