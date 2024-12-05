@@ -89,7 +89,8 @@
             display: flex;
             flex-direction: column;
             gap: 20px;
-            height: 120px; /* Fixed height for collision detection */
+            height: 120px;
+            z-index: 2;
         }
 
         .header-container h1 {
@@ -129,9 +130,30 @@
             z-index: 1;
         }
 
+        .sleigh {
+            position: fixed;
+            top: 30%;
+            font-size: 48px;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            pointer-events: all;
+            user-select: none;
+            white-space: nowrap;
+        }
+
+        .sleigh-animation {
+            animation: flyAcross 4s linear;
+        }
+
         @keyframes fall {
             0% { transform: translateY(-100vh) rotate(0deg); }
             100% { transform: translateY(100vh) rotate(360deg); }
+        }
+
+        @keyframes flyAcross {
+            0% { transform: translateX(100vw); }
+            100% { transform: translateX(-200%); }
         }
     </style>
 </head>
@@ -156,8 +178,9 @@
         let isPlaying = false;
         const totalDays = 24;
         const baseSpeed = 2;
-        const shrinkRate = 0.9994; // Slower shrinking rate
-        const minScale = 0.15; // Smaller minimum size before game over
+        const shrinkRate = 0.9994;
+        const minScale = 0.15;
+        let sleighInterval;
 
         function createSnowflakes() {
             const snowflakes = ['❄', '❅', '❆'];
@@ -174,6 +197,24 @@
             }, 200);
         }
 
+        function createSleigh() {
+            const sleigh = document.createElement('div');
+            sleigh.className = 'sleigh sleigh-animation';
+            sleigh.innerHTML = '🎅🦌🛷';
+            sleigh.style.pointerEvents = 'all';
+            document.body.appendChild(sleigh);
+
+            sleigh.addEventListener('animationend', () => {
+                sleigh.remove();
+            });
+        }
+
+        function checkSleighAppearance() {
+            if (Math.random() < 0.1) { // 1/10 probability
+                createSleigh();
+            }
+        }
+
         function createDay(number, container) {
             const dayContainer = document.createElement('div');
             dayContainer.className = 'day-container';
@@ -186,14 +227,12 @@
             day.textContent = number;
             day.dataset.number = number;
 
-            // Center the circle in the box
             const updateDayPosition = () => {
                 const rect = dayContainer.getBoundingClientRect();
                 day.style.left = (rect.width - 60) / 2 + 'px';
                 day.style.top = (rect.height - 60) / 2 + 'px';
             };
 
-            // Initial positioning
             setTimeout(updateDayPosition, 0);
             window.addEventListener('resize', updateDayPosition);
 
@@ -206,32 +245,26 @@
 
         function startFlying() {
             days.forEach(day => {
-                // Get the initial position
                 const rect = day.day.getBoundingClientRect();
                 const gameAreaRect = gameArea.getBoundingClientRect();
 
-                // Fade out the boxes
                 day.dayBox.style.opacity = '0';
                 day.dayContainer.style.opacity = '0';
 
-                // Position the circle absolutely in the game area
                 day.day.style.position = 'absolute';
                 day.day.style.left = (rect.left - gameAreaRect.left) + 'px';
                 day.day.style.top = (rect.top - gameAreaRect.top) + 'px';
                 gameArea.appendChild(day.day);
 
-                // Add velocity properties
                 day.x = rect.left - gameAreaRect.left;
                 day.y = rect.top - gameAreaRect.top;
                 day.vx = (Math.random() - 0.5) * baseSpeed;
                 day.vy = (Math.random() - 0.5) * baseSpeed;
                 day.scale = 1;
 
-                // Remove the container after transition
                 setTimeout(() => day.dayContainer.remove(), 1000);
             });
 
-            // Start the animation
             updateDayPositions();
         }
 
@@ -245,7 +278,6 @@
                 day.x += day.vx;
                 day.y += day.vy;
 
-                // Calculate actual ball size based on scale
                 const currentBallSize = 60 * day.scale;
 
                 if (day.x <= 0 || day.x >= window.innerWidth - currentBallSize) {
@@ -260,7 +292,6 @@
 
                 day.scale *= shrinkRate;
                 
-                // Check if any day is still big enough
                 if (day.scale > minScale) {
                     allTooSmall = false;
                 }
@@ -270,12 +301,14 @@
                 day.day.style.transform = `scale(${day.scale})`;
             });
             
-            // If all days are too small, game over
             if (allTooSmall) {
                 isPlaying = false;
                 message.textContent = 'Days too small! Game Over!';
                 startButton.style.display = 'block';
                 startButton.textContent = 'Try Again';
+                if (sleighInterval) {
+                    clearInterval(sleighInterval);
+                }
             }
 
             requestAnimationFrame(updateDayPositions);
@@ -314,27 +347,34 @@
                     isPlaying = false;
                     message.textContent = 'You Win! 🎉';
                     showQRCode();
+                    if (sleighInterval) {
+                        clearInterval(sleighInterval);
+                    }
                 }
             } else {
                 isPlaying = false;
                 message.textContent = 'Wrong Day! Game Over!';
                 startButton.style.display = 'block';
                 startButton.textContent = 'Try Again';
+                if (sleighInterval) {
+                    clearInterval(sleighInterval);
+                }
             }
         }
 
         function resetGame() {
-            // Clear all existing days from the game area
+            if (sleighInterval) {
+                clearInterval(sleighInterval);
+            }
+            
             gameArea.innerHTML = '';
             
-            // Recreate the calendar container
             const newCalendar = document.createElement('div');
             newCalendar.className = 'calendar-grid';
             newCalendar.id = 'calendar';
             gameArea.appendChild(newCalendar);
             calendar = document.getElementById('calendar');
             
-            // Remove any existing QR code
             const existingQR = document.querySelector('.qr-container');
             if (existingQR) {
                 existingQR.remove();
@@ -347,7 +387,6 @@
             currentDay = 6;
             isPlaying = true;
             
-            // Create calendar layout
             for (let i = 6; i <= totalDays; i++) {
                 const dayElements = createDay(i, calendar);
                 dayElements.day.addEventListener('click', handleDayClick);
@@ -357,14 +396,14 @@
             startButton.style.display = 'none';
             message.textContent = 'Tap the days in order!';
             
-            // Start flying after a brief delay
+            sleighInterval = setInterval(checkSleighAppearance, 1000);
+            
             setTimeout(startFlying, 2000);
         }
 
         startButton.addEventListener('click', startGame);
         createSnowflakes();
 
-        // Prevent default touch behaviors
         document.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
     </script>
 </body>
