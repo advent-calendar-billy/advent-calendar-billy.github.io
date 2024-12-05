@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Flying Advent Calendar</title>
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        #gameArea {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            padding: 20px;
+            max-width: 800px;
+            width: calc(100% - 40px);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .day-container {
+            aspect-ratio: 1;
+            position: relative;
+            transition: opacity 1s;
+        }
+
+        .day-box {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 215, 0, 0.5);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            transition: opacity 1s;
+        }
+
+        .day {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            color: white;
+            cursor: pointer;
+            touch-action: none;
+            user-select: none;
+            transition: transform 0.5s ease-out;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .day.completed {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        #message {
+            position: fixed;
+            top: 20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 24px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            z-index: 10;
+        }
+
+        #startButton {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 15px 30px;
+            font-size: 20px;
+            background: rgba(255, 215, 0, 0.3);
+            border: 2px solid gold;
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .snowflake {
+            position: fixed;
+            color: white;
+            font-size: 1em;
+            pointer-events: none;
+            animation: fall linear infinite;
+            z-index: 1;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-100vh) rotate(0deg); }
+            100% { transform: translateY(100vh) rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div id="message">Click to Start</div>
+    <div id="gameArea">
+        <div class="calendar-grid" id="calendar"></div>
+    </div>
+    <button id="startButton">Start Game</button>
+
+    <script>
+        const gameArea = document.getElementById('gameArea');
+        let calendar = document.getElementById('calendar');
+        const message = document.getElementById('message');
+        const startButton = document.getElementById('startButton');
+        
+        let days = [];
+        let currentDay = 6;
+        let isPlaying = false;
+        const totalDays = 24;
+        const baseSpeed = 2;
+        const shrinkRate = 0.9999;
+
+        function createSnowflakes() {
+            const snowflakes = ['❄', '❅', '❆'];
+            
+            setInterval(() => {
+                const snowflake = document.createElement('div');
+                snowflake.className = 'snowflake';
+                snowflake.textContent = snowflakes[Math.floor(Math.random() * snowflakes.length)];
+                snowflake.style.left = Math.random() * 100 + 'vw';
+                snowflake.style.animationDuration = Math.random() * 3 + 2 + 's';
+                document.body.appendChild(snowflake);
+
+                setTimeout(() => snowflake.remove(), 5000);
+            }, 200);
+        }
+
+        function createDay(number, container) {
+            const dayContainer = document.createElement('div');
+            dayContainer.className = 'day-container';
+
+            const dayBox = document.createElement('div');
+            dayBox.className = 'day-box';
+
+            const day = document.createElement('div');
+            day.className = 'day';
+            day.textContent = number;
+            day.dataset.number = number;
+
+            // Center the circle in the box
+            const updateDayPosition = () => {
+                const rect = dayContainer.getBoundingClientRect();
+                day.style.left = (rect.width - 60) / 2 + 'px';
+                day.style.top = (rect.height - 60) / 2 + 'px';
+            };
+
+            // Initial positioning
+            setTimeout(updateDayPosition, 0);
+            window.addEventListener('resize', updateDayPosition);
+
+            dayContainer.appendChild(dayBox);
+            dayContainer.appendChild(day);
+            container.appendChild(dayContainer);
+
+            return { dayContainer, dayBox, day };
+        }
+
+        function startFlying() {
+            days.forEach(day => {
+                // Get the initial position
+                const rect = day.day.getBoundingClientRect();
+                const gameAreaRect = gameArea.getBoundingClientRect();
+
+                // Fade out the boxes
+                day.dayBox.style.opacity = '0';
+                day.dayContainer.style.opacity = '0';
+
+                // Position the circle absolutely in the game area
+                day.day.style.position = 'absolute';
+                day.day.style.left = (rect.left - gameAreaRect.left) + 'px';
+                day.day.style.top = (rect.top - gameAreaRect.top) + 'px';
+                gameArea.appendChild(day.day);
+
+                // Add velocity properties
+                day.x = rect.left - gameAreaRect.left;
+                day.y = rect.top - gameAreaRect.top;
+                day.vx = (Math.random() - 0.5) * baseSpeed;
+                day.vy = (Math.random() - 0.5) * baseSpeed;
+                day.scale = 1;
+
+                // Remove the container after transition
+                setTimeout(() => day.dayContainer.remove(), 1000);
+            });
+
+            // Start the animation
+            updateDayPositions();
+        }
+
+        function updateDayPositions() {
+            if (!isPlaying) return;
+
+            days.forEach(day => {
+                day.x += day.vx;
+                day.y += day.vy;
+
+                if (day.x <= 0 || day.x >= window.innerWidth - 60) {
+                    day.vx *= -1;
+                }
+                if (day.y <= 0 || day.y >= window.innerHeight - 60) {
+                    day.vy *= -1;
+                }
+
+                day.x = Math.max(0, Math.min(day.x, window.innerWidth - 60));
+                day.y = Math.max(0, Math.min(day.y, window.innerHeight - 60));
+
+                day.scale *= shrinkRate;
+                
+                day.day.style.left = day.x + 'px';
+                day.day.style.top = day.y + 'px';
+                day.day.style.transform = `scale(${day.scale})`;
+            });
+
+            requestAnimationFrame(updateDayPositions);
+        }
+
+        function showQRCode() {
+            const qrContainer = document.createElement('div');
+            qrContainer.style.position = 'fixed';
+            qrContainer.style.top = '50%';
+            qrContainer.style.left = '50%';
+            qrContainer.style.transform = 'translate(-50%, -50%)';
+            qrContainer.style.background = 'white';
+            qrContainer.style.padding = '20px';
+            qrContainer.style.borderRadius = '10px';
+            qrContainer.style.boxShadow = '0 0 20px rgba(0,0,0,0.3)';
+            qrContainer.style.textAlign = 'center';
+            qrContainer.style.zIndex = '100';
+            
+            qrContainer.innerHTML = `
+                <img src="/images/06-5d8e5dc2ea.png" alt="QR Code" style="max-width: 200px">
+                <p style="margin: 10px 0 0; color: black">Scan to claim your prize!</p>
+            `;
+            
+            document.body.appendChild(qrContainer);
+        }
+
+        function handleDayClick(event) {
+            if (!isPlaying) return;
+            
+            const clickedDay = parseInt(event.target.dataset.number);
+            if (clickedDay === currentDay) {
+                event.target.classList.add('completed');
+                currentDay++;
+                
+                if (currentDay > totalDays) {
+                    isPlaying = false;
+                    message.textContent = 'You Win! 🎉';
+                    showQRCode();
+                }
+            } else {
+                isPlaying = false;
+                message.textContent = 'Wrong Day! Game Over!';
+                startButton.style.display = 'block';
+                startButton.textContent = 'Try Again';
+            }
+        }
+
+        function resetGame() {
+            // Clear all existing days from the game area
+            gameArea.innerHTML = '';
+            
+            // Recreate the calendar container
+            const newCalendar = document.createElement('div');
+            newCalendar.className = 'calendar-grid';
+            newCalendar.id = 'calendar';
+            gameArea.appendChild(newCalendar);
+            calendar = document.getElementById('calendar');
+            
+            // Remove any existing QR code
+            const existingQR = document.querySelector('.qr-container');
+            if (existingQR) {
+                existingQR.remove();
+            }
+        }
+
+        function startGame() {
+            resetGame();
+            days = [];
+            currentDay = 6;
+            isPlaying = true;
+            
+            // Create calendar layout
+            for (let i = 6; i <= totalDays; i++) {
+                const dayElements = createDay(i, calendar);
+                dayElements.day.addEventListener('click', handleDayClick);
+                days.push(dayElements);
+            }
+            
+            startButton.style.display = 'none';
+            message.textContent = 'Tap the days in order!';
+            
+            // Start flying after a brief delay
+            setTimeout(startFlying, 2000);
+        }
+
+        startButton.addEventListener('click', startGame);
+        createSnowflakes();
+
+        // Prevent default touch behaviors
+        document.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
+        document.addEventListener('touchstart', (e) => e.preventDefault(), { passive: false });
+    </script>
+</body>
+</html>
