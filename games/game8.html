@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>City Guessing Game v2</title>
+    <title>City Guessing Game v3</title>
     <style>
         body {
             margin: 0;
@@ -109,6 +109,17 @@
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
 
+        #timer {
+            position: fixed;
+            top: 140px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 36px;
+            color: #FFD700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            z-index: 3;
+        }
+
         #startButton {
             position: fixed;
             top: 50%;
@@ -129,8 +140,8 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            max-width: 90%;
-            max-height: 60vh;
+            width: auto;
+            height: 70vh;
             border-radius: 10px;
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
             z-index: 5;
@@ -150,13 +161,25 @@
             0% { transform: translateY(-100vh) rotate(0deg); }
             100% { transform: translateY(100vh) rotate(360deg); }
         }
+
+        #score {
+            position: fixed;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 20px;
+            color: #FFD700;
+            z-index: 3;
+        }
     </style>
 </head>
 <body>
     <div class="header-container">
-        <h1>Guess The Cities! v2</h1>
+        <h1>Guess The Cities! v3</h1>
         <div id="message">Click to Start</div>
     </div>
+    <div id="score">Score: 0/3</div>
+    <div id="timer"></div>
     <img id="cityImage" class="city-image" src="" alt="Mystery City">
     <div id="gameArea">
         <div class="city-grid" id="cityGrid"></div>
@@ -169,22 +192,53 @@
         const message = document.getElementById('message');
         const startButton = document.getElementById('startButton');
         const cityImage = document.getElementById('cityImage');
+        const timerElement = document.getElementById('timer');
+        const scoreElement = document.getElementById('score');
         
-        // Using three fixed cities for demo
-        const availableCities = ["Amsterdam", "Athens", "Auckland"];
+        const availableCities = [
+            "Amsterdam", "Athens", "Auckland", "Bangalore", "Bangkok", "Barcelona",
+            "Beijing", "Berlin", "Buenos Aires", "Cairo", "Cape Town", "Chicago",
+            "Copenhagen", "Delhi", "Dubai", "Ho Chi Minh City", "Hong Kong", "Istanbul",
+            "Kyoto", "Lima", "London", "Marrakech", "Melbourne", "Mexico City",
+            "Mumbai", "Nairobi", "New York", "Osaka", "Paris", "Prague",
+            "Rio de Janeiro", "Rome", "San Francisco", "Santiago", "São Paulo",
+            "Seoul", "Shanghai", "Singapore", "Stockholm", "Sydney",
+            "Tokyo", "Toronto", "Vancouver", "Vienna"
+        ];
 
         let currentCities = [];
         let currentCityIndex = 0;
         let isPlaying = false;
-        const baseSpeed = 2;
+        const baseSpeed = 4; // Increased speed
         const shrinkRate = 0.9995;
         const minScale = 0.15;
+        let timer = null;
+        let timeLeft = 5;
+        let score = 0;
+
+        function updateTimer() {
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                gameOver('Time\'s up! Game Over!');
+                return;
+            }
+            timerElement.textContent = timeLeft;
+            timeLeft--;
+        }
+
+        function startTimer() {
+            clearInterval(timer);
+            timeLeft = 5;
+            timerElement.textContent = timeLeft;
+            timer = setInterval(updateTimer, 1000);
+        }
 
         function showCityImage(show = true) {
             cityImage.style.display = show ? 'block' : 'none';
             if (show && currentCityIndex < currentCities.length) {
                 const cityName = currentCities[currentCityIndex].name;
                 cityImage.src = `/games/game8/cities/${encodeURIComponent(cityName)}/image_1.jpg`;
+                startTimer();
             }
         }
 
@@ -233,7 +287,6 @@
 
         function startFlying() {
             showCityImage(true);
-            // Transform city objects into moving elements
             currentCities.forEach(cityObj => {
                 const cityName = cityObj.name;
                 const cityElement = cityObj.element;
@@ -242,7 +295,6 @@
                 const rect = cityElement.getBoundingClientRect();
                 const gameAreaRect = gameArea.getBoundingClientRect();
 
-                // Hide original container
                 cityContainer.style.opacity = '0';
 
                 cityElement.style.position = 'absolute';
@@ -250,14 +302,12 @@
                 cityElement.style.top = (rect.top - gameAreaRect.top) + 'px';
                 gameArea.appendChild(cityElement);
 
-                // Assign movement properties
                 cityObj.x = rect.left - gameAreaRect.left;
                 cityObj.y = rect.top - gameAreaRect.top;
                 cityObj.vx = (Math.random() - 0.5) * baseSpeed;
                 cityObj.vy = (Math.random() - 0.5) * baseSpeed;
                 cityObj.scale = 1;
 
-                // Remove original container after transition
                 setTimeout(() => cityContainer.remove(), 1000);
             });
 
@@ -335,6 +385,10 @@
             startButton.style.display = 'block';
             startButton.textContent = 'Try Again';
             showCityImage(false);
+            clearInterval(timer);
+            timerElement.textContent = '';
+            score = 0;
+            scoreElement.textContent = `Score: ${score}/3`;
         }
 
         function handleCityClick(event) {
@@ -346,16 +400,20 @@
             
             if (clickedCity === currentCityName) {
                 clickedCityElement.classList.add('completed');
-                currentCityIndex++;
+                score++;
+                scoreElement.textContent = `Score: ${score}/3`;
                 
-                if (currentCityIndex >= currentCities.length) {
+                if (score >= 3) {
                     isPlaying = false;
                     message.textContent = 'You Win! 🎉';
                     showQRCode();
                     showCityImage(false);
+                    clearInterval(timer);
+                    timerElement.textContent = '';
                 } else {
-                    showCityImage(true);
+                    startGame(); // Start new round with new cities
                 }
+
             } else {
                 gameOver('Wrong City! Game Over!');
             }
@@ -386,13 +444,18 @@
             });
         }
 
+        function getRandomCities(count) {
+            const shuffled = availableCities.sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, count);
+        }
+
         function startGame() {
             resetGame();
             message.textContent = 'Preparing game...';
             startButton.style.display = 'none';
             
-            // Just pick the three predefined cities
-            const selectedCities = availableCities;
+            // Select 3 random cities
+            const selectedCities = getRandomCities(3);
             currentCities = selectedCities.map(name => ({ name }));
 
             // Create city elements
