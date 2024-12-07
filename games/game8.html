@@ -172,7 +172,6 @@
         
         async function loadAvailableCities() {
             const allCities = [
-                // Original list of all possible cities
                 "Paris", "London", "Berlin", "Rome", "Barcelona", "Amsterdam", "Prague", 
                 "Vienna", "Istanbul", "Stockholm", "Copenhagen", "Athens",
                 "Tokyo", "Kyoto", "Osaka", "Seoul", "Beijing", "Shanghai", "Hong Kong", 
@@ -187,16 +186,18 @@
             
             for (const city of allCities) {
                 try {
-                    // Try to load image_1.jpg for each city
+                    // Updated path to match your folder structure
                     const response = await fetch(`/games/game8/cities/${city}/image_1.jpg`);
                     if (response.ok) {
                         validCities.push(city);
+                        console.log(`Added ${city} to valid cities`); // Debug line
                     }
                 } catch (error) {
                     console.log(`Skipping ${city} - no images found`);
                 }
             }
             
+            console.log('Valid cities:', validCities); // Debug line
             return validCities;
         }
 
@@ -209,9 +210,9 @@
 
         function showCityImage(show = true) {
             cityImage.style.display = show ? 'block' : 'none';
-            if (show) {
-                // Set the source to a random city image from your collection
-                cityImage.src = `/cities/${currentCities[currentCityIndex]}/image_1.jpg`;
+            if (show && currentCityIndex < currentCities.length) {
+                // Updated path to match your folder structure
+                cityImage.src = `/games/game8/cities/${currentCities[currentCityIndex]}/image_1.jpg`;
             }
         }
 
@@ -260,8 +261,13 @@
 
         function startFlying() {
             showCityImage(true);
-            currentCities.forEach(city => {
-                const cityElement = document.querySelector(`[data-name="${city}"]`);
+            currentCities.forEach(cityName => {
+                const cityElement = document.querySelector(`[data-name="${cityName}"]`);
+                if (!cityElement) {
+                    console.error(`Could not find element for city: ${cityName}`);
+                    return;
+                }
+                
                 const cityBox = cityElement.parentElement.querySelector('.city-box');
                 const cityContainer = cityElement.parentElement;
                 
@@ -276,16 +282,24 @@
                 cityElement.style.top = (rect.top - gameAreaRect.top) + 'px';
                 gameArea.appendChild(cityElement);
 
-                city.element = cityElement;
-                city.x = rect.left - gameAreaRect.left;
-                city.y = rect.top - gameAreaRect.top;
-                city.vx = (Math.random() - 0.5) * baseSpeed;
-                city.vy = (Math.random() - 0.5) * baseSpeed;
-                city.scale = 1;
+                // Store the element and its properties
+                const city = {
+                    element: cityElement,
+                    x: rect.left - gameAreaRect.left,
+                    y: rect.top - gameAreaRect.top,
+                    vx: (Math.random() - 0.5) * baseSpeed,
+                    vy: (Math.random() - 0.5) * baseSpeed,
+                    scale: 1
+                };
+
+                // Store the city object in currentCities at the same index
+                const index = currentCities.indexOf(cityName);
+                currentCities[index] = city;
 
                 setTimeout(() => cityContainer.remove(), 1000);
             });
 
+            isPlaying = true;
             updateCityPositions();
         }
 
@@ -296,6 +310,8 @@
             let allTooSmall = true;
             
             currentCities.forEach(city => {
+                if (!city.element) return;
+
                 city.x += city.vx;
                 city.y += city.vy;
 
@@ -332,6 +348,7 @@
 
         function showQRCode() {
             const qrContainer = document.createElement('div');
+            qrContainer.className = 'qr-container';
             qrContainer.style.position = 'fixed';
             qrContainer.style.top = '50%';
             qrContainer.style.left = '50%';
@@ -362,9 +379,12 @@
         function handleCityClick(event) {
             if (!isPlaying) return;
             
-            const clickedCity = event.target.dataset.name;
-            if (clickedCity === currentCities[currentCityIndex]) {
-                event.target.classList.add('completed');
+            const clickedCityElement = event.target;
+            const clickedCity = clickedCityElement.dataset.name;
+            const currentCity = currentCities[currentCityIndex].element.dataset.name;
+            
+            if (clickedCity === currentCity) {
+                clickedCityElement.classList.add('completed');
                 currentCityIndex++;
                 
                 if (currentCityIndex >= currentCities.length) {
@@ -387,42 +407,4 @@
             newCityGrid.className = 'city-grid';
             newCityGrid.id = 'cityGrid';
             gameArea.appendChild(newCityGrid);
-            cityGrid = document.getElementById('cityGrid');
-            
-            const existingQR = document.querySelector('.qr-container');
-            if (existingQR) {
-                existingQR.remove();
-            }
-        }
-
-        async function startGame() {
-            resetGame();
-            const availableCities = await loadAvailableCities();
-            if (availableCities.length < 8) {
-                message.textContent = 'Not enough cities with images available!';
-                return;
-            }
-            currentCities = [...availableCities]
-                .sort(() => Math.random() - 0.5)
-                .slice(0, 8);
-            currentCityIndex = 0;
-            isPlaying = true;
-            
-            currentCities.forEach(city => {
-                const cityElements = createCity(city, cityGrid);
-                cityElements.city.addEventListener('click', handleCityClick);
-            });
-            
-            startButton.style.display = 'none';
-            message.textContent = 'Match the city to the image!';
-            
-            setTimeout(startFlying, 2000);
-        }
-
-        startButton.addEventListener('click', startGame);
-        createSnowflakes();
-
-        document.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
-    </script>
-</body>
-</html>
+            cityGrid = document.getElementById('cityGri
