@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LLM Secret Key Game</title>
     <style>
-        /* Previous styles remain the same */
         body {
             margin: 0;
             min-height: 100vh;
@@ -129,7 +128,7 @@
             padding: 15px;
             border-radius: 10px;
             margin-bottom: 20px;
-            display: none
+            display: none;
         }
 
         .win-overlay {
@@ -197,7 +196,7 @@
         <div class="win-container">
             <h2>Congratulations!</h2>
             <p>You've beaten level <span id="wonLevel">1</span>!</p>
-            <img src="/images/07-7537f6f567.png" alt="QR Code" id="qrCode">
+            <img src="/api/placeholder/200/200" alt="QR Code" id="qrCode">
             <p>Scan to claim your prize!</p>
             <button onclick="nextLevel()" id="nextLevelBtn">Next Level</button>
         </div>
@@ -319,13 +318,13 @@
             return data.choices[0]?.message?.content || "No response received";
         }
 
-        function checkForWin(userMessage) {
-            if (!winDetected && userMessage.toLowerCase().includes(levels[currentLevel].secretKey.toLowerCase())) {
+        function checkForWin(aiResponse) {
+            if (!winDetected && aiResponse.toLowerCase().includes(levels[currentLevel].secretKey.toLowerCase())) {
                 winDetected = true;
                 // Delay the win screen to allow reading the response
                 winTimeout = setTimeout(() => {
                     showWinScreen();
-                }, 2000);
+                }, 3000); // 3 second delay
                 return true;
             }
             return false;
@@ -356,7 +355,8 @@
                 
                 apiKeyError.textContent = '';
                 
-                checkForWin(message);
+                // Check AI's response for the secret key
+                checkForWin(response);
 
                 if (!winDetected && attempts >= maxAttempts) {
                     alert('Game Over! You\'ve used all your attempts. Try again!');
