@@ -19,7 +19,7 @@
                 <input type="password" id="apiKey" class="w-full p-2 border rounded" placeholder="Enter your Groq API key">
             </div>
             <p class="text-sm text-gray-600">
-                ⚠️ Note: This is just for demo purposes2. In a production environment, never expose your API key in the frontend.
+                ⚠️ Note: This is just for demo purposes. In a production environment, never expose your API key in the frontend.
             </p>
         </div>
 
@@ -41,7 +41,7 @@
 
     <script>
         async function makeGroqRequest(apiKey, prompt) {
-            const response = await fetch('https://api.groq.com/v1/chat/completions', {
+            const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${apiKey}`,
