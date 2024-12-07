@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LLM Secret Key Game</title>
+    <title>LLM Secret Key Game v2</title>
     <style>
         body {
             margin: 0;
@@ -168,7 +168,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>LLM Secret Key Game</h1>
+        <h1>LLM Secret Key Game 2</h1>
 
         <div class="api-key-container">
             <label for="apiKey">API Key:</label>
@@ -196,8 +196,10 @@
         <div class="win-container">
             <h2>Congratulations!</h2>
             <p>You've beaten level <span id="wonLevel">1</span>!</p>
-            <img src="/api/placeholder/200/200" alt="QR Code" id="qrCode">
-            <p>Scan to claim your prize!</p>
+            <div id="qrSection" style="display: none;">
+                <img src="/images/07-7537f6f567.png" alt="QR Code" id="qrCode">
+                <p>Scan to claim your prize!</p>
+            </div>
             <button onclick="nextLevel()" id="nextLevelBtn">Next Level</button>
         </div>
     </div>
@@ -255,11 +257,39 @@
         }
 
         function showWinScreen() {
-            document.getElementById('wonLevel').textContent = currentLevel + 1;
+            const level = currentLevel + 1;
+            document.getElementById('wonLevel').textContent = level;
             document.getElementById('winOverlay').style.display = 'flex';
+            
+            // Show QR section only after completing level 3
+            const qrSection = document.getElementById('qrSection');
+            qrSection.style.display = level === 3 ? 'block' : 'none';
+            
             if (currentLevel >= levels.length - 1) {
                 document.getElementById('nextLevelBtn').textContent = 'Start Over';
+                showQRCode(); // Show the floating QR code after level 3
             }
+        }
+
+        function showQRCode() {
+            const qrContainer = document.createElement('div');
+            qrContainer.style.position = 'fixed';
+            qrContainer.style.top = '50%';
+            qrContainer.style.left = '50%';
+            qrContainer.style.transform = 'translate(-50%, -50%)';
+            qrContainer.style.background = 'white';
+            qrContainer.style.padding = '20px';
+            qrContainer.style.borderRadius = '10px';
+            qrContainer.style.boxShadow = '0 0 20px rgba(0,0,0,0.3)';
+            qrContainer.style.textAlign = 'center';
+            qrContainer.style.zIndex = '100';
+            
+            qrContainer.innerHTML = `
+                <img src="/images/07-7537f6f567.png" alt="QR Code" style="max-width: 200px">
+                <p style="margin: 10px 0 0; color: black">Scan to claim your prize!</p>
+            `;
+            
+            document.body.appendChild(qrContainer);
         }
 
         function nextLevel() {
