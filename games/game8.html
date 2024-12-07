@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>City Guessing Game</title>
+    <title>City Guessing Game v2</title>
     <style>
         body {
             margin: 0;
@@ -27,7 +27,7 @@
 
         .city-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 15px;
             padding: 20px;
             max-width: 800px;
@@ -170,38 +170,8 @@
         const startButton = document.getElementById('startButton');
         const cityImage = document.getElementById('cityImage');
         
-        async function loadAvailableCities() {
-            const allCities = [
-                "Paris", "London", "Berlin", "Rome", "Barcelona", "Amsterdam", "Prague", 
-                "Vienna", "Istanbul", "Stockholm", "Copenhagen", "Athens",
-                "Tokyo", "Kyoto", "Osaka", "Seoul", "Beijing", "Shanghai", "Hong Kong", 
-                "Singapore", "Bangkok", "Dubai", "Mumbai", "Bangalore", "Delhi",
-                "Ho Chi Minh City", "New York", "San Francisco", "Chicago", "Toronto",
-                "Vancouver", "Mexico City", "Buenos Aires", "Rio de Janeiro", "São Paulo",
-                "Lima", "Santiago", "Sydney", "Melbourne", "Auckland", "Cairo", 
-                "Cape Town", "Marrakech", "Nairobi"
-            ];
-
-            allCities = ["Paris", "Berlin"];
-            
-            const validCities = [];
-            
-            for (const city of allCities) {
-                try {
-                    // Updated path to match your folder structure
-                    const response = await fetch(`/games/game8/cities/${city}/image_1.jpg`);
-                    if (response.ok) {
-                        validCities.push(city);
-                        console.log(`Added ${city} to valid cities`); // Debug line
-                    }
-                } catch (error) {
-                    console.log(`Skipping ${city} - no images found`);
-                }
-            }
-            
-            console.log('Valid cities:', validCities); // Debug line
-            return validCities;
-        }
+        // Using three fixed cities for demo
+        const availableCities = ["Amsterdam", "Athens", "Auckland"];
 
         let currentCities = [];
         let currentCityIndex = 0;
@@ -213,8 +183,8 @@
         function showCityImage(show = true) {
             cityImage.style.display = show ? 'block' : 'none';
             if (show && currentCityIndex < currentCities.length) {
-                // Updated path to match your folder structure
-                cityImage.src = `/games/game8/cities/${currentCities[currentCityIndex]}/image_1.jpg`;
+                const cityName = currentCities[currentCityIndex].name;
+                cityImage.src = `/games/game8/cities/${encodeURIComponent(cityName)}/image_1.jpg`;
             }
         }
 
@@ -263,20 +233,16 @@
 
         function startFlying() {
             showCityImage(true);
-            currentCities.forEach(cityName => {
-                const cityElement = document.querySelector(`[data-name="${cityName}"]`);
-                if (!cityElement) {
-                    console.error(`Could not find element for city: ${cityName}`);
-                    return;
-                }
-                
-                const cityBox = cityElement.parentElement.querySelector('.city-box');
-                const cityContainer = cityElement.parentElement;
+            // Transform city objects into moving elements
+            currentCities.forEach(cityObj => {
+                const cityName = cityObj.name;
+                const cityElement = cityObj.element;
+                const cityContainer = cityObj.container;
                 
                 const rect = cityElement.getBoundingClientRect();
                 const gameAreaRect = gameArea.getBoundingClientRect();
 
-                cityBox.style.opacity = '0';
+                // Hide original container
                 cityContainer.style.opacity = '0';
 
                 cityElement.style.position = 'absolute';
@@ -284,20 +250,14 @@
                 cityElement.style.top = (rect.top - gameAreaRect.top) + 'px';
                 gameArea.appendChild(cityElement);
 
-                // Store the element and its properties
-                const city = {
-                    element: cityElement,
-                    x: rect.left - gameAreaRect.left,
-                    y: rect.top - gameAreaRect.top,
-                    vx: (Math.random() - 0.5) * baseSpeed,
-                    vy: (Math.random() - 0.5) * baseSpeed,
-                    scale: 1
-                };
+                // Assign movement properties
+                cityObj.x = rect.left - gameAreaRect.left;
+                cityObj.y = rect.top - gameAreaRect.top;
+                cityObj.vx = (Math.random() - 0.5) * baseSpeed;
+                cityObj.vy = (Math.random() - 0.5) * baseSpeed;
+                cityObj.scale = 1;
 
-                // Store the city object in currentCities at the same index
-                const index = currentCities.indexOf(cityName);
-                currentCities[index] = city;
-
+                // Remove original container after transition
                 setTimeout(() => cityContainer.remove(), 1000);
             });
 
@@ -311,33 +271,32 @@
             const headerHeight = document.querySelector('.header-container').offsetHeight;
             let allTooSmall = true;
             
-            currentCities.forEach(city => {
-                if (!city.element) return;
+            currentCities.forEach(cityObj => {
+                if (!cityObj.element) return;
+                cityObj.x += cityObj.vx;
+                cityObj.y += cityObj.vy;
 
-                city.x += city.vx;
-                city.y += city.vy;
+                const currentBallSize = 80 * cityObj.scale;
 
-                const currentBallSize = 80 * city.scale;
-
-                if (city.x <= 0 || city.x >= window.innerWidth - currentBallSize) {
-                    city.vx *= -1;
+                if (cityObj.x <= 0 || cityObj.x >= window.innerWidth - currentBallSize) {
+                    cityObj.vx *= -1;
                 }
-                if (city.y <= headerHeight || city.y >= window.innerHeight - currentBallSize) {
-                    city.vy *= -1;
+                if (cityObj.y <= headerHeight || cityObj.y >= window.innerHeight - currentBallSize) {
+                    cityObj.vy *= -1;
                 }
 
-                city.x = Math.max(0, Math.min(city.x, window.innerWidth - currentBallSize));
-                city.y = Math.max(headerHeight, Math.min(city.y, window.innerHeight - currentBallSize));
+                cityObj.x = Math.max(0, Math.min(cityObj.x, window.innerWidth - currentBallSize));
+                cityObj.y = Math.max(headerHeight, Math.min(cityObj.y, window.innerHeight - currentBallSize));
 
-                city.scale *= shrinkRate;
+                cityObj.scale *= shrinkRate;
                 
-                if (city.scale > minScale) {
+                if (cityObj.scale > minScale) {
                     allTooSmall = false;
                 }
-                
-                city.element.style.left = city.x + 'px';
-                city.element.style.top = city.y + 'px';
-                city.element.style.transform = `scale(${city.scale})`;
+
+                cityObj.element.style.left = cityObj.x + 'px';
+                cityObj.element.style.top = cityObj.y + 'px';
+                cityObj.element.style.transform = `scale(${cityObj.scale})`;
             });
             
             if (allTooSmall) {
@@ -383,9 +342,9 @@
             
             const clickedCityElement = event.target;
             const clickedCity = clickedCityElement.dataset.name;
-            const currentCity = currentCities[currentCityIndex].element.dataset.name;
+            const currentCityName = currentCities[currentCityIndex].name;
             
-            if (clickedCity === currentCity) {
+            if (clickedCity === currentCityName) {
                 clickedCityElement.classList.add('completed');
                 currentCityIndex++;
                 
@@ -404,12 +363,12 @@
 
         function resetGame() {
             gameArea.innerHTML = '';
-            
             const newCityGrid = document.createElement('div');
             newCityGrid.className = 'city-grid';
             newCityGrid.id = 'cityGrid';
             gameArea.appendChild(newCityGrid);
             cityGrid = document.getElementById('cityGrid');
+            
             currentCities = [];
             currentCityIndex = 0;
             isPlaying = false;
@@ -419,7 +378,6 @@
                 existingQR.remove();
             }
 
-            // Remove any flying cities from previous game
             const flyingCities = document.querySelectorAll('.city');
             flyingCities.forEach(city => {
                 if (city.parentElement === gameArea) {
@@ -428,51 +386,30 @@
             });
         }
 
-        async function startGame() {
+        function startGame() {
             resetGame();
-            message.textContent = 'Loading cities...';
+            message.textContent = 'Preparing game...';
             startButton.style.display = 'none';
             
-            try {
-                const availableCities = await loadAvailableCities();
-                console.log('Available cities loaded:', availableCities.length);
-                
-                if (!availableCities || availableCities.length < 2) {
-                    message.textContent = 'Not enough cities with images available!';
-                    startButton.style.display = 'block';
-                    return;
-                }
-                
-                // Shuffle and select 8 cities
-                const shuffled = [...availableCities]
-                    .sort(() => Math.random() - 0.5)
-                    .slice(0, 8)
-                    .map(cityName => ({ name: cityName })); // Store cities as objects with names
-                
-                currentCities = shuffled;
-                console.log('Selected cities:', currentCities.map(c => c.name));
-                
-                currentCityIndex = 0;
-                
-                // Create city elements
-                currentCities.forEach(city => {
-                    const cityElements = createCity(city.name, cityGrid);
-                    cityElements.city.addEventListener('click', handleCityClick);
-                });
-                
-                message.textContent = 'Match the city to the image!';
-                
-                // Start the flying animation after a delay
-                setTimeout(() => {
-                    isPlaying = true;
-                    startFlying();
-                }, 2000);
-                
-            } catch (error) {
-                console.error('Error starting game:', error);
-                message.textContent = 'Error starting game. Please try again.';
-                startButton.style.display = 'block';
-            }
+            // Just pick the three predefined cities
+            const selectedCities = availableCities;
+            currentCities = selectedCities.map(name => ({ name }));
+
+            // Create city elements
+            currentCities.forEach((cityObj, i) => {
+                const cityElements = createCity(cityObj.name, cityGrid);
+                cityElements.city.addEventListener('click', handleCityClick);
+                cityObj.element = cityElements.city;
+                cityObj.container = cityElements.cityContainer;
+            });
+
+            message.textContent = 'Match the city to the image!';
+            
+            // Start the flying animation after a delay
+            setTimeout(() => {
+                isPlaying = true;
+                startFlying();
+            }, 2000);
         }
 
         startButton.addEventListener('click', () => {
@@ -490,3 +427,6 @@
         document.addEventListener('dblclick', (e) => {
             e.preventDefault();
         }, { passive: false });
+    </script>
+</body>
+</html>
