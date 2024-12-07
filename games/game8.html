@@ -14,10 +14,16 @@
             height: 70vh;
             border-radius: 10px;
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            z-index: 1; /* Lowered z-index to be behind cities */
-            display: none;
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 0.3s ease-out;
         }
 
+        .city-image.visible {
+            opacity: 1;
+        }
+
+        /* Rest of your existing styles remain the same */
         .city {
             position: absolute;
             width: 80px;
@@ -37,7 +43,7 @@
             text-align: center;
             padding: 10px;
             box-sizing: border-box;
-            z-index: 2; /* Added explicit z-index to be above image */
+            z-index: 2;
         }
 
         #timer {
@@ -248,11 +254,28 @@
         }
 
         function showCityImage(show = true) {
-            cityImage.style.display = show ? 'block' : 'none';
             if (show && currentCityIndex < currentCities.length) {
+                // Create a new image element and load it before showing
+                const newImage = new Image();
                 const cityName = currentCities[currentCityIndex].name;
-                cityImage.src = `/games/game8/cities/${encodeURIComponent(cityName)}/image_1.jpg`;
-                startTimer();
+                newImage.src = `/games/game8/cities/${encodeURIComponent(cityName)}/image_1.jpg`;
+                
+                newImage.onload = () => {
+                    cityImage.src = newImage.src;
+                    cityImage.style.display = 'block';
+                    // Use setTimeout to ensure the display: block has taken effect
+                    setTimeout(() => {
+                        cityImage.classList.add('visible');
+                    }, 50);
+                    startTimer();
+                };
+            } else {
+                // Fade out first, then hide
+                cityImage.classList.remove('visible');
+                setTimeout(() => {
+                    cityImage.style.display = 'none';
+                    cityImage.src = '';  // Clear the source
+                }, 300); // Match the CSS transition duration
             }
         }
 
@@ -425,9 +448,12 @@
                     clearInterval(timer);
                     timerElement.textContent = '';
                 } else {
-                    startGame(); // Start new round with new cities
+                    // Hide current image first, then start new round
+                    showCityImage(false);
+                    setTimeout(() => {
+                        startGame();
+                    }, 300); // Match the CSS transition duration
                 }
-
             } else {
                 gameOver('Wrong City! Game Over!');
             }
@@ -468,11 +494,9 @@
             message.textContent = 'Preparing game...';
             startButton.style.display = 'none';
             
-            // Select 3 random cities
             const selectedCities = getRandomCities(3);
             currentCities = selectedCities.map(name => ({ name }));
 
-            // Create city elements
             currentCities.forEach((cityObj, i) => {
                 const cityElements = createCity(cityObj.name, cityGrid);
                 cityElements.city.addEventListener('click', handleCityClick);
@@ -482,7 +506,6 @@
 
             message.textContent = 'Match the city to the image!';
             
-            // Start the flying animation after a delay
             setTimeout(() => {
                 isPlaying = true;
                 startFlying();
