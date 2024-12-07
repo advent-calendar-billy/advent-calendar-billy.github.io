@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Groq API Demo</title>
+    <!-- Import Tailwind CSS from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
+    <!-- Import Groq SDK from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/groq-sdk@latest/dist/umd/index.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-8">
+    <div class="max-w-3xl mx-auto">
+        <h1 class="text-3xl font-bold mb-8 text-center">Groq API Demo</h1>
+        
+        <!-- API Key Input Section -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+            <h2 class="text-xl font-semibold mb-4">API Configuration</h2>
+            <div class="mb-4">
+                <label class="block text-gray-700 mb-2" for="apiKey">API Key:</label>
+                <input type="password" id="apiKey" class="w-full p-2 border rounded" placeholder="Enter your Groq API key">
+            </div>
+            <p class="text-sm text-gray-600">
+                ⚠️ Note: This is just for demo purposes. In a production environment, never expose your API key in the frontend.
+            </p>
+        </div>
+
+        <!-- Chat Interface -->
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold mb-4">Chat with Groq</h2>
+            <div class="mb-4">
+                <label class="block text-gray-700 mb-2" for="prompt">Your message:</label>
+                <textarea id="prompt" class="w-full p-2 border rounded h-24" placeholder="Enter your message here...">Explain the importance of fast language models</textarea>
+            </div>
+            <button id="sendButton" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Send Message</button>
+            
+            <div class="mt-6">
+                <h3 class="font-semibold mb-2">Response:</h3>
+                <div id="response" class="p-4 bg-gray-50 rounded min-h-[100px] whitespace-pre-wrap">Response will appear here...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('sendButton').addEventListener('click', async () => {
+            const apiKey = document.getElementById('apiKey').value;
+            const prompt = document.getElementById('prompt').value;
+            const responseDiv = document.getElementById('response');
+            const button = document.getElementById('sendButton');
+
+            if (!apiKey) {
+                responseDiv.textContent = 'Please enter an API key first.';
+                return;
+            }
+
+            try {
+                button.disabled = true;
+                button.textContent = 'Sending...';
+                responseDiv.textContent = 'Loading...';
+
+                const groq = new Groq({ apiKey });
+                const completion = await groq.chat.completions.create({
+                    messages: [
+                        {
+                            role: "user",
+                            content: prompt
+                        }
+                    ],
+                    model: "llama3-8b-8192"
+                });
+
+                responseDiv.textContent = completion.choices[0]?.message?.content || 'No response received';
+            } catch (error) {
+                responseDiv.textContent = `Error: ${error.message}`;
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Send Message';
+            }
+        });
+    </script>
+</body>
+</html>
