@@ -181,6 +181,8 @@
                 "Lima", "Santiago", "Sydney", "Melbourne", "Auckland", "Cairo", 
                 "Cape Town", "Marrakech", "Nairobi"
             ];
+
+            allCities = ["Paris", "Berlin"];
             
             const validCities = [];
             
@@ -435,7 +437,7 @@
                 const availableCities = await loadAvailableCities();
                 console.log('Available cities loaded:', availableCities.length);
                 
-                if (!availableCities || availableCities.length < 8) {
+                if (!availableCities || availableCities.length < 2) {
                     message.textContent = 'Not enough cities with images available!';
                     startButton.style.display = 'block';
                     return;
