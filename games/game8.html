@@ -407,4 +407,84 @@
             newCityGrid.className = 'city-grid';
             newCityGrid.id = 'cityGrid';
             gameArea.appendChild(newCityGrid);
-            cityGrid = document.getElementById('cityGri
+            cityGrid = document.getElementById('cityGrid');
+            currentCities = [];
+            currentCityIndex = 0;
+            isPlaying = false;
+            
+            const existingQR = document.querySelector('.qr-container');
+            if (existingQR) {
+                existingQR.remove();
+            }
+
+            // Remove any flying cities from previous game
+            const flyingCities = document.querySelectorAll('.city');
+            flyingCities.forEach(city => {
+                if (city.parentElement === gameArea) {
+                    city.remove();
+                }
+            });
+        }
+
+        async function startGame() {
+            resetGame();
+            message.textContent = 'Loading cities...';
+            startButton.style.display = 'none';
+            
+            try {
+                const availableCities = await loadAvailableCities();
+                console.log('Available cities loaded:', availableCities.length);
+                
+                if (!availableCities || availableCities.length < 8) {
+                    message.textContent = 'Not enough cities with images available!';
+                    startButton.style.display = 'block';
+                    return;
+                }
+                
+                // Shuffle and select 8 cities
+                const shuffled = [...availableCities]
+                    .sort(() => Math.random() - 0.5)
+                    .slice(0, 8)
+                    .map(cityName => ({ name: cityName })); // Store cities as objects with names
+                
+                currentCities = shuffled;
+                console.log('Selected cities:', currentCities.map(c => c.name));
+                
+                currentCityIndex = 0;
+                
+                // Create city elements
+                currentCities.forEach(city => {
+                    const cityElements = createCity(city.name, cityGrid);
+                    cityElements.city.addEventListener('click', handleCityClick);
+                });
+                
+                message.textContent = 'Match the city to the image!';
+                
+                // Start the flying animation after a delay
+                setTimeout(() => {
+                    isPlaying = true;
+                    startFlying();
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Error starting game:', error);
+                message.textContent = 'Error starting game. Please try again.';
+                startButton.style.display = 'block';
+            }
+        }
+
+        startButton.addEventListener('click', () => {
+            if (!isPlaying) {
+                startGame();
+            }
+        });
+        
+        createSnowflakes();
+
+        // Prevent default touch behavior
+        document.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
+        
+        // Prevent zooming on double tap
+        document.addEventListener('dblclick', (e) => {
+            e.preventDefault();
+        }, { passive: false });
