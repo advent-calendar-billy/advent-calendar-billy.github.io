@@ -170,12 +170,36 @@
         const startButton = document.getElementById('startButton');
         const cityImage = document.getElementById('cityImage');
         
-        const cities = [
-            'Tokyo', 'Paris', 'London', 'New York',
-            'Sydney', 'Dubai', 'Singapore', 'Rome',
-            'Barcelona', 'Amsterdam', 'Hong Kong', 'Istanbul'
-        ];
-        
+        async function loadAvailableCities() {
+            const allCities = [
+                // Original list of all possible cities
+                "Paris", "London", "Berlin", "Rome", "Barcelona", "Amsterdam", "Prague", 
+                "Vienna", "Istanbul", "Stockholm", "Copenhagen", "Athens",
+                "Tokyo", "Kyoto", "Osaka", "Seoul", "Beijing", "Shanghai", "Hong Kong", 
+                "Singapore", "Bangkok", "Dubai", "Mumbai", "Bangalore", "Delhi",
+                "Ho Chi Minh City", "New York", "San Francisco", "Chicago", "Toronto",
+                "Vancouver", "Mexico City", "Buenos Aires", "Rio de Janeiro", "São Paulo",
+                "Lima", "Santiago", "Sydney", "Melbourne", "Auckland", "Cairo", 
+                "Cape Town", "Marrakech", "Nairobi"
+            ];
+            
+            const validCities = [];
+            
+            for (const city of allCities) {
+                try {
+                    // Try to load image_1.jpg for each city
+                    const response = await fetch(`/cities/${city}/image_1.jpg`);
+                    if (response.ok) {
+                        validCities.push(city);
+                    }
+                } catch (error) {
+                    console.log(`Skipping ${city} - no images found`);
+                }
+            }
+            
+            return validCities;
+        }
+
         let currentCities = [];
         let currentCityIndex = 0;
         let isPlaying = false;
@@ -371,9 +395,16 @@
             }
         }
 
-        function startGame() {
+        async function startGame() {
             resetGame();
-            currentCities = [...cities].sort(() => Math.random() - 0.5).slice(0, 8);
+            const availableCities = await loadAvailableCities();
+            if (availableCities.length < 8) {
+                message.textContent = 'Not enough cities with images available!';
+                return;
+            }
+            currentCities = [...availableCities]
+                .sort(() => Math.random() - 0.5)
+                .slice(0, 8);
             currentCityIndex = 0;
             isPlaying = true;
             
