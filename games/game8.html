@@ -188,7 +188,7 @@
             for (const city of allCities) {
                 try {
                     // Try to load image_1.jpg for each city
-                    const response = await fetch(`/cities/${city}/image_1.jpg`);
+                    const response = await fetch(`/games/game8/cities/${city}/image_1.jpg`);
                     if (response.ok) {
                         validCities.push(city);
                     }
