@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>City Guessing Game</title>
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        #gameArea {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .city-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            padding: 20px;
+            max-width: 800px;
+            width: calc(100% - 40px);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .city-container {
+            aspect-ratio: 1;
+            position: relative;
+            transition: opacity 1s;
+        }
+
+        .city-box {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 215, 0, 0.5);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            transition: opacity 1s;
+        }
+
+        .city {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            color: white;
+            cursor: pointer;
+            touch-action: none;
+            user-select: none;
+            transition: transform 0.5s ease-out;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            text-align: center;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .city.completed {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .header-container {
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            padding: 20px 0;
+            background: rgba(30, 60, 114, 0.9);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            height: 120px;
+            z-index: 2;
+        }
+
+        .header-container h1 {
+            margin: 0;
+            text-align: center;
+            font-size: 2em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        #message {
+            text-align: center;
+            font-size: 24px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        #startButton {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 15px 30px;
+            font-size: 20px;
+            background: rgba(255, 215, 0, 0.3);
+            border: 2px solid gold;
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .city-image {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 90%;
+            max-height: 60vh;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            z-index: 5;
+            display: none;
+        }
+
+        .snowflake {
+            position: fixed;
+            color: white;
+            font-size: 1em;
+            pointer-events: none;
+            animation: fall linear infinite;
+            z-index: 1;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-100vh) rotate(0deg); }
+            100% { transform: translateY(100vh) rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header-container">
+        <h1>Guess The Cities!</h1>
+        <div id="message">Click to Start</div>
+    </div>
+    <img id="cityImage" class="city-image" src="" alt="Mystery City">
+    <div id="gameArea">
+        <div class="city-grid" id="cityGrid"></div>
+    </div>
+    <button id="startButton">Start Game</button>
+
+    <script>
+        const gameArea = document.getElementById('gameArea');
+        let cityGrid = document.getElementById('cityGrid');
+        const message = document.getElementById('message');
+        const startButton = document.getElementById('startButton');
+        const cityImage = document.getElementById('cityImage');
+        
+        const cities = [
+            'Tokyo', 'Paris', 'London', 'New York',
+            'Sydney', 'Dubai', 'Singapore', 'Rome',
+            'Barcelona', 'Amsterdam', 'Hong Kong', 'Istanbul'
+        ];
+        
+        let currentCities = [];
+        let currentCityIndex = 0;
+        let isPlaying = false;
+        const baseSpeed = 2;
+        const shrinkRate = 0.9995;
+        const minScale = 0.15;
+
+        function showCityImage(show = true) {
+            cityImage.style.display = show ? 'block' : 'none';
+            if (show) {
+                // Set the source to a random city image from your collection
+                cityImage.src = `/cities/${currentCities[currentCityIndex]}/image_1.jpg`;
+            }
+        }
+
+        function createSnowflakes() {
+            const snowflakes = ['❄', '❅', '❆'];
+            
+            setInterval(() => {
+                const snowflake = document.createElement('div');
+                snowflake.className = 'snowflake';
+                snowflake.textContent = snowflakes[Math.floor(Math.random() * snowflakes.length)];
+                snowflake.style.left = Math.random() * 100 + 'vw';
+                snowflake.style.animationDuration = Math.random() * 3 + 2 + 's';
+                document.body.appendChild(snowflake);
+
+                setTimeout(() => snowflake.remove(), 5000);
+            }, 200);
+        }
+
+        function createCity(name, container) {
+            const cityContainer = document.createElement('div');
+            cityContainer.className = 'city-container';
+
+            const cityBox = document.createElement('div');
+            cityBox.className = 'city-box';
+
+            const city = document.createElement('div');
+            city.className = 'city';
+            city.textContent = name;
+            city.dataset.name = name;
+
+            const updateCityPosition = () => {
+                const rect = cityContainer.getBoundingClientRect();
+                city.style.left = (rect.width - 80) / 2 + 'px';
+                city.style.top = (rect.height - 80) / 2 + 'px';
+            };
+
+            setTimeout(updateCityPosition, 0);
+            window.addEventListener('resize', updateCityPosition);
+
+            cityContainer.appendChild(cityBox);
+            cityContainer.appendChild(city);
+            container.appendChild(cityContainer);
+
+            return { cityContainer, cityBox, city };
+        }
+
+        function startFlying() {
+            showCityImage(true);
+            currentCities.forEach(city => {
+                const cityElement = document.querySelector(`[data-name="${city}"]`);
+                const cityBox = cityElement.parentElement.querySelector('.city-box');
+                const cityContainer = cityElement.parentElement;
+                
+                const rect = cityElement.getBoundingClientRect();
+                const gameAreaRect = gameArea.getBoundingClientRect();
+
+                cityBox.style.opacity = '0';
+                cityContainer.style.opacity = '0';
+
+                cityElement.style.position = 'absolute';
+                cityElement.style.left = (rect.left - gameAreaRect.left) + 'px';
+                cityElement.style.top = (rect.top - gameAreaRect.top) + 'px';
+                gameArea.appendChild(cityElement);
+
+                city.element = cityElement;
+                city.x = rect.left - gameAreaRect.left;
+                city.y = rect.top - gameAreaRect.top;
+                city.vx = (Math.random() - 0.5) * baseSpeed;
+                city.vy = (Math.random() - 0.5) * baseSpeed;
+                city.scale = 1;
+
+                setTimeout(() => cityContainer.remove(), 1000);
+            });
+
+            updateCityPositions();
+        }
+
+        function updateCityPositions() {
+            if (!isPlaying) return;
+
+            const headerHeight = document.querySelector('.header-container').offsetHeight;
+            let allTooSmall = true;
+            
+            currentCities.forEach(city => {
+                city.x += city.vx;
+                city.y += city.vy;
+
+                const currentBallSize = 80 * city.scale;
+
+                if (city.x <= 0 || city.x >= window.innerWidth - currentBallSize) {
+                    city.vx *= -1;
+                }
+                if (city.y <= headerHeight || city.y >= window.innerHeight - currentBallSize) {
+                    city.vy *= -1;
+                }
+
+                city.x = Math.max(0, Math.min(city.x, window.innerWidth - currentBallSize));
+                city.y = Math.max(headerHeight, Math.min(city.y, window.innerHeight - currentBallSize));
+
+                city.scale *= shrinkRate;
+                
+                if (city.scale > minScale) {
+                    allTooSmall = false;
+                }
+                
+                city.element.style.left = city.x + 'px';
+                city.element.style.top = city.y + 'px';
+                city.element.style.transform = `scale(${city.scale})`;
+            });
+            
+            if (allTooSmall) {
+                gameOver('Cities too small! Game Over!');
+                return;
+            }
+
+            requestAnimationFrame(updateCityPositions);
+        }
+
+        function showQRCode() {
+            const qrContainer = document.createElement('div');
+            qrContainer.style.position = 'fixed';
+            qrContainer.style.top = '50%';
+            qrContainer.style.left = '50%';
+            qrContainer.style.transform = 'translate(-50%, -50%)';
+            qrContainer.style.background = 'white';
+            qrContainer.style.padding = '20px';
+            qrContainer.style.borderRadius = '10px';
+            qrContainer.style.boxShadow = '0 0 20px rgba(0,0,0,0.3)';
+            qrContainer.style.textAlign = 'center';
+            qrContainer.style.zIndex = '100';
+            
+            qrContainer.innerHTML = `
+                <img src="/images/08-4215c796a7.png" alt="QR Code" style="max-width: 200px">
+                <p style="margin: 10px 0 0; color: black">Scan to claim your prize!</p>
+            `;
+            
+            document.body.appendChild(qrContainer);
+        }
+
+        function gameOver(msg) {
+            isPlaying = false;
+            message.textContent = msg;
+            startButton.style.display = 'block';
+            startButton.textContent = 'Try Again';
+            showCityImage(false);
+        }
+
+        function handleCityClick(event) {
+            if (!isPlaying) return;
+            
+            const clickedCity = event.target.dataset.name;
+            if (clickedCity === currentCities[currentCityIndex]) {
+                event.target.classList.add('completed');
+                currentCityIndex++;
+                
+                if (currentCityIndex >= currentCities.length) {
+                    isPlaying = false;
+                    message.textContent = 'You Win! 🎉';
+                    showQRCode();
+                    showCityImage(false);
+                } else {
+                    showCityImage(true);
+                }
+            } else {
+                gameOver('Wrong City! Game Over!');
+            }
+        }
+
+        function resetGame() {
+            gameArea.innerHTML = '';
+            
+            const newCityGrid = document.createElement('div');
+            newCityGrid.className = 'city-grid';
+            newCityGrid.id = 'cityGrid';
+            gameArea.appendChild(newCityGrid);
+            cityGrid = document.getElementById('cityGrid');
+            
+            const existingQR = document.querySelector('.qr-container');
+            if (existingQR) {
+                existingQR.remove();
+            }
+        }
+
+        function startGame() {
+            resetGame();
+            currentCities = [...cities].sort(() => Math.random() - 0.5).slice(0, 8);
+            currentCityIndex = 0;
+            isPlaying = true;
+            
+            currentCities.forEach(city => {
+                const cityElements = createCity(city, cityGrid);
+                cityElements.city.addEventListener('click', handleCityClick);
+            });
+            
+            startButton.style.display = 'none';
+            message.textContent = 'Match the city to the image!';
+            
+            setTimeout(startFlying, 2000);
+        }
+
+        startButton.addEventListener('click', startGame);
+        createSnowflakes();
+
+        document.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
+    </script>
+</body>
+</html>
