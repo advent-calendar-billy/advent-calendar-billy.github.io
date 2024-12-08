@@ -58,6 +58,21 @@
 </head>
 <body>
     <div id="hud">Energy: <span id="fuelLevel">100</span>%</div>
+    <div id="timer" style="position: fixed; top: 20px; right: 20px; font-size: 18px; color: #fff; text-shadow: 0 0 5px #ff0000, 0 0 10px #00ff00;">Time: <span id="timeLeft">60</span>s</div>
+    <div id="welcomeMessage" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+        background: rgba(0, 0, 0, 0.8); padding: 20px; border-radius: 10px; text-align: center; 
+        border: 2px solid #ff0000; box-shadow: 0 0 10px #00ff00; z-index: 100;">
+        <h2 style="color: #fff; text-shadow: 0 0 5px #ff0000, 0 0 10px #00ff00;">Welcome to Christmas Space!</h2>
+        <p style="color: #fff;">Collect all the golden energy orbs to win!<br>
+        Use arrow keys to move your green star.<br>
+        Avoid the red ornaments!<br>
+        Don't run out of energy!</p>
+        <button onclick="this.parentElement.style.display='none';" 
+            style="background: #ff0000; color: white; border: 2px solid #00ff00; 
+            padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-top: 10px;">
+            Start Playing!
+        </button>
+    </div>
     <canvas id="gameCanvas"></canvas>
     <div id="gameOver">
         <h2>Game Over!</h2>
@@ -71,7 +86,18 @@
         const fuelDisplay = document.getElementById('fuelLevel');
         const gameOverScreen = document.getElementById('gameOver');
         const gameOverText = document.getElementById('gameOverText');
+        const GAME_DURATION = 60; // Game duration in seconds
+        let timeRemaining = GAME_DURATION;
+        let timerInterval;
 
+        function updateTimer() {
+            timeRemaining--;
+            document.getElementById('timeLeft').textContent = timeRemaining;
+            if (timeRemaining <= 0) {
+                clearInterval(timerInterval);
+                gameOver('Time\'s up! Game Over!');
+            }
+        }
         // Set canvas size
         function resizeCanvas() {
             canvas.width = window.innerWidth;
@@ -84,7 +110,7 @@
         const G = 10;
         const FUEL_CONSUMPTION = 0.1;
         const THRUST_POWER = 0.15;
-        const FUEL_PILL_COUNT = 5;
+        const FUEL_PILL_COUNT = 10;
 
         // Christmas colors
         const COLORS = {
@@ -270,7 +296,7 @@
                 const dy = rocket.y - pill.y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
                 if (distance < rocket.radius + pill.radius) {
-                    rocket.fuel = Math.min(100, rocket.fuel + 30);
+                    rocket.fuel = Math.min(100, rocket.fuel + 20);
                     return false;
                 }
                 return true;
@@ -355,6 +381,7 @@
         }
 
         function showQRCode() {
+            clearInterval(timerInterval);
             const qrContainer = document.createElement('div');
             qrContainer.style.position = 'fixed';
             qrContainer.style.top = '50%';
@@ -387,6 +414,7 @@
         }
 
         function gameOver(message) {
+            clearInterval(timerInterval);
             gameOverScreen.style.display = 'block';
             gameOverText.textContent = message;
         }
@@ -439,6 +467,11 @@
             snowflakes = [];
             spawnFuelPills();
             gameOverScreen.style.display = 'none';
+            // Reset timer
+            clearInterval(timerInterval);
+            timeRemaining = GAME_DURATION;
+            document.getElementById('timeLeft').textContent = timeRemaining;
+            timerInterval = setInterval(updateTimer, 1000);
             gameLoop();
 
             // Remove existing QR code if present
@@ -450,6 +483,7 @@
 
         // Start the game
         spawnFuelPills();
+        timerInterval = setInterval(updateTimer, 1000); // Add this line
         gameLoop();
     </script>
 </body>
