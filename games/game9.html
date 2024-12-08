@@ -368,6 +368,27 @@
                 }
             }
 
+            // Add this right after the keyboard controls section in updatePhysics()
+            if (rocket.fuel > 0) {
+                // Handle continuous touch controls
+                if (touchControls.up) {
+                    rocket.vy -= DESKTOP_THRUST_POWER;
+                    rocket.fuel -= FUEL_CONSUMPTION;
+                }
+                if (touchControls.down) {
+                    rocket.vy += DESKTOP_THRUST_POWER;
+                    rocket.fuel -= FUEL_CONSUMPTION;
+                }
+                if (touchControls.left) {
+                    rocket.vx -= DESKTOP_THRUST_POWER;
+                    rocket.fuel -= FUEL_CONSUMPTION;
+                }
+                if (touchControls.right) {
+                    rocket.vx += DESKTOP_THRUST_POWER;
+                    rocket.fuel -= FUEL_CONSUMPTION;
+                }
+            }
+
             rocket.x += rocket.vx;
             rocket.y += rocket.vy;
             bodies.forEach(body => {
