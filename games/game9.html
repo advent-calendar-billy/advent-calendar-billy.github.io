@@ -160,7 +160,7 @@
         const DESKTOP_THRUST_POWER = 0.15;
         const MOBILE_THRUST_POWER = 0.3;
         const FUEL_PILL_COUNT = 10;
-        const MAX_VELOCITY = 5; // Add this near other constants
+        const MAX_VELOCITY = 30; // Add this near other constants
 
         function capVelocity(obj) {
             const speed = Math.sqrt(obj.vx * obj.vx + obj.vy * obj.vy);
@@ -405,8 +405,13 @@
                 body.y += body.vy;
             });
 
-            capVelocity(rocket);
-            bodies.forEach(body => capVelocity(body));
+            // Cap rocket velocity
+            const rocketSpeed = Math.sqrt(rocket.vx * rocket.vx + rocket.vy * rocket.vy);
+            if (rocketSpeed > MAX_VELOCITY) {
+                const scale = MAX_VELOCITY / rocketSpeed;
+                rocket.vx *= scale;
+                rocket.vy *= scale;
+            }
 
             [rocket, ...bodies].forEach(obj => {
                 if (obj.x < 0) obj.x = canvas.width;
