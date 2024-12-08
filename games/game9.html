@@ -14,9 +14,11 @@
             align-items: center;
             font-family: Arial, sans-serif;
             color: white;
+            touch-action: none;
         }
         canvas {
             border: 1px solid #333;
+            touch-action: none;
         }
         #hud {
             position: fixed;
@@ -24,7 +26,8 @@
             left: 20px;
             font-size: 18px;
             color: #fff;
-            text-shadow: 0 0 5px #ff0000, 0 0 10px #00ff00; /* Christmas glow */
+            text-shadow: 0 0 5px #ff0000, 0 0 10px #00ff00;
+            z-index: 10;
         }
         #gameOver {
             position: fixed;
@@ -38,12 +41,13 @@
             display: none;
             border: 2px solid #ff0000;
             box-shadow: 0 0 10px #00ff00;
+            z-index: 100;
         }
         button {
             padding: 10px 20px;
             font-size: 16px;
-            background: #ff0000; /* Christmas red */
-            border: 2px solid #00ff00; /* Christmas green border */
+            background: #ff0000;
+            border: 2px solid #00ff00;
             color: white;
             border-radius: 5px;
             cursor: pointer;
@@ -54,17 +58,72 @@
             background: #00ff00;
             border-color: #ff0000;
         }
+        #controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: grid;
+            grid-template-areas:
+                ". up ."
+                "left . right"
+                ". down .";
+            gap: 10px;
+            z-index: 10;
+        }
+        .control-btn {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            touch-action: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        #up { grid-area: up; }
+        #down { grid-area: down; }
+        #left { grid-area: left; }
+        #right { grid-area: right; }
+        .control-btn:active {
+            background: rgba(255, 255, 255, 0.4);
+        }
+        #timer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            font-size: 18px;
+            color: #fff;
+            text-shadow: 0 0 5px #ff0000, 0 0 10px #00ff00;
+            z-index: 10;
+        }
+        #welcomeMessage {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #ff0000;
+            box-shadow: 0 0 10px #00ff00;
+            z-index: 100;
+        }
     </style>
 </head>
 <body>
     <div id="hud">Energy: <span id="fuelLevel">100</span>%</div>
-    <div id="timer" style="position: fixed; top: 20px; right: 20px; font-size: 18px; color: #fff; text-shadow: 0 0 5px #ff0000, 0 0 10px #00ff00;">Time: <span id="timeLeft">60</span>s</div>
-    <div id="welcomeMessage" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-        background: rgba(0, 0, 0, 0.8); padding: 20px; border-radius: 10px; text-align: center; 
-        border: 2px solid #ff0000; box-shadow: 0 0 10px #00ff00; z-index: 100;">
+    <div id="timer">Time: <span id="timeLeft">60</span>s</div>
+    <div id="welcomeMessage">
         <h2 style="color: #fff; text-shadow: 0 0 5px #ff0000, 0 0 10px #00ff00;">Welcome to Christmas Space!</h2>
         <p style="color: #fff;">Collect all the golden energy orbs to win!<br>
-        Use arrow keys to move your green star.<br>
+        Use arrow keys or touch controls to move your green star.<br>
         Avoid the red ornaments!<br>
         Don't run out of energy!</p>
         <button onclick="this.parentElement.style.display='none';" 
@@ -74,21 +133,42 @@
         </button>
     </div>
     <canvas id="gameCanvas"></canvas>
+    <div id="controls">
+        <div class="control-btn" id="up">↑</div>
+        <div class="control-btn" id="down">↓</div>
+        <div class="control-btn" id="left">←</div>
+        <div class="control-btn" id="right">→</div>
+    </div>
     <div id="gameOver">
         <h2>Game Over!</h2>
         <p id="gameOverText"></p>
         <button onclick="resetGame()">Try Again</button>
     </div>
-
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const fuelDisplay = document.getElementById('fuelLevel');
         const gameOverScreen = document.getElementById('gameOver');
         const gameOverText = document.getElementById('gameOverText');
-        const GAME_DURATION = 60; // Game duration in seconds
+        const GAME_DURATION = 60;
         let timeRemaining = GAME_DURATION;
         let timerInterval;
+
+        // Game constants
+        const G = 10;
+        const FUEL_CONSUMPTION = 0.1;
+        const DESKTOP_THRUST_POWER = 0.15;
+        const MOBILE_THRUST_POWER = 0.3;
+        const FUEL_PILL_COUNT = 10;
+
+        // Christmas colors
+        const COLORS = {
+            PLAYER: '#00ff00',
+            NPC1: '#ff0000',
+            NPC2: '#ff0000',
+            NPC3: '#ff0000',
+            FUEL: '#ffd700'
+        };
 
         function updateTimer() {
             timeRemaining--;
@@ -98,28 +178,50 @@
                 gameOver('Time\'s up! Game Over!');
             }
         }
-        // Set canvas size
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
 
-        // Game constants
-        const G = 10;
-        const FUEL_CONSUMPTION = 0.1;
-        const THRUST_POWER = 0.15;
-        const FUEL_PILL_COUNT = 10;
-
-        // Christmas colors
-        const COLORS = {
-            PLAYER: '#00ff00', // Bright green for player
-            NPC1: '#ff0000',   // Red for NPC 1
-            NPC2: '#ff0000',   // Red for NPC 2
-            NPC3: '#ff0000',   // Red for NPC 3
-            FUEL: '#ffd700'    // Gold for fuel pills
+        // Touch controls state
+        let touchControls = {
+            up: false,
+            down: false,
+            left: false,
+            right: false
         };
+
+        // Setup touch controls
+        ['up', 'down', 'left', 'right'].forEach(direction => {
+            const btn = document.getElementById(direction);
+            
+            btn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                touchControls[direction] = true;
+                if (rocket.fuel > 0) {
+                    switch(direction) {
+                        case 'up':
+                            rocket.vy -= MOBILE_THRUST_POWER;
+                            break;
+                        case 'down':
+                            rocket.vy += MOBILE_THRUST_POWER;
+                            break;
+                        case 'left':
+                            rocket.vx -= MOBILE_THRUST_POWER;
+                            break;
+                        case 'right':
+                            rocket.vx += MOBILE_THRUST_POWER;
+                            break;
+                    }
+                    rocket.fuel -= FUEL_CONSUMPTION;
+                }
+            });
+
+            btn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                touchControls[direction] = false;
+            });
+
+            btn.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+            });
+        });
 
         // Game objects
         let rocket = {
@@ -169,7 +271,6 @@
         let fuelPills = [];
         let snowflakes = [];
 
-        // Snowflake system
         function createSnowflake() {
             return {
                 x: Math.random() * canvas.width,
@@ -181,17 +282,13 @@
         }
 
         function updateSnowflakes() {
-            // Add new snowflakes randomly
             if (Math.random() < 0.1) {
                 snowflakes.push(createSnowflake());
             }
 
-            // Update existing snowflakes
             snowflakes = snowflakes.filter(flake => {
                 flake.y += flake.speed;
                 flake.x += flake.drift;
-
-                // Remove if out of bounds
                 return flake.y < canvas.height;
             });
         }
@@ -236,14 +333,12 @@
         }
 
         function updatePhysics() {
-            // Update rocket position based on gravity
             bodies.forEach(body => {
                 const gravity = calculateGravity(rocket, body);
                 rocket.vx += gravity.fx / rocket.mass;
                 rocket.vy += gravity.fy / rocket.mass;
             });
 
-            // Update body positions based on gravity between them
             for (let i = 0; i < bodies.length; i++) {
                 for (let j = i + 1; j < bodies.length; j++) {
                     const gravity = calculateGravity(bodies[i], bodies[j]);
@@ -254,27 +349,25 @@
                 }
             }
 
-            // Apply rocket thrust
             if (rocket.fuel > 0) {
                 if (keys['ArrowUp']) {
-                    rocket.vy -= THRUST_POWER;
+                    rocket.vy -= DESKTOP_THRUST_POWER;
                     rocket.fuel -= FUEL_CONSUMPTION;
                 }
                 if (keys['ArrowDown']) {
-                    rocket.vy += THRUST_POWER;
+                    rocket.vy += DESKTOP_THRUST_POWER;
                     rocket.fuel -= FUEL_CONSUMPTION;
                 }
                 if (keys['ArrowLeft']) {
-                    rocket.vx -= THRUST_POWER;
+                    rocket.vx -= DESKTOP_THRUST_POWER;
                     rocket.fuel -= FUEL_CONSUMPTION;
                 }
                 if (keys['ArrowRight']) {
-                    rocket.vx += THRUST_POWER;
+                    rocket.vx += DESKTOP_THRUST_POWER;
                     rocket.fuel -= FUEL_CONSUMPTION;
                 }
             }
 
-            // Update positions
             rocket.x += rocket.vx;
             rocket.y += rocket.vy;
             bodies.forEach(body => {
@@ -282,7 +375,6 @@
                 body.y += body.vy;
             });
 
-            // Screen wrapping
             [rocket, ...bodies].forEach(obj => {
                 if (obj.x < 0) obj.x = canvas.width;
                 if (obj.x > canvas.width) obj.x = 0;
@@ -290,7 +382,6 @@
                 if (obj.y > canvas.height) obj.y = 0;
             });
 
-            // Collect fuel pills
             fuelPills = fuelPills.filter(pill => {
                 const dx = rocket.x - pill.x;
                 const dy = rocket.y - pill.y;
@@ -316,12 +407,9 @@
             ctx.fillStyle = 'black';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Draw snowflakes
             drawSnowflakes();
 
-            // Draw bodies with glow effect
             bodies.forEach(body => {
-                // Glow effect
                 const gradient = ctx.createRadialGradient(
                     body.x, body.y, 0,
                     body.x, body.y, body.radius * 2
@@ -334,14 +422,12 @@
                 ctx.arc(body.x, body.y, body.radius * 2, 0, Math.PI * 2);
                 ctx.fill();
 
-                // Main body
                 ctx.beginPath();
                 ctx.fillStyle = body.color;
                 ctx.arc(body.x, body.y, body.radius, 0, Math.PI * 2);
                 ctx.fill();
             });
 
-            // Draw rocket with glow
             const rocketGradient = ctx.createRadialGradient(
                 rocket.x, rocket.y, 0,
                 rocket.x, rocket.y, rocket.radius * 2
@@ -359,7 +445,6 @@
             ctx.arc(rocket.x, rocket.y, rocket.radius, 0, Math.PI * 2);
             ctx.fill();
 
-            // Draw fuel pills with sparkle effect
             fuelPills.forEach(pill => {
                 const gradient = ctx.createRadialGradient(
                     pill.x, pill.y, 0,
@@ -419,6 +504,25 @@
             gameOverText.textContent = message;
         }
 
+        function resizeForMobile() {
+            const isMobile = window.innerWidth < 768;
+            if (isMobile) {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight - 100;
+                rocket.radius = 8;
+                bodies.forEach(body => {
+                    body.radius = 15;
+                });
+            } else {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                rocket.radius = 10;
+                bodies.forEach(body => {
+                    body.radius = 20;
+                });
+            }
+        }
+
         function resetGame() {
             rocket = {
                 x: canvas.width / 2,
@@ -467,14 +571,13 @@
             snowflakes = [];
             spawnFuelPills();
             gameOverScreen.style.display = 'none';
-            // Reset timer
+            
             clearInterval(timerInterval);
             timeRemaining = GAME_DURATION;
             document.getElementById('timeLeft').textContent = timeRemaining;
             timerInterval = setInterval(updateTimer, 1000);
             gameLoop();
 
-            // Remove existing QR code if present
             const existingQR = document.querySelector('div[style*="qr"]');
             if (existingQR) {
                 existingQR.remove();
@@ -482,8 +585,10 @@
         }
 
         // Start the game
+        window.addEventListener('resize', resizeForMobile);
+        resizeForMobile();
         spawnFuelPills();
-        timerInterval = setInterval(updateTimer, 1000); // Add this line
+        timerInterval = setInterval(updateTimer, 1000);
         gameLoop();
     </script>
 </body>
