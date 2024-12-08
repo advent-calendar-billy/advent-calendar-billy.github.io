@@ -341,6 +341,91 @@
             };
         }
 
+        function drawRocketFire(x, y, direction) {
+            const baseFireLength = rocket.radius * 2.5;  // Increased base length
+            const numLayers = 3;  // Multiple layers of fire
+            
+            // Draw multiple layers of fire
+            for(let i = 0; i < numLayers; i++) {
+                const flickerOffset = Math.random() * 5;  // Increased flicker
+                const layerLength = baseFireLength * (1 - i * 0.2);  // Each layer slightly shorter
+                
+                ctx.beginPath();
+                const gradient = ctx.createLinearGradient(
+                    x, y,
+                    x + (direction === 'left' || direction === 'right' ? (direction === 'left' ? -layerLength : layerLength) : 0),
+                    y + (direction === 'up' || direction === 'down' ? (direction === 'up' ? -layerLength : layerLength) : 0)
+                );
+                
+                // Different colors for each layer
+                if (i === 0) {
+                    gradient.addColorStop(0, '#ffffff');  // White core
+                    gradient.addColorStop(0.2, '#ffff00'); // Yellow
+                    gradient.addColorStop(0.4, '#ff4500'); // Orange-red
+                    gradient.addColorStop(1, 'rgba(255, 69, 0, 0)');
+                } else if (i === 1) {
+                    gradient.addColorStop(0, '#ffff00');  // Yellow
+                    gradient.addColorStop(0.3, '#ff4500'); // Orange-red
+                    gradient.addColorStop(1, 'rgba(255, 0, 0, 0)');
+                } else {
+                    gradient.addColorStop(0, '#ff4500');  // Orange-red
+                    gradient.addColorStop(0.5, '#ff0000'); // Red
+                    gradient.addColorStop(1, 'rgba(255, 0, 0, 0)');
+                }
+                
+                ctx.fillStyle = gradient;
+                
+                // Draw wider flame shape
+                ctx.beginPath();
+                if (direction === 'up' || direction === 'down') {
+                    const baseWidth = rocket.radius * (1.5 - i * 0.3);  // Wider base
+                    ctx.moveTo(x - baseWidth, y);
+                    ctx.lineTo(x + baseWidth, y);
+                    // Add some curve to the flame
+                    ctx.quadraticCurveTo(
+                        x + (Math.random() * 10 - 5), // Random curve
+                        y + (direction === 'down' ? -layerLength/2 : layerLength/2),
+                        x, 
+                        y + (direction === 'down' ? -layerLength : layerLength) - flickerOffset
+                    );
+                } else {
+                    const baseHeight = rocket.radius * (1.5 - i * 0.3);
+                    ctx.moveTo(x, y - baseHeight);
+                    ctx.lineTo(x, y + baseHeight);
+                    ctx.quadraticCurveTo(
+                        x + (direction === 'right' ? -layerLength/2 : layerLength/2),
+                        y + (Math.random() * 10 - 5),
+                        x + (direction === 'right' ? -layerLength : layerLength) - flickerOffset,
+                        y
+                    );
+                }
+                ctx.closePath();
+                ctx.fill();
+            }
+            
+            // Add particles
+            const particleCount = 5;
+            for(let i = 0; i < particleCount; i++) {
+                const particleSize = Math.random() * 3 + 1;
+                const angle = Math.random() * Math.PI / 4 - Math.PI / 8; // Spread angle
+                let particleX, particleY;
+                
+                if (direction === 'up' || direction === 'down') {
+                    const spread = rocket.radius * 1.5;
+                    particleX = x + (Math.random() * spread * 2 - spread);
+                    particleY = y + (direction === 'down' ? -Math.random() * baseFireLength : Math.random() * baseFireLength);
+                } else {
+                    const spread = rocket.radius * 1.5;
+                    particleX = x + (direction === 'right' ? -Math.random() * baseFireLength : Math.random() * baseFireLength);
+                    particleY = y + (Math.random() * spread * 2 - spread);
+                }
+                
+                ctx.beginPath();
+                ctx.fillStyle = `rgba(255, ${Math.random() * 200 + 55}, 0, ${Math.random() * 0.7 + 0.3})`;
+                ctx.arc(particleX, particleY, particleSize, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
         function updatePhysics() {
             bodies.forEach(body => {
                 const gravity = calculateGravity(rocket, body);
@@ -482,6 +567,20 @@
             ctx.fillStyle = rocket.color;
             ctx.arc(rocket.x, rocket.y, rocket.radius, 0, Math.PI * 2);
             ctx.fill();
+
+            // Draw rocket fire
+            if (keys['ArrowUp'] || touchControls.up) {
+                drawRocketFire(rocket.x, rocket.y + rocket.radius, 'down');
+            }
+            if (keys['ArrowDown'] || touchControls.down) {
+                drawRocketFire(rocket.x, rocket.y - rocket.radius, 'up');
+            }
+            if (keys['ArrowLeft'] || touchControls.left) {
+                drawRocketFire(rocket.x + rocket.radius, rocket.y, 'right');
+            }
+            if (keys['ArrowRight'] || touchControls.right) {
+                drawRocketFire(rocket.x - rocket.radius, rocket.y, 'left');
+            }
 
             fuelPills.forEach(pill => {
                 const gradient = ctx.createRadialGradient(
