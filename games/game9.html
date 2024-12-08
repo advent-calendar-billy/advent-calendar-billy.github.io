@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Christmas Space Game</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            color: white;
+        }
+        canvas {
+            border: 1px solid #333;
+        }
+        #hud {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            font-size: 18px;
+            color: #fff;
+            text-shadow: 0 0 5px #ff0000, 0 0 10px #00ff00; /* Christmas glow */
+        }
+        #gameOver {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+            border: 2px solid #ff0000;
+            box-shadow: 0 0 10px #00ff00;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background: #ff0000; /* Christmas red */
+            border: 2px solid #00ff00; /* Christmas green border */
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            text-shadow: 0 0 5px #ffffff;
+        }
+        button:hover {
+            background: #00ff00;
+            border-color: #ff0000;
+        }
+    </style>
+</head>
+<body>
+    <div id="hud">Energy: <span id="fuelLevel">100</span>%</div>
+    <canvas id="gameCanvas"></canvas>
+    <div id="gameOver">
+        <h2>Game Over!</h2>
+        <p id="gameOverText"></p>
+        <button onclick="resetGame()">Try Again</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const fuelDisplay = document.getElementById('fuelLevel');
+        const gameOverScreen = document.getElementById('gameOver');
+        const gameOverText = document.getElementById('gameOverText');
+
+        // Set canvas size
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Game constants
+        const G = 10;
+        const FUEL_CONSUMPTION = 0.1;
+        const THRUST_POWER = 0.15;
+        const FUEL_PILL_COUNT = 5;
+
+        // Christmas colors
+        const COLORS = {
+            PLAYER: '#00ff00', // Bright green for player
+            NPC1: '#ff0000',   // Red for NPC 1
+            NPC2: '#ff0000',   // Red for NPC 2
+            NPC3: '#ff0000',   // Red for NPC 3
+            FUEL: '#ffd700'    // Gold for fuel pills
+        };
+
+        // Game objects
+        let rocket = {
+            x: canvas.width / 2,
+            y: canvas.height / 2,
+            vx: 0,
+            vy: 0,
+            mass: 1,
+            fuel: 100,
+            radius: 10,
+            color: COLORS.PLAYER
+        };
+
+        let bodies = [
+            {
+                x: canvas.width * 0.3,
+                y: canvas.height * 0.3,
+                vx: 0,
+                vy: 1.2,
+                mass: 400,
+                radius: 20,
+                color: COLORS.NPC1,
+                angularVel: 0.001
+            },
+            {
+                x: canvas.width * 0.7,
+                y: canvas.height * 0.3,
+                vx: 0,
+                vy: -1.2,
+                mass: 400,
+                radius: 20,
+                color: COLORS.NPC2,
+                angularVel: -0.001
+            },
+            {
+                x: canvas.width * 0.5,
+                y: canvas.height * 0.7,
+                vx: 1.2,
+                vy: 0,
+                mass: 400,
+                radius: 20,
+                color: COLORS.NPC3,
+                angularVel: 0.001
+            }
+        ];
+
+        let fuelPills = [];
+        let snowflakes = [];
+
+        // Snowflake system
+        function createSnowflake() {
+            return {
+                x: Math.random() * canvas.width,
+                y: -10,
+                size: Math.random() * 3 + 1,
+                speed: Math.random() * 2 + 1,
+                drift: Math.random() * 1 - 0.5
+            };
+        }
+
+        function updateSnowflakes() {
+            // Add new snowflakes randomly
+            if (Math.random() < 0.1) {
+                snowflakes.push(createSnowflake());
+            }
+
+            // Update existing snowflakes
+            snowflakes = snowflakes.filter(flake => {
+                flake.y += flake.speed;
+                flake.x += flake.drift;
+
+                // Remove if out of bounds
+                return flake.y < canvas.height;
+            });
+        }
+
+        function drawSnowflakes() {
+            ctx.fillStyle = '#ffffff';
+            snowflakes.forEach(flake => {
+                ctx.beginPath();
+                ctx.arc(flake.x, flake.y, flake.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        // Input handling
+        let keys = {};
+        document.addEventListener('keydown', (e) => keys[e.key] = true);
+        document.addEventListener('keyup', (e) => keys[e.key] = false);
+
+        function spawnFuelPills() {
+            fuelPills = [];
+            for (let i = 0; i < FUEL_PILL_COUNT; i++) {
+                fuelPills.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    radius: 8
+                });
+            }
+        }
+
+        function calculateGravity(body1, body2) {
+            const dx = body2.x - body1.x;
+            const dy = body2.y - body1.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            const minDistance = 100;
+            const effectiveDistance = Math.max(distance, minDistance);
+            const force = G * body1.mass * body2.mass / (effectiveDistance * effectiveDistance);
+            
+            return {
+                fx: force * dx / distance,
+                fy: force * dy / distance
+            };
+        }
+
+        function updatePhysics() {
+            // Update rocket position based on gravity
+            bodies.forEach(body => {
+                const gravity = calculateGravity(rocket, body);
+                rocket.vx += gravity.fx / rocket.mass;
+                rocket.vy += gravity.fy / rocket.mass;
+            });
+
+            // Update body positions based on gravity between them
+            for (let i = 0; i < bodies.length; i++) {
+                for (let j = i + 1; j < bodies.length; j++) {
+                    const gravity = calculateGravity(bodies[i], bodies[j]);
+                    bodies[i].vx += gravity.fx / bodies[i].mass;
+                    bodies[i].vy += gravity.fy / bodies[i].mass;
+                    bodies[j].vx -= gravity.fx / bodies[j].mass;
+                    bodies[j].vy -= gravity.fy / bodies[j].mass;
+                }
+            }
+
+            // Apply rocket thrust
+            if (rocket.fuel > 0) {
+                if (keys['ArrowUp']) {
+                    rocket.vy -= THRUST_POWER;
+                    rocket.fuel -= FUEL_CONSUMPTION;
+                }
+                if (keys['ArrowDown']) {
+                    rocket.vy += THRUST_POWER;
+                    rocket.fuel -= FUEL_CONSUMPTION;
+                }
+                if (keys['ArrowLeft']) {
+                    rocket.vx -= THRUST_POWER;
+                    rocket.fuel -= FUEL_CONSUMPTION;
+                }
+                if (keys['ArrowRight']) {
+                    rocket.vx += THRUST_POWER;
+                    rocket.fuel -= FUEL_CONSUMPTION;
+                }
+            }
+
+            // Update positions
+            rocket.x += rocket.vx;
+            rocket.y += rocket.vy;
+            bodies.forEach(body => {
+                body.x += body.vx;
+                body.y += body.vy;
+            });
+
+            // Screen wrapping
+            [rocket, ...bodies].forEach(obj => {
+                if (obj.x < 0) obj.x = canvas.width;
+                if (obj.x > canvas.width) obj.x = 0;
+                if (obj.y < 0) obj.y = canvas.height;
+                if (obj.y > canvas.height) obj.y = 0;
+            });
+
+            // Collect fuel pills
+            fuelPills = fuelPills.filter(pill => {
+                const dx = rocket.x - pill.x;
+                const dy = rocket.y - pill.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance < rocket.radius + pill.radius) {
+                    rocket.fuel = Math.min(100, rocket.fuel + 30);
+                    return false;
+                }
+                return true;
+            });
+
+            if (rocket.fuel <= 0) {
+                gameOver('Out of energy!');
+            } else if (fuelPills.length === 0) {
+                showQRCode();
+            }
+
+            rocket.fuel = Math.max(0, rocket.fuel);
+            fuelDisplay.textContent = Math.round(rocket.fuel);
+        }
+
+        function draw() {
+            ctx.fillStyle = 'black';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw snowflakes
+            drawSnowflakes();
+
+            // Draw bodies with glow effect
+            bodies.forEach(body => {
+                // Glow effect
+                const gradient = ctx.createRadialGradient(
+                    body.x, body.y, 0,
+                    body.x, body.y, body.radius * 2
+                );
+                gradient.addColorStop(0, body.color);
+                gradient.addColorStop(1, 'rgba(0,0,0,0)');
+                
+                ctx.beginPath();
+                ctx.fillStyle = gradient;
+                ctx.arc(body.x, body.y, body.radius * 2, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Main body
+                ctx.beginPath();
+                ctx.fillStyle = body.color;
+                ctx.arc(body.x, body.y, body.radius, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // Draw rocket with glow
+            const rocketGradient = ctx.createRadialGradient(
+                rocket.x, rocket.y, 0,
+                rocket.x, rocket.y, rocket.radius * 2
+            );
+            rocketGradient.addColorStop(0, rocket.color);
+            rocketGradient.addColorStop(1, 'rgba(0,0,0,0)');
+            
+            ctx.beginPath();
+            ctx.fillStyle = rocketGradient;
+            ctx.arc(rocket.x, rocket.y, rocket.radius * 2, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.fillStyle = rocket.color;
+            ctx.arc(rocket.x, rocket.y, rocket.radius, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Draw fuel pills with sparkle effect
+            fuelPills.forEach(pill => {
+                const gradient = ctx.createRadialGradient(
+                    pill.x, pill.y, 0,
+                    pill.x, pill.y, pill.radius * 1.5
+                );
+                gradient.addColorStop(0, COLORS.FUEL);
+                gradient.addColorStop(1, 'rgba(0,0,0,0)');
+                
+                ctx.beginPath();
+                ctx.fillStyle = gradient;
+                ctx.arc(pill.x, pill.y, pill.radius * 1.5, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.fillStyle = COLORS.FUEL;
+                ctx.arc(pill.x, pill.y, pill.radius, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        function showQRCode() {
+            const qrContainer = document.createElement('div');
+            qrContainer.style.position = 'fixed';
+            qrContainer.style.top = '50%';
+            qrContainer.style.left = '50%';
+            qrContainer.style.transform = 'translate(-50%, -50%)';
+            qrContainer.style.background = 'white';
+            qrContainer.style.padding = '20px';
+            qrContainer.style.borderRadius = '10px';
+            qrContainer.style.boxShadow = '0 0 20px rgba(0,255,0,0.5)';
+            qrContainer.style.zIndex = '100';
+            
+            qrContainer.innerHTML = `
+                <img src="/images/09-b7081a4074.png" alt="QR Code" style="max-width: 200px">
+                <p style="margin: 10px 0 0; color: black; text-align: center">
+                    Merry Christmas! Scan to claim your prize!
+                </p>
+            `;
+            
+            document.body.appendChild(qrContainer);
+            gameOver('You won! 🎄');
+        }
+
+        function gameLoop() {
+            if (gameOverScreen.style.display !== 'block') {
+                updatePhysics();
+                updateSnowflakes();
+                draw();
+                requestAnimationFrame(gameLoop);
+            }
+        }
+
+        function gameOver(message) {
+            gameOverScreen.style.display = 'block';
+            gameOverText.textContent = message;
+        }
+
+        function resetGame() {
+            rocket = {
+                x: canvas.width / 2,
+                y: canvas.height / 2,
+                vx: 0,
+                vy: 0,
+                mass: 1,
+                fuel: 100,
+                radius: 10,
+                color: COLORS.PLAYER
+            };
+
+            bodies = [
+                {
+                    x: canvas.width * 0.3,
+                    y: canvas.height * 0.3,
+                    vx: 0,
+                    vy: 1.2,
+                    mass: 400,
+                    radius: 20,
+                    color: COLORS.NPC1,
+                    angularVel: 0.001
+                },
+                {
+                    x: canvas.width * 0.7,
+                    y: canvas.height * 0.3,
+                    vx: 0,
+                    vy: -1.2,
+                    mass: 400,
+                    radius: 20,
+                    color: COLORS.NPC2,
+                    angularVel: -0.001
+                },
+                {
+                    x: canvas.width * 0.5,
+                    y: canvas.height * 0.7,
+                    vx: 1.2,
+                    vy: 0,
+                    mass: 400,
+                    radius: 20,
+                    color: COLORS.NPC3,
+                    angularVel: 0.001
+                }
+            ];
+
+            snowflakes = [];
+            spawnFuelPills();
+            gameOverScreen.style.display = 'none';
+            gameLoop();
+
+            // Remove existing QR code if present
+            const existingQR = document.querySelector('div[style*="qr"]');
+            if (existingQR) {
+                existingQR.remove();
+            }
+        }
+
+        // Start the game
+        spawnFuelPills();
+        gameLoop();
+    </script>
+</body>
+</html>
