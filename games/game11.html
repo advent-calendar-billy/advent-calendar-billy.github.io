@@ -61,13 +61,10 @@
             position: absolute;
             width: 40px;
             height: 40px;
-            background-size: contain;
+            background-size: cover;
             background-repeat: no-repeat;
             background-position: center;
             z-index: 1;
-            background-color: white;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
         #npc {
             position: absolute;
@@ -188,7 +185,7 @@
     
     <div id="start-screen">
         <div class="screen-content">
-            <h2>Catch Your Roommate's Mess! v2</h2>
+            <h2>Catch Your Roommate's Mess!</h2>
             <p>Tilt your phone left and right to move.<br>Catch the falling items!</p>
             <button onclick="startGame()">Start Game</button>
         </div>
@@ -267,7 +264,15 @@
             item.className = 'falling-item';
             item.style.left = Math.random() * (window.innerWidth - 40) + 'px';
             item.style.top = '80px';
-            item.style.backgroundImage = `url(${garbageItems[Math.floor(Math.random() * garbageItems.length)]})`;
+            
+            // Create an image element
+            const img = document.createElement('img');
+            img.src = garbageItems[Math.floor(Math.random() * garbageItems.length)];
+            img.style.width = '100%';
+            img.style.height = '100%';
+            img.style.objectFit = 'cover';
+            
+            item.appendChild(img);
             document.getElementById('gameContainer').appendChild(item);
 
             const fallInterval = setInterval(() => {
