@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Messy Roommate Game</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+            touch-action: none;
+        }
+        #gameContainer {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+        #player {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            width: 30px;
+            height: 80px;
+            transform: translateX(-50%);
+            z-index: 2;
+        }
+        #player::before {  /* Head */
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 30px;
+            background: #4CAF50;
+            border-radius: 50%;
+        }
+        #player::after {  /* Body */
+            content: '';
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 50px;
+            background: #4CAF50;
+        }
+        #player-name {
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            font-size: 12px;
+            color: #333;
+        }
+        .falling-item {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+        #npc {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 80px;
+            z-index: 2;
+        }
+        #npc::before {  /* Head */
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 30px;
+            background: #FF5722;
+            border-radius: 50%;
+        }
+        #npc::after {  /* Body */
+            content: '';
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 50px;
+            background: #FF5722;
+        }
+        #npc-name {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            font-size: 12px;
+            color: #333;
+        }
+        #dialogue {
+            position: absolute;
+            top: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+            display: none;
+            white-space: nowrap;
+            z-index: 3;
+        }
+        #hud {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 3;
+            color: #333;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 5px;
+        }
+        #win-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+        #game-over-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+        .screen-content {
+            text-align: center;
+            padding: 20px;
+        }
+        #start-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <div id="hud">
+            Lives: <span id="lives">3</span><br>
+            Time: <span id="timer">60</span>s
+        </div>
+        <div id="npc"><div id="npc-name">Billy</div></div>
+        <div id="dialogue"></div>
+        <div id="player"><div id="player-name">Fede</div></div>
+    </div>
+    
+    <div id="start-screen">
+        <div class="screen-content">
+            <h2>Catch Your Roommate's Mess!</h2>
+            <p>Tilt your phone left and right to move.<br>Catch the falling items!</p>
+            <button onclick="startGame()">Start Game</button>
+        </div>
+    </div>
+
+    <div id="win-screen">
+        <div class="screen-content">
+            <h2>You Won!</h2>
+            <p>You survived your messy roommate!</p>
+            <img src="/api/placeholder/200/200" alt="QR Code">
+            <button onclick="location.reload()">Play Again</button>
+        </div>
+    </div>
+
+    <div id="game-over-screen">
+        <div class="screen-content">
+            <h2>Game Over!</h2>
+            <p>Your roommate's mess was too much to handle!</p>
+            <button onclick="location.reload()">Try Again</button>
+        </div>
+    </div>
+
+    <script>
+        const dialogueLines = [
+            "I'll clean later...",
+            "I need to go bouldering now!",
+            "It's not that messy...",
+            "I'm late for my pottery class!",
+            "Just leave it, I'll do it tomorrow"
+        ];
+
+        let gameActive = false;
+        let lives = 3;
+        let timeLeft = 60;
+        let timer;
+        let dialogueTimer;
+        let player = document.getElementById('player');
+        let playerX = window.innerWidth / 2;
+        const playerSpeed = 15;
+        const playerWidth = 50;
+        const itemFallSpeed = 3;
+
+        function showRandomDialogue() {
+            const dialogue = document.getElementById('dialogue');
+            dialogue.textContent = dialogueLines[Math.floor(Math.random() * dialogueLines.length)];
+            dialogue.style.display = 'block';
+            setTimeout(() => {
+                dialogue.style.display = 'none';
+            }, 2000);
+        }
+
+        // We'll populate this with all jpg files from the garbage folder
+        const garbageItems = [];
+        
+        // Function to load garbage items
+        async function loadGarbageItems() {
+            try {
+                const folderContent = await fetch('/games/game11/garbage/').then(r => r.json());
+                garbageItems.push(...folderContent
+                    .filter(file => file.toLowerCase().endsWith('.jpg'))
+                    .map(file => `/games/game11/garbage/${file}`));
+            } catch (error) {
+                console.error('Error loading garbage items:', error);
+                // Fallback items in case of error
+                garbageItems.push('/games/game11/garbage/fallback.jpg');
+            }
+        }
+        
+        // Load items before starting the game
+        loadGarbageItems();
+
+        function createFallingItem() {
+            if (!gameActive) return;
+            
+            const item = document.createElement('div');
+            item.className = 'falling-item';
+            item.style.left = Math.random() * (window.innerWidth - 40) + 'px';
+            item.style.top = '80px';
+            item.style.backgroundImage = `url(${garbageItems[Math.floor(Math.random() * garbageItems.length)]})`;
+            document.getElementById('gameContainer').appendChild(item);
+
+            const fallInterval = setInterval(() => {
+                if (!gameActive) {
+                    clearInterval(fallInterval);
+                    return;
+                }
+
+                const top = parseInt(item.style.top);
+                const itemRect = item.getBoundingClientRect();
+                const playerRect = player.getBoundingClientRect();
+
+                if (top >= window.innerHeight) {
+                    item.remove();
+                    clearInterval(fallInterval);
+                    lives--;
+                    document.getElementById('lives').textContent = lives;
+                    if (lives <= 0) {
+                        endGame(false);
+                    }
+                } else {
+                    item.style.top = (top + itemFallSpeed) + 'px';
+                    
+                    // Check collision
+                    if (!(itemRect.right < playerRect.left || 
+                          itemRect.left > playerRect.right || 
+                          itemRect.bottom < playerRect.top || 
+                          itemRect.top > playerRect.bottom)) {
+                        item.remove();
+                        clearInterval(fallInterval);
+                    }
+                }
+            }, 16);
+        }
+
+        function handleOrientation(event) {
+            if (!gameActive) return;
+            
+            const gamma = event.gamma; // Left/Right tilt
+            if (gamma !== null) {
+                playerX = Math.max(playerWidth/2, Math.min(window.innerWidth - playerWidth/2, 
+                    playerX + (gamma * playerSpeed/10)));
+                player.style.left = (playerX - playerWidth/2) + 'px';
+            }
+        }
+
+        function startGame() {
+            if (!gameActive) {
+                gameActive = true;
+                document.getElementById('start-screen').style.display = 'none';
+                
+                // Request device orientation permission on iOS
+                if (typeof DeviceOrientationEvent !== 'undefined' && 
+                    typeof DeviceOrientationEvent.requestPermission === 'function') {
+                    DeviceOrientationEvent.requestPermission()
+                        .then(response => {
+                            if (response === 'granted') {
+                                window.addEventListener('deviceorientation', handleOrientation);
+                            }
+                        })
+                        .catch(console.error);
+                } else {
+                    window.addEventListener('deviceorientation', handleOrientation);
+                }
+
+                // Start timers
+                timer = setInterval(() => {
+                    timeLeft--;
+                    document.getElementById('timer').textContent = timeLeft;
+                    if (timeLeft <= 0) {
+                        endGame(true);
+                    }
+                }, 1000);
+
+                // Create falling items
+                setInterval(createFallingItem, 1000);
+
+                // Show random dialogue
+                dialogueTimer = setInterval(showRandomDialogue, 4000);
+            }
+        }
+
+        function endGame(won) {
+            gameActive = false;
+            clearInterval(timer);
+            clearInterval(dialogueTimer);
+            window.removeEventListener('deviceorientation', handleOrientation);
+            
+            if (won) {
+                document.getElementById('win-screen').style.display = 'flex';
+            } else {
+                document.getElementById('game-over-screen').style.display = 'flex';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -19,7 +19,8 @@ PRIZES = [
     "Desayuno en la cama (please pre-order)",
     "vamos al [evento con connotación cultural]",
     "mini-viajecito (please pre-order)",
-    "un pete"
+    "un pete",
+    "vamos a caminar"
 ]
 
 def generate_hash(day, seed="billy2024"):
