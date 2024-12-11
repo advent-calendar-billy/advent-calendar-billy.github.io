@@ -64,6 +64,10 @@
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
+            z-index: 1;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
         #npc {
             position: absolute;
@@ -236,25 +240,25 @@
             }, 2000);
         }
 
-        // We'll populate this with all jpg files from the garbage folder
-        const garbageItems = [];
-        
-        // Function to load garbage items
-        async function loadGarbageItems() {
-            try {
-                const folderContent = await fetch('/games/game11/garbage/').then(r => r.json());
-                garbageItems.push(...folderContent
-                    .filter(file => file.toLowerCase().endsWith('.jpg'))
-                    .map(file => `/games/game11/garbage/${file}`));
-            } catch (error) {
-                console.error('Error loading garbage items:', error);
-                // Fallback items in case of error
-                garbageItems.push('/games/game11/garbage/fallback.jpg');
-            }
-        }
-        
-        // Load items before starting the game
-        loadGarbageItems();
+        // Define the garbage items with the actual filenames
+        const garbageItems = [
+            '/games/game11/garbage/bouldering shoes_1.jpg',
+            '/games/game11/garbage/broken electronics_5.jpg',
+            '/games/game11/garbage/cardboard boxes_1.jpg',
+            '/games/game11/garbage/cardboard boxes_2.jpg',
+            '/games/game11/garbage/cardboard boxes_3.jpg',
+            '/games/game11/garbage/cardboard boxes_4.jpg',
+            '/games/game11/garbage/dirty dishes_1.jpg',
+            '/games/game11/garbage/dirty dishes_2.jpg',
+            '/games/game11/garbage/dirty dishes_3.jpg',
+            '/games/game11/garbage/dirty dishes_5.jpg',
+            '/games/game11/garbage/food waste_3.jpg',
+            '/games/game11/garbage/food waste_5.jpg',
+            '/games/game11/garbage/laptops_1.jpg',
+            '/games/game11/garbage/laptops_3.jpg',
+            '/games/game11/garbage/laptops_4.jpg',
+            '/games/game11/garbage/paper tissues_5.jpg'
+        ];
 
         function createFallingItem() {
             if (!gameActive) return;
