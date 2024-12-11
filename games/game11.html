@@ -211,7 +211,7 @@
     <div id="gameContainer">
         <div id="hud">
             Lives: <span id="lives">3</span><br>
-            Time: <span id="timer">60</span>s
+            Time: <span id="timer">20</span>s
         </div>
         <div id="power-up-status"></div>
         <div id="npc"><div id="npc-name">Billy</div></div>
@@ -250,7 +250,7 @@
         const player = document.getElementById('player');
         let gameActive = false;
         let lives = 3;
-        let timeLeft = 60;
+        let timeLeft = 20;
         let timer;
         let dialogueTimer;
         let gameLoop;
@@ -275,11 +275,12 @@
 
         // Dialogue lines
         const dialogueLines = [
-            "I'll clean later...",
-            "I need to go bouldering now!",
-            "It's not that messy...",
-            "I'm late for my pottery class!",
-            "Just leave it, I'll do it tomorrow"
+            "después limpio...",
+            "me voy a bouldering",
+            "mañana lo hago",
+            "estoy trabajando",
+            "no está tan sucio...",
+            "me das un abrazo?"
         ];
 
         // Garbage items
