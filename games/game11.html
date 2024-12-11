@@ -178,6 +178,7 @@
             Lives: <span id="lives">3</span><br>
             Time: <span id="timer">60</span>s
         </div>
+        <div id="power-up-status"></div>
         <div id="npc"><div id="npc-name">Billy</div></div>
         <div id="dialogue"></div>
         <div id="player"><div id="player-name">Fede</div></div>
@@ -262,7 +263,7 @@
             
             const item = document.createElement('div');
             item.className = 'falling-item';
-            item.style.left = Math.random() * (window.innerWidth - 40) + 'px';
+            item.style.left = Math.random() * (window.innerWidth - 60) + 'px';
             item.style.top = '80px';
             
             // Create an image element
@@ -274,6 +275,48 @@
             
             item.appendChild(img);
             document.getElementById('gameContainer').appendChild(item);
+
+            const fallInterval = setInterval(() => {
+                if (!gameActive) {
+                    clearInterval(fallInterval);
+                    return;
+                }
+
+                const top = parseInt(item.style.top);
+                const itemRect = item.getBoundingClientRect();
+
+                // Check collision with bullets
+                bullets.forEach((bullet, bulletIndex) => {
+                    const bulletRect = bullet.getBoundingClientRect();
+                    if (!(bulletRect.right < itemRect.left || 
+                          bulletRect.left > itemRect.right || 
+                          bulletRect.bottom < itemRect.top || 
+                          bulletRect.top > itemRect.bottom)) {
+                        // Create explosion effect
+                        createExplosion(itemRect.left, itemRect.top);
+                        
+                        // Remove bullet and item
+                        bullet.remove();
+                        bullets.splice(bulletIndex, 1);
+                        item.remove();
+                        clearInterval(fallInterval);
+                        return;
+                    }
+                });
+
+                if (top >= window.innerHeight) {
+                    item.remove();
+                    clearInterval(fallInterval);
+                    lives--;
+                    document.getElementById('lives').textContent = lives;
+                    if (lives <= 0) {
+                        endGame(false);
+                    }
+                } else {
+                    item.style.top = (top + itemFallSpeed) + 'px';
+                }
+            }, 16);
+        }
 
             const fallInterval = setInterval(() => {
                 if (!gameActive) {
@@ -338,6 +381,11 @@
                     window.addEventListener('deviceorientation', handleOrientation);
                 }
 
+                // Auto-shooting
+                setInterval(() => {
+                    if (gameActive) shoot();
+                }, 250);
+
                 // Start timers
                 timer = setInterval(() => {
                     timeLeft--;
@@ -348,10 +396,59 @@
                 }, 1000);
 
                 // Create falling items
-                setInterval(createFallingItem, 1000);
+                setInterval(() => {
+                    createFallingItem();
+                    createPowerUp();
+                }, 1000);
 
                 // Show random dialogue
                 dialogueTimer = setInterval(showRandomDialogue, 4000);
+
+                // Update bullets and power-ups
+                setInterval(() => {
+                    if (!gameActive) return;
+
+                    // Update bullets
+                    bullets.forEach((bullet, index) => {
+                        const angle = parseFloat(bullet.dataset.angle) || 0;
+                        const radians = angle * Math.PI / 180;
+                        const y = parseFloat(bullet.style.bottom) + bulletSpeed;
+                        const x = parseFloat(bullet.style.left) + Math.sin(radians) * bulletSpeed;
+                        
+                        bullet.style.bottom = y + 'px';
+                        bullet.style.left = x + 'px';
+                        bullet.style.transform = `rotate(${angle}deg)`;
+
+                        if (y > window.innerHeight) {
+                            bullet.remove();
+                            bullets.splice(index, 1);
+                        }
+                    });
+
+                    // Update power-ups
+                    powerUps.forEach((powerUp, index) => {
+                        const top = parseFloat(powerUp.style.top) + itemFallSpeed;
+                        powerUp.style.top = top + 'px';
+
+                        // Check collision with player
+                        const powerUpRect = powerUp.getBoundingClientRect();
+                        const playerRect = player.getBoundingClientRect();
+
+                        if (!(powerUpRect.right < playerRect.left || 
+                            powerUpRect.left > playerRect.right || 
+                            powerUpRect.bottom < playerRect.top || 
+                            powerUpRect.top > playerRect.bottom)) {
+                            activatePowerUp(powerUp.dataset.type);
+                            powerUp.remove();
+                            powerUps.splice(index, 1);
+                        }
+
+                        if (top > window.innerHeight) {
+                            powerUp.remove();
+                            powerUps.splice(index, 1);
+                        }
+                    });
+                }, 16);
             }
         }
 
