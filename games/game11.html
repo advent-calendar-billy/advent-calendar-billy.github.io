@@ -1,281 +1,3 @@
-function createFallingItem() {
-    if (!gameActive) return;
-    
-    const item = document.createElement('div');
-    item.className = 'falling-item';
-    item.style.left = Math.random() * (window.innerWidth - 60) + 'px';
-    item.style.top = '80px';
-    
-    const img = document.createElement('img');
-    img.src = garbageItems[Math.floor(Math.random() * garbageItems.length)];
-    img.style.width = '100%';
-    img.style.height = '100%';
-    img.style.objectFit = 'cover';
-    
-    item.appendChild(img);
-    document.getElementById('gameContainer').appendChild(item);
-
-    const fallInterval = setInterval(() => {
-        if (!gameActive) {
-            clearInterval(fallInterval);
-            return;
-        }
-
-        const top = parseInt(item.style.top);
-        const itemRect = item.getBoundingClientRect();
-
-        bullets.forEach((bullet, bulletIndex) => {
-            const bulletRect = bullet.getBoundingClientRect();
-            if (!(bulletRect.right < itemRect.left || 
-                  bulletRect.left > itemRect.right || 
-                  bulletRect.bottom < itemRect.top || 
-                  bulletRect.top > itemRect.bottom)) {
-                // Create explosion effect
-                createExplosion(itemRect.left, itemRect.top);
-                
-                // Remove bullet and item
-                bullet.remove();
-                bullets.splice(bulletIndex, 1);
-                item.remove();
-                clearInterval(fallInterval);
-                return;
-            }
-        });
-
-        if (top >= window.innerHeight) {
-            item.remove();
-            clearInterval(fallInterval);
-            lives--;
-            document.getElementById('lives').textContent = lives;
-            if (lives <= 0) {
-                endGame(false);
-            }
-        } else {
-            item.style.top = (top + itemFallSpeed) + 'px';
-        }
-    }, 16);
-}
-
-function updateBullets() {
-    bullets.forEach((bullet, index) => {
-        const angle = parseFloat(bullet.dataset.angle) || 0;
-        const radians = angle * Math.PI / 180;
-        const y = parseFloat(bullet.style.bottom) + bulletSpeed;
-        const x = parseFloat(bullet.style.left) + Math.sin(radians) * bulletSpeed;
-        
-        bullet.style.bottom = y + 'px';
-        bullet.style.left = x + 'px';
-        bullet.style.transform = `rotate(${angle}deg)`;
-
-        if (y > window.innerHeight) {
-            bullet.remove();
-            bullets.splice(index, 1);
-        }
-    });
-}
-
-function updatePowerUps() {
-    powerUps.forEach((powerUp, index) => {
-        const top = parseFloat(powerUp.style.top) + itemFallSpeed;
-        powerUp.style.top = top + 'px';
-
-        const powerUpRect = powerUp.getBoundingClientRect();
-        const playerRect = player.getBoundingClientRect();
-
-        if (!(powerUpRect.right < playerRect.left || 
-            powerUpRect.left > playerRect.right || 
-            powerUpRect.bottom < playerRect.top || 
-            powerUpRect.top > playerRect.bottom)) {
-            activatePowerUp(powerUp.dataset.type);
-            powerUp.remove();
-            powerUps.splice(index, 1);
-        }
-
-        if (top > window.innerHeight) {
-            powerUp.remove();
-            powerUps.splice(index, 1);
-        }
-    });
-}
-
-function startGame() {
-    if (!gameActive) {
-        gameActive = true;
-        document.getElementById('start-screen').style.display = 'none';
-        
-        // Request device orientation permission on iOS
-        if (typeof DeviceOrientationEvent !== 'undefined' && 
-            typeof DeviceOrientationEvent.requestPermission === 'function') {
-            DeviceOrientationEvent.requestPermission()
-                .then(response => {
-                    if (response === 'granted') {
-                        window.addEventListener('deviceorientation', handleOrientation);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error requesting device orientation:', error);
-                    // Fall back to mouse/touch controls
-                    window.addEventListener('mousemove', handleMouseMove);
-                    window.addEventListener('touchmove', handleTouchMove, { passive: false });
-                });
-        } else {
-            window.addEventListener('deviceorientation', handleOrientation);
-            // Also add mouse/touch controls as fallback
-            window.addEventListener('mousemove', handleMouseMove);
-            window.addEventListener('touchmove', handleTouchMove, { passive: false });
-        }
-
-        // Auto-shooting
-        setInterval(() => {
-            if (gameActive) shoot();
-        }, 250);
-
-        // Start timers
-        timer = setInterval(() => {
-            timeLeft--;
-            document.getElementById('timer').textContent = timeLeft;
-            if (timeLeft <= 0) {
-                endGame(true);
-            }
-        }, 1000);
-
-        // Create falling items and power-ups
-        setInterval(() => {
-            if (gameActive) {
-                createFallingItem();
-                if (Math.random() < 0.1) createPowerUp();
-            }
-        }, 1000);
-
-        // Show random dialogue
-        dialogueTimer = setInterval(showRandomDialogue, 4000);
-
-        // Game loop for bullets and power-ups
-        gameLoop = setInterval(() => {
-            if (!gameActive) return;
-            updateBullets();
-            updatePowerUps();
-        }, 16);
-    }
-}
-
-function endGame(won) {
-    gameActive = false;
-    clearInterval(timer);
-    clearInterval(dialogueTimer);
-    clearInterval(gameLoop);
-    window.removeEventListener('deviceorientation', handleOrientation);
-    window.removeEventListener('mousemove', handleMouseMove);
-    window.removeEventListener('touchmove', handleTouchMove);
-    
-    if (won) {
-        document.getElementById('win-screen').style.display = 'flex';
-    } else {
-        document.getElementById('game-over-screen').style.display = 'flex';
-    }
-}
-
-function handleOrientation(event) {
-    if (!gameActive) return;
-    const gamma = event.gamma;
-    if (gamma !== null) {
-        playerX = Math.max(playerWidth/2, Math.min(window.innerWidth - playerWidth/2, 
-            playerX + (gamma * playerSpeed/10)));
-        player.style.left = (playerX - playerWidth/2) + 'px';
-    }
-}
-
-function handleMouseMove(e) {
-    if (!gameActive) return;
-    const containerRect = gameContainer.getBoundingClientRect();
-    const newX = e.clientX - containerRect.left;
-    playerX = Math.max(playerWidth/2, Math.min(containerRect.width - playerWidth/2, newX));
-    player.style.left = (playerX - playerWidth/2) + 'px';
-}
-
-function handleTouchMove(e) {
-    if (!gameActive) return;
-    e.preventDefault();
-    const containerRect = gameContainer.getBoundingClientRect();
-    const touch = e.touches[0];
-    const newX = touch.clientX - containerRect.left;
-    playerX = Math.max(playerWidth/2, Math.min(containerRect.width - playerWidth/2, newX));
-    player.style.left = (playerX - playerWidth/2) + 'px';
-}
-
-function createBullet(x, angle = 0) {
-    const bullet = document.createElement('div');
-    bullet.className = 'bullet';
-    bullet.style.left = x + 'px';
-    bullet.style.bottom = '100px';
-    bullet.dataset.angle = angle;
-    if (powerUpActive && powerUpType === POWER_UPS.LARGE) {
-        bullet.style.width = '12px';
-        bullet.style.height = '30px';
-    }
-    document.getElementById('gameContainer').appendChild(bullet);
-    bullets.push(bullet);
-}
-
-function shoot() {
-    const now = Date.now();
-    if (now - lastShot < (powerUpActive && powerUpType === POWER_UPS.RAPID ? shootingCooldown / 2 : shootingCooldown)) {
-        return;
-    }
-    lastShot = now;
-
-    const playerRect = player.getBoundingClientRect();
-    const bulletX = playerRect.left + playerRect.width / 2 - 3;
-
-    if (powerUpActive && powerUpType === POWER_UPS.SPREAD) {
-        createBullet(bulletX, -15);
-        createBullet(bulletX, 0);
-        createBullet(bulletX, 15);
-    } else {
-        createBullet(bulletX);
-    }
-}
-
-function createPowerUp() {
-    if (!gameActive || Math.random() > 0.1) return;
-
-    const powerUp = document.createElement('div');
-    powerUp.className = 'power-up';
-    powerUp.style.left = Math.random() * (window.innerWidth - 20) + 'px';
-    powerUp.style.top = '80px';
-    powerUp.dataset.type = Object.values(POWER_UPS)[Math.floor(Math.random() * Object.values(POWER_UPS).length)];
-    document.getElementById('gameContainer').appendChild(powerUp);
-    powerUps.push(powerUp);
-}
-
-function activatePowerUp(type) {
-    powerUpActive = true;
-    powerUpType = type;
-    document.getElementById('power-up-status').textContent = `Power-up: ${type.toUpperCase()}!`;
-    setTimeout(() => {
-        powerUpActive = false;
-        powerUpType = null;
-        document.getElementById('power-up-status').textContent = '';
-    }, 10000);
-}
-
-function createExplosion(x, y) {
-    const explosion = document.createElement('div');
-    explosion.className = 'explosion';
-    explosion.style.left = x + 'px';
-    explosion.style.top = y + 'px';
-    document.getElementById('gameContainer').appendChild(explosion);
-    setTimeout(() => explosion.remove(), 500);
-}
-
-function showRandomDialogue() {
-    const dialogue = document.getElementById('dialogue');
-    dialogue.textContent = dialogueLines[Math.floor(Math.random() * dialogueLines.length)];
-    dialogue.style.display = 'block';
-    setTimeout(() => {
-        dialogue.style.display = 'none';
-    }, 2000);
-}
 
 
 
@@ -579,6 +301,286 @@ function showRandomDialogue() {
             '/games/game11/garbage/laptops_4.jpg',
             '/games/game11/garbage/paper tissues_5.jpg'
         ];
+
+        function createFallingItem() {
+            if (!gameActive) return;
+            
+            const item = document.createElement('div');
+            item.className = 'falling-item';
+            item.style.left = Math.random() * (window.innerWidth - 60) + 'px';
+            item.style.top = '80px';
+            
+            const img = document.createElement('img');
+            img.src = garbageItems[Math.floor(Math.random() * garbageItems.length)];
+            img.style.width = '100%';
+            img.style.height = '100%';
+            img.style.objectFit = 'cover';
+            
+            item.appendChild(img);
+            document.getElementById('gameContainer').appendChild(item);
+
+            const fallInterval = setInterval(() => {
+                if (!gameActive) {
+                    clearInterval(fallInterval);
+                    return;
+                }
+
+                const top = parseInt(item.style.top);
+                const itemRect = item.getBoundingClientRect();
+
+                bullets.forEach((bullet, bulletIndex) => {
+                    const bulletRect = bullet.getBoundingClientRect();
+                    if (!(bulletRect.right < itemRect.left || 
+                        bulletRect.left > itemRect.right || 
+                        bulletRect.bottom < itemRect.top || 
+                        bulletRect.top > itemRect.bottom)) {
+                        // Create explosion effect
+                        createExplosion(itemRect.left, itemRect.top);
+                        
+                        // Remove bullet and item
+                        bullet.remove();
+                        bullets.splice(bulletIndex, 1);
+                        item.remove();
+                        clearInterval(fallInterval);
+                        return;
+                    }
+                });
+
+                if (top >= window.innerHeight) {
+                    item.remove();
+                    clearInterval(fallInterval);
+                    lives--;
+                    document.getElementById('lives').textContent = lives;
+                    if (lives <= 0) {
+                        endGame(false);
+                    }
+                } else {
+                    item.style.top = (top + itemFallSpeed) + 'px';
+                }
+            }, 16);
+        }
+
+        function updateBullets() {
+            bullets.forEach((bullet, index) => {
+                const angle = parseFloat(bullet.dataset.angle) || 0;
+                const radians = angle * Math.PI / 180;
+                const y = parseFloat(bullet.style.bottom) + bulletSpeed;
+                const x = parseFloat(bullet.style.left) + Math.sin(radians) * bulletSpeed;
+                
+                bullet.style.bottom = y + 'px';
+                bullet.style.left = x + 'px';
+                bullet.style.transform = `rotate(${angle}deg)`;
+
+                if (y > window.innerHeight) {
+                    bullet.remove();
+                    bullets.splice(index, 1);
+                }
+            });
+        }
+
+        function updatePowerUps() {
+            powerUps.forEach((powerUp, index) => {
+                const top = parseFloat(powerUp.style.top) + itemFallSpeed;
+                powerUp.style.top = top + 'px';
+
+                const powerUpRect = powerUp.getBoundingClientRect();
+                const playerRect = player.getBoundingClientRect();
+
+                if (!(powerUpRect.right < playerRect.left || 
+                    powerUpRect.left > playerRect.right || 
+                    powerUpRect.bottom < playerRect.top || 
+                    powerUpRect.top > playerRect.bottom)) {
+                    activatePowerUp(powerUp.dataset.type);
+                    powerUp.remove();
+                    powerUps.splice(index, 1);
+                }
+
+                if (top > window.innerHeight) {
+                    powerUp.remove();
+                    powerUps.splice(index, 1);
+                }
+            });
+        }
+
+        function startGame() {
+            if (!gameActive) {
+                gameActive = true;
+                document.getElementById('start-screen').style.display = 'none';
+                
+                // Request device orientation permission on iOS
+                if (typeof DeviceOrientationEvent !== 'undefined' && 
+                    typeof DeviceOrientationEvent.requestPermission === 'function') {
+                    DeviceOrientationEvent.requestPermission()
+                        .then(response => {
+                            if (response === 'granted') {
+                                window.addEventListener('deviceorientation', handleOrientation);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error requesting device orientation:', error);
+                            // Fall back to mouse/touch controls
+                            window.addEventListener('mousemove', handleMouseMove);
+                            window.addEventListener('touchmove', handleTouchMove, { passive: false });
+                        });
+                } else {
+                    window.addEventListener('deviceorientation', handleOrientation);
+                    // Also add mouse/touch controls as fallback
+                    window.addEventListener('mousemove', handleMouseMove);
+                    window.addEventListener('touchmove', handleTouchMove, { passive: false });
+                }
+
+                // Auto-shooting
+                setInterval(() => {
+                    if (gameActive) shoot();
+                }, 250);
+
+                // Start timers
+                timer = setInterval(() => {
+                    timeLeft--;
+                    document.getElementById('timer').textContent = timeLeft;
+                    if (timeLeft <= 0) {
+                        endGame(true);
+                    }
+                }, 1000);
+
+                // Create falling items and power-ups
+                setInterval(() => {
+                    if (gameActive) {
+                        createFallingItem();
+                        if (Math.random() < 0.1) createPowerUp();
+                    }
+                }, 1000);
+
+                // Show random dialogue
+                dialogueTimer = setInterval(showRandomDialogue, 4000);
+
+                // Game loop for bullets and power-ups
+                gameLoop = setInterval(() => {
+                    if (!gameActive) return;
+                    updateBullets();
+                    updatePowerUps();
+                }, 16);
+            }
+        }
+
+        function endGame(won) {
+            gameActive = false;
+            clearInterval(timer);
+            clearInterval(dialogueTimer);
+            clearInterval(gameLoop);
+            window.removeEventListener('deviceorientation', handleOrientation);
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('touchmove', handleTouchMove);
+            
+            if (won) {
+                document.getElementById('win-screen').style.display = 'flex';
+            } else {
+                document.getElementById('game-over-screen').style.display = 'flex';
+            }
+        }
+
+        function handleOrientation(event) {
+            if (!gameActive) return;
+            const gamma = event.gamma;
+            if (gamma !== null) {
+                playerX = Math.max(playerWidth/2, Math.min(window.innerWidth - playerWidth/2, 
+                    playerX + (gamma * playerSpeed/10)));
+                player.style.left = (playerX - playerWidth/2) + 'px';
+            }
+        }
+
+        function handleMouseMove(e) {
+            if (!gameActive) return;
+            const containerRect = gameContainer.getBoundingClientRect();
+            const newX = e.clientX - containerRect.left;
+            playerX = Math.max(playerWidth/2, Math.min(containerRect.width - playerWidth/2, newX));
+            player.style.left = (playerX - playerWidth/2) + 'px';
+        }
+
+        function handleTouchMove(e) {
+            if (!gameActive) return;
+            e.preventDefault();
+            const containerRect = gameContainer.getBoundingClientRect();
+            const touch = e.touches[0];
+            const newX = touch.clientX - containerRect.left;
+            playerX = Math.max(playerWidth/2, Math.min(containerRect.width - playerWidth/2, newX));
+            player.style.left = (playerX - playerWidth/2) + 'px';
+        }
+
+        function createBullet(x, angle = 0) {
+            const bullet = document.createElement('div');
+            bullet.className = 'bullet';
+            bullet.style.left = x + 'px';
+            bullet.style.bottom = '100px';
+            bullet.dataset.angle = angle;
+            if (powerUpActive && powerUpType === POWER_UPS.LARGE) {
+                bullet.style.width = '12px';
+                bullet.style.height = '30px';
+            }
+            document.getElementById('gameContainer').appendChild(bullet);
+            bullets.push(bullet);
+        }
+
+        function shoot() {
+            const now = Date.now();
+            if (now - lastShot < (powerUpActive && powerUpType === POWER_UPS.RAPID ? shootingCooldown / 2 : shootingCooldown)) {
+                return;
+            }
+            lastShot = now;
+
+            const playerRect = player.getBoundingClientRect();
+            const bulletX = playerRect.left + playerRect.width / 2 - 3;
+
+            if (powerUpActive && powerUpType === POWER_UPS.SPREAD) {
+                createBullet(bulletX, -15);
+                createBullet(bulletX, 0);
+                createBullet(bulletX, 15);
+            } else {
+                createBullet(bulletX);
+            }
+        }
+
+        function createPowerUp() {
+            if (!gameActive || Math.random() > 0.1) return;
+
+            const powerUp = document.createElement('div');
+            powerUp.className = 'power-up';
+            powerUp.style.left = Math.random() * (window.innerWidth - 20) + 'px';
+            powerUp.style.top = '80px';
+            powerUp.dataset.type = Object.values(POWER_UPS)[Math.floor(Math.random() * Object.values(POWER_UPS).length)];
+            document.getElementById('gameContainer').appendChild(powerUp);
+            powerUps.push(powerUp);
+        }
+
+        function activatePowerUp(type) {
+            powerUpActive = true;
+            powerUpType = type;
+            document.getElementById('power-up-status').textContent = `Power-up: ${type.toUpperCase()}!`;
+            setTimeout(() => {
+                powerUpActive = false;
+                powerUpType = null;
+                document.getElementById('power-up-status').textContent = '';
+            }, 10000);
+        }
+
+        function createExplosion(x, y) {
+            const explosion = document.createElement('div');
+            explosion.className = 'explosion';
+            explosion.style.left = x + 'px';
+            explosion.style.top = y + 'px';
+            document.getElementById('gameContainer').appendChild(explosion);
+            setTimeout(() => explosion.remove(), 500);
+        }
+
+        function showRandomDialogue() {
+            const dialogue = document.getElementById('dialogue');
+            dialogue.textContent = dialogueLines[Math.floor(Math.random() * dialogueLines.length)];
+            dialogue.style.display = 'block';
+            setTimeout(() => {
+                dialogue.style.display = 'none';
+            }, 2000);
+        }
+
     </script>
 </body>
 </html>
