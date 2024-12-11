@@ -1,537 +1,4 @@
-bullet.remove();
-                            bullets.splice(bulletIndex, 1);
-                            item.remove();
-                            clearInterval(fallInterval);
-                            return;
-                        }
-                    }
-                });
-
-                if (top >= window.innerHeight) {
-                    item.remove();
-                    clearInterval(fallInterval);
-                    lives--;
-                    document.getElementById('lives').textContent = lives;
-                    if (lives <= 0) {
-                        endGame(false);
-                    }
-                } else {
-                    item.style.top = (top + itemFallSpeed) + 'px';
-                }
-            }, 16);
-        }
-
-        function updateBullets() {
-            bullets.forEach((bullet, index) => {
-                const angle = parseFloat(bullet.dataset.angle) || 0;
-                const radians = angle * Math.PI / 180;
-                const y = parseFloat(bullet.style.bottom) + bulletSpeed;
-                const x = parseFloat(bullet.style.left) + Math.sin(radians) * bulletSpeed;
-                
-                bullet.style.bottom = y + 'px';
-                bullet.style.left = x + 'px';
-                bullet.style.transform = `rotate(${angle}deg)`;
-
-                if (y > window.innerHeight) {
-                    bullet.remove();
-                    bullets.splice(index, 1);
-                }
-            });
-        }
-
-        function updatePowerUps() {
-            powerUps.forEach((powerUp, index) => {
-                const top = parseFloat(powerUp.style.top) + itemFallSpeed;
-                powerUp.style.top = top + 'px';
-
-                const powerUpRect = powerUp.getBoundingClientRect();
-                const playerRect = player.getBoundingClientRect();
-
-                if (!(powerUpRect.right < playerRect.left || 
-                    powerUpRect.left > playerRect.right || 
-                    powerUpRect.bottom < playerRect.top || 
-                    powerUpRect.top > playerRect.bottom)) {
-                    activatePowerUp(powerUp.dataset.type);
-                    powerUp.remove();
-                    powerUps.splice(index, 1);
-                }
-
-                if (top > window.innerHeight) {
-                    powerUp.remove();
-                    powerUps.splice(index, 1);
-                }
-            });
-        }
-
-        function startGame() {
-            if (!gameActive) {
-                gameActive = true;
-                document.getElementById('start-screen').style.display = 'none';
-                
-                // Request device orientation permission on iOS
-                if (typeof DeviceOrientationEvent !== 'undefined' && 
-                    typeof DeviceOrientationEvent.requestPermission === 'function') {
-                    DeviceOrientationEvent.requestPermission()
-                        .then(response => {
-                            if (response === 'granted') {
-                                window.addEventListener('deviceorientation', handleOrientation);
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error requesting device orientation:', error);
-                            // Fall back to mouse/touch controls
-                            window.addEventListener('mousemove', handleMouseMove);
-                            window.addEventListener('touchmove', handleTouchMove, { passive: false });
-                        });
-                } else {
-                    window.addEventListener('deviceorientation', handleOrientation);
-                    // Also add mouse/touch controls as fallback
-                    window.addEventListener('mousemove', handleMouseMove);
-                    window.addEventListener('touchmove', handleTouchMove, { passive: false });
-                }
-
-                // Auto-shooting
-                setInterval(() => {
-                    if (gameActive) shoot();
-                }, 250);
-
-                // Start timers
-                timer = setInterval(() => {
-                    timeLeft--;
-                    document.getElementById('timer').textContent = timeLeft;
-                    if (timeLeft <= 0) {
-                        endGame(true);
-                    }
-                }, 1000);
-
-                // Create falling items and power-ups
-                setInterval(() => {
-                    if (gameActive) {
-                        createFallingItem();
-                        if (Math.random() < 0.1) createPowerUp();
-                    }
-                }, 1000);
-
-                // Show random dialogue
-                dialogueTimer = setInterval(showRandomDialogue, 4000);
-
-                // Game loop for bullets and power-ups
-                gameLoop = setInterval(() => {
-                    if (!gameActive) return;
-                    updateBullets();
-                    updatePowerUps();
-                }, 16);
-            }
-        }
-
-        function endGame(won) {
-            gameActive = false;
-            clearInterval(timer);
-            clearInterval(dialogueTimer);
-            clearInterval(gameLoop);
-            window.removeEventListener('deviceorientation', handleOrientation);
-            window.removeEventListener('mousemove', handleMouseMove);
-            window.removeEventListener('touchmove', handleTouchMove);
-            
-            if (won) {
-                document.getElementById('win-screen').style.display = 'flex';
-            } else {
-                document.getElementById('game-over-screen').style.display = 'flex';
-            }
-        }
-    </script>
-</body>
-</html><!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Messy Roommate Game</title>
-    <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-            font-family: Arial, sans-serif;
-            background: #f0f0f0;
-            touch-action: none;
-        }
-        #gameContainer {
-            position: relative;
-            width: 100vw;
-            height: 100vh;
-            overflow: hidden;
-        }
-        #player {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            width: 30px;
-            height: 80px;
-            transform: translateX(-50%);
-            z-index: 2;
-        }
-        #player::before {  /* Head */
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 30px;
-            height: 30px;
-            background: #4CAF50;
-            border-radius: 50%;
-        }
-        #player::after {  /* Body */
-            content: '';
-            position: absolute;
-            top: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 4px;
-            height: 50px;
-            background: #4CAF50;
-        }
-        #player-name {
-            position: absolute;
-            bottom: -20px;
-            left: 50%;
-            transform: translateX(-50%);
-            white-space: nowrap;
-            font-size: 12px;
-            color: #333;
-        }
-        .bullet {
-            position: absolute;
-            width: 6px;
-            height: 15px;
-            background-color: #ffdd00;
-            border-radius: 3px;
-            z-index: 2;
-        }
-        .power-up {
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            background-color: #32CD32;
-            border-radius: 50%;
-            z-index: 2;
-            animation: pulse 1s infinite;
-        }
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); }
-        }
-        .falling-item {
-            position: absolute;
-            width: 60px;
-            height: 60px;
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-position: center;
-            z-index: 1;
-        }
-        #npc {
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            width: 30px;
-            height: 80px;
-            transform: translateX(-50%);
-            z-index: 2;
-        }
-        #npc::before {  /* Head */
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 30px;
-            height: 30px;
-            background: #FF5722;
-            border-radius: 50%;
-        }
-        #npc::after {  /* Body */
-            content: '';
-            position: absolute;
-            top: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 4px;
-            height: 50px;
-            background: #FF5722;
-        }
-        #npc-name {
-            position: absolute;
-            top: -20px;
-            left: 50%;
-            transform: translateX(-50%);
-            white-space: nowrap;
-            font-size: 12px;
-            color: #333;
-        }
-        #dialogue {
-            position: absolute;
-            top: 90px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: white;
-            padding: 10px;
-            border-radius: 10px;
-            display: none;
-            white-space: nowrap;
-            z-index: 3;
-        }
-        #power-up-status {
-            position: absolute;
-            top: 50px;
-            left: 10px;
-            color: #32CD32;
-            font-weight: bold;
-        }
-        #hud {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            z-index: 3;
-            color: #333;
-            background: rgba(255, 255, 255, 0.8);
-            padding: 10px;
-            border-radius: 5px;
-        }
-        .explosion {
-            position: absolute;
-            width: 40px;
-            height: 40px;
-            animation: explode 0.5s forwards;
-            background: radial-gradient(circle, #ffdd00, #ff4400);
-            border-radius: 50%;
-            z-index: 3;
-        }
-        @keyframes explode {
-            0% { transform: scale(0.5); opacity: 1; }
-            100% { transform: scale(1.5); opacity: 0; }
-        }
-        #start-screen, #win-screen, #game-over-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.95);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-        }
-        #win-screen, #game-over-screen {
-            display: none;
-        }
-        .screen-content {
-            text-align: center;
-            padding: 20px;
-        }
-    </style>
-</head>
-<body>
-    <div id="gameContainer">
-        <div id="hud">
-            Lives: <span id="lives">3</span><br>
-            Time: <span id="timer">60</span>s
-        </div>
-        <div id="power-up-status"></div>
-        <div id="npc"><div id="npc-name">Billy</div></div>
-        <div id="dialogue"></div>
-        <div id="player"><div id="player-name">Fede</div></div>
-    </div>
-    
-    <div id="start-screen">
-        <div class="screen-content">
-            <h2>Catch Your Roommate's Mess! v2</h2>
-            <p>Move to aim and shoot at the falling items!<br>Collect green power-ups for special abilities!</p>
-            <button onclick="startGame()">Start Game</button>
-        </div>
-    </div>
-
-    <div id="win-screen">
-        <div class="screen-content">
-            <h2>You Won!</h2>
-            <p>You survived your messy roommate!</p>
-            <img src="/api/placeholder/200/200" alt="QR Code">
-            <button onclick="location.reload()">Play Again</button>
-        </div>
-    </div>
-
-    <div id="game-over-screen">
-        <div class="screen-content">
-            <h2>Game Over!</h2>
-            <p>Your roommate's mess was too much to handle!</p>
-            <button onclick="location.reload()">Try Again</button>
-        </div>
-    </div>
-
-    <script>
-        // Game constants and variables
-        const gameContainer = document.getElementById('gameContainer');
-        const player = document.getElementById('player');
-        let gameActive = false;
-        let lives = 3;
-        let timeLeft = 60;
-        let timer;
-        let dialogueTimer;
-        let gameLoop;
-        let playerX = window.innerWidth / 2;
-        const playerWidth = 30;
-        const playerSpeed = 10;
-        const itemFallSpeed = 2;
-        let powerUpActive = false;
-        let powerUpType = null;
-        let bullets = [];
-        let powerUps = [];
-        const bulletSpeed = 8;
-        let lastShot = 0;
-        const shootingCooldown = 250;
-
-        // Power-up types
-        const POWER_UPS = {
-            SPREAD: 'spread',
-            RAPID: 'rapid',
-            LARGE: 'large'
-        };
-
-        // Dialogue lines
-        const dialogueLines = [
-            "I'll clean later...",
-            "I need to go bouldering now!",
-            "It's not that messy...",
-            "I'm late for my pottery class!",
-            "Just leave it, I'll do it tomorrow"
-        ];
-
-        // Garbage items
-        const garbageItems = [
-            '/games/game11/garbage/bouldering shoes_1.jpg',
-            '/games/game11/garbage/broken electronics_5.jpg',
-            '/games/game11/garbage/cardboard boxes_1.jpg',
-            '/games/game11/garbage/cardboard boxes_2.jpg',
-            '/games/game11/garbage/cardboard boxes_3.jpg',
-            '/games/game11/garbage/cardboard boxes_4.jpg',
-            '/games/game11/garbage/dirty dishes_1.jpg',
-            '/games/game11/garbage/dirty dishes_2.jpg',
-            '/games/game11/garbage/dirty dishes_3.jpg',
-            '/games/game11/garbage/dirty dishes_5.jpg',
-            '/games/game11/garbage/food waste_3.jpg',
-            '/games/game11/garbage/food waste_5.jpg',
-            '/games/game11/garbage/laptops_1.jpg',
-            '/games/game11/garbage/laptops_3.jpg',
-            '/games/game11/garbage/laptops_4.jpg',
-            '/games/game11/garbage/paper tissues_5.jpg'
-        ];
-
-        function createBullet(x, angle = 0) {
-            const bullet = document.createElement('div');
-            bullet.className = 'bullet';
-            bullet.style.left = x + 'px';
-            bullet.style.bottom = '100px';
-            bullet.dataset.angle = angle;
-            if (powerUpActive && powerUpType === POWER_UPS.LARGE) {
-                bullet.style.width = '12px';
-                bullet.style.height = '30px';
-            }
-            document.getElementById('gameContainer').appendChild(bullet);
-            bullets.push(bullet);
-        }
-
-        function shoot() {
-            const now = Date.now();
-            if (now - lastShot < (powerUpActive && powerUpType === POWER_UPS.RAPID ? shootingCooldown / 2 : shootingCooldown)) {
-                return;
-            }
-            lastShot = now;
-
-            const playerRect = player.getBoundingClientRect();
-            const bulletX = playerRect.left + playerRect.width / 2 - 3;
-
-            if (powerUpActive && powerUpType === POWER_UPS.SPREAD) {
-                createBullet(bulletX, -15);
-                createBullet(bulletX, 0);
-                createBullet(bulletX, 15);
-            } else {
-                createBullet(bulletX);
-            }
-        }
-
-        function createPowerUp() {
-            if (!gameActive || Math.random() > 0.1) return;
-
-            const powerUp = document.createElement('div');
-            powerUp.className = 'power-up';
-            powerUp.style.left = Math.random() * (window.innerWidth - 20) + 'px';
-            powerUp.style.top = '80px';
-            powerUp.dataset.type = Object.values(POWER_UPS)[Math.floor(Math.random() * Object.values(POWER_UPS).length)];
-            document.getElementById('gameContainer').appendChild(powerUp);
-            powerUps.push(powerUp);
-        }
-
-        function activatePowerUp(type) {
-            powerUpActive = true;
-            powerUpType = type;
-            document.getElementById('power-up-status').textContent = `Power-up: ${type.toUpperCase()}!`;
-            setTimeout(() => {
-                powerUpActive = false;
-                powerUpType = null;
-                document.getElementById('power-up-status').textContent = '';
-            }, 10000);
-        }
-
-        function createExplosion(x, y) {
-            const explosion = document.createElement('div');
-            explosion.className = 'explosion';
-            explosion.style.left = x + 'px';
-            explosion.style.top = y + 'px';
-            document.getElementById('gameContainer').appendChild(explosion);
-            setTimeout(() => explosion.remove(), 500);
-        }
-
-        function showRandomDialogue() {
-            const dialogue = document.getElementById('dialogue');
-            dialogue.textContent = dialogueLines[Math.floor(Math.random() * dialogueLines.length)];
-            dialogue.style.display = 'block';
-            setTimeout(() => {
-                dialogue.style.display = 'none';
-            }, 2000);
-        }
-
-        function handleOrientation(event) {
-            if (!gameActive) return;
-            const gamma = event.gamma;
-            if (gamma !== null) {
-                playerX = Math.max(playerWidth/2, Math.min(window.innerWidth - playerWidth/2, 
-                    playerX + (gamma * playerSpeed/10)));
-                player.style.left = (playerX - playerWidth/2) + 'px';
-            }
-        }
-
-        function handleMouseMove(e) {
-            if (!gameActive) return;
-            const containerRect = gameContainer.getBoundingClientRect();
-            const newX = e.clientX - containerRect.left;
-            playerX = Math.max(playerWidth/2, Math.min(containerRect.width - playerWidth/2, newX));
-            player.style.left = (playerX - playerWidth/2) + 'px';
-        }
-
-        function handleTouchMove(e) {
-            if (!gameActive) return;
-            e.preventDefault();
-            const containerRect = gameContainer.getBoundingClientRect();
-            const touch = e.touches[0];
-            const newX = touch.clientX - containerRect.left;
-            playerX = Math.max(playerWidth/2, Math.min(containerRect.width - playerWidth/2, newX));
-            player.style.left = (playerX - playerWidth/2) + 'px';
-        }
-
-        function createFallingItem() {
+function createFallingItem() {
     if (!gameActive) return;
     
     const item = document.createElement('div');
@@ -809,3 +276,309 @@ function showRandomDialogue() {
         dialogue.style.display = 'none';
     }, 2000);
 }
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Messy Roommate Game</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+            touch-action: none;
+        }
+        #gameContainer {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+        #player {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            width: 30px;
+            height: 80px;
+            transform: translateX(-50%);
+            z-index: 2;
+        }
+        #player::before {  /* Head */
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 30px;
+            background: #4CAF50;
+            border-radius: 50%;
+        }
+        #player::after {  /* Body */
+            content: '';
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 50px;
+            background: #4CAF50;
+        }
+        #player-name {
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            font-size: 12px;
+            color: #333;
+        }
+        .bullet {
+            position: absolute;
+            width: 6px;
+            height: 15px;
+            background-color: #ffdd00;
+            border-radius: 3px;
+            z-index: 2;
+        }
+        .power-up {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: #32CD32;
+            border-radius: 50%;
+            z-index: 2;
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        .falling-item {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            z-index: 1;
+        }
+        #npc {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            width: 30px;
+            height: 80px;
+            transform: translateX(-50%);
+            z-index: 2;
+        }
+        #npc::before {  /* Head */
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 30px;
+            background: #FF5722;
+            border-radius: 50%;
+        }
+        #npc::after {  /* Body */
+            content: '';
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 50px;
+            background: #FF5722;
+        }
+        #npc-name {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            font-size: 12px;
+            color: #333;
+        }
+        #dialogue {
+            position: absolute;
+            top: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+            display: none;
+            white-space: nowrap;
+            z-index: 3;
+        }
+        #power-up-status {
+            position: absolute;
+            top: 50px;
+            left: 10px;
+            color: #32CD32;
+            font-weight: bold;
+        }
+        #hud {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 3;
+            color: #333;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .explosion {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            animation: explode 0.5s forwards;
+            background: radial-gradient(circle, #ffdd00, #ff4400);
+            border-radius: 50%;
+            z-index: 3;
+        }
+        @keyframes explode {
+            0% { transform: scale(0.5); opacity: 1; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+        #start-screen, #win-screen, #game-over-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+        #win-screen, #game-over-screen {
+            display: none;
+        }
+        .screen-content {
+            text-align: center;
+            padding: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            background: #4CAF50;
+            color: white;
+            cursor: pointer;
+            margin: 10px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <div id="hud">
+            Lives: <span id="lives">3</span><br>
+            Time: <span id="timer">60</span>s
+        </div>
+        <div id="power-up-status"></div>
+        <div id="npc"><div id="npc-name">Billy</div></div>
+        <div id="dialogue"></div>
+        <div id="player"><div id="player-name">Fede</div></div>
+    </div>
+    
+    <div id="start-screen">
+        <div class="screen-content">
+            <h2>Catch Your Roommate's Mess!</h2>
+            <p>Move to aim and shoot at the falling items!<br>Collect green power-ups for special abilities!</p>
+            <button onclick="startGame()">Start Game</button>
+        </div>
+    </div>
+
+    <div id="win-screen">
+        <div class="screen-content">
+            <h2>You Won!</h2>
+            <p>You survived your messy roommate!</p>
+            <img src="11-3a442a5337.png" alt="QR Code" style="max-width: 200px;">
+            <button onclick="location.reload()">Play Again</button>
+        </div>
+    </div>
+
+    <div id="game-over-screen">
+        <div class="screen-content">
+            <h2>Game Over!</h2>
+            <p>Your roommate's mess was too much to handle!</p>
+            <button onclick="location.reload()">Try Again</button>
+        </div>
+    </div>
+
+    <script>
+        // Game variables
+        const gameContainer = document.getElementById('gameContainer');
+        const player = document.getElementById('player');
+        let gameActive = false;
+        let lives = 3;
+        let timeLeft = 60;
+        let timer;
+        let dialogueTimer;
+        let gameLoop;
+        let playerX = window.innerWidth / 2;
+        const playerWidth = 30;
+        const playerSpeed = 10;
+        const itemFallSpeed = 2;
+        let powerUpActive = false;
+        let powerUpType = null;
+        let bullets = [];
+        let powerUps = [];
+        const bulletSpeed = 8;
+        let lastShot = 0;
+        const shootingCooldown = 250;
+
+        // Power-up types
+        const POWER_UPS = {
+            SPREAD: 'spread',
+            RAPID: 'rapid',
+            LARGE: 'large'
+        };
+
+        // Dialogue lines
+        const dialogueLines = [
+            "I'll clean later...",
+            "I need to go bouldering now!",
+            "It's not that messy...",
+            "I'm late for my pottery class!",
+            "Just leave it, I'll do it tomorrow"
+        ];
+
+        // Garbage items
+        const garbageItems = [
+            '/games/game11/garbage/bouldering shoes_1.jpg',
+            '/games/game11/garbage/broken electronics_5.jpg',
+            '/games/game11/garbage/cardboard boxes_1.jpg',
+            '/games/game11/garbage/cardboard boxes_2.jpg',
+            '/games/game11/garbage/cardboard boxes_3.jpg',
+            '/games/game11/garbage/cardboard boxes_4.jpg',
+            '/games/game11/garbage/dirty dishes_1.jpg',
+            '/games/game11/garbage/dirty dishes_2.jpg',
+            '/games/game11/garbage/dirty dishes_3.jpg',
+            '/games/game11/garbage/dirty dishes_5.jpg',
+            '/games/game11/garbage/food waste_3.jpg',
+            '/games/game11/garbage/food waste_5.jpg',
+            '/games/game11/garbage/laptops_1.jpg',
+            '/games/game11/garbage/laptops_3.jpg',
+            '/games/game11/garbage/laptops_4.jpg',
+            '/games/game11/garbage/paper tissues_5.jpg'
+        ];
+    </script>
+</body>
+</html>
