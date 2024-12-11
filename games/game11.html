@@ -186,7 +186,7 @@
     
     <div id="start-screen">
         <div class="screen-content">
-            <h2>Catch Your Roommate's Mess! v2</h2>
+            <h2>Catch Your Roommate's Mess!</h2>
             <p>Tilt your phone left and right to move.<br>Catch the falling items!</p>
             <button onclick="startGame()">Start Game</button>
         </div>
@@ -376,9 +376,17 @@
                                 window.addEventListener('deviceorientation', handleOrientation);
                             }
                         })
-                        .catch(console.error);
+                        .catch(error => {
+                            console.error('Error requesting device orientation:', error);
+                            // Fall back to mouse/touch controls
+                            window.addEventListener('mousemove', handleMouseMove);
+                            window.addEventListener('touchmove', handleTouchMove, { passive: false });
+                        });
                 } else {
                     window.addEventListener('deviceorientation', handleOrientation);
+                    // Also add mouse/touch controls as fallback
+                    window.addEventListener('mousemove', handleMouseMove);
+                    window.addEventListener('touchmove', handleTouchMove, { passive: false });
                 }
 
                 // Auto-shooting
@@ -395,61 +403,84 @@
                     }
                 }, 1000);
 
-                // Create falling items
+                // Create falling items and power-ups
                 setInterval(() => {
-                    createFallingItem();
-                    createPowerUp();
+                    if (gameActive) {
+                        createFallingItem();
+                        if (Math.random() < 0.1) createPowerUp();
+                    }
                 }, 1000);
 
                 // Show random dialogue
                 dialogueTimer = setInterval(showRandomDialogue, 4000);
 
-                // Update bullets and power-ups
-                setInterval(() => {
+                // Game loop for bullets and power-ups
+                gameLoop = setInterval(() => {
                     if (!gameActive) return;
-
-                    // Update bullets
-                    bullets.forEach((bullet, index) => {
-                        const angle = parseFloat(bullet.dataset.angle) || 0;
-                        const radians = angle * Math.PI / 180;
-                        const y = parseFloat(bullet.style.bottom) + bulletSpeed;
-                        const x = parseFloat(bullet.style.left) + Math.sin(radians) * bulletSpeed;
-                        
-                        bullet.style.bottom = y + 'px';
-                        bullet.style.left = x + 'px';
-                        bullet.style.transform = `rotate(${angle}deg)`;
-
-                        if (y > window.innerHeight) {
-                            bullet.remove();
-                            bullets.splice(index, 1);
-                        }
-                    });
-
-                    // Update power-ups
-                    powerUps.forEach((powerUp, index) => {
-                        const top = parseFloat(powerUp.style.top) + itemFallSpeed;
-                        powerUp.style.top = top + 'px';
-
-                        // Check collision with player
-                        const powerUpRect = powerUp.getBoundingClientRect();
-                        const playerRect = player.getBoundingClientRect();
-
-                        if (!(powerUpRect.right < playerRect.left || 
-                            powerUpRect.left > playerRect.right || 
-                            powerUpRect.bottom < playerRect.top || 
-                            powerUpRect.top > playerRect.bottom)) {
-                            activatePowerUp(powerUp.dataset.type);
-                            powerUp.remove();
-                            powerUps.splice(index, 1);
-                        }
-
-                        if (top > window.innerHeight) {
-                            powerUp.remove();
-                            powerUps.splice(index, 1);
-                        }
-                    });
+                    updateBullets();
+                    updatePowerUps();
                 }, 16);
             }
+        }
+
+        function handleMouseMove(e) {
+            if (!gameActive) return;
+            const containerRect = gameContainer.getBoundingClientRect();
+            const newX = e.clientX - containerRect.left;
+            playerX = Math.max(playerWidth/2, Math.min(containerRect.width - playerWidth/2, newX));
+            player.style.left = (playerX - playerWidth/2) + 'px';
+        }
+
+        function handleTouchMove(e) {
+            if (!gameActive) return;
+            e.preventDefault();
+            const containerRect = gameContainer.getBoundingClientRect();
+            const touch = e.touches[0];
+            const newX = touch.clientX - containerRect.left;
+            playerX = Math.max(playerWidth/2, Math.min(containerRect.width - playerWidth/2, newX));
+            player.style.left = (playerX - playerWidth/2) + 'px';
+        }
+
+        function updateBullets() {
+            bullets.forEach((bullet, index) => {
+                const angle = parseFloat(bullet.dataset.angle) || 0;
+                const radians = angle * Math.PI / 180;
+                const y = parseFloat(bullet.style.bottom) + bulletSpeed;
+                const x = parseFloat(bullet.style.left) + Math.sin(radians) * bulletSpeed;
+                
+                bullet.style.bottom = y + 'px';
+                bullet.style.left = x + 'px';
+                bullet.style.transform = `rotate(${angle}deg)`;
+
+                if (y > window.innerHeight) {
+                    bullet.remove();
+                    bullets.splice(index, 1);
+                }
+            });
+        }
+
+        function updatePowerUps() {
+            powerUps.forEach((powerUp, index) => {
+                const top = parseFloat(powerUp.style.top) + itemFallSpeed;
+                powerUp.style.top = top + 'px';
+
+                const powerUpRect = powerUp.getBoundingClientRect();
+                const playerRect = player.getBoundingClientRect();
+
+                if (!(powerUpRect.right < playerRect.left || 
+                    powerUpRect.left > playerRect.right || 
+                    powerUpRect.bottom < playerRect.top || 
+                    powerUpRect.top > playerRect.bottom)) {
+                    activatePowerUp(powerUp.dataset.type);
+                    powerUp.remove();
+                    powerUps.splice(index, 1);
+                }
+
+                if (top > window.innerHeight) {
+                    powerUp.remove();
+                    powerUps.splice(index, 1);
+                }
+            });
         }
 
         function endGame(won) {
