@@ -176,27 +176,23 @@
     <script>
         // Lists for items and their hidden values
         const positiveItems = [
-            ["Salary bonus", 5000],
-            ["Freelance gig", 2000],
-            ["Tax return", 1500],
+            ["Stocks", 10000],
+            ["Freelance gig", 3500],
+            ["Tax return", 2500],
             ["Crypto investment", 3000],
-            ["Stock trade", 800],
-            ["Overtime work", 1200],
-            ["Side project", 2500],
-            ["Contest participation", 1000],
-            ["Family visit", 500],
-            ["Consulting work", 3500]
+            ["Crypto investment", 30000],
+            ["Consulting work", 3500],
+            ["Monthly salary", 10000],
         ];
 
         const negativeItems = [
-            ["Last minute flight", -400],
-            ["New gadget", -1200],
-            ["Winter shopping", -800],
+            ["3 star michelin restaurant", -1200],
+            ["Crypto investment", -5000],
             ["Restaurant evening", -200],
             ["Concert tickets", -150],
             ["Online shopping", -300],
-            ["Tech upgrade", -2000],
-            ["Spontaneous purchase", -500],
+            ["New games console", -2000],
+            ["Spontaneous vacation", -1000],
             ["Weekend trip", -600],
             ["Digital subscriptions", -100]
         ];
@@ -206,7 +202,7 @@
         const player = document.getElementById('player');
         let gameActive = false;
         let score = 0;
-        const targetScore = 500000;
+        const targetScore = 400000;
         let playerX = window.innerWidth / 2;
         const playerWidth = 80;
         const playerSpeed = 25;
