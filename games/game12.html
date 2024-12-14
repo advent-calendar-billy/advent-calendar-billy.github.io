@@ -161,6 +161,7 @@
         <div class="screen-content">
             <h2>🎉 Congratulations! 🎉</h2>
             <p>You can now afford your dream apartment in Prenzlauer Berg!</p>
+            <img src="/games/game12/12-092ab93338.png" alt="QR Code" style="max-width: 200px; margin: 20px;">
             <button onclick="location.reload()">Play Again</button>
         </div>
     </div>
@@ -206,7 +207,9 @@
         let playerX = window.innerWidth / 2;
         const playerWidth = 80;
         const playerSpeed = 25;
-        const itemFallSpeed = 2;
+        const baseItemFallSpeed = 2;
+        let currentFallSpeed = baseItemFallSpeed;
+        let gameStartTime = 0;
 
         function createSnowflakes() {
             const snowflakes = '❄❅❆';
@@ -222,6 +225,13 @@
             }, 200);
         }
 
+        function updateSpeed() {
+            if (!gameActive) return;
+            const elapsedSeconds = (Date.now() - gameStartTime) / 1000;
+            // Increase speed by 1% per second
+            currentFallSpeed = baseItemFallSpeed * (1 + (elapsedSeconds / 100));
+        }
+
         function createFallingItem() {
             if (!gameActive) return;
             
@@ -230,7 +240,6 @@
             item.style.left = Math.random() * (window.innerWidth - 150) + 'px';
             item.style.top = '-50px';
             
-            // Randomly choose between positive and negative items
             const isPositive = Math.random() > 0.5;
             const items = isPositive ? positiveItems : negativeItems;
             const [description, value] = items[Math.floor(Math.random() * items.length)];
@@ -245,11 +254,11 @@
                     return;
                 }
 
+                updateSpeed();
                 const top = parseInt(item.style.top);
                 const itemRect = item.getBoundingClientRect();
                 const playerRect = player.getBoundingClientRect();
 
-                // Check for collision with player
                 if (!(itemRect.right < playerRect.left || 
                     itemRect.left > playerRect.right || 
                     itemRect.bottom < playerRect.top || 
@@ -267,7 +276,7 @@
                     item.remove();
                     clearInterval(fallInterval);
                 } else {
-                    item.style.top = (top + itemFallSpeed) + 'px';
+                    item.style.top = (top + currentFallSpeed) + 'px';
                 }
             }, 16);
         }
@@ -297,9 +306,9 @@
 
         function startGame() {
             gameActive = true;
+            gameStartTime = Date.now();
             document.getElementById('start-screen').style.display = 'none';
             
-            // Set up device orientation
             if (typeof DeviceOrientationEvent !== 'undefined' && 
                 typeof DeviceOrientationEvent.requestPermission === 'function') {
                 DeviceOrientationEvent.requestPermission()
@@ -313,13 +322,9 @@
                 window.addEventListener('deviceorientation', handleOrientation);
             }
 
-            // Keyboard controls
             window.addEventListener('keydown', handleKeyPress);
             
-            // Create falling items
             setInterval(createFallingItem, 1000);
-            
-            // Create snowflake effect
             createSnowflakes();
         }
 
