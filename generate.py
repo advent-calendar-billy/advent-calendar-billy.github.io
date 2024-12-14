@@ -20,7 +20,8 @@ PRIZES = [
     "vamos al [evento con connotación cultural]",
     "mini-viajecito (please pre-order)",
     "un pete",
-    "vamos a caminar"
+    "vamos a caminar",
+    "vemos la peli que elijas"
 ]
 
 def generate_hash(day, seed="billy2024"):

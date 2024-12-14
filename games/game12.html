@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Berlin Money Game</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+            background: #1a2634;
+            touch-action: none;
+            color: #fff;
+            background-image: 
+                radial-gradient(circle at 50% 50%, transparent 90%, #1a2634 100%),
+                url("data:image/svg+xml,%3Csvg width='6' height='6' viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='3' cy='3' r='1' fill='%23ffffff22'/%3E%3C/svg%3E");
+        }
+        #gameContainer {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+        #player {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            width: 80px;
+            height: 40px;
+            transform: translateX(-50%);
+            background: #eee;
+            border-radius: 8px;
+            border: 2px solid #fff;
+            box-shadow: 0 0 10px rgba(255,255,255,0.2);
+            z-index: 2;
+        }
+        .falling-item {
+            position: absolute;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 4px;
+            color: #333;
+            font-size: 14px;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            z-index: 1;
+            transition: transform 0.2s;
+        }
+        .falling-item:hover {
+            transform: scale(1.05);
+        }
+        .money-popup {
+            position: absolute;
+            font-weight: bold;
+            font-size: 18px;
+            animation: floatUp 1.5s forwards;
+            z-index: 3;
+        }
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-50px); }
+        }
+        #score {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #4CAF50;
+            text-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+            z-index: 3;
+        }
+        .snowflake {
+            position: absolute;
+            color: #fff;
+            font-size: 20px;
+            user-select: none;
+            z-index: 1;
+            opacity: 0.6;
+            animation: fall linear infinite;
+        }
+        @keyframes fall {
+            0% { transform: translateY(-100vh) rotate(0deg); }
+            100% { transform: translateY(100vh) rotate(360deg); }
+        }
+        #start-screen, #win-screen, #game-over-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(26, 38, 52, 0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            color: #fff;
+        }
+        #win-screen, #game-over-screen {
+            display: none;
+        }
+        .screen-content {
+            text-align: center;
+            padding: 20px;
+            max-width: 600px;
+        }
+        button {
+            padding: 12px 24px;
+            font-size: 18px;
+            border: none;
+            border-radius: 25px;
+            background: #4CAF50;
+            color: white;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+        #progress-bar {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 200px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        #progress {
+            width: 0%;
+            height: 100%;
+            background: #4CAF50;
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <div id="score">€0</div>
+        <div id="progress-bar"><div id="progress"></div></div>
+        <div id="player"></div>
+    </div>
+    
+    <div id="start-screen">
+        <div class="screen-content">
+            <h2>❄️ Berlin Money Game ❄️</h2>
+            <p>Catch the right items to save money for your Prenzlauer Berg apartment!<br>
+            Use arrow keys or tilt your phone to move.<br>
+            Target: €500,000</p>
+            <button onclick="startGame()">Start Game</button>
+        </div>
+    </div>
+
+    <div id="win-screen">
+        <div class="screen-content">
+            <h2>🎉 Congratulations! 🎉</h2>
+            <p>You can now afford your dream apartment in Prenzlauer Berg!</p>
+            <button onclick="location.reload()">Play Again</button>
+        </div>
+    </div>
+
+    <div id="game-over-screen">
+        <div class="screen-content">
+            <h2>Game Over</h2>
+            <p>You're broke! Maybe try WG-gesucht instead?</p>
+            <button onclick="location.reload()">Try Again</button>
+        </div>
+    </div>
+
+    <script>
+        // Lists for items and their hidden values
+        const positiveItems = [
+            ["Salary bonus", 5000],
+            ["Freelance gig", 2000],
+            ["Tax return", 1500],
+            ["Crypto investment", 3000],
+            ["Stock trade", 800],
+            ["Overtime work", 1200],
+            ["Side project", 2500],
+            ["Contest participation", 1000],
+            ["Family visit", 500],
+            ["Consulting work", 3500]
+        ];
+
+        const negativeItems = [
+            ["Last minute flight", -400],
+            ["New gadget", -1200],
+            ["Winter shopping", -800],
+            ["Restaurant evening", -200],
+            ["Concert tickets", -150],
+            ["Online shopping", -300],
+            ["Tech upgrade", -2000],
+            ["Spontaneous purchase", -500],
+            ["Weekend trip", -600],
+            ["Digital subscriptions", -100]
+        ];
+
+        // Game variables
+        const gameContainer = document.getElementById('gameContainer');
+        const player = document.getElementById('player');
+        let gameActive = false;
+        let score = 0;
+        const targetScore = 500000;
+        let playerX = window.innerWidth / 2;
+        const playerWidth = 80;
+        const playerSpeed = 25;
+        const itemFallSpeed = 2;
+
+        function createSnowflakes() {
+            const snowflakes = '❄❅❆';
+            setInterval(() => {
+                if (!gameActive) return;
+                const snowflake = document.createElement('div');
+                snowflake.className = 'snowflake';
+                snowflake.style.left = Math.random() * 100 + '%';
+                snowflake.textContent = snowflakes[Math.floor(Math.random() * snowflakes.length)];
+                snowflake.style.animationDuration = Math.random() * 3 + 2 + 's';
+                document.body.appendChild(snowflake);
+                setTimeout(() => snowflake.remove(), 5000);
+            }, 200);
+        }
+
+        function createFallingItem() {
+            if (!gameActive) return;
+            
+            const item = document.createElement('div');
+            item.className = 'falling-item';
+            item.style.left = Math.random() * (window.innerWidth - 150) + 'px';
+            item.style.top = '-50px';
+            
+            // Randomly choose between positive and negative items
+            const isPositive = Math.random() > 0.5;
+            const items = isPositive ? positiveItems : negativeItems;
+            const [description, value] = items[Math.floor(Math.random() * items.length)];
+            item.textContent = description;
+            item.dataset.value = value;
+            
+            gameContainer.appendChild(item);
+
+            const fallInterval = setInterval(() => {
+                if (!gameActive) {
+                    clearInterval(fallInterval);
+                    return;
+                }
+
+                const top = parseInt(item.style.top);
+                const itemRect = item.getBoundingClientRect();
+                const playerRect = player.getBoundingClientRect();
+
+                // Check for collision with player
+                if (!(itemRect.right < playerRect.left || 
+                    itemRect.left > playerRect.right || 
+                    itemRect.bottom < playerRect.top || 
+                    itemRect.top > playerRect.bottom)) {
+                    const value = parseInt(item.dataset.value);
+                    score += value;
+                    updateScore();
+                    createMoneyPopup(value, itemRect.left, itemRect.top);
+                    item.remove();
+                    clearInterval(fallInterval);
+                    return;
+                }
+
+                if (top >= window.innerHeight) {
+                    item.remove();
+                    clearInterval(fallInterval);
+                } else {
+                    item.style.top = (top + itemFallSpeed) + 'px';
+                }
+            }, 16);
+        }
+
+        function createMoneyPopup(value, x, y) {
+            const popup = document.createElement('div');
+            popup.className = 'money-popup';
+            popup.style.left = x + 'px';
+            popup.style.top = y + 'px';
+            popup.style.color = value > 0 ? '#4CAF50' : '#f44336';
+            popup.textContent = (value > 0 ? '+' : '') + '€' + value;
+            gameContainer.appendChild(popup);
+            setTimeout(() => popup.remove(), 1500);
+        }
+
+        function updateScore() {
+            document.getElementById('score').textContent = '€' + score;
+            const progress = (score / targetScore) * 100;
+            document.getElementById('progress').style.width = Math.max(0, Math.min(100, progress)) + '%';
+            
+            if (score >= targetScore) {
+                endGame(true);
+            } else if (score <= 0) {
+                endGame(false);
+            }
+        }
+
+        function startGame() {
+            gameActive = true;
+            document.getElementById('start-screen').style.display = 'none';
+            
+            // Set up device orientation
+            if (typeof DeviceOrientationEvent !== 'undefined' && 
+                typeof DeviceOrientationEvent.requestPermission === 'function') {
+                DeviceOrientationEvent.requestPermission()
+                    .then(response => {
+                        if (response === 'granted') {
+                            window.addEventListener('deviceorientation', handleOrientation);
+                        }
+                    })
+                    .catch(console.error);
+            } else {
+                window.addEventListener('deviceorientation', handleOrientation);
+            }
+
+            // Keyboard controls
+            window.addEventListener('keydown', handleKeyPress);
+            
+            // Create falling items
+            setInterval(createFallingItem, 1000);
+            
+            // Create snowflake effect
+            createSnowflakes();
+        }
+
+        function handleOrientation(event) {
+            if (!gameActive) return;
+            const gamma = event.gamma;
+            if (gamma !== null) {
+                playerX = Math.max(playerWidth/2, Math.min(window.innerWidth - playerWidth/2, 
+                    playerX + (gamma * playerSpeed/10)));
+                player.style.left = (playerX - playerWidth/2) + 'px';
+            }
+        }
+
+        function handleKeyPress(e) {
+            if (!gameActive) return;
+            const step = 20;
+            switch(e.key) {
+                case 'ArrowLeft':
+                    playerX = Math.max(playerWidth/2, playerX - step);
+                    break;
+                case 'ArrowRight':
+                    playerX = Math.min(window.innerWidth - playerWidth/2, playerX + step);
+                    break;
+            }
+            player.style.left = (playerX - playerWidth/2) + 'px';
+        }
+
+        function endGame(won) {
+            gameActive = false;
+            window.removeEventListener('deviceorientation', handleOrientation);
+            window.removeEventListener('keydown', handleKeyPress);
+            
+            if (won) {
+                document.getElementById('win-screen').style.display = 'flex';
+            } else {
+                document.getElementById('game-over-screen').style.display = 'flex';
+            }
+        }
+    </script>
+</body>
+</html>
