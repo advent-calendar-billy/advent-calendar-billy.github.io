@@ -739,9 +739,9 @@
             }
 
             // Apply physics with speed multiplier
-            const currentGravity = initialGravity * speedMultiplier;
-            const currentLiftForce = initialLiftForce * speedMultiplier;
-            const currentMaxVelocity = initialMaxVelocity * speedMultiplier;
+            const currentGravity = initialGravity;
+            const currentLiftForce = initialLiftForce;
+            const currentMaxVelocity = initialMaxVelocity;
 
             velocity = Math.max(-currentMaxVelocity, Math.min(currentMaxVelocity, velocity + currentGravity));
             if (isLifting) {
