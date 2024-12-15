@@ -358,9 +358,10 @@
             100% { transform: rotate(360deg); }
         }
 
+        /* Gift button positioning */
         #drop-gift-btn {
             position: absolute;
-            bottom: 20px;
+            bottom: 80px;  /* Increased from 20px to move it higher */
             right: 20px;
             z-index: 5;
             background: #ff4b4b;
@@ -374,6 +375,23 @@
             padding: 0;
             border: 2px solid white;
             box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+
+        /* Mobile-specific adjustments */
+        @media (max-width: 768px) {
+            #drop-gift-btn {
+                bottom: 70px;  /* Slightly different position for mobile */
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+                right: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #drop-gift-btn {
+                bottom: 60px;  /* Even higher for very small screens */
+            }
         }
 
 
@@ -573,7 +591,7 @@
     </div>
 
     <div id="start-screen" class="screen">
-        <h1>🎄 Santa's Reindeer Delivery Adventure 🎄 v2</h1>
+        <h1>🎄 Santa's Reindeer Delivery Adventure 🎄 v3</h1>
         <p>Guide Santa and his reindeer through the night!<br>
         HOLD Space/Up or screen to rise, release to fall.<br>
         LEFT/RIGHT arrows to move sideways.<br>
