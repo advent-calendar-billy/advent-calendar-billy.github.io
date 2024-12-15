@@ -531,7 +531,7 @@
     </div>
 
     <div id="start-screen" class="screen">
-        <h1>🎄 Santa's Reindeer Delivery Adventure 🎄 v18</h1>
+        <h1>🎄 Santa's Reindeer Delivery Adventure 🎄 v19</h1>
         <p>Guide Santa and his reindeer through the night!<br>
         HOLD Space/Up or screen to rise, release to fall.<br>
         LEFT/RIGHT arrows to move sideways.<br>
@@ -583,6 +583,9 @@
         const initialLiftForce = 0.8;
         const initialMaxVelocity = 9;
         const initialObstacleSpeed = 4;
+        const MAX_OBSTACLES = 50;
+        const OBSTACLE_INTERVAL = 2000;
+
 
         function createHouse() {
             const house = document.createElement('div');
@@ -598,11 +601,11 @@
             chimney.className = 'chimney';
             house.appendChild(chimney);
 
-            house.dataset.damage = '5'; // Reduced damage for houses
+            house.dataset.damage = '5';
             house.dataset.isHouse = 'true';
-            gameContainer.appendChild(house);
-            obstacles.push(house);
             house.dataset.giftDropped = 'false';
+            
+            addObstacle(house);
         }
 
         function createMountain() {
@@ -613,9 +616,9 @@
             mountain.style.setProperty('--mountain-height', randomHeight + 'vh');
             mountain.style.left = window.innerWidth + 'px';
             mountain.style.bottom = '0';
-            mountain.dataset.damage = '10'; // Mountains still cause high damage
-            gameContainer.appendChild(mountain);
-            obstacles.push(mountain);
+            mountain.dataset.damage = '10';
+            
+            addObstacle(mountain);
         }
 
         function createCloud() {
@@ -623,10 +626,11 @@
             cloud.className = 'cloud';
             cloud.style.left = window.innerWidth + 'px';
             cloud.style.top = Math.random() * (window.innerHeight / 2) + 'px';
-            cloud.dataset.damage = '5'; // Reduced damage for clouds
-            gameContainer.appendChild(cloud);
-            obstacles.push(cloud);
+            cloud.dataset.damage = '5';
+            
+            addObstacle(cloud);
         }
+
 
 
         function createCandy() {
@@ -636,8 +640,23 @@
             candy.style.left = window.innerWidth + 'px';
             candy.style.top = Math.random() * (window.innerHeight - 50) + 'px';
             candy.dataset.isCandy = 'true';
-            gameContainer.appendChild(candy);
-            obstacles.push(candy);
+            
+            addObstacle(candy);
+        }
+
+        function addObstacle(obstacle) {
+            if (obstacles.length < MAX_OBSTACLES) {
+                gameContainer.appendChild(obstacle);
+                obstacles.push(obstacle);
+                console.log('Added obstacle. Count:', obstacles.length);
+            }
+        }
+
+
+        function removeObstacle(obstacle) {
+            obstacle.remove();
+            obstacles = obstacles.filter(obs => obs !== obstacle);
+            console.log('Removed obstacle. Count:', obstacles.length);
         }
 
         function dropGift() {
@@ -646,28 +665,30 @@
             const santaRect = santa.getBoundingClientRect();
             const gift = document.createElement('div');
             gift.className = 'gift';
-            gift.style.left = (santaRect.left + santaRect.width/2 - 10) + 'px';  // Center gift horizontally
+            gift.style.left = (santaRect.left + santaRect.width/2 - 10) + 'px';
             gift.style.top = santaRect.bottom + 'px';
             gameContainer.appendChild(gift);
 
             const fallSpeed = 8;
             const fallAnimation = setInterval(() => {
                 const currentY = parseFloat(gift.style.top);
+                const currentX = parseFloat(gift.style.left) - initialObstacleSpeed * speedMultiplier;
                 gift.style.top = (currentY + fallSpeed) + 'px';
+                gift.style.left = currentX + 'px';
 
-                // Check for chimney collisions
+                // Check for chimney collisions with more forgiving hitbox
                 const giftRect = gift.getBoundingClientRect();
                 const houses = obstacles.filter(obs => obs.dataset.isHouse);
                 
                 for (const house of houses) {
                     const chimney = house.querySelector('.chimney');
+                    if (!chimney) continue;
+                    
                     const chimneyRect = chimney.getBoundingClientRect();
-
-                    // In the dropGift function, replace the collision check with this more lenient version:
-                    if (giftRect.left < chimneyRect.right + 20 &&  // Added 20px buffer on each side
-                        giftRect.right > chimneyRect.left - 20 &&  // Added 20px buffer on each side
+                    if (giftRect.left < chimneyRect.right + 20 &&
+                        giftRect.right > chimneyRect.left - 20 &&
                         giftRect.top < chimneyRect.bottom &&
-                        giftRect.bottom > chimneyRect.top - 30) {  // Added 30px buffer on top
+                        giftRect.bottom > chimneyRect.top - 30) {
                         clearInterval(fallAnimation);
                         gift.remove();
                         score++;
@@ -676,13 +697,14 @@
                     }
                 }
 
-                // Remove gift if it goes off screen
-                if (currentY > window.innerHeight) {
-                    gift.remove();
+                // Remove gift if it goes off screen (vertically or horizontally)
+                if (currentY > window.innerHeight || currentX < -50) {
                     clearInterval(fallAnimation);
+                    gift.remove();
                 }
             }, 16);
         }
+
 
         function checkForChimneyDrop() {
             if (!gameActive) return;
@@ -780,6 +802,47 @@
             }, 200);
         }
 
+        function updateObstacles() {
+            const now = Date.now();
+            if (now - lastObstacleTime > OBSTACLE_INTERVAL && obstacles.length < MAX_OBSTACLES) {
+                lastObstacleTime = now;
+                const rand = Math.random();
+                if (rand < 0.5) {
+                    createHouse();
+                } else if (rand < 0.7) {
+                    createMountain();
+                } else if (rand < 0.9) {
+                    createCloud();
+                } else {
+                    createCandy();
+                }
+            }
+
+            const currentObstacleSpeed = initialObstacleSpeed * speedMultiplier;
+            
+            // Update each obstacle's position and check for removal
+            obstacles.forEach(obstacle => {
+                const obstacleLeft = parseFloat(obstacle.style.left);
+                obstacle.style.left = (obstacleLeft - currentObstacleSpeed) + 'px';
+                
+                // Remove if off screen
+                if (obstacleLeft < -200) {
+                    removeObstacle(obstacle);
+                }
+                
+                // Check collision with Santa
+                const obstacleRect = obstacle.getBoundingClientRect();
+                const santaRect = santa.getBoundingClientRect();
+                if (!(santaRect.right < obstacleRect.left || 
+                    santaRect.left > obstacleRect.right || 
+                    santaRect.bottom < obstacleRect.top || 
+                    santaRect.top > obstacleRect.bottom)) {
+                    handleCollision(obstacle);
+                }
+            });
+        }
+
+
         function updateGame() {
             if (!gameActive) return;
 
@@ -799,6 +862,9 @@
             const currentGravity = initialGravity;
             const currentLiftForce = initialLiftForce;
             const currentMaxVelocity = initialMaxVelocity;
+
+
+            updateObstacles();
 
             velocity = Math.max(-currentMaxVelocity, Math.min(currentMaxVelocity, velocity + currentGravity));
             if (isLifting) {
