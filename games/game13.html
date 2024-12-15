@@ -544,7 +544,7 @@
             chimney.className = 'chimney';
             house.appendChild(chimney);
 
-            house.dataset.damage = '30';
+            house.dataset.damage = '5'; // Reduced damage for houses
             house.dataset.isHouse = 'true';
             gameContainer.appendChild(house);
             obstacles.push(house);
@@ -556,7 +556,7 @@
             mountain.className = 'mountain';
             mountain.style.left = window.innerWidth + 'px';
             mountain.style.bottom = '0';
-            mountain.dataset.damage = '50';
+            mountain.dataset.damage = '10'; // Mountains still cause high damage
             gameContainer.appendChild(mountain);
             obstacles.push(mountain);
         }
@@ -566,10 +566,11 @@
             cloud.className = 'cloud';
             cloud.style.left = window.innerWidth + 'px';
             cloud.style.top = Math.random() * (window.innerHeight / 2) + 'px';
-            cloud.dataset.damage = '20';
+            cloud.dataset.damage = '5'; // Reduced damage for clouds
             gameContainer.appendChild(cloud);
             obstacles.push(cloud);
         }
+
 
         function createCandy() {
             const candy = document.createElement('div');
@@ -664,16 +665,29 @@
                 obstacle.remove();
                 obstacles = obstacles.filter(obs => obs !== obstacle);
             } else if (obstacle.dataset.damage) {
-                const damage = parseInt(obstacle.dataset.damage);
+                // Get the damage value
+                let damage = parseInt(obstacle.dataset.damage);
+                
+                // Reduce damage for clouds and chimneys
+                if (obstacle.classList.contains('cloud')) {
+                    damage = 5; // Reduced damage for clouds
+                } else if (obstacle.classList.contains('chimney')) {
+                    damage = 5; // Reduced damage for chimneys
+                } else if (obstacle.classList.contains('house')) {
+                    damage = 5; // Reduced damage for houses
+                }
+                
                 health = Math.max(0, health - damage);
                 healthBar.style.width = health + '%';
                 healthText.textContent = `${health} HP`;
                 
+                // Show damage overlay
                 damageOverlay.style.opacity = '1';
                 setTimeout(() => {
                     damageOverlay.style.opacity = '0';
                 }, 300);
 
+                // Only end game if health reaches 0
                 if (health <= 0) {
                     endGame(false);
                 }
