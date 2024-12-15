@@ -483,7 +483,7 @@
     </div>
 
     <div id="start-screen" class="screen">
-        <h1>🎄 Santa's Reindeer Delivery Adventure 🎄 v12</h1>
+        <h1>🎄 Santa's Reindeer Delivery Adventure 🎄 v13</h1>
         <p>Guide Santa and his reindeer through the night!<br>
         HOLD Space/Up or screen to rise, release to fall.<br>
         LEFT/RIGHT arrows to move sideways.<br>
@@ -606,10 +606,11 @@
                     const chimney = house.querySelector('.chimney');
                     const chimneyRect = chimney.getBoundingClientRect();
 
-                    if (giftRect.left < chimneyRect.right &&
-                        giftRect.right > chimneyRect.left &&
+                    // In the dropGift function, replace the collision check with this more lenient version:
+                    if (giftRect.left < chimneyRect.right + 20 &&  // Added 20px buffer on each side
+                        giftRect.right > chimneyRect.left - 20 &&  // Added 20px buffer on each side
                         giftRect.top < chimneyRect.bottom &&
-                        giftRect.bottom > chimneyRect.top) {
+                        giftRect.bottom > chimneyRect.top - 30) {  // Added 30px buffer on top
                         clearInterval(fallAnimation);
                         gift.remove();
                         score++;
