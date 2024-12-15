@@ -198,19 +198,19 @@
 
         .mountain {
             position: absolute;
-            border-left: 8vw solid transparent;
-            border-right: 8vw solid transparent;
-            border-bottom: 16vh solid #4a5568;
+            border-left: 12vw solid transparent;     /* Increased from 8vw */
+            border-right: 12vw solid transparent;    /* Increased from 8vw */
+            border-bottom: 24vh solid #4a5568;       /* Increased from 16vh */
             z-index: 1;
         }
 
         .mountain::after {
             content: '';
             position: absolute;
-            top: 12vh;
-            left: -6.4vw;
-            width: 12.8vw;
-            height: 4vh;
+            top: 18vh;                               /* Increased from 12vh */
+            left: -9.6vw;                           /* Adjusted proportionally from -6.4vw */
+            width: 19.2vw;                          /* Adjusted proportionally from 12.8vw */
+            height: 6vh;                            /* Increased from 4vh */
             background: #fff;
             border-radius: 50% 50% 0 0;
         }
@@ -483,7 +483,7 @@
     </div>
 
     <div id="start-screen" class="screen">
-        <h1>🎄 Santa's Reindeer Delivery Adventure 🎄 v11</h1>
+        <h1>🎄 Santa's Reindeer Delivery Adventure 🎄 v12</h1>
         <p>Guide Santa and his reindeer through the night!<br>
         HOLD Space/Up or screen to rise, release to fall.<br>
         LEFT/RIGHT arrows to move sideways.<br>
