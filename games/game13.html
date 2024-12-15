@@ -375,6 +375,169 @@
             border: 2px solid white;
             box-shadow: 0 0 10px rgba(0,0,0,0.3);
         }
+
+
+        /* Mobile-optimized styles */
+        @media (max-width: 768px) {
+            #santa {
+                width: 90px;  /* Reduced from 120px */
+                height: 45px; /* Reduced from 60px */
+            }
+
+            #santa-sleigh {
+                height: 30px; /* Reduced from 40px */
+            }
+
+            #santa-figure {
+                width: 30px;  /* Reduced from 40px */
+                height: 30px; /* Reduced from 40px */
+                bottom: 15px; /* Adjusted for new proportions */
+            }
+
+            .santa-body {
+                width: 22px;  /* Reduced from 30px */
+                height: 22px; /* Reduced from 30px */
+            }
+
+            .santa-head {
+                width: 15px;  /* Reduced from 20px */
+                height: 15px; /* Reduced from 20px */
+                bottom: 15px; /* Adjusted positioning */
+                left: 4px;
+            }
+
+            .santa-hat {
+                width: 15px;  /* Reduced from 20px */
+                height: 15px; /* Reduced from 20px */
+                bottom: 26px; /* Adjusted positioning */
+                left: 4px;
+            }
+
+            .reindeer {
+                width: 30px;  /* Reduced from 40px */
+                height: 22px; /* Reduced from 30px */
+                bottom: 4px;
+            }
+
+            .reindeer-body {
+                width: 22px;  /* Reduced from 30px */
+                height: 15px; /* Reduced from 20px */
+            }
+
+            .reindeer-head {
+                width: 11px;  /* Reduced from 15px */
+                height: 11px; /* Reduced from 15px */
+                left: -8px;
+                top: -4px;
+            }
+
+            .reindeer-nose {
+                width: 6px;   /* Reduced from 8px */
+                height: 6px;  /* Reduced from 8px */
+                left: -12px;
+                top: 0px;
+            }
+
+            .reindeer-antler {
+                width: 11px;  /* Reduced from 15px */
+                top: -6px;
+                left: -4px;
+            }
+
+            .house {
+                width: 120px; /* Reduced from 150px */
+                height: 160px; /* Reduced from 200px */
+            }
+
+            .chimney {
+                width: 24px;  /* Reduced from 30px */
+                height: 40px; /* Reduced from 50px */
+                top: -40px;
+                right: 24px;
+            }
+
+            .roof {
+                width: 144px; /* Adjusted proportionally */
+                height: 64px; /* Reduced from 80px */
+                top: -64px;
+                left: -12px;
+            }
+
+            .mountain {
+                border-left: 80px solid transparent;    /* Reduced from 100px */
+                border-right: 80px solid transparent;   /* Reduced from 100px */
+                border-bottom: 160px solid #4a5568;     /* Reduced from 200px */
+            }
+
+            .mountain::after {
+                top: 120px;   /* Adjusted for new size */
+                left: -64px;  /* Adjusted for new size */
+                width: 128px; /* Reduced proportionally */
+                height: 40px; /* Reduced from 50px */
+            }
+
+            .cloud {
+                width: 80px;  /* Reduced from 100px */
+                height: 32px; /* Reduced from 40px */
+            }
+
+            .cloud::before {
+                width: 40px;  /* Reduced from 50px */
+                height: 40px; /* Reduced from 50px */
+                top: -16px;
+                left: 12px;
+            }
+
+            .cloud::after {
+                width: 24px;  /* Reduced from 30px */
+                height: 24px; /* Reduced from 30px */
+                top: -8px;
+                right: 12px;
+            }
+
+            .gift {
+                width: 16px;  /* Reduced from 20px */
+                height: 16px; /* Reduced from 20px */
+            }
+
+            #drop-gift-btn {
+                width: 50px;      /* Reduced from 60px */
+                height: 50px;     /* Reduced from 60px */
+                font-size: 20px;  /* Reduced from 24px */
+                bottom: 15px;     /* Adjusted position */
+                right: 15px;
+            }
+
+            #health-container {
+                transform: scale(0.8);
+                transform-origin: top left;
+            }
+
+            #timer, #score {
+                font-size: 20px; /* Reduced from 24px */
+            }
+        }
+
+        /* Additional mobile optimizations */
+        @media (max-width: 480px) {
+            #santa {
+                width: 80px;  /* Even smaller for very small screens */
+                height: 40px;
+            }
+
+            #health-container {
+                transform: scale(0.7);
+            }
+
+            #timer, #score {
+                font-size: 18px;
+            }
+
+            .house {
+                width: 100px;
+                height: 140px;
+            }
+        }
     </style>
 </head>
 <body>
