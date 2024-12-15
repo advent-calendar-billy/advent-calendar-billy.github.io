@@ -531,12 +531,12 @@
     </div>
 
     <div id="start-screen" class="screen">
-        <h1>🎄 Santa's Reindeer Delivery Adventure 🎄v2</h1>
+        <h1>🎄 Santa's Reindeer Delivery Adventure 🎄</h1>
         <p>Guide Santa and his reindeer through the night!<br>
         HOLD Space/Up or screen to rise, release to fall.<br>
         LEFT/RIGHT arrows to move sideways.<br>
         Tap the gift button or press g to drop gifts in chimneys!<br>
-        Survive for 60 seconds AND deliver at least 10 gifts!</p>
+        Survive for 60 seconds AND deliver at least 20 gifts!</p>
         <button onclick="startGame()">Start Delivery</button>
     </div>
 
@@ -965,7 +965,7 @@
             const finalScore = document.getElementById('final-score');
             const qrContainer = gameOverScreen.querySelector('.qr-container');
             
-            if (survived && score >= 0) {
+            if (survived && score >= 20) {
                 header.textContent = '🎉 Delivery Complete! 🎉';
                 header.style.color = '#4CAF50';
                 finalTime.textContent = '60';
@@ -1026,7 +1026,7 @@
             score = 0;
             velocity = 0;
             horizontalVelocity = 0;
-            timeLeft = 5;
+            timeLeft = 60;
             obstacles = [];
             speedMultiplier = 1;
             isLifting = false;
