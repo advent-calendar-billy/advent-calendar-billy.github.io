@@ -483,7 +483,7 @@
     </div>
 
     <div id="start-screen" class="screen">
-        <h1>🎄 Santa's Reindeer Delivery Adventure 🎄 v8</h1>
+        <h1>🎄 Santa's Reindeer Delivery Adventure 🎄 v9</h1>
         <p>Guide Santa and his reindeer through the night!<br>
         HOLD Space/Up or screen to rise, release to fall.<br>
         LEFT/RIGHT arrows to move sideways.<br>
@@ -668,14 +668,17 @@
                 // Get the damage value
                 let damage = parseInt(obstacle.dataset.damage);
                 
-                // Reduce damage for clouds and chimneys
-                if (obstacle.classList.contains('cloud')) {
-                    damage = 5; // Reduced damage for clouds
-                } else if (obstacle.classList.contains('chimney')) {
-                    damage = 5; // Reduced damage for chimneys
-                } else if (obstacle.classList.contains('house')) {
-                    damage = 5; // Reduced damage for houses
+                // Only modify damage for specific obstacles, not boundaries
+                if (obstacle.classList) {  // Check if it's a DOM element (not a boundary collision)
+                    if (obstacle.classList.contains('cloud')) {
+                        damage = 5; // Reduced damage for clouds
+                    } else if (obstacle.classList.contains('chimney')) {
+                        damage = 5; // Reduced damage for chimneys
+                    } else if (obstacle.classList.contains('house')) {
+                        damage = 5; // Reduced damage for houses
+                    }
                 }
+                // Boundary collisions will use their original damage value (10)
                 
                 health = Math.max(0, health - damage);
                 healthBar.style.width = health + '%';
