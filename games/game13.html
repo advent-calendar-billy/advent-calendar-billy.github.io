@@ -180,9 +180,9 @@
         .chimney {
             position: absolute;
             width: 2.4vw;
-            height: 4vh;
+            height: 7vh;
             background: #34495e;
-            top: -4vh;
+            top: -7vh;
             right: 2.4vw;
         }
 
@@ -488,7 +488,7 @@
         HOLD Space/Up or screen to rise, release to fall.<br>
         LEFT/RIGHT arrows to move sideways.<br>
         Tap the gift button or press g to drop gifts in chimneys!<br>
-        Survive for 60 seconds AND deliver at least 20 gifts!</p>
+        Survive for 60 seconds AND deliver at least 10 gifts!</p>
         <button onclick="startGame()">Start Delivery</button>
     </div>
 
@@ -841,7 +841,7 @@
             const finalScore = document.getElementById('final-score');
             const qrCode = gameOverScreen.querySelector('img');
             
-            if (survived && score >= 20) {
+            if (survived && score >= 10) {
                 header.textContent = '🎉 Delivery Complete! 🎉';
                 header.style.color = '#4CAF50';
                 finalTime.textContent = '60';
