@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <!-- Removed user-scalable=no to allow zooming, and added initial-scale=0.7 to show more of the game -->
+    <meta name="viewport" content="width=device-width, initial-scale=0.7">
     <title>Santa's Reindeer Delivery Adventure</title>
     <style>
         body {
@@ -21,6 +22,37 @@
             height: 100vh;
             overflow: hidden;
         }
+        /* Message to rotate device if in portrait orientation */
+        #rotate-message {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: #0a1528;
+            color: #fff;
+            font-size: 24px;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            z-index: 999;
+        }
+
+        @media screen and (orientation: portrait) {
+            #gameContainer {
+                display: none;
+            }
+            #rotate-message {
+                display: flex;
+            }
+        }
+
+        @media screen and (orientation: landscape) {
+            #rotate-message {
+                display: none;
+            }
+        }
+
         #santa {
             position: absolute;
             width: 120px;
@@ -380,7 +412,7 @@
         /* Mobile-specific adjustments */
         @media (max-width: 768px) {
             #drop-gift-btn {
-                bottom: 70px;  /* Slightly different position for mobile */
+                bottom: 70px; 
                 width: 50px;
                 height: 50px;
                 font-size: 20px;
@@ -390,139 +422,138 @@
 
         @media (max-width: 480px) {
             #drop-gift-btn {
-                bottom: 60px;  /* Even higher for very small screens */
+                bottom: 60px; 
             }
         }
-
 
         /* Mobile-optimized styles */
         @media (max-width: 768px) {
             #santa {
-                width: 90px;  /* Reduced from 120px */
-                height: 45px; /* Reduced from 60px */
+                width: 90px;  
+                height: 45px; 
             }
 
             #santa-sleigh {
-                height: 30px; /* Reduced from 40px */
+                height: 30px; 
             }
 
             #santa-figure {
-                width: 30px;  /* Reduced from 40px */
-                height: 30px; /* Reduced from 40px */
-                bottom: 15px; /* Adjusted for new proportions */
+                width: 30px;  
+                height: 30px; 
+                bottom: 15px; 
             }
 
             .santa-body {
-                width: 22px;  /* Reduced from 30px */
-                height: 22px; /* Reduced from 30px */
+                width: 22px;  
+                height: 22px; 
             }
 
             .santa-head {
-                width: 15px;  /* Reduced from 20px */
-                height: 15px; /* Reduced from 20px */
-                bottom: 15px; /* Adjusted positioning */
+                width: 15px;  
+                height: 15px;
+                bottom: 15px;
                 left: 4px;
             }
 
             .santa-hat {
-                width: 15px;  /* Reduced from 20px */
-                height: 15px; /* Reduced from 20px */
-                bottom: 26px; /* Adjusted positioning */
+                width: 15px;  
+                height: 15px; 
+                bottom: 26px;
                 left: 4px;
             }
 
             .reindeer {
-                width: 30px;  /* Reduced from 40px */
-                height: 22px; /* Reduced from 30px */
+                width: 30px;  
+                height: 22px;
                 bottom: 4px;
             }
 
             .reindeer-body {
-                width: 22px;  /* Reduced from 30px */
-                height: 15px; /* Reduced from 20px */
+                width: 22px;  
+                height: 15px; 
             }
 
             .reindeer-head {
-                width: 11px;  /* Reduced from 15px */
-                height: 11px; /* Reduced from 15px */
+                width: 11px;  
+                height: 11px; 
                 left: -8px;
                 top: -4px;
             }
 
             .reindeer-nose {
-                width: 6px;   /* Reduced from 8px */
-                height: 6px;  /* Reduced from 8px */
+                width: 6px;   
+                height: 6px;  
                 left: -12px;
                 top: 0px;
             }
 
             .reindeer-antler {
-                width: 11px;  /* Reduced from 15px */
+                width: 11px;  
                 top: -6px;
                 left: -4px;
             }
 
             .house {
-                width: 120px; /* Reduced from 150px */
-                height: 160px; /* Reduced from 200px */
+                width: 120px; 
+                height: 160px; 
             }
 
             .chimney {
-                width: 24px;  /* Reduced from 30px */
-                height: 40px; /* Reduced from 50px */
+                width: 24px;  
+                height: 40px; 
                 top: -40px;
                 right: 24px;
             }
 
             .roof {
-                width: 144px; /* Adjusted proportionally */
-                height: 64px; /* Reduced from 80px */
+                width: 144px; 
+                height: 64px; 
                 top: -64px;
                 left: -12px;
             }
 
             .mountain {
-                border-left: 80px solid transparent;    /* Reduced from 100px */
-                border-right: 80px solid transparent;   /* Reduced from 100px */
-                border-bottom: 160px solid #4a5568;     /* Reduced from 200px */
+                border-left: 80px solid transparent;    
+                border-right: 80px solid transparent;   
+                border-bottom: 160px solid #4a5568;     
             }
 
             .mountain::after {
-                top: 120px;   /* Adjusted for new size */
-                left: -64px;  /* Adjusted for new size */
-                width: 128px; /* Reduced proportionally */
-                height: 40px; /* Reduced from 50px */
+                top: 120px;  
+                left: -64px; 
+                width: 128px;
+                height: 40px;
             }
 
             .cloud {
-                width: 80px;  /* Reduced from 100px */
-                height: 32px; /* Reduced from 40px */
+                width: 80px;  
+                height: 32px; 
             }
 
             .cloud::before {
-                width: 40px;  /* Reduced from 50px */
-                height: 40px; /* Reduced from 50px */
+                width: 40px;  
+                height: 40px; 
                 top: -16px;
                 left: 12px;
             }
 
             .cloud::after {
-                width: 24px;  /* Reduced from 30px */
-                height: 24px; /* Reduced from 30px */
+                width: 24px;  
+                height: 24px; 
                 top: -8px;
                 right: 12px;
             }
 
             .gift {
-                width: 16px;  /* Reduced from 20px */
-                height: 16px; /* Reduced from 20px */
+                width: 16px;  
+                height: 16px; 
             }
 
             #drop-gift-btn {
-                width: 50px;      /* Reduced from 60px */
-                height: 50px;     /* Reduced from 60px */
-                font-size: 20px;  /* Reduced from 24px */
-                bottom: 15px;     /* Adjusted position */
+                width: 50px;      
+                height: 50px;     
+                font-size: 20px;  
+                bottom: 15px;     
                 right: 15px;
             }
 
@@ -532,14 +563,13 @@
             }
 
             #timer, #score {
-                font-size: 20px; /* Reduced from 24px */
+                font-size: 20px; 
             }
         }
 
-        /* Additional mobile optimizations */
         @media (max-width: 480px) {
             #santa {
-                width: 80px;  /* Even smaller for very small screens */
+                width: 80px; 
                 height: 40px;
             }
 
@@ -559,6 +589,7 @@
     </style>
 </head>
 <body>
+    <div id="rotate-message">Please rotate your device to landscape mode for the best experience.</div>
     <div id="gameContainer">
         <div id="health-container">
             <div id="health-bar"><div id="health"></div></div>
@@ -733,11 +764,6 @@
             }, 16);
         }
 
-        function handleGiftDrop() {
-            if (!gameActive) return;
-            dropGift();
-        }
-
         function checkForChimneyDrop() {
             if (!gameActive) return;
             
@@ -758,18 +784,16 @@
                 }
             }
             
-            // Drop gift towards nearest house's chimney, if any houses exist
             if (nearestHouse) {
                 dropGift(santaCenter, santaRect.bottom, nearestHouse.querySelector('.chimney'));
             }
         }
 
-        // Add new function to handle gift drops
+        // Modified to simply call dropGift directly on G press or button
         function handleGiftDrop() {
             if (!gameActive) return;
-            checkForChimneyDrop();
+            dropGift();
         }
-
 
         function handleCollision(obstacle) {
             if (obstacle.dataset.isCandy) {
@@ -858,7 +882,6 @@
                 santa.style.transform = 'rotate(0deg) scaleX(-1)';
             }
 
-            // Update Santa's position
             const santaRect = santa.getBoundingClientRect();
             let newY = santaRect.top + velocity;
             let newX = santaRect.left + horizontalVelocity;
@@ -886,8 +909,6 @@
             santa.style.top = newY + 'px';
             santa.style.left = newX + 'px';
 
-
-            // Update obstacles with speed multiplier
             const currentObstacleSpeed = initialObstacleSpeed * speedMultiplier;
 
             obstacles.forEach((obstacle, index) => {
@@ -963,7 +984,6 @@
             gameOverScreen.style.display = 'flex';
         }
 
-
         function lift(e) {
             if (e && e.type === 'touchstart') e.preventDefault();
             if (!gameActive) return;
@@ -1009,7 +1029,6 @@
             speedMultiplier = 1;
             isLifting = false;
 
-            // Reset health display
             healthBar.style.width = '100%';
             healthText.textContent = '100 HP';
             scoreElement.textContent = 'Gifts: 0';
@@ -1029,23 +1048,18 @@
             const dropGiftBtn = document.getElementById('drop-gift-btn');
             dropGiftBtn.addEventListener('click', handleGiftDrop);
             dropGiftBtn.addEventListener('touchstart', (e) => {
-                e.stopPropagation(); // Prevent lift action
+                e.stopPropagation(); 
                 handleGiftDrop();
             }, { passive: false });
 
-            // Start game loops
             gameLoop = setInterval(updateGame, 16);
             createSnowflakes();
             createStars();
             
-            // Start with initial house
             createHouse();
         }
 
-        // Prevent default touch behaviors
         document.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
-        
-        // Create initial stars
         createStars();
     </script>
 </body>
