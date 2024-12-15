@@ -200,7 +200,7 @@
             position: absolute;
             border-left: 12vw solid transparent;     /* Increased from 8vw */
             border-right: 12vw solid transparent;    /* Increased from 8vw */
-            border-bottom: 24vh solid #4a5568;       /* Increased from 16vh */
+            border-bottom: var(--mountain-height, 24vh) solid #4a5568;
             z-index: 1;
         }
 
@@ -531,7 +531,7 @@
     </div>
 
     <div id="start-screen" class="screen">
-        <h1>🎄 Santa's Reindeer Delivery Adventure 🎄 v17</h1>
+        <h1>🎄 Santa's Reindeer Delivery Adventure 🎄 v18</h1>
         <p>Guide Santa and his reindeer through the night!<br>
         HOLD Space/Up or screen to rise, release to fall.<br>
         LEFT/RIGHT arrows to move sideways.<br>
@@ -608,6 +608,9 @@
         function createMountain() {
             const mountain = document.createElement('div');
             mountain.className = 'mountain';
+            // Random height between 18vh and 30vh
+            const randomHeight = Math.floor(Math.random() * (30 - 18 + 1) + 18);
+            mountain.style.setProperty('--mountain-height', randomHeight + 'vh');
             mountain.style.left = window.innerWidth + 'px';
             mountain.style.bottom = '0';
             mountain.dataset.damage = '10'; // Mountains still cause high damage
