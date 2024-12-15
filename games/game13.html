@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Santa's Jetpack Adventure</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to bottom, #0a1528 0%, #1a3c6e 100%);
+            touch-action: none;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        #gameContainer {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+        #santa {
+            position: absolute;
+            width: 80px;
+            height: 40px;
+            left: 20%;
+            top: 50vh; /* Instead of 50% and translate */
+            z-index: 2;
+        }
+
+        #santa-body {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: #c41e3a;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(255,255,255,0.3);
+        }
+        #santa-wing {
+            position: absolute;
+            width: 30px;
+            height: 8px;
+            background: #8b0000;
+            top: 50%;
+            transform: translateY(-50%);
+            border-radius: 4px;
+        }
+        #santa-tail {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: #8b0000;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            clip-path: polygon(100% 0, 0 50%, 100% 100%);
+        }
+        #santa-window {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .exhaust {
+            position: absolute;
+            left: -20px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .exhaust-particle {
+            position: absolute;
+            width: 20px;
+            height: 4px;
+            background: linear-gradient(to left, #ff4d4d, transparent);
+            border-radius: 2px;
+            opacity: 0;
+            transition: opacity 0.1s;
+        }
+        .mountain {
+            position: absolute;
+            background: linear-gradient(45deg, #2c3e50 30%, #34495e 100%);
+            clip-path: polygon(50% 0, 0 100%, 100% 100%);
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        }
+        .snow-cap {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.9);
+            clip-path: polygon(50% 0, 20% 50%, 80% 50%);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 30%;
+        }
+        .cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 
+                0 0 20px rgba(255,255,255,0.3),
+                0 0 40px rgba(255,255,255,0.2),
+                0 0 60px rgba(255,255,255,0.1);
+        }
+        .cloud-part {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+        }
+        .icicle {
+            position: absolute;
+            background: linear-gradient(180deg, #a8e6ff 0%, #4aa3df 100%);
+            clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%);
+        }
+        .candy-cane {
+            position: absolute;
+            width: 30px;
+            height: 120px;
+            background: linear-gradient(45deg, 
+                #ff0000 25%, 
+                #ffffff 25%, 
+                #ffffff 50%, 
+                #ff0000 50%, 
+                #ff0000 75%, 
+                #ffffff 75%);
+            background-size: 30px 30px;
+            border-radius: 15px;
+        }
+        #health-container {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 3;
+        }
+        #health-bar {
+            width: 150px;
+            height: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        #health {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, #ff4b4b 0%, #ff0000 100%);
+            transition: width 0.3s;
+        }
+        #health-text {
+            color: white;
+            font-size: 14px;
+            text-align: center;
+            margin-top: 5px;
+            text-shadow: 0 0 5px rgba(0,0,0,0.5);
+        }
+        #timer {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            color: white;
+            z-index: 3;
+            text-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        .gift {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: #ff4b4b;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(255,75,75,0.5);
+        }
+        .gift::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: gold;
+            transform: translateY(-50%);
+        }
+        .gift::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            height: 100%;
+            width: 5px;
+            background: gold;
+            transform: translateX(-50%);
+        }
+        .star {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 1.5s infinite;
+        }
+        @keyframes twinkle {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        .snow {
+            position: absolute;
+            color: white;
+            user-select: none;
+            z-index: 1;
+            opacity: 0.6;
+            animation: fall linear infinite;
+        }
+        @keyframes fall {
+            0% { transform: translateY(-100vh) rotate(0deg); }
+            100% { transform: translateY(100vh) rotate(360deg); }
+        }
+        #damage-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 0, 0, 0.2);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 4;
+        }
+        .collision-flash {
+            animation: flash 0.3s;
+        }
+        @keyframes flash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(10, 21, 40, 0.95);
+            color: white;
+            z-index: 100;
+            text-align: center;
+            padding: 20px;
+        }
+        .screen h1 {
+            color: #3498db;
+            text-shadow: 0 0 10px rgba(52, 152, 219, 0.5);
+            margin-bottom: 20px;
+        }
+        .screen p {
+            margin-bottom: 30px;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            background: #3498db;
+            border: none;
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 10px;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+        button:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+        #moon {
+            position: absolute;
+            top: 50px;
+            left: 50px;
+            width: 60px;
+            height: 60px;
+            background: #ffd700;
+            border-radius: 50%;
+            box-shadow: 0 0 30px #ffd700;
+        }
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            border-radius: 50%;
+        }
+        .hit-particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: white;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        @keyframes particle-fade {
+            0% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(2); }
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <div id="moon"></div>
+        <div id="health-container">
+            <div id="health-bar"><div id="health"></div></div>
+            <div id="health-text">100 HP</div>
+        </div>
+        <div id="timer">60s</div>
+        <div id="damage-overlay"></div>
+        <div id="santa">
+            <div id="santa-body"></div>
+            <div id="santa-wing"></div>
+            <div id="santa-tail"></div>
+            <div id="santa-window"></div>
+            <div class="exhaust">
+                <div class="exhaust-particle"></div>
+                <div class="exhaust-particle" style="top: -4px;"></div>
+                <div class="exhaust-particle" style="top: 4px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="start-screen" class="screen">
+        <h1>🎄 Santa's Jetpack Adventure v2 🎄</h1>
+        <p>Guide Santa through treacherous peaks!<br>
+        HOLD Space/Up or screen to rise, release to fall.<br>
+        LEFT/RIGHT arrows to move sideways.<br>
+        Survive for 60 seconds! Watch your HP!<br>
+        Collect gifts to restore health!</p>
+        <p style="color: #ff4b4b;">WARNING: Hard Mode Enabled!2</p>
+        <button onclick="startGame()">Start Flight</button>
+    </div>
+
+    <div id="game-over-screen" class="screen" style="display: none;">
+        <h1>Game Over!</h1>
+        <p>You survived for <span id="final-time">0</span> seconds!</p>
+        <img src="/games/game13/13-c5966cd8b5.png" alt="QR Code" style="max-width: 200px; margin: 20px;">
+        <button onclick="location.reload()">Try Again</button>
+    </div>
+
+    <script>
+        const gameContainer = document.getElementById('gameContainer');
+        const santa = document.getElementById('santa');
+        const exhaustParticles = santa.querySelectorAll('.exhaust-particle');
+        const damageOverlay = document.getElementById('damage-overlay');
+        const healthBar = document.getElementById('health');
+        const healthText = document.getElementById('health-text');
+
+        // Game variables
+        let gameActive = false;
+        let health = 100;
+        let timeLeft = 60;
+        let velocity = 0;
+        let horizontalVelocity = 0;
+        let isLifting = false;
+        let obstacles = [];
+        let lastObstacleTime = 0;
+        let lastGiftTime = 0;
+        let gameLoop;
+        let keysPressed = new Set();
+
+        // Physics constants
+        //         Physics constants
+        // Physics constants
+        const gravity = 0.6;          // Positive gravity pulls DOWN
+        const liftForce = 0.8;       // Positive lift force counteracts gravity
+        const maxVelocity = 15;
+        const baseObstacleSpeed = 5;
+
+        // Obstacle types and their properties
+        const obstacleTypes = {
+            mountain: {
+                probability: 0.3,
+                damage: 40,
+                create: createMountain
+            },
+            cloud: {
+                probability: 0.3,
+                damage: 20,
+                create: createCloud
+            },
+            icicle: {
+                probability: 0.2,
+                damage: 30,
+                create: createIcicle
+            },
+            candyCane: {
+                probability: 0.2,
+                damage: 25,
+                create: createCandyCane
+            }
+        };
+
+        function createStars() {
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                gameContainer.appendChild(star);
+            }
+        }
+
+        function createSnowflakes() {
+            const snowflakes = '❄❅❆';
+            setInterval(() => {
+                if (!gameActive) return;
+                const snow = document.createElement('div');
+                snow.className = 'snow';
+                snow.style.left = Math.random() * 100 + '%';
+                snow.textContent = snowflakes[Math.floor(Math.random() * snowflakes.length)];
+                snow.style.fontSize = (Math.random() * 15 + 10) + 'px';
+                snow.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                gameContainer.appendChild(snow);
+                setTimeout(() => snow.remove(), 5000);
+            }, 200);
+        }
+
+        function createMountain() {
+            const mountain = document.createElement('div');
+            mountain.className = 'mountain';
+            const height = Math.random() * 300 + 200;
+            mountain.style.width = '200px';
+            mountain.style.height = height + 'px';
+            mountain.style.left = window.innerWidth + 'px';
+            mountain.style.bottom = '0';
+            
+            // Add snow cap
+            const snowCap = document.createElement('div');
+            snowCap.className = 'snow-cap';
+            mountain.appendChild(snowCap);
+            
+            mountain.dataset.damage = obstacleTypes.mountain.damage;
+            gameContainer.appendChild(mountain);
+            obstacles.push(mountain);
+        }
+
+        function createCloud() {
+            const cloud = document.createElement('div');
+            cloud.className = 'cloud';
+            const width = Math.random() * 150 + 100;
+            const height = Math.random() * 80 + 60;
+            cloud.style.width = width + 'px';
+            cloud.style.height = height + 'px';
+            cloud.style.left = window.innerWidth + 'px';
+            cloud.style.top = Math.random() * (window.innerHeight - height) + 'px';
+            cloud.style.borderRadius = height/2 + 'px';
+
+            // Add cloud parts for more complex shape
+            for (let i = 0; i < 5; i++) {
+                const part = document.createElement('div');
+                part.className = 'cloud-part';
+                const partSize = Math.random() * 50 + 40;
+                part.style.width = partSize + 'px';
+                part.style.height = partSize + 'px';
+                part.style.left = Math.random() * (width - partSize) + 'px';
+                part.style.top = Math.random() * (height/2) - partSize/2 + 'px';
+                cloud.appendChild(part);
+            }
+
+            cloud.dataset.damage = obstacleTypes.cloud.damage;
+            gameContainer.appendChild(cloud);
+            obstacles.push(cloud);
+        }
+
+        function createIcicle() {
+            const icicle = document.createElement('div');
+            icicle.className = 'icicle';
+            icicle.style.width = '30px';
+            icicle.style.height = '100px';
+            icicle.style.left = window.innerWidth + 'px';
+            icicle.style.top = Math.random() * (window.innerHeight - 100) + 'px';
+            icicle.dataset.damage = obstacleTypes.icicle.damage;
+            gameContainer.appendChild(icicle);
+            obstacles.push(icicle);
+        }
+
+        function createCandyCane() {
+            const candyCane = document.createElement('div');
+            candyCane.className = 'candy-cane';
+            candyCane.style.left = window.innerWidth + 'px';
+            candyCane.style.top = Math.random() * (window.innerHeight - 120) + 'px';
+            candyCane.dataset.damage = obstacleTypes.candyCane.damage;
+            gameContainer.appendChild(candyCane);
+            obstacles.push(candyCane);
+        }
+
+        function createGift() {
+            const gift = document.createElement('div');
+            gift.className = 'gift';
+            gift.style.left = window.innerWidth + 'px';
+            gift.style.top = Math.random() * (window.innerHeight - 30) + 'px';
+            gift.dataset.health = '30';
+            gameContainer.appendChild(gift);
+            obstacles.push(gift);
+        }
+
+        function createHitParticles(x, y, color = '#ffffff') {
+            for (let i = 0; i < 10; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'hit-particle';
+                particle.style.left = x + 'px';
+                particle.style.top = y + 'px';
+                particle.style.background = color;
+                
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 5 + 2;
+                const vx = Math.cos(angle) * speed;
+                const vy = Math.sin(angle) * speed;
+                
+                particle.style.animation = 'particle-fade 0.5s forwards';
+                
+                gameContainer.appendChild(particle);
+                
+                let particleX = x;
+                let particleY = y;
+                let frame = 0;
+                
+                const moveParticle = () => {
+                    if (frame >= 30) {
+                        particle.remove();
+                        return;
+                    }
+                    
+                    particleX += vx;
+                    particleY += vy;
+                    particle.style.left = particleX + 'px';
+                    particle.style.top = particleY + 'px';
+                    
+                    frame++;
+                    requestAnimationFrame(moveParticle);
+                };
+                
+                requestAnimationFrame(moveParticle);
+            }
+        }
+
+        function createObstacle() {
+            const now = Date.now();
+            if (now - lastObstacleTime < 1200) return;
+            lastObstacleTime = now;
+
+            // Calculate total probability
+            let totalProb = 0;
+            Object.values(obstacleTypes).forEach(type => totalProb += type.probability);
+
+            // Select random obstacle type
+            let random = Math.random() * totalProb;
+            let selectedType = null;
+            for (const [type, props] of Object.entries(obstacleTypes)) {
+                random -= props.probability;
+                if (random <= 0) {
+                    selectedType = type;
+                    break;
+                }
+            }
+
+            // Create the selected obstacle
+            obstacleTypes[selectedType].create();
+
+            // Occasionally spawn health gift
+            if (now - lastGiftTime > 5000 && Math.random() < 0.2) {
+                createGift();
+                lastGiftTime = now;
+            }
+        }
+
+        function handleCollision(obstacle) {
+            if (obstacle.dataset.damage) {
+                const damage = parseInt(obstacle.dataset.damage);
+                health = Math.max(0, health - damage);
+                healthBar.style.width = health + '%';
+                healthText.textContent = `${health} HP`;
+                
+                santa.classList.add('collision-flash');
+                damageOverlay.style.opacity = '1';
+                
+                const rect = obstacle.getBoundingClientRect();
+                createHitParticles(rect.left, rect.top);
+                
+                setTimeout(() => {
+                    santa.classList.remove('collision-flash');
+                    damageOverlay.style.opacity = '0';
+                }, 300);
+
+                if (health <= 0) {
+                    endGame(false);
+                }
+            } else if (obstacle.dataset.health) {
+                const healing = parseInt(obstacle.dataset.health);
+                health = Math.min(100, health + healing);
+                healthBar.style.width = health + '%';
+                healthText.textContent = `${health} HP`;
+                
+                const rect = obstacle.getBoundingClientRect();
+                createHitParticles(rect.left, rect.top, '#4CAF50');
+                
+                obstacle.remove();
+                obstacles = obstacles.filter(o => o !== obstacle);
+            }
+        }
+
+        function updateExhaust() {
+            exhaustParticles.forEach(particle => {
+                particle.style.opacity = isLifting ? '1' : '0';
+            });
+        }
+
+        function lift(e) {
+            if (e && e.type === 'touchstart') e.preventDefault();
+            if (!gameActive) return;
+            isLifting = true;
+            updateExhaust();
+        }
+
+        function release() {
+            if (!gameActive) return;
+            isLifting = false;
+            updateExhaust();
+        }
+
+        function handleKeyDown(e) {
+            if (!gameActive) return;
+            keysPressed.add(e.code);
+            
+            if (e.code === 'Space' || e.code === 'ArrowUp') {
+                lift(e);
+            }
+        }
+
+        function handleKeyUp(e) {
+            if (!gameActive) return;
+            keysPressed.delete(e.code);
+            
+            if (e.code === 'Space' || e.code === 'ArrowUp') {
+                release();
+            }
+        }
+
+        function updateGame() {
+            if (!gameActive) return;
+
+            // Update time
+            timeLeft = Math.max(0, timeLeft - 0.016);
+            document.getElementById('timer').textContent = Math.ceil(timeLeft) + 's';
+            
+            if (timeLeft <= 0) {
+                endGame(true);
+                return;
+            }
+
+            // Apply gravity or lift
+            // Apply gravity by default (pushes DOWN)
+            velocity = Math.max(-maxVelocity, Math.min(maxVelocity, velocity + gravity));
+            if (isLifting) {
+                velocity -= liftForce;  // Subtract lift force to go UP
+            }
+
+
+
+            // Handle horizontal movement
+            if (keysPressed.has('ArrowLeft')) {
+                horizontalVelocity = Math.max(-6, horizontalVelocity - 0.5);
+                santa.style.transform = 'translateY(-50%) rotate(5deg)';
+            } else if (keysPressed.has('ArrowRight')) {
+                horizontalVelocity = Math.min(6, horizontalVelocity + 0.5);
+                santa.style.transform = 'translateY(-50%) rotate(-5deg)';
+            } else {
+                horizontalVelocity *= 0.95;
+                santa.style.transform = 'translateY(-50%) rotate(0deg)';
+            }
+
+            // Update Santa's position
+            const santaRect = santa.getBoundingClientRect();
+            let newY = santaRect.top + velocity;
+            let newX = santaRect.left + horizontalVelocity;
+
+            // Boundary checks with bounce effect
+            if (newY < 0) {
+                newY = 0;
+                velocity = Math.abs(velocity) * 0.5;
+                handleCollision({dataset: {damage: '10'}});
+            }
+            if (newY > window.innerHeight - santaRect.height) {
+                newY = window.innerHeight - santaRect.height;
+                velocity = -Math.abs(velocity) * 0.5;
+                handleCollision({dataset: {damage: '10'}});
+            }
+            if (newX < 0) {
+                newX = 0;
+                horizontalVelocity = Math.abs(horizontalVelocity) * 0.5;
+            }
+            if (newX > window.innerWidth - santaRect.width) {
+                newX = window.innerWidth - santaRect.width;
+                horizontalVelocity = -Math.abs(horizontalVelocity) * 0.5;
+            }
+
+            santa.style.top = newY + 'px';
+            santa.style.left = newX + 'px';
+
+            // Update obstacles with increasing speed
+            const speedMultiplier = 1 + (60 - timeLeft) / 30;
+            const currentSpeed = baseObstacleSpeed * speedMultiplier;
+
+            obstacles.forEach((obstacle, index) => {
+                const obstacleLeft = parseFloat(obstacle.style.left);
+                obstacle.style.left = (obstacleLeft - currentSpeed) + 'px';
+
+                const obstacleRect = obstacle.getBoundingClientRect();
+                if (!(santaRect.right < obstacleRect.left || 
+                    santaRect.left > obstacleRect.right || 
+                    santaRect.bottom < obstacleRect.top || 
+                    santaRect.top > obstacleRect.bottom)) {
+                    handleCollision(obstacle);
+                }
+
+                if (obstacleLeft < -200) {
+                    obstacle.remove();
+                    obstacles.splice(index, 1);
+                }
+            });
+        }
+
+        function startGame() {
+            document.getElementById('start-screen').style.display = 'none';
+            gameActive = true;
+            health = 100;
+            velocity = 0;
+            horizontalVelocity = 0;
+            timeLeft = 60;
+            obstacles = [];
+            isLifting = false;  // Add this line to ensure it starts as false
+
+            
+            window.addEventListener('keydown', handleKeyDown);
+            window.addEventListener('keyup', handleKeyUp);
+            gameContainer.addEventListener('mousedown', lift);
+            gameContainer.addEventListener('mouseup', release);
+            gameContainer.addEventListener('touchstart', lift, { passive: false });
+            gameContainer.addEventListener('touchend', release, { passive: false });
+            
+            gameLoop = setInterval(updateGame, 16);
+            createSnowflakes();
+            createStars();
+            
+            setInterval(createObstacle, 1200);
+        }
+
+        function endGame(survived) {
+            gameActive = false;
+            clearInterval(gameLoop);
+            
+            window.removeEventListener('keydown', handleKeyDown);
+            window.removeEventListener('keyup', handleKeyUp);
+            gameContainer.removeEventListener('mousedown', lift);
+            gameContainer.removeEventListener('mouseup', release);
+            gameContainer.removeEventListener('touchstart', lift);
+            gameContainer.removeEventListener('touchend', release);
+            
+            const gameOverScreen = document.getElementById('game-over-screen');
+            const header = gameOverScreen.querySelector('h1');
+            const finalTime = document.getElementById('final-time');
+            
+            if (survived) {
+                header.textContent = '🎉 Mission Complete! 🎉';
+                header.style.color = '#4CAF50';
+                finalTime.parentElement.innerHTML = 'Congratulations! You survived the full 60 seconds!';
+            } else {
+                header.textContent = 'Game Over!';
+                header.style.color = '#ff4b4b';
+                finalTime.textContent = (60 - Math.ceil(timeLeft));
+            }
+            
+            gameOverScreen.style.display = 'flex';
+        }
+
+        // Prevent default touch behaviors
+        document.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
+        
+        // Create initial stars
+        createStars();
+    </script>
+</body>
+</html>
