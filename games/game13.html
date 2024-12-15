@@ -48,6 +48,7 @@
             left: 70%;
             transform: translateX(-50%);
             background: none;
+            z-index: 1;
         }
         .santa-body {
             position: absolute;
@@ -201,7 +202,8 @@
             height: 20px;
             background: #ff4b4b;
             border-radius: 3px;
-            z-index: 1;
+            z-index: 10;
+            pointer-events: none;
         }
         .gift::before, .gift::after {
             content: '';
@@ -355,6 +357,24 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        #drop-gift-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 5;
+            background: #ff4b4b;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            padding: 0;
+            border: 2px solid white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
     </style>
 </head>
 <body>
@@ -365,6 +385,7 @@
         </div>
         <div id="timer">60s</div>
         <div id="score">Gifts: 0</div>
+        <button id="drop-gift-btn">🎁</button>
         <div id="damage-overlay"></div>
         <div id="santa">
             <div id="santa-sleigh"></div>
@@ -393,8 +414,8 @@
         <p>Guide Santa and his reindeer through the night!<br>
         HOLD Space/Up or screen to rise, release to fall.<br>
         LEFT/RIGHT arrows to move sideways.<br>
-        Drop gifts in chimneys to score points!<br>
-        Survive for 60 seconds!</p>
+        Tap the gift button or press g to drop gifts in chimneys!<br>
+        Survive for 60 seconds AND deliver at least 20 gifts!</p>
         <button onclick="startGame()">Start Delivery</button>
     </div>
 
@@ -431,9 +452,9 @@
         let speedMultiplier = 1;
 
         // Physics constants
-        const initialGravity = 0.6;
-        const initialLiftForce = 0.8;
-        const initialMaxVelocity = 15;
+        const initialGravity = 0.4;
+        const initialLiftForce = 0.9;
+        const initialMaxVelocity = 10;
         const initialObstacleSpeed = 5;
 
         function createHouse() {
@@ -488,49 +509,52 @@
             obstacles.push(candy);
         }
 
-        function dropGift(x, y, targetChimney) {
+        function dropGift() {
+            if (!gameActive) return;
+
+            const santaRect = santa.getBoundingClientRect();
             const gift = document.createElement('div');
             gift.className = 'gift';
-            gift.style.left = x + 'px';
-            gift.style.top = y + 'px';
+            gift.style.left = (santaRect.left + santaRect.width/2 - 10) + 'px';  // Center gift horizontally
+            gift.style.top = santaRect.bottom + 'px';
             gameContainer.appendChild(gift);
 
-            const targetX = targetChimney.getBoundingClientRect().left + targetChimney.getBoundingClientRect().width / 2;
-            const targetY = targetChimney.getBoundingClientRect().top;
-            
-            const dx = targetX - x;
-            const dy = targetY - y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            const speed = 15;
-            const vx = (dx / distance) * speed;
-            const vy = (dy / distance) * speed;
-
+            const fallSpeed = 8;
             const fallAnimation = setInterval(() => {
-                const currentX = parseFloat(gift.style.left);
                 const currentY = parseFloat(gift.style.top);
-                
-                gift.style.left = (currentX + vx) + 'px';
-                gift.style.top = (currentY + vy) + 'px';
+                gift.style.top = (currentY + fallSpeed) + 'px';
 
+                // Check for chimney collisions
                 const giftRect = gift.getBoundingClientRect();
-                const chimneyRect = targetChimney.getBoundingClientRect();
+                const houses = obstacles.filter(obs => obs.dataset.isHouse);
+                
+                for (const house of houses) {
+                    const chimney = house.querySelector('.chimney');
+                    const chimneyRect = chimney.getBoundingClientRect();
 
-                if (giftRect.left < chimneyRect.right &&
-                    giftRect.right > chimneyRect.left &&
-                    giftRect.top < chimneyRect.bottom &&
-                    giftRect.bottom > chimneyRect.top) {
-                    clearInterval(fallAnimation);
-                    gift.remove();
-                    score++;
-                    scoreElement.textContent = `Gifts: ${score}`;
+                    if (giftRect.left < chimneyRect.right &&
+                        giftRect.right > chimneyRect.left &&
+                        giftRect.top < chimneyRect.bottom &&
+                        giftRect.bottom > chimneyRect.top) {
+                        clearInterval(fallAnimation);
+                        gift.remove();
+                        score++;
+                        scoreElement.textContent = `Gifts: ${score}`;
+                        return;
+                    }
                 }
 
                 // Remove gift if it goes off screen
-                if (currentY > window.innerHeight || currentX < 0) {
+                if (currentY > window.innerHeight) {
                     gift.remove();
                     clearInterval(fallAnimation);
                 }
             }, 16);
+        }
+
+        function handleGiftDrop() {
+            if (!gameActive) return;
+            dropGift();
         }
 
         function checkForChimneyDrop() {
@@ -538,22 +562,33 @@
             
             const santaRect = santa.getBoundingClientRect();
             const houses = obstacles.filter(obs => obs.dataset.isHouse);
+            const santaCenter = santaRect.left + santaRect.width/2;
+            
+            // Find the nearest house
+            let nearestHouse = null;
+            let nearestDist = Infinity;
             
             for (const house of houses) {
-                if (house.dataset.giftDropped) continue;
-                
                 const chimneyRect = house.querySelector('.chimney').getBoundingClientRect();
-                const santaCenter = santaRect.left + santaRect.width/2;
-                
-                // Drop when house is approaching
-                if (chimneyRect.left < window.innerWidth * 0.8 && 
-                    chimneyRect.left > window.innerWidth * 0.2) {
-                    dropGift(santaCenter, santaRect.bottom, house.querySelector('.chimney'));
-                    house.dataset.giftDropped = 'true';
-                    break;
+                const dist = Math.abs(santaCenter - (chimneyRect.left + chimneyRect.width/2));
+                if (dist < nearestDist) {
+                    nearestDist = dist;
+                    nearestHouse = house;
                 }
             }
+            
+            // Drop gift towards nearest house's chimney, if any houses exist
+            if (nearestHouse) {
+                dropGift(santaCenter, santaRect.bottom, nearestHouse.querySelector('.chimney'));
+            }
         }
+
+        // Add new function to handle gift drops
+        function handleGiftDrop() {
+            if (!gameActive) return;
+            checkForChimneyDrop();
+        }
+
 
         function handleCollision(obstacle) {
             if (obstacle.dataset.isCandy) {
@@ -608,7 +643,7 @@
             if (!gameActive) return;
 
             // Update speed multiplier (1% increase per second)
-            speedMultiplier += 0.0001;
+            speedMultiplier += 0.001;
 
             // Update time
             timeLeft = Math.max(0, timeLeft - 0.016);
@@ -670,8 +705,6 @@
             santa.style.top = newY + 'px';
             santa.style.left = newX + 'px';
 
-            // Check for chimney alignment and drop gifts
-            checkForChimneyDrop();
 
             // Update obstacles with speed multiplier
             const currentObstacleSpeed = initialObstacleSpeed * speedMultiplier;
@@ -728,11 +761,16 @@
             const finalScore = document.getElementById('final-score');
             const qrCode = gameOverScreen.querySelector('img');
             
-            if (survived) {
+            if (survived && score >= 20) {
                 header.textContent = '🎉 Delivery Complete! 🎉';
                 header.style.color = '#4CAF50';
                 finalTime.textContent = '60';
                 qrCode.style.display = 'block';
+            } else if (survived) {
+                header.textContent = 'Not Enough Gifts Delivered!';
+                header.style.color = '#ff4b4b';
+                finalTime.textContent = '60';
+                qrCode.style.display = 'none';
             } else {
                 header.textContent = 'Game Over!';
                 header.style.color = '#ff4b4b';
@@ -743,6 +781,7 @@
             finalScore.textContent = score;
             gameOverScreen.style.display = 'flex';
         }
+
 
         function lift(e) {
             if (e && e.type === 'touchstart') e.preventDefault();
@@ -761,6 +800,10 @@
             
             if (e.code === 'Space' || e.code === 'ArrowUp') {
                 lift(e);
+            }
+
+            if (e.code === 'KeyG') {
+                handleGiftDrop();
             }
         }
 
@@ -801,7 +844,14 @@
             gameContainer.addEventListener('mouseup', release);
             gameContainer.addEventListener('touchstart', lift, { passive: false });
             gameContainer.addEventListener('touchend', release, { passive: false });
-            
+
+            const dropGiftBtn = document.getElementById('drop-gift-btn');
+            dropGiftBtn.addEventListener('click', handleGiftDrop);
+            dropGiftBtn.addEventListener('touchstart', (e) => {
+                e.stopPropagation(); // Prevent lift action
+                handleGiftDrop();
+            }, { passive: false });
+
             // Start game loops
             gameLoop = setInterval(updateGame, 16);
             createSnowflakes();
