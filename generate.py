@@ -22,7 +22,8 @@ PRIZES = [
     "un pete",
     "vamos a caminar",
     "vemos la peli que elijas",
-    "te ayudo con algo del laburo"
+    "te ayudo con algo del laburo",
+    "voy a comprarte algo de jengibre"
 ]
 
 def generate_hash(day, seed="billy2024"):
