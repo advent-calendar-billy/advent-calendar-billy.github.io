@@ -592,7 +592,7 @@
     function updateStartScreenButtons() {
           const startScreen = document.getElementById('start-screen');
         startScreen.innerHTML = `
-            <h1>🚆 DB Christmas Train Hop 🎄 v3</h1>
+            <h1>🚆 DB Christmas Train Hop 🎄 v4</h1>
             <p>Help Fede cross the train tracks to get from Berlin to Potsdam!<br>
             Tilt your phone to move left/right. Tap the buttons to jump up or down.<br>
             Watch out for slippery ice and delayed trains!</p>
@@ -669,22 +669,25 @@
     }
 
     function handleFalling() {
-        if (!currentTrain) return false;
-        const trainLeft = parseFloat(currentTrain.element.style.left);
-        const trainWidth = currentTrain.width;
-        const playerPositionX = parseFloat(player.style.left);
-        const playerVerticalPosition = parseFloat(player.style.top);
+    if (!currentTrain) return false;
+    const trainLeft = parseFloat(currentTrain.element.style.left);
+    const trainWidth = currentTrain.width;
+    const playerPositionX = parseFloat(player.style.left);
+    const playerVerticalPosition = parseFloat(player.style.top);
 
-        if (
-             playerPositionX < trainLeft - 10 ||
-            playerPositionX > trainLeft + trainWidth + 10 ||
-            playerVerticalPosition < 0 ||
-            playerVerticalPosition > gameContainer.offsetHeight
-        ) {
-            return false;
-        }
-        return true;
+    // Add a small tolerance (e.g., 5 pixels) to the edges:
+    const tolerance = 5;
+
+    if (
+        playerPositionX < trainLeft - 10 - tolerance ||
+        playerPositionX > trainLeft + trainWidth + 10 + tolerance ||
+        playerVerticalPosition < 0 ||
+        playerVerticalPosition > gameContainer.offsetHeight
+    ) {
+        return false;
     }
+    return true;
+}
 
     function updatePlayerPosition() {
          if (!currentTrain) return false;
@@ -876,9 +879,9 @@
 
         const initialTrain = createTrain(NUM_TRACKS, 1);
         currentTrain = initialTrain;
-         playerX = initialTrain.width / 2;
+        playerX = initialTrain.width / 2.5; // Changed from 2 to 2.5
         player.style.left = (parseFloat(initialTrain.element.style.left) + playerX) + 'px';
-         player.style.top = (parseFloat(initialTrain.element.style.top) + (initialTrain.element.offsetHeight - player.offsetHeight) / 2) + 'px';
+        player.style.top = (parseFloat(initialTrain.element.style.top) + (initialTrain.element.offsetHeight - player.offsetHeight) / 2) + 'px';
 
         window.addEventListener('keydown', handleKeyDown);
         window.addEventListener('keyup', handleKeyUp);
