@@ -398,7 +398,7 @@
 <div id="start-screen" class="screen">
     <h1>🚆 DB Christmas Train Hop 🎄 v2</h1>
     <p>Help Fede cross the train tracks to get from Berlin to Potsdam!<br>
-        Tilt your phone to move left/right and swipe up/down to jump tracks.<br>
+        Tilt your phone to move left/right. Tap above the player to move up/forward and tap below to move down/backward.<br>
         Watch out for slippery ice and delayed trains!</p>
     <button onclick="startGame(0)">Start Journey</button>
 </div>
@@ -522,7 +522,7 @@
         startScreen.innerHTML = `
             <h1>🚆 DB Christmas Train Hop 🎄 v2</h1>
             <p>Help Fede cross the train tracks to get from Berlin to Potsdam!<br>
-            Tilt your phone to move left/right and swipe up/down to jump tracks.<br>
+            Tilt your phone to move left/right. Tap above the player to move up/forward and tap below to move down/backward.<br>
             Watch out for slippery ice and delayed trains!</p>
         `;
         for (let i = 0; i < levelsUnlocked.length; i++) {
@@ -746,7 +746,7 @@
             document.getElementById('score').textContent = `Progress: ${progress}%`;
 
             // Check for win condition before any other updates
-            if (progress >= 10) {
+            if (progress >= 100) {
                 winGame();
                 return;
             }
@@ -810,6 +810,8 @@
 
         window.addEventListener('keydown', handleKeyDown);
         window.addEventListener('keyup', handleKeyUp);
+        gameContainer.addEventListener('touchstart', handleTouchStart);
+        gameContainer.addEventListener('touchend', handleTouchEnd);
 
         window.addEventListener('deviceorientation', (e) => {
             tiltX = e.gamma;
@@ -829,6 +831,27 @@
 
     function handleKeyUp(e) {
         keysPressed.delete(e.code);
+    }
+
+    let touchStartY = 0;
+
+    function handleTouchStart(e) {
+        if (!gameActive) return;
+        touchStartY = e.touches[0].clientY;
+    }
+
+    function handleTouchEnd(e) {
+        if (!gameActive || !e.changedTouches || e.changedTouches.length === 0) return;
+
+        const touchEndY = e.changedTouches[0].clientY;
+        const tapY = touchEndY;
+        const playerY = parseFloat(player.style.top);
+
+        if (tapY < playerY) {
+            tryJump(-1); // Move up/forward
+        } else if (tapY > playerY) {
+            tryJump(1); // Move down/backward
+        }
     }
 
     function endGame() {
@@ -874,7 +897,6 @@
         }
         
         gameOverScreen.style.display = 'flex';
-        
         // Show speech bubble
         setTimeout(() => {
             speechBubble.style.opacity = 1;
