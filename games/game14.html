@@ -228,7 +228,7 @@
 </head>
 <body>
 <div id="rotate-screen">
-    <h1>Please rotate your device v3</h1>
+    <h1>Please rotate your device v4</h1>
     <p>This game is designed to be played in landscape mode.</p>
 </div>
 
@@ -432,7 +432,7 @@ function updateGame() {
         progressBar.style.width = progress + '%';
         document.getElementById('score').textContent = `Progress: ${progress}%`;
 
-        if (progress >= 100) {
+        if (progress >= 10) {
             winGame();
             return;
         }
