@@ -21,15 +21,26 @@
             width: 100vw;
             height: 100vh;
             background: linear-gradient(to bottom, #cce7ff, #ffffff);
+            overflow: visible;
+        }
+
+        @media (orientation: landscape) {
+            #gameContainer {
+                height: 100vh;
+                width: 100vw;
+                overflow: hidden;
+            }
         }
 
         .player {
             position: absolute;
-            width: 30px;
-            height: 30px;
+            width: 40px;
+            height: 40px;
             background: #333;
             border-radius: 50%;
             z-index: 3;
+            border: 3px solid #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
         }
 
         .train {
@@ -160,7 +171,7 @@
 </div>
 
 <div id="start-screen" class="screen">
-    <button onclick="startGame()">Start Game</button>
+    <button onclick="startGame()">Start Game v2</button>
 </div>
 
 <div id="game-over-screen" class="screen" style="display: none;">
@@ -320,8 +331,11 @@
         const initialTrain = createTrain(NUM_TRACKS, 1);
         currentTrain = initialTrain;
         playerX = initialTrain.width / 2;
+        
+        // Ensure player is visible initially
+        player.style.visibility = 'visible';
         player.style.left = (parseFloat(initialTrain.element.style.left) + playerX) + 'px';
-        player.style.top = parseFloat(initialTrain.element.style.top) + 'px';
+        player.style.top = (parseFloat(initialTrain.element.style.top) - 10) + 'px';  // Adjusted position
 
         window.addEventListener('deviceorientation', (e) => {
             tiltX = e.gamma;
