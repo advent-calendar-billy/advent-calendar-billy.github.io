@@ -171,7 +171,7 @@
 </div>
 
 <div id="start-screen" class="screen">
-    <button onclick="startGame()">Start Game v2</button>
+    <button onclick="startGame()">Start Game</button>
 </div>
 
 <div id="game-over-screen" class="screen" style="display: none;">
@@ -186,7 +186,13 @@
     const jumpDownButton = document.getElementById('jump-down-button');
 
     const NUM_TRACKS = 6;
-    const TRACK_SPACING = 60;
+    let TRACK_SPACING = 60;
+    
+    // Adjust track spacing based on screen height
+    function updateTrackSpacing() {
+        const screenHeight = window.innerHeight;
+        TRACK_SPACING = Math.floor((screenHeight - 100) / NUM_TRACKS); // Leave some space for UI elements
+    }
     const PLAYER_SPEED = 3;
     const TRAIN_LENGTH = 150;
 
@@ -195,6 +201,18 @@
     let playerX = 0;
     let currentTrain = null;
     let tiltX = 0;
+
+    // Handle resize events
+    window.addEventListener('resize', () => {
+        if (gameActive) {
+            updateTrackSpacing();
+            // Reposition existing trains
+            trains.forEach(train => {
+                const trackNum = train.track;
+                train.element.style.top = (TRACK_SPACING * trackNum + 10) + 'px';
+            });
+        }
+    });
 
     function createTrain(trackNum, direction) {
         const train = document.createElement('div');
@@ -324,9 +342,14 @@
     }
 
     function startGame() {
+        updateTrackSpacing();
         document.getElementById('start-screen').style.display = 'none';
         gameActive = true;
         trains = [];
+        
+        // Clear any existing trains
+        const existingTrains = document.querySelectorAll('.train');
+        existingTrains.forEach(train => train.remove());
 
         const initialTrain = createTrain(NUM_TRACKS, 1);
         currentTrain = initialTrain;
