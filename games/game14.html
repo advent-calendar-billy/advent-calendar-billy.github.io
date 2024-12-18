@@ -821,7 +821,7 @@
             document.getElementById('score').textContent = `Progress: ${progress}%`;
 
             // Check for win condition before any other updates
-            if (progress >= 100) {
+            if (progress >= 10) {
                 winGame();
                 return;
             }
@@ -970,7 +970,7 @@
         } else {
             // Regular level completion - show next level button
             gameOverContainer.querySelector('.game-over-info').innerHTML = `
-                <h1>🎉 Level ${currentLevel + 1} Complete! 🎉</h1>
+                <h1>🎉 Level Complete! 🎉</h1>
                 <p>Get ready for the next level!</p>
                 <button onclick="startNextLevel()">Next Level</button>
             `;
