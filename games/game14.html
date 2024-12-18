@@ -45,7 +45,7 @@
 
         .train {
             position: absolute;
-            height: 40px;
+            height: 25px;  /* Reduced from 40px */
             background: #db0000;
             border-radius: 4px;
             z-index: 2;
@@ -55,13 +55,13 @@
             justify-content: center;
             color: white;
             font-weight: bold;
-            font-size: 16px;
+            font-size: 14px;  /* Reduced from 16px */
         }
 
         .train::before {
             content: '🚆';
-            font-size: 24px;
-            margin-right: 10px;
+            font-size: 16px;  /* Reduced from 24px */
+            margin-right: 5px;  /* Reduced from 10px */
         }
 
         .train-delayed {
@@ -116,7 +116,7 @@
 
         .jump-button {
             position: absolute;
-            bottom: 20px;
+            bottom: 40px;
             width: 100px;
             height: 50px;
             background: rgba(219, 0, 0, 0.8);
@@ -267,7 +267,7 @@ const jumpDownButton = document.getElementById('jump-down-button');
 const NUM_TRACKS = 6;
 let TRACK_SPACING = 60;
 const PLAYER_SPEED = 3;
-const TRAIN_LENGTH = 120;
+const TRAIN_LENGTH = 80;  // Reduced from 120
 
 let gameActive = false;
 let trains = [];
@@ -302,6 +302,23 @@ function createTrain(trackNum, direction) {
     trains.push(newTrain);
     return newTrain;
 }
+
+function handleDeviceOrientation(event) {
+    if (!gameActive) return;
+    
+    // In landscape, we need to use beta (forward/backward tilt) for left/right movement
+    // Beta ranges from -180 to 180, we'll use a small range around 0
+    const beta = event.beta;
+    
+    // Only move if the tilt is significant enough (more than 5 degrees)
+    if (Math.abs(beta) > 5) {
+        // Reverse the direction because of how beta works in landscape
+        tiltX = -beta;
+    } else {
+        tiltX = 0;
+    }
+}
+
 
 function handleFalling() {
     if (!currentTrain) return false;
@@ -427,18 +444,18 @@ function updateGame() {
         return;
     }
 
-    // Handle tilt controls
-    if (tiltX < -5) {
+    // Modified tilt controls
+    if (tiltX > 5) {  // Tilting forward (in landscape)
         playerX = Math.max(0, playerX - PLAYER_SPEED);
     }
-    if (tiltX > 5) {
+    if (tiltX < -5) {  // Tilting backward (in landscape)
         playerX = Math.min(currentTrain.width, playerX + PLAYER_SPEED);
     }
 
-    // Spawn new trains
+    // Spawn new trains with more space between them
     for (let track = 1; track <= NUM_TRACKS; track++) {
         const trainsOnTrack = trains.filter(t => t.track === track).length;
-        if (trainsOnTrack < 2 && Math.random() < 0.02) {
+        if (trainsOnTrack < 2 && Math.random() < 0.01) {  // Reduced spawn rate
             const direction = track % 2 === 0 ? 1 : -1;
             createTrain(track, direction);
         }
@@ -462,7 +479,6 @@ function startGame() {
     const existingTrains = document.querySelectorAll('.train');
     existingTrains.forEach(train => train.remove());
 
-    // Create initial train
     const initialTrain = createTrain(NUM_TRACKS, 1);
     currentTrain = initialTrain;
     playerX = initialTrain.width / 2;
@@ -470,26 +486,19 @@ function startGame() {
     // Position player
     player.style.visibility = 'visible';
     player.style.left = (parseFloat(initialTrain.element.style.left) + playerX) + 'px';
-    player.style.top = (parseFloat(initialTrain.element.style.top)) + 'px';
+    player.style.top = parseFloat(initialTrain.element.style.top) + 'px';
 
-    // Setup device orientation handling
-    window.addEventListener('deviceorientation', (e) => {
-        tiltX = e.gamma;
-    });
+    // Setup device orientation handling with the new handler
+    window.addEventListener('deviceorientation', handleDeviceOrientation);
 
-    // Setup jump button handlers
+    // Setup jump buttons
     jumpUpButton.addEventListener('click', () => tryJump(-1));
     jumpDownButton.addEventListener('click', () => tryJump(1));
-
-    // Setup keyboard controls
-    window.addEventListener('keydown', (e) => {
-        if (e.code === 'ArrowUp') tryJump(-1);
-        if (e.code === 'ArrowDown') tryJump(1);
-    });
 
     startTime = Date.now();
     requestAnimationFrame(updateGame);
 }
+
 
 function endGame() {
     gameActive = false;
