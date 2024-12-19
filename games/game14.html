@@ -445,7 +445,7 @@
 </head>
 <body>
 <div id="rotate-screen">
-    <h1>Please rotate your device v11</h1>
+    <h1>Please rotate your device v12</h1>
     <p>This game is designed to be played in landscape mode.</p>
 </div>
 <div id="gameContainer">
@@ -821,7 +821,7 @@
             document.getElementById('score').textContent = `Progress: ${progress}%`;
 
             // Check for win condition before any other updates
-            if (progress >= 10) {
+            if (progress >= 100) {
                 winGame();
                 return;
             }
@@ -876,7 +876,6 @@
         trains = [];
         keysPressed.clear();
         level = selectedLevel;
-        currentLevel = selectedLevel;
 
         // Clear existing tracks
         const existingTracks = document.querySelectorAll('.track');
