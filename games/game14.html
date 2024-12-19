@@ -729,29 +729,20 @@
 
     // Updated tryJump function with additional checks
     function tryJump(direction) {
-        if (!currentTrain) return;
-        
-        const currentY = parseFloat(currentTrain.element.style.top);
-        const newY = currentY + direction * TRACK_SPACING;
-        const currentX = parseFloat(player.style.left);
-        
-        // Add bounds checking
-        if (newY < 0 || newY > gameContainer.offsetHeight) {
-            return; // Prevent jumping outside game bounds
+        let newTrackNum = currentTrain.track + direction;
+        if (newTrackNum < 1 || newTrackNum > NUM_TRACKS) {
+            // Out of bounds, do nothing or handle differently
+            return;
         }
-        
+
+        let newY = (TRACK_SPACING * newTrackNum + 10); // Align with train top offset
+        let currentX = parseFloat(player.style.left);
+
         const targetTrain = findTrainAt(currentX, newY);
         if (targetTrain) {
             currentTrain = targetTrain;
             playerX = currentX - parseFloat(targetTrain.element.style.left);
-            
-            // Ensure playerX stays within train bounds
             playerX = Math.max(0, Math.min(playerX, targetTrain.width));
-            
-            player.style.transform = direction < 0 ? 'scaleY(-1)' : 'scaleY(1)';
-            setTimeout(() => {
-                player.style.transform = 'scaleY(1)';
-            }, 200);
             jumpSound.currentTime = 0;
             jumpSound.play();
         } else {
@@ -838,7 +829,7 @@
             document.getElementById('score').textContent = `Progress: ${progress}%`;
 
             // Check for win condition before any other updates
-            if (progress >= 10) {
+            if (progress >= 20) {
                 winGame();
                 return;
             }
