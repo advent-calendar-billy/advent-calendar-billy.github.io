@@ -445,7 +445,7 @@
 </head>
 <body>
 <div id="rotate-screen">
-    <h1>Please rotate your device v18</h1>
+    <h1>Please rotate your device v19</h1>
     <p>This game is designed to be played in landscape mode.</p>
 </div>
 <div id="gameContainer">
@@ -701,42 +701,60 @@
          return true;
     }
 
-    // Find train at specific position
+    // Updated findTrainAt function with more tolerant collision detection
     function findTrainAt(x, y) {
-           for (const train of trains) {
+        for (const train of trains) {
             const trainLeft = parseFloat(train.element.style.left);
             const trainRight = trainLeft + train.width;
             const trainY = parseFloat(train.element.style.top);
-
-            if (x >= trainLeft && x <= trainRight &&
-                Math.abs(y - trainY) < TRACK_SPACING / 2) {
-               return train;
+            
+            // Increase vertical tolerance for collision detection
+            const verticalTolerance = TRACK_SPACING * 0.75; // More forgiving vertical check
+            
+            // Add horizontal tolerance
+            const horizontalTolerance = 15; // pixels of tolerance on each side
+            
+            if (x >= trainLeft - horizontalTolerance && 
+                x <= trainRight + horizontalTolerance &&
+                Math.abs(y - trainY) < verticalTolerance) {
+                return train;
             }
         }
         return null;
     }
 
-     function tryJump(direction) {
+    // Updated tryJump function with additional checks
+    function tryJump(direction) {
         if (!currentTrain) return;
-
-         const currentY = parseFloat(currentTrain.element.style.top);
+        
+        const currentY = parseFloat(currentTrain.element.style.top);
         const newY = currentY + direction * TRACK_SPACING;
         const currentX = parseFloat(player.style.left);
-
+        
+        // Add bounds checking
+        if (newY < 0 || newY > gameContainer.offsetHeight) {
+            return; // Prevent jumping outside game bounds
+        }
+        
         const targetTrain = findTrainAt(currentX, newY);
         if (targetTrain) {
             currentTrain = targetTrain;
             playerX = currentX - parseFloat(targetTrain.element.style.left);
-             player.style.transform = direction < 0 ? 'scaleY(-1)' : 'scaleY(1)';
-             setTimeout(() => {
+            
+            // Ensure playerX stays within train bounds
+            playerX = Math.max(0, Math.min(playerX, targetTrain.width));
+            
+            player.style.transform = direction < 0 ? 'scaleY(-1)' : 'scaleY(1)';
+            setTimeout(() => {
                 player.style.transform = 'scaleY(1)';
             }, 200);
             jumpSound.currentTime = 0;
-             jumpSound.play();
-       } else {
-           endGame();
-       }
+            jumpSound.play();
+        } else {
+            endGame();
+        }
     }
+
 
     function updateTrains() {
         trains.forEach((train, index) => {
