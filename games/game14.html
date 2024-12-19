@@ -445,7 +445,7 @@
 </head>
 <body>
 <div id="rotate-screen">
-    <h1>Please rotate your device v22</h1>
+    <h1>Please rotate your device v23</h1>
     <p>This game is designed to be played in landscape mode.</p>
 </div>
 <div id="gameContainer">
@@ -855,13 +855,12 @@
             playerX = Math.min(currentTrain.width, playerX + PLAYER_SPEED);
         }
 
-        if (tiltX > 2) {  // Tilting forward (top of phone tilting down) = go left
-            playerX = Math.max(0, playerX - (Math.abs(tiltX) * 0.3)); // Move left
+        if (tiltX > 10) {  // Tilting downward in landscape = go right
+            playerX = Math.min(currentTrain.width, playerX + (Math.abs(tiltX) * 0.3));
         }
-        if (tiltX < -2) {   // Tilting backward (top of phone tilting up) = go right
-            playerX = Math.min(currentTrain.width, playerX + (Math.abs(tiltX) * 0.3)); // Move right
+        if (tiltX < -10) {   // Tilting upward in landscape = go left
+            playerX = Math.max(0, playerX - (Math.abs(tiltX) * 0.3));
         }
-
 
         // Spawn new trains as needed
         for (let track = 1; track <= NUM_TRACKS; track++) {
@@ -1092,14 +1091,11 @@
     function handleDeviceOrientation(event) {
         if (!gameActive) return;
         
-        // For Android in landscape, we want to use gamma for left/right movement
-        // gamma ranges from -90 to 90
-        if (event.gamma !== null) {
-            // Make the tilt more sensitive by multiplying the value
-            tiltX = event.gamma * 1.5; // Increased sensitivity
-            
-            // Debug output to see the values
-            console.log('Tilt value:', tiltX);
+        // In landscape, beta controls left/right movement
+        // beta ranges from -180 to 180, where 0 is flat
+        if (event.beta !== null) {
+            tiltX = event.beta;
+            console.log('Beta tilt value:', tiltX);
         }
     }
     // Initialize the game
