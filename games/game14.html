@@ -970,15 +970,18 @@
             gameOverContainer.querySelector('.game-over-info').innerHTML = `
                 <h1>🎉 Congratulations! 🎉</h1>
                 <p>You've completed all levels!</p>
-                <div id="qr-container">
+                <div class="final-qr-container">
                     <img src="/images/14-e0761905d7.png" alt="QR Code" class="qr-code">
                 </div>
                 <button onclick="location.reload()">Play Again</button>
             `;
+
+            const finalQrContainer = gameOverContainer.querySelector('.final-qr-container');
+
         } else {
             // Regular level completion - show next level button
             gameOverContainer.querySelector('.game-over-info').innerHTML = `
-                <h1>🎉 Level ${currentLevel + 1} Complete! 🎉</h1>
+                <h1>🎉 Level Complete! 🎉</h1>
                 <p>Get ready for the next level!</p>
                 <button onclick="startNextLevel()">Next Level</button>
             `;
