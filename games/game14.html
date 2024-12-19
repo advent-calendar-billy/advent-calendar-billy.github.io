@@ -445,7 +445,7 @@
 </head>
 <body>
 <div id="rotate-screen">
-    <h1>Please rotate your device v20</h1>
+    <h1>Please rotate your device v21</h1>
     <p>This game is designed to be played in landscape mode.</p>
 </div>
 <div id="gameContainer">
@@ -855,12 +855,13 @@
             playerX = Math.min(currentTrain.width, playerX + PLAYER_SPEED);
         }
 
-        if (tiltX > 5) {  // Tilting forward (in landscape)
-            playerX = Math.max(0, playerX - PLAYER_SPEED);
+        if (tiltX < -2) {  // More sensitive threshold
+            playerX = Math.min(currentTrain.width, playerX + (Math.abs(tiltX) * 0.3)); // Proportional speed
         }
-        if (tiltX < -5) {  // Tilting backward (in landscape)
-            playerX = Math.min(currentTrain.width, playerX + PLAYER_SPEED);
+        if (tiltX > 2) {   // More sensitive threshold
+            playerX = Math.max(0, playerX - (Math.abs(tiltX) * 0.3)); // Proportional speed
         }
+
 
         // Spawn new trains as needed
         for (let track = 1; track <= NUM_TRACKS; track++) {
@@ -880,6 +881,9 @@
 
     // Start game
     function startGame(selectedLevel = 0) {
+        window.removeEventListener('deviceorientation', handleDeviceOrientation);
+        window.addEventListener('deviceorientation', handleDeviceOrientation);
+
         document.getElementById('start-screen').style.display = 'none';
         gameContainer.offsetHeight; // Trigger reflow
 
@@ -1088,16 +1092,14 @@
     function handleDeviceOrientation(event) {
         if (!gameActive) return;
         
-        // In landscape mode, we use gamma (left/right tilt) for movement
-        // Gamma ranges from -90 to 90 degrees
-        const gamma = event.gamma;
-        
-        // Only move if the tilt is significant enough (more than 5 degrees)
-        if (Math.abs(gamma) > 5) {
-            // Set tiltX directly to gamma since the directions align naturally in landscape
-            tiltX = gamma;
-        } else {
-            tiltX = 0;
+        // For Android in landscape, we want to use gamma for left/right movement
+        // gamma ranges from -90 to 90
+        if (event.gamma !== null) {
+            // Make the tilt more sensitive by multiplying the value
+            tiltX = event.gamma * 1.5; // Increased sensitivity
+            
+            // Debug output to see the values
+            console.log('Tilt value:', tiltX);
         }
     }
     // Initialize the game
