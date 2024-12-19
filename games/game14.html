@@ -593,7 +593,7 @@
     function updateStartScreenButtons() {
         const startScreen = document.getElementById('start-screen');
         startScreen.innerHTML = `
-            <h1>🚆 DB Christmas Train Hop 🎄 v10</h1>
+            <h1>🚆 DB Christmas Train Hop 🎄 v11</h1>
             <p>Help Fede cross the train tracks to get from Berlin to Potsdam!<br>
             Tilt your phone to move left/right. Tap the buttons to jump up or down.<br>
             Watch out for slippery ice and delayed trains!</p>
@@ -1031,10 +1031,16 @@
     }
 
     function updateSpeechBubble() {
-        if (!gameActive) return;
+        if (!gameActive || currentLevel !== 0) return;  // Only show messages in level 1
         const randomIndex = Math.floor(Math.random() * spanishPhrases.length);
         speechBubble.textContent = spanishPhrases[randomIndex];
+        speechBubble.style.opacity = 1;
+        setTimeout(() => {
+            speechBubble.style.opacity = 0;
+        }, 3000);  // Show message for 3 seconds
     }
+
+
 
     createWeatherEffects();
     billy.addEventListener('mouseenter', () => {
