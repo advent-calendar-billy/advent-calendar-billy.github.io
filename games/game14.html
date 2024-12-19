@@ -445,7 +445,7 @@
 </head>
 <body>
 <div id="rotate-screen">
-    <h1>Please rotate your device v16</h1>
+    <h1>Please rotate your device v15</h1>
     <p>This game is designed to be played in landscape mode.</p>
 </div>
 <div id="gameContainer">
@@ -472,6 +472,22 @@
         Tilt your phone to move left/right. Tap the buttons to jump up or down.<br>
         Watch out for slippery ice and delayed trains!</p>
         <button onclick="setTimeout(() => startGame(0), 500)">Start Journey</button>
+</div>
+
+<div id="game-over-screen" class="screen" style="display: none;">
+    <div class="screen-content">
+        <div class="game-over-container">
+            <div class="game-over-info">
+                <h1>Game Over!</h1>
+                <p>You survived for <span id="final-time">0</span> seconds!</p>
+                <div id="qr-container" style="display: none;">
+                    <img src="/images/14-e0761905d7.png" alt="QR Code" class="qr-code">
+                </div>
+                <button onclick="location.reload()">Try Again</button>
+            </div>
+
+        </div>
+    </div>
 </div>
 
 <audio id="jumpSound" src="/sounds/retro-jump-3-236683.mp3"></audio>
@@ -965,7 +981,7 @@
             gameOverContainer.querySelector('.game-over-info').innerHTML = `
                 <h1>🎉 Congratulations! 🎉.</h1>
                 <p>You've completed all levels!</p>
-                <div class="qr-container">
+                <div class="final-qr-container">
                     <img src="/images/14-e0761905d7.png" alt="QR Code" class="qr-code">
                 </div>
                 <button onclick="location.reload()">Play Again</button>
