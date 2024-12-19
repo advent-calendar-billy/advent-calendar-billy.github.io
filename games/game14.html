@@ -1,232 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, orientation=landscape">
-    <title>DB Christmas Train Hop</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Game</title>
     <style>
         body {
             margin: 0;
-            overflow: hidden;
-            font-family: 'Arial', sans-serif;
-            background: #e6f3ff;
-            touch-action: none;
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            user-select: none;
-        }
-
-        #gameContainer {
-            position: relative;
-            width: 100vw;
-            height: 100vh;
-            overflow: hidden;
-            background: linear-gradient(to bottom, #cce7ff, #ffffff);
-            background-image: url("/images/snowy_forest_background.png");
-            background-size: cover;
-        }
-
-        .player {
-            position: absolute;
-            width: 16px;
-            height: 16px;
-            z-index: 3;
-            pointer-events: none;
-            transition: transform 0.1s;
-        }
-
-        .player-body {
-            position: absolute;
-            width: 12px;
-            height: 12px;
-            background: #333;
-            border-radius: 50%;
-            left: 2px;
-            top: 2px;
-        }
-
-        .player-head {
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            background: #333;
-            border-radius: 2px;
-            left: 6px;
-            top: -2px;
-            transform-origin: center;
-            transition: transform 0.2s;
-        }
-
-        .train {
-            position: absolute;
-            height: 25px;
-            background: linear-gradient(to bottom, #db0000 0%, #a00000 100%);
-            border-radius: 8px;
             display: flex;
-            align-items: center;
             justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 14px;
-            z-index: 2;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            transition: transform 0.5s;
-            background-image: url('/images/db_train_texture.png');
-            background-size: cover;
-            border: 2px solid #222;
-        }
-
-        .train::before {
-            content: '🚆';
-            font-size: 16px;
-            font-weight: bold;
-            font-family: 'Arial Black', sans-serif;
-            color: #fff;
-            margin-left: 10px;
-            margin-right: 5px;
-        }
-
-        .train::after {
-            content: 'DB';
-            font-size: 18px;
-            font-weight: bold;
-            font-family: 'Arial Black', sans-serif;
-            color: #fff;
-            margin-right: 10px;
-        }
-
-        .train-delayed {
-            background: #d4a017;
-            border-color: #9e760f;
-        }
-
-        .snow-particle {
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            background: white;
-            border-radius: 50%;
-            pointer-events: none;
-            opacity: 0.8;
-            animation: snowfall linear infinite;
-        }
-
-        .wind-indicator {
-            position: absolute;
-            font-size: 20px;
-            color: rgba(255, 255, 255, 0.6);
-            pointer-events: none;
-            animation: windFloat 3s ease-in-out infinite;
-        }
-
-        @keyframes snowfall {
-            0% {
-                transform: translateY(-10px) rotate(0deg);
-            }
-            100% {
-                transform: translateY(100vh) rotate(360deg);
-            }
-        }
-
-        @keyframes windFloat {
-            0%, 100% { transform: translateX(0); opacity: 0.3; }
-            50% { transform: translateX(20px); opacity: 0.6; }
-        }
-
-        .potsdam-sign {
-            position: absolute;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #004a99;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            font-weight: bold;
-            font-size: 20px;
-            z-index: 4;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-             pointer-events: none;
-        }
-
-        .potsdam-sign::before {
-            content: '🏰';
-            margin-right: 10px;
-        }
-
-        .berlin-sign {
-            position: absolute;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #004a99;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            font-weight: bold;
-            font-size: 20px;
-            z-index: 4;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-             pointer-events: none;
-        }
-
-        .berlin-sign::before {
-            content: '🐻';
-            margin-right: 10px;
-        }
-
-        .progress-bar {
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 200px;
-            height: 20px;
-            background: #fff;
-            border: 2px solid #db0000;
-            border-radius: 10px;
-            overflow: hidden;
-             z-index: 1;
-             margin-top: 30px;
-        }
-
-        .progress {
-            width: 0%;
-            height: 100%;
-            background: #db0000;
-            transition: width 0.3s;
-        }
-
-        #score {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            font-size: 24px;
-            color: #333;
-            z-index: 3;
-             pointer-events: none;
-        }
-
-        .screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
             align-items: center;
-            justify-content: center;
-            background: rgba(230, 243, 255, 0.95);
-            color: #333;
-            z-index: 100;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+        }
+
+        .game-container {
             text-align: center;
             padding: 20px;
-        }
-
-        .screen h1 {
-            color: #db0000;
-            margin-bottom: 20px;
         }
 
         button {
@@ -237,876 +28,93 @@
             border-radius: 25px;
             color: white;
             cursor: pointer;
-            transition: all 0.3s;
             margin: 10px;
         }
 
-        button:hover {
-            background: #aa0000;
-            transform: translateY(-2px);
-        }
-
-        .platform {
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 200px;
-            height: 50px;
-            background: #333;
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
-            z-index: 1;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 20px;
-        }
-
-        .person {
-            position: absolute;
-            bottom: 50px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 20px;
-            height: 30px;
-            background: #333;
-            border-radius: 50%;
-            z-index: 2;
-            animation: wave 2s ease-in-out infinite;
-        }
-
-        @keyframes wave {
-            0%, 100% { transform: translateX(-50%) rotate(0deg); }
-            50% { transform: translateX(-50%) rotate(-10deg); }
-        }
-
-        .speech-bubble {
-            position: absolute;
-            bottom: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #fff;
-            color: #000;
-            border-radius: 10px;
-            padding: 10px;
-            font-size: 14px;
-            white-space: nowrap;
-            z-index: 3;
-            opacity: 0;
-            transition: opacity 0.3s;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-            pointer-events: none;
-        }
-
-        .speech-bubble::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            border-top: 10px solid #fff;
-            border-left: 10px solid transparent;
-            border-right: 10px solid transparent;
-        }
-
-        .train-message {
-            position: absolute;
-            bottom: 60px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #fff;
-            color: #000;
-            border-radius: 10px;
-            padding: 10px;
-            font-size: 14px;
-            white-space: nowrap;
-            z-index: 3;
-            opacity: 0;
-            transition: opacity 0.3s;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-            pointer-events: none;
-        }
-
-        .train-message::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            border-top: 10px solid #fff;
-            border-left: 10px solid transparent;
-            border-right: 10px solid transparent;
-        }
-
-        .game-over-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 80%;
-            max-width: 600px;
-            padding: 20px;
-            background-color: rgba(255, 255, 255, 0.9);
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-        }
-
-        .game-over-info {
-            text-align: center;
-        }
-
-        .game-over-container h1 {
-            color: #db0000;
-        }
-
-        .game-over-container p {
-            margin-bottom: 15px;
-            font-size: 18px;
-        }
-
-        .qr-container {
-            margin-top: 20px;
-            width: 150px;
-            height: 150px;
-        }
-
-        .qr-code {
-            max-width: 100%;
-            max-height: 100%;
-        }
-
-        .jump-button {
-            position: absolute;
-            bottom: 20px;
-            width: 120px;
-            height: 60px;
-            background-color: rgba(219, 0, 0, 0.7);
-            border: none;
-            border-radius: 10px;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-            z-index: 5;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0.8;
-            transition: opacity 0.3s;
-        }
-
-        .jump-button:hover {
-            opacity: 1;
-        }
-
-        #jump-up-button {
-            left: 20px;
-        }
-
-        #jump-down-button {
-            right: 20px;
-        }
-
-        #rotate-screen {
+        .screen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            color: white;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            display: none;
+            background: rgba(255, 255, 255, 0.95);
             justify-content: center;
-            z-index: 200;
+            align-items: center;
+        }
+
+        .game-over-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             text-align: center;
         }
 
-        @media (orientation: portrait) {
-            #gameContainer {
-                display: none;
-            }
-            #rotate-screen {
-                display: flex;
-            }
-        }
-
-        @media (orientation: landscape) {
-            #gameContainer {
-                display: block;
-            }
-            #rotate-screen {
-                display: none;
-            }
+        .qr-code {
+            max-width: 200px;
+            margin: 20px auto;
         }
     </style>
 </head>
 <body>
-<div id="rotate-screen">
-    <h1>Please rotate your device v17</h1>
-    <p>This game is designed to be played in landscape mode.</p>
-</div>
-<div id="gameContainer">
-    <div class="progress-bar">
-        <div class="progress"></div>
+    <div class="game-container">
+        <h1>Level <span id="current-level">1</span></h1>
+        <button onclick="completeLevel()">Complete Level</button>
     </div>
-    <div id="score">Progress: 0%</div>
-    <div class="player">
-        <div class="player-body"></div>
-        <div class="player-head"></div>
-    </div>
-    <div class="berlin-sign">Berlin</div>
-    <div class="potsdam-sign">Potsdam</div>
-    <div class="platform">Potsdam</div>
-    <div class="person" id="billy"></div>
-    <div class="speech-bubble" id="speechBubbleText"></div>
-    <button id="jump-up-button" class="jump-button">Jump Up</button>
-    <button id="jump-down-button" class="jump-button">Jump Down</button>
-</div>
 
-<div id="start-screen" class="screen">
-    <h1>🚆 DB Christmas Train Hop 🎄 v9</h1>
-    <p>Help Fede cross the train tracks to get from Berlin to Potsdam!<br>
-        Tilt your phone to move left/right. Tap the buttons to jump up or down.<br>
-        Watch out for slippery ice and delayed trains!</p>
-        <button onclick="setTimeout(() => startGame(0), 500)">Start Journey</button>
-</div>
-
-<div id="game-over-screen" class="screen" style="display: none;">
-    <div class="screen-content">
+    <div id="game-over-screen" class="screen">
         <div class="game-over-container">
-            <div class="game-over-info">
-                <h1>Game Over!</h1>
-                <p>You survived for <span id="final-time">0</span> seconds!</p>
-                <div id="qr-container" style="display: none;">
-                    <img src="/images/14-e0761905d7.png" alt="QR Code" class="qr-code">
-                </div>
-                <button onclick="location.reload()">Try Again</button>
-            </div>
-
+            <div id="game-over-content"></div>
         </div>
     </div>
-</div>
 
-<audio id="jumpSound" src="/sounds/retro-jump-3-236683.mp3"></audio>
-<audio id="trainSound" src="/sounds/loud-train-horn-274373.mp3" loop></audio>
-<audio id="gameOverSound" src="/sounds/game_over.wav"></audio>
-
-<script>
-    const gameContainer = document.getElementById('gameContainer');
-    const player = document.querySelector('.player');
-    const progressBar = document.querySelector('.progress');
-    const billy = document.getElementById('billy');
-    const speechBubble = document.getElementById('speechBubbleText');
-    const qrContainer = document.getElementById('qr-container');
-    const progressElement = document.querySelector('.progress-bar')
-    const jumpUpButton = document.getElementById('jump-up-button');
-    const jumpDownButton = document.getElementById('jump-down-button');
-
-    const jumpSound = document.getElementById('jumpSound');
-    const trainSound = document.getElementById('trainSound');
-    const gameOverSound = document.getElementById('gameOverSound');
-
-    const NUM_TRACKS = 6;
-    let TRACK_SPACING = 60;
-    const PLAYER_SPEED = 5;
-    const TRAIN_MIN_LENGTH = 100;
-    const TRAIN_MAX_LENGTH = 230;
-
-    let gameActive = false;
-    let score = 0;
-    let startTime = 0;
-    let trains = [];
-    let playerX = 0;
-    let currentTrain = null;
-    let keysPressed = new Set();
-    let windDirection = 1;
-    let isSlippery = false;
-    let level = 0;
-    let currentLevel = 0;
-    let levelsUnlocked = [true, false, false];
-    const germanPhrases = [
-    "Ein bisschen Geduld, bitte!",
-    "Wir sind gleich da!",
-    "Leider etwas Verspätung.",
-    "Kleine Verzögerung.",
-    "Technische Störung.",
-    "Signalstörung auf der Strecke.",
-    "Störung am Zug.",
-    "Baustellenbedingte Verzögerung.",
-    "Notarzteinsatz am Gleis.",
-    "Witterungsbedingte Störung.",
-    "Wegen einer Stellwerksstörung.",
-    "Zugüberholung verzögert die Weiterfahrt.",
-    "Störung an der Oberleitung.",
-    "Warten auf Gegenzug.",
-    "Verzögerung wegen Personalwechsel.",
-    "Hohe Streckenauslastung.",
-    "Kurzfristige Fahrplananpassung.",
-    "Polizeieinsatz am Gleis.",
-    "Personen im Gleis.",
-    "Zug muss überprüft werden.",
-    "Oberleitungsstörung.",
-    "Kurze Pause – danke für Ihr Verständnis!",
-    "Zug kommt bald.",
-    "Kleine Verspätung wegen Umleitung.",
-    "Wir warten auf Anschlusszug.",
-    "Hühner auf den Gleisen.",
-    "Sorry, der Zugführer braucht einen Kaffee.",
-    "Das Navi hat die Strecke verloren.",
-    "Die Bahncard ist im Urlaub.",
-    "Kabelsalat im Stellwerk.",
-    "Der Zug hat seinen Wecker verschlafen.",
-    "Unerwartetes Eichhörnchen am Gleis.",
-    "Kaffeemaschine im Bordbistro streikt.",
-    "Der Lokführer sucht noch seinen Schlüssel.",
-    "Pinguine blockieren die Strecke.",
-    "Stau auf den Schienen.",
-    "Das WLAN sucht noch die Verbindung."
-];
-
-    const spanishPhrases = [
-        "Te extraño",
-        "Se terminó el pollo",
-        "Por fin puedo invitar a Tim",
-        "Se prendió fuego la casa",
-        "No voy a sacar la basura por una semana",
-        "Me aburro",
-        "Ya fuimos a Potsdam alguna vez?",
-        "Hola!"
-    ];
-
-
-    // Tilt controls
-    let tiltX = 0;
-
-    const levels = [
-        {trainSpeedMultiplier: 1, trainDelayChance: 0.001},
-        {trainSpeedMultiplier: 1.5, trainDelayChance: 0.002},
-        {trainSpeedMultiplier: 2.5, trainDelayChance: 0.005}
-    ];
-
-
-    function updateStartScreenButtons() {
-          const startScreen = document.getElementById('start-screen');
-        startScreen.innerHTML = `
-            <h1>🚆 DB Christmas Train Hop 🎄 v7</h1>
-            <p>Help Fede cross the train tracks to get from Berlin to Potsdam!<br>
-            Tilt your phone to move left/right. Tap the buttons to jump up or down.<br>
-            Watch out for slippery ice and delayed trains!</p>
-        `;
-        for (let i = 0; i < levelsUnlocked.length; i++) {
-            if (levelsUnlocked[i]) {
-                const button = document.createElement('button');
-                button.textContent = `Level ${i + 1}`;
-                button.onclick = () => startGame(i);
-                startScreen.appendChild(button);
-            }
-        }
-    }
-
-    // Create tracks
-    function createTrack(trackNum) {
-        const track = document.createElement('div');
-        track.className = 'track';
-        track.style.top = (TRACK_SPACING * trackNum + 30) + 'px';
-        gameContainer.appendChild(track);
-        return track;
-    }
-
-    // Create train
-     function createTrain(trackNum, direction) {
-        const train = document.createElement('div');
-        train.className = 'train ' + (direction === 1 ? 'left-to-right' : 'right-to-left');
-        const trainWidth = Math.random() * (TRAIN_MAX_LENGTH - TRAIN_MIN_LENGTH) + TRAIN_MIN_LENGTH;
-        train.style.width = trainWidth + 'px';
-
-        train.style.top = (TRACK_SPACING * trackNum + 10) + 'px';
-         train.style.left = direction === 1 ? '-200px' : (gameContainer.offsetWidth + 200) + 'px';
-
-
-        gameContainer.appendChild(train);
-        const newTrain = {
-            element: train,
-            direction: direction,
-            speed: (Math.random() * 1 + 2) * direction * levels[level].trainSpeedMultiplier,
-            track: trackNum,
-            width: trainWidth,
-            delayed: false, // Initialize as not delayed
-            messageElement: null,
-            isStopped: false,
-            delayStartTime: null, // Added to track when delay started
-            originalSpeed: (Math.random() * 1 + 2) * direction * levels[level].trainSpeedMultiplier // Store original speed
-        };
-        trains.push(newTrain);
-
-        trainSound.play();
-        return newTrain;
-    }
-
-    function showTrainMessage(train, message) {
-          if (train.messageElement) return;
-        const messageDiv = document.createElement('div');
-        messageDiv.className = 'train-message';
-        messageDiv.textContent = message;
-        train.element.appendChild(messageDiv);
-        train.messageElement = messageDiv;
-        setTimeout(() => {
-            messageDiv.style.opacity = 1;
-        }, 100);
-    }
-
-    function hideTrainMessage(train) {
-         if (train.messageElement) {
-            train.messageElement.style.opacity = 0;
-            setTimeout(() => {
-                train.element.removeChild(train.messageElement)
-                train.messageElement = null;
-            }, 300);
-        }
-    }
-
-    function handleFalling() {
-    if (!currentTrain) return false;
-    const trainLeft = parseFloat(currentTrain.element.style.left);
-    const trainWidth = currentTrain.width;
-    const playerPositionX = parseFloat(player.style.left);
-    const playerVerticalPosition = parseFloat(player.style.top);
-
-    // Add a small tolerance (e.g., 5 pixels) to the edges:
-    const tolerance = 5;
-
-    if (
-        playerPositionX < trainLeft - 10 - tolerance ||
-        playerPositionX > trainLeft + trainWidth + 10 + tolerance ||
-        playerVerticalPosition < 0 ||
-        playerVerticalPosition > gameContainer.offsetHeight
-    ) {
-        return false;
-    }
-    return true;
-}
-
-    function updatePlayerPosition() {
-         if (!currentTrain) return false;
-         if (!handleFalling()) {
-            endGame();
-            return false;
-         }
-
-        const trainLeft = parseFloat(currentTrain.element.style.left);
-        const trainWidth = currentTrain.width;
-        if (isSlippery) {
-            playerX += windDirection * 0.2;
-        }
-        player.style.left = (trainLeft + playerX) + 'px';
-         player.style.top = parseFloat(currentTrain.element.style.top) +
-            (currentTrain.element.offsetHeight - player.offsetHeight) / 2 + 'px';
-         return true;
-    }
-
-    // Find train at specific position
-    function findTrainAt(x, y) {
-           for (const train of trains) {
-            const trainLeft = parseFloat(train.element.style.left);
-            const trainRight = trainLeft + train.width;
-            const trainY = parseFloat(train.element.style.top);
-
-            if (x >= trainLeft && x <= trainRight &&
-                Math.abs(y - trainY) < TRACK_SPACING / 2) {
-               return train;
-            }
-        }
-        return null;
-    }
-
-     function tryJump(direction) {
-        if (!currentTrain) return;
-
-         const currentY = parseFloat(currentTrain.element.style.top);
-        const newY = currentY + direction * TRACK_SPACING;
-        const currentX = parseFloat(player.style.left);
-
-        const targetTrain = findTrainAt(currentX, newY);
-        if (targetTrain) {
-            currentTrain = targetTrain;
-            playerX = currentX - parseFloat(targetTrain.element.style.left);
-             player.style.transform = direction < 0 ? 'scaleY(-1)' : 'scaleY(1)';
-             setTimeout(() => {
-                player.style.transform = 'scaleY(1)';
-            }, 200);
-            jumpSound.currentTime = 0;
-             jumpSound.play();
-       } else {
-           endGame();
-       }
-    }
-
-    function updateTrains() {
-        trains.forEach((train, index) => {
-            // Check if a train should start a delay
-            if (!train.delayed && Math.random() < levels[level].trainDelayChance) {
-                train.delayed = true;
-                train.isStopped = true;
-                train.speed = train.originalSpeed * 0.1; // Reduce speed greatly
-                train.delayStartTime = Date.now();
-                train.element.classList.add('train-delayed');
-                const message = germanPhrases[Math.floor(Math.random() * germanPhrases.length)];
-                showTrainMessage(train, message);
-
-                const trainY = parseFloat(train.element.style.top);
-                const trainsBehind = trains.filter(t => {
-                    const otherTrainY = parseFloat(t.element.style.top);
-                    return t !== train && otherTrainY === trainY &&
-                        ((train.direction === 1 && parseFloat(t.element.style.left) < parseFloat(train.element.style.left)) ||
-                            (train.direction === -1 && parseFloat(t.element.style.left) > parseFloat(train.element.style.left)));
-                }).sort((a, b) => {
-                    if (train.direction === 1) {
-                        return parseFloat(b.element.style.left) - parseFloat(a.element.style.left);
-                    } else {
-                        return parseFloat(a.element.style.left) - parseFloat(b.element.style.left)
-                    }
-                });
-
-                if (trainsBehind.length > 0) {
-                    trainsBehind[0].delayed = true;
-                    trainsBehind[0].isStopped = true;
-                    trainsBehind[0].speed = trainsBehind[0].originalSpeed * 0.1;
-                    trainsBehind[0].delayStartTime = Date.now();
-                    trainsBehind[0].element.classList.add('train-delayed');
-                    const message = germanPhrases[Math.floor(Math.random() * germanPhrases.length)];
-                    showTrainMessage(trainsBehind[0], message);
-                }
-            }
-
-            // Check if a delayed train should resume
-            if (train.isStopped && train.delayStartTime && (Date.now() - train.delayStartTime > (Math.random() * 5000 + 2000))) {
-                train.isStopped = false;
-                train.speed = train.originalSpeed;
-                train.delayStartTime = null;
-                train.element.classList.remove('train-delayed');
-                train.delayed = false; // Reset delayed flag
-                hideTrainMessage(train);
-            }
-
-
-            if (train.delayed && train.isStopped) return;
-
-            const left = parseFloat(train.element.style.left);
-            train.element.style.left = (left + train.speed) + 'px';
-            if ((train.direction === 1 && left > gameContainer.offsetWidth + 200) ||
-                (train.direction === -1 && left < -200)) {
-                train.element.remove();
-                trains.splice(index, 1);
-            }
-        });
-    }
-
-
-    function updateGame() {
-        // Check if game is active
-        if (!gameActive) return;
+    <script>
+        let currentLevel = 0;
+        const MAX_LEVELS = 3;
         
-        // Calculate elapsed time
-        const currentTime = Date.now();
-        const elapsedTime = Math.floor((currentTime - startTime) / 1000);
-        
-        // First check current progress and win condition
-        if (currentTrain) {
-            const progress = Math.max(0, Math.min(100,
-                Math.floor((1 - parseFloat(currentTrain.element.style.top) / (NUM_TRACKS * TRACK_SPACING)) * 100)));
-            progressBar.style.width = progress + '%';
-            document.getElementById('score').textContent = `Progress: ${progress}%`;
-
-            // Check for win condition before any other updates
-            if (progress >= 10) {
-                winGame();
-                return;
-            }
-        }
-
-        // Update train positions and states
-        updateTrains();
-        
-        // Check player position and handle falling
-        if (!updatePlayerPosition()) {
-            return;
-        }
-
-        // Handle player movement
-        if (keysPressed.has('ArrowLeft') || tiltX < -5) {
-            playerX = Math.max(0, playerX - PLAYER_SPEED);
-        }
-        if (keysPressed.has('ArrowRight') || tiltX > 5) {
-            playerX = Math.min(currentTrain.width, playerX + PLAYER_SPEED);
-        }
-
-        if (tiltX > 5) {  // Tilting forward (in landscape)
-            playerX = Math.max(0, playerX - PLAYER_SPEED);
-        }
-        if (tiltX < -5) {  // Tilting backward (in landscape)
-            playerX = Math.min(currentTrain.width, playerX + PLAYER_SPEED);
-        }
-
-        // Spawn new trains as needed
-        for (let track = 1; track <= NUM_TRACKS; track++) {
-            const trainsOnTrack = trains.filter(t => t.track === track).length;
-            if (trainsOnTrack < 2 && Math.random() < 0.02) {
-                const direction = track % 2 === 0 ? 1 : -1;
-                createTrain(track, direction);
-            }
-        }
-
-        // Update time display
-       // document.getElementById('final-time').textContent = elapsedTime;
-        
-        // Continue game loop
-        requestAnimationFrame(updateGame);
-    }
-
-    // Start game
-    function startGame(selectedLevel) {
-        console.log("Current level 1: ", currentLevel);
-        document.getElementById('start-screen').style.display = 'none';
-        gameContainer.offsetHeight; // Trigger reflow
-
-        gameActive = true;
-        score = 0;
-        trains = [];
-        keysPressed.clear();
-        level = selectedLevel;
-
-        // Clear existing tracks
-        const existingTracks = document.querySelectorAll('.track');
-        existingTracks.forEach(track => track.remove());
-        // Setup device orientation handling with the new handler
-        window.addEventListener('deviceorientation', handleDeviceOrientation);
-
-        for (let i = 1; i <= NUM_TRACKS; i++) {
-             createTrack(i);
-        }
-
-        const initialTrain = createTrain(NUM_TRACKS, 1);
-        currentTrain = initialTrain;
-        playerX = initialTrain.width / 2.5; // Changed from 2 to 2.5
-        player.style.left = (parseFloat(initialTrain.element.style.left) + playerX) + 'px';
-        player.style.top = (parseFloat(initialTrain.element.style.top) + (initialTrain.element.offsetHeight - player.offsetHeight) / 2) + 'px';
-
-        window.addEventListener('keydown', handleKeyDown);
-        window.addEventListener('keyup', handleKeyUp);
-        //gameContainer.addEventListener('touchstart', handleTouchStart);
-        //gameContainer.addEventListener('touchend', handleTouchEnd);
-
-
-       startTime = Date.now();
-         requestAnimationFrame(updateGame);
-
-       jumpUpButton.addEventListener('click', () => tryJump(-1));
-       jumpDownButton.addEventListener('click', () => tryJump(1));
-    }
-
-    function handleKeyDown(e) {
-         if (!gameActive) return;
-         keysPressed.add(e.code);
-
-        if (e.code === 'ArrowUp') tryJump(-1);
-        if (e.code === 'ArrowDown') tryJump(1);
-    }
-
-    function handleKeyUp(e) {
-        keysPressed.delete(e.code);
-    }
-
-    let touchStartY = 0;
-
-    //function handleTouchStart(e) {
-    //    if (!gameActive) return;
-    //    touchStartY = e.touches[0].clientY;
-    //}
-
-    //function handleTouchEnd(e) {
-    //    if (!gameActive || !e.changedTouches || e.changedTouches.length === 0) return;
-
-    //    const touchEndY = e.changedTouches[0].clientY;
-    //    const tapY = touchEndY;
-    //    const playerY = parseFloat(player.style.top);
-
-    //    if (tapY < playerY) {
-    //        tryJump(-1); // Move up/forward
-    //    } else if (tapY > playerY) {
-    //        tryJump(1); // Move down/backward
-    //    }
-    //}
-
-    function endGame() {
-         gameActive = false;
-        trainSound.pause();
-        gameOverSound.currentTime = 0;
-         gameOverSound.play();
-       document.getElementById('game-over-screen').style.display = 'flex';
-        document.getElementById('final-time').textContent = Math.floor((Date.now() - startTime) / 1000);
-         qrContainer.style.display = 'none';
-    }
-
-
-    function winGame() {
-        gameActive = false;
-        trainSound.pause();
-        gameOverSound.currentTime = 0;
-        gameOverSound.play();
-
-        // Unlock next level if not final level
-        if (currentLevel < levelsUnlocked.length - 1) {
-            levelsUnlocked[currentLevel + 1] = true;
-        }
-
-        const gameOverScreen = document.getElementById('game-over-screen');
-        const gameOverContainer = gameOverScreen.querySelector('.game-over-container');
-
-        // Show current level and levels unlocked length to the user
-        // div_content = document.createElement('div');
-        // div_content.innerHTML = `
-        //     <h1>Level ${currentLevel + 1}!</h1> 
-        //     <p>Levels Unlocked: ${levelsUnlocked.filter(unlocked => unlocked).length}</p>
-        // `;
-        // gameOverContainer.appendChild(div_content);
-        // div_content.style.color = 'red';
-        // div_content.style.fontSize = '20px';
-        // div_content.style.fontWeight = 'bold';
-
-        if (currentLevel === 2) {
-            // Final level completion - show QR code and end game
-            gameOverContainer.querySelector('.game-over-info').innerHTML = `
-                <h1>🎉 Congratulations! 🎉.</h1>
-                <p>You've completed all levels!</p>
-                <div class="final-qr-container">
+        function updateGameOverScreen() {
+            const gameOverScreen = document.getElementById('game-over-screen');
+            const content = document.getElementById('game-over-content');
+            
+            console.log('Current level:', currentLevel); // Debug log
+            
+            if (currentLevel === MAX_LEVELS - 1) {
+                // Final level completion
+                content.innerHTML = `
+                    <h1>🎉 Congratulations! 🎉</h1>
+                    <p>You've completed all levels!</p>
                     <img src="/images/14-e0761905d7.png" alt="QR Code" class="qr-code">
-                </div>
-                <button onclick="location.reload()">Play Again</button>
-            `;
-
-            const finalQrContainer = gameOverContainer.querySelector('.final-qr-container');
-
-        } else {
-            // Regular level completion - show next level button
-            gameOverContainer.querySelector('.game-over-info').innerHTML = `
-                <h1>🎉 Level Complete! 🎉</h1>
-                <p>Get ready for the next level!</p>
-                <button onclick="startNextLevel()">Next Level</button>
-            `;
-        }
-
-        gameOverScreen.style.display = 'flex';
-        // Show speech bubble
-        setTimeout(() => {
-            speechBubble.style.opacity = 1;
-        }, 500);
-
-        // Update available levels in the start screen
-        updateStartScreenButtons();
-    }
-
-
-    function startNextLevel() {
-        // Clear all existing trains
-        trains.forEach(train => {
-            if (train.element) {
-                train.element.remove();
+                    <br>
+                    <button onclick="resetGame()">Play Again</button>
+                `;
+            } else {
+                // Regular level completion
+                content.innerHTML = `
+                    <h1>Level ${currentLevel + 1} Complete!</h1>
+                    <p>Get ready for the next level!</p>
+                    <button onclick="nextLevel()">Next Level</button>
+                `;
             }
-        });
-        trains = [];
+            
+            gameOverScreen.style.display = 'flex';
+        }
         
-        document.getElementById('game-over-screen').style.display = 'none';
-        currentLevel++;
-        startGame(currentLevel);
-    }
-
-    function createWeatherEffects() {
-         setInterval(() => {
-            if (!gameActive) return;
-           const snow = document.createElement('div');
-            snow.className = 'snow-particle';
-             snow.style.left = Math.random() * window.innerWidth + 'px';
-            snow.style.animationDuration = (Math.random() * 3 + 2) + 's';
-            gameContainer.appendChild(snow);
-           setTimeout(() => snow.remove(), 5000);
-        }, 100);
-    }
-
-    function updateSpeechBubble() {
-        if (!gameActive) return;
-        const randomIndex = Math.floor(Math.random() * spanishPhrases.length);
-        speechBubble.textContent = spanishPhrases[randomIndex];
-    }
-
-    createWeatherEffects();
-    billy.addEventListener('mouseenter', () => {
-       speechBubble.style.opacity = 1;
-    });
-    billy.addEventListener('mouseleave', () => {
-        speechBubble.style.opacity = 0;
-    });
-     updateStartScreenButtons();
-
-    // Set initial speech bubble text and start interval
-    updateSpeechBubble();
-    setInterval(updateSpeechBubble, 5000);
-
-    // Update track spacing based on screen height
-    function updateTrackSpacing() {
-        const screenHeight = window.innerHeight;
-        TRACK_SPACING = Math.floor((screenHeight - 100) / NUM_TRACKS);
-    }
-
-    // Handle window resize
-    window.addEventListener('resize', () => {
-        if (gameActive) {
-            updateTrackSpacing();
-            // Reposition existing trains
-            trains.forEach(train => {
-                const trackNum = train.track;
-                train.element.style.top = (TRACK_SPACING * trackNum + 10) + 'px';
-            });
+        function completeLevel() {
+            updateGameOverScreen();
         }
-    });
-
-    // Handle visibility change
-    document.addEventListener('visibilitychange', () => {
-        if (document.hidden) {
-            gameActive = false;
-        }
-    });
-
-    // Handle screen orientation change
-    window.addEventListener('orientationchange', () => {
-        if (window.orientation === 0) { // Portrait
-            if (gameActive) {
-                gameActive = false;
-                document.getElementById('game-over-screen').style.display = 'flex';
-            }
-        }
-    });
-
-    function handleDeviceOrientation(event) {
-        if (!gameActive) return;
         
-        // In landscape, we need to use beta (forward/backward tilt) for left/right movement
-        // Beta ranges from -180 to 180, we'll use a small range around 0
-        const beta = event.beta;
-        
-        // Only move if the tilt is significant enough (more than 5 degrees)
-        if (Math.abs(beta) > 5) {
-            // Reverse the direction because of how beta works in landscape
-            tiltX = -beta;
-        } else {
-            tiltX = 0;
+        function nextLevel() {
+            currentLevel++;
+            document.getElementById('current-level').textContent = currentLevel + 1;
+            document.getElementById('game-over-screen').style.display = 'none';
         }
-    }
-
-    // Initialize the game
-    updateTrackSpacing();
-</script>
+        
+        function resetGame() {
+            currentLevel = 0;
+            document.getElementById('current-level').textContent = currentLevel + 1;
+            document.getElementById('game-over-screen').style.display = 'none';
+        }
+    </script>
 </body>
 </html>
