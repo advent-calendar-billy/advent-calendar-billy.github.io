@@ -874,6 +874,8 @@
         // Clear existing tracks
         const existingTracks = document.querySelectorAll('.track');
         existingTracks.forEach(track => track.remove());
+        // Setup device orientation handling with the new handler
+        window.addEventListener('deviceorientation', handleDeviceOrientation);
 
         for (let i = 1; i <= NUM_TRACKS; i++) {
              createTrack(i);
@@ -1064,6 +1066,22 @@
             }
         }
     });
+
+    function handleDeviceOrientation(event) {
+        if (!gameActive) return;
+        
+        // In landscape, we need to use beta (forward/backward tilt) for left/right movement
+        // Beta ranges from -180 to 180, we'll use a small range around 0
+        const beta = event.beta;
+        
+        // Only move if the tilt is significant enough (more than 5 degrees)
+        if (Math.abs(beta) > 5) {
+            // Reverse the direction because of how beta works in landscape
+            tiltX = -beta;
+        } else {
+            tiltX = 0;
+        }
+    }
 
     // Initialize the game
     updateTrackSpacing();
