@@ -445,7 +445,7 @@
 </head>
 <body>
 <div id="rotate-screen">
-    <h1>Please rotate your device v5</h1>
+    <h1>Please rotate your device v6</h1>
     <p>This game is designed to be played in landscape mode.</p>
 </div>
 <div id="gameContainer">
@@ -899,9 +899,6 @@
         //gameContainer.addEventListener('touchstart', handleTouchStart);
         //gameContainer.addEventListener('touchend', handleTouchEnd);
 
-        window.addEventListener('deviceorientation', (e) => {
-            tiltX = e.gamma;
-       });
 
        startTime = Date.now();
          requestAnimationFrame(updateGame);
