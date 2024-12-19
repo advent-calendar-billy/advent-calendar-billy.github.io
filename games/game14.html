@@ -445,7 +445,7 @@
 </head>
 <body>
 <div id="rotate-screen">
-    <h1>Please rotate your device v4</h1>
+    <h1>Please rotate your device v5</h1>
     <p>This game is designed to be played in landscape mode.</p>
 </div>
 <div id="gameContainer">
@@ -952,6 +952,8 @@
         document.getElementById('final-time').textContent = Math.floor((Date.now() - startTime) / 1000);
          qrContainer.style.display = 'none';
     }
+
+
     function winGame() {
         gameActive = false;
         trainSound.pause();
@@ -965,26 +967,24 @@
         
         const gameOverScreen = document.getElementById('game-over-screen');
         const gameOverContainer = gameOverScreen.querySelector('.game-over-container');
-        const qrContainer = document.getElementById('qr-container');
         
-        if (currentLevel === 2) {
+        if (currentLevel === levelsUnlocked.length - 1) {
             // Final level completion - show QR code and end game
             gameOverContainer.querySelector('.game-over-info').innerHTML = `
-                <h1>🎉 Congratulations! You Beat The Game! 🎉</h1>
-                <p>You've completed Level 3!</p>
+                <h1>🎉 Congratulations! 🎉</h1>
+                <p>You've completed all levels!</p>
+                <div id="qr-container">
+                    <img src="/images/14-e0761905d7.png" alt="QR Code" class="qr-code">
+                </div>
                 <button onclick="location.reload()">Play Again</button>
             `;
-            // Show QR container separately
-            qrContainer.style.display = 'block';
         } else {
             // Regular level completion - show next level button
             gameOverContainer.querySelector('.game-over-info').innerHTML = `
                 <h1>🎉 Level ${currentLevel + 1} Complete! 🎉</h1>
-                <p>Get ready for Level ${currentLevel + 2}!</p>
+                <p>Get ready for the next level!</p>
                 <button onclick="startNextLevel()">Next Level</button>
             `;
-            // Hide QR container
-            qrContainer.style.display = 'none';
         }
         
         gameOverScreen.style.display = 'flex';
