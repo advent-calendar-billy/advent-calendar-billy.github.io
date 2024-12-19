@@ -445,7 +445,7 @@
 </head>
 <body>
 <div id="rotate-screen">
-    <h1>Please rotate your device v21</h1>
+    <h1>Please rotate your device v22</h1>
     <p>This game is designed to be played in landscape mode.</p>
 </div>
 <div id="gameContainer">
@@ -855,11 +855,11 @@
             playerX = Math.min(currentTrain.width, playerX + PLAYER_SPEED);
         }
 
-        if (tiltX < -2) {  // More sensitive threshold
-            playerX = Math.min(currentTrain.width, playerX + (Math.abs(tiltX) * 0.3)); // Proportional speed
+        if (tiltX > 2) {  // Tilting forward (top of phone tilting down) = go left
+            playerX = Math.max(0, playerX - (Math.abs(tiltX) * 0.3)); // Move left
         }
-        if (tiltX > 2) {   // More sensitive threshold
-            playerX = Math.max(0, playerX - (Math.abs(tiltX) * 0.3)); // Proportional speed
+        if (tiltX < -2) {   // Tilting backward (top of phone tilting up) = go right
+            playerX = Math.min(currentTrain.width, playerX + (Math.abs(tiltX) * 0.3)); // Move right
         }
 
 
