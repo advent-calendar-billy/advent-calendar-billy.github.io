@@ -303,7 +303,7 @@
                 },
                 {
                     name: "Familia de Billy",
-                    points: 10,
+                    points: 15,
                     questions: [
                         {
                             question: "Cuál es el apellido de Leti?",
@@ -324,7 +324,7 @@
                 },
                 {
                     name: "Gente que Billy conoce (no familia)",
-                    points: 20,
+                    points: 10,
                     questions: [
                         {
                             question: "Nahuel, tiene segundo nombre?",
@@ -335,6 +335,16 @@
                             question: "El nombre de mi personal trainer, cuál de las siguientes letras contiene?",
                             answers: ["e, b", "u", "r, a"],
                             correctAnswer: 0
+                        },
+                        {
+                            question: "Nikita, estuvo en el ejército ruso?",
+                            answers: ["sí", "no"],
+                            correctAnswer: 0
+                        },
+                        {
+                            question: "Misha, tiene el pelo largo?",
+                            answers: ["sí", "no"],
+                            correctAnswer: 1
                         }
                     ]
                 },
@@ -451,9 +461,11 @@
                 document.getElementById('message').textContent = 'Correct! 🎄';
                 playSound('/sounds/win.mp3');
                 
-                queueHostSpeech(`Correct! The question was "${question.question}" and the concursant nailed it with "${correctAnswer}"! He gained ${category.points} points!`);
+                queueHostSpeech(`Correct! The question was "${question.question}" and the concursant nailed it with "${correctAnswer}"!
+                He gained ${category.points} points! He has "${score} total points and needs to reach 70."`);
                 
-                if (score >= 50) {
+
+                if (score >= 70) {
                     showWinScreen();
                     return;
                 }
