@@ -970,8 +970,8 @@
         if (currentLevel === 2) {
             // Final level completion - show QR code and end game
             gameOverContainer.querySelector('.game-over-info').innerHTML = `
-                <h1>🎉 Congratulations! 🎉</h1>
-                <p>You've completed all levels!</p>
+                <h1>🎉 Congratulations! You Beat The Game! 🎉</h1>
+                <p>You've completed Level 3!</p>
                 <button onclick="location.reload()">Play Again</button>
             `;
             // Show QR container separately
@@ -980,7 +980,7 @@
             // Regular level completion - show next level button
             gameOverContainer.querySelector('.game-over-info').innerHTML = `
                 <h1>🎉 Level ${currentLevel + 1} Complete! 🎉</h1>
-                <p>Get ready for the next level!</p>
+                <p>Get ready for Level ${currentLevel + 2}!</p>
                 <button onclick="startNextLevel()">Next Level</button>
             `;
             // Hide QR container
