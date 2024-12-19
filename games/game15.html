@@ -428,27 +428,6 @@
 
         setInterval(createSnowflake, 200);
 
-        function showQuestion(categoryIndex, questionIndex) {
-            const category = gameData.categories[categoryIndex];
-            const question = category.questions[questionIndex];
-            const questionContainer = document.querySelector('.question-container');
-            const categoriesContainer = document.querySelector('.categories');
-
-            categoriesContainer.style.display = 'none';
-            questionContainer.style.display = 'block';
-
-            document.querySelector('.question-text').textContent = question.question;
-            const answersContainer = document.querySelector('.answers');
-            answersContainer.innerHTML = '';
-
-            question.answers.forEach((answer, index) => {
-                const button = document.createElement('button');
-                button.classList.add('answer-button');
-                button.textContent = answer;
-                button.onclick = () => checkAnswer(categoryIndex, questionIndex, index);
-                answersContainer.appendChild(button);
-            });
-        }
 
         function checkAnswer(categoryIndex, questionIndex, answerIndex) {
             const category = gameData.categories[categoryIndex];
@@ -495,28 +474,74 @@
             }, 1500);
         }
 
-        function getRandomQuestion(categoryIndex) {
-    // Get or initialize the set of used questions for this category
+// 1. First, add validation when showing a question
+function showQuestion(categoryIndex, questionIndex) {
+    const category = gameData.categories[categoryIndex];
+    const question = category.questions[questionIndex];
+    
+    // Validate that we have a valid question
+    if (!question || !question.question) {
+        console.error('Invalid question selected:', { categoryIndex, questionIndex, question });
+        document.getElementById('message').textContent = 'Error loading question';
+        setTimeout(() => {
+            document.getElementById('message').textContent = '';
+            showCategories();
+        }, 1500);
+        return;
+    }
+
+    const questionContainer = document.querySelector('.question-container');
+    const categoriesContainer = document.querySelector('.categories');
+
+    categoriesContainer.style.display = 'none';
+    questionContainer.style.display = 'block';
+
+    document.querySelector('.question-text').textContent = question.question;
+    const answersContainer = document.querySelector('.answers');
+    answersContainer.innerHTML = '';
+
+    question.answers.forEach((answer, index) => {
+        const button = document.createElement('button');
+        button.classList.add('answer-button');
+        button.textContent = answer;
+        button.onclick = () => checkAnswer(categoryIndex, questionIndex, index);
+        answersContainer.appendChild(button);
+    });
+}
+
+// 2. Improve the random question selection to be more robust
+function getRandomQuestion(categoryIndex) {
+    // Validate category index
+    if (categoryIndex < 0 || categoryIndex >= gameData.categories.length) {
+        console.error('Invalid category index:', categoryIndex);
+        return null;
+    }
+
     const usedQuestionsForCategory = usedQuestions.get(categoryIndex) || new Set();
     const category = gameData.categories[categoryIndex];
     
-    // Get all available question indices that haven't been used yet
+    // Validate category has questions
+    if (!category.questions || category.questions.length === 0) {
+        console.error('Category has no questions:', category);
+        return null;
+    }
+    
+    // Get available questions (both unused and valid)
     const availableIndices = [];
     for (let i = 0; i < category.questions.length; i++) {
-        if (!usedQuestionsForCategory.has(i)) {
+        if (!usedQuestionsForCategory.has(i) && category.questions[i].question) {
             availableIndices.push(i);
         }
     }
     
-    // If there are available questions, return a random one
-    if (availableIndices.length > 0) {
-        const randomIndex = Math.floor(Math.random() * availableIndices.length);
-        return availableIndices[randomIndex];
+    if (availableIndices.length === 0) {
+        return null;
     }
     
-    return null; // Return null if no questions are available
+    return availableIndices[Math.floor(Math.random() * availableIndices.length)];
 }
 
+// 3. Add validation when showing categories
 function showCategories() {
     const questionContainer = document.querySelector('.question-container');
     const categoriesContainer = document.querySelector('.categories');
@@ -529,18 +554,20 @@ function showCategories() {
         const card = document.createElement('div');
         card.classList.add('category-card');
         
-        // Get count of used questions for this category
         const usedQuestionsForCategory = usedQuestions.get(categoryIndex) || new Set();
-        const availableQuestions = category.questions.length - usedQuestionsForCategory.size;
+        // Only count valid questions
+        const validQuestions = category.questions.filter(q => q.question).length;
+        const usedValidQuestions = Array.from(usedQuestionsForCategory).filter(
+            i => category.questions[i].question
+        ).length;
+        const availableQuestions = validQuestions - usedValidQuestions;
         
-        // Mark card as used if no questions are available
         if (availableQuestions === 0) {
             card.classList.add('used');
         }
         
-        card.textContent = `${category.name} (${category.points} pts) [${availableQuestions}/${category.questions.length}]`;
+        card.textContent = `${category.name} (${category.points} pts) [${availableQuestions}/${validQuestions}]`;
         
-        // Only add click handler if there are available questions
         if (availableQuestions > 0) {
             card.onclick = () => {
                 const questionIndex = getRandomQuestion(categoryIndex);
@@ -553,7 +580,6 @@ function showCategories() {
         categoriesContainer.appendChild(card);
     });
 }
-
         function showWinScreen() {
             document.getElementById('message').textContent = '🎄 Congratulations! You Won! 🎄';
             document.getElementById('qrContainer').style.display = 'block';
