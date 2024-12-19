@@ -59,7 +59,7 @@
 
         .train {
             position: absolute;
-            height: 40px;
+            height: 25px;
             background: linear-gradient(to bottom, #db0000 0%, #a00000 100%);
             border-radius: 8px;
             display: flex;
@@ -67,7 +67,7 @@
             justify-content: center;
             color: white;
             font-weight: bold;
-            font-size: 16px;
+            font-size: 14px;
             z-index: 2;
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
             transition: transform 0.5s;
@@ -78,12 +78,12 @@
 
         .train::before {
             content: '🚆';
-            font-size: 24px;
+            font-size: 16px;
             font-weight: bold;
             font-family: 'Arial Black', sans-serif;
             color: #fff;
             margin-left: 10px;
-            margin-right: 10px;
+            margin-right: 5px;
         }
 
         .train::after {
@@ -467,7 +467,7 @@
 </div>
 
 <div id="start-screen" class="screen">
-    <h1>🚆 DB Christmas Train Hop 🎄 v8</h1>
+    <h1>🚆 DB Christmas Train Hop 🎄 v9</h1>
     <p>Help Fede cross the train tracks to get from Berlin to Potsdam!<br>
         Tilt your phone to move left/right. Tap the buttons to jump up or down.<br>
         Watch out for slippery ice and delayed trains!</p>
@@ -512,8 +512,8 @@
     const NUM_TRACKS = 6;
     let TRACK_SPACING = 60;
     const PLAYER_SPEED = 5;
-    const TRAIN_MIN_LENGTH = 120;
-    const TRAIN_MAX_LENGTH = 200;
+    const TRAIN_MIN_LENGTH = 100;
+    const TRAIN_MAX_LENGTH = 230;
 
     let gameActive = false;
     let score = 0;
