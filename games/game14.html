@@ -964,6 +964,9 @@
         
         const gameOverScreen = document.getElementById('game-over-screen');
         const gameOverContainer = gameOverScreen.querySelector('.game-over-container');
+        console.log("Current level: " + currentLevel);
+        console.log("Levels unlocked: " + levelsUnlocked);
+        console.log("Levels length: " + levelsUnlocked.length);
         
         if (currentLevel === levelsUnlocked.length - 1) {
             // Final level completion - show QR code and end game
