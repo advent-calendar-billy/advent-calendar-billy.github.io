@@ -474,22 +474,6 @@
         <button onclick="setTimeout(() => startGame(0), 500)">Start Journey</button>
 </div>
 
-<div id="game-over-screen" class="screen" style="display: none;">
-    <div class="screen-content">
-        <div class="game-over-container">
-            <div class="game-over-info">
-                <h1>Game Over!</h1>
-                <p>You survived for <span id="final-time">0</span> seconds!</p>
-                <div id="qr-container" style="display: none;">
-                    <img src="/images/14-e0761905d7.png" alt="QR Code" class="qr-code">
-                </div>
-                <button onclick="location.reload()">Try Again</button>
-            </div>
-
-        </div>
-    </div>
-</div>
-
 <audio id="jumpSound" src="/sounds/retro-jump-3-236683.mp3"></audio>
 <audio id="trainSound" src="/sounds/loud-train-horn-274373.mp3" loop></audio>
 <audio id="gameOverSound" src="/sounds/game_over.wav"></audio>
@@ -981,7 +965,7 @@
             gameOverContainer.querySelector('.game-over-info').innerHTML = `
                 <h1>🎉 Congratulations! 🎉.</h1>
                 <p>You've completed all levels!</p>
-                <div class="final-qr-container">
+                <div class="qr-container">
                     <img src="/images/14-e0761905d7.png" alt="QR Code" class="qr-code">
                 </div>
                 <button onclick="location.reload()">Play Again</button>
