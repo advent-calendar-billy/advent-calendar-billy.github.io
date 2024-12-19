@@ -611,28 +611,32 @@
     }
 
     // Create train
-     function createTrain(trackNum, direction) {
+    function createTrain(trackNum, direction) {
         const train = document.createElement('div');
         train.className = 'train ' + (direction === 1 ? 'left-to-right' : 'right-to-left');
         const trainWidth = Math.random() * (TRAIN_MAX_LENGTH - TRAIN_MIN_LENGTH) + TRAIN_MIN_LENGTH;
         train.style.width = trainWidth + 'px';
 
         train.style.top = (TRACK_SPACING * trackNum + 10) + 'px';
-         train.style.left = direction === 1 ? '-200px' : (gameContainer.offsetWidth + 200) + 'px';
-
+        train.style.left = direction === 1 ? '-200px' : (gameContainer.offsetWidth + 200) + 'px';
 
         gameContainer.appendChild(train);
+        
+        // Calculate base speed
+        const baseSpeed = (Math.random() * 1 + 2) * direction;
+        
+        // Create train object with level-appropriate speed
         const newTrain = {
             element: train,
             direction: direction,
-            speed: (Math.random() * 1 + 2) * direction * levels[currentLevel].trainSpeedMultiplier,
+            baseSpeed: baseSpeed,  // Store the base speed without multiplier
+            speed: baseSpeed * levels[currentLevel].trainSpeedMultiplier,
             track: trackNum,
             width: trainWidth,
-            delayed: false, // Initialize as not delayed
+            delayed: false,
             messageElement: null,
             isStopped: false,
-            delayStartTime: null, // Added to track when delay started
-            originalSpeed: (Math.random() * 1 + 2) * direction * levels[currentLevel].trainSpeedMultiplier // Store original speed
+            delayStartTime: null
         };
         trains.push(newTrain);
 
@@ -762,7 +766,8 @@
             if (!train.delayed && Math.random() < levels[currentLevel].trainDelayChance) {
                 train.delayed = true;
                 train.isStopped = true;
-                train.speed = train.originalSpeed * 0.1; // Reduce speed greatly
+                // Reduce speed while maintaining level multiplier
+                train.speed = train.baseSpeed * levels[currentLevel].trainSpeedMultiplier * 0.1;
                 train.delayStartTime = Date.now();
                 train.element.classList.add('train-delayed');
                 const message = germanPhrases[Math.floor(Math.random() * germanPhrases.length)];
@@ -785,7 +790,7 @@
                 if (trainsBehind.length > 0) {
                     trainsBehind[0].delayed = true;
                     trainsBehind[0].isStopped = true;
-                    trainsBehind[0].speed = trainsBehind[0].originalSpeed * 0.1;
+                    trainsBehind[0].speed = trainsBehind[0].baseSpeed * levels[currentLevel].trainSpeedMultiplier * 0.1;
                     trainsBehind[0].delayStartTime = Date.now();
                     trainsBehind[0].element.classList.add('train-delayed');
                     const message = germanPhrases[Math.floor(Math.random() * germanPhrases.length)];
@@ -796,13 +801,13 @@
             // Check if a delayed train should resume
             if (train.isStopped && train.delayStartTime && (Date.now() - train.delayStartTime > (Math.random() * 5000 + 2000))) {
                 train.isStopped = false;
-                train.speed = train.originalSpeed;
+                // Resume speed with proper level multiplier
+                train.speed = train.baseSpeed * levels[currentLevel].trainSpeedMultiplier;
                 train.delayStartTime = null;
                 train.element.classList.remove('train-delayed');
-                train.delayed = false; // Reset delayed flag
+                train.delayed = false;
                 hideTrainMessage(train);
             }
-
 
             if (train.delayed && train.isStopped) return;
 
