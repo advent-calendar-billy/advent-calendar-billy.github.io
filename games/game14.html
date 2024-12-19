@@ -467,7 +467,7 @@
 </div>
 
 <div id="start-screen" class="screen">
-    <h1>🚆 DB Christmas Train Hop 🎄 v6</h1>
+    <h1>🚆 DB Christmas Train Hop 🎄 v7</h1>
     <p>Help Fede cross the train tracks to get from Berlin to Potsdam!<br>
         Tilt your phone to move left/right. Tap the buttons to jump up or down.<br>
         Watch out for slippery ice and delayed trains!</p>
@@ -840,6 +840,13 @@
             playerX = Math.max(0, playerX - PLAYER_SPEED);
         }
         if (keysPressed.has('ArrowRight') || tiltX > 5) {
+            playerX = Math.min(currentTrain.width, playerX + PLAYER_SPEED);
+        }
+
+        if (tiltX > 5) {  // Tilting forward (in landscape)
+            playerX = Math.max(0, playerX - PLAYER_SPEED);
+        }
+        if (tiltX < -5) {  // Tilting backward (in landscape)
             playerX = Math.min(currentTrain.width, playerX + PLAYER_SPEED);
         }
 
