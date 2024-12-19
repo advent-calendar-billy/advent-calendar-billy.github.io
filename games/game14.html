@@ -445,7 +445,7 @@
 </head>
 <body>
 <div id="rotate-screen">
-    <h1>Please rotate your device v13</h1>
+    <h1>Please rotate your device v14</h1>
     <p>This game is designed to be played in landscape mode.</p>
 </div>
 <div id="gameContainer">
@@ -955,33 +955,28 @@
         trainSound.pause();
         gameOverSound.currentTime = 0;
         gameOverSound.play();
-        
+
         // Unlock next level if not final level
         if (currentLevel < levelsUnlocked.length - 1) {
             levelsUnlocked[currentLevel + 1] = true;
         }
-        
+
         const gameOverScreen = document.getElementById('game-over-screen');
         const gameOverContainer = gameOverScreen.querySelector('.game-over-container');
 
-        // show current level and levels unlocked length to the user somehow
-        // create div with the data
-        // append the div to the gameOverContainer
+        // Show current level and levels unlocked length to the user
         div_content = document.createElement('div');
         div_content.innerHTML = `
-            <h1>Level ${currentLevel}!</h1>
-            <p>Levels Unlocked: ${levelsUnlocked.length}</p>
+            <h1>Level ${currentLevel + 1}!</h1> 
+            <p>Levels Unlocked: ${levelsUnlocked.filter(unlocked => unlocked).length}</p>
         `;
-        // append to dom to make visible
         gameOverContainer.appendChild(div_content);
-        // styles
         div_content.style.color = 'red';
         div_content.style.fontSize = '20px';
         div_content.style.fontWeight = 'bold';
-        
+
         if (currentLevel === 2) {
             // Final level completion - show QR code and end game
-
             gameOverContainer.querySelector('.game-over-info').innerHTML = `
                 <h1>🎉 Congratulations! 🎉.</h1>
                 <p>You've completed all levels!</p>
@@ -1001,16 +996,17 @@
                 <button onclick="startNextLevel()">Next Level</button>
             `;
         }
-        
+
         gameOverScreen.style.display = 'flex';
         // Show speech bubble
         setTimeout(() => {
             speechBubble.style.opacity = 1;
         }, 500);
-        
+
         // Update available levels in the start screen
         updateStartScreenButtons();
     }
+
 
     function startNextLevel() {
         // Clear all existing trains
