@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Santa's Chimney Run</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+            background: #1a1a2e;
+        }
+
+        #gameContainer {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(to bottom, #0f0f1a 0%, #1a1a2e 100%);
+            overflow: hidden;
+        }
+
+        .santa {
+            position: absolute;
+            width: 40px;
+            height: 60px;
+            z-index: 3;
+            transition: transform 0.1s;
+        }
+
+        .santa::after {
+            content: '🎅';
+            font-size: 40px;
+            position: absolute;
+            top: -5px;
+            left: 0;
+        }
+
+        .speech-bubble {
+            position: absolute;
+            background: white;
+            border-radius: 10px;
+            padding: 5px 10px;
+            font-size: 12px;
+            white-space: nowrap;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 4;
+        }
+
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid white;
+        }
+
+        .house {
+            position: absolute;
+            bottom: 0;
+            background: #8B4513;
+            border-radius: 5px 5px 0 0;
+        }
+
+        .chimney {
+            position: absolute;
+            width: 40px;
+            height: 60px;
+            background: #a0522d;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .chimney.visited {
+            background: #4CAF50;
+        }
+
+        .cookie {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            z-index: 2;
+        }
+
+        .cookie::after {
+            content: '🍪';
+            font-size: 20px;
+        }
+
+        .milk {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            z-index: 2;
+        }
+
+        .milk::after {
+            content: '🥛';
+            font-size: 20px;
+        }
+
+        .owl {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            z-index: 2;
+        }
+
+        .owl::after {
+            content: '🦉';
+            font-size: 30px;
+        }
+
+        .score {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            z-index: 4;
+        }
+
+        .wind-indicator {
+            position: fixed;
+            top: 60px;
+            right: 20px;
+            color: white;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 4;
+        }
+
+        .wind-arrow {
+            width: 50px;
+            height: 20px;
+            background: linear-gradient(to right, transparent, white);
+            transform-origin: left center;
+            transition: transform 0.3s;
+        }
+
+        .screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            z-index: 100;
+        }
+
+        .screen h1 {
+            color: #ff0000;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            background: #ff0000;
+            border: none;
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 10px;
+        }
+
+        button:hover {
+            background: #cc0000;
+            transform: translateY(-2px);
+        }
+
+        /* Jump Button Styles */
+        #jumpButton {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 0, 0, 0.8);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 30px;
+            z-index: 5;
+            display: none; /* Hidden on desktop */
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        #jumpButton:active {
+            background: rgba(204, 0, 0, 0.8);
+            transform: scale(0.95);
+        }
+
+        /* Snow Styles */
+        .snow {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: white;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0.8;
+            animation: snowfall linear infinite;
+        }
+
+        @keyframes snowfall {
+            0% {
+                transform: translateY(-10px) rotate(0deg);
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+            }
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            #jumpButton {
+                display: flex;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <div class="score">Score: <span id="scoreValue">0</span></div>
+        <div class="wind-indicator">
+            Wind: <div class="wind-arrow"></div>
+        </div>
+        <div class="santa">
+            <div class="speech-bubble"></div>
+        </div>
+    </div>
+
+    <div id="startScreen" class="screen">
+        <h1>🎅 Santa's Chimney Run 🎄</h1>
+        <p>Help Santa visit all the chimneys!</p>
+        <p>Use arrow keys to move or tilt your phone left/right. Tap the button to jump.</p>
+        <button onclick="startGame()">Start Running!</button>
+    </div>
+
+    <div id="gameOverScreen" class="screen" style="display: none;">
+        <h1>Game Over!</h1>
+        <p>Score: <span id="finalScore">0</span></p>
+        <button onclick="location.reload()">Try Again</button>
+    </div>
+
+    <!-- Jump Button for Mobile -->
+    <button id="jumpButton">↑</button>
+
+    <script>
+        const gameContainer = document.getElementById('gameContainer');
+        const santa = document.querySelector('.santa');
+        const speechBubble = document.querySelector('.speech-bubble');
+        const windArrow = document.querySelector('.wind-arrow');
+        const jumpButton = document.getElementById('jumpButton');
+        let score = 0;
+        let gameActive = false;
+        let houses = [];
+        let chimneys = [];
+        let cookies = [];
+        let milks = [];
+        let owls = [];
+        let santaX = 100;
+        let santaY = 100;
+        let santaSpeedX = 0;
+        let santaSpeedY = 0;
+        let cameraX = 0;
+        let windStrength = 0;
+        let isOnGround = false;
+
+        const pressedKeys = {}; // Track pressed keys
+        let tiltX = 0; // Track tilt for movement
+
+        const SANTA_SPEED = 5;
+        const GRAVITY = 0.5;
+        const JUMP_POWER = -16; // Increased jump power for higher jumps
+        const WIND_CHANGE_INTERVAL = 3000;
+
+        const SANTA_PHRASES = [
+            "Ho ho ho!",
+            "Merry Christmas!",
+            "Nice chimney!",
+            "What a view!",
+            "Perfect landing!"
+        ];
+
+        function startGame() {
+            document.getElementById('startScreen').style.display = 'none';
+            gameActive = true;
+            score = 0;
+            updateScore();
+            createLevel();
+
+            // Position Santa on the first platform
+            if (houses.length > 0) {
+                const firstHouse = houses[0];
+                const houseHeight = firstHouse.offsetHeight;
+                const containerHeight = gameContainer.offsetHeight;
+
+                // Calculate Santa's Y position to be on top of the first house
+                santaY = containerHeight - houseHeight - santa.offsetHeight;
+                santaX = 100; // You can adjust this to center on the house if desired
+
+                // Reset Santa's speed
+                santaSpeedX = 0;
+                santaSpeedY = 0;
+
+                // Set Santa's position in the DOM
+                santa.style.left = santaX + 'px';
+                santa.style.top = santaY + 'px';
+
+                // Set the flag to indicate Santa is on the ground
+                isOnGround = true;
+            }
+
+            gameLoop();
+            createSnowEffect();
+            startWindSystem();
+            setupMobileControls();
+        }
+
+        function createLevel() {
+            let x = 0;
+            for (let i = 0; i < 20; i++) {
+                const width = Math.random() * 200 + 200;
+                createHouse(x, width);
+                x += width + Math.random() * 200 + 100; // Gap between houses
+            }
+        }
+
+        function createHouse(x, width) {
+            const height = Math.random() * 100 + 150;
+            const house = document.createElement('div');
+            house.className = 'house';
+            house.style.left = x + 'px';
+            house.style.width = width + 'px';
+            house.style.height = height + 'px';
+            gameContainer.appendChild(house);
+            houses.push(house);
+
+            // Add chimney
+            const chimney = document.createElement('div');
+            chimney.className = 'chimney';
+            chimney.style.left = (x + Math.random() * (width - 40)) + 'px';
+            chimney.style.bottom = height + 'px';
+            gameContainer.appendChild(chimney);
+            chimneys.push(chimney);
+
+            // Add collectibles
+            if (Math.random() < 0.5) {
+                createCollectible('cookie', x, width, height);
+            }
+            if (Math.random() < 0.3) {
+                createCollectible('milk', x, width, height);
+            }
+            if (Math.random() < 0.4) {
+                createOwl(x, width, height);
+            }
+        }
+
+        function createCollectible(type, houseX, houseWidth, houseHeight) {
+            const element = document.createElement('div');
+            element.className = type;
+            element.style.left = (houseX + Math.random() * houseWidth) + 'px';
+            element.style.top = (gameContainer.offsetHeight - houseHeight - Math.random() * 100 - 50) + 'px';
+            gameContainer.appendChild(element);
+            if (type === 'cookie') {
+                cookies.push(element);
+            } else {
+                milks.push(element);
+            }
+        }
+
+        function createOwl(houseX, houseWidth, houseHeight) {
+            const owl = document.createElement('div');
+            owl.className = 'owl';
+            owl.style.left = (houseX + Math.random() * houseWidth) + 'px';
+            owl.style.top = (gameContainer.offsetHeight - houseHeight - Math.random() * 100 - 50) + 'px';
+            owl.baseX = parseFloat(owl.style.left);
+            owl.baseY = parseFloat(owl.style.top);
+            owl.phase = Math.random() * Math.PI * 2;
+            gameContainer.appendChild(owl);
+            owls.push(owl);
+        }
+
+        function startWindSystem() {
+            setInterval(() => {
+                if (!gameActive) return;
+                windStrength = Math.random() * 6 - 3; // Wind strength between -3 and 3
+                windArrow.style.transform = `scaleX(${Math.abs(windStrength)}) rotateY(${windStrength < 0 ? '180deg' : '0'})`;
+            }, WIND_CHANGE_INTERVAL);
+        }
+
+        function showSpeechBubble() {
+            const phrase = SANTA_PHRASES[Math.floor(Math.random() * SANTA_PHRASES.length)];
+            speechBubble.textContent = phrase;
+            speechBubble.style.opacity = '1';
+            setTimeout(() => {
+                speechBubble.style.opacity = '0';
+            }, 2000);
+        }
+
+        function updateGame() {
+            if (!gameActive) return;
+
+            if (!isOnGround) {
+                // Apply gravity only if Santa is not on the ground
+                santaSpeedY += GRAVITY;
+            }
+
+            // Update santaSpeedX based on pressedKeys and tilt
+            let playerSpeedX = 0;
+
+            // Keyboard Controls
+            if (pressedKeys['ArrowLeft']) {
+                playerSpeedX -= SANTA_SPEED;
+            }
+            if (pressedKeys['ArrowRight']) {
+                playerSpeedX += SANTA_SPEED;
+            }
+
+            // Tilt Controls (mobile)
+            // Normalize tiltX to a range between -1 and 1
+            const tiltFactor = Math.max(Math.min(tiltX / 30, 1), -1); // Adjust sensitivity as needed
+            playerSpeedX += tiltFactor * SANTA_SPEED;
+
+            // Apply wind effect
+            let totalSpeedX = playerSpeedX + windStrength * 0.02;
+
+            santaX += totalSpeedX;
+            santaY += santaSpeedY;
+
+            // Update camera position to follow Santa
+            if (santaX > window.innerWidth * 0.3) {
+                cameraX = santaX - window.innerWidth * 0.3;
+                gameContainer.style.transform = `translateX(-${cameraX}px)`;
+            }
+
+            // Check for falling
+            if (santaY > gameContainer.offsetHeight) {
+                endGame();
+                return;
+            }
+
+            // Update Santa's position and sprite direction
+            santa.style.left = santaX + 'px';
+            santa.style.top = santaY + 'px';
+            santa.style.transform = `scaleX(${totalSpeedX >= 0 ? 1 : -1})`;
+
+            // Update owls
+            owls.forEach(owl => {
+                const time = Date.now() / 1000;
+                owl.style.left = (owl.baseX + Math.sin(time + owl.phase) * 50) + 'px';
+                owl.style.top = (owl.baseY + Math.cos(time + owl.phase) * 30) + 'px';
+            });
+
+            // Check collisions
+            checkCollisions();
+
+            requestAnimationFrame(updateGame);
+        }
+
+        function checkCollisions() {
+            const santaRect = santa.getBoundingClientRect();
+            isOnGround = false; // Reset the flag at the start
+
+            // Check chimney collisions
+            chimneys.forEach(chimney => {
+                if (!chimney.visited && isColliding(santaRect, chimney.getBoundingClientRect())) {
+                    chimney.visited = true;
+                    chimney.classList.add('visited');
+                    showSpeechBubble();
+                    score += 100;
+                    updateScore();
+                }
+            });
+
+            // Check collectible collisions
+            [...cookies, ...milks].forEach(collectible => {
+                if (isColliding(santaRect, collectible.getBoundingClientRect())) {
+                    score += collectible.className === 'cookie' ? 10 : 20;
+                    updateScore();
+                    collectible.remove();
+                    if (collectible.className === 'cookie') {
+                        cookies = cookies.filter(c => c !== collectible);
+                    } else {
+                        milks = milks.filter(m => m !== collectible);
+                    }
+                }
+            });
+
+            // Check owl collisions
+            owls.forEach(owl => {
+                if (isColliding(santaRect, owl.getBoundingClientRect())) {
+                    endGame();
+                }
+            });
+
+            // Check collisions for landing on houses and chimneys
+            [...houses, ...chimneys].forEach(platform => {
+                const platformRect = platform.getBoundingClientRect();
+                if (
+                    santaRect.bottom >= platformRect.top &&
+                    santaRect.bottom <= platformRect.top + 15 && // Increased tolerance for smoother landing
+                    santaRect.right > platformRect.left &&
+                    santaRect.left < platformRect.right &&
+                    santaSpeedY > 0
+                ) {
+                    // Correct Santa's Y position to sit on the platform
+                    santaY = platformRect.top - santaRect.height;
+                    santaSpeedY = 0;
+                    isOnGround = true; // Santa is on the ground
+                }
+            });
+        }
+
+        function isColliding(rect1, rect2) {
+            return !(rect1.right < rect2.left || 
+                    rect1.left > rect2.right || 
+                    rect1.bottom < rect2.top || rect1.top > rect2.bottom);
+        }
+
+        function updateScore() {
+            document.getElementById('scoreValue').textContent = score;
+            document.getElementById('finalScore').textContent = score;
+        }
+
+        function gameLoop() {
+            if (!gameActive) return;
+            updateGame();
+        }
+
+        function createSnowEffect() {
+            setInterval(() => {
+                if (!gameActive) return;
+                const snow = document.createElement('div');
+                snow.className = 'snow';
+                snow.style.left = (Math.random() * window.innerWidth + cameraX) + 'px';
+                snow.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                // Adjust snow angle based on wind
+                const windAngle = Math.atan2(windStrength, 1);
+                snow.style.transform = `rotate(${windAngle}rad)`;
+                gameContainer.appendChild(snow);
+                setTimeout(() => snow.remove(), 5000);
+            }, 100);
+        }
+
+        function endGame() {
+            gameActive = false;
+            document.getElementById('gameOverScreen').style.display = 'flex';
+        }
+
+        // Keyboard controls with pressedKeys tracking
+        document.addEventListener('keydown', (e) => {
+            if (!gameActive) return;
+
+            // Prevent default behavior for arrow keys and space
+            if (['ArrowLeft', 'ArrowRight', 'ArrowUp', ' '].includes(e.key)) {
+                e.preventDefault();
+            }
+
+            pressedKeys[e.key] = true;
+
+            if (e.key === 'ArrowUp' || e.key === ' ') {
+                if (isOnGround) {
+                    santaSpeedY = JUMP_POWER;
+                    isOnGround = false; // Santa is now in the air
+                }
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (!gameActive) return;
+
+            pressedKeys[e.key] = false;
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            if (gameActive) {
+                // Adjust camera position on resize
+                if (santaX > window.innerWidth * 0.3) {
+                    cameraX = santaX - window.innerWidth * 0.3;
+                    gameContainer.style.transform = `translateX(-${cameraX}px)`;
+                }
+            }
+        });
+
+        // Handle visibility change
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && gameActive) {
+                gameActive = false;
+                document.getElementById('gameOverScreen').style.display = 'flex';
+            }
+        });
+
+        // Mobile Controls Setup
+        function setupMobileControls() {
+            // Show jump button on mobile devices
+            if (window.innerWidth <= 768) {
+                jumpButton.style.display = 'flex';
+            }
+
+            // Jump button event
+            jumpButton.addEventListener('touchstart', (e) => {
+                e.preventDefault(); // Prevents multiple events
+                if (isOnGround) {
+                    santaSpeedY = JUMP_POWER;
+                    isOnGround = false; // Santa is now in the air
+                }
+            }, { passive: false });
+        }
+
+        // Device Orientation for Tilt Controls
+        window.addEventListener('deviceorientation', (event) => {
+            if (!gameActive) return;
+
+            // gamma is the left-to-right tilt in degrees, where right is positive
+            tiltX = event.gamma || 0;
+
+            // Clamp the tiltX value to prevent excessive movement
+            tiltX = Math.max(Math.min(tiltX, 45), -45); // Limit tilt to [-45, 45] degrees
+        });
+
+        // Fallback for devices that do not support DeviceOrientation
+        window.addEventListener('devicemotion', (event) => {
+            if (!gameActive) return;
+
+            // Example fallback: use acceleration data if available
+            if (event.accelerationIncludingGravity) {
+                tiltX = event.accelerationIncludingGravity.x * 10; // Adjust sensitivity as needed
+                tiltX = Math.max(Math.min(tiltX, 45), -45);
+            }
+        });
+    </script>
+</body>
+</html>
