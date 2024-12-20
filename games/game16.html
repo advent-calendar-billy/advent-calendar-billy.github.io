@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Santa's Chimney Run</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
     <style>
         body {
             margin: 0;
@@ -181,21 +182,22 @@
         /* Jump Button Styles */
         #jumpButton {
             position: fixed;
-            bottom: 5vh;
-            right: 5vw;
-            width: 10vw;
-            height: 10vw;
+            bottom: 30px;
+            right: 30px;
+            width: 80px; /* Increased from 60px */
+            height: 80px; /* Increased from 60px */
             background: rgba(255, 0, 0, 0.8);
             border: none;
             border-radius: 50%;
             color: white;
-            font-size: 5vw;
+            font-size: 36px; /* Increased from 30px */
             z-index: 5;
             display: none; /* Hidden on desktop */
             align-items: center;
             justify-content: center;
-            box-shadow: 0 0.4vw 0.6vw rgba(0,0,0,0.3);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
+
 
         #jumpButton:active {
             background: rgba(204, 0, 0, 0.8);
@@ -321,7 +323,7 @@
 
     <div id="startScreen" class="screen">
         <h1>🎅 Santa's Chimney Run 🎄</h1>
-        <p>Help Santa visit all the chimneys!</p>
+        <p>Help Santa visit all the chimneys! v2</p>
         <p>Use arrow keys to move or tilt your phone left/right. Tap the button to jump.</p>
         <button onclick="startGame()">Start Running!</button>
     </div>
