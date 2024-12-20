@@ -85,7 +85,7 @@
     </style>
 </head>
 <body>
-    <h1>Find the Matches!</h1>
+    <h1>Find the Matches</h1>
     <div class="lives">Lives: <span id="lives-display">❤️❤️❤️</span></div>
     <div class="calendar" id="calendar"></div>
 
@@ -156,6 +156,14 @@
             if (matched.includes(number) || selected.includes(number)) return;
             if (lives <= 0) return;
 
+            // Check if this is the last unmatched number
+            const unmatched = [...Array(21)].map((_, i) => i + 4).filter(n => !matched.includes(n));
+            if (unmatched.length === 1 && unmatched[0] === number) {
+                day.classList.add('matched');
+                showQRCode();
+                return;
+            }
+
             day.classList.add('selected');
             selected.push(number);
 
@@ -168,10 +176,6 @@
                     if (areCoprime(num1, num2)) {
                         matched.push(num1, num2);
                         elements.forEach(el => el.classList.add('matched'));
-                        
-                        if (matched.length === 20) { // All but one number matched
-                            showQRCode();
-                        }
                     } else {
                         lives--;
                         updateLives();
