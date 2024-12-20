@@ -706,7 +706,7 @@
             if (!gameActive) return;
 
             // gamma is the left-to-right tilt in degrees, where right is positive
-            tiltX = -(event.gamma || 0);
+            tiltX = event.gamma || 0;
 
             // Clamp the tiltX value to prevent excessive movement
             tiltX = Math.max(Math.min(tiltX, 45), -45); // Limit tilt to [-45, 45] degrees
