@@ -250,7 +250,7 @@
     </div>
 
     <div id="startScreen" class="screen">
-        <h1>🎅 Santa's Chimney Run 🎄</h1>
+        <h1>🎅 Santa's Chimney Run v2🎄</h1>
         <p>Help Santa visit all the chimneys!</p>
         <p>Use arrow keys to move or tilt your phone left/right. Tap the button to jump.</p>
         <button onclick="startGame()">Start Running!</button>
@@ -634,7 +634,7 @@
             if (!gameActive) return;
 
             // gamma is the left-to-right tilt in degrees, where right is positive
-            tiltX = event.gamma || 0;
+            tiltX = -(event.gamma || 0);
 
             // Clamp the tiltX value to prevent excessive movement
             tiltX = Math.max(Math.min(tiltX, 45), -45); // Limit tilt to [-45, 45] degrees
