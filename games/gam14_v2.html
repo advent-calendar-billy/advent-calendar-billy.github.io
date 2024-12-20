@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DB Christmas Train Hop</title>
+    <style>
+        /* Reset styles */
+        body, html { margin: 0; height: 100%; overflow: hidden; }
+        body { font-family: 'Arial', sans-serif; background: #e6f3ff; touch-action: none; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+
+        #rotate-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8); color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 200; text-align: center; }
+        #gameContainer { position: relative; width: 100vw; height: 100vh; overflow: hidden; background: linear-gradient(to bottom, #cce7ff, #ffffff); background-image: url("/images/snowy_forest_background.png"); background-size: cover; }
+
+        .progress-bar { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 80%; max-width: 300px; height: 10px; background: #fff; border: 2px solid #db0000; border-radius: 5px; overflow: hidden; z-index: 1; }
+        .progress { width: 0%; height: 100%; background: #db0000; transition: width 0.3s; }
+        #score { position: absolute; top: 10px; right: 10px; font-size: 18px; color: #333; z-index: 3; }
+
+        .player { position: absolute; width: 4vw; height: 4vw; z-index: 3; pointer-events: none; transition: transform 0.1s; }
+        .player-body { position: absolute; width: 75%; height: 75%; background: #333; border-radius: 50%; top: 12.5%; left: 12.5%; }
+        .player-head { position: absolute; width: 25%; height: 25%; background: #333; border-radius: 50%; left: 37.5%; top: -10%; transform-origin: center; transition: transform 0.2s; }
+
+        .train { position: absolute; height: 7vh; background: linear-gradient(to bottom, #db0000 0%, #a00000 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 14px; z-index: 2; box-shadow: 0 4px 8px rgba(0,0,0,0.2); transition: transform 0.5s; background-image: url('/images/db_train_texture.png'); background-size: cover; border: 2px solid #222; }
+        .train::before { content: '🚆'; font-size: 16px; font-weight: bold; font-family: 'Arial Black', sans-serif; color: #fff; margin-left: 5px; margin-right: 2px; }
+        .train::after { content: 'DB'; font-size: 16px; font-weight: bold; font-family: 'Arial Black', sans-serif; color: #fff; margin-right: 5px; }
+        .train-delayed { background: #d4a017; border-color: #9e760f; }
+        .train-message { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #fff; color: #000; border-radius: 5px; padding: 5px; font-size: 12px; white-space: nowrap; z-index: 4; opacity: 0; transition: opacity 0.3s; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); }
+        .train-message::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border-top: 5px solid #fff; border-left: 5px solid transparent; border-right: 5px solid transparent; }
+
+        .snow-particle { position: absolute; width: 3px; height: 3px; background: white; border-radius: 50%; pointer-events: none; opacity: 0.7; animation: snowfall linear infinite; }
+        @keyframes snowfall { 0% { transform: translateY(-10px); } 100% { transform: translateY(100vh); } }
+
+        .potsdam-sign, .berlin-sign { position: absolute; top: 10px; left: 10px; background: #004a99; color: white; padding: 5px 10px; border-radius: 5px; font-weight: bold; font-size: 16px; z-index: 4; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .berlin-sign { top: auto; bottom: 10px; }
+        .potsdam-sign::before { content: '🏰'; margin-right: 5px; }
+        .berlin-sign::before { content: '🐻'; margin-right: 5px; }
+
+        .platform { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 50vw; max-width: 300px; height: 4vh; background: #333; border-top-left-radius: 10px; border-top-right-radius: 10px; z-index: 1; box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; }
+        .person { position: absolute; bottom: 4vh; left: 50%; transform: translateX(-50%); width: 5vw; max-width: 30px; height: 7.5vw; max-height: 45px; background: #333; border-radius: 50%; z-index: 2; animation: wave 2s ease-in-out infinite; }
+        @keyframes wave { 0%, 100% { transform: translateX(-50%) rotate(0deg); } 50% { transform: translateX(-50%) rotate(-10deg); } }
+        .speech-bubble { position: absolute; bottom: 10vh; left: 50%; transform: translateX(-50%); background: #fff; color: #000; border-radius: 5px; padding: 5px; font-size: 12px; white-space: nowrap; z-index: 3; opacity: 0; transition: opacity 0.3s; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); }
+        .speech-bubble::after { content: ''; position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%); border-top: 5px solid #fff; border-left: 5px solid transparent; border-right: 5px solid transparent; }
+
+        .screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; flexDirection: column; align-items: center; justify-content: center; background: rgba(230, 243, 255, 0.95); color: #333; z-index: 100; text-align: center; padding: 20px; }
+        .screen h1 { color: #db0000; margin-bottom: 10px; }
+        button { padding: 10px 20px; font-size: 16px; background: #db0000; border: none; border-radius: 20px; color: white; cursor: pointer; transition: all 0.3s; margin: 5px; }
+        button:hover { background: #aa0000; transform: translateY(-2px); }
+        .game-over-container { display: flex; flexDirection: column; align-items: center; width: 80%; max-width: 400px; padding: 20px; background-color: rgba(255, 255, 255, 0.9); border-radius: 10px; box-shadow: 0 0 20px rgba(0, 0, 0, 0.2); }
+        .game-over-info { text-align: center; }
+        .game-over-container p { margin-bottom: 10px; font-size: 16px; }
+        .qr-container { margin-top: 10px; width: 100px; height: 100px; }
+        .qr-code { max-width: 100%; max-height: 100%; }
+
+        .jump-button { position: absolute; bottom: 10px; width: 15%; min-width: 80px; height: 6vh; min-height: 40px; background-color: rgba(219, 0, 0, 0.7); border: none; border-radius: 10px; color: white; font-size: 14px; cursor: pointer; z-index: 5; display: flex; align-items: center; justify-content: center; opacity: 0.8; transition: opacity 0.3s; }
+        .jump-button:hover { opacity: 1; }
+        #jump-up-button { left: 10px; }
+        #jump-down-button { right: 10px; }
+
+        /* Landscape specific styles */
+        @media (orientation: landscape) {
+            #rotate-screen { display: none; }
+            .progress-bar { top: 20px; }
+            #score { top: 20px; }
+            .jump-button { font-size: 16px; }
+        }
+
+        @media (orientation: portrait) {
+            #gameContainer { display: none; }
+            #rotate-screen { display: flex; }
+        }
+    </style>
+</head>
+<body>
+<div id="rotate-screen">
+    <h1>Please rotate your device</h1>
+    <p>This game is designed to be played in landscape mode.</p>
+</div>
+<div id="gameContainer">
+    <div class="progress-bar">
+        <div class="progress"></div>
+    </div>
+    <div id="score">Progress: 0%</div>
+    <div class="player">
+        <div class="player-body"></div>
+        <div class="player-head"></div>
+    </div>
+    <div class="berlin-sign">Berlin</div>
+    <div class="potsdam-sign">Potsdam</div>
+    <div class="platform">Potsdam</div>
+    <div class="person" id="billy"></div>
+    <div class="speech-bubble" id="speechBubbleText"></div>
+    <button id="jump-up-button" class="jump-button">Jump Up</button>
+    <button id="jump-down-button" class="jump-button">Jump Down</button>
+</div>
+
+<div id="start-screen" class="screen">
+    <h1>🚆 DB Christmas Train Hop 🎄</h1>
+    <p>Help Fede cross the train tracks to get from Berlin to Potsdam!<br>
+        Tilt your phone to move left/right. Tap the buttons to jump up or down.<br>
+        Watch out for slippery ice and delayed trains!</p>
+    <button onclick="startGame(0)">Start Journey</button>
+</div>
+
+<div id="game-over-screen" class="screen" style="display: none;">
+    <div class="screen-content">
+        <div class="game-over-container">
+            <div class="game-over-info">
+                <h1>Game Over!</h1>
+                <p>You survived for <span id="final-time">0</span> seconds!</p>
+                <div id="qr-container" style="display: none;">
+                    <img src="/images/14-e0761905d7.png" alt="QR Code" class="qr-code">
+                </div>
+                <button onclick="location.reload()">Try Again</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<audio id="jumpSound" src="/sounds/retro-jump-3-236683.mp3"></audio>
+<audio id="trainSound" src="/sounds/loud-train-horn-274373.mp3" loop></audio>
+<audio id="gameOverSound" src="/sounds/game_over.wav"></audio>
+
+<script>
+    const gameContainer = document.getElementById('gameContainer');
+    const player = document.querySelector('.player');
+    const progressBar = document.querySelector('.progress');
+    const billy = document.getElementById('billy');
+    const speechBubble = document.getElementById('speechBubbleText');
+    const qrContainer = document.getElementById('qr-container');
+    const progressElement = document.querySelector('.progress-bar')
+    const jumpUpButton = document.getElementById('jump-up-button');
+    const jumpDownButton = document.getElementById('jump-down-button');
+
+    const jumpSound = document.getElementById('jumpSound');
+    const trainSound = document.getElementById('trainSound');
+    const gameOverSound = document.getElementById('gameOverSound');
+
+    const NUM_TRACKS = 6;
+    let TRACK_SPACING; // Will be calculated based on screen height
+    const PLAYER_SPEED = 5;
+    const TRAIN_MIN_LENGTH = 15; // Using relative units now
+    const TRAIN_MAX_LENGTH = 30;
+
+    let gameActive = false;
+    let score = 0;
+    let startTime = 0;
+    let trains = [];
+    let playerX = 0;
+    let currentTrain = null;
+    let keysPressed = new Set();
+    let windDirection = 1;
+    let isSlippery = false;
+    let currentLevel = 0;
+    const MAX_LEVELS = 3;
+    let tiltX = 0;
+
+    const germanPhrases = [ "Ein bisschen Geduld, bitte!", "Wir sind gleich da!", "Leider etwas Verspätung.", "Kleine Verzögerung.", "Technische Störung.", "Signalstörung auf der Strecke.", "Störung am Zug.", "Baustellenbedingte Verzögerung.", "Notarzteinsatz am Gleis.", "Witterungsbedingte Störung.", "Wegen einer Stellwerksstörung.", "Zugüberholung verzögert die Weiterfahrt.", "Störung an der Oberleitung.", "Warten auf Gegenzug.", "Verzögerung wegen Personalwechsel.", "Hohe Streckenauslastung.", "Kurzfristige Fahrplananpassung.", "Polizeieinsatz am Gleis.", "Personen im Gleis.", "Zug muss überprüft werden.", "Oberleitungsstörung.", "Kurze Pause – danke für Ihr Verständnis!", "Zug kommt bald.", "Kleine Verspätung wegen Umleitung.", "Wir warten auf Anschlusszug.", "Hühner auf den Gleisen.", "Sorry, der Zugführer braucht einen Kaffee.", "Das Navi hat die Strecke verloren.", "Die Bahncard ist im Urlaub.", "Kabelsalat im Stellwerk.", "Der Zug hat seinen Wecker verschlafen.", "Unerwartetes Eichhörnchen am Gleis.", "Kaffeemaschine im Bordbistro streikt.", "Der Lokführer sucht noch seinen Schlüssel.", "Pinguine blockieren die Strecke.", "Stau auf den Schienen.", "Das WLAN sucht noch die Verbindung." ];
+    const spanishPhrases = [ "Te extraño", "Se terminó el pollo", "Por fin puedo invitar a Tim", "Se prendió fuego la casa", "No voy a sacar la basura por una semana", "Me aburro", "Ya fuimos a Potsdam alguna vez? No me acuerdo", "Hola!", "Las plantas tienen sed...", "👍", "Estás muy lindo", "Fede, tenemos plata, comprate un ticket en vez de ir saltando!", "Fede la casa está limpia. Bueno, un poco limpia." ];
+
+    const levels = [
+        {trainSpeedMultiplier: 1, trainDelayChance: 0.001},
+        {trainSpeedMultiplier: 1.5, trainDelayChance: 0.002},
+        {trainSpeedMultiplier: 2.5, trainDelayChance: 0.005}
+    ];
+
+    function updateStartScreenButtons() {
+        const startScreen = document.getElementById('start-screen');
+        startScreen.innerHTML = `
+            <h1>🚆 DB Christmas Train Hop 🎄</h1>
+            <p>Help Fede cross the train tracks to get from Berlin to Potsdam!<br>
+            Tilt your phone to move left/right. Tap the buttons to jump up or down.<br>
+            Watch out for slippery ice and delayed trains!</p>
+            <button onclick="startGame(0)">Start Journey</button>
+        `;
+    }
+
+    function createTrack(trackNum) {
+        const track = document.createElement('div');
+        track.className = 'track';
+        track.style.position = 'absolute';
+        track.style.top = (TRACK_SPACING * trackNum) + 'px';
+        track.style.left = '0';
+        track.style.width = '100%';
+        track.style.height = '2px';
+        track.style.backgroundColor = 'rgba(0,0,0,0.1)';
+        gameContainer.appendChild(track);
+        return track;
+    }
+
+    function createTrain(trackNum, direction) {
+        const train = document.createElement('div');
+        train.className = 'train';
+        const trainWidth = Math.random() * (parseFloat(TRAIN_MAX_LENGTH) - parseFloat(TRAIN_MIN_LENGTH)) + parseFloat(TRAIN_MIN_LENGTH) + 'vw';
+        train.style.width = trainWidth;
+        train.dataset.widthValue = parseFloat(train.style.width); // Store numerical width
+
+        train.style.top = (TRACK_SPACING * trackNum - parseFloat(getComputedStyle(train).height) / 2) + 'px';
+        train.style.left = direction === 1 ? '-20vw' : '100vw';
+        train.style.transform = `translateY(-50%)`; // Center vertically
+
+        gameContainer.appendChild(train);
+
+        const baseSpeed = (Math.random() * 0.5 + 0.5) * direction;
+        const newTrain = {
+            element: train,
+            direction: direction,
+            baseSpeed: baseSpeed,
+            speed: baseSpeed * levels[currentLevel].trainSpeedMultiplier,
+            track: trackNum,
+            width: parseFloat(train.dataset.widthValue), // Use stored numerical width
+            delayed: false,
+            messageElement: null,
+            isStopped: false,
+            delayStartTime: null
+        };
+        trains.push(newTrain);
+        trainSound.play();
+        return newTrain;
+    }
+
+    function showTrainMessage(train, message) {
+        if (train.messageElement) return;
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'train-message';
+        messageDiv.textContent = message;
+        train.element.appendChild(messageDiv);
+        train.messageElement = messageDiv;
+        setTimeout(() => {
+            messageDiv.style.opacity = 1;
+        }, 100);
+    }
+
+    function hideTrainMessage(train) {
+        if (train.messageElement) {
+            train.messageElement.style.opacity = 0;
+            setTimeout(() => {
+                if (train.element.contains(train.messageElement)) {
+                    train.element.removeChild(train.messageElement);
+                }
+                train.messageElement = null;
+            }, 300);
+        }
+    }
+
+    function handleFalling() {
+        if (!currentTrain) return false;
+        const trainLeft = parseFloat(currentTrain.element.style.left);
+        const trainWidth = currentTrain.width;
+        const playerPositionX = parseFloat(player.style.left);
+
+        const playerRect = player.getBoundingClientRect();
+        const trainRect = currentTrain.element.getBoundingClientRect();
+
+        const horizontalOverlap = Math.max(0, Math.min(playerRect.right, trainRect.right) - Math.max(playerRect.left, trainRect.left));
+
+        if (horizontalOverlap <= 0) {
+            return false;
+        }
+        return true;
+    }
+
+    function updatePlayerPosition() {
+        if (!currentTrain) return false;
+        if (!handleFalling()) {
+            endGame();
+            return false;
+        }
+
+        const trainLeft = parseFloat(currentTrain.element.style.left);
+        const trainWidth = currentTrain.width;
+        if (isSlippery) {
+            playerX += windDirection * 0.2;
+        }
+        playerX = Math.max(0, Math.min(trainWidth - parseFloat(getComputedStyle(player).width), playerX));
+        player.style.left = (trainLeft + playerX) + 'px';
+        player.style.top = currentTrain.element.style.top;
+        return true;
+    }
+
+    function findTrainAt(x, y) {
+        const playerRect = player.getBoundingClientRect();
+        const toleranceY = TRACK_SPACING / 2;
+
+        for (const train of trains) {
+            const trainRect = train.element.getBoundingClientRect();
+            const trainCenterY = trainRect.top + trainRect.height / 2;
+
+            if (playerRect.left < trainRect.right &&
+                playerRect.right > trainRect.left &&
+                Math.abs(y - trainCenterY) < toleranceY) {
+                return train;
+            }
+        }
+        return null;
+    }
+
+
+    function tryJump(direction) {
+        if (!currentTrain) return;
+
+        const currentTrackNum = currentTrain.track;
+        const targetTrackNum = currentTrackNum + direction;
+
+        if (targetTrackNum < 1 || targetTrackNum > NUM_TRACKS) {
+            return;
+        }
+
+        const playerLeft = parseFloat(player.style.left);
+        const targetTrainY = TRACK_SPACING * targetTrackNum;
+
+        const targetTrain = findTrainAt(playerLeft + parseFloat(getComputedStyle(player).width) / 2, targetTrainY);
+
+        if (targetTrain) {
+            currentTrain = targetTrain;
+            player.style.top = currentTrain.element.style.top;
+            playerX = playerLeft - parseFloat(currentTrain.element.style.left);
+            jumpSound.currentTime = 0;
+            jumpSound.play();
+        } else {
+            endGame();
+        }
+    }
+
+    function updateTrains() {
+        trains.forEach((train, index) => {
+            if (!train.delayed && Math.random() < levels[currentLevel].trainDelayChance) {
+                train.delayed = true;
+                train.isStopped = true;
+                train.speed = train.baseSpeed * levels[currentLevel].trainSpeedMultiplier * 0.1;
+                train.delayStartTime = Date.now();
+                train.element.classList.add('train-delayed');
+                const message = germanPhrases[Math.floor(Math.random() * germanPhrases.length)];
+                showTrainMessage(train, message);
+
+                const trainY = parseFloat(train.element.style.top);
+                const trainsBehind = trains.filter(t => t.track === train.track &&
+                    ((train.direction === 1 && parseFloat(t.element.style.left) < parseFloat(train.element.style.left)) ||
+                     (train.direction === -1 && parseFloat(t.element.style.left) > parseFloat(train.element.style.left))))
+                    .sort((a, b) => parseFloat(b.element.style.left) - parseFloat(a.element.style.left));
+
+                if (trainsBehind.length > 0) {
+                    trainsBehind[0].delayed = true;
+                    trainsBehind[0].isStopped = true;
+                    trainsBehind[0].speed = trainsBehind[0].baseSpeed * levels[currentLevel].trainSpeedMultiplier * 0.1;
+                    trainsBehind[0].delayStartTime = Date.now();
+                    trainsBehind[0].element.classList.add('train-delayed');
+                    const message = germanPhrases[Math.floor(Math.random() * germanPhrases.length)];
+                    showTrainMessage(trainsBehind[0], message);
+                }
+            }
+
+            if (train.isStopped && train.delayStartTime && (Date.now() - train.delayStartTime > (Math.random() * 5000 + 2000))) {
+                train.isStopped = false;
+                train.speed = train.baseSpeed * levels[currentLevel].trainSpeedMultiplier;
+                train.delayStartTime = null;
+                train.element.classList.remove('train-delayed');
+                train.delayed = false;
+                hideTrainMessage(train);
+            }
+
+            if (train.delayed && train.isStopped) return;
+
+            const left = parseFloat(train.element.style.left);
+            train.element.style.left = (left + train.speed) + 'px';
+
+            if ((train.direction === 1 && left > gameContainer.offsetWidth) ||
+                (train.direction === -1 && left < -train.offsetWidth)) {
+                train.element.remove();
+                trains.splice(index, 1);
+            }
+        });
+    }
+
+    function updateGame() {
+        if (!gameActive) return;
+
+        if (currentTrain) {
+            const progress = Math.max(0, Math.min(100,
+                Math.floor((parseFloat(currentTrain.element.style.left) / gameContainer.offsetWidth) * 100)));
+            progressBar.style.width = progress + '%';
+            document.getElementById('score').textContent = `Progress: ${progress.toFixed(0)}%`;
+
+            if (progress >= 99) {
+                winGame();
+                return;
+            }
+        }
+
+        updateTrains();
+        if (!updatePlayerPosition()) {
+            return;
+        }
+
+        if (keysPressed.has('ArrowLeft') || tiltX < -5) {
+            playerX = Math.max(0, playerX - PLAYER_SPEED);
+        }
+        if (keysPressed.has('ArrowRight') || tiltX > 5) {
+            playerX = Math.min(currentTrain.width - parseFloat(getComputedStyle(player).width), playerX + PLAYER_SPEED);
+        }
+
+        for (let track = 1; track <= NUM_TRACKS; track++) {
+            const trainsOnTrack = trains.filter(t => t.track === track).length;
+            if (trainsOnTrack < 1 && Math.random() < 0.01) {
+                const direction = track % 2 === 0 ? 1 : -1;
+                createTrain(track, direction);
+            }
+        }
+
+        requestAnimationFrame(updateGame);
+    }
+
+    function startGame(selectedLevel = 0) {
+        window.removeEventListener('deviceorientation', handleDeviceOrientation);
+        window.addEventListener('deviceorientation', handleDeviceOrientation);
+
+        document.getElementById('start-screen').style.display = 'none';
+        gameContainer.innerHTML = ''; // Clear previous game elements
+
+        gameActive = true;
+        score = 0;
+        trains = [];
+        keysPressed.clear();
+        currentLevel = selectedLevel;
+
+        updateTrackSpacing();
+        for (let i = 1; i <= NUM_TRACKS; i++) {
+            createTrack(i);
+        }
+
+        const initialTrain = createTrain(1, 1);
+        currentTrain = initialTrain;
+        playerX = initialTrain.width / 3;
+        player.style.position = 'absolute';
+        player.style.left = (parseFloat(initialTrain.element.style.left) + playerX) + 'px';
+        player.style.top = initialTrain.element.style.top;
+
+        gameContainer.appendChild(progressBar);
+        gameContainer.appendChild(document.getElementById('score'));
+        gameContainer.appendChild(player);
+        gameContainer.appendChild(document.querySelector('.berlin-sign'));
+        gameContainer.appendChild(document.querySelector('.potsdam-sign'));
+        gameContainer.appendChild(document.querySelector('.platform'));
+        gameContainer.appendChild(billy);
+        gameContainer.appendChild(speechBubble);
+        gameContainer.appendChild(jumpUpButton);
+        gameContainer.appendChild(jumpDownButton);
+
+
+        window.addEventListener('keydown', handleKeyDown);
+        window.addEventListener('keyup', handleKeyUp);
+
+        startTime = Date.now();
+        requestAnimationFrame(updateGame);
+
+        jumpUpButton.addEventListener('click', () => tryJump(-1));
+        jumpDownButton.addEventListener('click', () => tryJump(1));
+    }
+
+    function handleKeyDown(e) {
+        if (!gameActive) return;
+        keysPressed.add(e.code);
+        if (e.code === 'ArrowUp') tryJump(-1);
+        if (e.code === 'ArrowDown') tryJump(1);
+    }
+
+    function handleKeyUp(e) {
+        keysPressed.delete(e.code);
+    }
+
+    function endGame() {
+        gameActive = false;
+        trainSound.pause();
+        gameOverSound.currentTime = 0;
+        gameOverSound.play();
+
+        const gameOverScreen = document.getElementById('game-over-screen');
+        const gameOverContainer = gameOverScreen.querySelector('.game-over-container');
+
+        gameOverContainer.querySelector('.game-over-info').innerHTML = `
+            <h1>Game Over!</h1>
+            <p>You survived for ${Math.floor((Date.now() - startTime) / 1000)} seconds!</p>
+            <button onclick="location.reload()">Try Again</button>
+        `;
+
+        gameOverScreen.style.display = 'flex';
+        qrContainer.style.display = 'none';
+    }
+
+    function winGame() {
+        gameActive = false;
+        trainSound.pause();
+        gameOverSound.currentTime = 0;
+        gameOverSound.play();
+
+        const gameOverScreen = document.getElementById('game-over-screen');
+        const gameOverContainer = gameOverScreen.querySelector('.game-over-container');
+
+        if (currentLevel === MAX_LEVELS - 1) {
+            gameOverContainer.querySelector('.game-over-info').innerHTML = `
+                <h1>🎉 Congratulations! 🎉</h1>
+                <p>You've completed all levels!</p>
+                <div class="final-qr-container">
+                    <img src="/images/14-e0761905d7.png" alt="QR Code" class="qr-code">
+                </div>
+                <button onclick="location.reload()">Play Again</button>
+            `;
+        } else {
+            gameOverContainer.querySelector('.game-over-info').innerHTML = `
+                <h1>🎉 Level ${currentLevel + 1} Complete! 🎉</h1>
+                <p>Get ready for the next level!</p>
+                <button onclick="startNextLevel()">Next Level</button>
+            `;
+        }
+
+        gameOverScreen.style.display = 'flex';
+    }
+
+    function startNextLevel() {
+        trains.forEach(train => {
+            if (train.element) {
+                train.element.remove();
+            }
+        });
+        trains = [];
+
+        document.getElementById('game-over-screen').style.display = 'none';
+        currentLevel++;
+        startGame(currentLevel);
+    }
+
+    function createWeatherEffects() {
+        setInterval(() => {
+            if (!gameActive) return;
+            const snow = document.createElement('div');
+            snow.className = 'snow-particle';
+            snow.style.left = Math.random() * window.innerWidth + 'px';
+            snow.style.animationDuration = (Math.random() * 3 + 2) + 's';
+            gameContainer.appendChild(snow);
+            setTimeout(() => snow.remove(), 5000);
+        }, 100);
+    }
+
+    function updateSpeechBubble() {
+        if (!gameActive || currentLevel !== 0) return;
+        const randomIndex = Math.floor(Math.random() * spanishPhrases.length);
+        speechBubble.textContent = spanishPhrases[randomIndex];
+        speechBubble.style.opacity = 1;
+        setTimeout(() => {
+            speechBubble.style.opacity = 0;
+        }, 3000);
+    }
+
+    function updateTrackSpacing() {
+        const screenHeight = window.innerHeight;
+        TRACK_SPACING = Math.floor(screenHeight / (NUM_TRACKS + 1)); // Adjust as needed
+    }
+
+    window.addEventListener('resize', () => {
+        if (gameActive) {
+            updateTrackSpacing();
+            trains.forEach(train => {
+                train.element.style.top = (TRACK_SPACING * train.track - parseFloat(getComputedStyle(train.element).height) / 2) + 'px';
+            });
+        }
+    });
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            gameActive = false;
+        }
+    });
+
+    window.addEventListener('orientationchange', () => {
+        if (screen.orientation.type.startsWith('portrait')) {
+            if (gameActive) {
+                gameActive = false;
+                document.getElementById('game-over-screen').style.display = 'flex';
+            }
+        }
+    });
+
+    function handleDeviceOrientation(event) {
+        if (!gameActive) return;
+        if (event.beta !== null) {
+            tiltX = event.beta;
+        }
+    }
+
+    updateTrackSpacing();
+    createWeatherEffects();
+    billy.addEventListener('mouseenter', () => {
+        speechBubble.style.opacity = 1;
+    });
+    billy.addEventListener('mouseleave', () => {
+        speechBubble.style.opacity = 0;
+    });
+    updateStartScreenButtons();
+    updateSpeechBubble();
+    setInterval(updateSpeechBubble, 5000);
+
+    jumpUpButton.addEventListener('click', () => tryJump(-1));
+    jumpDownButton.addEventListener('click', () => tryJump(1));
+</script>
+</body>
+</html>
