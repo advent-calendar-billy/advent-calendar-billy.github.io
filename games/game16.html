@@ -85,7 +85,7 @@
     </style>
 </head>
 <body>
-    <h1>Find the Matches</h1>
+    <h1>Find the Matches!</h1>
     <div class="lives">Lives: <span id="lives-display">❤️❤️❤️</span></div>
     <div class="calendar" id="calendar"></div>
 
@@ -157,15 +157,20 @@
             if (lives <= 0) return;
 
             // Check if this is the last unmatched number
-            const unmatched = [...Array(21)].map((_, i) => i + 4).filter(n => !matched.includes(n));
-            if (unmatched.length === 1 && unmatched[0] === number) {
+            const remainingNumbers = Array.from(document.querySelectorAll('.day')).filter(d => !d.classList.contains('matched')).map(d => parseInt(d.textContent));
+            
+            if (remainingNumbers.length === 1 && remainingNumbers[0] === number) {
                 day.classList.add('matched');
+                matched.push(number);  // Add to matched array
                 showQRCode();
                 return;
             }
 
-            day.classList.add('selected');
-            selected.push(number);
+            // Normal selection flow
+            if (selected.length < 2) {
+                day.classList.add('selected');
+                selected.push(number);
+            }
 
             if (selected.length === 2) {
                 const [num1, num2] = selected;
