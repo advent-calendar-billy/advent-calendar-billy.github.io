@@ -24,7 +24,8 @@ PRIZES = [
     "vemos la peli que elijas",
     "te ayudo con algo del laburo",
     "voy a comprarte algo de jengibre",
-    "compro la cosa pero de mi plata (máximo 50 euros)"
+    "compro la cosa pero de mi plata (máximo 50 euros)",
+    "te traigo algo dulce"
 ]
 
 def generate_hash(day, seed="billy2024"):
