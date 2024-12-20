@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Christmas Maze Challenge</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #0a3142;
+            background-image: linear-gradient(45deg, #0a3142 0%, #1a4d66 100%);
+            font-family: Arial, sans-serif;
+            overscroll-behavior: contain;
+            touch-action: none;
+            color: white;
+        }
+
+        #gameArea {
+            width: 320px;
+            height: 480px;
+            border: 4px solid #2c8522;
+            border-radius: 8px;
+            position: relative;
+            background: #ffffff;
+            background-image: 
+                radial-gradient(#ffffff 1px, transparent 1px),
+                radial-gradient(#ffffff 1px, transparent 1px);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        .ball {
+            position: absolute;
+            border-radius: 50%;
+            box-shadow: inset -2px -2px 6px rgba(0,0,0,0.3);
+        }
+
+        #redBall {
+            width: 30px;
+            height: 30px;
+            background: #ff4444;
+        }
+
+        #blueBall {
+            width: 20px;
+            height: 20px;
+            background: #4444ff;
+        }
+
+        .wall {
+            position: absolute;
+            background: #2c8522;
+            box-shadow: inset -1px -1px 3px rgba(0,0,0,0.3);
+        }
+
+        .target-zone {
+            width: 40px;
+            height: 40px;
+            position: absolute;
+            border: 2px solid #2c8522;
+            border-radius: 50%;
+            transition: border-color 0.3s ease;
+            background: rgba(255, 215, 0, 0.2);
+        }
+
+        .target-zone.active {
+            border-color: #ffd700;
+            animation: borderPulse 1s infinite;
+        }
+
+        @keyframes borderPulse {
+            0% { border-color: rgba(255, 215, 0, 0.3); }
+            50% { border-color: rgba(255, 215, 0, 1); }
+            100% { border-color: rgba(255, 215, 0, 0.3); }
+        }
+
+        #message {
+            font-size: 24px;
+            margin: 20px 0;
+            text-align: center;
+            min-height: 32px;
+            color: #ffd700;
+        }
+
+        #startButton {
+            padding: 10px 20px;
+            font-size: 18px;
+            background: #2c8522;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+
+        #instructions {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 16px;
+            max-width: 300px;
+            color: #ffffff;
+        }
+
+        #countdown {
+            position: absolute;
+            font-size: 48px;
+            color: #2c8522;
+            font-weight: bold;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        #countdown.visible {
+            opacity: 1;
+        }
+
+        .snowflake {
+            position: absolute;
+            color: #fff;
+            font-size: 8px;
+            opacity: 0.8;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(500px); }
+        }
+    </style>
+</head>
+<body>
+    <div id="message"></div>
+    <div id="gameArea">
+        <div id="redBall" class="ball"></div>
+        <div id="blueBall" class="ball"></div>
+        <div id="targetZone" class="target-zone"></div>
+        <div id="countdown"></div>
+        <!-- Walls will be added via JavaScript -->
+    </div>
+    <button id="startButton">Start Game</button>
+    <div id="instructions">
+        Tilt your device to guide both balls through the maze.<br>
+        Get both balls to the center and hold them there for 3 seconds to win!
+    </div>
+
+    <script>
+        const redBall = document.getElementById('redBall');
+        const blueBall = document.getElementById('blueBall');
+        const targetZone = document.getElementById('targetZone');
+        const message = document.getElementById('message');
+        const startButton = document.getElementById('startButton');
+        const gameArea = document.getElementById('gameArea');
+        const countdown = document.getElementById('countdown');
+
+        // Physics constants
+        const RED_MASS = 2.0;
+        const BLUE_MASS = 1.0;
+        const DAMPING = 0.8;
+        const ACCELERATION_SCALE = 0.15;
+        const MAX_VELOCITY = 12;
+        const BOUNCE_LOSS = 0.65;
+
+        // Game state
+        let isPlaying = false;
+        let redX = 30, redY = 30;
+        let blueX = 270, blueY = 30;
+        let velocityRedX = 0, velocityRedY = 0;
+        let velocityBlueX = 0, velocityBlueY = 0;
+        let countdownTimer = null;
+        let countdownValue = 3;
+
+        // Maze walls configuration - positions will be adjusted
+        const walls = [
+            // Outer walls
+            {x: 0, y: 0, width: 320, height: 10},         // Top
+            {x: 0, y: 470, width: 320, height: 10},       // Bottom
+            {x: 0, y: 0, width: 10, height: 480},         // Left
+            {x: 310, y: 0, width: 10, height: 480},       // Right
+            
+            // Inner walls - creating two distinct paths
+            // Left side (for red ball)
+            {x: 50, y: 50, width: 100, height: 10},
+            {x: 50, y: 50, width: 10, height: 150},
+            {x: 100, y: 150, width: 120, height: 10},
+            {x: 50, y: 250, width: 150, height: 10},
+            {x: 150, y: 150, width: 10, height: 100},
+            
+            // Right side (for blue ball - narrower passages)
+            {x: 170, y: 50, width: 100, height: 10},
+            {x: 260, y: 50, width: 10, height: 150},
+            {x: 200, y: 150, width: 70, height: 10},
+            {x: 200, y: 150, width: 10, height: 100},
+            {x: 170, y: 250, width: 100, height: 10},
+            
+            // Center area
+            {x: 140, y: 300, width: 40, height: 10},
+            {x: 140, y: 350, width: 40, height: 10},
+            {x: 140, y: 300, width: 10, height: 60},
+            {x: 170, y: 300, width: 10, height: 60}
+        ];
+
+        // Initialize maze walls
+        function createWalls() {
+            walls.forEach(wall => {
+                const wallElement = document.createElement('div');
+                wallElement.className = 'wall';
+                wallElement.style.left = wall.x + 'px';
+                wallElement.style.top = wall.y + 'px';
+                wallElement.style.width = wall.width + 'px';
+                wallElement.style.height = wall.height + 'px';
+                gameArea.appendChild(wallElement);
+            });
+
+            // Position target zone in the center
+            targetZone.style.left = '140px';
+            targetZone.style.top = '320px';
+        }
+
+        function createSnowflakes() {
+            const snowflakes = 20;
+            for (let i = 0; i < snowflakes; i++) {
+                const snowflake = document.createElement('div');
+                snowflake.className = 'snowflake';
+                snowflake.innerHTML = '❄';
+                snowflake.style.left = Math.random() * 100 + '%';
+                snowflake.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                snowflake.style.opacity = Math.random();
+                document.body.appendChild(snowflake);
+            }
+        }
+
+        function resetGame() {
+            redX = 30;
+            redY = 30;
+            blueX = 270;
+            blueY = 30;
+            velocityRedX = velocityRedY = velocityBlueX = velocityBlueY = 0;
+            updateBallPositions();
+            message.textContent = '';
+            resetCountdown();
+            targetZone.classList.remove('active');
+        }
+
+        function resetCountdown() {
+            if (countdownTimer) {
+                clearInterval(countdownTimer);
+                countdownTimer = null;
+            }
+            countdownValue = 3;
+            countdown.textContent = '';
+            countdown.classList.remove('visible');
+        }
+
+        function updateBallPositions() {
+            redBall.style.left = `${redX}px`;
+            redBall.style.top = `${redY}px`;
+            blueBall.style.left = `${blueX}px`;
+            blueBall.style.top = `${blueY}px`;
+        }
+
+        function checkCollision(x1, y1, w1, h1, x2, y2, w2, h2) {
+            return !(x1 + w1 <= x2 || x2 + w2 <= x1 || y1 + h1 <= y2 || y2 + h2 <= y1);
+        }
+
+        function handleWallCollisions(ballX, ballY, ballWidth, velocityX, velocityY) {
+            let newX = ballX;
+            let newY = ballY;
+            let newVX = velocityX;
+            let newVY = velocityY;
+            let hasCollision = false;
+
+            walls.forEach(wall => {
+                if (checkCollision(ballX, ballY, ballWidth, ballWidth, 
+                                 wall.x, wall.y, wall.width, wall.height)) {
+                    hasCollision = true;
+                    
+                    // Determine collision side
+                    const ballCenter = {
+                        x: ballX + ballWidth/2,
+                        y: ballY + ballWidth/2
+                    };
+                    const wallCenter = {
+                        x: wall.x + wall.width/2,
+                        y: wall.y + wall.height/2
+                    };
+                    
+                    if (Math.abs(ballCenter.x - wallCenter.x) * 2 >= wall.width) {
+                        // Horizontal collision
+                        newVX = -velocityX * BOUNCE_LOSS;
+                        newX = (ballCenter.x < wallCenter.x) ? 
+                            wall.x - ballWidth : wall.x + wall.width;
+                    }
+                    if (Math.abs(ballCenter.y - wallCenter.y) * 2 >= wall.height) {
+                        // Vertical collision
+                        newVY = -velocityY * BOUNCE_LOSS;
+                        newY = (ballCenter.y < wallCenter.y) ? 
+                            wall.y - ballWidth : wall.y + wall.height;
+                    }
+                }
+            });
+
+            return { x: newX, y: newY, vx: newVX, vy: newVY, collision: hasCollision };
+        }
+
+        function checkWin() {
+            const targetX = parseInt(targetZone.style.left);
+            const targetY = parseInt(targetZone.style.top);
+            
+            const redInTarget = checkCollision(redX, redY, 30, 30, 
+                                            targetX, targetY, 40, 40);
+            const blueInTarget = checkCollision(blueX, blueY, 20, 20, 
+                                             targetX, targetY, 40, 40);
+
+            if (redInTarget && blueInTarget) {
+                targetZone.classList.add('active');
+                startCountdown();
+            } else {
+                targetZone.classList.remove('active');
+                resetCountdown();
+            }
+        }
+
+        function startCountdown() {
+            if (countdownTimer) return;
+            
+            countdownValue = 3;
+            countdown.textContent = countdownValue;
+            countdown.classList.add('visible');
+            
+            countdownTimer = setInterval(() => {
+                countdownValue--;
+                countdown.textContent = countdownValue;
+                
+                if (countdownValue <= 0) {
+                    clearInterval(countdownTimer);
+                    message.textContent = '🎄 You Win! 🎄';
+                    isPlaying = false;
+                    countdown.classList.remove('visible');
+                    showQRCode();
+                }
+            }, 1000);
+        }
+
+        function showQRCode() {
+            const qrContainer = document.createElement('div');
+            qrContainer.style.position = 'fixed';
+            qrContainer.style.top = '50%';
+            qrContainer.style.left = '50%';
+            qrContainer.style.transform = 'translate(-50%, -50%)';
+            qrContainer.style.background = 'white';
+            qrContainer.style.padding = '20px';
+            qrContainer.style.borderRadius = '10px';
+            qrContainer.style.boxShadow = '0 0 20px rgba(0,0,0,0.3)';
+            qrContainer.style.textAlign = 'center';
+            
+            qrContainer.innerHTML = `
+                <img src="/images/16-a6d2f47d0a.png" alt="QR Code" style="max-width: 200px">
+                <p style="margin: 10px 0 0; color: black">Scan to claim your prize!</p>
+            `;
+            
+            document.body.appendChild(qrContainer);
+        }
+
+        function handleMotion(event) {
+            if (!isPlaying) return;
+
+            const accelerationX = -event.accelerationIncludingGravity.x * ACCELERATION_SCALE;
+            const accelerationY = event.accelerationIncludingGravity.y * ACCELERATION_SCALE;
+
+            // Update velocities based on mass
+            velocityRedX += accelerationX / RED_MASS;
+            velocityRedY += accelerationY / RED_MASS;
+            velocityBlueX += accelerationX / BLUE_MASS;
+            velocityBlueY += accelerationY / BLUE_MASS;
+
+            // Apply damping and limit maximum velocity
+            velocityRedX *= DAMPING;
+            velocityRedY *= DAMPING;
+            velocityBlueX *= DAMPING;
+            velocityBlueY *= DAMPING;
+
+            velocityRedX = Math.max(Math.min(velocityRedX, MAX_VELOCITY), -MAX_VELOCITY);
+            velocityRedY = Math.max(Math.min(velocityRedY, MAX_VELOCITY), -MAX_VELOCITY);
+            velocityBlueX = Math.max(Math.min(velocityBlueX, MAX_VELOCITY), -MAX_VELOCITY);
+            velocityBlueY = Math.max(Math.min(velocityBlueY, MAX_VELOCITY), -MAX_VELOCITY);
+
+            // Update positions
+            redX += velocityRedX;
+            redY += velocityRedY;
+            blueX += velocityBlueX;
+            blueY += velocityBlueY;
+
+            // Handle wall collisions
+            const redCollision = handleWallCollisions(redX, redY, 30, velocityRedX, velocityRedY);
+            const blueCollision = handleWallCollisions(blueX, blueY, 20, velocityBlueX, velocityBlueY);
+
+            // Update positions and velocities after collisions
+            if (redCollision.collision) {
+                redX = redCollision.x;
+                redY = redCollision.y;
+                velocityRedX = redCollision.vx;
+                velocityRedY = redCollision.vy;
+            }
+
+            if (blueCollision.collision) {
+                blueX = blueCollision.x;
+                blueY = blueCollision.y;
+                velocityBlueX = blueCollision.vx;
+                velocityBlueY = blueCollision.vy;
+            }
+
+            // Keep balls within game area bounds
+            const redConstraints = constrainToBounds(redX, redY, 30);
+            const blueConstraints = constrainToBounds(blueX, blueY, 20);
+
+            redX = redConstraints.x;
+            redY = redConstraints.y;
+            blueX = blueConstraints.x;
+            blueY = blueConstraints.y;
+
+            updateBallPositions();
+            checkWin();
+        }
+
+        function constrainToBounds(x, y, size) {
+            const maxX = gameArea.offsetWidth - size;
+            const maxY = gameArea.offsetHeight - size;
+
+            return {
+                x: Math.max(0, Math.min(x, maxX)),
+                y: Math.max(0, Math.min(y, maxY))
+            };
+        }
+
+        // Initialize game
+        createWalls();
+        createSnowflakes();
+
+        startButton.addEventListener('click', () => {
+            if (!isPlaying) {
+                if (typeof DeviceMotionEvent.requestPermission === 'function') {
+                    DeviceMotionEvent.requestPermission()
+                        .then(response => {
+                            if (response === 'granted') {
+                                window.addEventListener('devicemotion', handleMotion);
+                                startGame();
+                            }
+                        })
+                        .catch(console.error);
+                } else {
+                    window.addEventListener('devicemotion', handleMotion);
+                    startGame();
+                }
+            } else {
+                resetGame();
+            }
+        });
+
+        function startGame() {
+            isPlaying = true;
+            resetGame();
+            startButton.textContent = 'Restart Game';
+        }
+
+        // Prevent default touch behavior
+        document.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
+    </script>
+</body>
+</html>
