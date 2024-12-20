@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number Matching Puzzle</title>
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            max-width: 800px;
+            width: 100%;
+            padding: 20px;
+        }
+
+        .day {
+            aspect-ratio: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .day.selected {
+            background: rgba(255, 215, 0, 0.3);
+            border-color: gold;
+            transform: translateY(-5px);
+        }
+
+        .day.matched {
+            background: rgba(0, 255, 0, 0.2);
+            border-color: lime;
+            cursor: not-allowed;
+        }
+
+        .lives {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+
+        .heart {
+            color: red;
+            margin: 0 5px;
+        }
+
+        @media (max-width: 600px) {
+            .calendar {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+                padding: 10px;
+            }
+            
+            .day {
+                font-size: 1.2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Find the Matches!</h1>
+    <div class="lives">Lives: <span id="lives-display">❤️❤️❤️</span></div>
+    <div class="calendar" id="calendar"></div>
+
+    <script>
+        let selected = [];
+        let matched = [];
+        let lives = 3;
+
+        function areCoprime(a, b) {
+            const gcd = (x, y) => !y ? x : gcd(y, x % y);
+            return gcd(a, b) === 1;
+        }
+
+        function showQRCode() {
+            const qrContainer = document.createElement('div');
+            qrContainer.style.position = 'fixed';
+            qrContainer.style.top = '50%';
+            qrContainer.style.left = '50%';
+            qrContainer.style.transform = 'translate(-50%, -50%)'
+            qrContainer.style.background = 'white';
+            qrContainer.style.padding = '20px';
+            qrContainer.style.borderRadius = '10px';
+            qrContainer.style.boxShadow = '0 0 20px rgba(0,0,0,0.3)';
+            qrContainer.style.textAlign = 'center';
+            
+            qrContainer.innerHTML = `
+                <img src="/images/16-a6d2f47d0a.png" alt="QR Code" style="max-width: 200px">
+                <p style="margin: 10px 0 0; color: black">Scan to claim your prize!</p>
+            `;
+            
+            document.body.appendChild(qrContainer);
+        }
+
+        function updateLives() {
+            document.getElementById('lives-display').textContent = '❤️'.repeat(lives);
+        }
+
+        function gameOver() {
+            const gameOverScreen = document.createElement('div');
+            gameOverScreen.style.position = 'fixed';
+            gameOverScreen.style.top = '50%';
+            gameOverScreen.style.left = '50%';
+            gameOverScreen.style.transform = 'translate(-50%, -50%)';
+            gameOverScreen.style.background = 'rgba(0, 0, 0, 0.9)';
+            gameOverScreen.style.padding = '20px';
+            gameOverScreen.style.borderRadius = '10px';
+            gameOverScreen.style.textAlign = 'center';
+            gameOverScreen.style.zIndex = '1000';
+            gameOverScreen.style.width = '80%';
+            gameOverScreen.style.maxWidth = '400px';
+            
+            gameOverScreen.innerHTML = `
+                <h2 style="color: red; font-size: 2em; margin-bottom: 20px">Game Over!</h2>
+                <p style="color: white; margin-bottom: 20px">You ran out of lives!</p>
+                <button onclick="location.reload()" style="background: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 1.2em">Try Again</button>
+            `;
+            
+            document.body.appendChild(gameOverScreen);
+            
+            // Dim all days
+            document.querySelectorAll('.day').forEach(day => {
+                day.style.opacity = '0.5';
+                day.style.cursor = 'not-allowed';
+            });
+        }
+
+        function handleSelection(day, number) {
+            if (matched.includes(number) || selected.includes(number)) return;
+            if (lives <= 0) return;
+
+            day.classList.add('selected');
+            selected.push(number);
+
+            if (selected.length === 2) {
+                const [num1, num2] = selected;
+                setTimeout(() => {
+                    const elements = document.querySelectorAll('.selected');
+                    elements.forEach(el => el.classList.remove('selected'));
+
+                    if (areCoprime(num1, num2)) {
+                        matched.push(num1, num2);
+                        elements.forEach(el => el.classList.add('matched'));
+                        
+                        if (matched.length === 20) { // All but one number matched
+                            showQRCode();
+                        }
+                    } else {
+                        lives--;
+                        updateLives();
+                        if (lives <= 0) {
+                            gameOver();
+                        }
+                    }
+                    selected = [];
+                }, 1000);
+            }
+        }
+
+        function createCalendar() {
+            const calendar = document.getElementById('calendar');
+            
+            for (let number = 4; number <= 24; number++) {
+                const day = document.createElement('div');
+                day.className = 'day';
+                day.textContent = number;
+                
+                day.addEventListener('click', () => handleSelection(day, number));
+                
+                calendar.appendChild(day);
+            }
+        }
+
+        createCalendar();
+    </script>
+</body>
+</html>
