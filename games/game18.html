@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        canvas { border: 2px solid #333; }
+        .game-container { text-align: center; }
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(3, 60px);
+            gap: 10px;
+            margin: 10px auto;
+            width: fit-content;
+        }
+        .btn {
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .btn:active {
+            background-color: #367c39;
+        }
+        #instructions {
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        .emoji {
+            font-size: 24px;
+            line-height: 1;
+        }
+        .qr-code-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            text-align: center;
+            z-index: 1000;
+            border: 5px solid #CD853F; /* Indian border color */
+        }
+        .qr-code-container img {
+            max-width: 250px;
+            height: auto;
+            display: block;
+            margin: 0 auto 15px;
+        }
+        .qr-code-container p {
+            color: #333;
+            font-size: 18px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h2>Cross the Busy Indian Street! 🇮🇳</h2>
+        <div id="score">Tea Bags 🍵: 0 / 5</div>
+        <canvas id="gameCanvas" width="400" height="350"></canvas>
+        <div class="controls">
+            <button class="btn" id="leftBtn">←</button>
+            <button class="btn" id="upBtn">↑</button>
+            <button class="btn" id="downBtn">↓</button>
+            <button class="btn" id="rightBtn">→</button>
+        </div>
+        <div id="instructions">
+            <strong>Instructions:</strong><br>
+            - Use arrow keys or buttons to move.<br>
+            - Pick up tea 🍵 and bring it to the bin at the bottom.<br>
+            - Avoid cars 🚗, motorcycles 🏍️, and cows 🐄🐄🐄!<br>
+            - Pedestrians 🚶 are trying to cross the street!<br>
+            - The traffic light 🚦 is just for show!<br>
+            - Tilt your phone to move left/right (mobile).
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let score = 0;
+        const totalTea = 5;
+        let collectedTea = 0;
+        const player = { x: 50, y: 250, size: 15, hasTea: false, speed: 5 };
+        let tea = [];
+        const bin = { x: canvas.width / 2 - 30, y: canvas.height - 40, width: 60, height: 30 };
+        let cars = [];
+        let pedestrians = [];
+        let cows = [];
+        let motorcycles = [];
+        const trafficLight = { x: 20, y: 60 };
+        let bloodSplatter = [];
+        let mudStains = [];
+
+        const lanes = [
+            { y: 90, speed: 2, direction: 1 }, // Right to left
+            { y: 110, speed: -2.5, direction: -1 }, // Left to right
+            { y: 130, speed: 3, direction: 1 }, // Right to left
+            { y: 150, speed: -3.5, direction: -1 }, // Left to right
+            { y: 170, speed: 2.5, direction: 1 }, // Right to left
+            { y: 190, speed: -2, direction: -1 }, // Left to right
+            { y: 210, speed: 3.5, direction: 1 }  // Right to left
+        ];
+
+        const pedestrianCrossings = [100, 160, 220]; // Y-coordinates where pedestrians cross
+
+        const motorcycleLanes = [
+            { y: 100, speed: 4, direction: 1 },
+            { y: 140, speed: -5, direction: -1 },
+            { y: 180, speed: 4.5, direction: 1 },
+            { y: 200, speed: -5.5, direction: -1 }
+        ];
+
+        const keys = {
+            ArrowLeft: false,
+            ArrowRight: false,
+            ArrowUp: false,
+            ArrowDown: false
+        };
+
+        function spawnCar(lane) {
+            const car = {
+                x: lane.direction > 0 ? -60 - Math.random() * 40 : canvas.width + Math.random() * 40,
+                y: lane.y - 10,
+                width: 50 + Math.random() * 15,
+                height: 25,
+                speed: lane.speed,
+                direction: lane.direction,
+                color: getRandomColor(),
+                isPolice: Math.random() < 0.08,
+                lightOn: false,
+                honking: false,
+                honkTimer: 0
+            };
+            if (car.isPolice) {
+                car.width = 60;
+            }
+            return car;
+        }
+
+        function spawnPedestrian() {
+            const crossingY = pedestrianCrossings[Math.floor(Math.random() * pedestrianCrossings.length)];
+            return {
+                x: canvas.width / 2 - 5 + (Math.random() * 10), // Slight horizontal variation
+                y: Math.random() < 0.5 ? 0 - 10 : canvas.height - 10 + 10,
+                size: 10,
+                speed: 1 + Math.random() * 0.5,
+                color: getRandomColor(),
+                alive: true,
+                targetY: crossingY // Target Y to cross
+            };
+        }
+
+        function spawnCow() {
+            return {
+                x: Math.random() * canvas.width,
+                y: 280 + Math.random() * 40,
+                emoji: '🐄',
+                moveTimer: 0,
+                moveDirection: Math.random() < 0.5 ? -1 : 1,
+                roamRadius: 20
+            };
+        }
+
+        function spawnMotorcycle(lane) {
+            const motorcycle = {
+                x: lane.direction > 0 ? -30 - Math.random() * 20 : canvas.width + Math.random() * 20,
+                y: lane.y - 7,
+                width: 30,
+                height: 18,
+                speed: lane.speed,
+                direction: lane.direction,
+                color: getRandomColor(),
+                honking: false,
+                honkTimer: 0
+            };
+            return motorcycle;
+        }
+
+        function spawnTea() {
+            return {
+                x: 50 + Math.random() * (canvas.width - 100),
+                y: 30 + Math.random() * 40
+            };
+        }
+
+        function spawnMudStain() {
+            return {
+                x: Math.random() * (canvas.width - 30),
+                y: 80 + Math.random() * 170 - 15, // Within the road
+                width: 20 + Math.random() * 20,
+                height: 15 + Math.random() * 10
+            };
+        }
+
+        function getRandomColor() {
+            const brightColors = ['#FF5733', '#C70039', '#900C3F', '#581845', '#DAF7A8', '#FFC300', '#FF5733', '#3498DB', '#E74C3C', '#2ECC71'];
+            return brightColors[Math.floor(Math.random() * brightColors.length)];
+        }
+
+        function showQRCode() {
+            const qrContainer = document.createElement('div');
+            qrContainer.classList.add('qr-code-container');
+            qrContainer.innerHTML = `
+                <img src="images/18-3c25aa6726.png" alt="Scan for a treat!" style="border-radius: 8px;">
+                <p style="color: #8B4513; font-weight: bold;">Namaste! Scan this to claim your treat!</p>
+            `;
+            document.body.appendChild(qrContainer);
+        }
+
+        function updateGame() {
+            // Spawn tea
+            if (tea.length < totalTea && Math.random() < 0.01) {
+                tea.push(spawnTea());
+            }
+
+            // Spawn cars
+            lanes.forEach(lane => {
+                if (Math.random() < 0.015) {
+                    cars.push(spawnCar(lane));
+                }
+            });
+
+            // Spawn pedestrians
+            if (pedestrians.length < 5 && Math.random() < 0.01) {
+                pedestrians.push(spawnPedestrian());
+            }
+
+            // Update pedestrians
+            pedestrians.forEach(pedestrian => {
+                if (pedestrian.alive) {
+                    const targetReached = Math.abs(pedestrian.y - pedestrian.targetY) < pedestrian.speed;
+                    if (!targetReached) {
+                        if (pedestrian.y < pedestrian.targetY) {
+                            pedestrian.y += pedestrian.speed;
+                        } else {
+                            pedestrian.y -= pedestrian.speed;
+                        }
+                    }
+
+                    // Check collisions with cars, motorcycles
+                    const obstacles = [...cars, ...motorcycles];
+                    obstacles.forEach(obstacle => {
+                        if (pedestrian.x < obstacle.x + obstacle.width &&
+                            pedestrian.x + pedestrian.size > obstacle.x &&
+                            pedestrian.y < obstacle.y + obstacle.height &&
+                            pedestrian.y + pedestrian.size > obstacle.y) {
+                            pedestrian.alive = false;
+                            for (let i = 0; i < 5; i++) {
+                                bloodSplatter.push({
+                                    x: pedestrian.x + Math.random() * pedestrian.size - pedestrian.size / 2,
+                                    y: pedestrian.y + Math.random() * pedestrian.size - pedestrian.size / 2,
+                                    vx: (Math.random() - 0.5) * 2,
+                                    vy: (Math.random() - 0.5) * 2,
+                                    alpha: 1,
+                                    decay: 0.02 + Math.random() * 0.03
+                                });
+                            }
+                        }
+                    });
+                }
+            });
+
+            // Remove dead or off-screen pedestrians
+            pedestrians = pedestrians.filter(pedestrian => pedestrian.alive && pedestrian.y > -10 && pedestrian.y < canvas.height + 10);
+
+            // Spawn cows
+            if (cows.length < 3 && Math.random() < 0.005) {
+                cows.push(spawnCow());
+            }
+
+            // Update cows
+            cows.forEach(cow => {
+                cow.moveTimer++;
+                if (cow.moveTimer > 50) {
+                    cow.moveDirection = Math.random() < 0.5 ? -1 : 1;
+                    cow.moveTimer = 0;
+                }
+                cow.x += cow.moveDirection * 0.5;
+                cow.x = Math.max(50, Math.min(canvas.width - 50, cow.x));
+            });
+
+            // Spawn motorcycles
+            motorcycleLanes.forEach(lane => {
+                if (Math.random() < 0.025) {
+                    motorcycles.push(spawnMotorcycle(lane));
+                }
+            });
+
+            // Update cars
+            cars = cars.filter(car => {
+                const lane = lanes.find(l => Math.abs(l.y - (car.y + car.height / 2)) < 15);
+                car.speed = lane ? lane.speed : 0;
+                if (Math.random() < 0.02) {
+                    car.honking = true;
+                    car.honkTimer = 15;
+                }
+                if (car.honking) {
+                    car.honkTimer--;
+                    if (car.honkTimer <= 0) car.honking = false;
+                }
+                if (car.isPolice && Math.random() < 0.15) {
+                    car.lightOn = !car.lightOn;
+                }
+                car.x += car.speed * car.direction;
+                return car.x + car.width > 0 && car.x < canvas.width;
+            });
+
+            // Update motorcycles
+            motorcycles = motorcycles.filter(motorcycle => {
+                if (Math.random() < 0.04) {
+                    motorcycle.honking = true;
+                    motorcycle.honkTimer = 10;
+                }
+                if (motorcycle.honking) {
+                    motorcycle.honkTimer--;
+                    if (motorcycle.honkTimer <= 0) motorcycle.honking = false;
+                }
+                motorcycle.x += motorcycle.speed * motorcycle.direction;
+                return motorcycle.x + motorcycle.width > 0 && motorcycle.x < canvas.width;
+            });
+
+            // Adjust player speed based on mud stains and remaining tea
+            let currentSpeed = 5;
+            mudStains.forEach(mud => {
+                if (player.x < mud.x + mud.width &&
+                    player.x + player.size > mud.x &&
+                    player.y < mud.y + mud.height &&
+                    player.y + player.size > mud.y) {
+                    currentSpeed = 2; // Slower speed on mud
+                }
+            });
+            player.speed = currentSpeed;
+
+            // Move player
+            if (keys.ArrowLeft) player.x -= player.speed;
+            if (keys.ArrowRight) player.x += player.speed;
+            if (keys.ArrowUp) player.y -= player.speed;
+            if (keys.ArrowDown) player.y += player.speed;
+
+            // Keep player in bounds
+            player.x = Math.max(0, Math.min(canvas.width - player.size, player.x));
+            player.y = Math.max(0, Math.min(canvas.height - player.size, player.y));
+
+            // Check collisions with cars, motorcycles
+            const allObstacles = [...cars, ...motorcycles];
+            allObstacles.forEach(obstacle => {
+                if (player.x < obstacle.x + obstacle.width &&
+                    player.x + player.size > obstacle.x &&
+                    player.y < obstacle.y + obstacle.height &&
+                    player.y + player.size > obstacle.y) {
+                    player.x = 50;
+                    player.y = 250;
+                    player.hasTea = false;
+                    for (let i = 0; i < 5; i++) {
+                        bloodSplatter.push({
+                            x: player.x + Math.random() * player.size - player.size / 2,
+                            y: player.y + Math.random() * player.size - player.size / 2,
+                            vx: (Math.random() - 0.5) * 2,
+                            vy: (Math.random() - 0.5) * 2,
+                            alpha: 1,
+                            decay: 0.02 + Math.random() * 0.03
+                        });
+                    }
+                }
+            });
+
+            // Check tea pickup
+            if (!player.hasTea) {
+                tea.forEach((t, index) => {
+                    const teaSize = 15;
+                    if (player.x < t.x + teaSize &&
+                        player.x + player.size > t.x &&
+                        player.y < t.y + teaSize &&
+                        player.y + player.size > t.y) {
+                        player.hasTea = true;
+                        tea.splice(index, 1);
+                    }
+                });
+            }
+
+            // Check tea delivery
+            if (player.hasTea &&
+                player.x < bin.x + bin.width &&
+                player.x + player.size > bin.x &&
+                player.y < bin.y + bin.height &&
+                player.y + player.size > bin.y) {
+                collectedTea++;
+                document.getElementById('score').textContent = `Tea Bags 🍵: ${collectedTea} / ${totalTea}`;
+                player.hasTea = false;
+                if (collectedTea >= totalTea) {
+                    showQRCode();
+                    collectedTea = 0;
+                    document.getElementById('score').textContent = `Tea Bags 🍵: ${collectedTea} / ${totalTea}`;
+                }
+            }
+
+            // Update blood splatter
+            bloodSplatter.forEach(splatter => {
+                splatter.x += splatter.vx;
+                splatter.y += splatter.vy;
+                splatter.alpha -= splatter.decay;
+            });
+            bloodSplatter = bloodSplatter.filter(splatter => splatter.alpha > 0);
+
+            // Update mud stains based on remaining tea
+            const remainingTea = totalTea - collectedTea;
+            const numberOfMudStains = Math.max(0, 5 - remainingTea); // Increase mud as less tea is left
+            if (mudStains.length < numberOfMudStains) {
+                mudStains.push(spawnMudStain());
+            }
+            mudStains = mudStains.filter((mud, index) => index < numberOfMudStains);
+        }
+
+        function drawBlood() {
+            bloodSplatter.forEach(splatter => {
+                ctx.fillStyle = `rgba(255, 0, 0, ${splatter.alpha})`;
+                ctx.beginPath();
+                ctx.arc(splatter.x, splatter.y, 1.5, 0, 2 * Math.PI);
+                ctx.fill();
+            });
+        }
+
+        function drawMudStains() {
+            mudStains.forEach(mud => {
+                ctx.fillStyle = '#8B4513'; // Brown color for mud
+                ctx.fillRect(mud.x, mud.y, mud.width, mud.height);
+            });
+        }
+
+        function drawBin() {
+            ctx.fillStyle = '#A0522D';
+            ctx.fillRect(bin.x, bin.y, bin.width, bin.height);
+            ctx.fillStyle = '#F0E68C';
+            ctx.fillRect(bin.x + 5, bin.y + 5, bin.width - 10, 5);
+        }
+
+        function drawTea() {
+            tea.forEach(t => {
+                ctx.font = '16px Arial';
+                ctx.fillText('🍵', t.x, t.y + 12);
+            });
+        }
+
+        function drawGame() {
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw background
+            ctx.fillStyle = '#F0E68C';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw grass area
+            ctx.fillStyle = '#8FBC8F';
+            ctx.fillRect(0, 250, canvas.width, 100);
+
+            // Draw road
+            ctx.fillStyle = '#555';
+            ctx.fillRect(0, 80, canvas.width, 170);
+
+            // Draw lane markers
+            ctx.strokeStyle = '#fff';
+            ctx.setLineDash([20, 20]);
+            lanes.forEach(lane => {
+                ctx.beginPath();
+                ctx.moveTo(0, lane.y);
+                ctx.lineTo(canvas.width, lane.y);
+                ctx.stroke();
+            });
+            ctx.setLineDash([]);
+
+            // Draw pedestrian crossing lines
+            ctx.strokeStyle = '#FFF';
+            ctx.setLineDash([5, 10]);
+            pedestrianCrossings.forEach(y => {
+                ctx.beginPath();
+                ctx.moveTo(canvas.width / 2 - 15, y - 5);
+                ctx.lineTo(canvas.width / 2 - 15, y + 5);
+                ctx.moveTo(canvas.width / 2 + 15, y - 5);
+                ctx.lineTo(canvas.width / 2 + 15, y + 5);
+                ctx.stroke();
+            });
+            ctx.setLineDash([]);
+
+            // Draw traffic light
+            ctx.font = '15px Arial';
+            ctx.fillText("🚦", trafficLight.x, trafficLight.y + 15);
+
+            // Draw mud stains
+            drawMudStains();
+
+            // Draw tea
+            drawTea();
+
+            // Draw bin
+            drawBin();
+
+            // Draw cars
+            cars.forEach(car => {
+                ctx.fillStyle = car.isPolice ? '#000080' : car.color;
+                ctx.fillRect(car.x, car.y, car.width, car.height);
+                ctx.fillStyle = '#ddd';
+                ctx.fillRect(car.x + car.width * 0.15, car.y + car.height * 0.1, car.width * 0.7, car.height * 0.3);
+                ctx.fillStyle = '#333';
+                ctx.beginPath();
+                ctx.arc(car.x + car.width * 0.2, car.y + car.height * 0.85, car.height * 0.15, 0, Math.PI * 2);
+                ctx.arc(car.x + car.width * 0.8, car.y + car.height * 0.85, car.height * 0.15, 0, Math.PI * 2);
+                ctx.fill();
+                if (car.isPolice) {
+                    ctx.fillStyle = car.lightOn ? '#FF0000' : '#0000FF';
+                    ctx.fillRect(car.x + car.width * 0.2, car.y - 5, car.width * 0.6, 5);
+                }
+                if (car.honking) {
+                    ctx.strokeStyle = '#FFD700';
+                    ctx.lineWidth = 2;
+                    const startX = car.direction > 0 ? car.x + car.width : car.x;
+                    const y = car.y + car.height / 2;
+                    for (let i = 0; i < 3; i++) {
+                        ctx.beginPath();
+                        ctx.arc(startX, y, 5 + (i * 5), -0.5 * Math.PI, 0.5 * Math.PI, car.direction < 0);
+                        ctx.stroke();
+                    }
+                    ctx.lineWidth = 1;
+                }
+            });
+
+            // Draw pedestrians
+            pedestrians.forEach(pedestrian => {
+                ctx.fillStyle = pedestrian.alive ? pedestrian.color : '#888';
+                ctx.beginPath();
+                ctx.arc(pedestrian.x, pedestrian.y, pedestrian.size / 2, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.fillStyle = '#000';
+                ctx.font = '10px Arial';
+                ctx.fillText('🚶', pedestrian.x - 5, pedestrian.y + 4);
+            });
+
+            // Draw cows
+            cows.forEach(cow => {
+                ctx.font = '24px Arial';
+                ctx.fillText(cow.emoji, cow.x, cow.y);
+            });
+
+            // Draw motorcycles
+            motorcycles.forEach(motorcycle => {
+                ctx.fillStyle = motorcycle.color;
+                ctx.fillRect(motorcycle.x, motorcycle.y, motorcycle.width, motorcycle.height);
+                ctx.fillStyle = '#333';
+                ctx.beginPath();
+                ctx.arc(motorcycle.x + motorcycle.width * 0.2, motorcycle.y + motorcycle.height, motorcycle.height * 0.3, 0, Math.PI * 2);
+                ctx.arc(motorcycle.x + motorcycle.width * 0.8, motorcycle.y + motorcycle.height, motorcycle.height * 0.3, 0, Math.PI * 2);
+                ctx.fill();
+                if (motorcycle.honking) {
+                    ctx.strokeStyle = '#FFD700';
+                    ctx.lineWidth = 2;
+                    const startX = motorcycle.direction > 0 ? motorcycle.x + motorcycle.width : motorcycle.x;
+                    const y = motorcycle.y + motorcycle.height / 2;
+                    for (let i = 0; i < 2; i++) {
+                        ctx.beginPath();
+                        ctx.arc(startX, y, 3 + (i * 3), -0.5 * Math.PI, 0.5 * Math.PI, motorcycle.direction < 0);
+                        ctx.stroke();
+                    }
+                    ctx.lineWidth = 1;
+                }
+                ctx.fillStyle = '#000';
+                ctx.font = '10px Arial';
+                ctx.fillText('🏍️', motorcycle.x, motorcycle.y + 4);
+            });
+
+            // Draw player
+            ctx.fillStyle = player.hasTea ? '#00FF00' : '#0000FF';
+            ctx.fillRect(player.x, player.y, player.size, player.size);
+
+            // Draw blood
+            drawBlood();
+        }
+
+        function gameLoop() {
+            updateGame();
+            drawGame();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Initial tea spawn
+        for (let i = 0; i < totalTea; i++) {
+            if (tea.length < totalTea) {
+                tea.push(spawnTea());
+            }
+        }
+
+        // Initial cow spawn
+        for (let i = 0; i < 3; i++) {
+            cows.push(spawnCow());
+        }
+
+        // Controls
+        const buttons = {
+            'leftBtn': 'ArrowLeft',
+            'rightBtn': 'ArrowRight',
+            'upBtn': 'ArrowUp',
+            'downBtn': 'ArrowDown'
+        };
+
+        Object.entries(buttons).forEach(([btnId, key]) => {
+            const btn = document.getElementById(btnId);
+            btn.addEventListener('mousedown', () => keys[key] = true);
+            btn.addEventListener('mouseup', () => keys[key] = false);
+            btn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                keys[key] = true;
+            });
+            btn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                keys[key] = false;
+            });
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (keys.hasOwnProperty(e.key)) {
+                e.preventDefault();
+                keys[e.key] = true;
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (keys.hasOwnProperty(e.key)) {
+                keys[e.key] = false;
+            }
+        });
+
+        // Mobile tilt controls
+        window.addEventListener('deviceorientation', (event) => {
+            if (event.gamma > 10) {
+                keys.ArrowRight = true;
+                keys.ArrowLeft = false;
+            } else if (event.gamma < -10) {
+                keys.ArrowLeft = true;
+                keys.ArrowRight = false;
+            } else {
+                keys.ArrowLeft = false;
+                keys.ArrowRight = false;
+            }
+        });
+
+        // Start game
+        gameLoop();
+    </script>
+</body>
+</html>
