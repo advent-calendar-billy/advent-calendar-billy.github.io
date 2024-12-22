@@ -12,6 +12,7 @@
             justify-content: center;
             min-height: 100vh; /* Fill the viewport height */
             background-color: #f0f0f0; /* Optional background */
+            position: relative; /* To position the start over screen */
         }
         canvas { border: 2px solid #333; }
         #score { margin-bottom: 10px; }
@@ -70,6 +71,29 @@
             font-size: 18px;
             margin-top: 10px;
         }
+        #startOverScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+        #startOverScreen button {
+            font-size: 20px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -89,13 +113,20 @@
             - Pedestrians 🚶 are trying to cross too!<br>
             - The traffic light 🚦 is just for show!<br>
         </div>
+        <div id="startOverScreen">
+            Game Over!
+            <button id="restartBtn">Play Again</button>
+        </div>
     </div>
 
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
+        const startOverScreen = document.getElementById('startOverScreen');
+        const restartBtn = document.getElementById('restartBtn');
 
         let score = 0;
+        let gameRunning = true;
         const player = { x: 50, y: 250, size: 15, hasTea: false, icon: '🚶' }; // Added player icon
         let tea = [];
         const bin = { x: canvas.width / 2 - 30, y: canvas.height - 40, width: 60, height: 30 };
@@ -133,6 +164,26 @@
 
         let tiltControlEnabled = false;
         let initialGamma = null;
+
+        function resetGame() {
+            score = 0;
+            document.getElementById('score').textContent = `Tea Bags 🍵: ${score} / 5`;
+            player.x = 50;
+            player.y = 250;
+            player.hasTea = false;
+            tea = [];
+            cars = [];
+            pedestrians = [];
+            cows = [];
+            motorcycles = [];
+            bloodSplatter = [];
+            mudStains = [];
+            gameRunning = true;
+            // Initial cow spawn
+            for (let i = 0; i < 3; i++) {
+                cows.push(spawnCow());
+            }
+        }
 
         function spawnCar(lane) {
             const car = {
@@ -226,6 +277,8 @@
         }
 
         function updateGame() {
+            if (!gameRunning) return;
+
             // Spawn tea
             if (tea.length < 5 && Math.random() < 0.01) { // Increased tea count
                 tea.push(spawnTea());
@@ -366,20 +419,8 @@
                     player.x + player.size > obstacle.x &&
                     player.y < obstacle.y + obstacle.height &&
                     player.y + player.size > obstacle.y) {
-                    player.x = 50;
-                    player.y = 250;
-                    player.hasTea = false;
-                    // Create multiple blood droplets
-                    for (let i = 0; i < 5; i++) {
-                        bloodSplatter.push({
-                            x: player.x + Math.random() * player.size - player.size / 2,
-                            y: player.y + Math.random() * player.size - player.size / 2,
-                            vx: (Math.random() - 0.5) * 2, // Random horizontal velocity
-                            vy: (Math.random() - 0.5) * 2, // Random vertical velocity
-                            alpha: 1,
-                            decay: 0.02 + Math.random() * 0.03
-                        });
-                    }
+                    gameRunning = false;
+                    startOverScreen.style.display = 'flex';
                 }
             });
 
@@ -633,16 +674,20 @@ function darkenColor(color, percent) {
             drawBlood();
         }
 
+        let animationFrameId;
         function gameLoop() {
             updateGame();
             drawGame();
-            requestAnimationFrame(gameLoop);
+            if (gameRunning) {
+                animationFrameId = requestAnimationFrame(gameLoop);
+            }
         }
 
-        // Initial cow spawn
-        for (let i = 0; i < 3; i++) {
-            cows.push(spawnCow());
-        }
+        restartBtn.addEventListener('click', () => {
+            resetGame();
+            startOverScreen.style.display = 'none';
+            gameLoop();
+        });
 
         // Controls
         const buttons = {
@@ -701,6 +746,7 @@ function darkenColor(color, percent) {
         }
 
         // Start game
+        resetGame();
         gameLoop();
     </script>
 </body>
