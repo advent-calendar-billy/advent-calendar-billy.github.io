@@ -403,11 +403,9 @@
             if (keys.ArrowLeft) player.x -= speed;
             if (keys.ArrowRight) player.x += speed;
 
-            if (tiltControlEnabled && initialGamma !== null) {
-                let tiltSpeed = (event.gamma - initialGamma) * 0.1; // Adjust sensitivity
-                player.x += tiltSpeed;
-            }
-
+            player.x = Math.max(0, Math.min(canvas.width - player.size, player.x));
+            player.y = Math.max(0, Math.min(canvas.height - player.size, player.y));
+        
             // Keep player in bounds
             player.x = Math.max(0, Math.min(canvas.width - player.size, player.x));
             player.y = Math.max(0, Math.min(canvas.height - player.size, player.y));
