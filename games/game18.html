@@ -120,6 +120,8 @@
     </div>
 
     <script>
+        document.addEventListener('DOMContentLoaded', () => { // Add this line
+
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const startOverScreen = document.getElementById('startOverScreen');
@@ -746,6 +748,8 @@ function darkenColor(color, percent) {
         // Start game
         resetGame();
         gameLoop();
+    }); // Add this closing brace and parenthesis
+
     </script>
 </body>
 </html>
