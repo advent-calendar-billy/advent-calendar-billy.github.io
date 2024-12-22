@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cross the Busy Indian Street!</title>
+    <title>Cross the Busy Indian Street</title>
     <style>
         body { margin: 0; overflow: hidden; } /* Prevent scrollbars */
         .game-container {
@@ -129,6 +129,9 @@
             ArrowLeft: false,
             ArrowRight: false
         };
+
+        let tiltControlEnabled = false;
+        let initialGamma = null;
 
         function spawnCar(lane) {
             const car = {
@@ -319,8 +322,13 @@
             const speed = 3; // Slightly reduced speed for better control
             if (keys.ArrowUp) player.y -= speed;
             if (keys.ArrowDown) player.y += speed;
-            if (keys.ArrowLeft) player.x -= speed;
-            if (keys.ArrowRight) player.x += speed;
+
+            if (tiltControlEnabled) {
+                // Mobile tilt controls
+            } else {
+                if (keys.ArrowLeft) player.x -= speed;
+                if (keys.ArrowRight) player.x += speed;
+            }
 
             // Keep player in bounds
             player.x = Math.max(0, Math.min(canvas.width - player.size, player.x));
@@ -416,8 +424,16 @@
             ctx.fillStyle = car.isPolice ? '#000080' : car.color;
             ctx.beginPath();
 
-            // Determine drawing order based on direction for visual effect
-            if (car.direction > 0) { // Moving right
+            if (car.direction > 0) { // Moving right, face left
+                // Back of the car (on the left side)
+                ctx.fillRect(car.x, car.y, car.width * 0.2, car.height);
+                // Front of the car (on the right side)
+                ctx.fillStyle = car.isPolice ? '#000050' : darkenColor(car.color, -20);
+                ctx.fillRect(car.x + car.width * 0.2, car.y, car.width * 0.8, car.height);
+                // Windshield
+                ctx.fillStyle = '#ddd';
+                ctx.fillRect(car.x + car.width * 0.5, car.y + car.height * 0.2, car.width * 0.4, car.height * 0.2);
+            } else { // Moving left
                 // Front of the car
                 ctx.fillRect(car.x, car.y, car.width * 0.8, car.height);
                 // Back of the car
@@ -426,15 +442,6 @@
                 // Windshield
                 ctx.fillStyle = '#ddd';
                 ctx.fillRect(car.x + car.width * 0.1, car.y + car.height * 0.2, car.width * 0.4, car.height * 0.2);
-            } else { // Moving left
-                // Back of the car
-                ctx.fillRect(car.x, car.y, car.width * 0.2, car.height);
-                // Front of the car
-                ctx.fillStyle = car.isPolice ? '#000050' : darkenColor(car.color, -20);
-                ctx.fillRect(car.x + car.width * 0.2, car.y, car.width * 0.8, car.height);
-                // Windshield
-                ctx.fillStyle = '#ddd';
-                ctx.fillRect(car.x + car.width * 0.5, car.y + car.height * 0.2, car.width * 0.4, car.height * 0.2);
             }
 
             // Wheels (common for both directions)
@@ -631,6 +638,28 @@
                 keys[e.key] = false;
             }
         });
+
+        // Mobile tilt controls
+        if (window.DeviceOrientationEvent) {
+            window.addEventListener('deviceorientation', function(event) {
+                if (!tiltControlEnabled) return;
+
+                const gamma = event.gamma; // Left-right tilt
+
+                if (initialGamma === null) {
+                    initialGamma = gamma;
+                }
+
+                let tiltSpeed = (gamma - initialGamma) * 0.5; // Adjust sensitivity
+
+                player.x += tiltSpeed;
+            });
+
+            // Enable tilt control (you might want a button for this)
+            tiltControlEnabled = true;
+        } else {
+            console.log("Device orientation not supported.");
+        }
 
         // Start game
         gameLoop();
