@@ -767,7 +767,8 @@
       // Display wind (moved down to avoid overlap)
       ctx.fillStyle = 'white';
       ctx.font = `${canvas.height * 0.025}px Arial`; // Relative font size
-      ctx.fillText(`Wind: ${wind.toFixed(2)}`, canvas.width - canvas.width * 0.15, canvas.height * 0.06); // Relative position
+      // Changed the y position to be lower
+      ctx.fillText(`Wind: ${wind.toFixed(2)}`, canvas.width - canvas.width * 0.15, canvas.height * 0.12); // Relative position
     }
 
     function showMessage(text) {
