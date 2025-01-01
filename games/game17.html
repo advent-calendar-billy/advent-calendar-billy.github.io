@@ -185,7 +185,7 @@
     let windChangeInterval = 5000; // Change wind every 5 seconds
     let lastWindChange = 0;
     let ghostModeActive = false;
-    let ghostModeDuration = 5000;
+    let ghostModeDuration = 3000;
     let ghostModeStartTime = 0;
     let isShrunk = false;
     let shrinkDuration = 5000;
@@ -778,16 +778,16 @@
 
       player.update();
 
-      difficulty = Math.floor(gameTime / 15000) + 1;
+      difficulty = Math.floor(gameTime / 10000) + 1;
 
-      if (gameTime % (2000 / difficulty) < 16) {
+      if (gameTime % (1500 / difficulty) < 16) {
         const x = Math.random() * canvas.width;
         // Randomize y value between mid-screen and top
         const y = Math.random() * canvas.height / 2;
         createExplosion(x, y);
       }
 
-      if (gameTime % 5000 < 16) {
+      if (gameTime % 8000 < 16) {
         createPowerup();
       }
 
