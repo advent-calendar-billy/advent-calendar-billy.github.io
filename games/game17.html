@@ -43,6 +43,7 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
+      -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
     }
     #timer {
       position: fixed;
@@ -127,6 +128,22 @@
       border-radius: 0.8vh; /* Relative border radius */
       cursor: pointer;
     }
+    #wind-arrow {
+      position: fixed;
+      top: 10vh; /* Relative positioning */
+      right: 3vh; /* Relative positioning */
+      width: 5vh; /* Relative width */
+      height: 5vh; /* Relative height */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    #wind-arrow span {
+      font-size: 4vh; /* Relative font size */
+      color: white;
+      transition: transform 0.5s ease;
+    }
   </style>
 </head>
 <body>
@@ -136,13 +153,17 @@
   <div id="health-bar"><div id="health-bar-fill"></div></div>
   <div id="powerup-message"></div>
   <div id="instructions">
-    <p>Dodge the fireworks and survive!</p>
+    <p>Dodge the fireworks and survive.</p>
+    <p>Tilt your phone to move left and right.</p>
     <p>Tap the screen to jump.</p>
     <p>Collect powerups for special abilities.</p>
     <button id="acceptBtn">Accept</button>
   </div>
   <div class="controls">
     <div class="control-btn" id="jumpBtn">↑</div>
+  </div>
+  <div id="wind-arrow">
+    <span id="arrow">→</span>
   </div>
   
   <script>
@@ -182,6 +203,7 @@
     let speedBoostDuration = 5000;
     let speedBoostStartTime = 0;
     let stars = [];
+    let tiltSensitivity = 0.1; // Adjust this value for tilt sensitivity
     
     const SPEECH_LINES = [
       "Tengo miedo",
@@ -564,7 +586,32 @@
         wind = (Math.random() * 2 - 1) * difficulty; // Wind can be positive or negative
         lastWindChange = now;
       }
+    
+      // Update wind arrow
+      const arrow = document.getElementById('arrow');
+      if (wind > 0) {
+        arrow.textContent = '→';
+        arrow.style.transform = `scaleX(${Math.abs(wind)})`;
+      } else if (wind < 0) {
+        arrow.textContent = '←';
+        arrow.style.transform = `scaleX(${Math.abs(wind)})`;
+      } else {
+        arrow.textContent = '·'; // No wind indicator
+        arrow.style.transform = `scaleX(1)`;
+      }
     }
+
+    // Tilt controls
+    window.addEventListener('deviceorientation', (event) => {
+      if (gameActive && event.gamma !== null) {
+        let tilt = event.gamma * tiltSensitivity;
+        player.x += tilt * player.speed;
+    
+        // Keep player within bounds
+        if (player.x < 0) player.x = 0;
+        if (player.x > canvas.width - player.width) player.x = canvas.width - player.width;
+      }
+    });
 
     // Controls
     document.addEventListener('keydown', e => {
@@ -616,9 +663,9 @@
 
     function createBuildings() {
       const buildingColors = ['#444', '#555', '#666', '#777'];
-      const numBuildings = 8;
+      const numBuildings = 5; // Reduced number of buildings
       const buildingSpacing = canvas.width / numBuildings;
-
+    
       for (let i = 0; i < numBuildings; i++) {
         const bw = canvas.width * (0.06 + Math.random() * 0.06); // Relative width
         const bh = canvas.height * (0.12 + Math.random() * 0.15); // Relative height
@@ -763,12 +810,6 @@
       });
       powerups.forEach(p => p.draw());
       player.draw();
-
-      // Display wind (moved down to avoid overlap)
-      ctx.fillStyle = 'white';
-      ctx.font = `${canvas.height * 0.025}px Arial`; // Relative font size
-      // Changed the y position to be lower
-      ctx.fillText(`Wind: ${wind.toFixed(2)}`, canvas.width - canvas.width * 0.15, canvas.height * 0.12); // Relative position
     }
 
     function showMessage(text) {
