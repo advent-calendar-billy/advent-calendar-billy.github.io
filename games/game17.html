@@ -2,14 +2,13 @@
 <html>
 <head>
   <style>
-    body { margin: 0; overflow: hidden; background: #222; }
+    body { margin: 0; overflow: hidden; background: #222; font-family: Arial, sans-serif; }
     canvas { display: block; }
     .speech-bubble {
       position: fixed;
       background: white;
       border-radius: 15px;
       padding: 1.5vh 3vh; /* Relative padding */
-      font-family: 'Comic Sans MS', cursive;
       font-size: 2.5vh; /* Relative font size */
       color: #333;
       box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
@@ -60,7 +59,6 @@
       transform: translate(-50%, -50%);
       color: white;
       font-size: 6vh; /* Relative font size */
-      font-family: 'Comic Sans MS', cursive;
       text-align: center;
       z-index: 1000;
       display: none;
@@ -128,21 +126,16 @@
       border-radius: 0.8vh; /* Relative border radius */
       cursor: pointer;
     }
-    #wind-arrow {
+    #wind-display {
       position: fixed;
-      top: 10vh; /* Relative positioning */
-      right: 3vh; /* Relative positioning */
-      width: 5vh; /* Relative width */
-      height: 5vh; /* Relative height */
+      top: 10vh;
+      right: 3vh;
       display: flex;
       align-items: center;
       justify-content: center;
       z-index: 1000;
-    }
-    #wind-arrow span {
-      font-size: 4vh; /* Relative font size */
       color: white;
-      transition: transform 0.5s ease;
+      font-size: 3vh;
     }
   </style>
 </head>
@@ -162,9 +155,7 @@
   <div class="controls">
     <div class="control-btn" id="jumpBtn">↑</div>
   </div>
-  <div id="wind-arrow">
-    <span id="arrow">→</span>
-  </div>
+  <div id="wind-display"></div>
   
   <script>
     const canvas = document.getElementById('gameCanvas');
@@ -204,7 +195,7 @@
     let speedBoostStartTime = 0;
     let stars = [];
     let tiltSensitivity = 0.1; // Adjust this value for tilt sensitivity
-    
+
     const SPEECH_LINES = [
       "Tengo miedo",
       "Por qué no me quedé adentro?",
@@ -259,8 +250,38 @@
       },
       draw() {
         ctx.fillStyle = '#FFFFFF';
-        
-        if (ghostModeActive) {
+
+        if (isShrunk) {
+            // Draw a smaller version of the character
+            ctx.fillStyle = '#FFDBAC'; // Skin color
+            // Head
+            ctx.beginPath();
+            ctx.arc(this.x + this.width / 4, this.y + this.height / 8, this.width / 6, 0, Math.PI * 2);
+            ctx.fill();
+    
+            ctx.fillStyle = '#FFFFFF'; // White for eyes
+            // Eyes
+            ctx.beginPath();
+            ctx.arc(this.x + this.width / 6, this.y + this.height / 8 - canvas.height * 0.008 / 2, this.width / 20, 0, Math.PI * 2); // Relative eye position
+            ctx.arc(this.x + this.width / 3, this.y + this.height / 8 - canvas.height * 0.008 / 2, this.width / 20, 0, Math.PI * 2); // Relative eye position
+            ctx.fill();
+    
+            ctx.fillStyle = '#000000'; // Black for pupils
+            // Pupils
+            ctx.beginPath();
+            ctx.arc(this.x + this.width / 6, this.y + this.height / 8 - canvas.height * 0.008 / 2, this.width / 40, 0, Math.PI * 2); // Relative pupil position
+            ctx.arc(this.x + this.width / 3, this.y + this.height / 8 - canvas.height * 0.008 / 2, this.width / 40, 0, Math.PI * 2); // Relative pupil position
+            ctx.fill();
+    
+            ctx.fillStyle = '#F08080'; // Light red for body
+            // Body
+            ctx.fillRect(this.x + this.width / 4 - canvas.width * 0.005 / 2, this.y + this.height / 4, canvas.width * 0.01 / 2, this.height / 4); // Relative body size
+    
+            ctx.fillStyle = '#444444'; // Dark gray for legs
+            // Legs
+            ctx.fillRect(this.x + this.width / 4 - canvas.width * 0.012 / 2, this.y + this.height / 2, canvas.width * 0.006 / 2, this.height / 8); // Relative leg size
+            ctx.fillRect(this.x + this.width / 4 + canvas.width * 0.006 / 2, this.y + this.height / 2, canvas.width * 0.006 / 2, this.height / 8); // Relative leg size
+            } else if (ghostModeActive) {
           ctx.fillStyle = 'rgba(255, 255, 255, 0.5)'; // Semi-transparent for ghost mode
           ctx.font = `${canvas.height * 0.05}px Arial`; // Relative font size
           ctx.fillText('👻', this.x, this.y + this.height / 2);
@@ -581,25 +602,21 @@
     }
 
     function updateWind() {
-      const now = Date.now();
-      if (now - lastWindChange > windChangeInterval) {
-        wind = (Math.random() * 2 - 1) * difficulty; // Wind can be positive or negative
-        lastWindChange = now;
+        const now = Date.now();
+        if (now - lastWindChange > windChangeInterval) {
+          wind = (Math.random() * 2 - 1) * difficulty; // Wind can be positive or negative
+          lastWindChange = now;
+        }
+      
+        // Update wind display
+        const windDisplay = document.getElementById('wind-display');
+        const absWind = Math.abs(wind);
+        const windChars = wind > 0 ? '>>>>>' : '<<<<<';
+        const windStrength = Math.ceil(absWind * 5); // Scale wind strength up to 5
+        const windString = windChars.substring(0, windStrength);
+      
+        windDisplay.textContent = `Wind: ${wind > 0 ? windString : windString.split("").reverse().join("")}`;
       }
-    
-      // Update wind arrow
-      const arrow = document.getElementById('arrow');
-      if (wind > 0) {
-        arrow.textContent = '→';
-        arrow.style.transform = `scaleX(${Math.abs(wind)})`;
-      } else if (wind < 0) {
-        arrow.textContent = '←';
-        arrow.style.transform = `scaleX(${Math.abs(wind)})`;
-      } else {
-        arrow.textContent = '·'; // No wind indicator
-        arrow.style.transform = `scaleX(1)`;
-      }
-    }
 
     // Tilt controls
     window.addEventListener('deviceorientation', (event) => {
@@ -831,7 +848,7 @@
       qrContainer.style.textAlign = 'center';
       qrContainer.style.zIndex = '1001'; // Make sure it's on top
       qrContainer.innerHTML = `
-        <img src="images/17-6e3ad770bd.png" alt="QR Code" style="max-width: 200px;">
+        <img src="/images/17-6e3ad770bd.png" alt="QR Code" style="max-width: 200px;">
         <p style="margin: 10px 0 0; color: black;">Scan to claim your prize!</p>
       `;
     
