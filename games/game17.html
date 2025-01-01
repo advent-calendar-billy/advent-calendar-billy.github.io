@@ -8,9 +8,9 @@
       position: fixed;
       background: white;
       border-radius: 15px;
-      padding: 10px 20px;
+      padding: 1.5vh 3vh; /* Relative padding */
       font-family: 'Comic Sans MS', cursive;
-      font-size: 18px;
+      font-size: 2.5vh; /* Relative font size */
       color: #333;
       box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
       z-index: 1000;
@@ -18,29 +18,27 @@
     .speech-bubble::after {
       content: '';
       position: absolute;
-      bottom: -10px;
+      bottom: -1.5vh; /* Relative positioning */
       left: 50%;
-      border: 10px solid transparent;
+      border: 1.5vh solid transparent; /* Relative size */
       border-top-color: white;
       transform: translateX(-50%);
     }
     .controls {
       position: fixed;
-      bottom: 20px;
+      bottom: 3vh; /* Relative positioning */
       left: 50%;
       transform: translateX(-50%);
-      display: flex;
-      gap: 20px;
       z-index: 1000;
     }
     .control-btn {
-      width: 70px;
-      height: 70px;
+      width: 15vh; /* Relative width */
+      height: 15vh; /* Relative height */
       background: rgba(255, 255, 255, 0.2);
-      border: 2px solid white;
+      border: 0.3vh solid white; /* Relative border size */
       border-radius: 50%;
       color: white;
-      font-size: 28px;
+      font-size: 4vh; /* Relative font size */
       display: flex;
       align-items: center;
       justify-content: center;
@@ -48,10 +46,10 @@
     }
     #timer {
       position: fixed;
-      top: 20px;
-      left: 20px;
+      top: 3vh; /* Relative positioning */
+      left: 3vh; /* Relative positioning */
       color: white;
-      font-size: 24px;
+      font-size: 3.5vh; /* Relative font size */
       z-index: 1000;
     }
     #message {
@@ -60,7 +58,7 @@
       left: 50%;
       transform: translate(-50%, -50%);
       color: white;
-      font-size: 48px;
+      font-size: 6vh; /* Relative font size */
       font-family: 'Comic Sans MS', cursive;
       text-align: center;
       z-index: 1000;
@@ -68,12 +66,12 @@
     }
     #health-bar {
       position: fixed;
-      top: 20px;
-      right: 20px;
-      width: 200px;
-      height: 20px;
+      top: 3vh; /* Relative positioning */
+      right: 3vh; /* Relative positioning */
+      width: 30vh; /* Relative width */
+      height: 3vh; /* Relative height */
       background-color: #555;
-      border: 2px solid white;
+      border: 0.3vh solid white; /* Relative border size */
       z-index: 1000;
     }
     #health-bar-fill {
@@ -83,26 +81,26 @@
     }
     .powerup {
       position: absolute;
-      width: 30px;
-      height: 30px;
+      width: 4.5vh; /* Relative width */
+      height: 4.5vh; /* Relative height */
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       color: white;
-      font-size: 20px;
+      font-size: 3vh; /* Relative font size */
       z-index: 999;
     }
     #powerup-message {
       position: fixed;
-      top: 50px;
+      top: 7vh; /* Relative positioning */
       left: 50%;
       transform: translateX(-50%);
       background-color: rgba(0, 180, 255, 0.8);
       color: white;
-      padding: 10px 20px;
-      border-radius: 5px;
-      font-size: 18px;
+      padding: 1.5vh 3vh; /* Relative padding */
+      border-radius: 0.8vh; /* Relative border radius */
+      font-size: 2.5vh; /* Relative font size */
       z-index: 1000;
       display: none;
     }
@@ -113,20 +111,20 @@
       transform: translate(-50%, -50%);
       background-color: rgba(0, 0, 0, 0.8);
       color: white;
-      padding: 30px;
-      border-radius: 10px;
-      font-size: 20px;
+      padding: 4vh; /* Relative padding */
+      border-radius: 1.5vh; /* Relative border radius */
+      font-size: 2.8vh; /* Relative font size */
       text-align: center;
       z-index: 1001;
     }
     #instructions button {
-      margin-top: 20px;
-      padding: 10px 20px;
-      font-size: 18px;
+      margin-top: 3vh; /* Relative margin */
+      padding: 1.5vh 3vh; /* Relative padding */
+      font-size: 2.5vh; /* Relative font size */
       background-color: #007bff;
       color: white;
       border: none;
-      border-radius: 5px;
+      border-radius: 0.8vh; /* Relative border radius */
       cursor: pointer;
     }
   </style>
@@ -139,14 +137,12 @@
   <div id="powerup-message"></div>
   <div id="instructions">
     <p>Dodge the fireworks and survive!</p>
-    <p>Use arrow keys or tilt your phone to move.</p>
+    <p>Tap the screen to jump.</p>
     <p>Collect powerups for special abilities.</p>
     <button id="acceptBtn">Accept</button>
   </div>
   <div class="controls">
-    <div class="control-btn" id="leftBtn">←</div>
     <div class="control-btn" id="jumpBtn">↑</div>
-    <div class="control-btn" id="rightBtn">→</div>
   </div>
   
   <script>
@@ -185,7 +181,6 @@
     let speedBoostActive = false;
     let speedBoostDuration = 5000;
     let speedBoostStartTime = 0;
-    let tiltSensitivity = 0.5; // Adjust this for more/less tilt sensitivity
     let stars = [];
     
     const SPEECH_LINES = [
@@ -201,17 +196,17 @@
     const player = {
       x: canvas.width / 2,
       y: canvas.height - 100,
-      baseWidth: 30,
-      baseHeight: 50,
-      width: 30,
-      height: 50,
-      speed: 5,
+      baseWidth: canvas.width * 0.05, // Relative width
+      baseHeight: canvas.height * 0.1, // Relative height
+      width: canvas.width * 0.05, // Relative width
+      height: canvas.height * 0.1, // Relative height
+      speed: canvas.width * 0.008, // Relative speed
       isJumping: false,
-      jumpHeight: 100,
-      jumpSpeed: 8,
+      jumpHeight: canvas.height * 0.15, // Relative jump height
+      jumpSpeed: canvas.height * 0.012, // Relative jump speed
       yVelocity: 0,
-      gravity: 0.5,
-      moving: { left: false, right: false, jump: false },
+      gravity: canvas.height * 0.0008, // Relative gravity
+      moving: { jump: false },
       speak() {
         const now = Date.now();
         if (now - lastSpeechTime > 2000) {
@@ -245,7 +240,7 @@
         
         if (ghostModeActive) {
           ctx.fillStyle = 'rgba(255, 255, 255, 0.5)'; // Semi-transparent for ghost mode
-          ctx.font = '30px Arial';
+          ctx.font = `${canvas.height * 0.05}px Arial`; // Relative font size
           ctx.fillText('👻', this.x, this.y + this.height / 2);
         } else {
           // Draw a cuter character
@@ -258,25 +253,25 @@
           ctx.fillStyle = '#FFFFFF'; // White for eyes
           // Eyes
           ctx.beginPath();
-          ctx.arc(this.x + this.width / 3, this.y + this.height / 4 - 5, this.width / 10, 0, Math.PI * 2);
-          ctx.arc(this.x + this.width * 2 / 3, this.y + this.height / 4 - 5, this.width / 10, 0, Math.PI * 2);
+          ctx.arc(this.x + this.width / 3, this.y + this.height / 4 - canvas.height * 0.008, this.width / 10, 0, Math.PI * 2); // Relative eye position
+          ctx.arc(this.x + this.width * 2 / 3, this.y + this.height / 4 - canvas.height * 0.008, this.width / 10, 0, Math.PI * 2); // Relative eye position
           ctx.fill();
 
           ctx.fillStyle = '#000000'; // Black for pupils
           // Pupils
           ctx.beginPath();
-          ctx.arc(this.x + this.width / 3, this.y + this.height / 4 - 5, this.width / 20, 0, Math.PI * 2);
-          ctx.arc(this.x + this.width * 2 / 3, this.y + this.height / 4 - 5, this.width / 20, 0, Math.PI * 2);
+          ctx.arc(this.x + this.width / 3, this.y + this.height / 4 - canvas.height * 0.008, this.width / 20, 0, Math.PI * 2); // Relative pupil position
+          ctx.arc(this.x + this.width * 2 / 3, this.y + this.height / 4 - canvas.height * 0.008, this.width / 20, 0, Math.PI * 2); // Relative pupil position
           ctx.fill();
 
           ctx.fillStyle = '#F08080'; // Light red for body
           // Body
-          ctx.fillRect(this.x + this.width / 2 - 3, this.y + this.height / 2, 6, this.height / 2);
+          ctx.fillRect(this.x + this.width / 2 - canvas.width * 0.005, this.y + this.height / 2, canvas.width * 0.01, this.height / 2); // Relative body size
 
           ctx.fillStyle = '#444444'; // Dark gray for legs
           // Legs
-          ctx.fillRect(this.x + this.width / 2 - 8, this.y + this.height * 3 / 4, 4, this.height / 4);
-          ctx.fillRect(this.x + this.width / 2 + 4, this.y + this.height * 3 / 4, 4, this.height / 4);
+          ctx.fillRect(this.x + this.width / 2 - canvas.width * 0.012, this.y + this.height * 3 / 4, canvas.width * 0.006, this.height / 4); // Relative leg size
+          ctx.fillRect(this.x + this.width / 2 + canvas.width * 0.006, this.y + this.height * 3 / 4, canvas.width * 0.006, this.height / 4); // Relative leg size
         }
       },
       jump() {
@@ -286,10 +281,6 @@
         }
       },
       update() {
-        const speedMultiplier = speedBoostActive ? 1.5 : 1;
-        if (this.moving.left && this.x > 0) this.x -= this.speed * speedMultiplier;
-        if (this.moving.right && this.x < canvas.width - this.width) this.x += this.speed * speedMultiplier;
-    
         if (this.isJumping) {
           this.y += this.yVelocity;
           this.yVelocity += this.gravity;
@@ -318,7 +309,7 @@
         this.height = height;
         this.color = color;
         this.blocks = [];
-        this.blockSize = 10; // Size of each block
+        this.blockSize = canvas.height * 0.015; // Relative block size
         this.createBlocks();
       }
     
@@ -456,11 +447,11 @@
       constructor(x, y) {
         this.x = x;
         this.y = y;
-        this.width = 30;
-        this.height = 30;
+        this.width = canvas.width * 0.05; // Relative width
+        this.height = canvas.height * 0.05; // Relative height
         this.type = this.getRandomPowerupType();
         this.active = true;
-        this.vy = 2;
+        this.vy = canvas.height * 0.003; // Relative vertical speed
       }
     
       getRandomPowerupType() {
@@ -518,7 +509,7 @@
         ctx.arc(this.x + this.width / 2, this.y + this.height / 2, this.width / 2, 0, Math.PI * 2);
         ctx.fill();
         ctx.fillStyle = 'white';
-        ctx.font = '20px Arial';
+        ctx.font = `${canvas.height * 0.03}px Arial`; // Relative font size
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(icon, this.x + this.width / 2, this.y + this.height / 2);
@@ -562,8 +553,8 @@
     }
 
     function createPowerup() {
-      const x = Math.random() * (canvas.width - 30);
-      const y = -30;
+      const x = Math.random() * (canvas.width - canvas.width * 0.05); // Relative position
+      const y = -canvas.height * 0.05; // Relative position
       powerups.push(new Powerup(x, y));
     }
 
@@ -577,44 +568,12 @@
 
     // Controls
     document.addEventListener('keydown', e => {
-      if (e.key === 'ArrowLeft') player.moving.left = true;
-      if (e.key === 'ArrowRight') player.moving.right = true;
       if (e.key === ' ') player.jump();
     });
 
-    document.addEventListener('keyup', e => {
-      if (e.key === 'ArrowLeft') player.moving.left = false;
-      if (e.key === 'ArrowRight') player.moving.right = false;
-    });
-
     ['touchstart', 'mousedown'].forEach(event => {
-      document.getElementById('leftBtn').addEventListener(event, () => player.moving.left = true);
-      document.getElementById('rightBtn').addEventListener(event, () => player.moving.right = true);
       document.getElementById('jumpBtn').addEventListener(event, () => player.jump());
     });
-
-    ['touchend', 'mouseup'].forEach(event => {
-      document.getElementById('leftBtn').addEventListener(event, () => player.moving.left = false);
-      document.getElementById('rightBtn').addEventListener(event, () => player.moving.right = false);
-    });
-
-    // Tilt controls
-    window.addEventListener('deviceorientation', handleOrientation);
-    
-    function handleOrientation(event) {
-      const tilt = event.gamma; // Tilt left/right
-    
-      if (tilt > 5) {
-        player.moving.right = true;
-        player.moving.left = false;
-      } else if (tilt < -5) {
-        player.moving.left = true;
-        player.moving.right = false;
-      } else {
-        player.moving.left = false;
-        player.moving.right = false;
-      }
-    }
 
     function createStars() {
       for (let i = 0; i < 50; i++) {
@@ -646,13 +605,13 @@
     
       // Fernsehturm (Radio Tower)
       const towerX = canvas.width / 4;
-      const towerY = canvas.height - 300;
+      const towerY = canvas.height - canvas.height * 0.4; // Relative position
       ctx.fillStyle = '#666';
-      ctx.fillRect(towerX - 5, towerY, 10, 200);
+      ctx.fillRect(towerX - canvas.width * 0.008, towerY, canvas.width * 0.016, canvas.height * 0.3); // Relative size
       ctx.beginPath();
-      ctx.arc(towerX, towerY, 20, 0, Math.PI * 2);
+      ctx.arc(towerX, towerY, canvas.width * 0.03, 0, Math.PI * 2); // Relative size
       ctx.fill();
-      ctx.fillRect(towerX - 2, towerY - 50, 4, 50);
+      ctx.fillRect(towerX - canvas.width * 0.003, towerY - canvas.height * 0.07, canvas.width * 0.006, canvas.height * 0.07); // Relative size
     }
 
     function createBuildings() {
@@ -661,8 +620,8 @@
       const buildingSpacing = canvas.width / numBuildings;
 
       for (let i = 0; i < numBuildings; i++) {
-        const bw = 40 + Math.random() * 40;
-        const bh = 80 + Math.random() * 100;
+        const bw = canvas.width * (0.06 + Math.random() * 0.06); // Relative width
+        const bh = canvas.height * (0.12 + Math.random() * 0.15); // Relative height
         const bx = i * buildingSpacing + (buildingSpacing - bw) / 2;
         const color = buildingColors[Math.floor(Math.random() * buildingColors.length)];
         buildings.push(new Building(bx, bw, bh, color));
@@ -759,7 +718,8 @@
 
       if (gameTime % (2000 / difficulty) < 16) {
         const x = Math.random() * canvas.width;
-        const y = Math.random() * canvas.height / 3;
+        // Randomize y value between mid-screen and top
+        const y = Math.random() * canvas.height / 2;
         createExplosion(x, y);
       }
 
@@ -806,8 +766,8 @@
 
       // Display wind (moved down to avoid overlap)
       ctx.fillStyle = 'white';
-      ctx.font = '16px Arial';
-      ctx.fillText(`Wind: ${wind.toFixed(2)}`, canvas.width - 100, 40);
+      ctx.font = `${canvas.height * 0.025}px Arial`; // Relative font size
+      ctx.fillText(`Wind: ${wind.toFixed(2)}`, canvas.width - canvas.width * 0.15, canvas.height * 0.06); // Relative position
     }
 
     function showMessage(text) {
