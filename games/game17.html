@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { margin: 0; overflow: hidden; background: #222; }
+    canvas { display: block; }
+    .speech-bubble {
+      position: fixed;
+      background: white;
+      border-radius: 15px;
+      padding: 10px 20px;
+      font-family: 'Comic Sans MS', cursive;
+      font-size: 18px;
+      color: #333;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+      z-index: 1000;
+    }
+    .speech-bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      border: 10px solid transparent;
+      border-top-color: white;
+      transform: translateX(-50%);
+    }
+    .controls {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 20px;
+      z-index: 1000;
+    }
+    .control-btn {
+      width: 70px;
+      height: 70px;
+      background: rgba(255, 255, 255, 0.2);
+      border: 2px solid white;
+      border-radius: 50%;
+      color: white;
+      font-size: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    #timer {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      color: white;
+      font-size: 24px;
+      z-index: 1000;
+    }
+    #message {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 48px;
+      font-family: 'Comic Sans MS', cursive;
+      text-align: center;
+      z-index: 1000;
+      display: none;
+    }
+    #health-bar {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 200px;
+      height: 20px;
+      background-color: #555;
+      border: 2px solid white;
+      z-index: 1000;
+    }
+    #health-bar-fill {
+      height: 100%;
+      background-color: limegreen;
+      width: 100%;
+    }
+    .powerup {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 20px;
+      z-index: 999;
+    }
+    #powerup-message {
+      position: fixed;
+      top: 50px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(0, 180, 255, 0.8);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      font-size: 18px;
+      z-index: 1000;
+      display: none;
+    }
+    #instructions {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 30px;
+      border-radius: 10px;
+      font-size: 20px;
+      text-align: center;
+      z-index: 1001;
+    }
+    #instructions button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 18px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas"></canvas>
+  <div id="timer">60</div>
+  <div id="message"></div>
+  <div id="health-bar"><div id="health-bar-fill"></div></div>
+  <div id="powerup-message"></div>
+  <div id="instructions">
+    <p>Dodge the fireworks and survive!</p>
+    <p>Use arrow keys or tilt your phone to move.</p>
+    <p>Collect powerups for special abilities.</p>
+    <button id="acceptBtn">Accept</button>
+  </div>
+  <div class="controls">
+    <div class="control-btn" id="leftBtn">←</div>
+    <div class="control-btn" id="jumpBtn">↑</div>
+    <div class="control-btn" id="rightBtn">→</div>
+  </div>
+  
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+
+    let gameStartTime = Date.now();
+    let gameDuration = 60000;
+    let gameActive = false; // Start as false, change to true after instructions
+    let particles = [];
+    let currentSpeechBubble = null;
+    let lastSpeechTime = 0;
+    let playerHealth = 100;
+    let buildings = [];
+    let difficulty = 1;
+    let powerups = [];
+    let timeSlowdownActive = false;
+    let timeSlowdownDuration = 5000; // 5 seconds
+    let timeSlowdownStartTime = 0;
+    let wind = 0;
+    let windChangeInterval = 5000; // Change wind every 5 seconds
+    let lastWindChange = 0;
+    let ghostModeActive = false;
+    let ghostModeDuration = 5000;
+    let ghostModeStartTime = 0;
+    let isShrunk = false;
+    let shrinkDuration = 5000;
+    let shrinkStartTime = 0;
+    let speedBoostActive = false;
+    let speedBoostDuration = 5000;
+    let speedBoostStartTime = 0;
+    let tiltSensitivity = 0.5; // Adjust this for more/less tilt sensitivity
+    let stars = [];
+    
+    const SPEECH_LINES = [
+      "Tengo miedo",
+      "Por qué no me quedé adentro?",
+      "Por qué me tuve que venir a Neukölln?",
+      "Ouch",
+      "AY DIOS AY DIOS AY DIOS",
+      "Fede, auxilio!",
+      "*llora*"
+    ];
+
+    const player = {
+      x: canvas.width / 2,
+      y: canvas.height - 100,
+      baseWidth: 30,
+      baseHeight: 50,
+      width: 30,
+      height: 50,
+      speed: 5,
+      isJumping: false,
+      jumpHeight: 100,
+      jumpSpeed: 8,
+      yVelocity: 0,
+      gravity: 0.5,
+      moving: { left: false, right: false, jump: false },
+      speak() {
+        const now = Date.now();
+        if (now - lastSpeechTime > 2000) {
+          const text = SPEECH_LINES[Math.floor(Math.random() * SPEECH_LINES.length)];
+          if (currentSpeechBubble) {
+            currentSpeechBubble.remove();
+          }
+          
+          const bubble = document.createElement('div');
+          bubble.className = 'speech-bubble';
+          bubble.textContent = text;
+          document.body.appendChild(bubble);
+          
+          const updatePos = () => {
+            bubble.style.left = `${this.x + this.width/2 - bubble.offsetWidth/2}px`;
+            bubble.style.top = `${this.y - bubble.offsetHeight - 20}px`;
+          };
+          
+          updatePos();
+          currentSpeechBubble = bubble;
+          lastSpeechTime = now;
+
+          setTimeout(() => {
+            bubble.remove();
+            if (currentSpeechBubble === bubble) currentSpeechBubble = null;
+          }, 2000);
+        }
+      },
+      draw() {
+        ctx.fillStyle = '#FFFFFF';
+        
+        if (ghostModeActive) {
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.5)'; // Semi-transparent for ghost mode
+          ctx.font = '30px Arial';
+          ctx.fillText('👻', this.x, this.y + this.height / 2);
+        } else {
+          // Draw a cuter character
+          ctx.fillStyle = '#FFDBAC'; // Skin color
+          // Head
+          ctx.beginPath();
+          ctx.arc(this.x + this.width / 2, this.y + this.height / 4, this.width / 3, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = '#FFFFFF'; // White for eyes
+          // Eyes
+          ctx.beginPath();
+          ctx.arc(this.x + this.width / 3, this.y + this.height / 4 - 5, this.width / 10, 0, Math.PI * 2);
+          ctx.arc(this.x + this.width * 2 / 3, this.y + this.height / 4 - 5, this.width / 10, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = '#000000'; // Black for pupils
+          // Pupils
+          ctx.beginPath();
+          ctx.arc(this.x + this.width / 3, this.y + this.height / 4 - 5, this.width / 20, 0, Math.PI * 2);
+          ctx.arc(this.x + this.width * 2 / 3, this.y + this.height / 4 - 5, this.width / 20, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = '#F08080'; // Light red for body
+          // Body
+          ctx.fillRect(this.x + this.width / 2 - 3, this.y + this.height / 2, 6, this.height / 2);
+
+          ctx.fillStyle = '#444444'; // Dark gray for legs
+          // Legs
+          ctx.fillRect(this.x + this.width / 2 - 8, this.y + this.height * 3 / 4, 4, this.height / 4);
+          ctx.fillRect(this.x + this.width / 2 + 4, this.y + this.height * 3 / 4, 4, this.height / 4);
+        }
+      },
+      jump() {
+        if (!this.isJumping) {
+          this.isJumping = true;
+          this.yVelocity = -this.jumpSpeed;
+        }
+      },
+      update() {
+        const speedMultiplier = speedBoostActive ? 1.5 : 1;
+        if (this.moving.left && this.x > 0) this.x -= this.speed * speedMultiplier;
+        if (this.moving.right && this.x < canvas.width - this.width) this.x += this.speed * speedMultiplier;
+    
+        if (this.isJumping) {
+          this.y += this.yVelocity;
+          this.yVelocity += this.gravity;
+    
+          if (this.y + this.height >= canvas.height) {
+            this.y = canvas.height - this.height;
+            this.isJumping = false;
+            this.yVelocity = 0;
+          }
+        }
+
+        // Shrink/unshrink
+        if (isShrunk && Date.now() - shrinkStartTime > shrinkDuration) {
+          isShrunk = false;
+          this.width = this.baseWidth;
+          this.height = this.baseHeight;
+        }
+      }
+    };
+
+    class Building {
+      constructor(x, width, height, color) {
+        this.x = x;
+        this.y = canvas.height - height;
+        this.width = width;
+        this.height = height;
+        this.color = color;
+        this.blocks = [];
+        this.blockSize = 10; // Size of each block
+        this.createBlocks();
+      }
+    
+      createBlocks() {
+        for (let y = 0; y < this.height; y += this.blockSize) {
+          for (let x = 0; x < this.width; x += this.blockSize) {
+            this.blocks.push({
+              x: this.x + Math.round(x),
+              y: this.y + Math.round(y),
+              width: this.blockSize,
+              height: this.blockSize,
+              destroyed: false
+            });
+          }
+        }
+      }
+    
+      draw() {
+        ctx.fillStyle = this.color;
+        this.blocks.forEach(block => {
+          if (!block.destroyed) {
+            ctx.fillRect(block.x, block.y, block.width, block.height);
+          }
+        });
+      }
+    
+      hit(particle) {
+        for (let i = 0; i < this.blocks.length; i++) {
+          const block = this.blocks[i];
+          if (!block.destroyed &&
+              particle.x + particle.size > block.x &&
+              particle.x - particle.size < block.x + block.width &&
+              particle.y + particle.size > block.y &&
+              particle.y - particle.size < block.y + block.height) {
+            block.destroyed = true;
+            // Optional: Create debris particles here
+            break;
+          }
+        }
+      }
+    }
+
+    class Particle {
+      constructor(x, y, hue, type, color = null) {
+        this.x = x;
+        this.y = y;
+        this.hue = hue;
+        this.type = type;
+        this.color = color;
+        const angle = type === 'burst' ? Math.random() * Math.PI * 2 : (Math.random() * Math.PI / 2 + Math.PI / 4);
+        const baseSpeed = type === 'debris' ? Math.random() * 2 + 1 : Math.random() * 3 + 2;
+        const speed = baseSpeed + (difficulty * 1.5);
+        this.vx = Math.cos(angle) * speed;
+        this.vy = Math.sin(angle) * speed;
+        this.gravity = type === 'debris' ? 0.4 : 0.15;
+        this.life = type === 'debris' ? 0.5 : 1;
+        this.decay = type === 'debris' ? 0.02 : 0.0075;
+        this.dangerous = type !== 'debris';
+        this.size = type === 'debris' ? Math.random() * 4 + 2 : Math.random() * 3 + 2;
+      }
+
+      update() {
+        const timeFactor = timeSlowdownActive ? 0.2 : 1;
+        this.x += this.vx * timeFactor + wind * timeFactor;
+        this.y += this.vy * timeFactor;
+        this.vy += this.gravity * timeFactor;
+        this.life -= this.decay;
+
+        if (currentSpeechBubble) {
+          const rect = currentSpeechBubble.getBoundingClientRect();
+          if (this.x >= rect.left && this.x <= rect.right &&
+              this.y >= rect.top && this.y <= rect.bottom) {
+            this.vy *= -0.8;
+          }
+        }
+
+        // Check for collision with player
+        if (this.dangerous && gameActive && this.life > 0.2 && !ghostModeActive) {
+            const playerRight = player.x + player.width;
+            const playerBottom = player.y + player.height;
+            
+            if (this.x >= player.x - this.size && 
+                this.x <= playerRight + this.size &&
+                this.y >= player.y - this.size && 
+                this.y <= playerBottom + this.size) {
+                
+                playerHealth -= 10;
+                document.getElementById('health-bar-fill').style.width = `${playerHealth}%`;
+                if (playerHealth <= 0) {
+                    gameActive = false;
+                    showMessage("Game Over!");
+                }
+                this.dangerous = false;
+                player.speak();
+            }
+        }
+
+        // Check for collision with buildings
+        if (this.type !== 'debris') {
+          for (let building of buildings) {
+            if (this.x + this.size > building.x && this.x - this.size < building.x + building.width &&
+                this.y + this.size > building.y && this.y - this.size < building.y + building.height) {
+              building.hit(this);
+              this.life = 0;
+              break;
+            }
+          }
+        }
+
+        // Make particles fall to the bottom
+        if (this.y + this.size >= canvas.height) {
+          this.life = 0;
+        }
+
+        return this.life > 0;
+      }
+
+      draw() {
+        ctx.shadowBlur = this.dangerous ? 15 : 5;
+        ctx.shadowColor = this.dangerous ? 'red' : `hsl(${this.hue}, 100%, 60%)`;
+        ctx.fillStyle = this.color || `hsl(${this.hue}, 100%, ${60 + 20 * this.life}%)`;
+        ctx.globalAlpha = this.life;
+        ctx.beginPath();
+        if (this.type === 'debris') {
+          ctx.fillRect(this.x, this.y, this.size, this.size);
+        } else {
+          ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        }
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      }
+    }
+
+    class Powerup {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.width = 30;
+        this.height = 30;
+        this.type = this.getRandomPowerupType();
+        this.active = true;
+        this.vy = 2;
+      }
+    
+      getRandomPowerupType() {
+        const powerupTypes = ['timeSlowdown', 'ghostMode', 'shrink', 'speedBoost'];
+        return powerupTypes[Math.floor(Math.random() * powerupTypes.length)];
+      }
+
+      update() {
+        this.y += this.vy;
+
+        // Check for collision with player
+        if (this.active &&
+            this.x < player.x + player.width &&
+            this.x + this.width > player.x &&
+            this.y < player.y + player.height &&
+            this.y + this.height > player.y) {
+          this.activate();
+          this.active = false;
+        }
+
+        // Remove if off-screen
+        if (this.y > canvas.height) {
+          this.active = false;
+        }
+      }
+
+      draw() {
+        if (!this.active) return;
+    
+        let icon, bgColor;
+        switch (this.type) {
+          case 'timeSlowdown':
+            icon = '⏳';
+            bgColor = 'rgba(0, 180, 255, 0.8)';
+            break;
+          case 'ghostMode':
+            icon = '👻';
+            bgColor = 'rgba(150, 150, 150, 0.8)';
+            break;
+          case 'shrink':
+            icon = '🤏';
+            bgColor = 'rgba(255, 165, 0, 0.8)';
+            break;
+          case 'speedBoost':
+            icon = '👟';
+            bgColor = 'rgba(0, 255, 0, 0.8)';
+            break;
+          default:
+            icon = '?';
+            bgColor = 'rgba(128, 128, 128, 0.8)';
+        }
+    
+        ctx.fillStyle = bgColor;
+        ctx.beginPath();
+        ctx.arc(this.x + this.width / 2, this.y + this.height / 2, this.width / 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = 'white';
+        ctx.font = '20px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(icon, this.x + this.width / 2, this.y + this.height / 2);
+      }
+
+      activate() {
+        switch (this.type) {
+          case 'timeSlowdown':
+            timeSlowdownActive = true;
+            timeSlowdownStartTime = Date.now();
+            showPowerupMessage('Time Slowdown!');
+            break;
+          case 'ghostMode':
+            ghostModeActive = true;
+            ghostModeStartTime = Date.now();
+            showPowerupMessage('Ghost Mode!');
+            break;
+          case 'shrink':
+            isShrunk = true;
+            shrinkStartTime = Date.now();
+            player.width = player.baseWidth / 2;
+            player.height = player.baseHeight / 2;
+            showPowerupMessage('Shrink!');
+            break;
+          case 'speedBoost':
+            speedBoostActive = true;
+            speedBoostStartTime = Date.now();
+            showPowerupMessage('Speed Boost!');
+            break;
+        }
+      }
+    }
+
+    function showPowerupMessage(message) {
+      const messageElem = document.getElementById('powerup-message');
+      messageElem.textContent = message;
+      messageElem.style.display = 'block';
+      setTimeout(() => {
+        messageElem.style.display = 'none';
+      }, 2000);
+    }
+
+    function createPowerup() {
+      const x = Math.random() * (canvas.width - 30);
+      const y = -30;
+      powerups.push(new Powerup(x, y));
+    }
+
+    function updateWind() {
+      const now = Date.now();
+      if (now - lastWindChange > windChangeInterval) {
+        wind = (Math.random() * 2 - 1) * difficulty; // Wind can be positive or negative
+        lastWindChange = now;
+      }
+    }
+
+    // Controls
+    document.addEventListener('keydown', e => {
+      if (e.key === 'ArrowLeft') player.moving.left = true;
+      if (e.key === 'ArrowRight') player.moving.right = true;
+      if (e.key === ' ') player.jump();
+    });
+
+    document.addEventListener('keyup', e => {
+      if (e.key === 'ArrowLeft') player.moving.left = false;
+      if (e.key === 'ArrowRight') player.moving.right = false;
+    });
+
+    ['touchstart', 'mousedown'].forEach(event => {
+      document.getElementById('leftBtn').addEventListener(event, () => player.moving.left = true);
+      document.getElementById('rightBtn').addEventListener(event, () => player.moving.right = true);
+      document.getElementById('jumpBtn').addEventListener(event, () => player.jump());
+    });
+
+    ['touchend', 'mouseup'].forEach(event => {
+      document.getElementById('leftBtn').addEventListener(event, () => player.moving.left = false);
+      document.getElementById('rightBtn').addEventListener(event, () => player.moving.right = false);
+    });
+
+    // Tilt controls
+    window.addEventListener('deviceorientation', handleOrientation);
+    
+    function handleOrientation(event) {
+      const tilt = event.gamma; // Tilt left/right
+    
+      if (tilt > 5) {
+        player.moving.right = true;
+        player.moving.left = false;
+      } else if (tilt < -5) {
+        player.moving.left = true;
+        player.moving.right = false;
+      } else {
+        player.moving.left = false;
+        player.moving.right = false;
+      }
+    }
+
+    function createStars() {
+      for (let i = 0; i < 50; i++) {
+        stars.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          size: Math.random() * 2 + 1,
+          opacity: Math.random()
+        });
+      }
+    }
+
+    function drawStars() {
+      stars.forEach(star => {
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`;
+        ctx.fill();
+      });
+    }
+
+    function drawBackground() {
+      // Night sky
+      ctx.fillStyle = '#111';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+      // Stars
+      drawStars();
+    
+      // Fernsehturm (Radio Tower)
+      const towerX = canvas.width / 4;
+      const towerY = canvas.height - 300;
+      ctx.fillStyle = '#666';
+      ctx.fillRect(towerX - 5, towerY, 10, 200);
+      ctx.beginPath();
+      ctx.arc(towerX, towerY, 20, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillRect(towerX - 2, towerY - 50, 4, 50);
+    }
+
+    function createBuildings() {
+      const buildingColors = ['#444', '#555', '#666', '#777'];
+      const numBuildings = 8;
+      const buildingSpacing = canvas.width / numBuildings;
+
+      for (let i = 0; i < numBuildings; i++) {
+        const bw = 40 + Math.random() * 40;
+        const bh = 80 + Math.random() * 100;
+        const bx = i * buildingSpacing + (buildingSpacing - bw) / 2;
+        const color = buildingColors[Math.floor(Math.random() * buildingColors.length)];
+        buildings.push(new Building(bx, bw, bh, color));
+      }
+    }
+
+    function createExplosion(x, y) {
+      const hue = Math.random() * 360;
+      const type = Math.random() < 0.5 ? 'standard' : 'burst';
+      const particleCount = type === 'burst' ? 40 : 25;
+      const particleTypes = ['standard', 'burst', 'large', '2025'];
+      const chosenType = particleTypes[Math.floor(Math.random() * particleTypes.length)];
+    
+      for (let i = 0; i < particleCount; i++) {
+        let size, life, decay, speed;
+        switch (chosenType) {
+          case 'large':
+            size = Math.random() * 5 + 3;
+            life = 1.2;
+            decay = 0.005;
+            speed = Math.random() * 2 + 1;
+            break;
+          case '2025':
+            if (i < 4) { // Create 4 particles for "2025"
+              create2025Particles(x, y, hue, i);
+              continue;
+            }
+            break;
+          default:
+            size = Math.random() * 3 + 2;
+            life = 1;
+            decay = 0.0075;
+            speed = Math.random() * 3 + 2;
+        }
+        if (chosenType !== '2025') {
+          particles.push(new Particle(x, y, hue, chosenType));
+        }
+      }
+    }
+
+    function create2025Particles(x, y, hue, index) {
+      const positions = [
+        { x: x - 15, y: y - 10 }, // 2
+        { x: x + 5, y: y - 10 },  // 0
+        { x: x - 15, y: y + 10 }, // 2
+        { x: x + 5, y: y + 10 }   // 5
+      ];
+    
+      const particle = new Particle(positions[index].x, positions[index].y, hue, 'text');
+      particle.text = ['2', '0', '2', '5'][index];
+      particle.size = 8;
+      particle.life = 2;
+      particle.decay = 0.01;
+      particle.gravity = 0.05;
+      particle.vx = Math.random() * 2 - 1; // Add some random horizontal movement
+      particles.push(particle);
+    }
+
+    class TextParticle extends Particle {
+      constructor(x, y, hue, text) {
+        super(x, y, hue, 'text');
+        this.text = text;
+      }
+    
+      draw() {
+        ctx.shadowBlur = 5;
+        ctx.shadowColor = `hsl(${this.hue}, 100%, 60%)`;
+        ctx.fillStyle = `hsl(${this.hue}, 100%, ${60 + 20 * this.life}%)`;
+        ctx.globalAlpha = this.life;
+        ctx.font = `bold ${this.size * 2}px Arial`;
+        ctx.fillText(this.text, this.x, this.y);
+        ctx.globalAlpha = 1;
+      }
+    }
+
+    function update() {
+      const now = Date.now();
+      const gameTime = now - gameStartTime;
+
+      if (gameTime >= gameDuration) {
+        if (gameActive) {
+          gameActive = false;
+          showMessage("You Win!");
+          showQRCode();
+        }
+        return;
+      }
+
+      document.getElementById('timer').textContent = Math.max(0, Math.ceil((gameDuration - gameTime) / 1000));
+
+      player.update();
+
+      difficulty = Math.floor(gameTime / 15000) + 1;
+
+      if (gameTime % (2000 / difficulty) < 16) {
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * canvas.height / 3;
+        createExplosion(x, y);
+      }
+
+      if (gameTime % 5000 < 16) {
+        createPowerup();
+      }
+
+      particles = particles.filter(p => {
+        if (p.type === 'text') {
+          return p.update();
+        }
+        return p.update();
+      });
+      powerups.forEach(p => p.update());
+      powerups = powerups.filter(p => p.active);
+
+      if (timeSlowdownActive && now - timeSlowdownStartTime > timeSlowdownDuration) {
+        timeSlowdownActive = false;
+      }
+      if (ghostModeActive && now - ghostModeStartTime > ghostModeDuration) {
+        ghostModeActive = false;
+      }
+      if (speedBoostActive && now - speedBoostStartTime > speedBoostDuration) {
+        speedBoostActive = false;
+      }
+
+      updateWind();
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawBackground();
+
+      buildings.forEach(building => building.draw());
+      particles.forEach(p => {
+        if (p instanceof TextParticle) {
+          p.draw();
+        } else {
+          p.draw();
+        }
+      });
+      powerups.forEach(p => p.draw());
+      player.draw();
+
+      // Display wind (moved down to avoid overlap)
+      ctx.fillStyle = 'white';
+      ctx.font = '16px Arial';
+      ctx.fillText(`Wind: ${wind.toFixed(2)}`, canvas.width - 100, 40);
+    }
+
+    function showMessage(text) {
+      const messageElem = document.getElementById('message');
+      messageElem.textContent = text;
+      messageElem.style.display = 'block';
+    }
+
+    function showQRCode() {
+      const qrContainer = document.createElement('div');
+      qrContainer.style.position = 'fixed';
+      qrContainer.style.top = '50%';
+      qrContainer.style.left = '50%';
+      qrContainer.style.transform = 'translate(-50%, -50%)';
+      qrContainer.style.background = 'white';
+      qrContainer.style.padding = '20px';
+      qrContainer.style.borderRadius = '10px';
+      qrContainer.style.boxShadow = '0 0 20px rgba(0, 0, 0, 0.3)';
+      qrContainer.style.textAlign = 'center';
+      qrContainer.style.zIndex = '1001'; // Make sure it's on top
+      qrContainer.innerHTML = `
+        <img src="images/17-6e3ad770bd.png" alt="QR Code" style="max-width: 200px;">
+        <p style="margin: 10px 0 0; color: black;">Scan to claim your prize!</p>
+      `;
+    
+      document.body.appendChild(qrContainer);
+    }
+
+    // Start game after instructions
+    document.getElementById('acceptBtn').addEventListener('click', () => {
+      document.getElementById('instructions').style.display = 'none';
+      gameActive = true;
+      gameStartTime = Date.now(); // Reset start time
+      createStars(); // Initialize stars
+      gameLoop();
+    });
+
+    createBuildings();
+
+    function gameLoop() {
+      if (gameActive) {
+        update();
+        draw();
+      }
+      requestAnimationFrame(gameLoop);
+    }
+
+    // Removed gameLoop() call from here, it's now called after instructions are accepted
+  </script>
+</body>
+</html>
