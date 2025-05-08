@@ -76,14 +76,15 @@
         const SHEET_NAME = 'Sheet1'; // Ensure this sheet exists in your Google Sheet
         // Columns: Timestamp, Author_Role (DM/PLAYER), Entry_Type (NARRATION/ACTION/DM_THOUGHT), Content
         const DATA_RANGE = `${SHEET_NAME}!A:D`; 
-        const DM_PASSWORD = 'your_dm_password'; // IMPORTANT: Change this to your desired DM password
+        const DM_PASSWORD = 'SuperSecretDM2024!'; // <<< IMPORTANT: Change this to your desired DM password
 
         // XOR "Encrypted" Service Account (as provided)
         const SA_CIPHER_HEX = '1d7f4e43561d161e454e55477d1e000105080400770c10044355021b4573664556471c5b091f0b000036060a02564f45291906011c4e511f521d51490d57090d57551507030c21101145564e1e010347525443570f1a115c4d570317050b034e0102450f1656544b0a03534854170c024b5443561b0414030c06034f06470d510e06155c5142401a111f081a42554b470a595c0b555c06110c09010c00464f07550906014b51544a1f15505d5e461d0e1957460c550b431e51104146431d571209591a551e5f521e04040a570405414b474c44470e0d161148474f570f5340454b471b5e1c1d141d034046595b1d1b054454041b16505c0a4a5b1c1e466c0f0442444618550e1a124b554f0c52375d5f565041411400550e0a531d161d1f0404000b015d174c5b575d08451d0050420b0714040d000c045c45474c154c46111e09544525665e00440f571d1a461451074b070850575c000512074f5b1a19551503070511455945195c07494e5e1316404c424b164c09011e5642444403501a16565a57424d191608174a4108595c0f1d0f1e0b01004b5d154b5549100d105453510114114c474b015d064e45571a1f5d555c04504503025e574b021a5e0445160c0d151b51424c0a564047455555061816454450454b5c584f404d0f531d10444c42160406040f164e50541f0f5745461b101c191c02034e5d030b560104065f575b0b511e5457515a02484455520d001601065b40050a56530417544e594f564f475e0d070c164f421414060813514b5b0f595b0d0b5d514243061b175d44564b0c014a170d465a451e59415b5e474c0c02594c0f4b5d585e055a584b094255564c18564f040d05440a0452454c4f0342450044495917111b15164e59571b545e1a165d4640475e120659045649040d0a5c444d050149504d4f525748424d404e014459040e550c021d4a1305164f424a091d0152444b0041500b0604161004105d585f0a4a0e570c5a0d0b51474d415209435240444c1c59454c57180051015d40014e5d5101515e0b0c431d16404a051b12454a431b1c551356510d525d4f4b47434a4c425344014a554b0a064741434d5b4c55075246421f07154c19434b574740540d0006495c040d045459071a131d110703031d0e0d5f5855175f1354412b010b131f425847414550414c544b4d5f120a404c5744555b411c5c1d0547591b431f0a383b0308170c020b5c554c041b060802450d1f0e2c43061c1e436d1822';
         const SA_DECRYPTION_PASSWORD = 'function log_message(msg, log_level)';
 
         function xorDecrypt(hex, key) {
-            const cipherBytes = new Uint8Array(hex.match(/.{1,2}/g).map(byte => parseInt(b, 16)));
+            // Corrected: use 'byte' as the parameter name in map
+            const cipherBytes = new Uint8Array(hex.match(/.{1,2}/g).map(byte => parseInt(byte, 16))); 
             const keyBytes = new TextEncoder().encode(key);
             const plainBytes = cipherBytes.map((byte, idx) => byte ^ keyBytes[idx % keyBytes.length]);
             return new TextDecoder().decode(plainBytes);
@@ -120,14 +121,12 @@
         function showLoading(message = "Processing...") {
             isLoading = true;
             statusMessage.textContent = message;
-            // Disable buttons during loading
             document.querySelectorAll('button').forEach(button => button.disabled = true);
         }
 
         function hideLoading(message = "Ready.") {
             isLoading = false;
             statusMessage.textContent = message;
-            // Re-enable buttons
             document.querySelectorAll('button').forEach(button => button.disabled = false);
         }
 
@@ -140,7 +139,6 @@
                 dmThoughtsLogContainer.style.display = 'block';
                 adminLoginError.textContent = '';
                 showLoading('Logged in as DM. Initializing...');
-                // Decrypt SA creds immediately after successful DM login
                 if (!serviceAccountCredentials) {
                     try {
                         const decryptedJson = xorDecrypt(SA_CIPHER_HEX, SA_DECRYPTION_PASSWORD);
@@ -149,7 +147,7 @@
                     } catch (e) {
                         console.error("Error decrypting/parsing SA credentials:", e);
                         statusMessage.textContent = "CRITICAL: Error loading SA credentials. DM functions may fail.";
-                        serviceAccountCredentials = null; // Ensure it's null on failure
+                        serviceAccountCredentials = null; 
                         hideLoading("Error loading SA credentials.");
                         return;
                     }
@@ -165,9 +163,6 @@
                 return accessToken;
             }
 
-            // Ensure SA credentials are loaded (decrypt if necessary)
-            // This part allows players to trigger decryption if DM hasn't logged in this session.
-            // This is per user acceptance of low security.
             if (!serviceAccountCredentials) {
                 try {
                     const decryptedJson = xorDecrypt(SA_CIPHER_HEX, SA_DECRYPTION_PASSWORD);
@@ -186,7 +181,7 @@
                 iss: serviceAccountCredentials.client_email,
                 scope: "https://www.googleapis.com/auth/spreadsheets",
                 aud: "https://oauth2.googleapis.com/token",
-                exp: now + 3500, // Token valid for ~1 hour (slightly less than 3600 for buffer)
+                exp: now + 3500, 
                 iat: now
             };
 
@@ -206,13 +201,13 @@
 
                 const tokenData = await response.json();
                 accessToken = tokenData.access_token;
-                tokenExpiryTime = Date.now() + (tokenData.expires_in * 1000) - 60000; // Store with 60s buffer
+                tokenExpiryTime = Date.now() + (tokenData.expires_in * 1000) - 60000; 
                 console.log("Access token obtained.");
                 return accessToken;
             } catch (e) {
                 console.error("Error obtaining access token:", e);
-                accessToken = null; // Clear invalid token
-                throw e; // Re-throw to be caught by caller
+                accessToken = null; 
+                throw e; 
             }
         }
 
@@ -239,8 +234,6 @@
                 rowsToAppend.push([timestamp, "DM", "NARRATION", playerMessage]);
             }
             if (thought) {
-                // Ensure thought has a slightly different timestamp if posted with narration, or just use same
-                // Using same timestamp is fine.
                 rowsToAppend.push([timestamp, "DM", "DM_THOUGHT", thought]);
             }
             
@@ -281,7 +274,6 @@
             try {
                 await appendToSheet(rowToAppend);
                 playerActionInput.value = '';
-                // spaceTravelerCheckbox.checked = false; // Optional: uncheck after submission
                 await loadGameData();
                 hideLoading("Player action submitted.");
             } catch (e) {
@@ -293,7 +285,7 @@
         // --- Google Sheets API Interaction ---
         async function appendToSheet(values) {
             const token = await getAccessToken();
-            const rangeForAppend = `${SHEET_NAME}!A1`; // API appends after the table found at this range.
+            const rangeForAppend = `${SHEET_NAME}!A1`;
             
             const body = { values: values };
 
@@ -350,7 +342,7 @@
                 }
                 
                 rows.forEach(row => {
-                    if (!row || row.length < 4) { // Basic validation for row structure
+                    if (!row || row.length < 4) {
                         console.warn("Skipping malformed row:", row);
                         return;
                     }
@@ -400,11 +392,6 @@
                 return;
             }
             hideLoading("Welcome! DM can login. Players can refresh game log.");
-            // Initial game load can be triggered by player clicking "Refresh Game".
-            // Or, if you want it to load automatically for players:
-            // loadGameData(); 
-            // This will attempt SA decryption if needed, which is fine per requirements.
-            // For MVP, clicking "Refresh Game" is a good explicit action.
         };
     </script>
 </body>
