@@ -1,1 +1,411 @@
-Hello!
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online RPG Game</title>
+    <!-- jsrsasign library for JWT signing (Service Account Auth) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.8.6/jsrsasign-all-min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f0f2f5; color: #333; line-height: 1.6; }
+        .container { background-color: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 800px; margin: auto;}
+        h1, h2, h3 { color: #2c3e50; }
+        h1 { text-align: center; margin-bottom: 20px; }
+        h2 { border-bottom: 1px solid #ecf0f1; padding-bottom: 10px; margin-top: 30px;}
+        textarea { width: 98%; padding: 10px; margin-bottom: 10px; border: 1px solid #bdc3c7; border-radius: 4px; min-height: 70px; font-size: 1em; }
+        button { padding: 10px 18px; background-color: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 1em; margin-right: 5px; }
+        button:hover { background-color: #2980b9; }
+        button:disabled { background-color: #bdc3c7; cursor: not-allowed; }
+        #adminLoginSection, #dmControlsSection, #playerActionSection, #playerViewSection { margin-bottom: 20px; padding: 15px; background-color:#fdfdfd; border:1px solid #ecf0f1; border-radius:5px;}
+        #dmControlsSection, .dm-thoughts-log-container { display: none; } /* Hidden by default */
+        .error { color: #e74c3c; font-weight: bold; font-size: 0.9em; }
+        .status { color: #27ae60; font-size: 0.9em; margin-top: 10px; }
+        .log-entry { margin-bottom: 10px; padding: 8px; border-bottom: 1px solid #ecf0f1; background-color: #f9f9f9; border-radius: 3px;}
+        .log-entry:last-child { border-bottom: none; }
+        .log-entry strong { color: #2980b9; }
+        .log-entry .meta { font-size: 0.8em; color: #7f8c8d; display: block; margin-bottom: 3px;}
+        #adminPassword { padding: 8px; border-radius: 4px; border: 1px solid #bdc3c7; font-size: 1em; margin-right: 5px;}
+        #gameLogDisplay, #dmOnlyLogDisplay { max-height: 450px; overflow-y: auto; border: 1px solid #ecf0f1; padding: 15px; background-color: #fdfdfd; margin-top:10px; border-radius: 4px;}
+        label { margin-left: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Async RPG Adventure</h1>
+
+        <div id="adminLoginSection">
+            <h2>DM Login</h2>
+            <input type="password" id="adminPassword" placeholder="DM Password">
+            <button onclick="loginAsAdmin()">Login</button>
+            <p id="adminLoginError" class="error"></p>
+        </div>
+
+        <div id="dmControlsSection">
+            <h2>DM Controls</h2>
+            <textarea id="dmThoughtInput" placeholder="DM Thoughts (secret, only for you)"></textarea>
+            <textarea id="dmPlayerMessageInput" placeholder="Prompt or Outcome (visible to player)"></textarea>
+            <button onclick="postDmMessage()">Post Message</button>
+            <div class="dm-thoughts-log-container">
+                <h3>DM Secret Thoughts Log:</h3>
+                <div id="dmOnlyLogDisplay"></div>
+            </div>
+        </div>
+
+        <div id="playerViewSection">
+            <h2>Game Log</h2>
+            <button onclick="loadGameData()" id="refreshGameButton">Refresh Game</button>
+            <div id="gameLogDisplay">Press "Refresh Game" to load the story...</div>
+        </div>
+
+        <div id="playerActionSection">
+            <h2>Player Action</h2>
+            <textarea id="playerActionInput" placeholder="What is your action, space traveler?"></textarea>
+            <input type="checkbox" id="spaceTravelerCheckbox">
+            <label for="spaceTravelerCheckbox">I'm a space traveler</label>
+            <br><br>
+            <button onclick="submitPlayerAction()" id="submitPlayerActionButton">Submit Action</button>
+            <p id="playerActionError" class="error"></p>
+        </div>
+
+        <p id="statusMessage" class="status"></p>
+    </div>
+
+    <script>
+        // --- Configuration ---
+        const SPREADSHEET_ID = '1SXE6BwnRqVR93MFp-zSI83bBgcqZ5y53Hg197VrzjSo';
+        const SHEET_NAME = 'Sheet1'; // Ensure this sheet exists in your Google Sheet
+        // Columns: Timestamp, Author_Role (DM/PLAYER), Entry_Type (NARRATION/ACTION/DM_THOUGHT), Content
+        const DATA_RANGE = `${SHEET_NAME}!A:D`; 
+        const DM_PASSWORD = 'your_dm_password'; // IMPORTANT: Change this to your desired DM password
+
+        // XOR "Encrypted" Service Account (as provided)
+        const SA_CIPHER_HEX = '1d7f4e43561d161e454e55477d1e000105080400770c10044355021b4573664556471c5b091f0b000036060a02564f45291906011c4e511f521d51490d57090d57551507030c21101145564e1e010347525443570f1a115c4d570317050b034e0102450f1656544b0a03534854170c024b5443561b0414030c06034f06470d510e06155c5142401a111f081a42554b470a595c0b555c06110c09010c00464f07550906014b51544a1f15505d5e461d0e1957460c550b431e51104146431d571209591a551e5f521e04040a570405414b474c44470e0d161148474f570f5340454b471b5e1c1d141d034046595b1d1b054454041b16505c0a4a5b1c1e466c0f0442444618550e1a124b554f0c52375d5f565041411400550e0a531d161d1f0404000b015d174c5b575d08451d0050420b0714040d000c045c45474c154c46111e09544525665e00440f571d1a461451074b070850575c000512074f5b1a19551503070511455945195c07494e5e1316404c424b164c09011e5642444403501a16565a57424d191608174a4108595c0f1d0f1e0b01004b5d154b5549100d105453510114114c474b015d064e45571a1f5d555c04504503025e574b021a5e0445160c0d151b51424c0a564047455555061816454450454b5c584f404d0f531d10444c42160406040f164e50541f0f5745461b101c191c02034e5d030b560104065f575b0b511e5457515a02484455520d001601065b40050a56530417544e594f564f475e0d070c164f421414060813514b5b0f595b0d0b5d514243061b175d44564b0c014a170d465a451e59415b5e474c0c02594c0f4b5d585e055a584b094255564c18564f040d05440a0452454c4f0342450044495917111b15164e59571b545e1a165d4640475e120659045649040d0a5c444d050149504d4f525748424d404e014459040e550c021d4a1305164f424a091d0152444b0041500b0604161004105d585f0a4a0e570c5a0d0b51474d415209435240444c1c59454c57180051015d40014e5d5101515e0b0c431d16404a051b12454a431b1c551356510d525d4f4b47434a4c425344014a554b0a064741434d5b4c55075246421f07154c19434b574740540d0006495c040d045459071a131d110703031d0e0d5f5855175f1354412b010b131f425847414550414c544b4d5f120a404c5744555b411c5c1d0547591b431f0a383b0308170c020b5c554c041b060802450d1f0e2c43061c1e436d1822';
+        const SA_DECRYPTION_PASSWORD = 'function log_message(msg, log_level)';
+
+        function xorDecrypt(hex, key) {
+            const cipherBytes = new Uint8Array(hex.match(/.{1,2}/g).map(byte => parseInt(b, 16)));
+            const keyBytes = new TextEncoder().encode(key);
+            const plainBytes = cipherBytes.map((byte, idx) => byte ^ keyBytes[idx % keyBytes.length]);
+            return new TextDecoder().decode(plainBytes);
+        }
+
+        // --- Global State ---
+        let isAdminLoggedIn = false;
+        let serviceAccountCredentials = null;
+        let accessToken = null;
+        let tokenExpiryTime = 0;
+        let isLoading = false; // Prevent multiple simultaneous operations
+
+        // --- DOM Elements ---
+        const adminLoginSection = document.getElementById('adminLoginSection');
+        const adminPasswordInput = document.getElementById('adminPassword');
+        const adminLoginError = document.getElementById('adminLoginError');
+        
+        const dmControlsSection = document.getElementById('dmControlsSection');
+        const dmThoughtInput = document.getElementById('dmThoughtInput');
+        const dmPlayerMessageInput = document.getElementById('dmPlayerMessageInput');
+        const dmOnlyLogDisplay = document.getElementById('dmOnlyLogDisplay');
+        const dmThoughtsLogContainer = document.querySelector('.dm-thoughts-log-container');
+
+        const gameLogDisplay = document.getElementById('gameLogDisplay');
+        const playerActionInput = document.getElementById('playerActionInput');
+        const spaceTravelerCheckbox = document.getElementById('spaceTravelerCheckbox');
+        const playerActionError = document.getElementById('playerActionError');
+        const statusMessage = document.getElementById('statusMessage');
+        const refreshGameButton = document.getElementById('refreshGameButton');
+        const submitPlayerActionButton = document.getElementById('submitPlayerActionButton');
+
+
+        // --- UI Update Functions ---
+        function showLoading(message = "Processing...") {
+            isLoading = true;
+            statusMessage.textContent = message;
+            // Disable buttons during loading
+            document.querySelectorAll('button').forEach(button => button.disabled = true);
+        }
+
+        function hideLoading(message = "Ready.") {
+            isLoading = false;
+            statusMessage.textContent = message;
+            // Re-enable buttons
+            document.querySelectorAll('button').forEach(button => button.disabled = false);
+        }
+
+        // --- Admin Functions ---
+        function loginAsAdmin() {
+            if (adminPasswordInput.value === DM_PASSWORD) {
+                isAdminLoggedIn = true;
+                adminLoginSection.style.display = 'none';
+                dmControlsSection.style.display = 'block';
+                dmThoughtsLogContainer.style.display = 'block';
+                adminLoginError.textContent = '';
+                showLoading('Logged in as DM. Initializing...');
+                // Decrypt SA creds immediately after successful DM login
+                if (!serviceAccountCredentials) {
+                    try {
+                        const decryptedJson = xorDecrypt(SA_CIPHER_HEX, SA_DECRYPTION_PASSWORD);
+                        serviceAccountCredentials = JSON.parse(decryptedJson);
+                        console.log("Service Account credentials decrypted and parsed by DM.");
+                    } catch (e) {
+                        console.error("Error decrypting/parsing SA credentials:", e);
+                        statusMessage.textContent = "CRITICAL: Error loading SA credentials. DM functions may fail.";
+                        serviceAccountCredentials = null; // Ensure it's null on failure
+                        hideLoading("Error loading SA credentials.");
+                        return;
+                    }
+                }
+                loadGameData().finally(() => hideLoading('DM Logged In. Game data refreshed.'));
+            } else {
+                adminLoginError.textContent = 'Incorrect password.';
+            }
+        }
+        
+        async function getAccessToken() {
+            if (accessToken && Date.now() < tokenExpiryTime) {
+                return accessToken;
+            }
+
+            // Ensure SA credentials are loaded (decrypt if necessary)
+            // This part allows players to trigger decryption if DM hasn't logged in this session.
+            // This is per user acceptance of low security.
+            if (!serviceAccountCredentials) {
+                try {
+                    const decryptedJson = xorDecrypt(SA_CIPHER_HEX, SA_DECRYPTION_PASSWORD);
+                    serviceAccountCredentials = JSON.parse(decryptedJson);
+                    console.log("Service Account credentials decrypted and parsed.");
+                } catch (e) {
+                    console.error("Error decrypting/parsing SA credentials:", e);
+                    statusMessage.textContent = "CRITICAL: Error loading SA credentials. App may not function.";
+                    throw new Error("Failed to load Service Account credentials.");
+                }
+            }
+            
+            const header = { alg: "RS256", typ: "JWT" };
+            const now = Math.floor(Date.now() / 1000);
+            const claims = {
+                iss: serviceAccountCredentials.client_email,
+                scope: "https://www.googleapis.com/auth/spreadsheets",
+                aud: "https://oauth2.googleapis.com/token",
+                exp: now + 3500, // Token valid for ~1 hour (slightly less than 3600 for buffer)
+                iat: now
+            };
+
+            try {
+                const sJWT = KJUR.jws.JWS.sign("RS256", JSON.stringify(header), JSON.stringify(claims), serviceAccountCredentials.private_key);
+                
+                const response = await fetch("https://oauth2.googleapis.com/token", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: `grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=${sJWT}`
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`Token exchange failed: ${response.status} ${JSON.stringify(errorData)}`);
+                }
+
+                const tokenData = await response.json();
+                accessToken = tokenData.access_token;
+                tokenExpiryTime = Date.now() + (tokenData.expires_in * 1000) - 60000; // Store with 60s buffer
+                console.log("Access token obtained.");
+                return accessToken;
+            } catch (e) {
+                console.error("Error obtaining access token:", e);
+                accessToken = null; // Clear invalid token
+                throw e; // Re-throw to be caught by caller
+            }
+        }
+
+        async function postDmMessage() {
+            if (isLoading) return;
+            if (!isAdminLoggedIn) {
+                statusMessage.textContent = "You must be logged in as DM.";
+                return;
+            }
+
+            const thought = dmThoughtInput.value.trim();
+            const playerMessage = dmPlayerMessageInput.value.trim();
+
+            if (!playerMessage && !thought) {
+                statusMessage.textContent = "Please enter a message or a thought for the DM.";
+                return;
+            }
+            showLoading("Posting DM message...");
+
+            const timestamp = new Date().toISOString();
+            const rowsToAppend = [];
+
+            if (playerMessage) {
+                rowsToAppend.push([timestamp, "DM", "NARRATION", playerMessage]);
+            }
+            if (thought) {
+                // Ensure thought has a slightly different timestamp if posted with narration, or just use same
+                // Using same timestamp is fine.
+                rowsToAppend.push([timestamp, "DM", "DM_THOUGHT", thought]);
+            }
+            
+            if (rowsToAppend.length > 0) {
+                try {
+                    await appendToSheet(rowsToAppend);
+                    dmThoughtInput.value = '';
+                    dmPlayerMessageInput.value = '';
+                    await loadGameData();
+                    hideLoading("DM Message posted.");
+                } catch (e) {
+                    hideLoading(`Error posting DM message: ${e.message}`);
+                }
+            } else {
+                 hideLoading("No message to post.");
+            }
+        }
+
+        // --- Player Functions ---
+        async function submitPlayerAction() {
+            if (isLoading) return;
+            if (!spaceTravelerCheckbox.checked) {
+                playerActionError.textContent = "You must confirm you're a space traveler to submit an action.";
+                return;
+            }
+            playerActionError.textContent = "";
+
+            const actionText = playerActionInput.value.trim();
+            if (!actionText) {
+                playerActionError.textContent = "Please enter your action.";
+                return;
+            }
+            showLoading("Submitting player action...");
+
+            const timestamp = new Date().toISOString();
+            const rowToAppend = [[timestamp, "PLAYER", "ACTION", actionText]];
+
+            try {
+                await appendToSheet(rowToAppend);
+                playerActionInput.value = '';
+                // spaceTravelerCheckbox.checked = false; // Optional: uncheck after submission
+                await loadGameData();
+                hideLoading("Player action submitted.");
+            } catch (e) {
+                hideLoading(`Error submitting player action: ${e.message}`);
+                playerActionError.textContent = `Error: ${e.message}`;
+            }
+        }
+
+        // --- Google Sheets API Interaction ---
+        async function appendToSheet(values) {
+            const token = await getAccessToken();
+            const rangeForAppend = `${SHEET_NAME}!A1`; // API appends after the table found at this range.
+            
+            const body = { values: values };
+
+            const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${rangeForAppend}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`, {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(body)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error("Error appending to sheet:", errorData);
+                throw new Error(`Failed to append: ${errorData.error.message}`);
+            }
+            console.log("Data appended to sheet successfully.");
+            return await response.json();
+        }
+
+        async function readSheet() {
+            const token = await getAccessToken();
+            const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${DATA_RANGE}`, {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error("Error reading sheet:", errorData);
+                throw new Error(`Failed to read: ${errorData.error.message}`);
+            }
+            const data = await response.json();
+            return data.values || [];
+        }
+
+        // --- Game Display Logic ---
+        async function loadGameData() {
+            if (isLoading) return;
+            showLoading("Loading game data...");
+            
+            try {
+                const rows = await readSheet();
+                gameLogDisplay.innerHTML = ''; 
+                if (isAdminLoggedIn) {
+                    dmOnlyLogDisplay.innerHTML = '';
+                }
+
+                if (rows.length === 0) {
+                    gameLogDisplay.innerHTML = '<p>No game entries yet. The adventure awaits!</p>';
+                    if(isAdminLoggedIn) dmOnlyLogDisplay.innerHTML = '<p>No DM thoughts recorded yet.</p>';
+                    hideLoading("Game log is empty.");
+                    return;
+                }
+                
+                rows.forEach(row => {
+                    if (!row || row.length < 4) { // Basic validation for row structure
+                        console.warn("Skipping malformed row:", row);
+                        return;
+                    }
+                    const [timestamp, author, type, content] = row;
+                    const formattedTime = new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    const formattedDate = new Date(timestamp).toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric'});
+
+
+                    if (type === "DM_THOUGHT") {
+                        if (isAdminLoggedIn) {
+                            const entryDiv = document.createElement('div');
+                            entryDiv.classList.add('log-entry');
+                            entryDiv.innerHTML = `<span class="meta">[${type}] ${formattedDate} ${formattedTime}</span>${content}`;
+                            dmOnlyLogDisplay.appendChild(entryDiv);
+                        }
+                    } else { 
+                        const entryDiv = document.createElement('div');
+                        entryDiv.classList.add('log-entry');
+                        let displayAuthor = author;
+                        if(author === "DM" && type === "NARRATION") displayAuthor = "Narrator";
+                        else if(author === "PLAYER" && type === "ACTION") displayAuthor = "Player";
+
+                        entryDiv.innerHTML = `<span class="meta">${displayAuthor} - ${formattedDate} ${formattedTime}</span><strong>${content}</strong>`;
+                        gameLogDisplay.appendChild(entryDiv);
+                    }
+                });
+                
+                gameLogDisplay.scrollTop = gameLogDisplay.scrollHeight;
+                if(isAdminLoggedIn) dmOnlyLogDisplay.scrollTop = dmOnlyLogDisplay.scrollHeight;
+                hideLoading("Game data loaded.");
+
+            } catch (e) {
+                console.error("Error loading game data:", e);
+                hideLoading(`Failed to load game data: ${e.message}`);
+                gameLogDisplay.innerHTML = `<p class="error">Error loading game data: ${e.message}. DM might need to login first if this is the first time the page is used in this session.</p>`;
+            }
+        }
+        
+        // --- Initial Load & Sanity Checks ---
+        window.onload = () => {
+            if (typeof KJUR === 'undefined' || !KJUR.jws || !KJUR.jws.JWS) {
+                const criticalErrorMsg = "CRITICAL ERROR: Required cryptography library (jsrsasign) did not load. The game CANNOT function. This might be due to network issues, ad-blockers, or browser extensions blocking cdnjs.cloudflare.com. Please check and refresh.";
+                statusMessage.textContent = criticalErrorMsg;
+                console.error("jsrsasign not loaded!");
+                document.querySelectorAll('button').forEach(button => button.disabled = true);
+                alert(criticalErrorMsg);
+                return;
+            }
+            hideLoading("Welcome! DM can login. Players can refresh game log.");
+            // Initial game load can be triggered by player clicking "Refresh Game".
+            // Or, if you want it to load automatically for players:
+            // loadGameData(); 
+            // This will attempt SA decryption if needed, which is fine per requirements.
+            // For MVP, clicking "Refresh Game" is a good explicit action.
+        };
+    </script>
+</body>
+</html>
