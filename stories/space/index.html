@@ -517,9 +517,9 @@
         </div>
         
         <div id="adminLoginSection">
-            <h2>Ingreso del Narrador</h2>
-            <input type="password" id="adminPassword" placeholder="Contraseña del Narrador">
-            <button id="adminLoginBtn">Ingresar como Narrador</button>
+            <h2>Ingreso del DM</h2>
+            <input type="password" id="adminPassword" placeholder="Contraseña del DM">
+            <button id="adminLoginBtn">Ingresar como DM</button>
             <p id="adminLoginError" class="error"></p>
         </div>
         
@@ -777,7 +777,7 @@
             
             // Load DM credentials
             const dmResponse = await fetch('dm_credentials.hex');
-            if (!dmResponse.ok) throw new Error('Error al cargar las credenciales del narrador');
+            if (!dmResponse.ok) throw new Error('Error al cargar las credenciales del DM');
             dmCredentials = await dmResponse.text();
             
             loginStatusMessage.textContent = 'Credenciales cargadas con éxito.';
@@ -859,7 +859,7 @@
         isAdminLoggedIn = true;
         loginContainer.style.display = 'none';
         dmMainContainer.style.display = 'block';
-        dmStatusMessage.textContent = 'Conectado como Narrador.';
+        dmStatusMessage.textContent = 'Conectado como DM.';
         await loadGameData();
     }
     
@@ -1401,7 +1401,7 @@
     async function postDmMessage() {
         if (isLoading) return;
         if (!isAdminLoggedIn) {
-            dmStatusMessage.textContent = 'Tenés que estar conectado como Narrador.';
+            dmStatusMessage.textContent = 'Tenés que estar conectado como DM.';
             return;
         }
         
@@ -1557,7 +1557,7 @@
             // Player just submitted an action, DM's turn to respond with OUTCOME
             isPlayerTurn = false;
             currentMessageType = 'OUTCOME';
-            currentMessageTypeSpan.textContent = 'Resultado';
+            currentMessageTypeSpan.textContent = 'Outcome';
             dmTurnLockedMessage.style.display = 'none';
             dmInputControls.style.display = 'block';
         } else if (author === 'DM' && type === 'OUTCOME') {
@@ -1845,7 +1845,7 @@
         playerGameLogDisplay.innerHTML = '';
         
         if (rows.length === 0) {
-            playerGameLogDisplay.innerHTML = '<div class="step"><p>La aventura todavía no ha comenzado. ¡Esperá a que el Narrador inicie!</p></div>';
+            playerGameLogDisplay.innerHTML = '<div class="step"><p>La aventura todavía no ha comenzado. ¡Esperá a que el DM inicie!</p></div>';
             return;
         }
         
@@ -1920,7 +1920,7 @@
                     const promptEl = document.createElement('div');
                     promptEl.className = 'prompt';
                     promptEl.innerHTML = `
-                        <strong>Consigna:</strong>
+                        <strong>Prompt:</strong>
                         <div>${item.data.content}</div>
                         <div class="step-meta">Publicado: ${date} a las ${time}</div>
                     `;
@@ -1940,7 +1940,7 @@
                     const outcomeEl = document.createElement('div');
                     outcomeEl.className = 'outcome';
                     outcomeEl.innerHTML = `
-                        <strong>Resultado:</strong>
+                        <strong>Outcome:</strong>
                         <div>${item.data.content}</div>
                         <div class="step-meta">Publicado: ${date} a las ${time}</div>
                     `;
@@ -2028,7 +2028,7 @@
         
         await loadCredentials();
         
-        // Establecer placeholder aleatorio para el input de acción
+        // Establecer placeholder aleatorio para el input de action
         const playerInput = document.getElementById('playerActionInput');
         if (playerInput) {
             const randomIndex = Math.floor(Math.random() * funnyRpgPhrases.length);
