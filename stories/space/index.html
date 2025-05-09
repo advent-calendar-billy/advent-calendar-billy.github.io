@@ -507,6 +507,25 @@
     const SHEET_NAME = 'Sheet1';
     const DATA_RANGE = `${SHEET_NAME}!A:E`; // Added column for thought type
     
+    /* ---------- DB SCHEMA ---------- */
+    /*
+     * Database Schema:
+     *
+     * [timestamp, author, type, content, formatInfo]
+     *
+     * author: "DM" or "PLAYER"
+     * type: "PROMPT", "ACTION", "OUTCOME", or "DM_THOUGHT"
+     * content: The actual content
+     * formatInfo: For thoughts, this is always "formatted". For other types, null.
+     *
+     * Formatted Thought Structure:
+     * - Text is stored as HTML with appropriate span tags
+     * - <span class="watsonian">...</span> for watsonian thoughts (purple)
+     * - <span class="doylist">...</span> for doylist thoughts (red)
+     * - <span class="watsonian long-term">...</span> or <span class="doylist long-term">...</span> for long-term thoughts
+     * - Long-term thoughts are displayed in the sidebar and in the timeline
+     */
+    
     /* ---------- GLOBAL STATE ---------- */
     let isPlayerLoggedIn = false;
     let isAdminLoggedIn = false;
@@ -1068,25 +1087,20 @@
             
             if (type === 'DM_THOUGHT') {
                 // Store the thought to associate with next prompt/outcome or add to sequence
-                if (formatInfo === 'formatted') {
-                    // This is a new formatted thought
-                    pendingThoughts.push({
-                        timestamp,
-                        content,
-                        formatted: true
-                    });
-                } else if (formatInfo === 'long-term') {
-                    // Add to sidebar (long-term thoughts)
+                // Check if this is a long-term thought (contains long-term class)
+                if (content.includes('class="long-term"') || 
+                    content.includes('class="watsonian long-term"') || 
+                    content.includes('class="doylist long-term"')) {
+                    // Extract the long-term thought for the sidebar
                     renderLongTermThought(timestamp, content);
-                } else {
-                    // Legacy thought format
-                    pendingThoughts.push({
-                        timestamp,
-                        content,
-                        type: formatInfo || 'watsonian',
-                        formatted: false
-                    });
                 }
+                
+                // Add the thought to pending queue regardless if it contains long-term parts
+                // This way it will also be shown in the main timeline
+                pendingThoughts.push({
+                    timestamp,
+                    content
+                });
             } else {
                 // For prompt/action/outcome, add any pending thoughts first
                 if (pendingThoughts.length > 0) {
@@ -1165,20 +1179,10 @@
                     const thoughtEl = document.createElement('div');
                     thoughtEl.className = 'thought';
                     
-                    if (item.data.formatted) {
-                        // This is a formatted thought with HTML
-                        thoughtEl.innerHTML = `
-                            <div class="thought-meta">Thought: ${date} at ${time}</div>
-                            <div class="thought-content">${item.data.content}</div>
-                        `;
-                    } else {
-                        // Legacy format
-                        thoughtEl.innerHTML = `
-                            <span class="thought-type ${item.data.type}">${item.data.type}</span>
-                            <div class="thought-meta">Thought: ${date} at ${time}</div>
-                            <div class="thought-content">${item.data.content}</div>
-                        `;
-                    }
+                    thoughtEl.innerHTML = `
+                        <div class="thought-meta">Thought: ${date} at ${time}</div>
+                        <div class="thought-content">${item.data.content}</div>
+                    `;
                     
                     stepContent.appendChild(thoughtEl);
                 } else if (item.type === 'prompt') {
