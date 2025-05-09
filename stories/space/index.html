@@ -1068,6 +1068,9 @@
             return;
         }
         
+        // Save the range to restore after cleaning up
+        const rangeCopy = range.cloneRange();
+        
         // Create a new span with the appropriate class
         const span = document.createElement('span');
         
@@ -1077,20 +1080,44 @@
             
             // Extract the selection and check if it had longterm
             const selectedContent = range.extractContents();
-            const wasLongTerm = hasLongTermClass(selectedContent);
+            
+            // Process the selected content to avoid duplication
+            let processedContent = document.createDocumentFragment();
+            
+            // Create a temporary div to process the content
+            const tempDiv = document.createElement('div');
+            tempDiv.appendChild(selectedContent.cloneNode(true));
+            
+            // Check if it had longterm
+            const wasLongTerm = tempDiv.querySelector('.longterm-text') !== null;
+            
+            // Extract text content without nested watsonian/doylist spans
+            const textContent = tempDiv.textContent;
+            
+            // Create a text node with the extracted content
+            const textNode = document.createTextNode(textContent);
+            processedContent.appendChild(textNode);
             
             if (wasLongTerm) {
                 span.classList.add('longterm-text');
             }
             
-            // Now add the content back with new formatting
-            span.appendChild(selectedContent);
+            // Now add the processed content back with new formatting
+            span.appendChild(processedContent);
         } else if (format === 'longterm') {
             // For longterm, toggle the longterm class while preserving watsonian/doylist
             const selectedContent = range.extractContents();
-            const isWatsonian = hasWatsonianClass(selectedContent);
-            const isDoylist = hasDolistClass(selectedContent);
-            const wasLongTerm = hasLongTermClass(selectedContent);
+            
+            // Create a temporary div to examine the content
+            const tempDiv = document.createElement('div');
+            tempDiv.appendChild(selectedContent.cloneNode(true));
+            
+            const isWatsonian = tempDiv.querySelector('.watsonian-text') !== null;
+            const isDoylist = tempDiv.querySelector('.doylist-text') !== null;
+            const wasLongTerm = tempDiv.querySelector('.longterm-text') !== null;
+            
+            // Extract text content
+            const textContent = tempDiv.textContent;
             
             // Add the appropriate base class
             if (isWatsonian) {
@@ -1107,7 +1134,7 @@
                 span.classList.add('longterm-text');
             }
             
-            span.appendChild(selectedContent);
+            span.textContent = textContent;
         }
         
         range.insertNode(span);
@@ -1168,7 +1195,37 @@
     }
     
     function cleanupNestedSpans(rootNode) {
-        // First pass: merge adjacent spans with the same formatting
+        // First pass: fix nested spans with the same formatting
+        // This helps prevent duplicated content
+        const deepNestedSpans = rootNode.querySelectorAll('span span');
+        for (const nestedSpan of deepNestedSpans) {
+            // If parent and child have same formatting, merge them
+            const parent = nestedSpan.parentNode;
+            if (parent.tagName === 'SPAN') {
+                const parentIsWatsonian = parent.classList.contains('watsonian-text');
+                const parentIsDoylist = parent.classList.contains('doylist-text');
+                const parentIsLongterm = parent.classList.contains('longterm-text');
+                
+                const childIsWatsonian = nestedSpan.classList.contains('watsonian-text');
+                const childIsDoylist = nestedSpan.classList.contains('doylist-text');
+                const childIsLongterm = nestedSpan.classList.contains('longterm-text');
+                
+                // If they have similar formatting, unnest by moving content up
+                if ((parentIsWatsonian && childIsWatsonian) || (parentIsDoylist && childIsDoylist)) {
+                    // Keep longterm if either has it
+                    if (childIsLongterm && !parentIsLongterm) {
+                        parent.classList.add('longterm-text');
+                    }
+                    
+                    // Replace the nested span with its text content
+                    const textContent = nestedSpan.textContent;
+                    const textNode = document.createTextNode(textContent);
+                    parent.replaceChild(textNode, nestedSpan);
+                }
+            }
+        }
+        
+        // Second pass: merge adjacent spans with the same formatting
         const spans = rootNode.querySelectorAll('span');
         for (let i = 0; i < spans.length; i++) {
             const span = spans[i];
@@ -1191,7 +1248,7 @@
             }
         }
         
-        // Second pass: unwrap empty spans
+        // Third pass: unwrap empty spans
         const allSpans = rootNode.querySelectorAll('span');
         for (const span of allSpans) {
             if (span.innerHTML.trim() === '') {
@@ -1199,7 +1256,7 @@
             }
         }
         
-        // Third pass: fix any text nodes not in spans
+        // Fourth pass: fix any text nodes not in spans
         const walker = document.createTreeWalker(
             rootNode,
             NodeFilter.SHOW_TEXT,
@@ -1289,48 +1346,7 @@
             .replace(/'/g, "&#039;");
     }
     
-    // Handle migrating old format (HTML spans) to new format (segments)
-    function migrateOldFormatToSegments(htmlContent) {
-        if (!htmlContent) return [];
-        
-        // Create a temporary container
-        const temp = document.createElement('div');
-        temp.innerHTML = htmlContent;
-        
-        const segments = [];
-        const spans = temp.querySelectorAll('span');
-        
-        for (const span of spans) {
-            const isWatsonian = span.classList.contains('watsonian');
-            const isDoylist = span.classList.contains('doylist');
-            const isLongTerm = span.classList.contains('long-term');
-            
-            if (!isWatsonian && !isDoylist) {
-                // Every span should have either watsonian or doylist in the old format
-                continue;
-            }
-            
-            const text = span.textContent;
-            if (text.trim() === '') continue;
-            
-            segments.push({
-                text: text,
-                type: isWatsonian ? 'watsonian' : 'doylist',
-                longTerm: isLongTerm
-            });
-        }
-        
-        // If no segments were created but there is content, create a default segment
-        if (segments.length === 0 && temp.textContent.trim() !== '') {
-            segments.push({
-                text: temp.textContent,
-                type: 'watsonian', // Default to watsonian
-                longTerm: false
-            });
-        }
-        
-        return segments;
-    }
+    // This function was intentionally removed since we're not supporting backwards compatibility
     
     /* ---------- FILTERING AND SEARCH FUNCTIONS ---------- */
     function filterLongTermThoughts() {
@@ -1630,52 +1646,35 @@
             const [timestamp, author, type, content, formatInfo] = row;
             
             if (type === 'DM_THOUGHT') {
-                // Handle thought formatting based on format info
-                let processedThought;
-                
-                if (formatInfo === 'JSON') {
-                    // New format - JSON segments
-                    try {
-                        const thoughtData = JSON.parse(content);
-                        processedThought = {
-                            timestamp,
-                            segments: thoughtData.segments,
-                            isJson: true
-                        };
-                        
-                        // Extract long-term segments for the sidebar
-                        const longTermSegments = thoughtData.segments.filter(segment => segment.longTerm);
-                        if (longTermSegments.length > 0) {
-                            renderLongTermThought(timestamp, longTermSegments, true);
-                        }
-                    } catch (e) {
-                        console.error('Error parsing JSON thought', e);
-                        processedThought = {
-                            timestamp,
-                            segments: [{ text: content, type: 'watsonian', longTerm: false }],
-                            isJson: true
-                        };
-                    }
-                } else {
-                    // Old format - HTML with classes
-                    // Attempt to migrate to new format
-                    const segments = migrateOldFormatToSegments(content);
-                    processedThought = {
+                // Process JSON formatted thoughts
+                try {
+                    const thoughtData = JSON.parse(content);
+                    const processedThought = {
                         timestamp,
-                        segments: segments,
-                        isJson: false,
-                        originalHtml: content // Keep original for rendering in timeline
+                        segments: thoughtData.segments
                     };
                     
-                    // Check for long-term segments to add to sidebar
-                    const longTermSegments = segments.filter(segment => segment.longTerm);
+                    // Extract long-term segments for the sidebar
+                    const longTermSegments = thoughtData.segments.filter(segment => segment.longTerm);
                     if (longTermSegments.length > 0) {
-                        renderLongTermThought(timestamp, longTermSegments, false);
+                        renderLongTermThought(timestamp, longTermSegments);
                     }
+                    
+                    // Add to pending thoughts queue
+                    pendingThoughts.push(processedThought);
+                } catch (e) {
+                    console.error('Error parsing thought JSON', e);
+                    // Create a fallback thought with error message
+                    const errorThought = {
+                        timestamp,
+                        segments: [{ 
+                            text: `Error parsing thought: ${e.message}`, 
+                            type: 'doylist', 
+                            longTerm: false 
+                        }]
+                    };
+                    pendingThoughts.push(errorThought);
                 }
-                
-                // Add to pending thoughts queue regardless
-                pendingThoughts.push(processedThought);
             } else {
                 // For prompt/action/outcome, add any pending thoughts first
                 if (pendingThoughts.length > 0) {
@@ -1754,14 +1753,8 @@
                     const thoughtEl = document.createElement('div');
                     thoughtEl.className = 'thought';
                     
-                    let thoughtContent = '';
-                    if (item.data.isJson) {
-                        // Render from segments
-                        thoughtContent = renderSegmentsToHtml(item.data.segments);
-                    } else {
-                        // Use original HTML for backward compatibility
-                        thoughtContent = item.data.originalHtml;
-                    }
+                    // Render thought content from segments
+                    const thoughtContent = renderSegmentsToHtml(item.data.segments);
                     
                     thoughtEl.innerHTML = `
                         <div class="thought-meta">Thought: ${date} at ${time}</div>
@@ -1831,19 +1824,12 @@
         return html;
     }
     
-    function renderLongTermThought(timestamp, segments, isJson) {
+    function renderLongTermThought(timestamp, segments) {
         const { time, date } = formatDate(timestamp);
         const thoughtEl = document.createElement('div');
         thoughtEl.className = 'longterm-thought';
         
-        let thoughtContent = '';
-        if (isJson) {
-            // Render from segments
-            thoughtContent = renderSegmentsToHtml(segments);
-        } else {
-            // For old format, render based on original segments
-            thoughtContent = renderSegmentsToHtml(segments);
-        }
+        const thoughtContent = renderSegmentsToHtml(segments);
         
         thoughtEl.innerHTML = `
             <div class="thought-meta">Added: ${date} at ${time}</div>
