@@ -701,6 +701,8 @@
     let isPlayerTurn = false; // Track whose turn it is
     let isSearching = false; // Track search state
     let longTermFilterType = 'all'; // Filter for long-term thoughts ('all', 'watsonian', 'doylist')
+    const STORAGE_KEY_PLAYER = 'asyncRpg_playerAuth';
+    const STORAGE_KEY_DM = 'asyncRpg_dmAuth';
     
     /* ---------- DOM ELEMENTS ---------- */
     // Login elements
@@ -1631,7 +1633,7 @@
         longTermThoughtsContainer.innerHTML = '';
         
         if (rows.length === 0) {
-            gameLogDisplay.innerHTML = '<div class="step"><p>Todavía no hay entradas de juego. ¡Empezá publicando una consigna!</p></div>';
+            gameLogDisplay.innerHTML = '<div class="step"><p>Todavía no hay entradas de juego. ¡Empezá publicando un Prompt!</p></div>';
             return;
         }
         
@@ -2021,17 +2023,71 @@
         if (typeof KJUR === 'undefined') {
             loginStatusMessage.textContent = 'CRÍTICO: La librería jsrsasign no se pudo cargar.';
             document.querySelectorAll('button').forEach(b => b.disabled = true);
+            return;
+        }
+        
+        await loadCredentials();
+        
+        // Establecer placeholder aleatorio para el input de acción
+        const playerInput = document.getElementById('playerActionInput');
+        if (playerInput) {
+            const randomIndex = Math.floor(Math.random() * funnyRpgPhrases.length);
+            playerInput.placeholder = funnyRpgPhrases[randomIndex];
+        }
+        
+        // Verificar si hay sesiones guardadas
+        const isPlayerSaved = localStorage.getItem(STORAGE_KEY_PLAYER) === 'true';
+        const isDmSaved = localStorage.getItem(STORAGE_KEY_DM) === 'true';
+        
+        if (isPlayerSaved) {
+            // Auto-login como jugador
+            loginStatusMessage.textContent = 'Restaurando sesión de jugador...';
+            try {
+                if (!await initialiseCredentials(playerCredentials, PLAYER_PASSWORD)) {
+                    throw new Error('Error al inicializar credenciales');
+                }
+                
+                isPlayerLoggedIn = true;
+                loginContainer.style.display = 'none';
+                playerMainContainer.style.display = 'block';
+                playerStatusMessage.textContent = 'Sesión restaurada como Jugador.';
+                
+                // Agregar botón de cierre de sesión
+                addLogoutButton(playerMainContainer, 'player');
+                
+                await loadGameData();
+            } catch (e) {
+                console.error('Error al restaurar sesión:', e);
+                localStorage.removeItem(STORAGE_KEY_PLAYER);
+                loginStatusMessage.textContent = 'Error al restaurar sesión. Por favor, vuelve a iniciar sesión.';
+            }
+        } else if (isDmSaved) {
+            // Auto-login como DM
+            loginStatusMessage.textContent = 'Restaurando sesión de DM...';
+            try {
+                if (!await initialiseCredentials(dmCredentials, DM_PASSWORD)) {
+                    throw new Error('Error al inicializar credenciales');
+                }
+                
+                isAdminLoggedIn = true;
+                loginContainer.style.display = 'none';
+                dmMainContainer.style.display = 'block';
+                dmStatusMessage.textContent = 'Sesión restaurada como DM.';
+                
+                // Agregar botón de cierre de sesión
+                addLogoutButton(dmMainContainer, 'dm');
+                
+                await loadGameData();
+                initRichTextEditor();
+            } catch (e) {
+                console.error('Error al restaurar sesión:', e);
+                localStorage.removeItem(STORAGE_KEY_DM);
+                loginStatusMessage.textContent = 'Error al restaurar sesión. Por favor, vuelve a iniciar sesión.';
+            }
         } else {
-            loadCredentials();
+            // Si no hay sesión guardada, mostrar login normal
             loginStatusMessage.textContent = '¡Bienvenido! Por favor, iniciá sesión.';
             initRichTextEditor();
-            
-            // Establecer placeholder aleatorio para el input de acción
-            const playerInput = document.getElementById('playerActionInput');
-            if (playerInput) {
-                const randomIndex = Math.floor(Math.random() * funnyRpgPhrases.length);
-                playerInput.placeholder = funnyRpgPhrases[randomIndex];
-            }
         }
     };
     </script>
