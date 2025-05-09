@@ -295,19 +295,21 @@
             position: relative;
         }
         
-        .thought.watsonian {
-            background-color: #e8eaf6;
-            border-left: 4px solid #3f51b5;
+        .thought {
+            background-color: #f9f9f9;
+            border-left: 4px solid #9e9e9e;
         }
         
-        .thought.doylist {
-            background-color: #f3e5f5;
-            border-left: 4px solid #9c27b0;
+        .watsonian {
+            color: #673ab7; /* Purple for watsonian */
         }
         
-        .thought.long-term {
-            background-color: #ffebee;
-            border-left: 4px solid #f44336;
+        .doylist {
+            color: #f44336; /* Red for doylist */
+        }
+        
+        .long-term {
+            text-decoration: underline;
         }
         
         .thought-meta {
@@ -326,19 +328,39 @@
             font-weight: bold;
         }
         
-        .thought-type.watsonian {
-            background-color: #e8eaf6;
-            color: #3f51b5;
+        /* Thought formatting buttons */
+        .formatting-toolbar {
+            display: flex;
+            gap: 5px;
+            margin-top: 5px;
+            margin-bottom: 10px;
         }
         
-        .thought-type.doylist {
-            background-color: #f3e5f5;
-            color: #9c27b0;
+        .format-btn {
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            background-color: #f5f5f5;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            cursor: pointer;
         }
         
-        .thought-type.long-term {
-            background-color: #ffebee;
+        .format-btn.watsonian {
+            color: #673ab7;
+            border-color: #673ab7;
+        }
+        
+        .format-btn.doylist {
             color: #f44336;
+            border-color: #f44336;
+        }
+        
+        .format-btn.long-term {
+            text-decoration: underline;
+        }
+        
+        .format-btn.active {
+            background-color: #eeeeee;
         }
         
         /* Action input area */
@@ -494,11 +516,12 @@
     let isLoading = false;
     let playerCredentials = null;
     let dmCredentials = null;
-    let currentThoughtType = 'watsonian'; // Default thought type
+    let currentDefaultThoughtType = 'watsonian'; // Default thought type
     let currentMessageType = 'PROMPT'; // Default message type
     let gameData = []; // Store game data for turn tracking
     let isPlayerTurn = false; // Track whose turn it is
     let isSearching = false; // Track search state
+    let selectionRange = null; // Track text selection in the thought input
     
     /* ---------- DOM ELEMENTS ---------- */
     // Login elements
@@ -718,28 +741,66 @@
         return data.values || [];
     }
     
-    /* ---------- DM CONTROLS ---------- */
-    function setThoughtType(type) {
-        currentThoughtType = type;
+    /* ---------- TEXT FORMATTING CONTROLS ---------- */
+    function setDefaultThoughtType(type) {
+        currentDefaultThoughtType = type;
         
-        // Update UI to show active button
+        // Update UI to show active button for default type
         watsonianBtn.classList.remove('active');
-        watsonianBtn.classList.add('secondary');
         doylistBtn.classList.remove('active');
-        doylistBtn.classList.add('secondary');
-        longTermBtn.classList.remove('active');
-        longTermBtn.classList.add('secondary');
         
         if (type === 'watsonian') {
-            watsonianBtn.classList.remove('secondary');
             watsonianBtn.classList.add('active');
         } else if (type === 'doylist') {
-            doylistBtn.classList.remove('secondary');
             doylistBtn.classList.add('active');
-        } else if (type === 'long-term') {
-            longTermBtn.classList.remove('secondary');
-            longTermBtn.classList.add('active');
         }
+    }
+    
+    function applyFormattingToSelection(format) {
+        const textarea = dmThoughtInput;
+        if (!textarea.selectionStart && textarea.selectionStart !== 0) return;
+        
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        
+        if (start === end) return; // No text selected
+        
+        const selectedText = textarea.value.substring(start, end);
+        
+        // Create a span with the appropriate class
+        let formattedText;
+        
+        if (format === 'watsonian') {
+            formattedText = `<span class="watsonian">${selectedText}</span>`;
+        } else if (format === 'doylist') {
+            formattedText = `<span class="doylist">${selectedText}</span>`;
+        } else if (format === 'long-term') {
+            // Check if already has watsonian or doylist class
+            if (selectedText.includes('class="watsonian"')) {
+                formattedText = selectedText.replace('class="watsonian"', 'class="watsonian long-term"');
+            } else if (selectedText.includes('class="doylist"')) {
+                formattedText = selectedText.replace('class="doylist"', 'class="doylist long-term"');
+            } else if (selectedText.includes('<span')) {
+                // Already has some formatting but not watsonian/doylist
+                formattedText = selectedText.replace('<span', '<span class="long-term"');
+            } else {
+                // No formatting yet, apply default type + long-term
+                formattedText = `<span class="${currentDefaultThoughtType} long-term">${selectedText}</span>`;
+            }
+        } else {
+            return; // Unknown format
+        }
+        
+        // Replace the selected text with the formatted text
+        textarea.value = 
+            textarea.value.substring(0, start) + 
+            formattedText + 
+            textarea.value.substring(end);
+        
+        // Restore focus and selection
+        textarea.focus();
+        textarea.selectionStart = start;
+        textarea.selectionEnd = start + formattedText.length;
     }
     
     async function postDmMessage() {
@@ -762,13 +823,13 @@
         const ts = new Date().toISOString();
         const rows = [];
         
+        // Add thought row if present (thoughts go before prompt/outcome)
+        if (thought) {
+            rows.push([ts, 'DM', 'DM_THOUGHT', thought, 'formatted']);
+        }
+        
         // Add message row
         rows.push([ts, 'DM', currentMessageType, message, null]);
-        
-        // Add thought row if present
-        if (thought) {
-            rows.push([ts, 'DM', 'DM_THOUGHT', thought, currentThoughtType]);
-        }
         
         try {
             await appendToSheet(rows);
@@ -883,15 +944,33 @@
         if (rows.length === 0) {
             // No entries yet, DM needs to post the first prompt
             isPlayerTurn = false;
+            currentMessageType = 'PROMPT';
+            currentMessageTypeSpan.textContent = 'Prompt';
             dmTurnLockedMessage.style.display = 'none';
             dmInputControls.style.display = 'block';
             return;
         }
         
-        const lastRow = rows[rows.length - 1];
-        if (!lastRow || lastRow.length < 3) return;
+        // Find the last non-thought entry to determine turn status
+        let lastActionRow = null;
+        for (let i = rows.length - 1; i >= 0; i--) {
+            if (rows[i] && rows[i].length >= 3 && rows[i][2] !== 'DM_THOUGHT') {
+                lastActionRow = rows[i];
+                break;
+            }
+        }
         
-        const [_, author, type] = lastRow;
+        if (!lastActionRow) {
+            // No action rows yet, DM's turn
+            isPlayerTurn = false;
+            currentMessageType = 'PROMPT';
+            currentMessageTypeSpan.textContent = 'Prompt';
+            dmTurnLockedMessage.style.display = 'none';
+            dmInputControls.style.display = 'block';
+            return;
+        }
+        
+        const [_, author, type] = lastActionRow;
         
         if (author === 'PLAYER' && type === 'ACTION') {
             // Player just submitted an action, DM's turn to respond with OUTCOME
@@ -901,10 +980,12 @@
             dmTurnLockedMessage.style.display = 'none';
             dmInputControls.style.display = 'block';
         } else if (author === 'DM' && type === 'OUTCOME') {
-            // DM posted an outcome, waiting for player action
-            isPlayerTurn = true;
-            dmTurnLockedMessage.style.display = 'block';
-            dmInputControls.style.display = 'none';
+            // After an outcome, DM posts a prompt
+            isPlayerTurn = false;
+            currentMessageType = 'PROMPT';
+            currentMessageTypeSpan.textContent = 'Prompt';
+            dmTurnLockedMessage.style.display = 'none';
+            dmInputControls.style.display = 'block';
         } else if (author === 'DM' && type === 'PROMPT') {
             // DM posted a prompt, waiting for player action
             isPlayerTurn = true;
@@ -929,10 +1010,24 @@
             return;
         }
         
-        const lastRow = rows[rows.length - 1];
-        if (!lastRow || lastRow.length < 3) return;
+        // Find the last non-thought entry to determine turn status
+        let lastActionRow = null;
+        for (let i = rows.length - 1; i >= 0; i--) {
+            if (rows[i] && rows[i].length >= 3 && rows[i][2] !== 'DM_THOUGHT') {
+                lastActionRow = rows[i];
+                break;
+            }
+        }
         
-        const [_, author, type] = lastRow;
+        if (!lastActionRow) {
+            // No action rows yet, waiting for DM
+            isPlayerTurn = false;
+            playerTurnLockedMessage.style.display = 'block';
+            playerInputControls.style.display = 'none';
+            return;
+        }
+        
+        const [_, author, type] = lastActionRow;
         
         if (author === 'DM' && (type === 'PROMPT' || type === 'OUTCOME')) {
             // DM just posted, player's turn
@@ -961,51 +1056,95 @@
             return;
         }
         
-        // Sort entries into story steps
-        const steps = [];
-        let currentStep = { prompt: null, action: null, outcome: null, thoughts: [] };
-        let stepNumber = 1;
+        // Process rows into a sequence with proper order
+        let gameSequence = [];
+        let pendingThoughts = [];
         
+        // First pass - group thoughts with their associated messages
         for (const row of rows) {
             if (!row || row.length < 3) continue;
             
-            const [timestamp, author, type, content, thoughtType] = row;
+            const [timestamp, author, type, content, formatInfo] = row;
             
             if (type === 'DM_THOUGHT') {
-                if (thoughtType === 'long-term') {
-                    // Add to sidebar
-                    renderLongTermThought(timestamp, content);
-                } else {
-                    // Add to current step
-                    currentStep.thoughts.push({
+                // Store the thought to associate with next prompt/outcome or add to sequence
+                if (formatInfo === 'formatted') {
+                    // This is a new formatted thought
+                    pendingThoughts.push({
                         timestamp,
                         content,
-                        type: thoughtType || 'watsonian'
+                        formatted: true
+                    });
+                } else if (formatInfo === 'long-term') {
+                    // Add to sidebar (long-term thoughts)
+                    renderLongTermThought(timestamp, content);
+                } else {
+                    // Legacy thought format
+                    pendingThoughts.push({
+                        timestamp,
+                        content,
+                        type: formatInfo || 'watsonian',
+                        formatted: false
                     });
                 }
-            } else if (type === 'PROMPT') {
-                // New step starts with a prompt
-                if (currentStep.prompt || currentStep.action || currentStep.outcome) {
-                    steps.push({...currentStep, number: stepNumber++});
-                    currentStep = { prompt: null, action: null, outcome: null, thoughts: [] };
+            } else {
+                // For prompt/action/outcome, add any pending thoughts first
+                if (pendingThoughts.length > 0) {
+                    for (const thought of pendingThoughts) {
+                        gameSequence.push({
+                            type: 'thought',
+                            data: thought
+                        });
+                    }
+                    pendingThoughts = [];
                 }
-                currentStep.prompt = { timestamp, content };
-            } else if (type === 'ACTION') {
-                currentStep.action = { timestamp, content };
-            } else if (type === 'OUTCOME') {
-                currentStep.outcome = { timestamp, content };
-                // Complete step
-                steps.push({...currentStep, number: stepNumber++});
-                currentStep = { prompt: null, action: null, outcome: null, thoughts: [] };
+                
+                // Then add the actual message
+                gameSequence.push({
+                    type: type.toLowerCase(),
+                    data: {
+                        timestamp,
+                        content
+                    }
+                });
             }
         }
         
-        // Add the last incomplete step if any
-        if (currentStep.prompt || currentStep.action || currentStep.outcome) {
-            steps.push({...currentStep, number: stepNumber});
+        // Add any remaining thoughts at the end
+        for (const thought of pendingThoughts) {
+            gameSequence.push({
+                type: 'thought',
+                data: thought
+            });
         }
         
-        // Render steps
+        // Second pass - group into steps
+        const steps = [];
+        let currentStep = { 
+            number: 1,
+            sequence: []  // Array of {type, data} objects in order
+        };
+        
+        for (const item of gameSequence) {
+            if (item.type === 'prompt' && currentStep.sequence.some(s => s.type === 'prompt' || s.type === 'outcome')) {
+                // If we already have a prompt or outcome in this step, start a new step
+                steps.push({...currentStep});
+                currentStep = {
+                    number: steps.length + 1,
+                    sequence: [item]
+                };
+            } else {
+                // Add to current step
+                currentStep.sequence.push(item);
+            }
+        }
+        
+        // Add the last step if it has content
+        if (currentStep.sequence.length > 0) {
+            steps.push(currentStep);
+        }
+        
+        // Render each step
         steps.forEach(step => {
             const stepEl = document.createElement('div');
             stepEl.className = 'step';
@@ -1016,70 +1155,66 @@
             stepHeader.innerHTML = `<span>Step ${step.number}</span>`;
             stepEl.appendChild(stepHeader);
             
-            // Step content
+            // Render each item in the sequence
             const stepContent = document.createElement('div');
             stepContent.className = 'step-content';
             
-            if (step.prompt) {
-                const { time, date } = formatDate(step.prompt.timestamp);
-                const promptEl = document.createElement('div');
-                promptEl.className = 'prompt';
-                promptEl.innerHTML = `
-                    <strong>Prompt:</strong>
-                    <div>${step.prompt.content}</div>
-                    <div class="step-meta">Posted: ${date} at ${time}</div>
-                `;
-                stepContent.appendChild(promptEl);
-            }
-            
-            if (step.action) {
-                const { time, date } = formatDate(step.action.timestamp);
-                const actionEl = document.createElement('div');
-                actionEl.className = 'action';
-                actionEl.innerHTML = `
-                    <strong>Player's Action:</strong>
-                    <div>${step.action.content}</div>
-                    <div class="step-meta">Posted: ${date} at ${time}</div>
-                `;
-                stepContent.appendChild(actionEl);
-            }
-            
-            if (step.outcome) {
-                const { time, date } = formatDate(step.outcome.timestamp);
-                const outcomeEl = document.createElement('div');
-                outcomeEl.className = 'outcome';
-                outcomeEl.innerHTML = `
-                    <strong>Outcome:</strong>
-                    <div>${step.outcome.content}</div>
-                    <div class="step-meta">Posted: ${date} at ${time}</div>
-                `;
-                stepContent.appendChild(outcomeEl);
+            for (const item of step.sequence) {
+                if (item.type === 'thought') {
+                    const { time, date } = formatDate(item.data.timestamp);
+                    const thoughtEl = document.createElement('div');
+                    thoughtEl.className = 'thought';
+                    
+                    if (item.data.formatted) {
+                        // This is a formatted thought with HTML
+                        thoughtEl.innerHTML = `
+                            <div class="thought-meta">Thought: ${date} at ${time}</div>
+                            <div class="thought-content">${item.data.content}</div>
+                        `;
+                    } else {
+                        // Legacy format
+                        thoughtEl.innerHTML = `
+                            <span class="thought-type ${item.data.type}">${item.data.type}</span>
+                            <div class="thought-meta">Thought: ${date} at ${time}</div>
+                            <div class="thought-content">${item.data.content}</div>
+                        `;
+                    }
+                    
+                    stepContent.appendChild(thoughtEl);
+                } else if (item.type === 'prompt') {
+                    const { time, date } = formatDate(item.data.timestamp);
+                    const promptEl = document.createElement('div');
+                    promptEl.className = 'prompt';
+                    promptEl.innerHTML = `
+                        <strong>Prompt:</strong>
+                        <div>${item.data.content}</div>
+                        <div class="step-meta">Posted: ${date} at ${time}</div>
+                    `;
+                    stepContent.appendChild(promptEl);
+                } else if (item.type === 'action') {
+                    const { time, date } = formatDate(item.data.timestamp);
+                    const actionEl = document.createElement('div');
+                    actionEl.className = 'action';
+                    actionEl.innerHTML = `
+                        <strong>Player's Action:</strong>
+                        <div>${item.data.content}</div>
+                        <div class="step-meta">Posted: ${date} at ${time}</div>
+                    `;
+                    stepContent.appendChild(actionEl);
+                } else if (item.type === 'outcome') {
+                    const { time, date } = formatDate(item.data.timestamp);
+                    const outcomeEl = document.createElement('div');
+                    outcomeEl.className = 'outcome';
+                    outcomeEl.innerHTML = `
+                        <strong>Outcome:</strong>
+                        <div>${item.data.content}</div>
+                        <div class="step-meta">Posted: ${date} at ${time}</div>
+                    `;
+                    stepContent.appendChild(outcomeEl);
+                }
             }
             
             stepEl.appendChild(stepContent);
-            
-            // Add thoughts for this step
-            if (step.thoughts.length > 0) {
-                const thoughtsContainer = document.createElement('div');
-                thoughtsContainer.className = 'thoughts-container';
-                
-                step.thoughts.forEach(thought => {
-                    const { time, date } = formatDate(thought.timestamp);
-                    const thoughtEl = document.createElement('div');
-                    thoughtEl.className = `thought ${thought.type}`;
-                    
-                    thoughtEl.innerHTML = `
-                        <span class="thought-type ${thought.type}">${thought.type}</span>
-                        <div class="thought-meta">Thought: ${date} at ${time}</div>
-                        <div class="thought-content">${thought.content}</div>
-                    `;
-                    
-                    thoughtsContainer.appendChild(thoughtEl);
-                });
-                
-                stepEl.appendChild(thoughtsContainer);
-            }
-            
             gameLogDisplay.appendChild(stepEl);
         });
         
@@ -1090,10 +1225,9 @@
     function renderLongTermThought(timestamp, content) {
         const { time, date } = formatDate(timestamp);
         const thoughtEl = document.createElement('div');
-        thoughtEl.className = 'thought long-term';
+        thoughtEl.className = 'thought';
         
         thoughtEl.innerHTML = `
-            <span class="thought-type long-term">long-term</span>
             <div class="thought-meta">Added: ${date} at ${time}</div>
             <div class="thought-content">${content}</div>
         `;
@@ -1109,11 +1243,10 @@
             return;
         }
         
-        // Sort entries into story steps
-        const steps = [];
-        let currentStep = { prompt: null, action: null, outcome: null };
-        let stepNumber = 1;
+        // Process rows into a sequence with proper order (similar to DM view but without thoughts)
+        let gameSequence = [];
         
+        // First pass - filter out thoughts
         for (const row of rows) {
             if (!row || row.length < 3) continue;
             
@@ -1122,29 +1255,45 @@
             if (type === 'DM_THOUGHT') {
                 // Skip DM thoughts for player view
                 continue;
-            } else if (type === 'PROMPT') {
-                // New step starts with a prompt
-                if (currentStep.prompt || currentStep.action || currentStep.outcome) {
-                    steps.push({...currentStep, number: stepNumber++});
-                    currentStep = { prompt: null, action: null, outcome: null };
-                }
-                currentStep.prompt = { timestamp, content };
-            } else if (type === 'ACTION') {
-                currentStep.action = { timestamp, content };
-            } else if (type === 'OUTCOME') {
-                currentStep.outcome = { timestamp, content };
-                // Complete step
-                steps.push({...currentStep, number: stepNumber++});
-                currentStep = { prompt: null, action: null, outcome: null };
+            } else {
+                // Add the actual message
+                gameSequence.push({
+                    type: type.toLowerCase(),
+                    data: {
+                        timestamp,
+                        content
+                    }
+                });
             }
         }
         
-        // Add the last incomplete step if any
-        if (currentStep.prompt || currentStep.action || currentStep.outcome) {
-            steps.push({...currentStep, number: stepNumber});
+        // Second pass - group into steps
+        const steps = [];
+        let currentStep = { 
+            number: 1,
+            sequence: []  // Array of {type, data} objects in order
+        };
+        
+        for (const item of gameSequence) {
+            if (item.type === 'prompt' && currentStep.sequence.some(s => s.type === 'prompt' || s.type === 'outcome')) {
+                // If we already have a prompt or outcome in this step, start a new step
+                steps.push({...currentStep});
+                currentStep = {
+                    number: steps.length + 1,
+                    sequence: [item]
+                };
+            } else {
+                // Add to current step
+                currentStep.sequence.push(item);
+            }
         }
         
-        // Render steps
+        // Add the last step if it has content
+        if (currentStep.sequence.length > 0) {
+            steps.push(currentStep);
+        }
+        
+        // Render each step
         steps.forEach(step => {
             const stepEl = document.createElement('div');
             stepEl.className = 'step';
@@ -1155,44 +1304,42 @@
             stepHeader.innerHTML = `<span>Step ${step.number}</span>`;
             stepEl.appendChild(stepHeader);
             
-            // Step content
+            // Render each item in the sequence
             const stepContent = document.createElement('div');
             stepContent.className = 'step-content';
             
-            if (step.prompt) {
-                const { time, date } = formatDate(step.prompt.timestamp);
-                const promptEl = document.createElement('div');
-                promptEl.className = 'prompt';
-                promptEl.innerHTML = `
-                    <strong>Prompt:</strong>
-                    <div>${step.prompt.content}</div>
-                    <div class="step-meta">Posted: ${date} at ${time}</div>
-                `;
-                stepContent.appendChild(promptEl);
-            }
-            
-            if (step.action) {
-                const { time, date } = formatDate(step.action.timestamp);
-                const actionEl = document.createElement('div');
-                actionEl.className = 'action';
-                actionEl.innerHTML = `
-                    <strong>Your Action:</strong>
-                    <div>${step.action.content}</div>
-                    <div class="step-meta">Posted: ${date} at ${time}</div>
-                `;
-                stepContent.appendChild(actionEl);
-            }
-            
-            if (step.outcome) {
-                const { time, date } = formatDate(step.outcome.timestamp);
-                const outcomeEl = document.createElement('div');
-                outcomeEl.className = 'outcome';
-                outcomeEl.innerHTML = `
-                    <strong>Outcome:</strong>
-                    <div>${step.outcome.content}</div>
-                    <div class="step-meta">Posted: ${date} at ${time}</div>
-                `;
-                stepContent.appendChild(outcomeEl);
+            for (const item of step.sequence) {
+                if (item.type === 'prompt') {
+                    const { time, date } = formatDate(item.data.timestamp);
+                    const promptEl = document.createElement('div');
+                    promptEl.className = 'prompt';
+                    promptEl.innerHTML = `
+                        <strong>Prompt:</strong>
+                        <div>${item.data.content}</div>
+                        <div class="step-meta">Posted: ${date} at ${time}</div>
+                    `;
+                    stepContent.appendChild(promptEl);
+                } else if (item.type === 'action') {
+                    const { time, date } = formatDate(item.data.timestamp);
+                    const actionEl = document.createElement('div');
+                    actionEl.className = 'action';
+                    actionEl.innerHTML = `
+                        <strong>Your Action:</strong>
+                        <div>${item.data.content}</div>
+                        <div class="step-meta">Posted: ${date} at ${time}</div>
+                    `;
+                    stepContent.appendChild(actionEl);
+                } else if (item.type === 'outcome') {
+                    const { time, date } = formatDate(item.data.timestamp);
+                    const outcomeEl = document.createElement('div');
+                    outcomeEl.className = 'outcome';
+                    outcomeEl.innerHTML = `
+                        <strong>Outcome:</strong>
+                        <div>${item.data.content}</div>
+                        <div class="step-meta">Posted: ${date} at ${time}</div>
+                    `;
+                    stepContent.appendChild(outcomeEl);
+                }
             }
             
             stepEl.appendChild(stepContent);
@@ -1217,10 +1364,44 @@
         if (e.key === 'Enter') loginAsAdmin();
     });
     
-    // DM controls
-    watsonianBtn.addEventListener('click', () => setThoughtType('watsonian'));
-    doylistBtn.addEventListener('click', () => setThoughtType('doylist'));
-    longTermBtn.addEventListener('click', () => setThoughtType('long-term'));
+    // DM format controls
+    watsonianBtn.addEventListener('click', () => {
+        setDefaultThoughtType('watsonian');
+        if (dmThoughtInput.selectionStart !== dmThoughtInput.selectionEnd) {
+            applyFormattingToSelection('watsonian');
+        }
+    });
+    
+    doylistBtn.addEventListener('click', () => {
+        setDefaultThoughtType('doylist');
+        if (dmThoughtInput.selectionStart !== dmThoughtInput.selectionEnd) {
+            applyFormattingToSelection('doylist');
+        }
+    });
+    
+    longTermBtn.addEventListener('click', () => {
+        if (dmThoughtInput.selectionStart !== dmThoughtInput.selectionEnd) {
+            applyFormattingToSelection('long-term');
+        }
+    });
+    
+    // Text selection in thought input
+    dmThoughtInput.addEventListener('mouseup', () => {
+        // Check if text is selected
+        if (dmThoughtInput.selectionStart !== dmThoughtInput.selectionEnd) {
+            // Text is selected, enable formatting buttons
+            watsonianBtn.disabled = false;
+            doylistBtn.disabled = false;
+            longTermBtn.disabled = false;
+        } else {
+            // No text selected
+            watsonianBtn.disabled = false;
+            doylistBtn.disabled = false;
+            longTermBtn.disabled = false;
+        }
+    });
+    
+    // Other DM controls
     postDmMessageBtn.addEventListener('click', postDmMessage);
     refreshGameBtn.addEventListener('click', loadGameData);
     
