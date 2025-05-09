@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aventura RPG Asíncrona</title>
+    <title>Juego</title>
     <!-- jsrsasign library for JWT signing (Service Account Auth) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.8.6/jsrsasign-all-min.js"></script>
     <style>
@@ -507,7 +507,7 @@
 <body>
     <!-- Login container -->
     <div class="login-container" id="loginContainer">
-        <h1>Aventura RPG Asíncrona</h1>
+        <h1>Juego</h1>
         
         <div id="playerLoginSection">
             <h2>Ingreso del Jugador</h2>
@@ -556,11 +556,11 @@
                 <!-- DM input area -->
                 <div class="input-area">
                     <div id="dmTurnLockedMessage" class="locked-message" style="display: none;">
-                        Esperando la acción del jugador...
+                        Esperando la Action del jugador...
                     </div>
                     
                     <div id="dmInputControls">
-                        <h3>Pensamientos del Narrador</h3>
+                        <h3>Pensamientos del DM</h3>
                         <div class="keyboard-shortcuts">
                             ⌨️ Atajos
                             <div class="shortcuts-tooltip">
@@ -605,8 +605,8 @@
                         </div>
                         
                         <h3>Mensaje del Juego</h3>
-                        <div id="messageTypeIndicator">Actual: <span id="currentMessageType">Consigna</span></div>
-                        <textarea id="dmMessageInput" placeholder="Ingresá una consigna o resultado para el jugador"></textarea>
+                        <div id="messageTypeIndicator">Actual: <span id="currentMessageType">Prompt</span></div>
+                        <textarea id="dmMessageInput" placeholder="Ingresá un Prompt o Outcome para el jugador"></textarea>
                         <button id="postDmMessageBtn">Publicar Mensaje</button>
                     </div>
                     
@@ -622,7 +622,7 @@
             <!-- Game log area -->
             <div class="log-container">
                 <div class="game-log-header">
-                    <h2>Registro de Aventura</h2>
+                    <h2>Juego</h2>
                     <button id="playerRefreshBtn">Actualizar</button>
                 </div>
                 <div id="playerGameLogDisplay"></div>
@@ -631,13 +631,13 @@
             <!-- Player input area -->
             <div class="input-area">
                 <div id="playerTurnLockedMessage" class="locked-message" style="display: none;">
-                    Esperando la respuesta del Narrador...
+                    Esperando la respuesta del DM...
                 </div>
                 
                 <div id="playerInputControls">
-                    <h3>Tu Acción</h3>
-                    <textarea id="playerActionInput" placeholder="¿Qué hacés ahora?"></textarea>
-                    <button id="submitPlayerActionBtn">Enviar Acción</button>
+                    <h3>Action</h3>
+                    <textarea id="playerActionInput" placeholder=""></textarea>
+                    <button id="submitPlayerActionBtn">Enviar Action</button>
                 </div>
                 
                 <p id="playerStatusMessage" class="status"></p>
@@ -1439,10 +1439,10 @@
             // Update message type for next turn
             if (currentMessageType === 'PROMPT') {
                 currentMessageType = 'OUTCOME';
-                currentMessageTypeSpan.textContent = 'Resultado';
+                currentMessageTypeSpan.textContent = 'Outcome';
             } else {
                 currentMessageType = 'PROMPT';
-                currentMessageTypeSpan.textContent = 'Consigna';
+                currentMessageTypeSpan.textContent = 'Prompt';
             }
             
             await loadGameData();
@@ -1461,24 +1461,24 @@
         }
         
         if (!isPlayerTurn) {
-            playerStatusMessage.textContent = "No es tu turno todavía.";
+            playerStatusMessage.textContent = "Todavía no es tu turno.";
             return;
         }
         
         const actionText = playerActionInput.value.trim();
         if (!actionText) {
-            playerStatusMessage.textContent = 'Por favor, ingresá tu acción.';
+            playerStatusMessage.textContent = 'Por favor, ingresá tu Action.';
             return;
         }
         
-        showLoading(playerStatusMessage, 'Enviando acción...');
+        showLoading(playerStatusMessage, 'Enviando Action...');
         const ts = new Date().toISOString();
         
         try {
             await appendToSheet([[ts, 'PLAYER', 'ACTION', actionText, null]]);
             playerActionInput.value = '';
             await loadGameData();
-            hideLoading(playerStatusMessage, 'Acción enviada.');
+            hideLoading(playerStatusMessage, 'Action enviada.');
         } catch (e) {
             hideLoading(playerStatusMessage, 'Error: ' + e.message);
         }
@@ -1524,7 +1524,7 @@
             // No entries yet, DM needs to post the first prompt
             isPlayerTurn = false;
             currentMessageType = 'PROMPT';
-            currentMessageTypeSpan.textContent = 'Consigna';
+            currentMessageTypeSpan.textContent = 'Prompt';
             dmTurnLockedMessage.style.display = 'none';
             dmInputControls.style.display = 'block';
             return;
@@ -1543,7 +1543,7 @@
             // No action rows yet, DM's turn
             isPlayerTurn = false;
             currentMessageType = 'PROMPT';
-            currentMessageTypeSpan.textContent = 'Consigna';
+            currentMessageTypeSpan.textContent = 'Prompt';
             dmTurnLockedMessage.style.display = 'none';
             dmInputControls.style.display = 'block';
             return;
@@ -1562,7 +1562,7 @@
             // After an outcome, DM posts a prompt
             isPlayerTurn = false;
             currentMessageType = 'PROMPT';
-            currentMessageTypeSpan.textContent = 'Consigna';
+            currentMessageTypeSpan.textContent = 'Prompt';
             dmTurnLockedMessage.style.display = 'none';
             dmInputControls.style.display = 'block';
         } else if (author === 'DM' && type === 'PROMPT') {
@@ -1584,7 +1584,7 @@
             // No entries yet, waiting for DM to post the first prompt
             isPlayerTurn = false;
             playerTurnLockedMessage.style.display = 'block';
-            playerTurnLockedMessage.textContent = 'Esperando a que el Narrador inicie la aventura...';
+            playerTurnLockedMessage.textContent = 'Esperando a que el DM inicie el juego...';
             playerInputControls.style.display = 'none';
             return;
         }
@@ -1767,7 +1767,7 @@
                     const promptEl = document.createElement('div');
                     promptEl.className = 'prompt';
                     promptEl.innerHTML = `
-                        <strong>Consigna:</strong>
+                        <strong>Prompt:</strong>
                         <div>${item.data.content}</div>
                         <div class="step-meta">Publicado: ${date} a las ${time}</div>
                     `;
@@ -1777,7 +1777,7 @@
                     const actionEl = document.createElement('div');
                     actionEl.className = 'action';
                     actionEl.innerHTML = `
-                        <strong>Acción del Jugador:</strong>
+                        <strong>Action del Jugador:</strong>
                         <div>${item.data.content}</div>
                         <div class="step-meta">Publicado: ${date} a las ${time}</div>
                     `;
@@ -1787,7 +1787,7 @@
                     const outcomeEl = document.createElement('div');
                     outcomeEl.className = 'outcome';
                     outcomeEl.innerHTML = `
-                        <strong>Resultado:</strong>
+                        <strong>Outcome:</strong>
                         <div>${item.data.content}</div>
                         <div class="step-meta">Publicado: ${date} a las ${time}</div>
                     `;
@@ -1928,7 +1928,7 @@
                     const actionEl = document.createElement('div');
                     actionEl.className = 'action';
                     actionEl.innerHTML = `
-                        <strong>Tu Acción:</strong>
+                        <strong>Tu Action:</strong>
                         <div>${item.data.content}</div>
                         <div class="step-meta">Publicado: ${date} a las ${time}</div>
                     `;
@@ -2007,6 +2007,16 @@
     });
     
     /* ---------- INITIALIZATION ---------- */
+    // Array de frases graciosas de RPGs para el placeholder
+    const funnyRpgPhrases = [
+        "Me tiro al barranco",
+        "Me pongo la bata y el sombrero de mago",
+        "Lamo el enchufe",
+        "Le pego en la nuca",
+        "Paso",
+        "Me rasco la nariz"
+    ];
+    
     window.onload = async () => {
         if (typeof KJUR === 'undefined') {
             loginStatusMessage.textContent = 'CRÍTICO: La librería jsrsasign no se pudo cargar.';
@@ -2015,6 +2025,13 @@
             loadCredentials();
             loginStatusMessage.textContent = '¡Bienvenido! Por favor, iniciá sesión.';
             initRichTextEditor();
+            
+            // Establecer placeholder aleatorio para el input de acción
+            const playerInput = document.getElementById('playerActionInput');
+            if (playerInput) {
+                const randomIndex = Math.floor(Math.random() * funnyRpgPhrases.length);
+                playerInput.placeholder = funnyRpgPhrases[randomIndex];
+            }
         }
     };
     </script>
