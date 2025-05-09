@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Async RPG Adventure</title>
+    <title>Aventura RPG Asíncrona</title>
     <!-- jsrsasign library for JWT signing (Service Account Auth) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.8.6/jsrsasign-all-min.js"></script>
     <style>
@@ -507,19 +507,19 @@
 <body>
     <!-- Login container -->
     <div class="login-container" id="loginContainer">
-        <h1>Async RPG Adventure</h1>
+        <h1>Aventura RPG Asíncrona</h1>
         
         <div id="playerLoginSection">
-            <h2>Player Login</h2>
-            <input type="password" id="playerPassword" placeholder="Player Password">
-            <button id="playerLoginBtn">Login as Player</button>
+            <h2>Ingreso del Jugador</h2>
+            <input type="password" id="playerPassword" placeholder="Contraseña del Jugador">
+            <button id="playerLoginBtn">Ingresar como Jugador</button>
             <p id="playerLoginError" class="error"></p>
         </div>
         
         <div id="adminLoginSection">
-            <h2>DM Login</h2>
-            <input type="password" id="adminPassword" placeholder="DM Password">
-            <button id="adminLoginBtn">Login as DM</button>
+            <h2>Ingreso del Narrador</h2>
+            <input type="password" id="adminPassword" placeholder="Contraseña del Narrador">
+            <button id="adminLoginBtn">Ingresar como Narrador</button>
             <p id="adminLoginError" class="error"></p>
         </div>
         
@@ -531,14 +531,14 @@
         <div class="dm-container">
             <!-- Long-term thoughts sidebar -->
             <div class="dm-sidebar">
-                <h2>Long-term Thoughts</h2>
+                <h2>Pensamientos a Largo Plazo</h2>
                 <div class="search-box">
-                    <input type="text" id="thoughtSearchInput" placeholder="Search thoughts...">
+                    <input type="text" id="thoughtSearchInput" placeholder="Buscar pensamientos...">
                 </div>
                 <div class="search-filters">
-                    <button class="filter-button active" data-filter="all">All</button>
-                    <button class="filter-button" data-filter="watsonian">Watsonian</button>
-                    <button class="filter-button" data-filter="doylist">Doylist</button>
+                    <button class="filter-button active" data-filter="all">Todos</button>
+                    <button class="filter-button" data-filter="watsonian">Watsonianos</button>
+                    <button class="filter-button" data-filter="doylist">Doylistas</button>
                 </div>
                 <div id="longTermThoughtsContainer"></div>
             </div>
@@ -547,8 +547,8 @@
                 <!-- Game log area -->
                 <div class="log-container">
                     <div class="game-log-header">
-                        <h2>Game Log</h2>
-                        <button id="refreshGameBtn">Refresh</button>
+                        <h2>Registro del Juego</h2>
+                        <button id="refreshGameBtn">Actualizar</button>
                     </div>
                     <div id="gameLogDisplay"></div>
                 </div>
@@ -556,28 +556,28 @@
                 <!-- DM input area -->
                 <div class="input-area">
                     <div id="dmTurnLockedMessage" class="locked-message" style="display: none;">
-                        Waiting for player's action...
+                        Esperando la acción del jugador...
                     </div>
                     
                     <div id="dmInputControls">
-                        <h3>DM Thoughts</h3>
+                        <h3>Pensamientos del Narrador</h3>
                         <div class="keyboard-shortcuts">
-                            ⌨️ Shortcuts
+                            ⌨️ Atajos
                             <div class="shortcuts-tooltip">
                                 <div class="shortcut-item">
-                                    <span>Toggle Watsonian</span>
+                                    <span>Alternar Watsoniano</span>
                                     <span class="shortcut-key">Ctrl+W</span>
                                 </div>
                                 <div class="shortcut-item">
-                                    <span>Toggle Doylist</span>
+                                    <span>Alternar Doylista</span>
                                     <span class="shortcut-key">Ctrl+D</span>
                                 </div>
                                 <div class="shortcut-item">
-                                    <span>Toggle Long-term</span>
+                                    <span>Alternar Largo Plazo</span>
                                     <span class="shortcut-key">Ctrl+L</span>
                                 </div>
                                 <div class="shortcut-item">
-                                    <span>Submit</span>
+                                    <span>Enviar</span>
                                     <span class="shortcut-key">Ctrl+Enter</span>
                                 </div>
                             </div>
@@ -586,28 +586,28 @@
                         <!-- Rich Text Editor for Thoughts -->
                         <div class="rich-text-editor">
                             <div class="editor-toolbar">
-                                <button class="toolbar-button watsonian active" id="watsonian-btn" title="Watsonian (Ctrl+W)">
-                                    <span>Watsonian</span>
+                                <button class="toolbar-button watsonian active" id="watsonian-btn" title="Watsoniano (Ctrl+W)">
+                                    <span>Watsoniano</span>
                                 </button>
-                                <button class="toolbar-button doylist" id="doylist-btn" title="Doylist (Ctrl+D)">
-                                    <span>Doylist</span>
+                                <button class="toolbar-button doylist" id="doylist-btn" title="Doylista (Ctrl+D)">
+                                    <span>Doylista</span>
                                 </button>
                                 <div class="toolbar-separator"></div>
-                                <button class="toolbar-button longterm" id="longterm-btn" title="Long-term (Ctrl+L)">
-                                    <span>Long-term</span>
+                                <button class="toolbar-button longterm" id="longterm-btn" title="Largo plazo (Ctrl+L)">
+                                    <span>Largo plazo</span>
                                 </button>
                                 <div class="toolbar-separator"></div>
                                 <div id="selection-info" style="margin-left: auto; font-size: 0.8rem; color: var(--dark-gray);">
-                                    Select text to format
+                                    Seleccioná texto para formatear
                                 </div>
                             </div>
                             <div class="editor-content" id="dmThoughtEditor" contenteditable="true"></div>
                         </div>
                         
-                        <h3>Game Message</h3>
-                        <div id="messageTypeIndicator">Current: <span id="currentMessageType">Prompt</span></div>
-                        <textarea id="dmMessageInput" placeholder="Enter a prompt or outcome for the player"></textarea>
-                        <button id="postDmMessageBtn">Post Message</button>
+                        <h3>Mensaje del Juego</h3>
+                        <div id="messageTypeIndicator">Actual: <span id="currentMessageType">Consigna</span></div>
+                        <textarea id="dmMessageInput" placeholder="Ingresá una consigna o resultado para el jugador"></textarea>
+                        <button id="postDmMessageBtn">Publicar Mensaje</button>
                     </div>
                     
                     <p id="dmStatusMessage" class="status"></p>
@@ -622,8 +622,8 @@
             <!-- Game log area -->
             <div class="log-container">
                 <div class="game-log-header">
-                    <h2>Adventure Log</h2>
-                    <button id="playerRefreshBtn">Refresh</button>
+                    <h2>Registro de Aventura</h2>
+                    <button id="playerRefreshBtn">Actualizar</button>
                 </div>
                 <div id="playerGameLogDisplay"></div>
             </div>
@@ -631,13 +631,13 @@
             <!-- Player input area -->
             <div class="input-area">
                 <div id="playerTurnLockedMessage" class="locked-message" style="display: none;">
-                    Waiting for DM's response...
+                    Esperando la respuesta del Narrador...
                 </div>
                 
                 <div id="playerInputControls">
-                    <h3>Your Action</h3>
-                    <textarea id="playerActionInput" placeholder="What do you do next?"></textarea>
-                    <button id="submitPlayerActionBtn">Submit Action</button>
+                    <h3>Tu Acción</h3>
+                    <textarea id="playerActionInput" placeholder="¿Qué hacés ahora?"></textarea>
+                    <button id="submitPlayerActionBtn">Enviar Acción</button>
                 </div>
                 
                 <p id="playerStatusMessage" class="status"></p>
@@ -745,13 +745,13 @@
     const playerInputControls = document.getElementById('playerInputControls');
     
     /* ---------- UI HELPERS ---------- */
-    function showLoading(element, msg = 'Processing...') {
+    function showLoading(element, msg = 'Procesando...') {
         isLoading = true;
         element.textContent = msg;
         document.querySelectorAll('button').forEach(b => b.disabled = true);
     }
     
-    function hideLoading(element, msg = 'Ready.') {
+    function hideLoading(element, msg = 'Listo.') {
         isLoading = false;
         element.textContent = msg;
         document.querySelectorAll('button').forEach(b => b.disabled = false);
@@ -770,19 +770,19 @@
         try {
             // Load player credentials
             const playerResponse = await fetch('player_credentials.hex');
-            if (!playerResponse.ok) throw new Error('Failed to load player credentials');
+            if (!playerResponse.ok) throw new Error('Error al cargar las credenciales del jugador');
             playerCredentials = await playerResponse.text();
             
             // Load DM credentials
             const dmResponse = await fetch('dm_credentials.hex');
-            if (!dmResponse.ok) throw new Error('Failed to load DM credentials');
+            if (!dmResponse.ok) throw new Error('Error al cargar las credenciales del narrador');
             dmCredentials = await dmResponse.text();
             
-            loginStatusMessage.textContent = 'Credentials loaded successfully.';
+            loginStatusMessage.textContent = 'Credenciales cargadas con éxito.';
             return true;
         } catch (e) {
             console.error('Error loading credentials', e);
-            loginStatusMessage.textContent = 'CRITICAL: Could not load credentials files.';
+            loginStatusMessage.textContent = 'CRÍTICO: No se pudieron cargar los archivos de credenciales.';
             return false;
         }
     }
@@ -804,26 +804,26 @@
             return true;
         } catch (e) {
             console.error('SA decrypt/parse error', e);
-            loginStatusMessage.textContent = 'CRITICAL: Could not load service account creds.';
+            loginStatusMessage.textContent = 'CRÍTICO: No se pudieron cargar las credenciales de la cuenta de servicio.';
             return false;
         }
     }
     
     async function loginAsPlayer() {
         if (playerPasswordInput.value !== PLAYER_PASSWORD) {
-            playerLoginError.textContent = 'Incorrect password.';
+            playerLoginError.textContent = 'Contraseña incorrecta.';
             return;
         }
         
         if (!playerCredentials) {
             if (!await loadCredentials()) {
-                playerLoginError.textContent = 'Failed to load credentials.';
+                playerLoginError.textContent = 'Error al cargar credenciales.';
                 return;
             }
         }
         
         if (!await initialiseCredentials(playerCredentials, PLAYER_PASSWORD)) {
-            playerLoginError.textContent = 'Failed to initialize credentials.';
+            playerLoginError.textContent = 'Error al inicializar credenciales.';
             return;
         }
         
@@ -831,25 +831,25 @@
         isPlayerLoggedIn = true;
         loginContainer.style.display = 'none';
         playerMainContainer.style.display = 'block';
-        playerStatusMessage.textContent = 'Logged in as Player.';
+        playerStatusMessage.textContent = 'Conectado como Jugador.';
         await loadGameData();
     }
     
     async function loginAsAdmin() {
         if (adminPasswordInput.value !== DM_PASSWORD) {
-            adminLoginError.textContent = 'Incorrect password.';
+            adminLoginError.textContent = 'Contraseña incorrecta.';
             return;
         }
         
         if (!dmCredentials) {
             if (!await loadCredentials()) {
-                adminLoginError.textContent = 'Failed to load credentials.';
+                adminLoginError.textContent = 'Error al cargar credenciales.';
                 return;
             }
         }
         
         if (!await initialiseCredentials(dmCredentials, DM_PASSWORD)) {
-            adminLoginError.textContent = 'Failed to initialize credentials.';
+            adminLoginError.textContent = 'Error al inicializar credenciales.';
             return;
         }
         
@@ -857,14 +857,14 @@
         isAdminLoggedIn = true;
         loginContainer.style.display = 'none';
         dmMainContainer.style.display = 'block';
-        dmStatusMessage.textContent = 'Logged in as DM.';
+        dmStatusMessage.textContent = 'Conectado como Narrador.';
         await loadGameData();
     }
     
     /* ---------- GOOGLE AUTH ---------- */
     async function getAccessToken() {
         if (accessToken && Date.now() < tokenExpiryTime) return accessToken;
-        if (!serviceAccountCredentials) throw new Error('Not logged in.');
+        if (!serviceAccountCredentials) throw new Error('No has iniciado sesión.');
         const header = { alg: 'RS256', typ: 'JWT' };
         const now = Math.floor(Date.now() / 1000);
         const claims = {
@@ -886,7 +886,7 @@
             body: 'grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=' + sJWT
         });
         if (!res.ok) {
-            const err = await res.json(); throw new Error('Token exchange failed: ' + JSON.stringify(err));
+            const err = await res.json(); throw new Error('Intercambio de token fallido: ' + JSON.stringify(err));
         }
         const data = await res.json();
         accessToken = data.access_token;
@@ -905,7 +905,7 @@
             body: JSON.stringify(body)
         });
         if (!res.ok) {
-            const err = await res.json(); throw new Error('Append failed: ' + err.error.message);
+            const err = await res.json(); throw new Error('Error al añadir datos: ' + err.error.message);
         }
         return res.json();
     }
@@ -916,7 +916,7 @@
             headers: { 'Authorization': 'Bearer ' + token }
         });
         if (!res.ok) {
-            const err = await res.json(); throw new Error('Read failed: ' + err.error.message);
+            const err = await res.json(); throw new Error('Error al leer datos: ' + err.error.message);
         }
         const data = await res.json();
         return data.values || [];
@@ -970,7 +970,7 @@
             
             if (editorNode.contains(range.commonAncestorContainer)) {
                 if (selection.toString().trim().length > 0) {
-                    selectionInfo.textContent = `${selection.toString().length} characters selected`;
+                    selectionInfo.textContent = `${selection.toString().length} caracteres seleccionados`;
                 } else {
                     updateSelectionInfoBasedOnCursor();
                 }
@@ -991,11 +991,11 @@
                     // Found a span, check its classes
                     if (currentNode.classList.contains('watsonian-text')) {
                         selectionInfo.textContent = currentNode.classList.contains('longterm-text') ? 
-                            'Watsonian + Long-term' : 'Watsonian';
+                            'Watsoniano + Largo plazo' : 'Watsoniano';
                         return;
                     } else if (currentNode.classList.contains('doylist-text')) {
                         selectionInfo.textContent = currentNode.classList.contains('longterm-text') ? 
-                            'Doylist + Long-term' : 'Doylist';
+                            'Doylista + Largo plazo' : 'Doylista';
                         return;
                     }
                 }
@@ -1003,9 +1003,9 @@
             }
             
             // No formatting found, show the default
-            selectionInfo.textContent = `Using ${currentDefaultThoughtType}`;
+            selectionInfo.textContent = `Usando ${currentDefaultThoughtType === 'watsonian' ? 'watsoniano' : 'doylista'}`;
         } else {
-            selectionInfo.textContent = `Using ${currentDefaultThoughtType}`;
+            selectionInfo.textContent = `Usando ${currentDefaultThoughtType === 'watsonian' ? 'watsoniano' : 'doylista'}`;
         }
     }
     
@@ -1399,7 +1399,7 @@
     async function postDmMessage() {
         if (isLoading) return;
         if (!isAdminLoggedIn) {
-            dmStatusMessage.textContent = 'You must be logged in as DM.';
+            dmStatusMessage.textContent = 'Tenés que estar conectado como Narrador.';
             return;
         }
         
@@ -1413,11 +1413,11 @@
         const message = dmMessageInput.value.trim();
         
         if (!message) {
-            dmStatusMessage.textContent = 'Game message is required.';
+            dmStatusMessage.textContent = 'El mensaje del juego es obligatorio.';
             return;
         }
         
-        showLoading(dmStatusMessage, 'Posting message...');
+        showLoading(dmStatusMessage, 'Publicando mensaje...');
         
         const ts = new Date().toISOString();
         const rows = [];
@@ -1439,14 +1439,14 @@
             // Update message type for next turn
             if (currentMessageType === 'PROMPT') {
                 currentMessageType = 'OUTCOME';
-                currentMessageTypeSpan.textContent = 'Outcome';
+                currentMessageTypeSpan.textContent = 'Resultado';
             } else {
                 currentMessageType = 'PROMPT';
-                currentMessageTypeSpan.textContent = 'Prompt';
+                currentMessageTypeSpan.textContent = 'Consigna';
             }
             
             await loadGameData();
-            hideLoading(dmStatusMessage, 'Message posted.');
+            hideLoading(dmStatusMessage, 'Mensaje publicado.');
         } catch (e) {
             hideLoading(dmStatusMessage, 'Error: ' + e.message);
         }
@@ -1456,29 +1456,29 @@
     async function submitPlayerAction() {
         if (isLoading) return;
         if (!isPlayerLoggedIn) {
-            playerStatusMessage.textContent = 'You must be logged in as a player.';
+            playerStatusMessage.textContent = 'Tenés que estar conectado como jugador.';
             return;
         }
         
         if (!isPlayerTurn) {
-            playerStatusMessage.textContent = "It's not your turn yet.";
+            playerStatusMessage.textContent = "No es tu turno todavía.";
             return;
         }
         
         const actionText = playerActionInput.value.trim();
         if (!actionText) {
-            playerStatusMessage.textContent = 'Please enter your action.';
+            playerStatusMessage.textContent = 'Por favor, ingresá tu acción.';
             return;
         }
         
-        showLoading(playerStatusMessage, 'Submitting action...');
+        showLoading(playerStatusMessage, 'Enviando acción...');
         const ts = new Date().toISOString();
         
         try {
             await appendToSheet([[ts, 'PLAYER', 'ACTION', actionText, null]]);
             playerActionInput.value = '';
             await loadGameData();
-            hideLoading(playerStatusMessage, 'Action submitted.');
+            hideLoading(playerStatusMessage, 'Acción enviada.');
         } catch (e) {
             hideLoading(playerStatusMessage, 'Error: ' + e.message);
         }
@@ -1488,7 +1488,7 @@
     async function loadGameData() {
         try {
             const statusMsg = isPlayerLoggedIn ? playerStatusMessage : dmStatusMessage;
-            showLoading(statusMsg, 'Loading game data...');
+            showLoading(statusMsg, 'Cargando datos del juego...');
             
             const rows = await readSheet();
             gameData = rows; // Store for turn tracking
@@ -1503,17 +1503,17 @@
                 updatePlayerTurnStatus(rows);
             }
             
-            hideLoading(statusMsg, 'Game data loaded.');
+            hideLoading(statusMsg, 'Datos del juego cargados.');
         } catch (e) {
             const statusMsg = isPlayerLoggedIn ? playerStatusMessage : dmStatusMessage;
-            hideLoading(statusMsg, 'Failed to load data: ' + e.message);
+            hideLoading(statusMsg, 'Error al cargar datos: ' + e.message);
             
             if (isAdminLoggedIn) {
-                gameLogDisplay.innerHTML = '<p class="error">Error loading game data: ' + e.message + '</p>';
+                gameLogDisplay.innerHTML = '<p class="error">Error al cargar datos del juego: ' + e.message + '</p>';
             }
             
             if (isPlayerLoggedIn) {
-                playerGameLogDisplay.innerHTML = '<p class="error">Error loading game data: ' + e.message + '</p>';
+                playerGameLogDisplay.innerHTML = '<p class="error">Error al cargar datos del juego: ' + e.message + '</p>';
             }
         }
     }
@@ -1524,7 +1524,7 @@
             // No entries yet, DM needs to post the first prompt
             isPlayerTurn = false;
             currentMessageType = 'PROMPT';
-            currentMessageTypeSpan.textContent = 'Prompt';
+            currentMessageTypeSpan.textContent = 'Consigna';
             dmTurnLockedMessage.style.display = 'none';
             dmInputControls.style.display = 'block';
             return;
@@ -1543,7 +1543,7 @@
             // No action rows yet, DM's turn
             isPlayerTurn = false;
             currentMessageType = 'PROMPT';
-            currentMessageTypeSpan.textContent = 'Prompt';
+            currentMessageTypeSpan.textContent = 'Consigna';
             dmTurnLockedMessage.style.display = 'none';
             dmInputControls.style.display = 'block';
             return;
@@ -1555,14 +1555,14 @@
             // Player just submitted an action, DM's turn to respond with OUTCOME
             isPlayerTurn = false;
             currentMessageType = 'OUTCOME';
-            currentMessageTypeSpan.textContent = 'Outcome';
+            currentMessageTypeSpan.textContent = 'Resultado';
             dmTurnLockedMessage.style.display = 'none';
             dmInputControls.style.display = 'block';
         } else if (author === 'DM' && type === 'OUTCOME') {
             // After an outcome, DM posts a prompt
             isPlayerTurn = false;
             currentMessageType = 'PROMPT';
-            currentMessageTypeSpan.textContent = 'Prompt';
+            currentMessageTypeSpan.textContent = 'Consigna';
             dmTurnLockedMessage.style.display = 'none';
             dmInputControls.style.display = 'block';
         } else if (author === 'DM' && type === 'PROMPT') {
@@ -1584,7 +1584,7 @@
             // No entries yet, waiting for DM to post the first prompt
             isPlayerTurn = false;
             playerTurnLockedMessage.style.display = 'block';
-            playerTurnLockedMessage.textContent = 'Waiting for the DM to start the adventure...';
+            playerTurnLockedMessage.textContent = 'Esperando a que el Narrador inicie la aventura...';
             playerInputControls.style.display = 'none';
             return;
         }
@@ -1631,7 +1631,7 @@
         longTermThoughtsContainer.innerHTML = '';
         
         if (rows.length === 0) {
-            gameLogDisplay.innerHTML = '<div class="step"><p>No game entries yet. Start by posting a prompt!</p></div>';
+            gameLogDisplay.innerHTML = '<div class="step"><p>Todavía no hay entradas de juego. ¡Empezá publicando una consigna!</p></div>';
             return;
         }
         
@@ -1668,7 +1668,7 @@
                     const errorThought = {
                         timestamp,
                         segments: [{ 
-                            text: `Error parsing thought: ${e.message}`, 
+                            text: `Error al procesar pensamiento: ${e.message}`, 
                             type: 'doylist', 
                             longTerm: false 
                         }]
@@ -1740,7 +1740,7 @@
             // Step header
             const stepHeader = document.createElement('div');
             stepHeader.className = 'step-header';
-            stepHeader.innerHTML = `<span>Step ${step.number}</span>`;
+            stepHeader.innerHTML = `<span>Paso ${step.number}</span>`;
             stepEl.appendChild(stepHeader);
             
             // Render each item in the sequence
@@ -1757,7 +1757,7 @@
                     const thoughtContent = renderSegmentsToHtml(item.data.segments);
                     
                     thoughtEl.innerHTML = `
-                        <div class="thought-meta">Thought: ${date} at ${time}</div>
+                        <div class="thought-meta">Pensamiento: ${date} a las ${time}</div>
                         <div class="thought-content">${thoughtContent}</div>
                     `;
                     
@@ -1767,9 +1767,9 @@
                     const promptEl = document.createElement('div');
                     promptEl.className = 'prompt';
                     promptEl.innerHTML = `
-                        <strong>Prompt:</strong>
+                        <strong>Consigna:</strong>
                         <div>${item.data.content}</div>
-                        <div class="step-meta">Posted: ${date} at ${time}</div>
+                        <div class="step-meta">Publicado: ${date} a las ${time}</div>
                     `;
                     stepContent.appendChild(promptEl);
                 } else if (item.type === 'action') {
@@ -1777,9 +1777,9 @@
                     const actionEl = document.createElement('div');
                     actionEl.className = 'action';
                     actionEl.innerHTML = `
-                        <strong>Player's Action:</strong>
+                        <strong>Acción del Jugador:</strong>
                         <div>${item.data.content}</div>
-                        <div class="step-meta">Posted: ${date} at ${time}</div>
+                        <div class="step-meta">Publicado: ${date} a las ${time}</div>
                     `;
                     stepContent.appendChild(actionEl);
                 } else if (item.type === 'outcome') {
@@ -1787,9 +1787,9 @@
                     const outcomeEl = document.createElement('div');
                     outcomeEl.className = 'outcome';
                     outcomeEl.innerHTML = `
-                        <strong>Outcome:</strong>
+                        <strong>Resultado:</strong>
                         <div>${item.data.content}</div>
-                        <div class="step-meta">Posted: ${date} at ${time}</div>
+                        <div class="step-meta">Publicado: ${date} a las ${time}</div>
                     `;
                     stepContent.appendChild(outcomeEl);
                 }
@@ -1832,7 +1832,7 @@
         const thoughtContent = renderSegmentsToHtml(segments);
         
         thoughtEl.innerHTML = `
-            <div class="thought-meta">Added: ${date} at ${time}</div>
+            <div class="thought-meta">Agregado: ${date} a las ${time}</div>
             <div class="thought-content">${thoughtContent}</div>
         `;
         
@@ -1843,7 +1843,7 @@
         playerGameLogDisplay.innerHTML = '';
         
         if (rows.length === 0) {
-            playerGameLogDisplay.innerHTML = '<div class="step"><p>The adventure has not yet begun. Wait for the DM to start!</p></div>';
+            playerGameLogDisplay.innerHTML = '<div class="step"><p>La aventura todavía no ha comenzado. ¡Esperá a que el Narrador inicie!</p></div>';
             return;
         }
         
@@ -1905,7 +1905,7 @@
             // Step header
             const stepHeader = document.createElement('div');
             stepHeader.className = 'step-header';
-            stepHeader.innerHTML = `<span>Step ${step.number}</span>`;
+            stepHeader.innerHTML = `<span>Paso ${step.number}</span>`;
             stepEl.appendChild(stepHeader);
             
             // Render each item in the sequence
@@ -1918,9 +1918,9 @@
                     const promptEl = document.createElement('div');
                     promptEl.className = 'prompt';
                     promptEl.innerHTML = `
-                        <strong>Prompt:</strong>
+                        <strong>Consigna:</strong>
                         <div>${item.data.content}</div>
-                        <div class="step-meta">Posted: ${date} at ${time}</div>
+                        <div class="step-meta">Publicado: ${date} a las ${time}</div>
                     `;
                     stepContent.appendChild(promptEl);
                 } else if (item.type === 'action') {
@@ -1928,9 +1928,9 @@
                     const actionEl = document.createElement('div');
                     actionEl.className = 'action';
                     actionEl.innerHTML = `
-                        <strong>Your Action:</strong>
+                        <strong>Tu Acción:</strong>
                         <div>${item.data.content}</div>
-                        <div class="step-meta">Posted: ${date} at ${time}</div>
+                        <div class="step-meta">Publicado: ${date} a las ${time}</div>
                     `;
                     stepContent.appendChild(actionEl);
                 } else if (item.type === 'outcome') {
@@ -1938,9 +1938,9 @@
                     const outcomeEl = document.createElement('div');
                     outcomeEl.className = 'outcome';
                     outcomeEl.innerHTML = `
-                        <strong>Outcome:</strong>
+                        <strong>Resultado:</strong>
                         <div>${item.data.content}</div>
-                        <div class="step-meta">Posted: ${date} at ${time}</div>
+                        <div class="step-meta">Publicado: ${date} a las ${time}</div>
                     `;
                     stepContent.appendChild(outcomeEl);
                 }
@@ -2009,11 +2009,11 @@
     /* ---------- INITIALIZATION ---------- */
     window.onload = async () => {
         if (typeof KJUR === 'undefined') {
-            loginStatusMessage.textContent = 'CRITICAL: jsrsasign failed to load.';
+            loginStatusMessage.textContent = 'CRÍTICO: La librería jsrsasign no se pudo cargar.';
             document.querySelectorAll('button').forEach(b => b.disabled = true);
         } else {
             loadCredentials();
-            loginStatusMessage.textContent = 'Welcome! Please log in.';
+            loginStatusMessage.textContent = '¡Bienvenido! Por favor, iniciá sesión.';
             initRichTextEditor();
         }
     };
