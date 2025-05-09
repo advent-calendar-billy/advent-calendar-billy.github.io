@@ -18,6 +18,8 @@
             --shadow: 0 2px 10px rgba(0,0,0,0.1);
             --transition: all 0.3s ease;
             --radius: 8px;
+            --watsonian-color: #673ab7; /* Purple for watsonian */
+            --doylist-color: #f44336; /* Red for doylist */
         }
         
         * {
@@ -293,23 +295,8 @@
             padding: 12px;
             border-radius: var(--radius);
             position: relative;
-        }
-        
-        .thought {
             background-color: #f9f9f9;
             border-left: 4px solid #9e9e9e;
-        }
-        
-        .watsonian {
-            color: #673ab7; /* Purple for watsonian */
-        }
-        
-        .doylist {
-            color: #f44336; /* Red for doylist */
-        }
-        
-        .long-term {
-            text-decoration: underline;
         }
         
         .thought-meta {
@@ -318,49 +305,127 @@
             margin-bottom: 8px;
         }
         
-        .thought-type {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            font-size: 0.8rem;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-weight: bold;
+        /* Rich Text Editor Styles */
+        .rich-text-editor {
+            border: 1px solid var(--medium-gray);
+            border-radius: var(--radius);
+            min-height: 120px;
+            margin-bottom: 15px;
+            overflow: auto;
+            background-color: white;
         }
         
-        /* Thought formatting buttons */
-        .formatting-toolbar {
+        .editor-content {
+            padding: 12px;
+            min-height: 100px;
+            outline: none;
+        }
+        
+        .editor-toolbar {
             display: flex;
-            gap: 5px;
-            margin-top: 5px;
-            margin-bottom: 10px;
+            padding: 8px;
+            border-bottom: 1px solid var(--medium-gray);
+            background-color: #f9f9f9;
         }
         
-        .format-btn {
-            padding: 5px 10px;
-            font-size: 0.8rem;
-            background-color: #f5f5f5;
-            border: 1px solid #e0e0e0;
+        .toolbar-button {
+            padding: 6px 12px;
+            margin-right: 5px;
+            border: 1px solid var(--medium-gray);
             border-radius: 4px;
+            background-color: white;
             cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
         
-        .format-btn.watsonian {
-            color: #673ab7;
-            border-color: #673ab7;
+        .toolbar-button:hover {
+            background-color: #f5f5f5;
         }
         
-        .format-btn.doylist {
-            color: #f44336;
-            border-color: #f44336;
+        .toolbar-button.active {
+            background-color: #e3f2fd;
+            border-color: #2196f3;
         }
         
-        .format-btn.long-term {
+        .toolbar-button.watsonian {
+            color: var(--watsonian-color);
+            border-color: var(--watsonian-color);
+        }
+        
+        .toolbar-button.watsonian.active {
+            background-color: rgba(103, 58, 183, 0.1);
+        }
+        
+        .toolbar-button.doylist {
+            color: var(--doylist-color);
+            border-color: var(--doylist-color);
+        }
+        
+        .toolbar-button.doylist.active {
+            background-color: rgba(244, 67, 54, 0.1);
+        }
+        
+        .toolbar-button.longterm {
             text-decoration: underline;
         }
         
-        .format-btn.active {
-            background-color: #eeeeee;
+        .toolbar-separator {
+            width: 1px;
+            background-color: var(--medium-gray);
+            margin: 0 8px;
+            height: 24px;
+        }
+        
+        /* Thought content styles */
+        .watsonian-text {
+            color: var(--watsonian-color);
+        }
+        
+        .doylist-text {
+            color: var(--doylist-color);
+        }
+        
+        .longterm-text {
+            text-decoration: underline;
+        }
+        
+        /* Long term thoughts in sidebar */
+        .longterm-thought {
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: var(--radius);
+            background-color: #f9f9f9;
+            border-left: 4px solid #9e9e9e;
+        }
+        
+        .longterm-thought .thought-meta {
+            margin-bottom: 8px;
+        }
+        
+        /* Search filter options */
+        .search-filters {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-button {
+            padding: 5px 10px;
+            border: 1px solid var(--medium-gray);
+            border-radius: 4px;
+            background-color: white;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+        
+        .filter-button.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-dark);
         }
         
         /* Action input area */
@@ -379,6 +444,48 @@
             margin-bottom: 15px;
             font-weight: bold;
             color: #f57c00;
+        }
+        
+        /* Keyboard shortcuts help tooltip */
+        .keyboard-shortcuts {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            font-size: 0.8rem;
+            color: var(--dark-gray);
+            cursor: pointer;
+        }
+        
+        .shortcuts-tooltip {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 30px;
+            width: 300px;
+            background-color: white;
+            border: 1px solid var(--medium-gray);
+            border-radius: var(--radius);
+            padding: 15px;
+            box-shadow: var(--shadow);
+            z-index: 100;
+        }
+        
+        .keyboard-shortcuts:hover .shortcuts-tooltip {
+            display: block;
+        }
+        
+        .shortcut-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .shortcut-key {
+            font-weight: bold;
+            background-color: #f5f5f5;
+            padding: 2px 5px;
+            border-radius: 3px;
+            border: 1px solid var(--medium-gray);
         }
         
         /* Responsive adjustments */
@@ -428,6 +535,11 @@
                 <div class="search-box">
                     <input type="text" id="thoughtSearchInput" placeholder="Search thoughts...">
                 </div>
+                <div class="search-filters">
+                    <button class="filter-button active" data-filter="all">All</button>
+                    <button class="filter-button" data-filter="watsonian">Watsonian</button>
+                    <button class="filter-button" data-filter="doylist">Doylist</button>
+                </div>
                 <div id="longTermThoughtsContainer"></div>
             </div>
             
@@ -449,12 +561,48 @@
                     
                     <div id="dmInputControls">
                         <h3>DM Thoughts</h3>
-                        <div class="button-group">
-                            <button id="watsonian-btn" class="active">Watsonian</button>
-                            <button id="doylist-btn" class="secondary">Doylist</button>
-                            <button id="long-term-btn" class="secondary">Long-term</button>
+                        <div class="keyboard-shortcuts">
+                            ⌨️ Shortcuts
+                            <div class="shortcuts-tooltip">
+                                <div class="shortcut-item">
+                                    <span>Toggle Watsonian</span>
+                                    <span class="shortcut-key">Ctrl+W</span>
+                                </div>
+                                <div class="shortcut-item">
+                                    <span>Toggle Doylist</span>
+                                    <span class="shortcut-key">Ctrl+D</span>
+                                </div>
+                                <div class="shortcut-item">
+                                    <span>Toggle Long-term</span>
+                                    <span class="shortcut-key">Ctrl+L</span>
+                                </div>
+                                <div class="shortcut-item">
+                                    <span>Submit</span>
+                                    <span class="shortcut-key">Ctrl+Enter</span>
+                                </div>
+                            </div>
                         </div>
-                        <textarea id="dmThoughtInput" placeholder="DM Thoughts (only visible to you)"></textarea>
+                        
+                        <!-- Rich Text Editor for Thoughts -->
+                        <div class="rich-text-editor">
+                            <div class="editor-toolbar">
+                                <button class="toolbar-button watsonian active" id="watsonian-btn" title="Watsonian (Ctrl+W)">
+                                    <span>Watsonian</span>
+                                </button>
+                                <button class="toolbar-button doylist" id="doylist-btn" title="Doylist (Ctrl+D)">
+                                    <span>Doylist</span>
+                                </button>
+                                <div class="toolbar-separator"></div>
+                                <button class="toolbar-button longterm" id="longterm-btn" title="Long-term (Ctrl+L)">
+                                    <span>Long-term</span>
+                                </button>
+                                <div class="toolbar-separator"></div>
+                                <div id="selection-info" style="margin-left: auto; font-size: 0.8rem; color: var(--dark-gray);">
+                                    Select text to format
+                                </div>
+                            </div>
+                            <div class="editor-content" id="dmThoughtEditor" contenteditable="true"></div>
+                        </div>
                         
                         <h3>Game Message</h3>
                         <div id="messageTypeIndicator">Current: <span id="currentMessageType">Prompt</span></div>
@@ -516,14 +664,26 @@
      * author: "DM" or "PLAYER"
      * type: "PROMPT", "ACTION", "OUTCOME", or "DM_THOUGHT"
      * content: The actual content
-     * formatInfo: For thoughts, this is always "formatted". For other types, null.
+     * formatInfo: For thoughts, this is a serialized JSON object containing formatting information.
      *
-     * Formatted Thought Structure:
-     * - Text is stored as HTML with appropriate span tags
-     * - <span class="watsonian">...</span> for watsonian thoughts (purple)
-     * - <span class="doylist">...</span> for doylist thoughts (red)
-     * - <span class="watsonian long-term">...</span> or <span class="doylist long-term">...</span> for long-term thoughts
-     * - Long-term thoughts are displayed in the sidebar and in the timeline
+     * Thought Format JSON Structure:
+     * {
+     *   "segments": [
+     *     {
+     *       "text": "This is a watsonian thought",
+     *       "type": "watsonian",
+     *       "longTerm": true|false
+     *     },
+     *     {
+     *       "text": "This is a doylist thought",
+     *       "type": "doylist",
+     *       "longTerm": false
+     *     },
+     *     ...
+     *   ]
+     * }
+     *
+     * This allows parts of a thought to have different formatting (watsonian/doylist/long-term)
      */
     
     /* ---------- GLOBAL STATE ---------- */
@@ -540,7 +700,7 @@
     let gameData = []; // Store game data for turn tracking
     let isPlayerTurn = false; // Track whose turn it is
     let isSearching = false; // Track search state
-    let selectionRange = null; // Track text selection in the thought input
+    let longTermFilterType = 'all'; // Filter for long-term thoughts ('all', 'watsonian', 'doylist')
     
     /* ---------- DOM ELEMENTS ---------- */
     // Login elements
@@ -560,18 +720,20 @@
     // DM elements
     const refreshGameBtn = document.getElementById('refreshGameBtn');
     const gameLogDisplay = document.getElementById('gameLogDisplay');
-    const dmThoughtInput = document.getElementById('dmThoughtInput');
+    const dmThoughtEditor = document.getElementById('dmThoughtEditor');
     const dmMessageInput = document.getElementById('dmMessageInput');
     const postDmMessageBtn = document.getElementById('postDmMessageBtn');
     const dmStatusMessage = document.getElementById('dmStatusMessage');
     const watsonianBtn = document.getElementById('watsonian-btn');
     const doylistBtn = document.getElementById('doylist-btn');
-    const longTermBtn = document.getElementById('long-term-btn');
+    const longtermBtn = document.getElementById('longterm-btn');
     const longTermThoughtsContainer = document.getElementById('longTermThoughtsContainer');
     const thoughtSearchInput = document.getElementById('thoughtSearchInput');
     const currentMessageTypeSpan = document.getElementById('currentMessageType');
     const dmTurnLockedMessage = document.getElementById('dmTurnLockedMessage');
     const dmInputControls = document.getElementById('dmInputControls');
+    const selectionInfo = document.getElementById('selection-info');
+    const filterButtons = document.querySelectorAll('.filter-button');
     
     // Player elements
     const playerRefreshBtn = document.getElementById('playerRefreshBtn');
@@ -760,11 +922,97 @@
         return data.values || [];
     }
     
-    /* ---------- TEXT FORMATTING CONTROLS ---------- */
+    /* ---------- RICH TEXT EDITOR FUNCTIONS ---------- */
+    // Initialize the editor
+    function initRichTextEditor() {
+        // Set the default formatting
+        updateDefaultFormatting();
+        
+        // Add event listener for keyboard shortcuts
+        dmThoughtEditor.addEventListener('keydown', handleEditorKeyboard);
+        
+        // Add event listener to track selection changes
+        document.addEventListener('selectionchange', handleSelectionChange);
+    }
+    
+    function handleEditorKeyboard(e) {
+        // Ctrl+W for Watsonian
+        if (e.ctrlKey && e.key === 'w') {
+            e.preventDefault();
+            setDefaultThoughtType('watsonian');
+            applyFormattingToSelection('watsonian');
+        }
+        // Ctrl+D for Doylist
+        else if (e.ctrlKey && e.key === 'd') {
+            e.preventDefault();
+            setDefaultThoughtType('doylist');
+            applyFormattingToSelection('doylist');
+        }
+        // Ctrl+L for Long-term
+        else if (e.ctrlKey && e.key === 'l') {
+            e.preventDefault();
+            toggleLongTerm();
+        }
+        // Ctrl+Enter to submit
+        else if (e.ctrlKey && e.key === 'Enter') {
+            e.preventDefault();
+            postDmMessage();
+        }
+    }
+    
+    function handleSelectionChange() {
+        const selection = window.getSelection();
+        
+        // Only process if the selection is within our editor
+        if (selection.rangeCount > 0) {
+            const range = selection.getRangeAt(0);
+            const editorNode = dmThoughtEditor;
+            
+            if (editorNode.contains(range.commonAncestorContainer)) {
+                if (selection.toString().trim().length > 0) {
+                    selectionInfo.textContent = `${selection.toString().length} characters selected`;
+                } else {
+                    updateSelectionInfoBasedOnCursor();
+                }
+            }
+        }
+    }
+    
+    function updateSelectionInfoBasedOnCursor() {
+        const selection = window.getSelection();
+        if (selection.rangeCount > 0) {
+            const range = selection.getRangeAt(0);
+            const node = range.startContainer;
+            
+            // Find the closest span with formatting
+            let currentNode = node;
+            while (currentNode && currentNode !== dmThoughtEditor) {
+                if (currentNode.nodeType === Node.ELEMENT_NODE && currentNode.tagName === 'SPAN') {
+                    // Found a span, check its classes
+                    if (currentNode.classList.contains('watsonian-text')) {
+                        selectionInfo.textContent = currentNode.classList.contains('longterm-text') ? 
+                            'Watsonian + Long-term' : 'Watsonian';
+                        return;
+                    } else if (currentNode.classList.contains('doylist-text')) {
+                        selectionInfo.textContent = currentNode.classList.contains('longterm-text') ? 
+                            'Doylist + Long-term' : 'Doylist';
+                        return;
+                    }
+                }
+                currentNode = currentNode.parentNode;
+            }
+            
+            // No formatting found, show the default
+            selectionInfo.textContent = `Using ${currentDefaultThoughtType}`;
+        } else {
+            selectionInfo.textContent = `Using ${currentDefaultThoughtType}`;
+        }
+    }
+    
     function setDefaultThoughtType(type) {
         currentDefaultThoughtType = type;
         
-        // Update UI to show active button for default type
+        // Update UI to show active button
         watsonianBtn.classList.remove('active');
         doylistBtn.classList.remove('active');
         
@@ -773,55 +1021,365 @@
         } else if (type === 'doylist') {
             doylistBtn.classList.add('active');
         }
+        
+        updateSelectionInfoBasedOnCursor();
+    }
+    
+    function toggleLongTerm() {
+        const selection = window.getSelection();
+        if (selection.rangeCount === 0) return;
+        
+        const range = selection.getRangeAt(0);
+        if (range.collapsed) {
+            // Cursor is just placed somewhere, not selecting text
+            return;
+        }
+        
+        longtermBtn.classList.toggle('active');
+        applyFormattingToSelection('longterm');
+    }
+    
+    function updateDefaultFormatting() {
+        // Make sure the editor starts with the default formatting
+        if (dmThoughtEditor.innerHTML.trim() === '') {
+            const defaultClass = currentDefaultThoughtType === 'watsonian' ? 'watsonian-text' : 'doylist-text';
+            dmThoughtEditor.innerHTML = `<span class="${defaultClass}"><br></span>`;
+            
+            // Place cursor at the beginning
+            const range = document.createRange();
+            const selection = window.getSelection();
+            range.setStart(dmThoughtEditor.firstChild.firstChild, 0);
+            range.collapse(true);
+            selection.removeAllRanges();
+            selection.addRange(range);
+        }
     }
     
     function applyFormattingToSelection(format) {
-        const textarea = dmThoughtInput;
-        if (!textarea.selectionStart && textarea.selectionStart !== 0) return;
+        const selection = window.getSelection();
+        if (selection.rangeCount === 0) return;
         
-        const start = textarea.selectionStart;
-        const end = textarea.selectionEnd;
-        
-        if (start === end) return; // No text selected
-        
-        const selectedText = textarea.value.substring(start, end);
-        
-        // Create a span with the appropriate class
-        let formattedText;
-        
-        if (format === 'watsonian') {
-            formattedText = `<span class="watsonian">${selectedText}</span>`;
-        } else if (format === 'doylist') {
-            formattedText = `<span class="doylist">${selectedText}</span>`;
-        } else if (format === 'long-term') {
-            // Check if already has watsonian or doylist class
-            if (selectedText.includes('class="watsonian"')) {
-                formattedText = selectedText.replace('class="watsonian"', 'class="watsonian long-term"');
-            } else if (selectedText.includes('class="doylist"')) {
-                formattedText = selectedText.replace('class="doylist"', 'class="doylist long-term"');
-            } else if (selectedText.includes('<span')) {
-                // Already has some formatting but not watsonian/doylist
-                formattedText = selectedText.replace('<span', '<span class="long-term"');
-            } else {
-                // No formatting yet, apply default type + long-term
-                formattedText = `<span class="${currentDefaultThoughtType} long-term">${selectedText}</span>`;
+        const range = selection.getRangeAt(0);
+        if (range.collapsed) {
+            // No text selected, just update the default
+            if (format === 'watsonian' || format === 'doylist') {
+                setDefaultThoughtType(format);
             }
-        } else {
-            return; // Unknown format
+            return;
         }
         
-        // Replace the selected text with the formatted text
-        textarea.value = 
-            textarea.value.substring(0, start) + 
-            formattedText + 
-            textarea.value.substring(end);
+        // Create a new span with the appropriate class
+        const span = document.createElement('span');
         
-        // Restore focus and selection
-        textarea.focus();
-        textarea.selectionStart = start;
-        textarea.selectionEnd = start + formattedText.length;
+        if (format === 'watsonian' || format === 'doylist') {
+            // For watsonian/doylist, remove any existing watsonian/doylist class and add the new one
+            span.classList.add(format === 'watsonian' ? 'watsonian-text' : 'doylist-text');
+            
+            // Extract the selection and check if it had longterm
+            const selectedContent = range.extractContents();
+            const wasLongTerm = hasLongTermClass(selectedContent);
+            
+            if (wasLongTerm) {
+                span.classList.add('longterm-text');
+            }
+            
+            // Now add the content back with new formatting
+            span.appendChild(selectedContent);
+        } else if (format === 'longterm') {
+            // For longterm, toggle the longterm class while preserving watsonian/doylist
+            const selectedContent = range.extractContents();
+            const isWatsonian = hasWatsonianClass(selectedContent);
+            const isDoylist = hasDolistClass(selectedContent);
+            const wasLongTerm = hasLongTermClass(selectedContent);
+            
+            // Add the appropriate base class
+            if (isWatsonian) {
+                span.classList.add('watsonian-text');
+            } else if (isDoylist) {
+                span.classList.add('doylist-text');
+            } else {
+                // If neither, use the default
+                span.classList.add(currentDefaultThoughtType === 'watsonian' ? 'watsonian-text' : 'doylist-text');
+            }
+            
+            // Toggle longterm
+            if (!wasLongTerm) {
+                span.classList.add('longterm-text');
+            }
+            
+            span.appendChild(selectedContent);
+        }
+        
+        range.insertNode(span);
+        
+        // Clean up any nested or empty spans
+        cleanupNestedSpans(dmThoughtEditor);
+        
+        // Restore selection
+        selection.removeAllRanges();
+        const newRange = document.createRange();
+        newRange.selectNodeContents(span);
+        selection.addRange(newRange);
     }
     
+    function hasWatsonianClass(node) {
+        if (node.nodeType === Node.ELEMENT_NODE) {
+            if (node.classList && node.classList.contains('watsonian-text')) {
+                return true;
+            }
+            
+            for (let i = 0; i < node.childNodes.length; i++) {
+                if (hasWatsonianClass(node.childNodes[i])) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    function hasDolistClass(node) {
+        if (node.nodeType === Node.ELEMENT_NODE) {
+            if (node.classList && node.classList.contains('doylist-text')) {
+                return true;
+            }
+            
+            for (let i = 0; i < node.childNodes.length; i++) {
+                if (hasDolistClass(node.childNodes[i])) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    function hasLongTermClass(node) {
+        if (node.nodeType === Node.ELEMENT_NODE) {
+            if (node.classList && node.classList.contains('longterm-text')) {
+                return true;
+            }
+            
+            for (let i = 0; i < node.childNodes.length; i++) {
+                if (hasLongTermClass(node.childNodes[i])) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    function cleanupNestedSpans(rootNode) {
+        // First pass: merge adjacent spans with the same formatting
+        const spans = rootNode.querySelectorAll('span');
+        for (let i = 0; i < spans.length; i++) {
+            const span = spans[i];
+            if (!span.parentNode) continue; // Skip if already removed
+            
+            const nextSibling = span.nextSibling;
+            if (nextSibling && nextSibling.nodeType === Node.ELEMENT_NODE && nextSibling.tagName === 'SPAN') {
+                // Check if they have the same classes
+                const spanClasses = Array.from(span.classList).sort().join(',');
+                const siblingClasses = Array.from(nextSibling.classList).sort().join(',');
+                
+                if (spanClasses === siblingClasses) {
+                    // Merge them
+                    while (nextSibling.firstChild) {
+                        span.appendChild(nextSibling.firstChild);
+                    }
+                    nextSibling.parentNode.removeChild(nextSibling);
+                    i--; // Check this span again for more merges
+                }
+            }
+        }
+        
+        // Second pass: unwrap empty spans
+        const allSpans = rootNode.querySelectorAll('span');
+        for (const span of allSpans) {
+            if (span.innerHTML.trim() === '') {
+                span.parentNode.removeChild(span);
+            }
+        }
+        
+        // Third pass: fix any text nodes not in spans
+        const walker = document.createTreeWalker(
+            rootNode,
+            NodeFilter.SHOW_TEXT,
+            {
+                acceptNode(node) {
+                    // Only accept text nodes that are direct children
+                    return node.parentNode === rootNode ?
+                        NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
+                }
+            }
+        );
+        
+        const textNodes = [];
+        while (walker.nextNode()) {
+            textNodes.push(walker.currentNode);
+        }
+        
+        for (const textNode of textNodes) {
+            if (textNode.textContent.trim() !== '') {
+                const span = document.createElement('span');
+                span.classList.add(currentDefaultThoughtType === 'watsonian' ? 'watsonian-text' : 'doylist-text');
+                
+                const parent = textNode.parentNode;
+                parent.replaceChild(span, textNode);
+                span.appendChild(textNode);
+            }
+        }
+    }
+    
+    // This function converts our rich text to the segments format for storage
+    function editorContentToSegments() {
+        const segments = [];
+        const spans = dmThoughtEditor.querySelectorAll('span');
+        
+        for (const span of spans) {
+            const isWatsonian = span.classList.contains('watsonian-text');
+            const isDoylist = span.classList.contains('doylist-text');
+            const isLongTerm = span.classList.contains('longterm-text');
+            
+            if (!isWatsonian && !isDoylist) {
+                // Every span should have either watsonian or doylist
+                continue;
+            }
+            
+            const text = span.textContent;
+            if (text.trim() === '') continue;
+            
+            segments.push({
+                text: text,
+                type: isWatsonian ? 'watsonian' : 'doylist',
+                longTerm: isLongTerm
+            });
+        }
+        
+        return segments;
+    }
+    
+    // This function converts stored segments back to rich text
+    function segmentsToEditorContent(segments) {
+        let html = '';
+        
+        for (const segment of segments) {
+            const classes = [];
+            if (segment.type === 'watsonian') {
+                classes.push('watsonian-text');
+            } else if (segment.type === 'doylist') {
+                classes.push('doylist-text');
+            }
+            
+            if (segment.longTerm) {
+                classes.push('longterm-text');
+            }
+            
+            html += `<span class="${classes.join(' ')}">${escapeHtml(segment.text)}</span>`;
+        }
+        
+        return html || `<span class="watsonian-text"><br></span>`;
+    }
+    
+    // Helper to escape HTML for safe insertion
+    function escapeHtml(unsafe) {
+        return unsafe
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+    
+    // Handle migrating old format (HTML spans) to new format (segments)
+    function migrateOldFormatToSegments(htmlContent) {
+        if (!htmlContent) return [];
+        
+        // Create a temporary container
+        const temp = document.createElement('div');
+        temp.innerHTML = htmlContent;
+        
+        const segments = [];
+        const spans = temp.querySelectorAll('span');
+        
+        for (const span of spans) {
+            const isWatsonian = span.classList.contains('watsonian');
+            const isDoylist = span.classList.contains('doylist');
+            const isLongTerm = span.classList.contains('long-term');
+            
+            if (!isWatsonian && !isDoylist) {
+                // Every span should have either watsonian or doylist in the old format
+                continue;
+            }
+            
+            const text = span.textContent;
+            if (text.trim() === '') continue;
+            
+            segments.push({
+                text: text,
+                type: isWatsonian ? 'watsonian' : 'doylist',
+                longTerm: isLongTerm
+            });
+        }
+        
+        // If no segments were created but there is content, create a default segment
+        if (segments.length === 0 && temp.textContent.trim() !== '') {
+            segments.push({
+                text: temp.textContent,
+                type: 'watsonian', // Default to watsonian
+                longTerm: false
+            });
+        }
+        
+        return segments;
+    }
+    
+    /* ---------- FILTERING AND SEARCH FUNCTIONS ---------- */
+    function filterLongTermThoughts() {
+        const searchTerm = thoughtSearchInput.value.toLowerCase();
+        const filterType = longTermFilterType;
+        
+        // Get all thoughts in the sidebar
+        const thoughts = document.querySelectorAll('.longterm-thought');
+        
+        for (const thought of thoughts) {
+            const content = thought.querySelector('.thought-content');
+            let shouldShow = true;
+            
+            // Check if it matches the search term
+            if (searchTerm && !content.textContent.toLowerCase().includes(searchTerm)) {
+                shouldShow = false;
+            }
+            
+            // Check if it matches the filter type
+            if (filterType !== 'all') {
+                const hasWatsonian = content.querySelector('.watsonian-text');
+                const hasDoylist = content.querySelector('.doylist-text');
+                
+                if (filterType === 'watsonian' && !hasWatsonian) {
+                    shouldShow = false;
+                } else if (filterType === 'doylist' && !hasDoylist) {
+                    shouldShow = false;
+                }
+            }
+            
+            thought.style.display = shouldShow ? 'block' : 'none';
+        }
+    }
+    
+    function setLongTermFilter(type) {
+        longTermFilterType = type;
+        
+        // Update UI
+        filterButtons.forEach(button => {
+            button.classList.remove('active');
+            if (button.dataset.filter === type) {
+                button.classList.add('active');
+            }
+        });
+        
+        filterLongTermThoughts();
+    }
+    
+    /* ---------- DM ACTIONS ---------- */
     async function postDmMessage() {
         if (isLoading) return;
         if (!isAdminLoggedIn) {
@@ -829,7 +1387,13 @@
             return;
         }
         
-        const thought = dmThoughtInput.value.trim();
+        // Clean up the editor content
+        cleanupNestedSpans(dmThoughtEditor);
+        
+        // Extract thought segments from the editor
+        const thoughtSegments = editorContentToSegments();
+        const hasThought = thoughtSegments.length > 0 && thoughtSegments.some(s => s.text.trim() !== '');
+        
         const message = dmMessageInput.value.trim();
         
         if (!message) {
@@ -843,8 +1407,9 @@
         const rows = [];
         
         // Add thought row if present (thoughts go before prompt/outcome)
-        if (thought) {
-            rows.push([ts, 'DM', 'DM_THOUGHT', thought, 'formatted']);
+        if (hasThought) {
+            const thoughtContent = JSON.stringify({ segments: thoughtSegments });
+            rows.push([ts, 'DM', 'DM_THOUGHT', thoughtContent, 'JSON']);
         }
         
         // Add message row
@@ -852,7 +1417,7 @@
         
         try {
             await appendToSheet(rows);
-            dmThoughtInput.value = '';
+            dmThoughtEditor.innerHTML = `<span class="${currentDefaultThoughtType === 'watsonian' ? 'watsonian-text' : 'doylist-text'}"><br></span>`;
             dmMessageInput.value = '';
             
             // Update message type for next turn
@@ -869,27 +1434,6 @@
         } catch (e) {
             hideLoading(dmStatusMessage, 'Error: ' + e.message);
         }
-    }
-    
-    function searchThoughts() {
-        const searchTerm = thoughtSearchInput.value.toLowerCase();
-        const allThoughts = document.querySelectorAll('.thought');
-        
-        if (searchTerm === '') {
-            allThoughts.forEach(thought => {
-                thought.style.display = 'block';
-            });
-            return;
-        }
-        
-        allThoughts.forEach(thought => {
-            const content = thought.querySelector('.thought-content').textContent.toLowerCase();
-            if (content.includes(searchTerm)) {
-                thought.style.display = 'block';
-            } else {
-                thought.style.display = 'none';
-            }
-        });
     }
     
     /* ---------- PLAYER ACTIONS ---------- */
@@ -1086,21 +1630,52 @@
             const [timestamp, author, type, content, formatInfo] = row;
             
             if (type === 'DM_THOUGHT') {
-                // Store the thought to associate with next prompt/outcome or add to sequence
-                // Check if this is a long-term thought (contains long-term class)
-                if (content.includes('class="long-term"') || 
-                    content.includes('class="watsonian long-term"') || 
-                    content.includes('class="doylist long-term"')) {
-                    // Extract the long-term thought for the sidebar
-                    renderLongTermThought(timestamp, content);
+                // Handle thought formatting based on format info
+                let processedThought;
+                
+                if (formatInfo === 'JSON') {
+                    // New format - JSON segments
+                    try {
+                        const thoughtData = JSON.parse(content);
+                        processedThought = {
+                            timestamp,
+                            segments: thoughtData.segments,
+                            isJson: true
+                        };
+                        
+                        // Extract long-term segments for the sidebar
+                        const longTermSegments = thoughtData.segments.filter(segment => segment.longTerm);
+                        if (longTermSegments.length > 0) {
+                            renderLongTermThought(timestamp, longTermSegments, true);
+                        }
+                    } catch (e) {
+                        console.error('Error parsing JSON thought', e);
+                        processedThought = {
+                            timestamp,
+                            segments: [{ text: content, type: 'watsonian', longTerm: false }],
+                            isJson: true
+                        };
+                    }
+                } else {
+                    // Old format - HTML with classes
+                    // Attempt to migrate to new format
+                    const segments = migrateOldFormatToSegments(content);
+                    processedThought = {
+                        timestamp,
+                        segments: segments,
+                        isJson: false,
+                        originalHtml: content // Keep original for rendering in timeline
+                    };
+                    
+                    // Check for long-term segments to add to sidebar
+                    const longTermSegments = segments.filter(segment => segment.longTerm);
+                    if (longTermSegments.length > 0) {
+                        renderLongTermThought(timestamp, longTermSegments, false);
+                    }
                 }
                 
-                // Add the thought to pending queue regardless if it contains long-term parts
-                // This way it will also be shown in the main timeline
-                pendingThoughts.push({
-                    timestamp,
-                    content
-                });
+                // Add to pending thoughts queue regardless
+                pendingThoughts.push(processedThought);
             } else {
                 // For prompt/action/outcome, add any pending thoughts first
                 if (pendingThoughts.length > 0) {
@@ -1179,9 +1754,18 @@
                     const thoughtEl = document.createElement('div');
                     thoughtEl.className = 'thought';
                     
+                    let thoughtContent = '';
+                    if (item.data.isJson) {
+                        // Render from segments
+                        thoughtContent = renderSegmentsToHtml(item.data.segments);
+                    } else {
+                        // Use original HTML for backward compatibility
+                        thoughtContent = item.data.originalHtml;
+                    }
+                    
                     thoughtEl.innerHTML = `
                         <div class="thought-meta">Thought: ${date} at ${time}</div>
-                        <div class="thought-content">${item.data.content}</div>
+                        <div class="thought-content">${thoughtContent}</div>
                     `;
                     
                     stepContent.appendChild(thoughtEl);
@@ -1226,14 +1810,44 @@
         gameLogDisplay.scrollTop = gameLogDisplay.scrollHeight;
     }
     
-    function renderLongTermThought(timestamp, content) {
+    function renderSegmentsToHtml(segments) {
+        let html = '';
+        
+        for (const segment of segments) {
+            const classes = [];
+            if (segment.type === 'watsonian') {
+                classes.push('watsonian-text');
+            } else if (segment.type === 'doylist') {
+                classes.push('doylist-text');
+            }
+            
+            if (segment.longTerm) {
+                classes.push('longterm-text');
+            }
+            
+            html += `<span class="${classes.join(' ')}">${escapeHtml(segment.text)}</span>`;
+        }
+        
+        return html;
+    }
+    
+    function renderLongTermThought(timestamp, segments, isJson) {
         const { time, date } = formatDate(timestamp);
         const thoughtEl = document.createElement('div');
-        thoughtEl.className = 'thought';
+        thoughtEl.className = 'longterm-thought';
+        
+        let thoughtContent = '';
+        if (isJson) {
+            // Render from segments
+            thoughtContent = renderSegmentsToHtml(segments);
+        } else {
+            // For old format, render based on original segments
+            thoughtContent = renderSegmentsToHtml(segments);
+        }
         
         thoughtEl.innerHTML = `
             <div class="thought-meta">Added: ${date} at ${time}</div>
-            <div class="thought-content">${content}</div>
+            <div class="thought-content">${thoughtContent}</div>
         `;
         
         longTermThoughtsContainer.appendChild(thoughtEl);
@@ -1371,46 +1985,32 @@
     // DM format controls
     watsonianBtn.addEventListener('click', () => {
         setDefaultThoughtType('watsonian');
-        if (dmThoughtInput.selectionStart !== dmThoughtInput.selectionEnd) {
-            applyFormattingToSelection('watsonian');
-        }
+        applyFormattingToSelection('watsonian');
     });
     
     doylistBtn.addEventListener('click', () => {
         setDefaultThoughtType('doylist');
-        if (dmThoughtInput.selectionStart !== dmThoughtInput.selectionEnd) {
-            applyFormattingToSelection('doylist');
-        }
+        applyFormattingToSelection('doylist');
     });
     
-    longTermBtn.addEventListener('click', () => {
-        if (dmThoughtInput.selectionStart !== dmThoughtInput.selectionEnd) {
-            applyFormattingToSelection('long-term');
-        }
+    longtermBtn.addEventListener('click', () => {
+        longtermBtn.classList.toggle('active');
+        applyFormattingToSelection('longterm');
     });
     
-    // Text selection in thought input
-    dmThoughtInput.addEventListener('mouseup', () => {
-        // Check if text is selected
-        if (dmThoughtInput.selectionStart !== dmThoughtInput.selectionEnd) {
-            // Text is selected, enable formatting buttons
-            watsonianBtn.disabled = false;
-            doylistBtn.disabled = false;
-            longTermBtn.disabled = false;
-        } else {
-            // No text selected
-            watsonianBtn.disabled = false;
-            doylistBtn.disabled = false;
-            longTermBtn.disabled = false;
-        }
+    // Search and filter functionality
+    thoughtSearchInput.addEventListener('input', filterLongTermThoughts);
+    
+    // Filter buttons
+    filterButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            setLongTermFilter(button.dataset.filter);
+        });
     });
     
     // Other DM controls
     postDmMessageBtn.addEventListener('click', postDmMessage);
     refreshGameBtn.addEventListener('click', loadGameData);
-    
-    // Search functionality
-    thoughtSearchInput.addEventListener('input', searchThoughts);
     
     // Player controls
     submitPlayerActionBtn.addEventListener('click', submitPlayerAction);
@@ -1428,6 +2028,7 @@
         } else {
             loadCredentials();
             loginStatusMessage.textContent = 'Welcome! Please log in.';
+            initRichTextEditor();
         }
     };
     </script>
