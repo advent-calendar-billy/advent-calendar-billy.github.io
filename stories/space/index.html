@@ -1414,7 +1414,7 @@
         
         const message = dmMessageInput.value.trim();
         
-        if (!message) {
+                    if (!message) {
             dmStatusMessage.textContent = 'El mensaje del juego es obligatorio.';
             return;
         }
@@ -1764,7 +1764,7 @@
                     `;
                     
                     stepContent.appendChild(thoughtEl);
-                } else if (item.type === 'prompt') {
+                } else                 if (item.type === 'prompt') {
                     const { time, date } = formatDate(item.data.timestamp);
                     const promptEl = document.createElement('div');
                     promptEl.className = 'prompt';
