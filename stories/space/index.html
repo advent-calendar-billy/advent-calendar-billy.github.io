@@ -1750,8 +1750,8 @@
                     const promptEl = document.createElement('div');
                     promptEl.className = 'prompt';
                     
-                    // Process content to enable links
-                    const processedContent = linkifyText(item.data.content);
+                    // First linkify URLs, then preserve line breaks
+                    const processedContent = preserveLineBreaks(linkifyText(item.data.content));
                     
                     promptEl.innerHTML = `
                         <strong>Prompt:</strong>
@@ -1905,8 +1905,8 @@
                     const promptEl = document.createElement('div');
                     promptEl.className = 'prompt';
                     
-                    // Process links in prompt content
-                    const processedContent = linkifyText(item.data.content);
+                    // Process links in prompt content, then preserve line breaks
+                    const processedContent = preserveLineBreaks(linkifyText(item.data.content));
                     
                     promptEl.innerHTML = `
                         <strong>Prompt:</strong>
@@ -1994,6 +1994,11 @@
         return text;
     }
     
+    // Function to preserve line breaks in text
+    function preserveLineBreaks(text) {
+        return text.replace(/\n/g, '<br>');
+    }
+    
     /* ---------- EVENT LISTENERS ---------- */
     // Login buttons
     playerLoginBtn.addEventListener('click', loginAsPlayer);
@@ -2057,8 +2062,7 @@
         "Me rasco la nariz",
         "Huyo con valentía",
         "Chequeo el tacho de basura",
-        "Saco la bazooka",
-        "Lo amenazo con 'voy a contar hasta 3!'"
+        "Saco la bazooka"
     ];
     
     window.onload = async () => {
