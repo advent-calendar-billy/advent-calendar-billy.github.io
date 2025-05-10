@@ -1749,9 +1749,13 @@
                     const { time, date } = formatDate(item.data.timestamp);
                     const promptEl = document.createElement('div');
                     promptEl.className = 'prompt';
+                    
+                    // Process content to enable links
+                    const processedContent = linkifyText(item.data.content);
+                    
                     promptEl.innerHTML = `
                         <strong>Prompt:</strong>
-                        <div>${item.data.content}</div>
+                        <div>${processedContent}</div>
                         <div class="step-meta">Publicado: ${date} a las ${time}</div>
                     `;
                     stepContent.appendChild(promptEl);
@@ -1902,7 +1906,7 @@
                     promptEl.className = 'prompt';
                     promptEl.innerHTML = `
                         <strong>Prompt:</strong>
-                        <div>${item.data.content}</div>
+                        <div>${processedContent}</div>
                         <div class="step-meta">Publicado: ${date} a las ${time}</div>
                     `;
                     stepContent.appendChild(promptEl);
@@ -1937,7 +1941,54 @@
         playerGameLogDisplay.scrollTop = playerGameLogDisplay.scrollHeight;
     }
     
-    // This function was intentionally removed since we're not supporting logout functionality
+    // Function to convert URLs to clickable links
+    function linkifyText(text) {
+        // First, handle markdown-style links: [text](url)
+        text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, function(match, linkText, url) {
+            // Make sure the URL has a protocol
+            if (!url.match(/^https?:\/\//i)) {
+                url = 'https://' + url;
+            }
+            
+            // Check if it's a Spotify link
+            if (url.includes('spotify.com')) {
+                // Extract Spotify URI if possible
+                const spotifyMatch = url.match(/\/track\/([a-zA-Z0-9]+)/);
+                if (spotifyMatch && spotifyMatch[1]) {
+                    const trackId = spotifyMatch[1];
+                    // Return embedded Spotify player
+                    return `<iframe src="https://open.spotify.com/embed/track/${trackId}" 
+                        width="100%" height="80" frameborder="0" allowtransparency="true" 
+                        allow="encrypted-media"></iframe>`;
+                }
+            }
+            
+            // Return a normal link with the specified link text
+            return `<a href="${url}" target="_blank" rel="noopener noreferrer">${linkText}</a>`;
+        });
+        
+        // Then handle raw URLs
+        const urlRegex = /(https?:\/\/[^\s]+)/g;
+        text = text.replace(urlRegex, function(url) {
+            // Check if it's a Spotify link
+            if (url.includes('spotify.com')) {
+                // Extract Spotify URI if possible
+                const spotifyMatch = url.match(/\/track\/([a-zA-Z0-9]+)/);
+                if (spotifyMatch && spotifyMatch[1]) {
+                    const trackId = spotifyMatch[1];
+                    // Return embedded Spotify player
+                    return `<iframe src="https://open.spotify.com/embed/track/${trackId}" 
+                        width="100%" height="80" frameborder="0" allowtransparency="true" 
+                        allow="encrypted-media"></iframe>`;
+                }
+            }
+            
+            // Regular link for non-Spotify URLs
+            return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;
+        });
+        
+        return text;
+    }
     
     /* ---------- EVENT LISTENERS ---------- */
     // Login buttons
