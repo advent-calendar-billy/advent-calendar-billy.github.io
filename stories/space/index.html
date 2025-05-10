@@ -1247,30 +1247,26 @@
         }
     }
     
-    // Improved function to convert editor content to segments
+    // This function converts our rich text to the segments format for storage
     function editorContentToSegments() {
         const segments = [];
-        
-        // First normalize the editor to combine adjacent text nodes
-        dmThoughtEditor.normalize();
-        
-        // Get all direct span children
-        const spans = Array.from(dmThoughtEditor.children).filter(
-            node => node.nodeType === Node.ELEMENT_NODE && node.tagName === 'SPAN'
-        );
+        const spans = dmThoughtEditor.querySelectorAll('span');
         
         for (const span of spans) {
-            // Skip empty spans
-            if (!span.textContent.trim()) continue;
-            
             const isWatsonian = span.classList.contains('watsonian-text');
             const isDoylist = span.classList.contains('doylist-text');
             const isLongTerm = span.classList.contains('longterm-text');
             
-            if (!isWatsonian && !isDoylist) continue;
+            if (!isWatsonian && !isDoylist) {
+                // Every span should have either watsonian or doylist
+                continue;
+            }
+            
+            const text = span.textContent;
+            if (text.trim() === '') continue;
             
             segments.push({
-                text: span.textContent,
+                text: text,
                 type: isWatsonian ? 'watsonian' : 'doylist',
                 longTerm: isLongTerm
             });
