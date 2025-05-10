@@ -1904,6 +1904,10 @@
                     const { time, date } = formatDate(item.data.timestamp);
                     const promptEl = document.createElement('div');
                     promptEl.className = 'prompt';
+                    
+                    // Process links in prompt content
+                    const processedContent = linkifyText(item.data.content);
+                    
                     promptEl.innerHTML = `
                         <strong>Prompt:</strong>
                         <div>${processedContent}</div>
