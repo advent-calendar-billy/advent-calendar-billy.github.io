@@ -1057,6 +1057,7 @@
         }
     }
     
+    // Fixed function to prevent duplication
     function applyFormattingToSelection(format) {
         const selection = window.getSelection();
         if (selection.rangeCount === 0) return;
@@ -1070,56 +1071,37 @@
             return;
         }
         
-        // Save the range to restore after cleaning up
-        const rangeCopy = range.cloneRange();
+        // Create a temporary document fragment to hold the selected content
+        const fragment = range.cloneContents();
         
-        // Create a new span with the appropriate class
+        // Process the fragment to get plain text and check for long-term
+        const tempDiv = document.createElement('div');
+        tempDiv.appendChild(fragment);
+        
+        // Get the text content, avoiding duplicated text
+        const plainText = tempDiv.textContent;
+        
+        // Check if any of the selection had longterm formatting
+        const wasLongTerm = tempDiv.querySelector('.longterm-text') !== null;
+        
+        // Create a new span with the appropriate classes
         const span = document.createElement('span');
         
         if (format === 'watsonian' || format === 'doylist') {
-            // For watsonian/doylist, remove any existing watsonian/doylist class and add the new one
+            // Add the base class
             span.classList.add(format === 'watsonian' ? 'watsonian-text' : 'doylist-text');
             
-            // Extract the selection and check if it had longterm
-            const selectedContent = range.extractContents();
-            
-            // Process the selected content to avoid duplication
-            let processedContent = document.createDocumentFragment();
-            
-            // Create a temporary div to process the content
-            const tempDiv = document.createElement('div');
-            tempDiv.appendChild(selectedContent.cloneNode(true));
-            
-            // Check if it had longterm
-            const wasLongTerm = tempDiv.querySelector('.longterm-text') !== null;
-            
-            // Extract text content without nested watsonian/doylist spans
-            const textContent = tempDiv.textContent;
-            
-            // Create a text node with the extracted content
-            const textNode = document.createTextNode(textContent);
-            processedContent.appendChild(textNode);
-            
+            // Preserve long-term formatting if it was present
             if (wasLongTerm) {
                 span.classList.add('longterm-text');
             }
             
-            // Now add the processed content back with new formatting
-            span.appendChild(processedContent);
+            // Set the plain text content
+            span.textContent = plainText;
         } else if (format === 'longterm') {
-            // For longterm, toggle the longterm class while preserving watsonian/doylist
-            const selectedContent = range.extractContents();
-            
-            // Create a temporary div to examine the content
-            const tempDiv = document.createElement('div');
-            tempDiv.appendChild(selectedContent.cloneNode(true));
-            
+            // For longterm toggle, preserve watsonian/doylist status
             const isWatsonian = tempDiv.querySelector('.watsonian-text') !== null;
             const isDoylist = tempDiv.querySelector('.doylist-text') !== null;
-            const wasLongTerm = tempDiv.querySelector('.longterm-text') !== null;
-            
-            // Extract text content
-            const textContent = tempDiv.textContent;
             
             // Add the appropriate base class
             if (isWatsonian) {
@@ -1131,14 +1113,16 @@
                 span.classList.add(currentDefaultThoughtType === 'watsonian' ? 'watsonian-text' : 'doylist-text');
             }
             
-            // Toggle longterm
+            // Toggle long-term status
             if (!wasLongTerm) {
                 span.classList.add('longterm-text');
             }
             
-            span.textContent = textContent;
+            span.textContent = plainText;
         }
         
+        // Delete the selected content and insert the new span
+        range.deleteContents();
         range.insertNode(span);
         
         // Clean up any nested or empty spans
@@ -1151,14 +1135,15 @@
         selection.addRange(newRange);
     }
     
-    function hasWatsonianClass(node) {
+    // Function to check if node or its children have a specific class
+    function hasClass(node, className) {
         if (node.nodeType === Node.ELEMENT_NODE) {
-            if (node.classList && node.classList.contains('watsonian-text')) {
+            if (node.classList && node.classList.contains(className)) {
                 return true;
             }
             
             for (let i = 0; i < node.childNodes.length; i++) {
-                if (hasWatsonianClass(node.childNodes[i])) {
+                if (hasClass(node.childNodes[i], className)) {
                     return true;
                 }
             }
@@ -1166,44 +1151,15 @@
         return false;
     }
     
-    function hasDolistClass(node) {
-        if (node.nodeType === Node.ELEMENT_NODE) {
-            if (node.classList && node.classList.contains('doylist-text')) {
-                return true;
-            }
-            
-            for (let i = 0; i < node.childNodes.length; i++) {
-                if (hasDolistClass(node.childNodes[i])) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-    
-    function hasLongTermClass(node) {
-        if (node.nodeType === Node.ELEMENT_NODE) {
-            if (node.classList && node.classList.contains('longterm-text')) {
-                return true;
-            }
-            
-            for (let i = 0; i < node.childNodes.length; i++) {
-                if (hasLongTermClass(node.childNodes[i])) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-    
+    // Improved cleanup function to prevent duplication
     function cleanupNestedSpans(rootNode) {
-        // First pass: fix nested spans with the same formatting
-        // This helps prevent duplicated content
+        // First pass: flatten spans within spans where they could cause duplication
         const deepNestedSpans = rootNode.querySelectorAll('span span');
         for (const nestedSpan of deepNestedSpans) {
-            // If parent and child have same formatting, merge them
             const parent = nestedSpan.parentNode;
+            
             if (parent.tagName === 'SPAN') {
+                // Get the formatting classes
                 const parentIsWatsonian = parent.classList.contains('watsonian-text');
                 const parentIsDoylist = parent.classList.contains('doylist-text');
                 const parentIsLongterm = parent.classList.contains('longterm-text');
@@ -1212,78 +1168,81 @@
                 const childIsDoylist = nestedSpan.classList.contains('doylist-text');
                 const childIsLongterm = nestedSpan.classList.contains('longterm-text');
                 
-                // If they have similar formatting, unnest by moving content up
-                if ((parentIsWatsonian && childIsWatsonian) || (parentIsDoylist && childIsDoylist)) {
+                // Get the text content
+                const textContent = nestedSpan.textContent;
+                
+                // If same format type or parent contains child completely, flatten
+                if ((parentIsWatsonian && childIsWatsonian) || 
+                    (parentIsDoylist && childIsDoylist)) {
+                    
                     // Keep longterm if either has it
                     if (childIsLongterm && !parentIsLongterm) {
                         parent.classList.add('longterm-text');
                     }
                     
-                    // Replace the nested span with its text content
-                    const textContent = nestedSpan.textContent;
-                    const textNode = document.createTextNode(textContent);
-                    parent.replaceChild(textNode, nestedSpan);
+                    // Replace with text content to avoid duplication
+                    parent.replaceChild(document.createTextNode(textContent), nestedSpan);
                 }
             }
         }
         
-        // Second pass: merge adjacent spans with the same formatting
-        const spans = rootNode.querySelectorAll('span');
+        // Second pass: merge adjacent spans with identical formatting
+        const spans = Array.from(rootNode.querySelectorAll('span'));
         for (let i = 0; i < spans.length; i++) {
             const span = spans[i];
             if (!span.parentNode) continue; // Skip if already removed
             
             const nextSibling = span.nextSibling;
-            if (nextSibling && nextSibling.nodeType === Node.ELEMENT_NODE && nextSibling.tagName === 'SPAN') {
-                // Check if they have the same classes
+            if (nextSibling && nextSibling.nodeType === Node.ELEMENT_NODE && 
+                nextSibling.tagName === 'SPAN') {
+                
+                // Compare classes (use a normalized comparison)
                 const spanClasses = Array.from(span.classList).sort().join(',');
                 const siblingClasses = Array.from(nextSibling.classList).sort().join(',');
                 
                 if (spanClasses === siblingClasses) {
-                    // Merge them
-                    while (nextSibling.firstChild) {
-                        span.appendChild(nextSibling.firstChild);
-                    }
+                    // Merge the spans to avoid duplication
+                    span.textContent += nextSibling.textContent;
                     nextSibling.parentNode.removeChild(nextSibling);
                     i--; // Check this span again for more merges
                 }
             }
         }
         
-        // Third pass: unwrap empty spans
-        const allSpans = rootNode.querySelectorAll('span');
-        for (const span of allSpans) {
-            if (span.innerHTML.trim() === '') {
-                span.parentNode.removeChild(span);
-            }
-        }
-        
-        // Fourth pass: fix any text nodes not in spans
-        const walker = document.createTreeWalker(
-            rootNode,
-            NodeFilter.SHOW_TEXT,
-            {
+        // Third pass: handle text nodes outside of spans
+        const nodeIterator = document.createNodeIterator(
+            rootNode, 
+            NodeFilter.SHOW_TEXT, 
+            { 
                 acceptNode(node) {
-                    // Only accept text nodes that are direct children
-                    return node.parentNode === rootNode ?
+                    // Only accept text nodes that are direct children and not empty
+                    return (node.parentNode === rootNode && node.textContent.trim() !== '') ? 
                         NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
                 }
             }
         );
         
-        const textNodes = [];
-        while (walker.nextNode()) {
-            textNodes.push(walker.currentNode);
+        const textNodesToWrap = [];
+        let currentNode;
+        while (currentNode = nodeIterator.nextNode()) {
+            textNodesToWrap.push(currentNode);
         }
         
-        for (const textNode of textNodes) {
-            if (textNode.textContent.trim() !== '') {
-                const span = document.createElement('span');
-                span.classList.add(currentDefaultThoughtType === 'watsonian' ? 'watsonian-text' : 'doylist-text');
-                
-                const parent = textNode.parentNode;
-                parent.replaceChild(span, textNode);
-                span.appendChild(textNode);
+        // Wrap each direct text node in a span with default formatting
+        for (const textNode of textNodesToWrap) {
+            const span = document.createElement('span');
+            span.classList.add(currentDefaultThoughtType === 'watsonian' ? 'watsonian-text' : 'doylist-text');
+            
+            const parent = textNode.parentNode;
+            parent.replaceChild(span, textNode);
+            span.appendChild(textNode);
+        }
+        
+        // Remove empty spans
+        const allSpans = rootNode.querySelectorAll('span');
+        for (const span of allSpans) {
+            if (span.textContent.trim() === '') {
+                span.parentNode.removeChild(span);
             }
         }
     }
@@ -1347,8 +1306,6 @@
             .replace(/"/g, "&quot;")
             .replace(/'/g, "&#039;");
     }
-    
-    // This function was intentionally removed since we're not supporting backwards compatibility
     
     /* ---------- FILTERING AND SEARCH FUNCTIONS ---------- */
     function filterLongTermThoughts() {
@@ -1414,7 +1371,7 @@
         
         const message = dmMessageInput.value.trim();
         
-                    if (!message) {
+        if (!message) {
             dmStatusMessage.textContent = 'El mensaje del juego es obligatorio.';
             return;
         }
@@ -1764,7 +1721,7 @@
                     `;
                     
                     stepContent.appendChild(thoughtEl);
-                } else                 if (item.type === 'prompt') {
+                } else if (item.type === 'prompt') {
                     const { time, date } = formatDate(item.data.timestamp);
                     const promptEl = document.createElement('div');
                     promptEl.className = 'prompt';
@@ -1956,6 +1913,8 @@
         playerGameLogDisplay.scrollTop = playerGameLogDisplay.scrollHeight;
     }
     
+    // This function was intentionally removed since we're not supporting logout functionality
+    
     /* ---------- EVENT LISTENERS ---------- */
     // Login buttons
     playerLoginBtn.addEventListener('click', loginAsPlayer);
@@ -2017,7 +1976,9 @@
         "Le pego en la nuca",
         "Paso",
         "Me rasco la nariz",
-        "Huyo con valentía"
+        "Huyo con valentía",
+        "Chequeo el tacho de basura",
+        "Saco la bazooka"
     ];
     
     window.onload = async () => {
@@ -2053,8 +2014,7 @@
                 playerMainContainer.style.display = 'block';
                 playerStatusMessage.textContent = 'Sesión restaurada como Jugador.';
                 
-                // Agregar botón de cierre de sesión
-                addLogoutButton(playerMainContainer, 'player');
+                // No logout button needed
                 
                 await loadGameData();
             } catch (e) {
@@ -2075,8 +2035,7 @@
                 dmMainContainer.style.display = 'block';
                 dmStatusMessage.textContent = 'Sesión restaurada como DM.';
                 
-                // Agregar botón de cierre de sesión
-                addLogoutButton(dmMainContainer, 'dm');
+                // No logout button needed
                 
                 await loadGameData();
                 initRichTextEditor();
