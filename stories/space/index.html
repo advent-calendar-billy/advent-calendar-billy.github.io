@@ -1672,9 +1672,28 @@
             sequence: []  // Array of {type, data} objects in order
         };
         
-        for (const item of gameSequence) {
-            if (item.type === 'prompt' && currentStep.sequence.some(s => s.type === 'prompt' || s.type === 'outcome')) {
-                // If we already have a prompt or outcome in this step, start a new step
+        let lastNonThoughtType = null; // Track the last non-thought item type
+        
+        for (let i = 0; i < gameSequence.length; i++) {
+            const item = gameSequence[i];
+            
+            // Special handling for thoughts that come after an outcome
+            if (item.type === 'thought' && lastNonThoughtType === 'outcome') {
+                // If this thought comes after an outcome, it should go in the next step
+                // Save the current step
+                if (currentStep.sequence.length > 0) {
+                    steps.push({...currentStep});
+                }
+                
+                // Start a new step
+                currentStep = {
+                    number: steps.length + 1,
+                    sequence: [item]
+                };
+            }
+            // Start a new step if we hit a prompt that follows a prompt or outcome
+            else if (item.type === 'prompt' && 
+                    currentStep.sequence.some(s => s.type === 'prompt' || s.type === 'outcome')) {
                 steps.push({...currentStep});
                 currentStep = {
                     number: steps.length + 1,
@@ -1683,6 +1702,11 @@
             } else {
                 // Add to current step
                 currentStep.sequence.push(item);
+            }
+            
+            // Update lastNonThoughtType if this isn't a thought
+            if (item.type !== 'thought') {
+                lastNonThoughtType = item.type;
             }
         }
         
