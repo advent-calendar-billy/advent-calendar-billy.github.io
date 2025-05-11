@@ -2,38 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pixel Slot Machine - 5x7 (Updated)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"> {/* Requirement 2: Added user-scalable=no */}
+    <title>Pixel Slot Machine - Fullscreen</title>
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
-        body {
-            font-family: 'Courier New', Courier, monospace;
-            background-color: #1a1a2e; /* Dark blueish background */
-            color: #e0e0e0;
-            margin: 0;
-            padding: 5px;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
-            image-rendering: pixelated;
-            image-rendering: -moz-crisp-edges;
-            image-rendering: crisp-edges;
-        }
-        #root {
-            width: 100%;
-            max-width: 320px; /* Adjusted for 5 reels, smaller symbols */
-        }
-
         /* Basic utilities */
         .flex { display: flex; }
         .flex-col { flex-direction: column; }
         .items-center { align-items: center; }
         .justify-center { justify-content: center; }
         .justify-between { justify-content: space-between; }
-        .gap-1 { gap: 0.25rem; } /* 4px */
+        .gap-1 { gap: 0.25rem; }
         .p-1 { padding: 0.25rem; }
         .p-2 { padding: 0.5rem; }
         .mb-1 { margin-bottom: 0.25rem;}
@@ -41,7 +22,8 @@
         .mt-1 { margin-top: 0.25rem; }
         .mt-2 { margin-top: 0.5rem; }
         .w-full { width: 100%; }
-        .text-xxs { font-size: 0.65rem; line-height: 0.85rem;} /* Extra small for tight UI */
+        .h-full { height: 100%; } /* Added for fullscreen */
+        .text-xxs { font-size: 0.65rem; line-height: 0.85rem;}
         .text-xs { font-size: 0.75rem; line-height: 1rem; }
         .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
         .font-bold { font-weight: bold; }
@@ -51,14 +33,12 @@
         .rounded-full { border-radius: 9999px; }
         .border { border-width: 1px; }
         .border-2 { border-width: 2px; }
-        .border-4 { border-width: 4px; }
         .border-amber-500 { border-color: #f59e0b; }
         .border-gray-600 { border-color: #4b5563; }
-        .border-gray-700 { border-color: #374151; }
         .border-green-500 { border-color: #22c55e; }
-        .bg-gray-950 { background-color: #0c0d1f; } /* Machine body */
+        .bg-gray-950 { background-color: #0c0d1f; }
         .bg-black { background-color: #000; }
-        .bg-gray-800 { background-color: #1f2937; } /* Reel column background */
+        .bg-gray-800 { background-color: #1f2937; }
         .bg-gray-700 { background-color: #374151; }
         .hover\:bg-gray-600:hover { background-color: #4b5563; }
         .bg-red-600 { background-color: #dc2626; }
@@ -79,11 +59,12 @@
         .right-0 { right: 0; }
         .text-center { text-align: center; }
         .z-10 { z-index: 10; }
-        .z-20 { z-index: 20; } /* Reels */
-        .z-30 { z-index: 30; } /* Lines */
-        .z-40 { z-index: 40; } /* Messages */
-        .mx-auto { margin-left: auto; margin-right: auto; }
+        .z-20 { z-index: 20; }
+        .z-30 { z-index: 30; }
+        .z-40 { z-index: 40; }
         .overflow-hidden { overflow: hidden; }
+        .max-w-sm { max-width: 24rem; } /* 384px. Tailwind's default sm. */
+
 
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .6; } }
         .animate-pulse { animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
@@ -98,22 +79,23 @@
         button:disabled { cursor: not-allowed; opacity: 0.6; }
         
         .slot-symbol-container {
-            width: 24px; /* Smaller symbols for 5x7 grid */
+            width: 24px; 
             height: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
-            background-color: #2a2a3e; /* Symbol background */
-            border: 1px solid #444; /* Default border */
+            background-color: #2a2a3e; 
+            border: 1px solid #444; 
         }
-        .reels-area { /* Container for reels and SVG lines */
+        .reels-area { 
             position: relative;
             background-color: black; 
-            padding: 2px; /* Minimal padding around the set of reels */
+            padding: 2px; 
             border-radius: 4px;
             border: 2px solid #374151; 
-            margin-bottom: 0.5rem; /* my-2 */
-            margin-top: 0.5rem; /* my-2 */
+            /* margin-bottom and margin-top might be less critical with justify-between */
+            margin-bottom: 0.25rem; /* Adjusted from 0.5rem to give a bit more space for controls if screen is short */
+            margin-top: 0.25rem; 
         }
         .winning-lines-svg {
             position: absolute;
@@ -126,8 +108,42 @@
         }
         .payline-button {
             padding: 3px 6px;
-            font-size: 0.6rem; /* text-xxs might be too small */
+            font-size: 0.6rem; 
             border-width: 1px;
+        }
+
+        /* Requirement 2: Fullscreen and Mobile Friendliness CSS */
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Prevent scrollbars for fullscreen feel */
+        }
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #1a1a2e;
+            color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* Fallback for viewport height */
+            min-height: -webkit-fill-available; /* iOS Safari fix for 100vh with dynamic toolbars */
+            padding: 5px; /* Small space from screen edges */
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+        #root {
+            width: 100%; /* Take full width of padded body */
+            height: 100%; /* Take full height of padded body */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        /* Universal box-sizing */
+        *, *::before, *::after {
+            box-sizing: border-box;
         }
     </style>
 </head>
@@ -135,11 +151,13 @@
     <div id="root"></div>
 
     <script type="text/babel">
+// Requirement 1: adding a new lane costs 0.50
+const BASE_BET_PER_LINE = 0.50; 
+
 const NUM_REELS = 5;
 const NUM_ROWS = 7;
-const BASE_BET_PER_LINE = 0.10; // Requirement 3: adding a new lane (payline) costs 0.10
 
-// CSS dependent values for SVG line calculation (MUST MATCH CSS)
+// CSS dependent values
 const SYMBOL_SIZE_PX = 24;
 const SYMBOL_MARGIN_Y_PX = 2; 
 const REEL_COLUMN_PADDING_PX = 1;
@@ -147,14 +165,13 @@ const GAP_BETWEEN_REELS_PX = 2;
 
 const SlotMachine = () => {
   const initialSymbols = React.useMemo(() => [
-    // Requirement 2: Increased symbol values for higher earnings
     { id: 'cherry', value: 20, color: '#FF0000', pattern: [[0,0,0,0,0,1,1,0],[0,0,0,0,1,1,0,0],[0,0,0,1,1,0,0,0],[0,0,0,0,1,0,0,0],[0,0,1,1,0,0,0,0],[0,1,1,1,1,0,0,0],[1,1,1,1,1,1,0,0],[0,1,1,1,1,0,0,0]] },
     { id: 'lemon', value: 40, color: '#FFFF00', pattern: [[0,0,1,1,1,0,0,0],[0,1,1,1,1,1,0,0],[1,1,1,1,1,1,1,0],[1,1,1,1,1,1,1,0],[1,1,1,1,1,1,1,0],[0,1,1,1,1,1,0,0],[0,0,1,1,1,0,0,0],[0,0,0,0,0,0,0,0]] },
     { id: 'seven', value: 100, color: '#0000FF', pattern: [[1,1,1,1,1,1,1,0],[1,1,1,1,1,1,1,0],[0,0,0,0,0,1,1,0],[0,0,0,0,1,1,0,0],[0,0,0,1,1,0,0,0],[0,0,1,1,0,0,0,0],[0,0,1,1,0,0,0,0],[0,0,1,1,0,0,0,0]] },
     { id: 'diamond', value: 250, color: '#00FFFF', pattern: [[0,0,0,1,1,0,0,0],[0,0,1,1,1,1,0,0],[0,1,1,1,1,1,1,0],[1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1],[0,1,1,1,1,1,1,0],[0,0,1,1,1,1,0,0],[0,0,0,1,1,0,0,0]] },
     { id: 'star', value: 500, color: '#FF00FF', pattern: [[0,0,0,1,1,0,0,0],[0,0,0,1,1,0,0,0],[0,1,1,1,1,1,1,0],[1,1,1,1,1,1,1,1],[0,1,1,1,1,1,1,0],[0,0,1,1,1,1,0,0],[0,1,1,0,0,1,1,0],[1,1,0,0,0,0,1,1]] },
-    { id: 'bonus', value: 0, color: '#00FF00', pattern: [[0,0,1,1,1,1,0,0],[0,0,1,0,0,1,0,0],[1,1,1,1,1,1,1,1],[1,0,1,0,0,1,0,1],[1,0,1,0,0,1,0,1],[1,1,1,1,1,1,1,1],[0,1,1,1,1,1,1,0],[0,0,1,1,1,1,0,0]] }, // Scatter for bonus
-    { id: 'jackpot', value: 1000, color: '#FFAA00', pattern: [[0,0,0,1,1,0,0,0],[0,0,1,1,1,1,0,0],[0,1,1,0,0,1,1,0],[0,1,1,1,1,1,1,0],[0,0,1,1,1,1,0,0],[0,0,0,0,0,1,1,0],[0,1,1,0,0,1,1,0],[0,0,1,1,1,1,0,0]] } // Highest paying symbol
+    { id: 'bonus', value: 0, color: '#00FF00', pattern: [[0,0,1,1,1,1,0,0],[0,0,1,0,0,1,0,0],[1,1,1,1,1,1,1,1],[1,0,1,0,0,1,0,1],[1,0,1,0,0,1,0,1],[1,1,1,1,1,1,1,1],[0,1,1,1,1,1,1,0],[0,0,1,1,1,1,0,0]] },
+    { id: 'jackpot', value: 1000, color: '#FFAA00', pattern: [[0,0,0,1,1,0,0,0],[0,0,1,1,1,1,0,0],[0,1,1,0,0,1,1,0],[0,1,1,1,1,1,1,0],[0,0,1,1,1,1,0,0],[0,0,0,0,0,1,1,0],[0,1,1,0,0,1,1,0],[0,0,1,1,1,1,0,0]] }
   ], []);
 
   const paylines = React.useMemo(() => { 
@@ -201,7 +218,6 @@ const SlotMachine = () => {
   const [bonusMode, setBonusMode] = React.useState(false);
   const [bonusMultiplier, setBonusMultiplier] = React.useState(1);
   const [freeSpins, setFreeSpins] = React.useState(0);
-  // Requirement 4: Removed soundEnabled state
   const [winningLinePaths, setWinningLinePaths] = React.useState([]);
   
   const reelStrips = React.useMemo(() => {
@@ -235,7 +251,6 @@ const SlotMachine = () => {
     setCurrentBet(parseFloat((BASE_BET_PER_LINE * activePaylineCount).toFixed(2)));
   }, [activePaylineCount]);
 
-  // Requirement 4: Simplified playSound, no soundEnabled check
   const playSound = (sound) => {
     if (sound && sound.current && sound.current.HAVE_ENOUGH_DATA) {
       sound.current.currentTime = 0;
@@ -285,15 +300,13 @@ const SlotMachine = () => {
         }
       }
       
-      // Requirement 1: Minimum matches for a win is 3
       const minMatch = 3;
 
       if (matchCount >= minMatch) {
         let winMultiplier = 0;
-        // Requirement 1 & 2: Adjusted multipliers for 3, 4, 5 matches for higher earnings
-        if (matchCount === 3) winMultiplier = 1.5;    // 3 of a kind
-        else if (matchCount === 4) winMultiplier = 10;   // 4 of a kind
-        else if (matchCount === 5) winMultiplier = 50;  // 5 of a kind
+        if (matchCount === 3) winMultiplier = 1.5;    
+        else if (matchCount === 4) winMultiplier = 10;   
+        else if (matchCount === 5) winMultiplier = 50;  
 
         if (firstSymbol.id === 'jackpot') {
             if (matchCount === 3) winMultiplier = 20;  
@@ -303,7 +316,7 @@ const SlotMachine = () => {
         }
         
         const lineWinAmount = firstSymbol.value * winMultiplier * BASE_BET_PER_LINE * bonusMultiplier;
-        const lineWin = parseFloat(lineWinAmount.toFixed(2)); // Handle cents
+        const lineWin = parseFloat(lineWinAmount.toFixed(2));
         
         if (lineWin > 0) {
             totalWin += lineWin;
@@ -329,7 +342,7 @@ const SlotMachine = () => {
     }
     
     setWinningLinePaths(generateWinningLinePaths(newWinningPaylineDetails));
-    totalWin = parseFloat(totalWin.toFixed(2)); // Ensure totalWin is also correctly formatted
+    totalWin = parseFloat(totalWin.toFixed(2));
     
     if (totalWin > 0) {
       setWin(totalWin);
@@ -341,7 +354,7 @@ const SlotMachine = () => {
     }
     
     if (money < currentBet && freeSpins === 0 && !bonusMode && totalWin < currentBet) {
-      const refill = Math.max(currentBet * 20, 50); // Adjusted refill logic slightly
+      const refill = Math.max(currentBet * 20, 50); 
       setMoney(prev => parseFloat((prev + refill).toFixed(2)));
       setWinMessage(prev => (prev ? prev + " " : "") + `Low Funds! +$${refill.toFixed(2)}`);
     }
@@ -479,22 +492,26 @@ const SlotMachine = () => {
     );
   };
     
+  // Requirement 2: Mobile friendly - main div classes adjusted.
+  // Removed mx-auto. Added h-full, w-full. Changed justify-center to justify-between.
+  // max-w-sm (384px) is kept; #root will center this container.
   return (
-    <div className="relative flex flex-col items-center justify-center bg-gray-950 p-1 rounded-lg border-2 border-amber-500 max-w-sm mx-auto overflow-hidden">
+    <div className="relative flex flex-col items-center justify-between bg-gray-950 p-1 rounded-lg border-2 border-amber-500 max-w-sm overflow-hidden h-full w-full">
       
+      {/* Messages Area (Absolute Positioned) */}
       {winMessage && (
         <div className="absolute top-0 left-0 right-0 text-center text-xxs font-bold text-white bg-green-600 py-0.5 px-1 z-40" style={{minHeight: '16px', maxHeight: '36px', overflowY: 'auto'}}>
           {winMessage.split('!').map((msg, idx) => <div key={idx}>{msg}{msg && '!'}</div>)}
         </div>
       )}
-      
       {bonusMode && ( 
         <div className={`absolute ${winMessage ? 'top-4 md:top-5' : 'top-0'} left-0 right-0 text-center text-xxs font-bold text-white bg-pink-600 py-0.5 animate-pulse z-40`}>
           BONUS! x{bonusMultiplier} ({freeSpins} FS)
         </div>
       )}
       
-      <div className="reels-area mt-1"> 
+      {/* Reels Area */}
+      <div className="reels-area"> {/* mt-1 and mb-1 removed, rely on justify-between and internal padding of controls div */}
         <div className="flex" style={{gap: `${GAP_BETWEEN_REELS_PX}px`}}> 
           {reels.map((reelSymbols, reelIndex) => (
             <div key={reelIndex} className="relative bg-gray-800 rounded" style={{padding: `${REEL_COLUMN_PADDING_PX}px`}}>
@@ -513,44 +530,45 @@ const SlotMachine = () => {
         </svg>
       </div>
       
-      {win > 0 && !winMessage.toLowerCase().includes("win") && (
-        <div className="bg-yellow-500 text-black text-xs font-bold px-2 py-0.5 rounded-lg mb-1 animate-pulse">
-          WIN: ${win.toFixed(2)}!
+      {/* Controls Area (Grouped for better spacing with justify-between) */}
+      <div className="w-full flex flex-col items-center gap-1 p-1"> {/* Added padding to this group */}
+        {win > 0 && !winMessage.toLowerCase().includes("win") && (
+          <div className="bg-yellow-500 text-black text-xs font-bold px-2 py-0.5 rounded-lg animate-pulse mb-1"> {/* mb-1 for spacing if it appears */}
+            WIN: ${win.toFixed(2)}!
+          </div>
+        )}
+        
+        <div className="flex items-center justify-between w-full text-xxs px-1">
+          <span>Paylines:</span>
+          <div className="flex items-center" style={{gap: '2px'}}>
+              <button onClick={() => handlePaylineChange(-1)} disabled={spinning || activePaylineCount <= 0} className="payline-button rounded bg-gray-700 text-white border-gray-600">-</button>
+              <span className="font-bold text-amber-400 w-4 text-center">{activePaylineCount}</span>
+              <button onClick={() => handlePaylineChange(1)} disabled={spinning || activePaylineCount >= MAX_PAYLINES} className="payline-button rounded bg-gray-700 text-white border-gray-600">+</button>
+          </div>
+           <span>Bet: <span className="font-bold text-white">${currentBet.toFixed(2)}</span></span>
         </div>
-      )}
-      
-      <div className="flex items-center justify-between w-full mt-1 text-xxs px-1">
-        <span>Paylines:</span>
-        <div className="flex items-center" style={{gap: '2px'}}>
-            <button onClick={() => handlePaylineChange(-1)} disabled={spinning || activePaylineCount <= 0} className="payline-button rounded bg-gray-700 text-white border-gray-600">-</button>
-            <span className="font-bold text-amber-400 w-4 text-center">{activePaylineCount}</span>
-            <button onClick={() => handlePaylineChange(1)} disabled={spinning || activePaylineCount >= MAX_PAYLINES} className="payline-button rounded bg-gray-700 text-white border-gray-600">+</button>
-        </div>
-         <span>Bet: <span className="font-bold text-white">${currentBet.toFixed(2)}</span></span>
-      </div>
 
-      <div className="flex items-center justify-between w-full mt-1 px-1">
-        <div className="bg-black px-1.5 py-0.5 rounded-lg border border-green-500 text-xs">
-          <span className="text-green-500 font-bold">CASH:</span>
-          <span className="text-white ml-0.5">${money.toFixed(2)}</span>
+        <div className="flex items-center justify-between w-full px-1">
+          <div className="bg-black px-1.5 py-0.5 rounded-lg border border-green-500 text-xs">
+            <span className="text-green-500 font-bold">CASH:</span>
+            <span className="text-white ml-0.5">${money.toFixed(2)}</span>
+          </div>
+          
+          <button 
+            onClick={spin}
+            disabled={spinning || (activePaylineCount === 0 && freeSpins === 0) || (money < currentBet && freeSpins === 0)}
+            className={`flex items-center justify-center bg-red-600 hover:bg-red-700 text-white font-bold py-1 px-2 rounded-full text-xs ${spinning || (activePaylineCount === 0 && freeSpins === 0) || (money < currentBet && freeSpins === 0) ? 'opacity-50' : ''}`}
+          >
+            <span className="mr-0.5 text-xs">▶</span>
+            {spinning ? '...' : (freeSpins > 0 ? `FS (${freeSpins})` : 'SPIN')}
+          </button>
         </div>
-        
-        <button 
-          onClick={spin}
-          disabled={spinning || (activePaylineCount === 0 && freeSpins === 0) || (money < currentBet && freeSpins === 0)}
-          className={`flex items-center justify-center bg-red-600 hover:bg-red-700 text-white font-bold py-1 px-2 rounded-full text-xs ${spinning || (activePaylineCount === 0 && freeSpins === 0) || (money < currentBet && freeSpins === 0) ? 'opacity-50' : ''}`}
-        >
-          <span className="mr-0.5 text-xs">▶</span>
-          {spinning ? '...' : (freeSpins > 0 ? `FS (${freeSpins})` : 'SPIN')}
-        </button>
-        
-        {/* Requirement 4: Sound toggle button removed */}
-      </div>
-       {freeSpins > 0 && !bonusMode && (
-        <div className="text-center text-xxs text-blue-400 mt-0.5 animate-bounce">
-          {freeSpins} FREE SPINS!
-        </div>
-      )}
+         {freeSpins > 0 && !bonusMode && (
+          <div className="text-center text-xxs text-blue-400 animate-bounce mt-1"> {/* mt-1 for spacing */}
+            {freeSpins} FREE SPINS!
+          </div>
+        )}
+      </div> {/* End of controls grouping div */}
     </div>
   );
 };
