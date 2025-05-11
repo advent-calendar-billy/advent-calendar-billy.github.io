@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pixel Slot Machine - 5x7 (No Wilds)</title>
+    <title>Pixel Slot Machine - 5x7 (Updated)</title>
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -137,7 +137,7 @@
     <script type="text/babel">
 const NUM_REELS = 5;
 const NUM_ROWS = 7;
-const BASE_BET_PER_LINE = 1;
+const BASE_BET_PER_LINE = 0.10; // Requirement 3: adding a new lane (payline) costs 0.10
 
 // CSS dependent values for SVG line calculation (MUST MATCH CSS)
 const SYMBOL_SIZE_PX = 24;
@@ -147,16 +147,17 @@ const GAP_BETWEEN_REELS_PX = 2;
 
 const SlotMachine = () => {
   const initialSymbols = React.useMemo(() => [
-    { id: 'cherry', value: 2, color: '#FF0000', pattern: [[0,0,0,0,0,1,1,0],[0,0,0,0,1,1,0,0],[0,0,0,1,1,0,0,0],[0,0,0,0,1,0,0,0],[0,0,1,1,0,0,0,0],[0,1,1,1,1,0,0,0],[1,1,1,1,1,1,0,0],[0,1,1,1,1,0,0,0]] }, // Base value for 3 of a kind
-    { id: 'lemon', value: 4, color: '#FFFF00', pattern: [[0,0,1,1,1,0,0,0],[0,1,1,1,1,1,0,0],[1,1,1,1,1,1,1,0],[1,1,1,1,1,1,1,0],[1,1,1,1,1,1,1,0],[0,1,1,1,1,1,0,0],[0,0,1,1,1,0,0,0],[0,0,0,0,0,0,0,0]] },
-    { id: 'seven', value: 10, color: '#0000FF', pattern: [[1,1,1,1,1,1,1,0],[1,1,1,1,1,1,1,0],[0,0,0,0,0,1,1,0],[0,0,0,0,1,1,0,0],[0,0,0,1,1,0,0,0],[0,0,1,1,0,0,0,0],[0,0,1,1,0,0,0,0],[0,0,1,1,0,0,0,0]] },
-    { id: 'diamond', value: 20, color: '#00FFFF', pattern: [[0,0,0,1,1,0,0,0],[0,0,1,1,1,1,0,0],[0,1,1,1,1,1,1,0],[1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1],[0,1,1,1,1,1,1,0],[0,0,1,1,1,1,0,0],[0,0,0,1,1,0,0,0]] },
-    { id: 'star', value: 40, color: '#FF00FF', pattern: [[0,0,0,1,1,0,0,0],[0,0,0,1,1,0,0,0],[0,1,1,1,1,1,1,0],[1,1,1,1,1,1,1,1],[0,1,1,1,1,1,1,0],[0,0,1,1,1,1,0,0],[0,1,1,0,0,1,1,0],[1,1,0,0,0,0,1,1]] },
+    // Requirement 2: Increased symbol values for higher earnings
+    { id: 'cherry', value: 20, color: '#FF0000', pattern: [[0,0,0,0,0,1,1,0],[0,0,0,0,1,1,0,0],[0,0,0,1,1,0,0,0],[0,0,0,0,1,0,0,0],[0,0,1,1,0,0,0,0],[0,1,1,1,1,0,0,0],[1,1,1,1,1,1,0,0],[0,1,1,1,1,0,0,0]] },
+    { id: 'lemon', value: 40, color: '#FFFF00', pattern: [[0,0,1,1,1,0,0,0],[0,1,1,1,1,1,0,0],[1,1,1,1,1,1,1,0],[1,1,1,1,1,1,1,0],[1,1,1,1,1,1,1,0],[0,1,1,1,1,1,0,0],[0,0,1,1,1,0,0,0],[0,0,0,0,0,0,0,0]] },
+    { id: 'seven', value: 100, color: '#0000FF', pattern: [[1,1,1,1,1,1,1,0],[1,1,1,1,1,1,1,0],[0,0,0,0,0,1,1,0],[0,0,0,0,1,1,0,0],[0,0,0,1,1,0,0,0],[0,0,1,1,0,0,0,0],[0,0,1,1,0,0,0,0],[0,0,1,1,0,0,0,0]] },
+    { id: 'diamond', value: 250, color: '#00FFFF', pattern: [[0,0,0,1,1,0,0,0],[0,0,1,1,1,1,0,0],[0,1,1,1,1,1,1,0],[1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1],[0,1,1,1,1,1,1,0],[0,0,1,1,1,1,0,0],[0,0,0,1,1,0,0,0]] },
+    { id: 'star', value: 500, color: '#FF00FF', pattern: [[0,0,0,1,1,0,0,0],[0,0,0,1,1,0,0,0],[0,1,1,1,1,1,1,0],[1,1,1,1,1,1,1,1],[0,1,1,1,1,1,1,0],[0,0,1,1,1,1,0,0],[0,1,1,0,0,1,1,0],[1,1,0,0,0,0,1,1]] },
     { id: 'bonus', value: 0, color: '#00FF00', pattern: [[0,0,1,1,1,1,0,0],[0,0,1,0,0,1,0,0],[1,1,1,1,1,1,1,1],[1,0,1,0,0,1,0,1],[1,0,1,0,0,1,0,1],[1,1,1,1,1,1,1,1],[0,1,1,1,1,1,1,0],[0,0,1,1,1,1,0,0]] }, // Scatter for bonus
-    { id: 'jackpot', value: 100, color: '#FFAA00', pattern: [[0,0,0,1,1,0,0,0],[0,0,1,1,1,1,0,0],[0,1,1,0,0,1,1,0],[0,1,1,1,1,1,1,0],[0,0,1,1,1,1,0,0],[0,0,0,0,0,1,1,0],[0,1,1,0,0,1,1,0],[0,0,1,1,1,1,0,0]] } // Highest paying symbol
+    { id: 'jackpot', value: 1000, color: '#FFAA00', pattern: [[0,0,0,1,1,0,0,0],[0,0,1,1,1,1,0,0],[0,1,1,0,0,1,1,0],[0,1,1,1,1,1,1,0],[0,0,1,1,1,1,0,0],[0,0,0,0,0,1,1,0],[0,1,1,0,0,1,1,0],[0,0,1,1,1,1,0,0]] } // Highest paying symbol
   ], []);
 
-  const paylines = React.useMemo(() => { // Using the same 25 paylines as before
+  const paylines = React.useMemo(() => { 
     const lines = [];
     for (let i = 0; i < NUM_ROWS; i++) {
       lines.push({ id: lines.length + 1, name: `H${i}`, coords: Array(NUM_REELS).fill(null).map((_, reelIdx) => [reelIdx, i]) });
@@ -200,11 +201,10 @@ const SlotMachine = () => {
   const [bonusMode, setBonusMode] = React.useState(false);
   const [bonusMultiplier, setBonusMultiplier] = React.useState(1);
   const [freeSpins, setFreeSpins] = React.useState(0);
-  const [soundEnabled, setSoundEnabled] = React.useState(true);
+  // Requirement 4: Removed soundEnabled state
   const [winningLinePaths, setWinningLinePaths] = React.useState([]);
   
   const reelStrips = React.useMemo(() => {
-    // Exclude 'bonus' symbol from main reel strips as it's a scatter
     const symbolsForStrip = initialSymbols.filter(s => s.id !== 'bonus');
     return Array(NUM_REELS).fill(null).map(() => {
         let strip = [];
@@ -232,28 +232,27 @@ const SlotMachine = () => {
   }, []);
 
   React.useEffect(() => {
-    setCurrentBet(BASE_BET_PER_LINE * activePaylineCount);
+    setCurrentBet(parseFloat((BASE_BET_PER_LINE * activePaylineCount).toFixed(2)));
   }, [activePaylineCount]);
 
+  // Requirement 4: Simplified playSound, no soundEnabled check
   const playSound = (sound) => {
-    if (soundEnabled && sound && sound.current && sound.current.HAVE_ENOUGH_DATA) {
+    if (sound && sound.current && sound.current.HAVE_ENOUGH_DATA) {
       sound.current.currentTime = 0;
       sound.current.play().catch(e => console.warn("Audio play failed:", e));
     }
   };
 
-  const generateResultsInternal = () => { // Purely random results
+  const generateResultsInternal = () => { 
     const newReels = Array(NUM_REELS).fill(null).map((_, rIndex) => {
-        const strip = reelStrips[rIndex]; // Uses strips without bonus symbols initially
+        const strip = reelStrips[rIndex]; 
         const randomStartOffset = Math.floor(Math.random() * strip.length);
         return Array(NUM_ROWS).fill(null).map((__, cIndex) => strip[(randomStartOffset + cIndex) % strip.length]);
     });
 
-    // Add scatter 'bonus' symbols randomly after main symbols are placed
-    // This ensures they don't interfere with standard line wins but can appear anywhere.
-    const numberOfBonusSymbolsToTry = Math.floor(Math.random() * 4) + 1; // 1 to 3 bonus symbols
+    const numberOfBonusSymbolsToTry = Math.floor(Math.random() * 4) + 1; 
     for (let i = 0; i < numberOfBonusSymbolsToTry; i++) {
-        if (Math.random() < 0.15) { // Adjust chance of bonus symbol appearing
+        if (Math.random() < 0.15) { 
             const rReel = Math.floor(Math.random() * NUM_REELS);
             const rRow = Math.floor(Math.random() * NUM_ROWS);
             newReels[rReel][rRow] = initialSymbols.find(s => s.id === 'bonus');
@@ -266,7 +265,7 @@ const SlotMachine = () => {
     let totalWin = 0;
     let newWinningPaylineDetails = [];
     let messages = [];
-    let jackpotSymbolHitThisSpin = false; // Specifically for the 'jackpot' symbol for sound
+    let jackpotSymbolHitThisSpin = false; 
 
     const activeLines = paylines.slice(0, activePaylineCount);
 
@@ -275,7 +274,7 @@ const SlotMachine = () => {
       if (symbolsOnLine.some(s => !s)) return; 
 
       const firstSymbol = symbolsOnLine[0];
-      if (firstSymbol.id === 'bonus') return; // Bonus symbols don't form line wins
+      if (firstSymbol.id === 'bonus') return; 
 
       let matchCount = 0;
       for (let i = 0; i < symbolsOnLine.length; i++) {
@@ -286,28 +285,25 @@ const SlotMachine = () => {
         }
       }
       
-      // Minimum matches for a win
-      let minMatch = 3;
-      if (firstSymbol.id === 'cherry' || firstSymbol.id === 'lemon') {
-          minMatch = 2; // Cherries and lemons pay for 2+
-      }
+      // Requirement 1: Minimum matches for a win is 3
+      const minMatch = 3;
 
       if (matchCount >= minMatch) {
         let winMultiplier = 0;
-        if (matchCount === 2 && minMatch === 2) winMultiplier = 0.5; // e.g., 2 cherries = 0.5 * symbol_value
-        else if (matchCount === 3) winMultiplier = 1;    // 3 of a kind = 1x symbol_value
-        else if (matchCount === 4) winMultiplier = 5;    // 4 of a kind = 5x symbol_value
-        else if (matchCount === 5) winMultiplier = 20;   // 5 of a kind = 20x symbol_value
+        // Requirement 1 & 2: Adjusted multipliers for 3, 4, 5 matches for higher earnings
+        if (matchCount === 3) winMultiplier = 1.5;    // 3 of a kind
+        else if (matchCount === 4) winMultiplier = 10;   // 4 of a kind
+        else if (matchCount === 5) winMultiplier = 50;  // 5 of a kind
 
-        // Special multiplier for jackpot symbol
         if (firstSymbol.id === 'jackpot') {
-            if (matchCount === 3) winMultiplier = 10;  // 3x jackpot = 10 * value
-            else if (matchCount === 4) winMultiplier = 50;
-            else if (matchCount === 5) winMultiplier = 200;
+            if (matchCount === 3) winMultiplier = 20;  
+            else if (matchCount === 4) winMultiplier = 100;
+            else if (matchCount === 5) winMultiplier = 500;
             jackpotSymbolHitThisSpin = true;
         }
         
-        const lineWin = Math.floor(firstSymbol.value * winMultiplier * BASE_BET_PER_LINE * bonusMultiplier);
+        const lineWinAmount = firstSymbol.value * winMultiplier * BASE_BET_PER_LINE * bonusMultiplier;
+        const lineWin = parseFloat(lineWinAmount.toFixed(2)); // Handle cents
         
         if (lineWin > 0) {
             totalWin += lineWin;
@@ -319,35 +315,35 @@ const SlotMachine = () => {
                 matchCount: matchCount,
                 color: firstSymbol.color
             });
-            if (messages.length < 5) messages.push(`L${payline.id}: ${matchCount}x ${firstSymbol.id.toUpperCase()} (+$${lineWin})`);
+            if (messages.length < 5) messages.push(`L${payline.id}: ${matchCount}x ${firstSymbol.id.toUpperCase()} (+$${lineWin.toFixed(2)})`);
         }
       }
     });
 
-    // Scatter Bonus evaluation
     let bonusSymbolCount = 0;
     for (let r=0; r<NUM_REELS; r++) for (let c=0; c<NUM_ROWS; c++) if(currentReels[r][c]?.id === 'bonus') bonusSymbolCount++;
     
-    if (bonusSymbolCount >= 3 && !bonusMode) { // Need 3 or more bonus symbols anywhere for bonus round
+    if (bonusSymbolCount >= 3 && !bonusMode) { 
       activateBonus();
       messages.unshift(`BONUS! ${bonusSymbolCount} Scatters!`);
     }
     
     setWinningLinePaths(generateWinningLinePaths(newWinningPaylineDetails));
+    totalWin = parseFloat(totalWin.toFixed(2)); // Ensure totalWin is also correctly formatted
     
     if (totalWin > 0) {
       setWin(totalWin);
-      setMoney(prev => prev + totalWin);
-      setWinMessage(messages.length > 1 ? `Multiple Wins! Total: $${totalWin}` : messages[0] || `You Won $${totalWin}!`);
+      setMoney(prev => parseFloat((prev + totalWin).toFixed(2)));
+      setWinMessage(messages.length > 1 ? `Multiple Wins! Total: $${totalWin.toFixed(2)}` : messages[0] || `You Won $${totalWin.toFixed(2)}!`);
       if (jackpotSymbolHitThisSpin) playSound(jackpotAudioRef); else playSound(winAudioRef);
     } else {
        setWinMessage(''); 
     }
     
     if (money < currentBet && freeSpins === 0 && !bonusMode && totalWin < currentBet) {
-      const refill = Math.max(currentBet * 3, 50);
-      setMoney(prev => prev + refill);
-      setWinMessage(prev => (prev ? prev + " " : "") + `Low Funds! +$${refill}`);
+      const refill = Math.max(currentBet * 20, 50); // Adjusted refill logic slightly
+      setMoney(prev => parseFloat((prev + refill).toFixed(2)));
+      setWinMessage(prev => (prev ? prev + " " : "") + `Low Funds! +$${refill.toFixed(2)}`);
     }
   };
 
@@ -365,7 +361,7 @@ const SlotMachine = () => {
         setWinMessage("Not enough cash!");
         return;
       }
-      setMoney(prev => prev - currentBet);
+      setMoney(prev => parseFloat((prev - currentBet).toFixed(2)));
     }
     
     setSpinning(true);
@@ -421,7 +417,7 @@ const SlotMachine = () => {
   const activateBonus = () => {
     setBonusMode(true);
     setBonusMultiplier(2 + Math.floor(Math.random()*2)); 
-    setFreeSpins(prev => prev + 8 + Math.floor(Math.random()*5)); // 8-12 free spins for 3+ scatters
+    setFreeSpins(prev => prev + 8 + Math.floor(Math.random()*5)); 
     playSound(bonusAudioRef);
   };
   
@@ -519,7 +515,7 @@ const SlotMachine = () => {
       
       {win > 0 && !winMessage.toLowerCase().includes("win") && (
         <div className="bg-yellow-500 text-black text-xs font-bold px-2 py-0.5 rounded-lg mb-1 animate-pulse">
-          WIN: ${win}!
+          WIN: ${win.toFixed(2)}!
         </div>
       )}
       
@@ -530,30 +526,25 @@ const SlotMachine = () => {
             <span className="font-bold text-amber-400 w-4 text-center">{activePaylineCount}</span>
             <button onClick={() => handlePaylineChange(1)} disabled={spinning || activePaylineCount >= MAX_PAYLINES} className="payline-button rounded bg-gray-700 text-white border-gray-600">+</button>
         </div>
-         <span>Bet: <span className="font-bold text-white">${currentBet}</span></span>
+         <span>Bet: <span className="font-bold text-white">${currentBet.toFixed(2)}</span></span>
       </div>
 
       <div className="flex items-center justify-between w-full mt-1 px-1">
         <div className="bg-black px-1.5 py-0.5 rounded-lg border border-green-500 text-xs">
           <span className="text-green-500 font-bold">CASH:</span>
-          <span className="text-white ml-0.5">${money}</span>
+          <span className="text-white ml-0.5">${money.toFixed(2)}</span>
         </div>
         
         <button 
           onClick={spin}
           disabled={spinning || (activePaylineCount === 0 && freeSpins === 0) || (money < currentBet && freeSpins === 0)}
-          className={`flex items-center justify-center bg-red-600 hover:bg-red-700 text-white font-bold py-1 px-2 rounded-full text-xs ${spinning || (activePaylineCount === 0 && freeSpins === 0) ? 'opacity-50' : ''}`}
+          className={`flex items-center justify-center bg-red-600 hover:bg-red-700 text-white font-bold py-1 px-2 rounded-full text-xs ${spinning || (activePaylineCount === 0 && freeSpins === 0) || (money < currentBet && freeSpins === 0) ? 'opacity-50' : ''}`}
         >
           <span className="mr-0.5 text-xs">▶</span>
           {spinning ? '...' : (freeSpins > 0 ? `FS (${freeSpins})` : 'SPIN')}
         </button>
         
-        <button
-          onClick={() => setSoundEnabled(!soundEnabled)}
-          className="bg-gray-700 hover:bg-gray-600 text-white p-1 rounded-full border-gray-600"
-        >
-          {soundEnabled ? <span className="text-xs">🔊</span> : <span className="text-xs">🔇</span>}
-        </button>
+        {/* Requirement 4: Sound toggle button removed */}
       </div>
        {freeSpins > 0 && !bonusMode && (
         <div className="text-center text-xxs text-blue-400 mt-0.5 animate-bounce">
