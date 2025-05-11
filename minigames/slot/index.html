@@ -64,8 +64,7 @@
         .z-30 { z-index: 30; }
         .z-40 { z-index: 40; }
         .overflow-hidden { overflow: hidden; }
-        .max-w-sm { max-width: 24rem; }
-
+        /* .max-w-sm class removed as we'll use inline style for specific component */
 
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .6; } }
         .animate-pulse { animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
@@ -487,10 +486,11 @@ const SlotMachine = () => {
     );
   };
     
-  // Main component div: Removed h-full and justify-between. Kept w-full to fill max-w-sm.
-  // It will now take its natural height and be centered by #root and body.
   return (
-    <div className="relative flex flex-col items-center bg-gray-950 p-1 rounded-lg border-2 border-amber-500 max-w-sm overflow-hidden w-full">
+    <div 
+      className="relative flex flex-col items-center bg-gray-950 p-1 rounded-lg border-2 border-amber-500 overflow-hidden w-full"
+      style={{ maxWidth: 'min(500px, 95vw)' }} // Applied responsive maxWidth
+    >
       
       {/* Messages Area (Absolute Positioned) */}
       {winMessage && (
@@ -505,7 +505,6 @@ const SlotMachine = () => {
       )}
       
       {/* Reels Area */}
-      {/* Margins on reels-area and padding/gap on controls-area will define spacing */}
       <div className="reels-area"> 
         <div className="flex" style={{gap: `${GAP_BETWEEN_REELS_PX}px`}}> 
           {reels.map((reelSymbols, reelIndex) => (
