@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <!-- Requirement 2: Added user-scalable=no -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Pixel Slot Machine - Fullscreen</title>
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
@@ -22,7 +23,7 @@
         .mt-1 { margin-top: 0.25rem; }
         .mt-2 { margin-top: 0.5rem; }
         .w-full { width: 100%; }
-        .h-full { height: 100%; } /* Added for fullscreen */
+        .h-full { height: 100%; }
         .text-xxs { font-size: 0.65rem; line-height: 0.85rem;}
         .text-xs { font-size: 0.75rem; line-height: 1rem; }
         .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
@@ -63,7 +64,7 @@
         .z-30 { z-index: 30; }
         .z-40 { z-index: 40; }
         .overflow-hidden { overflow: hidden; }
-        .max-w-sm { max-width: 24rem; } /* 384px. Tailwind's default sm. */
+        .max-w-sm { max-width: 24rem; }
 
 
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .6; } }
@@ -93,8 +94,7 @@
             padding: 2px; 
             border-radius: 4px;
             border: 2px solid #374151; 
-            /* margin-bottom and margin-top might be less critical with justify-between */
-            margin-bottom: 0.25rem; /* Adjusted from 0.5rem to give a bit more space for controls if screen is short */
+            margin-bottom: 0.25rem; 
             margin-top: 0.25rem; 
         }
         .winning-lines-svg {
@@ -112,13 +112,12 @@
             border-width: 1px;
         }
 
-        /* Requirement 2: Fullscreen and Mobile Friendliness CSS */
         html, body {
             width: 100%;
             height: 100%;
             margin: 0;
             padding: 0;
-            overflow: hidden; /* Prevent scrollbars for fullscreen feel */
+            overflow: hidden; 
         }
         body {
             font-family: 'Courier New', Courier, monospace;
@@ -127,21 +126,20 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh; /* Fallback for viewport height */
-            min-height: -webkit-fill-available; /* iOS Safari fix for 100vh with dynamic toolbars */
-            padding: 5px; /* Small space from screen edges */
+            min-height: 100vh; 
+            min-height: -webkit-fill-available; 
+            padding: 5px; 
             image-rendering: pixelated;
             image-rendering: -moz-crisp-edges;
             image-rendering: crisp-edges;
         }
         #root {
-            width: 100%; /* Take full width of padded body */
-            height: 100%; /* Take full height of padded body */
+            width: 100%; 
+            height: 100%; 
             display: flex;
             justify-content: center;
             align-items: center;
         }
-        /* Universal box-sizing */
         *, *::before, *::after {
             box-sizing: border-box;
         }
@@ -151,13 +149,10 @@
     <div id="root"></div>
 
     <script type="text/babel">
-// Requirement 1: adding a new lane costs 0.50
 const BASE_BET_PER_LINE = 0.50; 
-
 const NUM_REELS = 5;
 const NUM_ROWS = 7;
 
-// CSS dependent values
 const SYMBOL_SIZE_PX = 24;
 const SYMBOL_MARGIN_Y_PX = 2; 
 const REEL_COLUMN_PADDING_PX = 1;
@@ -492,11 +487,10 @@ const SlotMachine = () => {
     );
   };
     
-  // Requirement 2: Mobile friendly - main div classes adjusted.
-  // Removed mx-auto. Added h-full, w-full. Changed justify-center to justify-between.
-  // max-w-sm (384px) is kept; #root will center this container.
+  // Main component div: Removed h-full and justify-between. Kept w-full to fill max-w-sm.
+  // It will now take its natural height and be centered by #root and body.
   return (
-    <div className="relative flex flex-col items-center justify-between bg-gray-950 p-1 rounded-lg border-2 border-amber-500 max-w-sm overflow-hidden h-full w-full">
+    <div className="relative flex flex-col items-center bg-gray-950 p-1 rounded-lg border-2 border-amber-500 max-w-sm overflow-hidden w-full">
       
       {/* Messages Area (Absolute Positioned) */}
       {winMessage && (
@@ -511,7 +505,8 @@ const SlotMachine = () => {
       )}
       
       {/* Reels Area */}
-      <div className="reels-area"> {/* mt-1 and mb-1 removed, rely on justify-between and internal padding of controls div */}
+      {/* Margins on reels-area and padding/gap on controls-area will define spacing */}
+      <div className="reels-area"> 
         <div className="flex" style={{gap: `${GAP_BETWEEN_REELS_PX}px`}}> 
           {reels.map((reelSymbols, reelIndex) => (
             <div key={reelIndex} className="relative bg-gray-800 rounded" style={{padding: `${REEL_COLUMN_PADDING_PX}px`}}>
@@ -530,10 +525,10 @@ const SlotMachine = () => {
         </svg>
       </div>
       
-      {/* Controls Area (Grouped for better spacing with justify-between) */}
-      <div className="w-full flex flex-col items-center gap-1 p-1"> {/* Added padding to this group */}
+      {/* Controls Area (Grouped for natural stacking) */}
+      <div className="w-full flex flex-col items-center gap-1 p-1">
         {win > 0 && !winMessage.toLowerCase().includes("win") && (
-          <div className="bg-yellow-500 text-black text-xs font-bold px-2 py-0.5 rounded-lg animate-pulse mb-1"> {/* mb-1 for spacing if it appears */}
+          <div className="bg-yellow-500 text-black text-xs font-bold px-2 py-0.5 rounded-lg animate-pulse mb-1">
             WIN: ${win.toFixed(2)}!
           </div>
         )}
@@ -564,7 +559,7 @@ const SlotMachine = () => {
           </button>
         </div>
          {freeSpins > 0 && !bonusMode && (
-          <div className="text-center text-xxs text-blue-400 animate-bounce mt-1"> {/* mt-1 for spacing */}
+          <div className="text-center text-xxs text-blue-400 animate-bounce mt-1">
             {freeSpins} FREE SPINS!
           </div>
         )}
