@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>8-Bit Dollar Frenzy - Deluxe</title>
+    <title>8-Bit Dollar Frenzy</title>
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
         body {
             font-family: 'Courier New', Courier, monospace;
-            background-color: #1a1a2e; /* Darker blueish background */
-            color: #e0e0e0; /* Lighter text color */
+            background-color: #222;
+            color: #fff;
             margin: 0;
-            padding: 10px; /* Reduced padding */
+            padding: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -24,10 +24,10 @@
         }
         #root {
             width: 100%;
-            max-width: 420px; /* Slightly smaller max width */
+            max-width: 500px;
         }
 
-        /* Basic Tailwind-like utilities */
+        /* Utility Classes */
         .flex { display: flex; }
         .flex-col { flex-direction: column; }
         .items-center { align-items: center; }
@@ -39,6 +39,7 @@
         .p-2 { padding: 0.5rem; }
         .p-3 { padding: 0.75rem; }
         .p-4 { padding: 1rem; }
+        .m-1 { margin: 0.25rem; }
         .my-1 { margin-top: 0.25rem; margin-bottom: 0.25rem; }
         .my-2 { margin-top: 0.5rem; margin-bottom: 0.5rem; }
         .mb-2 { margin-bottom: 0.5rem; }
@@ -47,6 +48,10 @@
         .mr-1 { margin-right: 0.25rem; }
         .ml-1 { margin-left: 0.25rem; }
         .w-full { width: 100%; }
+        .w-12 { width: 3rem; }
+        .h-12 { height: 3rem; }
+        .w-16 { width: 4rem; }
+        .h-16 { height: 4rem; }
         .text-xs { font-size: 0.75rem; }
         .text-sm { font-size: 0.875rem; }
         .text-base { font-size: 1rem; }
@@ -55,7 +60,7 @@
         .text-2xl { font-size: 1.5rem; }
         .font-bold { font-weight: bold; }
         .uppercase { text-transform: uppercase; }
-        .tracking-wider { letter-spacing: 0.05em; }
+        .tracking-widest { letter-spacing: 0.1em; }
         .rounded { border-radius: 0.25rem; }
         .rounded-lg { border-radius: 0.5rem; }
         .rounded-full { border-radius: 9999px; }
@@ -64,78 +69,121 @@
         .border-amber-500 { border-color: #f59e0b; }
         .border-gray-700 { border-color: #374151; }
         .border-green-500 { border-color: #22c55e; }
-        .bg-gray-950 { background-color: #0c0d1f; } /* Darker machine body */
+        .bg-gray-900 { background-color: #111827; }
         .bg-black { background-color: #000; }
-        .bg-gray-800 { background-color: #1f2937; } /* Reel background */
+        .bg-gray-800 { background-color: #1f2937; }
+        .bg-gray-700 { background-color: #374151; }
+        .bg-gray-600 { background-color: #4b5563; }
         .bg-red-600 { background-color: #dc2626; }
         .hover\:bg-red-700:hover { background-color: #b91c1c; }
         .bg-blue-600 { background-color: #2563eb; }
         .hover\:bg-blue-700:hover { background-color: #1d4ed8; }
         .bg-green-600 { background-color: #16a34a; }
+        .hover\:bg-green-700:hover { background-color: #15803d; }
         .bg-yellow-500 { background-color: #eab308; }
         .bg-pink-600 { background-color: #db2777; }
+        .bg-amber-600 { background-color: #d97706; }
         .text-white { color: #fff; }
         .text-black { color: #000; }
         .text-amber-400 { color: #fbbf24; }
         .text-green-500 { color: #22c55e; }
         .text-gray-400 { color: #9ca3af; }
         .opacity-50 { opacity: 0.5; }
+        .opacity-75 { opacity: 0.75; }
         .absolute { position: absolute; }
         .relative { position: relative; }
         .top-0 { top: 0; }
         .left-0 { left: 0; }
         .right-0 { right: 0; }
         .bottom-0 { bottom: 0; }
-        .top-12 { top: 3rem; } /* Adjusted for smaller layout */
-        .top-20 { top: 5rem; } /* Adjusted */
-        .right-2 { right: 0.5rem; } /* Adjusted */
+        .top-16 { top: 4rem; }
+        .top-24 { top: 6rem; }
+        .right-4 { right: 1rem; }
         .text-center { text-align: center; }
         .z-10 { z-index: 10; }
-        .z-20 { z-index: 20; }
-        .max-w-sm { max-width: 24rem; } /* Adjusted for overall smaller game */
+        .max-w-md { max-width: 28rem; }
         .mx-auto { margin-left: auto; margin-right: auto; }
         .overflow-hidden { overflow: hidden; }
         .inline-block { display: inline-block; }
+        .cursor-pointer { cursor: pointer; }
 
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .6; } }
-        .animate-pulse { animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        /* Animations */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
+        }
+        .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
 
-        @keyframes bounce { 0%, 100% { transform: translateY(-20%); animation-timing-function: cubic-bezier(0.8,0,1,1); } 50% { transform: translateY(0); animation-timing-function: cubic-bezier(0,0,0.2,1); } }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(-25%); animation-timing-function: cubic-bezier(0.8,0,1,1); }
+            50% { transform: translateY(0); animation-timing-function: cubic-bezier(0,0,0.2,1); }
+        }
         .animate-bounce { animation: bounce 1s infinite; }
 
-        .pixel-grid { display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr); width: 100%; height: 100%; }
-        .pixel { width: 100%; height: 100%; }
-        
-        button { cursor: pointer; transition: background-color 0.2s ease, opacity 0.2s ease; user-select: none; }
-        button:disabled { cursor: not-allowed; opacity: 0.6; }
-        
-        .slot-symbol-container {
-            width: 40px; /* Smaller symbols */
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #2a2a3e; /* Symbol background */
-            border: 1px solid #444;
+        /* Custom styles for pixel grid */
+        .pixel-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            grid-template-rows: repeat(8, 1fr);
+            width: 100%;
+            height: 100%;
         }
-         @media (min-width: 380px) {
+        .pixel {
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* Button styles */
+        button {
+            cursor: pointer;
+            transition: background-color 0.2s ease, opacity 0.2s ease;
+        }
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        .slot-symbol-container {
+            width: 48px;
+            height: 48px;
+        }
+        @media (min-width: 768px) {
              .slot-symbol-container {
-                width: 48px; 
-                height: 48px;
+                width: 64px;
+                height: 64px;
             }
         }
 
-        .payline-info {
-            font-size: 0.65rem;
-            background-color: rgba(0,0,0,0.5);
-            padding: 2px 4px;
-            border-radius: 3px;
+        /* Custom styles for paylines */
+        .payline-indicator {
             position: absolute;
-            bottom: 2px;
-            left: 50%;
-            transform: translateX(-50%);
-            white-space: nowrap;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            z-index: 20;
         }
+
+        .payline-preview {
+            position: absolute;
+            z-index: 5;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .spin-control-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .lines-control {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            background-color: #374151;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+        }
+
     </style>
 </head>
 <body>
@@ -149,56 +197,81 @@ const SlotMachine = () => {
     { id: 'seven', value: 50, color: '#0000FF', pattern: [[1,1,1,1,1,1,1,0],[1,1,1,1,1,1,1,0],[0,0,0,0,0,1,1,0],[0,0,0,0,1,1,0,0],[0,0,0,1,1,0,0,0],[0,0,1,1,0,0,0,0],[0,0,1,1,0,0,0,0],[0,0,1,1,0,0,0,0]] },
     { id: 'diamond', value: 100, color: '#00FFFF', pattern: [[0,0,0,1,1,0,0,0],[0,0,1,1,1,1,0,0],[0,1,1,1,1,1,1,0],[1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1],[0,1,1,1,1,1,1,0],[0,0,1,1,1,1,0,0],[0,0,0,1,1,0,0,0]] },
     { id: 'star', value: 200, color: '#FF00FF', pattern: [[0,0,0,1,1,0,0,0],[0,0,0,1,1,0,0,0],[0,1,1,1,1,1,1,0],[1,1,1,1,1,1,1,1],[0,1,1,1,1,1,1,0],[0,0,1,1,1,1,0,0],[0,1,1,0,0,1,1,0],[1,1,0,0,0,0,1,1]] },
-    { id: 'bonus', value: 0, color: '#00FF00', pattern: [[0,0,1,1,1,1,0,0],[0,0,1,0,0,1,0,0],[1,1,1,1,1,1,1,1],[1,0,1,0,0,1,0,1],[1,0,1,0,0,1,0,1],[1,1,1,1,1,1,1,1],[0,1,1,1,1,1,1,0],[0,0,1,1,1,1,0,0]] }, // Bonus can trigger free spins
-    { id: 'wild', value: 0, color: '#FFACFC', pattern: [[1,1,0,0,0,0,1,1],[1,1,0,0,0,0,1,1],[1,1,0,1,1,0,1,1],[1,1,1,1,1,1,1,1],[1,1,1,0,0,1,1,1],[1,1,0,1,1,0,1,1],[0,1,1,0,0,1,1,0],[0,0,1,1,1,1,0,0]] }, // Lighter Wild
-    { id: 'jackpot', value: 500, color: '#FFAA00', pattern: [[0,0,0,1,1,0,0,0],[0,0,1,1,1,1,0,0],[0,1,1,0,0,1,1,0],[0,1,1,1,1,1,1,0],[0,0,1,1,1,1,0,0],[0,0,0,0,0,1,1,0],[0,1,1,0,0,1,1,0],[0,0,1,1,1,1,0,0]] }
+    { id: 'bonus', value: 0, color: '#00FF00', pattern: [[0,0,1,1,1,1,0,0],[0,0,1,0,0,1,0,0],[1,1,1,1,1,1,1,1],[1,0,1,0,0,1,0,1],[1,0,1,0,0,1,0,1],[1,1,1,1,1,1,1,1],[0,1,1,1,1,1,1,0],[0,0,1,1,1,1,0,0]] },
+    { id: 'wild', value: 0, color: '#FF00AA', pattern: [[1,1,0,0,0,0,1,1],[1,1,0,0,0,0,1,1],[1,1,0,0,0,0,1,1],[1,1,0,1,1,0,1,1],[1,1,1,1,1,1,1,1],[1,1,1,0,0,1,1,1],[1,1,0,0,0,0,1,1],[1,0,0,0,0,0,0,1]] },
+    { id: 'jackpot', value: 500, color: '#FFAA00', pattern: [[0,0,0,1,1,0,0,0],[0,0,1,1,1,1,0,0],[0,1,1,0,0,1,1,0],[0,1,1,0,0,0,0,0],[0,0,1,1,1,1,0,0],[0,0,0,0,0,1,1,0],[0,1,1,0,0,1,1,0],[0,0,1,1,1,1,0,0]] }
   ];
   const symbols = React.useMemo(() => initialSymbols, []);
 
+  // Define all possible paylines (now with more paylines and zigzag patterns)
+  // Format: array of [column, row] positions
   const paylines = React.useMemo(() => [
-    { id: 1, name: 'Top Row', coords: [[0,0], [1,0], [2,0]] },
-    { id: 2, name: 'Middle Row', coords: [[0,1], [1,1], [2,1]] },
-    { id: 3, name: 'Bottom Row', coords: [[0,2], [1,2], [2,2]] },
-    { id: 4, name: 'Diagonal TL-BR', coords: [[0,0], [1,1], [2,2]] },
-    { id: 5, name: 'Diagonal BL-TR', coords: [[0,2], [1,1], [2,0]] },
+    // Horizontal lines (3 basic lines)
+    [[0,0], [1,0], [2,0], [3,0], [4,0]], // Top row
+    [[0,1], [1,1], [2,1], [3,1], [4,1]], // Middle row
+    [[0,2], [1,2], [2,2], [3,2], [4,2]], // Bottom row
+    
+    // Zigzag patterns (6 additional lines)
+    [[0,0], [1,1], [2,0], [3,1], [4,0]], // V pattern top
+    [[0,2], [1,1], [2,2], [3,1], [4,2]], // V pattern bottom
+    [[0,0], [1,0], [2,1], [3,0], [4,0]], // Small bump top
+    [[0,2], [1,2], [2,1], [3,2], [4,2]], // Small bump bottom
+    [[0,1], [1,0], [2,0], [3,0], [4,1]], // U pattern top
+    [[0,1], [1,2], [2,2], [3,2], [4,1]], // U pattern bottom
+    
+    // More complex zigzags (3 additional lines)
+    [[0,0], [1,1], [2,2], [3,1], [4,0]], // Big V pattern
+    [[0,2], [1,1], [2,0], [3,1], [4,2]], // Inverted big V pattern
+    [[0,0], [1,2], [2,1], [3,0], [4,2]], // W pattern
   ], []);
 
-  const [money, setMoney] = React.useState(100);
-  const [betPerSpin, setBetPerSpin] = React.useState(5); // Bet covers all 5 lines (1 per line)
+  // Payline colors for visualization
+  const paylineColors = React.useMemo(() => [
+    '#FF0000', // Red
+    '#00FF00', // Green
+    '#0000FF', // Blue
+    '#FFFF00', // Yellow
+    '#FF00FF', // Magenta
+    '#00FFFF', // Cyan
+    '#FF8000', // Orange
+    '#8000FF', // Purple
+    '#0080FF', // Light Blue
+    '#FF0080', // Pink
+    '#80FF00', // Lime
+    '#FF8080', // Light Red
+  ], []);
+
+  const [money, setMoney] = React.useState(500); // Start with more money
+  const [baseBet, setBaseBet] = React.useState(5); // Base bet per line
+  const [activePaylines, setActivePaylines] = React.useState(3); // Start with 3 active paylines
   const [reels, setReels] = React.useState([
     [symbols[0], symbols[1], symbols[2]],
     [symbols[1], symbols[2], symbols[3]],
-    [symbols[2], symbols[3], symbols[4]]
+    [symbols[2], symbols[3], symbols[4]],
+    [symbols[3], symbols[4], symbols[5]], // Added two more reels
+    [symbols[4], symbols[5], symbols[6]]
   ]);
   const [spinning, setSpinning] = React.useState(false);
+  const [currentlySpinningReel, setCurrentlySpinningReel] = React.useState(-1);
   const [win, setWin] = React.useState(0);
   const [winMessage, setWinMessage] = React.useState('');
   const [bonusMode, setBonusMode] = React.useState(false);
   const [bonusMultiplier, setBonusMultiplier] = React.useState(1);
   const [freeSpins, setFreeSpins] = React.useState(0);
-  const [soundEnabled, setSoundEnabled] = React.useState(true);
-  const [winningPaylineDetails, setWinningPaylineDetails] = React.useState([]);
+  const [jackpotChance, setJackpotChance] = React.useState(false);
+  const [soundEnabled, setSoundEnabled] = React.useState(false);
+  const [winningLines, setWinningLines] = React.useState([]);
+  const [showPaylinePreview, setShowPaylinePreview] = React.useState(-1);
   
-  const reelStrips = React.useMemo(() => {
-    return [0,1,2].map(() => {
-        let strip = [];
-        for (let i = 0; i < 15; i++) { // Longer strips for smoother visuals
-            strip = strip.concat([...symbols].sort(() => 0.5 - Math.random()));
-        }
-        return strip;
-    });
-  }, [symbols]);
-  const reelOffsets = React.useRef([0,0,0]);
-
   const spinAudioRef = React.useRef(null);
   const winAudioRef = React.useRef(null);
   const bonusAudioRef = React.useRef(null);
   const jackpotAudioRef = React.useRef(null);
   const reelStopAudioRef = React.useRef(null);
   const spinningTimerRef = React.useRef(null);
-  const reelsLandedRef = React.useRef([false,false,false]);
 
   React.useEffect(() => {
+    // Audio setup (using empty placeholders)
     spinAudioRef.current = new Audio('data:audio/wav;base64,UklGRl9CAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgA');
     winAudioRef.current = new Audio('data:audio/wav;base64,UklGRl9CAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgA');
     bonusAudioRef.current = new Audio('data:audio/wav;base64,UklGRl9CAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgA');
@@ -206,261 +279,392 @@ const SlotMachine = () => {
     reelStopAudioRef.current = new Audio('data:audio/wav;base64,UklGRl9CAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgA');
     
     return () => {
-      if (spinningTimerRef.current) clearInterval(spinningTimerRef.current);
+      if (spinningTimerRef.current) {
+        clearTimeout(spinningTimerRef.current);
+      }
     };
   }, []);
 
   const playSound = (sound) => {
     if (soundEnabled && sound && sound.current) {
       sound.current.currentTime = 0;
-      sound.current.play().catch(e => console.warn("Audio play failed:", e));
+      sound.current.play().catch(e => console.error("Audio play failed:", e));
     }
   };
 
-  const getRandomSymbol = (biasFactor = 0) => {
-    // biasFactor: 0 to 1. Higher means more chance of common/lower value symbols.
-    const r = Math.random();
-    if (r < 0.3 + biasFactor * 0.3) return symbols[Math.floor(Math.random() * 2)]; // Cherry, Lemon
-    if (r < 0.6 + biasFactor * 0.2) return symbols[Math.floor(Math.random() * 3)]; // Cherry, Lemon, Seven
-    if (r < 0.8) return symbols[Math.floor(Math.random() * (symbols.length - 3))]; // Avoid special
-    return symbols[Math.floor(Math.random() * symbols.length)]; // Any symbol
+  // Calculate the total bet amount
+  const getTotalBet = () => {
+    // Cost per additional line decreases as you bet on more lines (the "cheating" part)
+    // First 3 lines cost full baseBet, next 3 cost half, remaining cost 1/4
+    let totalBet = 0;
+    
+    for (let i = 0; i < activePaylines; i++) {
+      if (i < 3) {
+        totalBet += baseBet;
+      } else if (i < 6) {
+        totalBet += Math.ceil(baseBet / 2);
+      } else {
+        totalBet += Math.ceil(baseBet / 4);
+      }
+    }
+    
+    return totalBet;
   };
 
   const generateResultsInternal = () => {
-    const newReels = [[], [], []];
-    const luckySpinChance = Math.random() < 0.80 || bonusMode; // Very generous
-
+    const numReels = 5; // Now using 5 reels
+    const numRows = 3;
+    const newReels = Array(numReels).fill().map(() => Array(numRows).fill(null));
+    
+    // Determine if this spin should be "lucky" (more likely to win)
+    const luckySpinChance = Math.random() < 0.7 || bonusMode; // Higher chance to get lucky spins
+    
     if (luckySpinChance) {
-        // Try to force a win on at least one payline
-        const targetPayline = paylines[Math.floor(Math.random() * paylines.length)];
-        const winSymbol = symbols[Math.floor(Math.random() * 4)]; // Cherry, Lemon, Seven, Diamond
-        const numToMatch = Math.random() < 0.7 ? 3 : 2; // Prefer 3 matches
-
-        for(let i=0; i<3; i++) { // Initialize with random symbols
-            newReels[i] = [getRandomSymbol(0.5), getRandomSymbol(0.5), getRandomSymbol(0.5)];
+      // Choose a random symbol for potential matches
+      const randomSymbolIndex = Math.floor(Math.random() * (symbols.length - 3)); // Avoid special symbols
+      const matchSymbol = symbols[randomSymbolIndex];
+      
+      // Decide which payline(s) to potentially make winning
+      const targetPaylineIndex = Math.floor(Math.random() * activePaylines);
+      const targetPayline = paylines[targetPaylineIndex];
+      
+      // Fill the reels randomly
+      for (let i = 0; i < numReels; i++) {
+        for (let j = 0; j < numRows; j++) {
+          newReels[i][j] = getRandomSymbol(0.3, true); // Fill with random symbols
         }
-        
-        // Place winning symbols on the target payline
-        for (let i = 0; i < numToMatch; i++) {
-            const [reelIdx, rowIdx] = targetPayline.coords[i];
-            newReels[reelIdx][rowIdx] = Math.random() < 0.2 ? symbols.find(s=>s.id==='wild') : winSymbol; // Chance of wild
+      }
+      
+      // Now place matching symbols along the target payline with high probability
+      for (let i = 0; i < targetPayline.length; i++) {
+        const [col, row] = targetPayline[i];
+        // 80% chance of placing the matching symbol in this position
+        if (Math.random() < 0.8) {
+          newReels[col][row] = matchSymbol;
         }
-         // Fill remaining spots on the target payline if it was a 2-match
-        if (numToMatch === 2) {
-            const [reelIdx, rowIdx] = targetPayline.coords[2];
-            newReels[reelIdx][rowIdx] = getRandomSymbol(0.2); // Less likely to match
-        }
-
+      }
     } else {
-      for (let i = 0; i < 3; i++) {
-        newReels[i] = [getRandomSymbol(0.2), getRandomSymbol(0.2), getRandomSymbol(0.2)];
+      // Just fill with random symbols
+      for (let i = 0; i < numReels; i++) {
+        for (let j = 0; j < numRows; j++) {
+          newReels[i][j] = getRandomSymbol(0.2);
+        }
       }
     }
-
-    // Sprinkle some special symbols
-    if (Math.random() < 0.15 || (bonusMode && Math.random() < 0.3)) { // Increased bonus chance in bonus mode
-      newReels[Math.floor(Math.random() * 3)][Math.floor(Math.random() * 3)] = symbols.find(s => s.id === 'bonus');
+    
+    // Add special symbols with some probability
+    if (Math.random() < 0.15 || jackpotChance) { // Chance for jackpot symbol
+      const col = Math.floor(Math.random() * numReels);
+      const row = Math.floor(Math.random() * numRows);
+      newReels[col][row] = symbols.find(s => s.id === 'jackpot');
+      setJackpotChance(false);
     }
-    if (Math.random() < 0.20) {
-      newReels[Math.floor(Math.random() * 3)][Math.floor(Math.random() * 3)] = symbols.find(s => s.id === 'wild');
+    
+    if (Math.random() < 0.15 && !bonusMode) { // Chance for bonus symbol
+      const col = Math.floor(Math.random() * numReels);
+      const row = Math.floor(Math.random() * numRows);
+      newReels[col][row] = symbols.find(s => s.id === 'bonus');
     }
-    if (Math.random() < 0.10) {
-      newReels[Math.floor(Math.random() * 3)][Math.floor(Math.random() * 3)] = symbols.find(s => s.id === 'jackpot');
+    
+    if (Math.random() < 0.2) { // Chance for wild symbol
+      const col = Math.floor(Math.random() * numReels);
+      const row = Math.floor(Math.random() * numRows);
+      newReels[col][row] = symbols.find(s => s.id === 'wild');
     }
+    
     return newReels;
   };
   
+  const getRandomSymbol = (bonusChance = 0, preferRegular = false) => {
+    if (Math.random() < bonusChance) {
+      // Return one of the higher value symbols
+      return symbols[Math.floor(Math.random() * 3) + 2]; // Values 50+
+    }
+    
+    // Prefer regular symbols if specified
+    const regularSymbols = symbols.filter(s => !['bonus', 'wild', 'jackpot'].includes(s.id));
+    if (preferRegular && Math.random() < 0.7) {
+      return regularSymbols[Math.floor(Math.random() * regularSymbols.length)];
+    }
+    
+    // Otherwise return any symbol (except special ones if preferRegular)
+    const availableSymbols = preferRegular ? 
+      symbols.filter(s => !['bonus', 'wild', 'jackpot'].includes(s.id)) : 
+      symbols;
+    return availableSymbols[Math.floor(Math.random() * availableSymbols.length)];
+  };
+
   const evaluateWin = (currentReels) => {
     let totalWin = 0;
-    let newWinningPaylineDetails = [];
+    let winLines = [];
+    let jackpotWon = false;
+    let bonusTriggered = false;
+    let wildCount = 0;
     let messages = [];
-    let bonusTriggeredThisSpin = false;
-    let jackpotHit = false;
 
-    paylines.forEach(payline => {
-      const symbolsOnLine = payline.coords.map(coord => currentReels[coord[0]][coord[1]]);
-      let matchCount = 0;
-      let firstSymbol = symbolsOnLine[0];
-      let wildValueIfFirst = 0; // If first is wild, what does it represent?
-
-      if (firstSymbol.id === 'wild') {
-        // Wild at start: check next non-wild symbol to determine line type
-        let i = 1;
-        while(i < symbolsOnLine.length && symbolsOnLine[i].id === 'wild') i++;
-        if (i < symbolsOnLine.length) { // Found a non-wild symbol
-            firstSymbol = symbolsOnLine[i]; // This is the symbol the wilds will substitute
-            matchCount = i; // All wilds before it count
-        } else { // All symbols on line are wild
-            firstSymbol = symbols.find(s => s.id === 'wild'); // Treat as a line of wilds
-            matchCount = 0; // Reset, count all wilds next
-        }
-        wildValueIfFirst = firstSymbol.value > 0 ? firstSymbol.value : 20; // Wilds-only line value
-      }
-      
-      for (let i = 0; i < symbolsOnLine.length; i++) {
-        if (symbolsOnLine[i].id === firstSymbol.id || symbolsOnLine[i].id === 'wild') {
-          matchCount++;
-        } else {
-          break; 
-        }
-      }
-
-      if (matchCount >= 2) {
-        const lineSymbolValue = firstSymbol.id === 'wild' ? wildValueIfFirst : firstSymbol.value;
-        const winMultiplier = matchCount === 3 ? 5 : (matchCount === 2 ? 1 : 0);
-        const lineWin = (lineSymbolValue * winMultiplier * (betPerSpin / paylines.length) * bonusMultiplier);
+    // Only evaluate active paylines
+    const activePaylinesList = paylines.slice(0, activePaylines);
+    
+    // Check each active payline for wins
+    activePaylinesList.forEach((payline, lineIndex) => {
+      const result = checkLine(payline, currentReels);
+      if (result.win > 0) {
+        totalWin += result.win;
+        winLines.push({ lineIndex, payline });
+        messages.push(`Line ${lineIndex + 1}: ${result.description}`);
         
-        if (lineWin > 0) {
-            totalWin += lineWin;
-            newWinningPaylineDetails.push({ 
-                lineId: payline.id, 
-                coords: payline.coords, 
-                symbols: symbolsOnLine, 
-                amount: lineWin,
-                matchedSymbol: firstSymbol.id,
-                matchCount: matchCount
-            });
-            if (firstSymbol.id === 'jackpot' && matchCount === 3) jackpotHit = true;
-             messages.push(`${payline.name}: ${matchCount}x ${firstSymbol.id.toUpperCase()}!`);
+        if (result.jackpot) {
+          jackpotWon = true;
         }
       }
     });
 
-    // Check for bonus symbols anywhere on the reels (3 needed for bonus)
-    let bonusSymbolCount = 0;
-    for (let r=0; r<3; r++) for (let c=0; c<3; c++) if(currentReels[r][c].id === 'bonus') bonusSymbolCount++;
-    
-    if (bonusSymbolCount >= 3 && !bonusMode) {
-      bonusTriggeredThisSpin = true;
+    // Count special symbols and apply effects
+    for (let i = 0; i < currentReels.length; i++) {
+      for (let j = 0; j < currentReels[i].length; j++) {
+        const symbol = currentReels[i][j];
+        if (symbol.id === 'bonus') bonusTriggered = true;
+        if (symbol.id === 'wild') wildCount++;
+        // Individual jackpot symbols also give a small win
+        if (symbol.id === 'jackpot' && !jackpotWon) {
+          if (messages.filter(m => m.includes("Jackpot Symbol!")).length === 0) {
+            totalWin += 50 * baseBet;
+            messages.push("Jackpot Symbol!");
+          }
+        }
+      }
+    }
+
+    // Apply bonus effects
+    if (bonusTriggered && !bonusMode) {
       activateBonus();
-      messages.push("BONUS TRIGGERED!");
+      messages.push("BONUS MODE ACTIVATED!");
     }
     
-    setWinningPaylineDetails(newWinningPaylineDetails);
-    
+    // Wild symbols give bonus if 2 or more
+    if (wildCount >= 2) {
+      const wildBonus = 25 * wildCount * baseBet;
+      totalWin += wildBonus;
+      messages.push(`${wildCount}x WILD BONUS!`);
+    }
+
+    // Mega jackpot for exceptional wins
+    if (jackpotWon && winLines.length >= 3) {
+      totalWin = 10000 * baseBet;
+      messages = ["MEGA JACKPOT!!!"]; 
+      playSound(jackpotAudioRef);
+    } else if (jackpotWon) {
+      playSound(jackpotAudioRef);
+    } else if (totalWin > 0) {
+      playSound(winAudioRef);
+    }
+
+    // Set state based on results
+    setWinningLines(winLines);
     if (totalWin > 0) {
       const finalWin = Math.floor(totalWin);
       setWin(finalWin);
       setMoney(prev => prev + finalWin);
-      setWinMessage(messages.length > 1 ? `Multiple Wins! +$${finalWin}` : messages[0] || `You Won $${finalWin}!`);
-      if (jackpotHit) playSound(jackpotAudioRef); else playSound(winAudioRef);
-    } else {
-       setWinMessage(''); // Clear if no win
+      setWinMessage(messages.join(' | '));
     }
 
-    if (totalWin === 0 && Math.random() < 0.1) {
-      const consolationPrize = Math.floor(betPerSpin * (Math.random() * 0.5 + 0.2)); // up to 70% of bet
-      if (consolationPrize > 0) {
-        setMoney(prev => prev + consolationPrize);
-        setWinMessage(`Close! +$${consolationPrize}`);
-        setWin(consolationPrize);
+    // Sometimes give a random bonus (lucky feature)
+    if (totalWin === 0 && Math.random() < 0.15) {
+      const randomBonus = Math.floor(Math.random() * 25 * baseBet) + (5 * baseBet);
+      setMoney(prev => prev + randomBonus);
+      setWinMessage("LUCKY BONUS!");
+      setWin(randomBonus);
+    }
+    
+    // Generous refill if money gets too low
+    if (money < getTotalBet() && freeSpins === 0 && !bonusMode) {
+      setMoney(prev => prev + 200);
+      setWinMessage("FREE REFILL!");
+    }
+  };
+  
+  // Helper function to check a single line for wins
+  const checkLine = (line, currentReels) => {
+    const symbolsInLine = line.map(pos => currentReels[pos[0]][pos[1]]);
+    const wildSymbolsInLine = symbolsInLine.filter(s => s.id === 'wild').length;
+    
+    // Count the occurrences of each non-wild symbol
+    const symbolCounts = {};
+    symbolsInLine.forEach(symbol => {
+      if (symbol.id !== 'wild') {
+        symbolCounts[symbol.id] = (symbolCounts[symbol.id] || 0) + 1;
+      }
+    });
+    
+    // Find the most common symbol
+    let maxCount = 0;
+    let mainSymbol = null;
+    Object.keys(symbolCounts).forEach(key => {
+      if (symbolCounts[key] > maxCount) {
+        maxCount = symbolCounts[key];
+        mainSymbol = symbols.find(s => s.id === key);
+      }
+    });
+    
+    // Handle all wilds case
+    if (wildSymbolsInLine > 0 && !mainSymbol && wildSymbolsInLine === line.length) {
+      mainSymbol = symbols.find(s => s.id === 'wild');
+      maxCount = wildSymbolsInLine;
+    } else if (mainSymbol) {
+      // Add wilds to the count of the main symbol
+      maxCount += wildSymbolsInLine;
+    }
+
+    // Determine win amount based on matches
+    let win = 0;
+    let description = "";
+    let jackpot = false;
+    
+    if (mainSymbol) {
+      const symbolValue = mainSymbol.id === 'wild' ? 30 : mainSymbol.value;
+      
+      // Calculate win amount based on matches (need at least 3 for a win)
+      if (maxCount >= 3) {
+        // More matches = higher multiplier
+        const multiplier = maxCount === 5 ? 15 : (maxCount === 4 ? 5 : 2);
+        win = symbolValue * multiplier * baseBet * bonusMultiplier;
+        
+        // Special case for jackpot
+        if (mainSymbol.id === 'jackpot' && maxCount >= 3) {
+          jackpot = true;
+          win = symbolValue * 20 * baseBet * bonusMultiplier; // Higher payout for jackpot
+        }
+        
+        description = `${maxCount}x ${mainSymbol.id.toUpperCase()}!`;
       }
     }
     
-    if (money < betPerSpin && freeSpins === 0 && !bonusMode && totalWin < betPerSpin) {
-      const refill = Math.max(betPerSpin * 5, 50); // Generous refill
-      setMoney(prev => prev + refill);
-      setWinMessage(prev => (prev ? prev + " " : "") + `Low Funds! +$${refill}`);
-    }
+    return { win, description, jackpot };
   };
 
   const spin = () => {
     if (spinning) return;
 
+    // Use free spin or deduct money
     if (freeSpins > 0) {
       setFreeSpins(prev => prev - 1);
     } else {
-      if (money < betPerSpin) {
-        setWinMessage("Not enough money!");
-        return;
-      }
-      setMoney(prev => prev - betPerSpin);
+      const totalBetAmount = getTotalBet();
+      if (money < totalBetAmount) return;
+      setMoney(prev => prev - totalBetAmount);
     }
     
     setSpinning(true);
     setWin(0);
     setWinMessage('');
-    setWinningPaylineDetails([]);
+    setWinningLines([]);
     playSound(spinAudioRef);
-    reelsLandedRef.current = [false, false, false];
-
-    const finalCalculatedReels = generateResultsInternal();
-    const spinFrameTime = 50; 
-    const baseSpinDurationFrames = 30; // Approx 1.5s for first reel
-    const staggerDurationFrames = 15; // Approx 0.75s between reel stops
-    let framesPassed = 0;
-
-    spinningTimerRef.current = setInterval(() => {
-      framesPassed++;
-      let allReelsLanded = true;
-
-      const nextVisualReels = reels.map((_, rIndex) => {
-        const stopFrameForThisReel = baseSpinDurationFrames + rIndex * staggerDurationFrames;
-        if (framesPassed < stopFrameForThisReel) {
-          allReelsLanded = false;
-          reelOffsets.current[rIndex] = (reelOffsets.current[rIndex] + 1 + rIndex) % reelStrips[rIndex].length; // Vary speed slightly
-          return [
-            reelStrips[rIndex][(reelOffsets.current[rIndex] + 0) % reelStrips[rIndex].length],
-            reelStrips[rIndex][(reelOffsets.current[rIndex] + 1) % reelStrips[rIndex].length],
-            reelStrips[rIndex][(reelOffsets.current[rIndex] + 2) % reelStrips[rIndex].length],
-          ];
-        } else {
-          if (!reelsLandedRef.current[rIndex]) {
-             playSound(reelStopAudioRef);
-             reelsLandedRef.current[rIndex] = true;
-          }
-          return finalCalculatedReels[rIndex];
-        }
-      });
-      
-      setReels(nextVisualReels);
-
-      if (allReelsLanded) {
-        clearInterval(spinningTimerRef.current);
-        evaluateWin(finalCalculatedReels);
+    
+    // Generate the final results upfront
+    const finalReels = generateResultsInternal();
+    
+    // Start spinning animation - now reel by reel
+    const spinReelSequentially = (reelIndex) => {
+      if (reelIndex >= finalReels.length) {
+        // All reels have been spun
+        evaluateWin(finalReels);
         setSpinning(false);
-         if (bonusMode && freeSpins === 0) {
-            setBonusMode(false);
-            setBonusMultiplier(1);
-            setWinMessage(prev => (prev ? prev + " " : "") + "Bonus Mode Ended.");
-         }
+        setCurrentlySpinningReel(-1);
+        
+        // Check if bonus mode should end
+        if (bonusMode && freeSpins === 0) {
+          setBonusMode(false);
+          setBonusMultiplier(1);
+          setWinMessage(prev => prev ? prev + " | Bonus Ended." : "Bonus Ended.");
+        }
+        return;
       }
-    }, spinFrameTime);
+      
+      setCurrentlySpinningReel(reelIndex);
+      
+      // Create a temporary copy of the reels
+      const spinningReels = [...reels];
+      
+      // Animate this reel for a while
+      let spinFrames = 0;
+      const spinDuration = 800 + (reelIndex * 200); // Increasing duration for each reel
+      const startTime = Date.now();
+      
+      const animateReel = () => {
+        spinFrames++;
+        
+        // Update just this reel with random symbols during spin
+        const newReelSymbols = [
+          getRandomSymbol(),
+          getRandomSymbol(),
+          getRandomSymbol()
+        ];
+        
+        spinningReels[reelIndex] = newReelSymbols;
+        setReels([...spinningReels]);
+        
+        // Continue animation until duration is reached
+        if (Date.now() - startTime < spinDuration) {
+          spinningTimerRef.current = setTimeout(animateReel, 100); // Update every 100ms
+        } else {
+          // Set the final symbols for this reel
+          spinningReels[reelIndex] = finalReels[reelIndex];
+          setReels([...spinningReels]);
+          playSound(reelStopAudioRef);
+          
+          // Move to the next reel after a short pause
+          setTimeout(() => {
+            spinReelSequentially(reelIndex + 1);
+          }, 300);
+        }
+      };
+      
+      // Start the animation for this reel
+      animateReel();
+    };
+    
+    // Start spinning the first reel
+    spinReelSequentially(0);
   };
   
   const activateBonus = () => {
     setBonusMode(true);
-    setBonusMultiplier(2 + Math.floor(Math.random()*2)); // Multiplier 2x or 3x
-    setFreeSpins(prev => prev + 5 + Math.floor(Math.random()*6)); // 5-10 free spins
+    setBonusMultiplier(2);
+    setFreeSpins(prev => prev + 5 + Math.floor(Math.random() * 5)); // 5-10 free spins
+    setJackpotChance(true);
     playSound(bonusAudioRef);
   };
   
   const changeBet = () => {
     if (spinning) return;
-    const betOptions = [5, 10, 25, 50, 100]; 
-    const currentIndex = betOptions.indexOf(betPerSpin);
+    const betOptions = [1, 5, 10, 25, 50, 100];
+    const currentIndex = betOptions.indexOf(baseBet);
     const nextIndex = (currentIndex + 1) % betOptions.length;
-    setBetPerSpin(betOptions[nextIndex]);
+    setBaseBet(betOptions[nextIndex]);
   };
   
-  const renderSymbol = (symbol, key, reelIdx, rowIdx) => {
+  const changePaylines = (delta) => {
+    if (spinning) return;
+    let newValue = activePaylines + delta;
+    // Ensure between 1 and max paylines
+    newValue = Math.max(1, Math.min(paylines.length, newValue));
+    setActivePaylines(newValue);
+  };
+  
+  const renderSymbol = (symbol, key, highlight = false) => {
     if (!symbol || !symbol.pattern) {
       return <div key={key} className="slot-symbol-container bg-gray-500"></div>;
     }
-    const isWinning = winningPaylineDetails.some(detail => 
-        detail.coords.some(coord => coord[0] === reelIdx && coord[1] === rowIdx)
-    );
-
     return (
       <div 
         key={key} 
-        className={`slot-symbol-container ${isWinning ? 'animate-pulse' : ''}`}
+        className={`slot-symbol-container ${highlight ? 'animate-pulse' : ''}`}
         style={{ 
-          boxShadow: isWinning ? `0 0 6px ${symbol.color}, 0 0 12px ${symbol.color}` : 'none',
-          transform: isWinning ? 'scale(1.05)' : 'scale(1)',
+          boxShadow: highlight ? `0 0 8px ${symbol.color}, 0 0 15px ${symbol.color}` : 'none',
+          transform: highlight ? 'scale(1.05)' : 'scale(1)',
           transition: 'transform 0.2s, box-shadow 0.2s',
-          border: isWinning ? `2px solid ${symbol.color}` : '1px solid #444',
-          borderRadius: '3px'
+          border: highlight ? `2px solid ${symbol.color}` : 'none',
+          borderRadius: '4px'
         }}
       >
         <div className="pixel-grid">
@@ -475,94 +679,256 @@ const SlotMachine = () => {
       </div>
     );
   };
+  
+  const isSymbolInWinningLine = (reelIndex, symbolIndex) => {
+    return winningLines.some(line => 
+      line.payline.some(pos => pos[0] === reelIndex && pos[1] === symbolIndex)
+    );
+  };
+  
+  const isCurrentlySpinning = (reelIndex) => {
+    return spinning && currentlySpinningReel === reelIndex;
+  };
+  
+  const renderPaylinePreview = () => {
+    if (showPaylinePreview < 0 || showPaylinePreview >= paylines.length) return null;
     
+    const payline = paylines[showPaylinePreview];
+    const color = paylineColors[showPaylinePreview % paylineColors.length];
+    
+    // Get the positions for drawing the line
+    const positions = payline.map(([col, row]) => {
+      // Calculate the center position of each symbol
+      const symbolX = col * 53 + 25; // Adjust based on your layout
+      const symbolY = row * 52 + 25; // Adjust based on your layout
+      return { x: symbolX, y: symbolY };
+    });
+    
+    // SVG path for the line
+    let pathD = `M ${positions[0].x} ${positions[0].y}`;
+    for (let i = 1; i < positions.length; i++) {
+      pathD += ` L ${positions[i].x} ${positions[i].y}`;
+    }
+    
+    return (
+      <div className="payline-preview" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, pointerEvents: 'none' }}>
+        <svg width="100%" height="100%" style={{ position: 'absolute', top: 0, left: 0 }}>
+          <path 
+            d={pathD} 
+            stroke={color} 
+            strokeWidth="3" 
+            fill="none" 
+            strokeDasharray="5,5"
+            strokeLinecap="round"
+            style={{ opacity: 0.7 }}
+          />
+          {positions.map((pos, idx) => (
+            <circle 
+              key={idx} 
+              cx={pos.x} 
+              cy={pos.y} 
+              r="6" 
+              fill={color} 
+              style={{ opacity: 0.7 }}
+            />
+          ))}
+        </svg>
+      </div>
+    );
+  };
+  
+  // Render the payline indicators
+  const renderPaylineIndicators = () => {
+    return (
+      <>
+        <div className="flex justify-between w-full">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div 
+              key={`top-${i}`} 
+              className="payline-indicator cursor-pointer"
+              style={{ 
+                backgroundColor: paylineColors[0],
+                top: -6,
+                left: 27 + (i * 53)
+              }}
+              onMouseEnter={() => setShowPaylinePreview(0)}
+              onMouseLeave={() => setShowPaylinePreview(-1)}
+            />
+          ))}
+        </div>
+        <div className="flex justify-between w-full">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div 
+              key={`mid-${i}`} 
+              className="payline-indicator cursor-pointer"
+              style={{ 
+                backgroundColor: paylineColors[1],
+                top: 46,
+                left: 27 + (i * 53)
+              }}
+              onMouseEnter={() => setShowPaylinePreview(1)}
+              onMouseLeave={() => setShowPaylinePreview(-1)}
+            />
+          ))}
+        </div>
+        <div className="flex justify-between w-full">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div 
+              key={`bot-${i}`} 
+              className="payline-indicator cursor-pointer"
+              style={{ 
+                backgroundColor: paylineColors[2],
+                top: 98,
+                left: 27 + (i * 53)
+              }}
+              onMouseEnter={() => setShowPaylinePreview(2)}
+              onMouseLeave={() => setShowPaylinePreview(-1)}
+            />
+          ))}
+        </div>
+        
+        {/* Additional payline indicators for zigzag patterns */}
+        {activePaylines > 3 && (
+          <div className="flex justify-between w-full">
+            {Array.from({ length: paylines.length - 3 }).map((_, i) => (
+              <div 
+                key={`extra-${i}`} 
+                className="payline-indicator cursor-pointer"
+                style={{ 
+                  backgroundColor: paylineColors[i + 3],
+                  top: 122,
+                  left: 10 + (i * 22)
+                }}
+                onMouseEnter={() => setShowPaylinePreview(i + 3)}
+                onMouseLeave={() => setShowPaylinePreview(-1)}
+              />
+            ))}
+          </div>
+        )}
+      </>
+    );
+  };
+  
   return (
-    <div className="relative flex flex-col items-center justify-center bg-gray-950 p-2 md:p-3 rounded-lg border-4 border-amber-500 max-w-sm mx-auto overflow-hidden">
-      {/* Decorative corners */}
-      {[...Array(4)].map((_, i) => <div key={i} className={`absolute w-3 h-3 bg-amber-500 ${i===0?'top-0 left-0':i===1?'top-0 right-0':i===2?'bottom-0 left-0':'bottom-0 right-0'}`}></div>)}
+    <div className="relative flex flex-col items-center justify-center bg-gray-900 p-4 rounded-lg border-4 border-amber-500 max-w-md mx-auto overflow-hidden">
+      <div className="absolute top-0 left-0 w-4 h-4 bg-amber-500"></div>
+      <div className="absolute top-0 right-0 w-4 h-4 bg-amber-500"></div>
+      <div className="absolute bottom-0 left-0 w-4 h-4 bg-amber-500"></div>
+      <div className="absolute bottom-0 right-0 w-4 h-4 bg-amber-500"></div>
 
-      <div className="text-xl md:text-2xl font-bold text-amber-400 mb-1 uppercase tracking-wider" style={{textShadow: '2px 2px #000'}}>
-        8-Bit <span style={{color: '#FFAA00', fontSize: '1.1em'}}>$$</span> Frenzy
+      <div className="text-2xl font-bold text-amber-400 mb-2 uppercase tracking-widest" style={{textShadow: '2px 2px #000'}}>
+        8-Bit <span style={{color: '#FFAA00', fontSize: '1.2em'}}>$$</span> Frenzy
       </div>
       
       {winMessage && (
-        <div className="absolute top-12 left-0 right-0 text-center text-sm md:text-base font-bold text-white bg-green-600 py-1 px-1 animate-pulse z-20" style={{minHeight: '24px'}}>
+        <div className="absolute top-16 left-0 right-0 text-center text-sm md:text-base font-bold text-white bg-green-600 py-1 px-2 animate-pulse z-10" style={{minHeight: '30px'}}>
           {winMessage}
         </div>
       )}
       
       {bonusMode && (
-        <div className="absolute top-0 left-0 right-0 text-center text-xs md:text-sm font-bold text-white bg-pink-600 py-0.5 md:py-1 animate-pulse z-20">
-          BONUS! x{bonusMultiplier} WINS!
+        <div className="absolute top-0 left-0 right-0 text-center text-base md:text-lg font-bold text-white bg-pink-600 py-1 animate-pulse z-10">
+          BONUS MODE! x{bonusMultiplier} WINS!
         </div>
       )}
       
-      {freeSpins > 0 && !bonusMode && ( // Show only if not in bonus mode title already
-        <div className="absolute top-20 right-2 bg-blue-600 text-white px-1.5 py-0.5 rounded-md text-xs animate-bounce z-10">
+      {freeSpins > 0 && (
+        <div className="absolute top-24 right-4 bg-blue-600 text-white px-2 py-1 rounded-lg text-xs md:text-sm animate-bounce z-10">
           {freeSpins} FREE SPINS
         </div>
       )}
       
-      <div className="relative bg-black p-1 md:p-2 rounded border-2 border-gray-700 my-2">
-        <div className="flex gap-1 md:gap-1.5"> {/* Reduced gap */}
+      <div className="relative bg-black p-2 md:p-3 rounded border-2 border-gray-700 my-2">
+        {renderPaylineIndicators()}
+        {renderPaylinePreview()}
+        
+        <div className="flex gap-1 md:gap-2">
           {reels.map((reelSymbols, reelIndex) => (
-            <div key={reelIndex} className="relative bg-gray-800 p-0.5 md:p-1 rounded">
+            <div 
+              key={reelIndex} 
+              className={`relative bg-gray-800 p-1 rounded ${isCurrentlySpinning(reelIndex) ? 'opacity-75' : ''}`}
+              style={{
+                transform: isCurrentlySpinning(reelIndex) ? 'translateY(2px)' : 'none',
+                transition: 'transform 0.1s'
+              }}
+            >
               {reelSymbols.map((symbol, symbolIndex) => (
-                <div key={`${reelIndex}-${symbol ? symbol.id : 'empty'}-${symbolIndex}`} className="my-0.5 md:my-1">
+                <div key={`${reelIndex}-${symbolIndex}`} className="my-1">
                   {renderSymbol(
                     symbol, 
-                    `${reelIndex}-${symbol ? symbol.id : 's'}-${symbolIndex}`,
-                    reelIndex,
-                    symbolIndex
+                    `${reelIndex}-${symbol.id}-${symbolIndex}`,
+                    isSymbolInWinningLine(reelIndex, symbolIndex)
                   )}
                 </div>
               ))}
             </div>
           ))}
         </div>
-         <div className="payline-info text-gray-400">All 5 Paylines Active!</div>
       </div>
       
       {win > 0 && (
-        <div className="bg-yellow-500 text-black text-base md:text-lg font-bold px-3 py-0.5 rounded-lg mb-1 animate-pulse">
+        <div className="bg-yellow-500 text-black text-lg md:text-xl font-bold px-4 py-1 rounded-lg mb-2 animate-pulse">
           WIN: ${win}!
         </div>
       )}
       
-      <div className="flex items-center justify-between w-full mt-1 md:mt-2">
-        <div className="bg-black px-2 py-1 rounded-lg border-2 border-green-500 text-xs md:text-sm">
+      <div className="flex items-center justify-between w-full mt-2">
+        <div className="bg-black px-2 md:px-3 py-1 rounded-lg border-2 border-green-500 text-sm md:text-base">
           <span className="text-green-500 font-bold">CASH:</span>
           <span className="text-white ml-1">${money}</span>
         </div>
         
-        <button 
-          onClick={spin}
-          disabled={spinning || (money < betPerSpin && freeSpins === 0)}
-          className={`flex items-center justify-center bg-red-600 hover:bg-red-700 text-white font-bold py-1.5 px-2 md:px-3 rounded-full text-sm md:text-base ${spinning ? 'opacity-50' : ''}`}
+        <div className="spin-control-wrapper">
+          <button 
+            onClick={spin}
+            disabled={spinning || (money < getTotalBet() && freeSpins === 0)}
+            className={`flex items-center justify-center bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-3 md:px-4 rounded-full text-sm md:text-base ${spinning ? 'opacity-50' : ''}`}
+          >
+            <span className="mr-1 text-lg">▶</span>
+            {spinning ? 'SPINNING...' : (freeSpins > 0 ? `SPIN (FREE)` : 'SPIN')}
+          </button>
+        </div>
+      </div>
+      
+      <div className="flex items-center justify-between w-full mt-3">
+        <button
+          onClick={() => setSoundEnabled(!soundEnabled)}
+          className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded-full"
         >
-          <span className="mr-1 text-base md:text-lg">▶</span>
-          {spinning ? 'SPINNING...' : (freeSpins > 0 ? `SPIN (${freeSpins})` : 'SPIN')}
+          {soundEnabled ? <span className="text-lg">🔊</span> : <span className="text-lg">🔇</span>}
         </button>
+        
+        <div className="lines-control">
+          <button
+            onClick={() => changePaylines(-1)}
+            disabled={activePaylines <= 1 || spinning}
+            className="bg-amber-600 hover:bg-amber-500 text-white text-sm font-bold px-2 py-1 rounded"
+          >
+            -
+          </button>
+          <span className="text-white text-sm">
+            {activePaylines} LINE{activePaylines !== 1 ? 'S' : ''}
+          </span>
+          <button
+            onClick={() => changePaylines(1)}
+            disabled={activePaylines >= paylines.length || spinning}
+            className="bg-amber-600 hover:bg-amber-500 text-white text-sm font-bold px-2 py-1 rounded"
+          >
+            +
+          </button>
+        </div>
         
         <button 
           onClick={changeBet}
           disabled={spinning}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-1 px-1.5 md:px-2 rounded text-xs md:text-sm"
+          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-1 px-2 md:px-3 rounded text-xs md:text-sm"
         >
-          BET: ${betPerSpin}
+          BET: ${baseBet}
         </button>
       </div>
       
-      <div className="flex items-center justify-center w-full mt-2 md:mt-3">
-        <button
-          onClick={() => setSoundEnabled(!soundEnabled)}
-          className="bg-gray-700 hover:bg-gray-600 text-white p-1.5 rounded-full"
-        >
-          {soundEnabled ? <span className="text-sm md:text-base">🔊</span> : <span className="text-sm md:text-base">🔇</span>}
-        </button>
-        <div className="text-xs text-gray-400 ml-2">
-          {bonusMode ? `BONUS x${bonusMultiplier} ACTIVE! ${freeSpins} spins left.` : "Match 2+ symbols left-to-right!"}
-        </div>
+      <div className="text-xs text-gray-400 text-center w-full mt-2">
+        {`Total Bet: $${getTotalBet()} | ${bonusMode ? `BONUS x${bonusMultiplier} ACTIVE!` : "More lines = Better odds!"}`}
       </div>
     </div>
   );
