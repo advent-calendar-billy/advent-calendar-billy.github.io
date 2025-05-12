@@ -1884,8 +1884,8 @@
             steps.push(currentStep);
         }
         
-        // Render each step
-        steps.forEach(step => {
+        // Render each step in reverse order (latest on top)
+        steps.slice().reverse().forEach(step => {
             const stepEl = document.createElement('div');
             stepEl.className = 'step';
             
