@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KnowShare - Call Simulation</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>KnowShare</h1>
+        <p class="tagline">Video Call Simulation</p>
+    </header>
+
+    <main>
+        <div class="call-container">
+            <div id="call-info">
+                <!-- Call info will be populated dynamically -->
+            </div>
+            
+            <div id="call-simulation">
+                <h2 id="call-status">Call In Progress</h2>
+                
+                <div id="transcript-view" style="display: none;">
+                    <div class="transcript-container" id="transcript-display"></div>
+                </div>
+                
+                <div id="transcript-edit" style="display: block;">
+                    <p>Edit/Create Call Transcript:</p>
+                    <textarea id="transcript-editor" class="transcript-editor" rows="15" placeholder="Enter conversation transcript here..."></textarea>
+                    
+                    <div class="call-actions">
+                        <button id="use-sample" class="btn secondary">Use Sample Transcript</button>
+                        <button id="analyze-transcript" class="btn primary">Analyze Transcript</button>
+                    </div>
+                    
+                    <div id="analysis-result" style="display: none;" class="rewards-info">
+                        <h3>Fraud Analysis Result</h3>
+                        <div id="analysis-content"></div>
+                    </div>
+                </div>
+                
+                <div id="rating-section" style="display: none;">
+                    <div class="rating">
+                        <h3>Rate This Call</h3>
+                        <div class="stars" id="rating-stars">
+                            <span class="star" data-rating="1">★</span>
+                            <span class="star" data-rating="2">★</span>
+                            <span class="star" data-rating="3">★</span>
+                            <span class="star" data-rating="4">★</span>
+                            <span class="star" data-rating="5">★</span>
+                        </div>
+                        <p id="rating-text">Select a rating</p>
+                    </div>
+                    
+                    <div class="call-actions">
+                        <button id="submit-rating" class="btn primary" disabled>Submit Rating</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="call-actions" style="margin-top: 2rem;">
+                <button id="back-button" class="btn primary">Back to Dashboard</button>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 KnowShare - A Knowledge Exchange Platform</p>
+    </footer>
+
+    <script src="scripts.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const data = getAppData();
+            const urlParams = new URLSearchParams(window.location.search);
+            const viewMode = urlParams.get('mode') === 'view';
+            const userType = localStorage.getItem('userType');
+            
+            // Elements
+            const transcriptEditor = document.getElementById('transcript-editor');
+            const transcriptDisplay = document.getElementById('transcript-display');
+            const callInfoContainer = document.getElementById('call-info');
+            const backButton = document.getElementById('back-button');
+            const useSampleButton = document.getElementById('use-sample');
+            const analyzeButton = document.getElementById('analyze-transcript');
+            const analysisResult = document.getElementById('analysis-result');
+            const analysisContent = document.getElementById('analysis-content');
+            const ratingSection = document.getElementById('rating-section');
+            const ratingStars = document.getElementById('rating-stars');
+            const ratingText = document.getElementById('rating-text');
+            const submitRatingButton = document.getElementById('submit-rating');
+            
+            let selectedRating = 0;
+            let currentTranscript = '';
+            
+            // If view mode, load existing call
+            if (viewMode) {
+                const callId = parseInt(localStorage.getItem('selectedCallId'));
+                const call = data.calls.find(c => c.id === callId);
+                
+                if (call) {
+                    const expert = data.experts.find(e => e.id === call.expertId);
+                    const category = getCategoryById(expert.categoryId);
+                    
+                    callInfoContainer.innerHTML = `
+                        <h2>Call Recording</h2>
+                        <p><strong>Expert:</strong> ${expert.name}</p>
+                        <p><strong>Category:</strong> ${category.name}</p>
+                        <p><strong>Date:</strong> ${call.date}</p>
+                        <p><strong>Rating:</strong> ${call.rating}/5.0</p>
+                    `;
+                    
+                    // Display transcript
+                    document.getElementById('transcript-view').style.display = 'block';
+                    document.getElementById('transcript-edit').style.display = 'none';
+                    
+                    // Format transcript with line breaks
+                    transcriptDisplay.innerHTML = call.transcript.replace(/\n/g, '<br>');
+                }
+            } else {
+                // New call simulation
+                const expertId = parseInt(localStorage.getItem('selectedExpertId'));
+                const expert = data.experts.find(e => e.id === expertId);
+                const category = getCategoryById(expert.categoryId);
+                
+                callInfoContainer.innerHTML = `
+                    <h2>New Call</h2>
+                    <p><strong>Expert:</strong> ${expert.name}</p>
+                    <p><strong>Category:</strong> ${category.name}</p>
+                    <p><strong>Date:</strong> ${new Date().toISOString().split('T')[0]}</p>
+                `;
+                
+                // Enable sample and analyze buttons
+                useSampleButton.addEventListener('click', function() {
+                    // Get sample transcript based on category
+                    let sampleTranscript = '';
+                    if (category.id === 1) {
+                        sampleTranscript = data.sampleTranscripts.legitimate.parenting;
+                    } else if (category.id === 2) {
+                        sampleTranscript = data.sampleTranscripts.legitimate.culinary;
+                    } else if (category.id === 3) {
+                        sampleTranscript = data.sampleTranscripts.legitimate.diy;
+                    }
+                    
+                    // Toggle between legitimate and fraudulent samples
+                    if (transcriptEditor.value && transcriptEditor.value === sampleTranscript) {
+                        transcriptEditor.value = data.sampleTranscripts.fraudulent;
+                    } else {
+                        transcriptEditor.value = sampleTranscript;
+                    }
+                });
+                
+                analyzeButton.addEventListener('click', async function() {
+                    const transcript = transcriptEditor.value.trim();
+                    
+                    if (!transcript) {
+                        alert('Please enter a transcript to analyze');
+                        return;
+                    }
+                    
+                    analyzeButton.disabled = true;
+                    analyzeButton.textContent = 'Analyzing...';
+                    
+                    try {
+                        const analysis = await analyzeTranscript(transcript);
+                        
+                        analysisResult.style.display = 'block';
+                        analysisContent.innerHTML = `
+                            <p><strong>Result:</strong> ${analysis.isFraudulent ? 'Potentially Fraudulent' : 'Legitimate'}</p>
+                            <p><strong>Confidence:</strong> ${Math.round(analysis.confidence * 100)}%</p>
+                            <p><strong>Reasoning:</strong> ${analysis.reasoning}</p>
+                        `;
+                        
+                        // If legitimate, show rating section
+                        if (!analysis.isFraudulent) {
+                            ratingSection.style.display = 'block';
+                            currentTranscript = transcript;
+                        }
+                    } catch (error) {
+                        console.error('Error analyzing transcript:', error);
+                        analysisResult.style.display = 'block';
+                        analysisContent.innerHTML = `
+                            <p><strong>Error:</strong> Failed to analyze transcript. Please try again.</p>
+                            <p>For demonstration purposes, you can proceed with rating.</p>
+                        `;
+                        ratingSection.style.display = 'block';
+                        currentTranscript = transcript;
+                    } finally {
+                        analyzeButton.disabled = false;
+                        analyzeButton.textContent = 'Analyze Transcript';
+                    }
+                });
+                
+                // Rating functionality
+                ratingStars.addEventListener('click', function(e) {
+                    if (e.target.classList.contains('star')) {
+                        const rating = parseInt(e.target.getAttribute('data-rating'));
+                        selectedRating = rating;
+                        
+                        // Update stars UI
+                        document.querySelectorAll('.star').forEach(star => {
+                            const starRating = parseInt(star.getAttribute('data-rating'));
+                            if (starRating <= rating) {
+                                star.classList.add('active');
+                            } else {
+                                star.classList.remove('active');
+                            }
+                        });
+                        
+                        ratingText.textContent = `Rating: ${rating}/5 stars`;
+                        submitRatingButton.disabled = false;
+                    }
+                });
+                
+                // Rating mouseover effects
+                ratingStars.addEventListener('mouseover', function(e) {
+                    if (e.target.classList.contains('star')) {
+                        const hoveredRating = parseInt(e.target.getAttribute('data-rating'));
+                        
+                        document.querySelectorAll('.star').forEach(star => {
+                            const starRating = parseInt(star.getAttribute('data-rating'));
+                            if (starRating <= hoveredRating) {
+                                star.style.color = '#f1c40f';
+                            } else {
+                                star.style.color = '#ddd';
+                            }
+                        });
+                    }
+                });
+                
+                ratingStars.addEventListener('mouseout', function() {
+                    document.querySelectorAll('.star').forEach(star => {
+                        const starRating = parseInt(star.getAttribute('data-rating'));
+                        if (starRating <= selectedRating) {
+                            star.style.color = '#f1c40f';
+                        } else {
+                            star.style.color = '#ddd';
+                        }
+                    });
+                });
+                
+                // Submit rating
+                submitRatingButton.addEventListener('click', function() {
+                    if (selectedRating === 0) {
+                        alert('Please select a rating');
+                        return;
+                    }
+                    
+                    // Create new call record
+                    const expertId = parseInt(localStorage.getItem('selectedExpertId'));
+                    const expert = data.experts.find(e => e.id === expertId);
+                    
+                    // Update the app data
+                    const appData = getAppData();
+                    
+                    // Generate a new call ID
+                    const newCallId = Math.max(...appData.calls.map(c => c.id)) + 1;
+                    
+                    // Add the new call
+                    appData.calls.push({
+                        id: newCallId,
+                        expertId: expertId,
+                        date: new Date().toISOString().split('T')[0],
+                        rating: selectedRating,
+                        transcript: currentTranscript
+                    });
+                    
+                    // Update expert stats
+                    const expertIndex = appData.experts.findIndex(e => e.id === expertId);
+                    if (expertIndex !== -1) {
+                        appData.experts[expertIndex].callCount += 1;
+                        
+                        // Recalculate average rating
+                        const expertCalls = [...appData.calls.filter(c => c.expertId === expertId), { rating: selectedRating }];
+                        const avgRating = expertCalls.reduce((sum, call) => sum + call.rating, 0) / expertCalls.length;
+                        appData.experts[expertIndex].avgRating = parseFloat(avgRating.toFixed(1));
+                        
+                        // Recalculate points
+                        appData.experts[expertIndex].points = Math.round(appData.experts[expertIndex].avgRating * appData.experts[expertIndex].callCount + 50);
+                        
+                        // Update ranks within category (simplified for the MVP)
+                        const categoryExperts = appData.experts.filter(e => e.categoryId === appData.experts[expertIndex].categoryId);
+                        categoryExperts.sort((a, b) => b.points - a.points);
+                        categoryExperts.forEach((expert, idx) => {
+                            const expertIdx = appData.experts.findIndex(e => e.id === expert.id);
+                            if (expertIdx !== -1) {
+                                appData.experts[expertIdx].rank = idx + 1;
+                            }
+                        });
+                    }
+                    
+                    // Save updated data
+                    saveAppData(appData);
+                    
+                    alert(`Thank you for rating this call! The expert has been awarded ${selectedRating} stars.`);
+                    
+                    // Redirect back to dashboard
+                    if (userType === 'asker') {
+                        window.location.href = 'asker-dashboard.html';
+                    } else {
+                        window.location.href = 'expert-dashboard.html';
+                    }
+                });
+            }
+            
+            // Back button handler
+            backButton.addEventListener('click', function() {
+                if (userType === 'asker') {
+                    window.location.href = 'asker-dashboard.html';
+                } else {
+                    window.location.href = 'expert-dashboard.html';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KnowShare - Asker Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>KnowShare</h1>
+        <p class="tagline">Find Expert Advice (Free for Askers!)</p>
+    </header>
+
+    <main>
+        <div class="dashboard-container">
+            <div class="sidebar">
+                <div class="user-info">
+                    <h3>Welcome, Asker!</h3>
+                    <p>Browse experts by category and schedule a call</p>
+                </div>
+                
+                <h3>Categories</h3>
+                <ul id="category-list">
+                    <!-- Categories will be loaded dynamically -->
+                </ul>
+                
+                <div class="actions">
+                    <button id="back-to-home" class="btn primary">Back to Home</button>
+                </div>
+            </div>
+            
+            <div class="main-content">
+                <div id="category-view">
+                    <h2 id="selected-category">Select a Category</h2>
+                    <div id="experts-list">
+                        <!-- Experts will be loaded dynamically -->
+                        <p>Select a category to view experts</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 KnowShare - A Knowledge Exchange Platform</p>
+    </footer>
+
+    <script src="scripts.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load categories
+            const data = getAppData();
+            const categoryList = document.getElementById('category-list');
+            const expertsListContainer = document.getElementById('experts-list');
+            const selectedCategoryTitle = document.getElementById('selected-category');
+            
+            // Populate categories
+            data.categories.forEach(category => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `<a href="#" data-category-id="${category.id}">${category.name}</a>`;
+                listItem.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    displayExperts(category.id);
+                });
+                categoryList.appendChild(listItem);
+            });
+            
+            // Display experts for selected category
+            function displayExperts(categoryId) {
+                const experts = getExpertsByCategory(categoryId);
+                const category = getCategoryById(categoryId);
+                
+                selectedCategoryTitle.textContent = category.name;
+                expertsListContainer.innerHTML = '';
+                
+                if (experts.length === 0) {
+                    expertsListContainer.innerHTML = '<p>No experts available in this category</p>';
+                    return;
+                }
+                
+                experts.forEach(expert => {
+                    const expertCard = document.createElement('div');
+                    expertCard.className = 'expert-card';
+                    expertCard.innerHTML = `
+                        <div class="expert-info">
+                            <h3>${expert.name}</h3>
+                            <p>${expert.bio}</p>
+                        </div>
+                        <div class="expert-stats">
+                            <p><strong>Rating:</strong> ${expert.avgRating}/5.0</p>
+                            <p><strong>Calls:</strong> ${expert.callCount}</p>
+                            <p><strong>Rank:</strong> ${expert.rank}</p>
+                            <button class="btn primary schedule-call" data-expert-id="${expert.id}">Schedule Call</button>
+                        </div>
+                    `;
+                    
+                    expertsListContainer.appendChild(expertCard);
+                });
+                
+                // Add event listeners to schedule buttons
+                document.querySelectorAll('.schedule-call').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const expertId = parseInt(this.getAttribute('data-expert-id'));
+                        localStorage.setItem('selectedExpertId', expertId);
+                        window.location.href = 'call-simulation.html';
+                    });
+                });
+            }
+            
+            // Back to home button
+            document.getElementById('back-to-home').addEventListener('click', function() {
+                window.location.href = 'index.html';
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KnowShare - Expert Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>KnowShare</h1>
+        <p class="tagline">Expert Dashboard (Earn Money Sharing Knowledge!)</p>
+    </header>
+
+    <main>
+        <div class="dashboard-container">
+            <div class="sidebar">
+                <div class="user-info" id="expert-profile">
+                    <!-- Expert profile will be populated dynamically -->
+                </div>
+                
+                <h3>Your Statistics</h3>
+                <div id="expert-stats">
+                    <!-- Expert stats will be populated dynamically -->
+                </div>
+                
+                <div class="actions">
+                    <button id="back-to-home" class="btn primary">Back to Home</button>
+                </div>
+            </div>
+            
+            <div class="main-content">
+                <div id="earnings-view">
+                    <h2>Your Earnings Potential</h2>
+                    <div class="rewards-info">
+                        <p><strong>Points Formula:</strong> (Average Rating × Number of Calls) + Bonus Points for Activity</p>
+                        <p><strong>Monthly Payouts per Category:</strong></p>
+                        <ul>
+                            <li>Top 3 Experts: $500/month</li>
+                            <li>4th-7th Place: $300/month</li>
+                            <li>8th-10th Place: $150/month</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div id="leaderboard-view">
+                    <h2>Category Leaderboard</h2>
+                    <div id="leaderboard-container">
+                        <!-- Leaderboard will be populated dynamically -->
+                    </div>
+                </div>
+                
+                <div id="calls-view">
+                    <h2>Recent Calls</h2>
+                    <div id="calls-list">
+                        <!-- Calls will be populated dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 KnowShare - A Knowledge Exchange Platform</p>
+    </footer>
+
+    <script src="scripts.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const data = getAppData();
+            
+            // For the MVP, we'll use a random expert profile
+            const expertId = 101; // Hardcoded for demo purposes
+            const expert = data.experts.find(e => e.id === expertId);
+            const category = getCategoryById(expert.categoryId);
+            
+            // Display expert profile
+            const expertProfileContainer = document.getElementById('expert-profile');
+            expertProfileContainer.innerHTML = `
+                <h3>${expert.name}</h3>
+                <p>${expert.bio}</p>
+                <p><strong>Category:</strong> ${category.name}</p>
+            `;
+            
+            // Display expert stats
+            const expertStatsContainer = document.getElementById('expert-stats');
+            expertStatsContainer.innerHTML = `
+                <p><strong>Average Rating:</strong> ${expert.avgRating}/5.0</p>
+                <p><strong>Total Calls:</strong> ${expert.callCount}</p>
+                <p><strong>Total Points:</strong> ${expert.points}</p>
+                <p><strong>Current Rank:</strong> ${expert.rank}</p>
+                <p><strong>Projected Earnings:</strong> $500/month</p>
+            `;
+            
+            // Display leaderboard
+            const leaderboardContainer = document.getElementById('leaderboard-container');
+            const categoryExperts = getExpertsByCategory(expert.categoryId);
+            
+            leaderboardContainer.innerHTML = `
+                <h3>${category.name} Experts</h3>
+                <table class="leaderboard">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Expert</th>
+                            <th>Points</th>
+                            <th>Avg. Rating</th>
+                            <th>Earnings</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboard-body">
+                    </tbody>
+                </table>
+            `;
+            
+            const leaderboardBody = document.getElementById('leaderboard-body');
+            
+            categoryExperts.sort((a, b) => b.points - a.points).forEach((exp, index) => {
+                let earnings = "$0";
+                if (index < 3) earnings = "$500";
+                else if (index < 7) earnings = "$300";
+                else if (index < 10) earnings = "$150";
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${exp.name}</td>
+                    <td>${exp.points}</td>
+                    <td>${exp.avgRating}/5.0</td>
+                    <td>${earnings}</td>
+                `;
+                
+                // Highlight the current expert
+                if (exp.id === expertId) {
+                    row.style.backgroundColor = "#f0f8ff";
+                    row.style.fontWeight = "bold";
+                }
+                
+                leaderboardBody.appendChild(row);
+            });
+            
+            // Display recent calls
+            const callsListContainer = document.getElementById('calls-list');
+            const expertCalls = data.calls.filter(call => call.expertId === expertId);
+            
+            if (expertCalls.length === 0) {
+                callsListContainer.innerHTML = '<p>No calls yet. Start sharing your knowledge!</p>';
+            } else {
+                expertCalls.forEach(call => {
+                    const callElement = document.createElement('div');
+                    callElement.className = 'expert-card';
+                    callElement.innerHTML = `
+                        <div class="expert-info">
+                            <h3>Call on ${call.date}</h3>
+                            <p><strong>Rating:</strong> ${call.rating}/5.0</p>
+                        </div>
+                        <div class="expert-stats">
+                            <button class="btn primary view-transcript" data-call-id="${call.id}">View Transcript</button>
+                        </div>
+                    `;
+                    
+                    callsListContainer.appendChild(callElement);
+                });
+                
+                // Add event listeners to view transcript buttons
+                document.querySelectorAll('.view-transcript').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const callId = parseInt(this.getAttribute('data-call-id'));
+                        localStorage.setItem('selectedCallId', callId);
+                        window.location.href = 'call-simulation.html?mode=view';
+                    });
+                });
+            }
+            
+            // Back to home button
+            document.getElementById('back-to-home').addEventListener('click', function() {
+                window.location.href = 'index.html';
+            });
+        });
+    </script>
+</body>
+</html>
