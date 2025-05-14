@@ -199,7 +199,8 @@ footer {
 .call-container {
     display: flex;
     flex-direction: column;
-    height: 80vh;
+    min-height: 600px;
+    margin-bottom: 60px; /* Ensure space between content and footer */
 }
 
 .transcript-container {
