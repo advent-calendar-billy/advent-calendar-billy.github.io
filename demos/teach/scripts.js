@@ -189,6 +189,8 @@ async function analyzeTranscript(transcript) {
     const API_KEY = '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';
     
     try {
+        console.log("Sending request to Groq API...");
+        
         const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
             headers: {
@@ -210,21 +212,64 @@ async function analyzeTranscript(transcript) {
             })
         });
         
+        console.log("Received response from Groq API");
         const data = await response.json();
         console.log("Groq API Response:", data);
         
         // Extract the JSON from the response
         try {
             const analysisText = data.choices[0].message.content;
-            const analysisJson = JSON.parse(analysisText);
+            console.log("Analysis text:", analysisText);
+            
+            // Try to parse the JSON response
+            let analysisJson;
+            try {
+                analysisJson = JSON.parse(analysisText);
+            } catch (parseError) {
+                console.error("Error parsing JSON from API response:", parseError);
+                console.log("Raw response text:", analysisText);
+                
+                // Fallback: extract JSON-like content with regex
+                const jsonMatch = analysisText.match(/\{[\s\S]*\}/);
+                if (jsonMatch) {
+                    try {
+                        analysisJson = JSON.parse(jsonMatch[0]);
+                    } catch (e) {
+                        console.error("Regex extraction failed too:", e);
+                        throw new Error("Could not parse JSON from API response");
+                    }
+                } else {
+                    // Last resort: create a simple object based on text analysis
+                    console.log("Using text analysis fallback");
+                    const isFraudulent = analysisText.toLowerCase().includes("fraud") && 
+                                        !analysisText.toLowerCase().includes("not fraud");
+                    analysisJson = {
+                        isFraudulent: isFraudulent,
+                        confidence: 0.5,
+                        reasoning: "Fallback analysis: " + (isFraudulent ? 
+                            "Potential fraudulent patterns detected" : 
+                            "No clear fraudulent patterns detected")
+                    };
+                }
+            }
+            
             return analysisJson;
         } catch (e) {
-            console.error("Error parsing analysis JSON:", e);
-            return { isFraudulent: false, confidence: 0, reasoning: "Error analyzing transcript" };
+            console.error("Error processing analysis:", e);
+            console.log("Full API response:", data);
+            return { 
+                isFraudulent: false, 
+                confidence: 0, 
+                reasoning: "Error analyzing transcript. Debug info: " + JSON.stringify(data)
+            };
         }
     } catch (e) {
         console.error("Error calling Groq API:", e);
-        return { isFraudulent: false, confidence: 0, reasoning: "Error analyzing transcript" };
+        return { 
+            isFraudulent: false, 
+            confidence: 0, 
+            reasoning: "Error connecting to analysis service: " + e.message 
+        };
     }
 }
 

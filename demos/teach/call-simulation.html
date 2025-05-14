@@ -26,6 +26,10 @@
                 </div>
                 
                 <div id="transcript-edit" style="display: block;">
+                    <div class="call-simulation-notice">
+                        <p><strong>Note:</strong> This is a simulation of a video call. In a real application, this would be a live video interface.</p>
+                        <p>For this demo, please manually enter or edit the call transcript below.</p>
+                    </div>
                     <p>Edit/Create Call Transcript:</p>
                     <textarea id="transcript-editor" class="transcript-editor" rows="15" placeholder="Enter conversation transcript here..."></textarea>
                     
@@ -37,6 +41,10 @@
                     <div id="analysis-result" style="display: none;" class="rewards-info">
                         <h3>Fraud Analysis Result</h3>
                         <div id="analysis-content"></div>
+                        <div id="debug-section">
+                            <h4>Debug Information (For MVP Testing Only)</h4>
+                            <pre id="debug-log" style="background-color: #f5f5f5; padding: 10px; overflow: auto; max-height: 200px; font-size: 12px;"></pre>
+                        </div>
                     </div>
                 </div>
                 
@@ -90,6 +98,7 @@
             const ratingStars = document.getElementById('rating-stars');
             const ratingText = document.getElementById('rating-text');
             const submitRatingButton = document.getElementById('submit-rating');
+            const debugLog = document.getElementById('debug-log');
             
             let selectedRating = 0;
             let currentTranscript = '';
@@ -161,15 +170,22 @@
                     
                     analyzeButton.disabled = true;
                     analyzeButton.textContent = 'Analyzing...';
+                    debugLog.textContent = 'Starting analysis...';
                     
                     try {
+                        // Log the request
+                        debugLog.textContent += '\n\nSending request to Groq API...';
+                        
                         const analysis = await analyzeTranscript(transcript);
+                        
+                        // Log the raw response
+                        debugLog.textContent += '\n\nAPI Response:\n' + JSON.stringify(analysis, null, 2);
                         
                         analysisResult.style.display = 'block';
                         analysisContent.innerHTML = `
                             <p><strong>Result:</strong> ${analysis.isFraudulent ? 'Potentially Fraudulent' : 'Legitimate'}</p>
-                            <p><strong>Confidence:</strong> ${Math.round(analysis.confidence * 100)}%</p>
-                            <p><strong>Reasoning:</strong> ${analysis.reasoning}</p>
+                            <p><strong>Confidence:</strong> ${Math.round((analysis.confidence || 0) * 100)}%</p>
+                            <p><strong>Reasoning:</strong> ${analysis.reasoning || 'No reasoning provided'}</p>
                         `;
                         
                         // If legitimate, show rating section
@@ -179,6 +195,11 @@
                         }
                     } catch (error) {
                         console.error('Error analyzing transcript:', error);
+                        debugLog.textContent += '\n\nError occurred:\n' + error.toString();
+                        if (error.stack) {
+                            debugLog.textContent += '\n\nStack trace:\n' + error.stack;
+                        }
+                        
                         analysisResult.style.display = 'block';
                         analysisContent.innerHTML = `
                             <p><strong>Error:</strong> Failed to analyze transcript. Please try again.</p>

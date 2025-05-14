@@ -248,6 +248,15 @@ footer {
     color: #f1c40f;
 }
 
+/* Call Simulation Notice */
+.call-simulation-notice {
+    background-color: #f8f9fa;
+    border-left: 4px solid #17a2b8;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    border-radius: 0 4px 4px 0;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .info-cards, .category-list {
