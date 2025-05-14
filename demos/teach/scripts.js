@@ -186,7 +186,7 @@ function getCategoryById(categoryId) {
 
 // Analyze transcript for fraud
 async function analyzeTranscript(transcript) {
-    const API_KEY = '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';
+    const API_KEY = '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'
     
     try {
         console.log("Sending request to Groq API...");
