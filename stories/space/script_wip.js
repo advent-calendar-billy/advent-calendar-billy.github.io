@@ -2080,6 +2080,7 @@
         
         const endCat = document.getElementById('endCat');
         const message = document.getElementById('gameOverMessage');
+        const button = document.getElementById('gameOverButton');
         
         if (gameWon) {
             endCat.innerHTML = `  /\\_/\\
@@ -2087,6 +2088,11 @@
   > v <
  ╱ | ╲`;
             message.textContent = 'Puf!';
+            button.textContent = 'FESTEJAR!';
+            button.onclick = () => {
+                hideCatGame();
+                // No reset, just celebrate and close
+            };
             
             // Set the win state and handle integration
             setTimeout(() => {
@@ -2100,6 +2106,8 @@
   > _ <
  ╱ | ╲`;
             message.textContent = pod.fuel <= 0 ? 'Sin nafta... ¿Qué va a decir mamá?' : '¿Qué va a decir mamá?';
+            button.textContent = 'REINTENTAR';
+            button.onclick = resetCatGame;
         }
         document.getElementById('gameOverScreen').style.display = 'flex';
     }
@@ -2111,11 +2119,26 @@
     
     // Handle cat game win - update Step 66 prompt
     async function handleCatGameWin() {
+        console.log('🐱 Cat Game: Handling win - posting Step 66 prompt to sheet');
+        
         // Store the win state
         localStorage.setItem('catGameWon', 'true');
         
-        // Refresh the game data to show the updated prompt
-        await loadGameData();
+        try {
+            // Post the new Step 66 prompt to the Google Sheet
+            const timestamp = new Date().toISOString();
+            const step66Prompt = 'Y entonces aterrizaste la cosa.';
+            
+            await appendToSheet([[timestamp, 'DM', 'PROMPT', step66Prompt, null]]);
+            console.log('🐱 Cat Game: Successfully posted Step 66 prompt to sheet');
+            
+            // Refresh the game data to show the new prompt
+            await loadGameData();
+        } catch (error) {
+            console.error('🐱 Cat Game: Error posting Step 66 prompt:', error);
+            // Still refresh to show the local update
+            await loadGameData();
+        }
     }
     
     // Input handling for cat game
