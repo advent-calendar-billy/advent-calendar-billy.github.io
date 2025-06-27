@@ -1428,7 +1428,9 @@
         "Me rasco la nariz",
         "Huyo con valentía",
         "Chequeo el tacho de basura",
-        "Saco la bazooka"
+        "Saco la bazooka",
+        "Cuento hasta 4",
+        "Me lamo las bolas"
     ];
     
     window.onload = async () => {
