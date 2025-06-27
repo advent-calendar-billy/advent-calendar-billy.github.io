@@ -1629,23 +1629,43 @@
         const latestStep = steps[steps.length - 1];
         currentStepNumber = latestStep.number;
         
+        // Check if Step 65 is complete by looking at its sequence
+        let step65Complete = false;
+        if (currentStepNumber === 65) {
+            // Look for the pattern: prompt -> action -> outcome in Step 65
+            const hasPrompt = latestStep.sequence.some(s => s.type === 'prompt');
+            const hasAction = latestStep.sequence.some(s => s.type === 'action');
+            const hasOutcome = latestStep.sequence.some(s => s.type === 'outcome');
+            
+            step65Complete = hasPrompt && hasAction && hasOutcome;
+            
+            console.log('🐱 Cat Game Debug - Step 65 Analysis:', {
+                hasPrompt,
+                hasAction, 
+                hasOutcome,
+                step65Complete,
+                stepSequence: latestStep.sequence.map(s => s.type)
+            });
+        }
+        
         console.log('🐱 Cat Game Debug:', {
             currentStepNumber,
             isPlayerTurn,
             catGameWon,
             stepsLength: steps.length,
-            latestStep: latestStep
+            step65Complete,
+            latestStepSequence: latestStep.sequence.map(s => ({type: s.type, content: s.data.content?.substring(0, 50) + '...'}))
         });
         
-        // Check if we're ready for step 66 (i.e., step 65 is complete and it's player's turn)
-        // OR if we're already at step 66 and it's player's turn
-        // AND the cat game hasn't been won yet
-        const readyForStep66 = (currentStepNumber === 65 && isPlayerTurn && !catGameWon);
+        // Check if we should trigger:
+        // 1. Step 65 is complete (has prompt + action + outcome) and game hasn't been won
+        // 2. OR we're at step 66 and it's player's turn and game hasn't been won
+        const readyForStep66 = (currentStepNumber === 65 && step65Complete && !catGameWon);
         const atStep66 = (currentStepNumber === 66 && isPlayerTurn && !catGameWon);
         
         const shouldTrigger = readyForStep66 || atStep66;
         
-        console.log('🐱 Cat Game Debug:', {
+        console.log('🐱 Cat Game Debug - Decision:', {
             readyForStep66,
             atStep66,
             shouldTrigger
