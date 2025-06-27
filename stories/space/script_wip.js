@@ -1623,8 +1623,13 @@
         const latestStep = steps[steps.length - 1];
         currentStepNumber = latestStep.number;
         
-        // Check if it's step 66 and player's turn, and game hasn't been won yet
-        return (currentStepNumber === 66 && isPlayerTurn && !catGameWon);
+        // Check if we're ready for step 66 (i.e., step 65 is complete and it's player's turn)
+        // OR if we're already at step 66 and it's player's turn
+        // AND the cat game hasn't been won yet
+        const readyForStep66 = (currentStepNumber === 65 && isPlayerTurn && !catGameWon);
+        const atStep66 = (currentStepNumber === 66 && isPlayerTurn && !catGameWon);
+        
+        return readyForStep66 || atStep66;
     }
     
     // Function to show/hide cat game
