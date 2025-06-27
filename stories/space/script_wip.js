@@ -1507,7 +1507,13 @@
     let catGameWon = localStorage.getItem('catGameWon') === 'true';
     let currentStepNumber = 0;
     
-    console.log('🐱 Cat Game: Initial state - catGameWon:', catGameWon);
+    console.log('🐱 Cat Game: Initialization Debug:', {
+        localStorage_catGameWon: localStorage.getItem('catGameWon'),
+        localStorage_catGameWon_type: typeof localStorage.getItem('catGameWon'),
+        catGameWon_variable: catGameWon,
+        all_localStorage_keys: Object.keys(localStorage),
+        all_localStorage: {...localStorage}
+    });
     
     // Cat game variables
     let canvas, ctx;
@@ -1649,8 +1655,10 @@
             currentStepNumber,
             isPlayerTurn,
             catGameWon,
-            stepsLength: steps.length,
+            catGameWon_type: typeof catGameWon,
+            localStorage_catGameWon: localStorage.getItem('catGameWon'),
             step65Complete,
+            stepsLength: steps.length,
             latestStepSequence: latestStep.sequence.map(s => ({type: s.type, content: s.data.content?.substring(0, 50) + '...'}))
         });
         
@@ -2050,6 +2058,7 @@
     }
     
     function startCatGame() {
+        console.log('🐱 Cat Game: Starting game! Current catGameWon:', catGameWon);
         document.getElementById('startScreen').style.display = 'none';
         gameRunning = true;
         gameOver = false;
@@ -2183,9 +2192,20 @@
     // Debug function to reset cat game win state (for testing)
     window.resetCatGameWinState = function() {
         localStorage.removeItem('catGameWon');
+        localStorage.clear(); // Clear all localStorage just to be safe
         catGameWon = false;
         console.log('🐱 Cat Game: Win state reset! catGameWon is now:', catGameWon);
+        console.log('🐱 Cat Game: localStorage cleared, reloading page...');
         // Force reload to ensure clean state
-        setTimeout(() => location.reload(), 100);
-        return 'Cat game win state reset! Page will reload...';
+        location.reload();
+        return 'Cat game win state reset! Page reloading...';
+    };
+    
+    // Even more aggressive reset
+    window.hardResetCatGame = function() {
+        console.log('🐱 Cat Game: HARD RESET - clearing everything');
+        localStorage.clear();
+        sessionStorage.clear();
+        window.catGameWon = false;
+        location.reload();
     };
