@@ -1300,8 +1300,11 @@
         });
         
         // Check if we should trigger cat game
+        console.log('🐱 Cat Game: Checking if should trigger...');
         if (shouldTriggerCatGame(steps)) {
             showCatGame();
+        } else {
+            console.log('🐱 Cat Game: Not triggering');
         }
         
         // Scroll to bottom
@@ -1618,10 +1621,21 @@
     // Function to check if we should trigger cat game
     function shouldTriggerCatGame(steps) {
         // Find the current (latest) step
-        if (steps.length === 0) return false;
+        if (steps.length === 0) {
+            console.log('🐱 Cat Game Debug: No steps found');
+            return false;
+        }
         
         const latestStep = steps[steps.length - 1];
         currentStepNumber = latestStep.number;
+        
+        console.log('🐱 Cat Game Debug:', {
+            currentStepNumber,
+            isPlayerTurn,
+            catGameWon,
+            stepsLength: steps.length,
+            latestStep: latestStep
+        });
         
         // Check if we're ready for step 66 (i.e., step 65 is complete and it's player's turn)
         // OR if we're already at step 66 and it's player's turn
@@ -1629,11 +1643,20 @@
         const readyForStep66 = (currentStepNumber === 65 && isPlayerTurn && !catGameWon);
         const atStep66 = (currentStepNumber === 66 && isPlayerTurn && !catGameWon);
         
-        return readyForStep66 || atStep66;
+        const shouldTrigger = readyForStep66 || atStep66;
+        
+        console.log('🐱 Cat Game Debug:', {
+            readyForStep66,
+            atStep66,
+            shouldTrigger
+        });
+        
+        return shouldTrigger;
     }
     
     // Function to show/hide cat game
     function showCatGame() {
+        console.log('🐱 Cat Game: Showing cat game!');
         document.getElementById('catGameContainer').style.display = 'flex';
         document.getElementById('playerInputControls').style.display = 'none';
         
@@ -1646,6 +1669,8 @@
         // Show start screen
         document.getElementById('startScreen').style.display = 'flex';
         document.getElementById('gameOverScreen').style.display = 'none';
+        
+        console.log('🐱 Cat Game: UI elements updated');
     }
     
     function hideCatGame() {
