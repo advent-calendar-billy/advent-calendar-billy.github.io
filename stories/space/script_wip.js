@@ -1504,13 +1504,10 @@
     /* ---------- CAT GAME INTEGRATION ---------- */
     
     // Cat game global state
-    let catGameWon = false;
+    let catGameWon = localStorage.getItem('catGameWon') === 'true';
     let currentStepNumber = 0;
     
-    // Check if cat game was previously won
-    if (localStorage.getItem('catGameWon') === 'true') {
-        catGameWon = true;
-    }
+    console.log('🐱 Cat Game: Initial state - catGameWon:', catGameWon);
     
     // Cat game variables
     let canvas, ctx;
@@ -2083,16 +2080,24 @@
         const button = document.getElementById('gameOverButton');
         
         if (gameWon) {
+            console.log('🐱 Cat Game: Player won! Setting up win screen');
             endCat.innerHTML = `  /\\_/\\
  ( ^.^ )
   > v <
  ╱ | ╲`;
             message.textContent = 'Puf!';
-            button.textContent = 'FESTEJAR!';
-            button.onclick = () => {
-                hideCatGame();
-                // No reset, just celebrate and close
-            };
+            
+            if (button) {
+                button.textContent = 'FESTEJAR!';
+                button.onclick = () => {
+                    console.log('🐱 Cat Game: FESTEJAR button clicked!');
+                    hideCatGame();
+                    // No reset, just celebrate and close
+                };
+                console.log('🐱 Cat Game: Button updated to:', button.textContent);
+            } else {
+                console.error('🐱 Cat Game: Could not find gameOverButton element!');
+            }
             
             // Set the win state and handle integration
             setTimeout(() => {
@@ -2120,14 +2125,23 @@
     // Handle cat game win - update Step 66 prompt
     async function handleCatGameWin() {
         console.log('🐱 Cat Game: Handling win - posting Step 66 prompt to sheet');
+        console.log('🐱 Cat Game: Current auth state - isPlayerLoggedIn:', isPlayerLoggedIn);
         
         // Store the win state
         localStorage.setItem('catGameWon', 'true');
+        catGameWon = true;
         
         try {
+            // Check if we have proper authentication
+            if (!isPlayerLoggedIn) {
+                throw new Error('Player not logged in - cannot post to sheet');
+            }
+            
             // Post the new Step 66 prompt to the Google Sheet
             const timestamp = new Date().toISOString();
             const step66Prompt = 'Y entonces aterrizaste la cosa.';
+            
+            console.log('🐱 Cat Game: Posting to sheet with data:', [timestamp, 'DM', 'PROMPT', step66Prompt, null]);
             
             await appendToSheet([[timestamp, 'DM', 'PROMPT', step66Prompt, null]]);
             console.log('🐱 Cat Game: Successfully posted Step 66 prompt to sheet');
@@ -2136,6 +2150,12 @@
             await loadGameData();
         } catch (error) {
             console.error('🐱 Cat Game: Error posting Step 66 prompt:', error);
+            console.error('🐱 Cat Game: Full error details:', {
+                message: error.message,
+                stack: error.stack,
+                serviceAccountCredentials: !!serviceAccountCredentials,
+                accessToken: !!accessToken
+            });
             // Still refresh to show the local update
             await loadGameData();
         }
@@ -2159,3 +2179,13 @@
     // Make functions global so they can be called from HTML
     window.startCatGame = startCatGame;
     window.resetCatGame = resetCatGame;
+    
+    // Debug function to reset cat game win state (for testing)
+    window.resetCatGameWinState = function() {
+        localStorage.removeItem('catGameWon');
+        catGameWon = false;
+        console.log('🐱 Cat Game: Win state reset! catGameWon is now:', catGameWon);
+        // Force reload to ensure clean state
+        setTimeout(() => location.reload(), 100);
+        return 'Cat game win state reset! Page will reload...';
+    };
