@@ -275,6 +275,12 @@
         const data = await res.json();
         return data.values || [];
     }
+
+    function strikeBrackets(html) {
+        return html.replace(/\[\[([\s\S]+?)\]\]/g,
+            '<span class="crossed-out">$1</span>');
+    }
+
     
     /* ---------- RICH TEXT EDITOR FUNCTIONS ---------- */
     // Initialize the editor
@@ -1102,8 +1108,11 @@
                     const promptEl = document.createElement('div');
                     promptEl.className = 'prompt';
                     
-                    // First linkify URLs, then preserve line breaks
-                    const processedContent = preserveLineBreaks(linkifyText(item.data.content));
+                    // First linkify URLs, then preserve line breaks and finally add brackets
+                    const processedContent = strikeBrackets(
+                            preserveLineBreaks(linkifyText(item.data.content))
+                    );
+
                     
                     promptEl.innerHTML = `
                         <strong>Prompt:</strong>
