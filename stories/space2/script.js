@@ -2258,15 +2258,15 @@
     let wagonGameWonState = false;
 
     // Wagon game constants
-    const WAGON_CANVAS_WIDTH = 700;
-    const WAGON_CANVAS_HEIGHT = 500;
+    const WAGON_CANVAS_WIDTH = 750;
+    const WAGON_CANVAS_HEIGHT = 450;
     const WAGON_LANE_COUNT = 3;
     const WAGON_LANE_HEIGHT = WAGON_CANVAS_HEIGHT / WAGON_LANE_COUNT;
 
     // Wagon state
     let wagon = {
         lane: 1, // 0, 1, or 2 (top, middle, bottom)
-        x: 100,
+        x: 80,
         targetLane: 1,
         transitioning: false
     };
@@ -2275,31 +2275,77 @@
     let wagonObstacles = [];
     let wagonScore = 0;
     let wagonDistance = 0;
-    const WAGON_WIN_DISTANCE = 1000;
+    const WAGON_WIN_DISTANCE = 1500; // Longer distance = harder
 
     // Wagon game input
     const wagonKeys = {};
 
-    // ASCII art for the wagon/gati-móvil
+    // Better ASCII art for the gati-móvil with cat and mamá
     const WAGON_ART = [
-        "  /\\_/\\  ╔══╗",
-        " ( o.o )═╣██╠══AAA",
-        "  />━</ ╚══╝ ○○"
+        "    ∧_∧  ♀          ",
+        "   (=°ω°) /|\\    ╔═══╗",
+        "   /    \\/  \\═══╣ A ╠═⚡",
+        "  ╔══════════╗  ╚═══╝  ",
+        "  ║ GATIMÓVIL║    ◎ ◎ ",
+        "  ╚══◎════◎══╝        "
     ];
 
     const WAGON_ART_STRESSED = [
-        "  /\\_/\\  ╔══╗",
-        " ( O.O )═╣██╠══AAA",
-        "  />━</ ╚══╝ ○○"
+        "    ∧_∧  ♀          ",
+        "   (=ÒwÓ) /|\\    ╔═══╗",
+        "   /    \\/  \\═══╣ A ╠═⚡",
+        "  ╔══════════╗  ╚═══╝  ",
+        "  ║ GATIMÓVIL║    ◎ ◎ ",
+        "  ╚══◎════◎══╝        "
     ];
 
-    // Obstacle types for wagon game
+    // Obstacle types - market themed
     const WAGON_OBSTACLE_TYPES = [
-        { art: ["  ╔═╗", "  ║█║", "══╩═╩══"], name: "puesto" },
-        { art: ["  §§§", " §$§$§", "  §§§"], name: "mercaderia" },
-        { art: [" ¤¤¤¤", "¤○¤¤○¤", " ¤¤¤¤"], name: "vendedor" },
-        { art: ["~~~~~", "≈≈≈≈≈", "~~~~~"], name: "charco" },
-        { art: ["▓▓▓▓▓", "▓░▓░▓", "▓▓▓▓▓"], name: "caja" }
+        {
+            art: [
+                "  ╔═══╗  ",
+                "  ║ $ ║  ",
+                " ═╩═══╩═ ",
+                "  │   │  "
+            ],
+            name: "puesto"
+        },
+        {
+            art: [
+                " ○   ○ ",
+                "/|\\~/|\\",
+                "/ \\ / \\",
+                "VENDEDOR"
+            ],
+            name: "vendedor"
+        },
+        {
+            art: [
+                "╔═════╗",
+                "║▓▓▓▓▓║",
+                "║▓▓▓▓▓║",
+                "╚═════╝"
+            ],
+            name: "caja"
+        },
+        {
+            art: [
+                "  ┌───┐  ",
+                " ─┤ ¤ ├─ ",
+                "  └───┘  ",
+                "  COSO   "
+            ],
+            name: "coso"
+        },
+        {
+            art: [
+                " §§§§§ ",
+                "§$§$§$§",
+                " §§§§§ ",
+                "BASURA "
+            ],
+            name: "basura"
+        }
     ];
 
     // Check if step 95 should show the wagon game
@@ -2338,52 +2384,59 @@
     }
 
     // Letter scramble animation - the magical effect!
-    // Takes actual characters from the screen at their real positions
+    // Takes actual characters from the last 5 steps at their real positions
     function startLetterScrambleAnimation() {
         console.log('🛒 Wagon Game: Starting letter scramble animation');
 
         const playerContainer = document.getElementById('playerMainContainer');
+
+        // Get only the last 5 step elements
+        const stepElements = playerContainer.querySelectorAll('.step');
+        const last5Steps = Array.from(stepElements).slice(0, 5); // Already in reverse order
+
         const chars = [];
 
-        // Walk through all text nodes and get each character with its position
-        const walker = document.createTreeWalker(
-            playerContainer,
-            NodeFilter.SHOW_TEXT,
-            null,
-            false
-        );
+        // Walk through text nodes in last 5 steps only
+        last5Steps.forEach(stepEl => {
+            const walker = document.createTreeWalker(
+                stepEl,
+                NodeFilter.SHOW_TEXT,
+                null,
+                false
+            );
 
-        let node;
-        while (node = walker.nextNode()) {
-            const text = node.textContent;
-            if (!text.trim()) continue;
+            let node;
+            while (node = walker.nextNode()) {
+                const text = node.textContent;
+                if (!text.trim()) continue;
 
-            // Get the parent element to measure positions
-            const range = document.createRange();
+                const range = document.createRange();
 
-            for (let i = 0; i < text.length; i++) {
-                const char = text[i];
-                if (char.trim() === '') continue;
+                for (let i = 0; i < text.length; i++) {
+                    const char = text[i];
+                    if (char.trim() === '') continue;
 
-                // Get position of this character
-                range.setStart(node, i);
-                range.setEnd(node, i + 1);
-                const rect = range.getBoundingClientRect();
+                    range.setStart(node, i);
+                    range.setEnd(node, i + 1);
+                    const rect = range.getBoundingClientRect();
 
-                // Only include visible characters
-                if (rect.width > 0 && rect.height > 0 && chars.length < 400) {
-                    chars.push({
-                        char: char,
-                        x: rect.left,
-                        y: rect.top,
-                        width: rect.width,
-                        height: rect.height
-                    });
+                    // Only include visible characters within viewport
+                    if (rect.width > 0 && rect.height > 0 &&
+                        rect.top >= 0 && rect.top < window.innerHeight &&
+                        chars.length < 600) {
+                        chars.push({
+                            char: char,
+                            x: rect.left,
+                            y: rect.top,
+                            width: rect.width,
+                            height: rect.height
+                        });
+                    }
                 }
             }
-        }
+        });
 
-        console.log('🛒 Wagon Game: Found', chars.length, 'characters on screen');
+        console.log('🛒 Wagon Game: Found', chars.length, 'characters from last 5 steps');
 
         // Create floating letter elements at their original positions
         const letterEls = chars.map(c => {
@@ -2394,13 +2447,13 @@
             span.style.top = c.y + 'px';
             span.style.fontSize = c.height + 'px';
             document.body.appendChild(span);
-            return { el: span, originalX: c.x, originalY: c.y };
+            return { el: span, originalX: c.x, originalY: c.y, char: c.char };
         });
 
         // Hide the player container after creating the floating letters
         playerContainer.style.visibility = 'hidden';
 
-        // Create a dark overlay that fades in
+        // Create overlay matching RPG light theme
         const overlay = document.createElement('div');
         overlay.id = 'scrambleOverlay';
         overlay.style.cssText = `
@@ -2409,22 +2462,22 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: #1a1a1a;
+            background-color: #f5f5f5;
             z-index: 997;
             opacity: 0;
-            transition: opacity 0.5s ease;
+            transition: opacity 1s ease;
         `;
         document.body.appendChild(overlay);
 
-        // Fade in overlay
+        // Fade in overlay slowly
         setTimeout(() => {
             overlay.style.opacity = '1';
-        }, 50);
+        }, 100);
 
-        // After overlay fades in, start moving letters to form the game
+        // After overlay fades in, start moving letters to form the game (slower)
         setTimeout(() => {
             animateLettersToGame(letterEls);
-        }, 600);
+        }, 1200);
     }
 
     function animateLettersToGame(letterEls) {
@@ -2433,24 +2486,28 @@
         const centerX = window.innerWidth / 2;
         const centerY = window.innerHeight / 2;
 
-        // Target pattern - the game intro scene
+        // Target pattern - the game intro scene with better art
         const gamePattern = [
-            "╔══════════════════════════════════════════╗",
-            "║                                          ║",
-            "║        SUBIENDO  LA  CUESTA...           ║",
-            "║                                          ║",
-            "║      /\\_/\\   ╔══╗                        ║",
-            "║     ( o.o )══╣██╠══AAA                   ║",
-            "║      />━</   ╚══╝  ○○                    ║",
-            "║                                          ║",
-            "║            ~~~    ▓▓▓    §§§            ║",
-            "║                                          ║",
-            "╚══════════════════════════════════════════╝"
+            "╔═══════════════════════════════════════════════════╗",
+            "║                                                   ║",
+            "║           S U B I E N D O   L A                   ║",
+            "║              C U E S T A . . .                    ║",
+            "║                                                   ║",
+            "║       ∧_∧  ♀                                      ║",
+            "║      (=°ω°) /|\\    ╔═══╗                          ║",
+            "║      /    \\/  \\═══╣ A ╠═⚡                        ║",
+            "║     ╔══════════╗  ╚═══╝                           ║",
+            "║     ║ GATIMÓVIL║    ◎ ◎                           ║",
+            "║     ╚══◎════◎══╝                                  ║",
+            "║                                                   ║",
+            "║                    ↑ ↓  cambiar carril            ║",
+            "║                                                   ║",
+            "╚═══════════════════════════════════════════════════╝"
         ];
 
         // Calculate grid positions for the pattern
-        const charWidth = 12;
-        const charHeight = 20;
+        const charWidth = 11;
+        const charHeight = 18;
         const patternWidth = gamePattern[0].length;
         const patternHeight = gamePattern.length;
         const startX = centerX - (patternWidth * charWidth) / 2;
@@ -2471,8 +2528,7 @@
             }
         });
 
-        // Assign each letter to a target position
-        // Shuffle targets for more interesting animation
+        // Shuffle targets for interesting animation
         const shuffledTargets = [...targets].sort(() => Math.random() - 0.5);
 
         letterEls.forEach((letterObj, i) => {
@@ -2487,15 +2543,18 @@
                 letterObj.el.style.left = target.x + 'px';
                 letterObj.el.style.top = target.y + 'px';
                 letterObj.el.style.fontSize = '16px';
+                letterObj.el.style.fontFamily = "'Courier New', monospace";
             } else {
-                // Extra letters swirl to center and fade out
-                letterObj.el.style.left = centerX + 'px';
-                letterObj.el.style.top = centerY + 'px';
+                // Extra letters drift to edges and fade out
+                const angle = Math.random() * Math.PI * 2;
+                const dist = Math.max(window.innerWidth, window.innerHeight);
+                letterObj.el.style.left = (centerX + Math.cos(angle) * dist) + 'px';
+                letterObj.el.style.top = (centerY + Math.sin(angle) * dist) + 'px';
                 letterObj.el.style.opacity = '0';
             }
         });
 
-        // After animation completes, show the actual game
+        // After animation completes (slower), show the actual game
         setTimeout(() => {
             // Remove all scramble letters
             document.querySelectorAll('.scramble-letter').forEach(el => el.remove());
@@ -2503,7 +2562,7 @@
 
             // Show the wagon game
             showWagonGame();
-        }, 1800);
+        }, 2800);
     }
 
     function showWagonGame() {
@@ -2543,25 +2602,25 @@
         document.getElementById('playerMainContainer').style.visibility = 'visible';
     }
 
-    function wagonDrawText(text, x, y, color = '#f0f0f0') {
+    function wagonDrawText(text, x, y, color = '#333') {
         wagonCtx.fillStyle = color;
-        wagonCtx.font = '16px Courier New';
+        wagonCtx.font = '14px Courier New';
         wagonCtx.fillText(text, x, y);
     }
 
     function wagonClearScreen() {
-        // Draw gradient background (darker at bottom = downhill behind us)
-        const gradient = wagonCtx.createLinearGradient(0, 0, WAGON_CANVAS_WIDTH, WAGON_CANVAS_HEIGHT);
-        gradient.addColorStop(0, '#1a1a2e');
-        gradient.addColorStop(1, '#16213e');
+        // Light background matching RPG theme
+        const gradient = wagonCtx.createLinearGradient(0, 0, WAGON_CANVAS_WIDTH, 0);
+        gradient.addColorStop(0, '#f5f5f5');
+        gradient.addColorStop(1, '#e8f5e9'); // Slight green tint toward the goal
         wagonCtx.fillStyle = gradient;
         wagonCtx.fillRect(0, 0, WAGON_CANVAS_WIDTH, WAGON_CANVAS_HEIGHT);
     }
 
     function wagonDrawLanes() {
-        // Draw lane separators
-        wagonCtx.strokeStyle = '#3a3a5a';
-        wagonCtx.setLineDash([20, 10]);
+        // Draw lane separators - lighter theme
+        wagonCtx.strokeStyle = '#ccc';
+        wagonCtx.setLineDash([15, 8]);
         wagonCtx.lineWidth = 2;
 
         for (let i = 1; i < WAGON_LANE_COUNT; i++) {
@@ -2574,69 +2633,90 @@
 
         wagonCtx.setLineDash([]);
 
-        // Draw "uphill" visual - diagonal lines suggesting slope
-        wagonCtx.strokeStyle = '#2a2a4a';
+        // Draw "uphill" visual - subtle diagonal lines
+        wagonCtx.strokeStyle = '#e0e0e0';
         wagonCtx.lineWidth = 1;
-        for (let x = -WAGON_CANVAS_HEIGHT; x < WAGON_CANVAS_WIDTH; x += 40) {
+        for (let x = -WAGON_CANVAS_HEIGHT; x < WAGON_CANVAS_WIDTH; x += 50) {
             wagonCtx.beginPath();
             wagonCtx.moveTo(x, WAGON_CANVAS_HEIGHT);
-            wagonCtx.lineTo(x + WAGON_CANVAS_HEIGHT * 0.3, 0);
+            wagonCtx.lineTo(x + WAGON_CANVAS_HEIGHT * 0.4, 0);
             wagonCtx.stroke();
         }
+
+        // Draw lane labels
+        wagonDrawText('───', 10, WAGON_LANE_HEIGHT / 2, '#999');
+        wagonDrawText('───', 10, WAGON_LANE_HEIGHT * 1.5, '#999');
+        wagonDrawText('───', 10, WAGON_LANE_HEIGHT * 2.5, '#999');
     }
 
     function wagonDrawHUD() {
         // Distance/progress bar
         const progress = Math.min(wagonDistance / WAGON_WIN_DISTANCE, 1);
-        const barWidth = 300;
-        const barHeight = 20;
+        const barWidth = 350;
+        const barHeight = 24;
         const barX = WAGON_CANVAS_WIDTH / 2 - barWidth / 2;
-        const barY = 15;
+        const barY = 12;
 
         // Bar background
-        wagonCtx.fillStyle = '#333';
+        wagonCtx.fillStyle = '#e0e0e0';
         wagonCtx.fillRect(barX, barY, barWidth, barHeight);
 
-        // Progress fill
-        wagonCtx.fillStyle = '#4CAF50';
+        // Progress fill - green gradient
+        const progressGradient = wagonCtx.createLinearGradient(barX, 0, barX + barWidth, 0);
+        progressGradient.addColorStop(0, '#66bb6a');
+        progressGradient.addColorStop(1, '#43a047');
+        wagonCtx.fillStyle = progressGradient;
         wagonCtx.fillRect(barX, barY, barWidth * progress, barHeight);
 
         // Bar border
-        wagonCtx.strokeStyle = '#8B7355';
+        wagonCtx.strokeStyle = '#3f51b5';
         wagonCtx.lineWidth = 2;
         wagonCtx.strokeRect(barX, barY, barWidth, barHeight);
 
         // Labels
-        wagonDrawText('INICIO', barX - 50, barY + 15, '#888');
-        wagonDrawText('NAVE', barX + barWidth + 10, barY + 15, '#888');
+        wagonDrawText('MERCADO', barX - 65, barY + 17, '#666');
+        wagonDrawText('NAVE', barX + barWidth + 10, barY + 17, '#388e3c');
 
         // Controls hint
-        wagonDrawText('↑↓ Cambiar carril', 20, WAGON_CANVAS_HEIGHT - 20, '#666');
+        wagonDrawText('↑↓ Cambiar carril', 15, WAGON_CANVAS_HEIGHT - 15, '#999');
+
+        // Distance counter
+        const distPercent = Math.floor(progress * 100);
+        wagonDrawText(distPercent + '%', barX + barWidth / 2 - 15, barY + 17, '#fff');
     }
 
     function wagonDrawWagon() {
-        // Calculate Y position based on lane
-        const targetY = wagon.lane * WAGON_LANE_HEIGHT + WAGON_LANE_HEIGHT / 2 - 30;
+        // Calculate Y position based on lane (centered in lane)
+        const targetY = wagon.lane * WAGON_LANE_HEIGHT + WAGON_LANE_HEIGHT / 2 - 50;
 
         // Choose art based on stress level
-        const art = wagonObstacles.some(obs => obs.x - wagon.x < 200) ? WAGON_ART_STRESSED : WAGON_ART;
+        const nearObstacle = wagonObstacles.some(obs => obs.x - wagon.x < 180 && obs.x > wagon.x);
+        const art = nearObstacle ? WAGON_ART_STRESSED : WAGON_ART;
 
-        // Draw the wagon
+        // Draw the wagon with dark color for visibility
         art.forEach((line, i) => {
-            wagonDrawText(line, wagon.x, targetY + i * 20, '#f0f0f0');
+            wagonDrawText(line, wagon.x, targetY + i * 16, '#333');
         });
     }
 
     function wagonCreateObstacle() {
-        if (Math.random() < 0.02 && wagonObstacles.length < 4) {
+        // HARDER: More frequent obstacles, speed increases with distance
+        const spawnRate = 0.04 + (wagonDistance / WAGON_WIN_DISTANCE) * 0.03; // Gets harder
+        const maxObstacles = 5 + Math.floor(wagonDistance / 300); // More obstacles over time
+
+        if (Math.random() < spawnRate && wagonObstacles.length < maxObstacles) {
             const type = WAGON_OBSTACLE_TYPES[Math.floor(Math.random() * WAGON_OBSTACLE_TYPES.length)];
             const lane = Math.floor(Math.random() * WAGON_LANE_COUNT);
+
+            // Speed increases as game progresses
+            const baseSpeed = 4 + (wagonDistance / WAGON_WIN_DISTANCE) * 3;
+            const speedVariation = Math.random() * 2;
 
             wagonObstacles.push({
                 x: WAGON_CANVAS_WIDTH + 50,
                 lane: lane,
                 type: type,
-                speed: 3 + Math.random() * 2
+                speed: baseSpeed + speedVariation
             });
         }
     }
@@ -2647,26 +2727,26 @@
         });
 
         // Remove off-screen obstacles
-        wagonObstacles = wagonObstacles.filter(obs => obs.x > -100);
+        wagonObstacles = wagonObstacles.filter(obs => obs.x > -120);
     }
 
     function wagonDrawObstacles() {
         wagonObstacles.forEach(obs => {
-            const y = obs.lane * WAGON_LANE_HEIGHT + WAGON_LANE_HEIGHT / 2 - 30;
+            const y = obs.lane * WAGON_LANE_HEIGHT + WAGON_LANE_HEIGHT / 2 - 35;
             obs.type.art.forEach((line, i) => {
-                wagonDrawText(line, obs.x, y + i * 20, '#ff6b6b');
+                wagonDrawText(line, obs.x, y + i * 16, '#c62828'); // Red for danger
             });
         });
     }
 
     function wagonCheckCollisions() {
-        const wagonHitboxX = wagon.x + 20;
-        const wagonHitboxWidth = 120;
+        const wagonHitboxX = wagon.x + 30;
+        const wagonHitboxWidth = 140;
 
         for (const obs of wagonObstacles) {
             if (obs.lane === wagon.lane) {
-                const obsHitboxX = obs.x;
-                const obsHitboxWidth = 60;
+                const obsHitboxX = obs.x + 10;
+                const obsHitboxWidth = 70;
 
                 // Check horizontal overlap
                 if (wagonHitboxX < obsHitboxX + obsHitboxWidth &&
@@ -2679,15 +2759,16 @@
     }
 
     function wagonUpdateInput() {
+        // Slightly faster lane changes for responsiveness
         if (wagonKeys['ArrowUp'] && wagon.lane > 0 && !wagon.transitioning) {
             wagon.lane--;
             wagon.transitioning = true;
-            setTimeout(() => { wagon.transitioning = false; }, 200);
+            setTimeout(() => { wagon.transitioning = false; }, 150);
         }
         if (wagonKeys['ArrowDown'] && wagon.lane < WAGON_LANE_COUNT - 1 && !wagon.transitioning) {
             wagon.lane++;
             wagon.transitioning = true;
-            setTimeout(() => { wagon.transitioning = false; }, 200);
+            setTimeout(() => { wagon.transitioning = false; }, 150);
         }
     }
 
