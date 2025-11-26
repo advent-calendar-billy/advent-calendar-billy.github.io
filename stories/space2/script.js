@@ -2387,25 +2387,25 @@
 
     // Shop obstacles with alien names
     const SHOP_TYPES = [
-        { name: "ZLÖRP's", subtitle: "Cosas", art: ["┌────────┐", "│ ZLÖRP's│", "│ Cosas  │", "├────────┤", "│ ▪  ▫  ▪│", "└────────┘"] },
-        { name: "Ñ!Ñ!Ñ!", subtitle: "Pies", art: ["┌────────┐", "│Ñ!Ñ!Ñ!Ñ!│", "│  Pies  │", "├────────┤", "│ ◊  ◊  ◊│", "└────────┘"] },
-        { name: "KRZZX", subtitle: "Pilas", art: ["┌────────┐", "│ KRZZX  │", "│ Pilas  │", "├────────┤", "│ ■  □  ■│", "└────────┘"] },
-        { name: "Bloop", subtitle: "4X4s", art: ["┌────────┐", "│ Bloop  │", "│  4X4s  │", "├────────┤", "│ ○  ●  ○│", "└────────┘"] },
-        { name: "QWЯTY", subtitle: "Chistes", art: ["┌────────┐", "│ QWЯTY  │", "│Chistes │", "├────────┤", "│ ◇  ◆  ◇│", "└────────┘"] },
-        { name: "GRPLX", subtitle: "OtrasCosas", art: ["┌────────┐", "│ GRPLX  │", "│OtrasCos│", "├────────┤", "│ ▫  ▪  ▫│", "└────────┘"] },
-        { name: "ZZZRB", subtitle: "Zlorbs", art: ["┌────────┐", "│ ZZZRB  │", "│ Zlorbs │", "├────────┤", "│ ◉  ○  ◉│", "└────────┘"] },
-        { name: "ÜNAX", subtitle: "Uñas", art: ["┌────────┐", "│  ÜNAX  │", "│  Uñas  │", "├────────┤", "│ ▲  ▼  ▲│", "└────────┘"] },
-        { name: "MØNØ", subtitle: "Monoculos", art: ["┌────────┐", "│  MØNØ  │", "│Monocul │", "├────────┤", "│ ●  ○  ●│", "└────────┘"] },
-        { name: "SPYC", subtitle: "Especias", art: ["┌────────┐", "│  SPYC  │", "│Especias│", "├────────┤", "│ ◆  ◇  ◆│", "└────────┘"] },
-        { name: "BÏØX", subtitle: "Especies", art: ["┌────────┐", "│  BÏØX  │", "│Especies│", "├────────┤", "│ ▣  ▢  ▣│", "└────────┘"] },
-        { name: "CRBÑ", subtitle: "Carbon", art: ["┌────────┐", "│  CRBÑ  │", "│ Carbon │", "├────────┤", "│ ■  ■  ■│", "└────────┘"] },
-        { name: "PTRX", subtitle: "Petroleo", art: ["┌────────┐", "│  PTRX  │", "│Petroleo│", "├────────┤", "│ ▬  ▬  ▬│", "└────────┘"] },
-        { name: "JRGS", subtitle: "Jorges", art: ["┌────────┐", "│  JRGS  │", "│ Jorges │", "├────────┤", "│ ◎  ◎  ◎│", "└────────┘"] },
-        { name: "SLVX", subtitle: "Salvacion", art: ["┌────────┐", "│  SLVX  │", "│Salvacio│", "├────────┤", "│ ☆  ★  ☆│", "└────────┘"] },
-        { name: "MSNX", subtitle: "Misiones", art: ["┌────────┐", "│  MSNX  │", "│Misiones│", "├────────┤", "│ ►  ◄  ►│", "└────────┘"] },
-        { name: "TRSH", subtitle: "Basura", art: ["┌────────┐", "│  TRSH  │", "│ Basura │", "├────────┤", "│ ▭  ▭  ▭│", "└────────┘"] },
-        { name: "MËKA", subtitle: "MechaGato", art: ["┌────────┐", "│  MËKA  │", "│MechaGat│", "├────────┤", "│ ◈  ◇  ◈│", "└────────┘"] },
-        { name: "SØLZ", subtitle: "Ant.Soles", art: ["┌────────┐", "│  SØLZ  │", "│Ant.Sol │", "├────────┤", "│ ○  ─  ○│", "└────────┘"] }
+        { art: ["┌──────────┐", "│  COSAS   │", "├──────────┤", "│ ▪  ▫  ▪ │", "└──────────┘"] },
+        { art: ["┌──────────┐", "│   PIES   │", "├──────────┤", "│ ◊  ◊  ◊ │", "└──────────┘"] },
+        { art: ["┌──────────┐", "│  PILAS   │", "├──────────┤", "│ ■  □  ■ │", "└──────────┘"] },
+        { art: ["┌──────────┐", "│   4X4s   │", "├──────────┤", "│ ○  ●  ○ │", "└──────────┘"] },
+        { art: ["┌──────────┐", "│ CHISTES  │", "├──────────┤", "│ ◇  ◆  ◇ │", "└──────────┘"] },
+        { art: ["┌──────────────┐", "│ OTRAS COSAS  │", "├──────────────┤", "│  ▫  ▪  ▫  ▪ │", "└──────────────┘"] },
+        { art: ["┌──────────┐", "│  ZLORBS  │", "├──────────┤", "│ ◉  ○  ◉ │", "└──────────┘"] },
+        { art: ["┌──────────┐", "│   UÑAS   │", "├──────────┤", "│ ▲  ▼  ▲ │", "└──────────┘"] },
+        { art: ["┌──────────────┐", "│  MONÓCULOS   │", "├──────────────┤", "│  ●  ○  ●  ○ │", "└──────────────┘"] },
+        { art: ["┌──────────┐", "│ ESPECIAS │", "├──────────┤", "│ ◆  ◇  ◆ │", "└──────────┘"] },
+        { art: ["┌──────────┐", "│ ESPECIES │", "├──────────┤", "│ ▣  ▢  ▣ │", "└──────────┘"] },
+        { art: ["┌──────────┐", "│  CARBÓN  │", "├──────────┤", "│ ■  ■  ■ │", "└──────────┘"] },
+        { art: ["┌──────────┐", "│ PETRÓLEO │", "├──────────┤", "│ ▬  ▬  ▬ │", "└──────────┘"] },
+        { art: ["┌──────────┐", "│  JORGES  │", "├──────────┤", "│ ◎  ◎  ◎ │", "└──────────┘"] },
+        { art: ["┌──────────────┐", "│ SALVACIONES  │", "├──────────────┤", "│  ☆  ★  ☆  ★ │", "└──────────────┘"] },
+        { art: ["┌──────────┐", "│ MISIONES │", "├──────────┤", "│ ►  ◄  ► │", "└──────────┘"] },
+        { art: ["┌──────────┐", "│  BASURA  │", "├──────────┤", "│ ▭  ▭  ▭ │", "└──────────┘"] },
+        { art: ["┌────────────────┐", "│ MECHA-GATITOS  │", "├────────────────┤", "│  ◈  ◇  ◈  ◇  ◈│", "└────────────────┘"] },
+        { art: ["┌──────────────────┐", "│ ANTEOJOS DE SOL  │", "├──────────────────┤", "│   ○──○   ○──○   │", "└──────────────────┘"] }
     ];
 
     // People with dialogue (one-sided conversations - one person talks, other listens)
@@ -2420,7 +2420,7 @@
             ]
         },
         {
-            person1: { art: [" ☉ ", "═╪═", " ╨ "], color: "#1565c0" },
+            person1: { art: [" ☉☉ ", "═╪╪═", " ╨╨ "], color: "#1565c0" }, // Has 2 backs!
             person2: { art: ["◉◉◉", " │ ", "╱ ╲"], color: "#2e7d32" },
             dialogue: [
                 { speaker: 1, text: "Me duelen" },
@@ -2745,6 +2745,27 @@
     }
 
     function wagonDrawBackground() {
+        // Draw suns in the sky (alien planet has 2 suns)
+        // Sun 1 - larger, yellow-orange
+        wagonCtx.fillStyle = '#ffb300';
+        wagonCtx.beginPath();
+        wagonCtx.arc(850, 55, 25, 0, Math.PI * 2);
+        wagonCtx.fill();
+        wagonCtx.fillStyle = '#ffd54f';
+        wagonCtx.beginPath();
+        wagonCtx.arc(850, 55, 18, 0, Math.PI * 2);
+        wagonCtx.fill();
+
+        // Sun 2 - smaller, reddish
+        wagonCtx.fillStyle = '#ff7043';
+        wagonCtx.beginPath();
+        wagonCtx.arc(950, 45, 15, 0, Math.PI * 2);
+        wagonCtx.fill();
+        wagonCtx.fillStyle = '#ffab91';
+        wagonCtx.beginPath();
+        wagonCtx.arc(950, 45, 10, 0, Math.PI * 2);
+        wagonCtx.fill();
+
         // Scrolling diagonal lines for uphill effect
         wagonCtx.strokeStyle = '#e8e8e8';
         wagonCtx.lineWidth = 1;
@@ -2846,7 +2867,7 @@
         wagonDrawText('↑↓←→ mover  ESPACIO rugir  SHIFT turbo', WAGON_CANVAS_WIDTH / 2 - 140, WAGON_CANVAS_HEIGHT - 8, '#999', 11);
 
         // === VERSION NUMBER ===
-        wagonDrawText('GATIMÓVIL v4', WAGON_CANVAS_WIDTH - 85, WAGON_CANVAS_HEIGHT - 8, '#aaa', 10);
+        wagonDrawText('GATIMÓVIL v5', WAGON_CANVAS_WIDTH - 85, WAGON_CANVAS_HEIGHT - 8, '#aaa', 10);
 
         // === ROAR TEXT ===
         if (wagon.roaring && wagon.currentRoarText) {
@@ -3233,8 +3254,8 @@
             roarPower += 0.15;
         }
 
-        // Mom sleep decreases naturally (faster with turbo)
-        momSleep -= 0.02 * gameSpeed;
+        // Mom sleep decreases naturally (constant rate, NOT affected by turbo)
+        momSleep -= 0.02;
 
         // Mom shake decay
         if (momShakeTimer > 0) momShakeTimer -= 0.5;
