@@ -2258,94 +2258,64 @@
     let wagonGameWonState = false;
 
     // Wagon game constants
-    const WAGON_CANVAS_WIDTH = 750;
-    const WAGON_CANVAS_HEIGHT = 450;
-    const WAGON_LANE_COUNT = 3;
-    const WAGON_LANE_HEIGHT = WAGON_CANVAS_HEIGHT / WAGON_LANE_COUNT;
+    const WAGON_CANVAS_WIDTH = 800;
+    const WAGON_CANVAS_HEIGHT = 500;
+    const WAGON_LINE_HEIGHT = 18; // Each vertical "line"
+    const WAGON_MIN_Y = 60; // Top boundary (below HUD)
+    const WAGON_MAX_Y = WAGON_CANVAS_HEIGHT - 100; // Bottom boundary
 
-    // Wagon state
+    // Wagon state - continuous Y position instead of lanes
     let wagon = {
-        lane: 1, // 0, 1, or 2 (top, middle, bottom)
         x: 80,
-        targetLane: 1,
-        transitioning: false
+        y: WAGON_CANVAS_HEIGHT / 2, // Start in middle
+        roaring: false,
+        roarTimer: 0
     };
 
-    // Obstacles for wagon game
-    let wagonObstacles = [];
+    // Creatures (small alien animals) instead of big obstacles
+    let wagonCreatures = [];
     let wagonScore = 0;
     let wagonDistance = 0;
-    const WAGON_WIN_DISTANCE = 1500; // Longer distance = harder
+    const WAGON_WIN_DISTANCE = 2000;
 
     // Wagon game input
     const wagonKeys = {};
+    let wagonKeyPressed = { up: false, down: false }; // For continuous movement
 
     // Better ASCII art for the gati-móvil with cat and mamá
+    // Cat in mom's lap on a wagon with AAA battery propulsion
     const WAGON_ART = [
-        "    ∧_∧  ♀          ",
-        "   (=°ω°) /|\\    ╔═══╗",
-        "   /    \\/  \\═══╣ A ╠═⚡",
-        "  ╔══════════╗  ╚═══╝  ",
-        "  ║ GATIMÓVIL║    ◎ ◎ ",
-        "  ╚══◎════◎══╝        "
+        "   /\\_/\\  (◠‿◠)",
+        "  ( o.o ) /|  |\\",
+        "   > ^ <_/    |",
+        " _|_____|_____|____",
+        "|    GATIMÓVIL    |~AAA⚡",
+        "|_○_____________○_|"
     ];
 
     const WAGON_ART_STRESSED = [
-        "    ∧_∧  ♀          ",
-        "   (=ÒwÓ) /|\\    ╔═══╗",
-        "   /    \\/  \\═══╣ A ╠═⚡",
-        "  ╔══════════╗  ╚═══╝  ",
-        "  ║ GATIMÓVIL║    ◎ ◎ ",
-        "  ╚══◎════◎══╝        "
+        "   /\\_/\\  (°□°)",
+        "  ( O.O ) /|  |\\",
+        "   > ^ <_/    |",
+        " _|_____|_____|____",
+        "|    GATIMÓVIL    |~AAA⚡",
+        "|_○_____________○_|"
     ];
 
-    // Obstacle types - market themed
-    const WAGON_OBSTACLE_TYPES = [
-        {
-            art: [
-                "  ╔═══╗  ",
-                "  ║ $ ║  ",
-                " ═╩═══╩═ ",
-                "  │   │  "
-            ],
-            name: "puesto"
-        },
-        {
-            art: [
-                " ○   ○ ",
-                "/|\\~/|\\",
-                "/ \\ / \\",
-                "VENDEDOR"
-            ],
-            name: "vendedor"
-        },
-        {
-            art: [
-                "╔═════╗",
-                "║▓▓▓▓▓║",
-                "║▓▓▓▓▓║",
-                "╚═════╝"
-            ],
-            name: "caja"
-        },
-        {
-            art: [
-                "  ┌───┐  ",
-                " ─┤ ¤ ├─ ",
-                "  └───┘  ",
-                "  COSO   "
-            ],
-            name: "coso"
-        },
-        {
-            art: [
-                " §§§§§ ",
-                "§$§$§$§",
-                " §§§§§ ",
-                "BASURA "
-            ],
-            name: "basura"
-        }
+    // Small alien creatures - weird space animals that scatter when you roar
+    const ALIEN_CREATURES = [
+        { char: "◉", name: "blinkbug", color: "#e91e63" },      // Pink eye creature
+        { char: "҂", name: "skitter", color: "#9c27b0" },       // Purple spider-thing
+        { char: "Ѫ", name: "flapper", color: "#673ab7" },       // Weird flying thing
+        { char: "ꙮ", name: "multieye", color: "#3f51b5" },      // Many-eyed blob
+        { char: "ᚙ", name: "crawly", color: "#00bcd4" },        // Cyan crawler
+        { char: "۞", name: "spinner", color: "#4caf50" },       // Green spinning thing
+        { char: "ᗣ", name: "chomper", color: "#ff5722" },       // Orange biter
+        { char: "ᘛ", name: "scooch", color: "#795548" },        // Brown scooter
+        { char: "⍥", name: "peeper", color: "#607d8b" },        // Grey watcher
+        { char: "Ω", name: "bouncer", color: "#f44336" },       // Red bouncy thing
+        { char: "∰", name: "floaty", color: "#2196f3" },        // Blue floater
+        { char: "⌘", name: "twirly", color: "#ff9800" }         // Orange twirler
     ];
 
     // Check if step 95 should show the wagon game
@@ -2493,14 +2463,14 @@
             "║           S U B I E N D O   L A                   ║",
             "║              C U E S T A . . .                    ║",
             "║                                                   ║",
-            "║       ∧_∧  ♀                                      ║",
-            "║      (=°ω°) /|\\    ╔═══╗                          ║",
-            "║      /    \\/  \\═══╣ A ╠═⚡                        ║",
-            "║     ╔══════════╗  ╚═══╝                           ║",
-            "║     ║ GATIMÓVIL║    ◎ ◎                           ║",
-            "║     ╚══◎════◎══╝                                  ║",
+            "║          /\\_/\\  (◠‿◠)                             ║",
+            "║         ( o.o ) /|  |\\                            ║",
+            "║          > ^ <_/    |                             ║",
+            "║        _|_____|_____|____                         ║",
+            "║       |    GATIMÓVIL    |~AAA⚡                    ║",
+            "║       |_○_____________○_|                         ║",
             "║                                                   ║",
-            "║                    ↑ ↓  cambiar carril            ║",
+            "║                  ↑ ↓  cambiar carril              ║",
             "║                                                   ║",
             "╚═══════════════════════════════════════════════════╝"
         ];
@@ -2578,14 +2548,14 @@
         wagonCanvas.width = WAGON_CANVAS_WIDTH;
         wagonCanvas.height = WAGON_CANVAS_HEIGHT;
 
-        // Reset game state
+        // Reset game state - continuous Y position
         wagon = {
-            lane: 1,
-            x: 100,
-            targetLane: 1,
-            transitioning: false
+            x: 80,
+            y: WAGON_CANVAS_HEIGHT / 2,
+            roaring: false,
+            roarTimer: 0
         };
-        wagonObstacles = [];
+        wagonCreatures = [];
         wagonScore = 0;
         wagonDistance = 0;
         wagonGameOver = false;
@@ -2602,60 +2572,52 @@
         document.getElementById('playerMainContainer').style.visibility = 'visible';
     }
 
-    function wagonDrawText(text, x, y, color = '#333') {
+    function wagonDrawText(text, x, y, color = '#333', fontSize = 14) {
         wagonCtx.fillStyle = color;
-        wagonCtx.font = '14px Courier New';
+        wagonCtx.font = fontSize + 'px Courier New';
         wagonCtx.fillText(text, x, y);
     }
 
     function wagonClearScreen() {
-        // Light background matching RPG theme
+        // Light background matching RPG theme with subtle gradient
         const gradient = wagonCtx.createLinearGradient(0, 0, WAGON_CANVAS_WIDTH, 0);
-        gradient.addColorStop(0, '#f5f5f5');
-        gradient.addColorStop(1, '#e8f5e9'); // Slight green tint toward the goal
+        gradient.addColorStop(0, '#fafafa');
+        gradient.addColorStop(0.5, '#f5f5f5');
+        gradient.addColorStop(1, '#e8f5e9'); // Green tint toward the goal (nave)
         wagonCtx.fillStyle = gradient;
         wagonCtx.fillRect(0, 0, WAGON_CANVAS_WIDTH, WAGON_CANVAS_HEIGHT);
     }
 
-    function wagonDrawLanes() {
-        // Draw lane separators - lighter theme
-        wagonCtx.strokeStyle = '#ccc';
-        wagonCtx.setLineDash([15, 8]);
-        wagonCtx.lineWidth = 2;
-
-        for (let i = 1; i < WAGON_LANE_COUNT; i++) {
-            const y = i * WAGON_LANE_HEIGHT;
-            wagonCtx.beginPath();
-            wagonCtx.moveTo(0, y);
-            wagonCtx.lineTo(WAGON_CANVAS_WIDTH, y);
-            wagonCtx.stroke();
-        }
-
-        wagonCtx.setLineDash([]);
-
-        // Draw "uphill" visual - subtle diagonal lines
-        wagonCtx.strokeStyle = '#e0e0e0';
+    function wagonDrawBackground() {
+        // Draw subtle uphill visual - diagonal lines suggesting slope
+        wagonCtx.strokeStyle = '#e8e8e8';
         wagonCtx.lineWidth = 1;
-        for (let x = -WAGON_CANVAS_HEIGHT; x < WAGON_CANVAS_WIDTH; x += 50) {
+        const offset = (wagonDistance * 0.5) % 60; // Scrolling effect
+        for (let x = -WAGON_CANVAS_HEIGHT - offset; x < WAGON_CANVAS_WIDTH; x += 60) {
             wagonCtx.beginPath();
             wagonCtx.moveTo(x, WAGON_CANVAS_HEIGHT);
-            wagonCtx.lineTo(x + WAGON_CANVAS_HEIGHT * 0.4, 0);
+            wagonCtx.lineTo(x + WAGON_CANVAS_HEIGHT * 0.5, 0);
             wagonCtx.stroke();
         }
 
-        // Draw lane labels
-        wagonDrawText('───', 10, WAGON_LANE_HEIGHT / 2, '#999');
-        wagonDrawText('───', 10, WAGON_LANE_HEIGHT * 1.5, '#999');
-        wagonDrawText('───', 10, WAGON_LANE_HEIGHT * 2.5, '#999');
+        // Draw some "ground" dots for texture
+        wagonCtx.fillStyle = '#ddd';
+        for (let i = 0; i < 30; i++) {
+            const dotX = ((i * 97 + wagonDistance * 0.3) % WAGON_CANVAS_WIDTH);
+            const dotY = 80 + (i * 73) % (WAGON_CANVAS_HEIGHT - 120);
+            wagonCtx.beginPath();
+            wagonCtx.arc(dotX, dotY, 2, 0, Math.PI * 2);
+            wagonCtx.fill();
+        }
     }
 
     function wagonDrawHUD() {
         // Distance/progress bar
         const progress = Math.min(wagonDistance / WAGON_WIN_DISTANCE, 1);
-        const barWidth = 350;
-        const barHeight = 24;
+        const barWidth = 400;
+        const barHeight = 22;
         const barX = WAGON_CANVAS_WIDTH / 2 - barWidth / 2;
-        const barY = 12;
+        const barY = 15;
 
         // Bar background
         wagonCtx.fillStyle = '#e0e0e0';
@@ -2674,101 +2636,166 @@
         wagonCtx.strokeRect(barX, barY, barWidth, barHeight);
 
         // Labels
-        wagonDrawText('MERCADO', barX - 65, barY + 17, '#666');
-        wagonDrawText('NAVE', barX + barWidth + 10, barY + 17, '#388e3c');
-
-        // Controls hint
-        wagonDrawText('↑↓ Cambiar carril', 15, WAGON_CANVAS_HEIGHT - 15, '#999');
+        wagonDrawText('MERCADO', barX - 60, barY + 16, '#666', 12);
+        wagonDrawText('NAVE', barX + barWidth + 8, barY + 16, '#388e3c', 12);
 
         // Distance counter
         const distPercent = Math.floor(progress * 100);
-        wagonDrawText(distPercent + '%', barX + barWidth / 2 - 15, barY + 17, '#fff');
+        wagonDrawText(distPercent + '%', barX + barWidth / 2 - 12, barY + 16, '#fff', 13);
+
+        // Controls hint
+        wagonDrawText('↑↓ mover   ESPACIO rugir', WAGON_CANVAS_WIDTH / 2 - 100, WAGON_CANVAS_HEIGHT - 12, '#999', 12);
+
+        // Roar indicator
+        if (wagon.roaring) {
+            wagonDrawText('¡¡¡MRRRAAAAUU!!!', wagon.x + 180, wagon.y - 10, '#ff5722', 16);
+        }
     }
 
     function wagonDrawWagon() {
-        // Calculate Y position based on lane (centered in lane)
-        const targetY = wagon.lane * WAGON_LANE_HEIGHT + WAGON_LANE_HEIGHT / 2 - 50;
+        // Choose art based on roaring or stress
+        const nearCreature = wagonCreatures.some(c => c.x - wagon.x < 150 && c.x > wagon.x && !c.scared);
+        const art = (wagon.roaring || nearCreature) ? WAGON_ART_STRESSED : WAGON_ART;
 
-        // Choose art based on stress level
-        const nearObstacle = wagonObstacles.some(obs => obs.x - wagon.x < 180 && obs.x > wagon.x);
-        const art = nearObstacle ? WAGON_ART_STRESSED : WAGON_ART;
+        // Draw the wagon at continuous Y position
+        const wagonHeight = art.length * 14;
+        const drawY = wagon.y - wagonHeight / 2;
 
-        // Draw the wagon with dark color for visibility
         art.forEach((line, i) => {
-            wagonDrawText(line, wagon.x, targetY + i * 16, '#333');
+            wagonDrawText(line, wagon.x, drawY + i * 14, '#333', 13);
         });
+
+        // Draw roar wave effect
+        if (wagon.roaring) {
+            const waveRadius = wagon.roarTimer * 8;
+            wagonCtx.strokeStyle = `rgba(255, 87, 34, ${0.6 - wagon.roarTimer * 0.04})`;
+            wagonCtx.lineWidth = 3;
+            wagonCtx.beginPath();
+            wagonCtx.arc(wagon.x + 100, wagon.y, waveRadius, -Math.PI/3, Math.PI/3);
+            wagonCtx.stroke();
+        }
     }
 
-    function wagonCreateObstacle() {
-        // HARDER: More frequent obstacles, speed increases with distance
-        const spawnRate = 0.04 + (wagonDistance / WAGON_WIN_DISTANCE) * 0.03; // Gets harder
-        const maxObstacles = 5 + Math.floor(wagonDistance / 300); // More obstacles over time
+    function wagonCreateCreature() {
+        // Spawn creatures frequently - they're small so many can fit
+        const spawnRate = 0.06 + (wagonDistance / WAGON_WIN_DISTANCE) * 0.04;
+        const maxCreatures = 15 + Math.floor(wagonDistance / 200);
 
-        if (Math.random() < spawnRate && wagonObstacles.length < maxObstacles) {
-            const type = WAGON_OBSTACLE_TYPES[Math.floor(Math.random() * WAGON_OBSTACLE_TYPES.length)];
-            const lane = Math.floor(Math.random() * WAGON_LANE_COUNT);
+        if (Math.random() < spawnRate && wagonCreatures.length < maxCreatures) {
+            const type = ALIEN_CREATURES[Math.floor(Math.random() * ALIEN_CREATURES.length)];
 
-            // Speed increases as game progresses
-            const baseSpeed = 4 + (wagonDistance / WAGON_WIN_DISTANCE) * 3;
-            const speedVariation = Math.random() * 2;
+            // Random Y position within play area
+            const y = WAGON_MIN_Y + Math.random() * (WAGON_MAX_Y - WAGON_MIN_Y);
 
-            wagonObstacles.push({
-                x: WAGON_CANVAS_WIDTH + 50,
-                lane: lane,
+            // Speed increases over time
+            const baseSpeed = 2 + (wagonDistance / WAGON_WIN_DISTANCE) * 2;
+            const speedVariation = Math.random() * 1.5;
+
+            wagonCreatures.push({
+                x: WAGON_CANVAS_WIDTH + 20,
+                y: y,
                 type: type,
-                speed: baseSpeed + speedVariation
+                speed: baseSpeed + speedVariation,
+                scared: false,
+                scaredVelocityY: 0
             });
         }
     }
 
-    function wagonUpdateObstacles() {
-        wagonObstacles.forEach(obs => {
-            obs.x -= obs.speed;
+    function wagonUpdateCreatures() {
+        wagonCreatures.forEach(creature => {
+            if (creature.scared) {
+                // Scared creatures flee upward/downward quickly
+                creature.x -= creature.speed * 0.5;
+                creature.y += creature.scaredVelocityY;
+                creature.scaredVelocityY *= 0.95; // Slow down
+            } else {
+                creature.x -= creature.speed;
+                // Small random vertical wiggle
+                creature.y += (Math.random() - 0.5) * 2;
+                // Keep in bounds
+                creature.y = Math.max(WAGON_MIN_Y, Math.min(WAGON_MAX_Y, creature.y));
+            }
         });
 
-        // Remove off-screen obstacles
-        wagonObstacles = wagonObstacles.filter(obs => obs.x > -120);
+        // Remove off-screen creatures
+        wagonCreatures = wagonCreatures.filter(c => c.x > -30 && c.y > -50 && c.y < WAGON_CANVAS_HEIGHT + 50);
     }
 
-    function wagonDrawObstacles() {
-        wagonObstacles.forEach(obs => {
-            const y = obs.lane * WAGON_LANE_HEIGHT + WAGON_LANE_HEIGHT / 2 - 35;
-            obs.type.art.forEach((line, i) => {
-                wagonDrawText(line, obs.x, y + i * 16, '#c62828'); // Red for danger
-            });
+    function wagonDrawCreatures() {
+        wagonCreatures.forEach(creature => {
+            const alpha = creature.scared ? 0.5 : 1;
+            const color = creature.scared ? '#999' : creature.type.color;
+            wagonCtx.globalAlpha = alpha;
+            wagonDrawText(creature.type.char, creature.x, creature.y, color, 20);
+            wagonCtx.globalAlpha = 1;
         });
+    }
+
+    function wagonDoRoar() {
+        if (!wagon.roaring) {
+            wagon.roaring = true;
+            wagon.roarTimer = 0;
+
+            // Scare nearby creatures
+            wagonCreatures.forEach(creature => {
+                const dx = creature.x - wagon.x;
+                const dy = creature.y - wagon.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist < 250 && !creature.scared) {
+                    creature.scared = true;
+                    // Flee away from wagon
+                    creature.scaredVelocityY = (dy > 0 ? 1 : -1) * (8 + Math.random() * 5);
+                    creature.speed *= 2;
+                }
+            });
+        }
     }
 
     function wagonCheckCollisions() {
-        const wagonHitboxX = wagon.x + 30;
-        const wagonHitboxWidth = 140;
+        const wagonCenterX = wagon.x + 100;
+        const wagonCenterY = wagon.y;
 
-        for (const obs of wagonObstacles) {
-            if (obs.lane === wagon.lane) {
-                const obsHitboxX = obs.x + 10;
-                const obsHitboxWidth = 70;
+        for (const creature of wagonCreatures) {
+            if (creature.scared) continue; // Can't hit scared creatures
 
-                // Check horizontal overlap
-                if (wagonHitboxX < obsHitboxX + obsHitboxWidth &&
-                    wagonHitboxX + wagonHitboxWidth > obsHitboxX) {
-                    return true; // Collision!
-                }
+            const dx = creature.x - wagonCenterX;
+            const dy = creature.y - wagonCenterY;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            // Collision if creature is close to wagon center
+            if (dist < 50 && creature.x > wagon.x && creature.x < wagon.x + 180) {
+                return true;
             }
         }
         return false;
     }
 
     function wagonUpdateInput() {
-        // Slightly faster lane changes for responsiveness
-        if (wagonKeys['ArrowUp'] && wagon.lane > 0 && !wagon.transitioning) {
-            wagon.lane--;
-            wagon.transitioning = true;
-            setTimeout(() => { wagon.transitioning = false; }, 150);
+        // Continuous vertical movement
+        if (wagonKeys['ArrowUp']) {
+            wagon.y -= 4;
         }
-        if (wagonKeys['ArrowDown'] && wagon.lane < WAGON_LANE_COUNT - 1 && !wagon.transitioning) {
-            wagon.lane++;
-            wagon.transitioning = true;
-            setTimeout(() => { wagon.transitioning = false; }, 150);
+        if (wagonKeys['ArrowDown']) {
+            wagon.y += 4;
+        }
+
+        // Keep wagon in bounds
+        wagon.y = Math.max(WAGON_MIN_Y, Math.min(WAGON_MAX_Y, wagon.y));
+
+        // Space bar to roar
+        if (wagonKeys[' '] && !wagon.roaring) {
+            wagonDoRoar();
+        }
+
+        // Update roar timer
+        if (wagon.roaring) {
+            wagon.roarTimer++;
+            if (wagon.roarTimer > 15) {
+                wagon.roaring = false;
+                wagon.roarTimer = 0;
+            }
         }
     }
 
@@ -2776,12 +2803,12 @@
         if (!wagonGameRunning) return;
 
         wagonClearScreen();
-        wagonDrawLanes();
+        wagonDrawBackground();
 
         if (!wagonGameOver) {
             wagonUpdateInput();
-            wagonCreateObstacle();
-            wagonUpdateObstacles();
+            wagonCreateCreature();
+            wagonUpdateCreatures();
 
             // Increase distance
             wagonDistance += 2;
@@ -2799,7 +2826,7 @@
             }
         }
 
-        wagonDrawObstacles();
+        wagonDrawCreatures();
         wagonDrawWagon();
         wagonDrawHUD();
 
@@ -2887,7 +2914,8 @@
     window.addEventListener('keydown', (e) => {
         if (document.getElementById('wagonGameContainer').style.display === 'flex') {
             wagonKeys[e.key] = true;
-            if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+            // Prevent page scroll for game controls
+            if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === ' ') {
                 e.preventDefault();
             }
         }
