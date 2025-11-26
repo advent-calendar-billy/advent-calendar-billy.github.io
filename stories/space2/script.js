@@ -2387,29 +2387,28 @@
 
     // Shop obstacles with alien names
     const SHOP_TYPES = [
-        { name: "ZLÖRP's", subtitle: "Cosas", art: ["┌────────┐", "│ ZLÖRP's│", "│ Cosas  │", "├────────┤", "│ ◊  ◊  ◊│", "└────────┘"] },
-        { name: "Ñ!Ñ!Ñ!", subtitle: "Pies", art: ["┌────────┐", "│Ñ!Ñ!Ñ!Ñ!│", "│  Pies  │", "├────────┤", "│ 👣 👣 👣│", "└────────┘"] },
-        { name: "KRZZX", subtitle: "Pilas", art: ["┌────────┐", "│ KRZZX  │", "│ Pilas  │", "├────────┤", "│ ⚡ ⚡ ⚡│", "└────────┘"] },
-        { name: "Bloop", subtitle: "4X4s", art: ["┌────────┐", "│ Bloop  │", "│  4X4s  │", "├────────┤", "│ ⊞  ⊞  ⊞│", "└────────┘"] },
-        { name: "QWЯTY", subtitle: "Chistes", art: ["┌────────┐", "│ QWЯTY  │", "│Chistes │", "├────────┤", "│ :) :D ;)│", "└────────┘"] },
-        { name: "GRPLX", subtitle: "OtrasCosas", art: ["┌────────┐", "│ GRPLX  │", "│OtrasCos│", "├────────┤", "│ ?  ?  ?│", "└────────┘"] },
-        { name: "ZZZRB", subtitle: "Zlorbs", art: ["┌────────┐", "│ ZZZRB  │", "│ Zlorbs │", "├────────┤", "│ ◉  ◉  ◉│", "└────────┘"] },
-        { name: "ÜNAX", subtitle: "Uñas", art: ["┌────────┐", "│  ÜNAX  │", "│  Uñas  │", "├────────┤", "│ 💅 💅 💅│", "└────────┘"] },
-        { name: "MØNØ", subtitle: "Monoculos", art: ["┌────────┐", "│  MØNØ  │", "│Monocul │", "├────────┤", "│ 🧐 🧐 🧐│", "└────────┘"] },
-        { name: "SPYC", subtitle: "Especias", art: ["┌────────┐", "│  SPYC  │", "│Especias│", "├────────┤", "│ ✿  ✿  ✿│", "└────────┘"] },
-        { name: "BÏØX", subtitle: "Especies", art: ["┌────────┐", "│  BÏØX  │", "│Especies│", "├────────┤", "│ 🐛 🦎 🐙│", "└────────┘"] },
-        { name: "CRBÑ", subtitle: "Carbon", art: ["┌────────┐", "│  CRBÑ  │", "│ Carbon │", "├────────┤", "│ ite■ite│", "└────────┘"] },
-        { name: "PTRX", subtitle: "Petroleo", art: ["┌────────┐", "│  PTRX  │", "│Petroleo│", "├────────┤", "│ 🛢 🛢 🛢│", "└────────┘"] },
-        { name: "JRGS", subtitle: "Jorges", art: ["┌────────┐", "│  JRGS  │", "│ Jorges │", "├────────┤", "│ 👤 👤 👤│", "└────────┘"] },
-        { name: "SLVX", subtitle: "Salvacion", art: ["┌────────┐", "│  SLVX  │", "│Salvacio│", "├────────┤", "│ ✝  ✝  ✝│", "└────────┘"] },
-        { name: "MSNX", subtitle: "Misiones", art: ["┌────────┐", "│  MSNX  │", "│Misiones│", "├────────┤", "│ !  !  !│", "└────────┘"] },
-        { name: "TRSH", subtitle: "Basura", art: ["┌────────┐", "│  TRSH  │", "│ Basura │", "├────────┤", "│ 🗑 🗑 🗑│", "└────────┘"] },
-        { name: "MËKA", subtitle: "MechaGato", art: ["┌────────┐", "│  MËKA  │", "│MechaGat│", "├────────┤", "│ 🤖🐱🤖│", "└────────┘"] },
-        { name: "SØLZ", subtitle: "Ant.Soles", art: ["┌────────┐", "│  SØLZ  │", "│Ant.Sol │", "├────────┤", "│ 🕶 🕶 🕶│", "└────────┘"] }
+        { name: "ZLÖRP's", subtitle: "Cosas", art: ["┌────────┐", "│ ZLÖRP's│", "│ Cosas  │", "├────────┤", "│ ▪  ▫  ▪│", "└────────┘"] },
+        { name: "Ñ!Ñ!Ñ!", subtitle: "Pies", art: ["┌────────┐", "│Ñ!Ñ!Ñ!Ñ!│", "│  Pies  │", "├────────┤", "│ ◊  ◊  ◊│", "└────────┘"] },
+        { name: "KRZZX", subtitle: "Pilas", art: ["┌────────┐", "│ KRZZX  │", "│ Pilas  │", "├────────┤", "│ ■  □  ■│", "└────────┘"] },
+        { name: "Bloop", subtitle: "4X4s", art: ["┌────────┐", "│ Bloop  │", "│  4X4s  │", "├────────┤", "│ ○  ●  ○│", "└────────┘"] },
+        { name: "QWЯTY", subtitle: "Chistes", art: ["┌────────┐", "│ QWЯTY  │", "│Chistes │", "├────────┤", "│ ◇  ◆  ◇│", "└────────┘"] },
+        { name: "GRPLX", subtitle: "OtrasCosas", art: ["┌────────┐", "│ GRPLX  │", "│OtrasCos│", "├────────┤", "│ ▫  ▪  ▫│", "└────────┘"] },
+        { name: "ZZZRB", subtitle: "Zlorbs", art: ["┌────────┐", "│ ZZZRB  │", "│ Zlorbs │", "├────────┤", "│ ◉  ○  ◉│", "└────────┘"] },
+        { name: "ÜNAX", subtitle: "Uñas", art: ["┌────────┐", "│  ÜNAX  │", "│  Uñas  │", "├────────┤", "│ ▲  ▼  ▲│", "└────────┘"] },
+        { name: "MØNØ", subtitle: "Monoculos", art: ["┌────────┐", "│  MØNØ  │", "│Monocul │", "├────────┤", "│ ●  ○  ●│", "└────────┘"] },
+        { name: "SPYC", subtitle: "Especias", art: ["┌────────┐", "│  SPYC  │", "│Especias│", "├────────┤", "│ ◆  ◇  ◆│", "└────────┘"] },
+        { name: "BÏØX", subtitle: "Especies", art: ["┌────────┐", "│  BÏØX  │", "│Especies│", "├────────┤", "│ ▣  ▢  ▣│", "└────────┘"] },
+        { name: "CRBÑ", subtitle: "Carbon", art: ["┌────────┐", "│  CRBÑ  │", "│ Carbon │", "├────────┤", "│ ■  ■  ■│", "└────────┘"] },
+        { name: "PTRX", subtitle: "Petroleo", art: ["┌────────┐", "│  PTRX  │", "│Petroleo│", "├────────┤", "│ ▬  ▬  ▬│", "└────────┘"] },
+        { name: "JRGS", subtitle: "Jorges", art: ["┌────────┐", "│  JRGS  │", "│ Jorges │", "├────────┤", "│ ◎  ◎  ◎│", "└────────┘"] },
+        { name: "SLVX", subtitle: "Salvacion", art: ["┌────────┐", "│  SLVX  │", "│Salvacio│", "├────────┤", "│ ☆  ★  ☆│", "└────────┘"] },
+        { name: "MSNX", subtitle: "Misiones", art: ["┌────────┐", "│  MSNX  │", "│Misiones│", "├────────┤", "│ ►  ◄  ►│", "└────────┘"] },
+        { name: "TRSH", subtitle: "Basura", art: ["┌────────┐", "│  TRSH  │", "│ Basura │", "├────────┤", "│ ▭  ▭  ▭│", "└────────┘"] },
+        { name: "MËKA", subtitle: "MechaGato", art: ["┌────────┐", "│  MËKA  │", "│MechaGat│", "├────────┤", "│ ◈  ◇  ◈│", "└────────┘"] },
+        { name: "SØLZ", subtitle: "Ant.Soles", art: ["┌────────┐", "│  SØLZ  │", "│Ant.Sol │", "├────────┤", "│ ○  ─  ○│", "└────────┘"] }
     ];
 
-    // People with dialogue
-    // People come in pairs having conversations
+    // People with dialogue (one-sided conversations - one person talks, other listens)
     const PEOPLE_CONVERSATIONS = [
         {
             person1: { art: [" ◯ ", "/|\\", "/ \\"], color: "#5d4037" },
@@ -2417,9 +2416,7 @@
             dialogue: [
                 { speaker: 1, text: "¿Viste la última" },
                 { speaker: 1, text: "temporada del" },
-                { speaker: 1, text: "gato con botas?" },
-                { speaker: 2, text: "¡Sí! Increíble" },
-                { speaker: 2, text: "el final..." }
+                { speaker: 1, text: "gato con botas?" }
             ]
         },
         {
@@ -2427,9 +2424,7 @@
             person2: { art: ["◉◉◉", " │ ", "╱ ╲"], color: "#2e7d32" },
             dialogue: [
                 { speaker: 1, text: "Me duelen" },
-                { speaker: 1, text: "las espaldas" },
-                { speaker: 2, text: "A mí también," },
-                { speaker: 2, text: "será la edad..." }
+                { speaker: 1, text: "las espaldas..." }
             ]
         },
         {
@@ -2437,9 +2432,7 @@
             person2: { art: [" ◇ ", "╱█╲", " ║ "], color: "#ff6f00" },
             dialogue: [
                 { speaker: 1, text: "¡Qué vehículo" },
-                { speaker: 1, text: "tan extraño!" },
-                { speaker: 2, text: "¿Viste eso?" },
-                { speaker: 2, text: "¿Era un gato?" }
+                { speaker: 1, text: "tan extraño!" }
             ]
         },
         {
@@ -2448,9 +2441,7 @@
             dialogue: [
                 { speaker: 1, text: "...y entonces" },
                 { speaker: 1, text: "xonbloxionó" },
-                { speaker: 1, text: "su apperliz!" },
-                { speaker: 2, text: "¡No te creo!" },
-                { speaker: 2, text: "¡Qué locura!" }
+                { speaker: 1, text: "su apperliz!" }
             ]
         },
         {
@@ -2459,12 +2450,14 @@
             dialogue: [
                 { speaker: 1, text: "Hay días en los" },
                 { speaker: 1, text: "que me siento" },
-                { speaker: 1, text: "bidimensional" },
-                { speaker: 2, text: "Yo también..." },
-                { speaker: 2, text: "Es existencial" }
+                { speaker: 1, text: "bidimensional..." }
             ]
         }
     ];
+
+    // Track which conversations have been used (reset on game start)
+    let usedConversations = [];
+    let nextPeopleDistance = 0; // Distance at which next people pair can spawn
 
     // Check if step 95 should show the wagon game
     function shouldTriggerWagonGame(steps) {
@@ -2711,6 +2704,10 @@
         wagonGameWonState = false;
         wagonGameRunning = true;
 
+        // Reset conversation tracking
+        usedConversations = [];
+        nextPeopleDistance = 800 + Math.random() * 400; // First people pair spawns after some distance
+
         // Reset resource bars
         roarPower = 100;
         momSleep = 100;
@@ -2849,7 +2846,7 @@
         wagonDrawText('↑↓←→ mover  ESPACIO rugir  SHIFT turbo', WAGON_CANVAS_WIDTH / 2 - 140, WAGON_CANVAS_HEIGHT - 8, '#999', 11);
 
         // === VERSION NUMBER ===
-        wagonDrawText('GATIMÓVIL v3', WAGON_CANVAS_WIDTH - 85, WAGON_CANVAS_HEIGHT - 8, '#aaa', 10);
+        wagonDrawText('GATIMÓVIL v4', WAGON_CANVAS_WIDTH - 85, WAGON_CANVAS_HEIGHT - 8, '#aaa', 10);
 
         // === ROAR TEXT ===
         if (wagon.roaring && wagon.currentRoarText) {
@@ -2960,24 +2957,34 @@
     }
 
     function wagonCreateObstacle() {
-        const spawnRate = 0.008 + (wagonDistance / WAGON_WIN_DISTANCE) * 0.005;
+        // Spawn shops randomly
+        const shopSpawnRate = 0.01 + (wagonDistance / WAGON_WIN_DISTANCE) * 0.005;
+        if (Math.random() < shopSpawnRate * gameSpeed && wagonObstacles.filter(o => o.type === 'shop').length < 3) {
+            const type = SHOP_TYPES[Math.floor(Math.random() * SHOP_TYPES.length)];
+            const y = WAGON_MIN_Y + 30 + Math.random() * (WAGON_MAX_Y - WAGON_MIN_Y - 80);
+            wagonObstacles.push({
+                x: WAGON_CANVAS_WIDTH + 50,
+                y: y,
+                type: 'shop',
+                data: type,
+                speed: 1 + (wagonDistance / WAGON_WIN_DISTANCE) * 0.5
+            });
+        }
 
-        if (Math.random() < spawnRate * gameSpeed && wagonObstacles.length < 4) {
-            const isShop = Math.random() < 0.4; // 40% shops, 60% people pairs
+        // Spawn people pairs at specific distances (each conversation only once)
+        if (wagonDistance >= nextPeopleDistance && usedConversations.length < PEOPLE_CONVERSATIONS.length) {
+            // Get available conversations (not yet used)
+            const availableIndices = [];
+            for (let i = 0; i < PEOPLE_CONVERSATIONS.length; i++) {
+                if (!usedConversations.includes(i)) availableIndices.push(i);
+            }
 
-            if (isShop) {
-                const type = SHOP_TYPES[Math.floor(Math.random() * SHOP_TYPES.length)];
-                const y = WAGON_MIN_Y + 30 + Math.random() * (WAGON_MAX_Y - WAGON_MIN_Y - 80);
-                wagonObstacles.push({
-                    x: WAGON_CANVAS_WIDTH + 50,
-                    y: y,
-                    type: 'shop',
-                    data: type,
-                    speed: 1 + (wagonDistance / WAGON_WIN_DISTANCE) * 0.5
-                });
-            } else {
-                // Spawn people in pairs having a conversation
-                const convo = PEOPLE_CONVERSATIONS[Math.floor(Math.random() * PEOPLE_CONVERSATIONS.length)];
+            if (availableIndices.length > 0) {
+                // Pick random from available
+                const chosenIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
+                usedConversations.push(chosenIndex);
+
+                const convo = PEOPLE_CONVERSATIONS[chosenIndex];
                 const y = WAGON_MIN_Y + 20 + Math.random() * (WAGON_MAX_Y - WAGON_MIN_Y - 80);
                 const speed = 0.8 + Math.random() * 0.5;
                 wagonObstacles.push({
@@ -2989,6 +2996,14 @@
                     dialogueIndex: 0,
                     dialogueTimer: 0
                 });
+
+                // Set next people spawn distance (spread evenly across the game)
+                const remainingConvos = PEOPLE_CONVERSATIONS.length - usedConversations.length;
+                if (remainingConvos > 0) {
+                    const remainingDistance = WAGON_WIN_DISTANCE - wagonDistance;
+                    const spacing = remainingDistance / (remainingConvos + 1);
+                    nextPeopleDistance = wagonDistance + spacing * (0.7 + Math.random() * 0.6);
+                }
             }
         }
     }
