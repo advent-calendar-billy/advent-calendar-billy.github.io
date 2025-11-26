@@ -2704,6 +2704,7 @@
         wagonGameOver = false;
         wagonGameWonState = false;
         wagonGameRunning = true;
+        winHandled = false;
 
         // Reset conversation tracking
         usedConversations = [];
@@ -3376,7 +3377,11 @@
         document.getElementById('wagonGameOverScreen').style.display = 'flex';
     }
 
+    let winHandled = false;
     async function handleWagonGameWin() {
+        if (winHandled) return;
+        winHandled = true;
+
         console.log('🛒 Wagon Game: Player won! Saving state and posting outcome');
 
         // Store win state
