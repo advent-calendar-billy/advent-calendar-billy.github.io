@@ -2248,7 +2248,7 @@
     // Wagon game configuration
     const WAGON_GAME_STEP = 95;
     const STEP_95_PROMPT = "Mamá se sienta en el gati-móvil y vos te acomodás en su regazo. El coso de las A empieza a hacer ruido y el carrito comienza a subir la cuesta, esquivando los puestos del mercado...";
-    const STEP_95_OUTCOME = "Después de un viaje turbulento pero exitoso, llegás a la nave. Mamá te acaricia la cabeza. \"Buen trabajo, gatito\", dice.";
+    const STEP_95_OUTCOME = "Llevaste a mamá de vuelta a la nave sana y salva.";
 
     // Wagon game state
     let wagonGameWon = localStorage.getItem('wagonGameWon') === 'true';
@@ -2867,7 +2867,7 @@
         wagonDrawText('↑↓←→ mover  ESPACIO rugir  SHIFT turbo', WAGON_CANVAS_WIDTH / 2 - 140, WAGON_CANVAS_HEIGHT - 8, '#999', 11);
 
         // === VERSION NUMBER ===
-        wagonDrawText('GATIMÓVIL v5', WAGON_CANVAS_WIDTH - 85, WAGON_CANVAS_HEIGHT - 8, '#aaa', 10);
+        wagonDrawText('GATIMÓVIL v6', WAGON_CANVAS_WIDTH - 85, WAGON_CANVAS_HEIGHT - 8, '#aaa', 10);
 
         // === ROAR TEXT ===
         if (wagon.roaring && wagon.currentRoarText) {
@@ -2961,8 +2961,22 @@
 
         if (Math.random() < spawnRate * gameSpeed && wagonCreatures.length < maxCreatures) {
             const type = ALIEN_CREATURES[Math.floor(Math.random() * ALIEN_CREATURES.length)];
-            const y = WAGON_MIN_Y + 20 + Math.random() * (WAGON_MAX_Y - WAGON_MIN_Y - 40);
             const baseSpeed = 1.5 + (wagonDistance / WAGON_WIN_DISTANCE) * 1.5;
+
+            // 30% chance to spawn near edges (top or bottom) to prevent edge-camping
+            let y;
+            const edgeSpawn = Math.random() < 0.3;
+            if (edgeSpawn) {
+                // Spawn near top or bottom edge
+                if (Math.random() < 0.5) {
+                    y = WAGON_MIN_Y + 10 + Math.random() * 40; // Near top
+                } else {
+                    y = WAGON_MAX_Y - 40 + Math.random() * 30; // Near bottom
+                }
+            } else {
+                // Normal spawn across full range
+                y = WAGON_MIN_Y + 20 + Math.random() * (WAGON_MAX_Y - WAGON_MIN_Y - 40);
+            }
 
             wagonCreatures.push({
                 x: WAGON_CANVAS_WIDTH + 30,
@@ -3382,7 +3396,7 @@
 
             // Post the action (playing the game) and outcome
             await appendToSheet([
-                [timestamp, 'PLAYER', 'ACTION', '[Jugó el minijuego del gati-móvil y llegó a la nave]', null],
+                [timestamp, 'PLAYER', 'ACTION', 'Llevo a mamá de vuelta a la nave sana y salva.', null],
                 [timestamp, 'DM', 'OUTCOME', STEP_95_OUTCOME, null]
             ]);
 
