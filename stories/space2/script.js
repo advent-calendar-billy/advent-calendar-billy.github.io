@@ -2866,8 +2866,6 @@
         // === CONTROLS HINT ===
         wagonDrawText('↑↓←→ mover  ESPACIO rugir  SHIFT turbo', WAGON_CANVAS_WIDTH / 2 - 140, WAGON_CANVAS_HEIGHT - 8, '#999', 11);
 
-        // === VERSION NUMBER ===
-        wagonDrawText('GATIMÓVIL v6', WAGON_CANVAS_WIDTH - 85, WAGON_CANVAS_HEIGHT - 8, '#aaa', 10);
 
         // === ROAR TEXT ===
         if (wagon.roaring && wagon.currentRoarText) {
