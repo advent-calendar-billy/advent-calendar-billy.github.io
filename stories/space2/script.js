@@ -2458,6 +2458,7 @@
     // Track which conversations have been used (reset on game start)
     let usedConversations = [];
     let nextPeopleDistance = 0; // Distance at which next people pair can spawn
+    let cheatBuffer = '';
 
     // Check if step 95 should show the wagon game
     function shouldTriggerWagonGame(steps) {
@@ -3417,6 +3418,14 @@
             // Prevent page scroll for game controls
             if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Shift') {
                 e.preventDefault();
+            }
+            if (e.key.length === 1) {
+                cheatBuffer += e.key.toLowerCase();
+                if (cheatBuffer.length > 10) cheatBuffer = cheatBuffer.slice(-10);
+                if (cheatBuffer.includes('win') && wagonGameRunning && !wagonGameOver) {
+                    wagonDistance = WAGON_WIN_DISTANCE;
+                    cheatBuffer = '';
+                }
             }
         }
     });
