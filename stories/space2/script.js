@@ -1320,19 +1320,15 @@
         console.log('🛒 Wagon Game: Checking if should trigger...');
         if (shouldTriggerWagonGame(steps)) {
             console.log('🛒 Wagon Game: Should trigger! Rendering special step 95');
-            // Find the step 95 element and render it specially
-            const latestStep = steps[steps.length - 1];
-            if (latestStep.number === 95) {
-                // The latest step element should be the first one (since we render in reverse)
-                const stepElements = playerGameLogDisplay.querySelectorAll('.step');
-                if (stepElements.length > 0) {
-                    const step95El = stepElements[0]; // First element = latest step
-                    // Clear existing content and render special
-                    const stepContent = step95El.querySelector('.step-content');
-                    if (stepContent) {
-                        stepContent.innerHTML = '';
-                        renderStep95Special(step95El);
-                    }
+            // Find step 95 element (it's rendered in reverse, so find by step number)
+            const stepElements = playerGameLogDisplay.querySelectorAll('.step');
+            for (const stepEl of stepElements) {
+                const stepHeader = stepEl.querySelector('.step-header span');
+                if (stepHeader && stepHeader.textContent.includes('95')) {
+                    // Don't clear content - prompt is already rendered from sheet
+                    // Just add the play button
+                    renderStep95Special(stepEl);
+                    break;
                 }
             }
             // Hide normal input controls
@@ -2310,41 +2306,30 @@
     function shouldTriggerWagonGame(steps) {
         if (steps.length === 0) return false;
 
-        const latestStep = steps[steps.length - 1];
-        const stepNum = latestStep.number;
-
-        console.log('🛒 Wagon Game: Checking step', stepNum, 'wagonGameWon:', wagonGameWon);
-
-        // Trigger on step 95 if game hasn't been won
-        if (stepNum === WAGON_GAME_STEP && !wagonGameWon) {
-            // Check if step 94 is complete (has outcome)
-            const step94 = steps.find(s => s.number === 94);
-            if (step94) {
-                const hasOutcome = step94.sequence.some(s => s.type === 'outcome');
-                console.log('🛒 Wagon Game: Step 94 has outcome:', hasOutcome);
-                return hasOutcome;
-            }
+        // Find step 95
+        const step95 = steps.find(s => s.number === WAGON_GAME_STEP);
+        if (!step95) {
+            console.log('🛒 Wagon Game: Step 95 not found');
+            return false;
         }
 
-        return false;
+        // Check if step 95 has a prompt but NO action yet
+        const hasPrompt = step95.sequence.some(s => s.type === 'prompt');
+        const hasAction = step95.sequence.some(s => s.type === 'action');
+
+        console.log('🛒 Wagon Game: Step 95 check - hasPrompt:', hasPrompt, 'hasAction:', hasAction);
+
+        // Trigger if step 95 has prompt but no action (allows replay by deleting action from sheet)
+        return hasPrompt && !hasAction;
     }
 
     // Render step 95 with special UI (play button instead of action input)
+    // This just adds a play button - the prompt is already rendered from the sheet
     function renderStep95Special(stepEl) {
-        // Clear normal content and add special step 95 content
         const stepContent = stepEl.querySelector('.step-content');
         if (!stepContent) return;
 
-        // Add the hardcoded prompt
-        const promptEl = document.createElement('div');
-        promptEl.className = 'prompt';
-        promptEl.innerHTML = `
-            <strong>Prompt:</strong>
-            <div>${STEP_95_PROMPT}</div>
-        `;
-        stepContent.appendChild(promptEl);
-
-        // Add play button instead of action input
+        // Add play button after the existing prompt (don't clear content - prompt comes from sheet)
         const playButton = document.createElement('button');
         playButton.className = 'step95-play-button';
         playButton.textContent = '¡SUBIR LA CUESTA!';
@@ -2353,17 +2338,69 @@
     }
 
     // Letter scramble animation - the magical effect!
+    // Takes actual characters from the screen at their real positions
     function startLetterScrambleAnimation() {
         console.log('🛒 Wagon Game: Starting letter scramble animation');
 
-        // Get all visible text from the player container
         const playerContainer = document.getElementById('playerMainContainer');
-        const textContent = playerContainer.innerText;
+        const chars = [];
 
-        // Hide the player container
+        // Walk through all text nodes and get each character with its position
+        const walker = document.createTreeWalker(
+            playerContainer,
+            NodeFilter.SHOW_TEXT,
+            null,
+            false
+        );
+
+        let node;
+        while (node = walker.nextNode()) {
+            const text = node.textContent;
+            if (!text.trim()) continue;
+
+            // Get the parent element to measure positions
+            const range = document.createRange();
+
+            for (let i = 0; i < text.length; i++) {
+                const char = text[i];
+                if (char.trim() === '') continue;
+
+                // Get position of this character
+                range.setStart(node, i);
+                range.setEnd(node, i + 1);
+                const rect = range.getBoundingClientRect();
+
+                // Only include visible characters
+                if (rect.width > 0 && rect.height > 0 && chars.length < 400) {
+                    chars.push({
+                        char: char,
+                        x: rect.left,
+                        y: rect.top,
+                        width: rect.width,
+                        height: rect.height
+                    });
+                }
+            }
+        }
+
+        console.log('🛒 Wagon Game: Found', chars.length, 'characters on screen');
+
+        // Create floating letter elements at their original positions
+        const letterEls = chars.map(c => {
+            const span = document.createElement('span');
+            span.className = 'scramble-letter';
+            span.textContent = c.char;
+            span.style.left = c.x + 'px';
+            span.style.top = c.y + 'px';
+            span.style.fontSize = c.height + 'px';
+            document.body.appendChild(span);
+            return { el: span, originalX: c.x, originalY: c.y };
+        });
+
+        // Hide the player container after creating the floating letters
         playerContainer.style.visibility = 'hidden';
 
-        // Create a dark overlay
+        // Create a dark overlay that fades in
         const overlay = document.createElement('div');
         overlay.id = 'scrambleOverlay';
         overlay.style.cssText = `
@@ -2373,112 +2410,88 @@
             width: 100%;
             height: 100%;
             background-color: #1a1a1a;
-            z-index: 998;
+            z-index: 997;
+            opacity: 0;
+            transition: opacity 0.5s ease;
         `;
         document.body.appendChild(overlay);
 
-        // Get all text nodes and their positions
-        const textNodes = [];
-        const walker = document.createTreeWalker(
-            playerContainer,
-            NodeFilter.SHOW_TEXT,
-            null,
-            false
-        );
-
-        // Collect characters with their positions
-        const chars = [];
-        const allText = textContent.replace(/\s+/g, ' ').trim();
-
-        // Create floating letters from the text
-        for (let i = 0; i < Math.min(allText.length, 300); i++) {
-            const char = allText[i];
-            if (char.trim() === '') continue;
-
-            const span = document.createElement('span');
-            span.className = 'scramble-letter';
-            span.textContent = char;
-
-            // Random starting position across the screen
-            const startX = Math.random() * window.innerWidth;
-            const startY = Math.random() * window.innerHeight;
-
-            span.style.left = startX + 'px';
-            span.style.top = startY + 'px';
-            span.style.opacity = '0';
-
-            document.body.appendChild(span);
-            chars.push({ el: span, startX, startY });
-        }
-
-        // Fade in all letters
+        // Fade in overlay
         setTimeout(() => {
-            chars.forEach(c => {
-                c.el.style.opacity = '1';
-            });
-        }, 100);
+            overlay.style.opacity = '1';
+        }, 50);
 
-        // After a moment, start moving letters to form the game
+        // After overlay fades in, start moving letters to form the game
         setTimeout(() => {
-            animateLettersToGame(chars);
-        }, 800);
+            animateLettersToGame(letterEls);
+        }, 600);
     }
 
-    function animateLettersToGame(chars) {
-        console.log('🛒 Wagon Game: Animating letters to game positions');
+    function animateLettersToGame(letterEls) {
+        console.log('🛒 Wagon Game: Animating', letterEls.length, 'letters to game positions');
 
-        // Define target positions forming the game scene
         const centerX = window.innerWidth / 2;
         const centerY = window.innerHeight / 2;
 
-        // Create target pattern - a rough game board shape
-        const gameChars = `
-            ════════════════════════════════════════
-            ║  SUBIENDO LA CUESTA...              ║
-            ║                                      ║
-            ║    /\\_/\\  ╔══╗                      ║
-            ║   ( o.o )═╣██╠══AAA                  ║
-            ║    />━</  ╚══╝ ○○                    ║
-            ║                                      ║
-            ║         ~~~  ▓▓▓   §§§              ║
-            ║                                      ║
-            ════════════════════════════════════════
-        `.split('');
+        // Target pattern - the game intro scene
+        const gamePattern = [
+            "╔══════════════════════════════════════════╗",
+            "║                                          ║",
+            "║        SUBIENDO  LA  CUESTA...           ║",
+            "║                                          ║",
+            "║      /\\_/\\   ╔══╗                        ║",
+            "║     ( o.o )══╣██╠══AAA                   ║",
+            "║      />━</   ╚══╝  ○○                    ║",
+            "║                                          ║",
+            "║            ~~~    ▓▓▓    §§§            ║",
+            "║                                          ║",
+            "╚══════════════════════════════════════════╝"
+        ];
 
-        // Filter to only visible chars
-        const visibleGameChars = gameChars.filter(c => c.trim() !== '' && c !== '\n');
+        // Calculate grid positions for the pattern
+        const charWidth = 12;
+        const charHeight = 20;
+        const patternWidth = gamePattern[0].length;
+        const patternHeight = gamePattern.length;
+        const startX = centerX - (patternWidth * charWidth) / 2;
+        const startY = centerY - (patternHeight * charHeight) / 2;
 
-        // Assign each floating letter a target position
-        const gridWidth = 50;
-        const gridHeight = 12;
-        const charWidth = 14;
-        const charHeight = 24;
-        const startX = centerX - (gridWidth * charWidth) / 2;
-        const startY = centerY - (gridHeight * charHeight) / 2;
+        // Flatten pattern into target positions
+        const targets = [];
+        gamePattern.forEach((line, row) => {
+            for (let col = 0; col < line.length; col++) {
+                const char = line[col];
+                if (char !== ' ') {
+                    targets.push({
+                        char: char,
+                        x: startX + col * charWidth,
+                        y: startY + row * charHeight
+                    });
+                }
+            }
+        });
 
-        let charIndex = 0;
-        chars.forEach((charObj, i) => {
-            if (charIndex < visibleGameChars.length) {
-                // Calculate grid position
-                const gridPos = charIndex;
-                const row = Math.floor(gridPos / gridWidth);
-                const col = gridPos % gridWidth;
+        // Assign each letter to a target position
+        // Shuffle targets for more interesting animation
+        const shuffledTargets = [...targets].sort(() => Math.random() - 0.5);
 
-                const targetX = startX + col * charWidth;
-                const targetY = startY + row * charHeight;
+        letterEls.forEach((letterObj, i) => {
+            if (i < shuffledTargets.length) {
+                const target = shuffledTargets[i];
 
-                // Change the character to match the game pattern
-                charObj.el.textContent = visibleGameChars[charIndex] || charObj.el.textContent;
+                // Change character to match target pattern
+                letterObj.el.textContent = target.char;
 
-                // Animate to position
-                charObj.el.classList.add('moving');
-                charObj.el.style.left = targetX + 'px';
-                charObj.el.style.top = targetY + 'px';
-
-                charIndex++;
+                // Animate to target position
+                letterObj.el.classList.add('moving');
+                letterObj.el.style.left = target.x + 'px';
+                letterObj.el.style.top = target.y + 'px';
+                letterObj.el.style.fontSize = '16px';
             } else {
-                // Extra letters fade out
-                charObj.el.style.opacity = '0';
+                // Extra letters swirl to center and fade out
+                letterObj.el.style.left = centerX + 'px';
+                letterObj.el.style.top = centerY + 'px';
+                letterObj.el.style.opacity = '0';
             }
         });
 
