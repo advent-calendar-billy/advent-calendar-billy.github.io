@@ -153,7 +153,7 @@
     <div class="cat-game-container" id="catGameContainer" style="display: none;">
         <div id="catGameContent">
             <canvas id="gameCanvas"></canvas>
-            
+
             <div id="startScreen">
                 <pre>
   /\_/\
@@ -167,12 +167,24 @@
                     <p>Controles: ← → ↑</p>
                 </div>
             </div>
-            
+
             <div id="gameOverScreen">
                 <pre id="endCat"></pre>
                 <p id="gameOverMessage"></p>
                 <button id="gameOverButton" onclick="resetCatGame()">REINTENTAR</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Wagon Game Container (Step 95) - hidden by default -->
+    <div class="wagon-game-container" id="wagonGameContainer" style="display: none;">
+        <div id="wagonGameArea">
+            <canvas id="wagonGameCanvas"></canvas>
+        </div>
+        <div id="wagonGameOverScreen" style="display: none;">
+            <pre id="wagonEndCat"></pre>
+            <p id="wagonGameOverMessage"></p>
+            <button id="wagonGameOverButton">REINTENTAR</button>
         </div>
     </div>
     

@@ -1315,7 +1315,33 @@
         } else {
             console.log('🐱 Cat Game: Not triggering');
         }
-        
+
+        // Check if we should trigger wagon game (step 95)
+        console.log('🛒 Wagon Game: Checking if should trigger...');
+        if (shouldTriggerWagonGame(steps)) {
+            console.log('🛒 Wagon Game: Should trigger! Rendering special step 95');
+            // Find the step 95 element and render it specially
+            const latestStep = steps[steps.length - 1];
+            if (latestStep.number === 95) {
+                // The latest step element should be the first one (since we render in reverse)
+                const stepElements = playerGameLogDisplay.querySelectorAll('.step');
+                if (stepElements.length > 0) {
+                    const step95El = stepElements[0]; // First element = latest step
+                    // Clear existing content and render special
+                    const stepContent = step95El.querySelector('.step-content');
+                    if (stepContent) {
+                        stepContent.innerHTML = '';
+                        renderStep95Special(step95El);
+                    }
+                }
+            }
+            // Hide normal input controls
+            document.getElementById('playerInputControls').style.display = 'none';
+            document.getElementById('playerTurnLockedMessage').style.display = 'none';
+        } else {
+            console.log('🛒 Wagon Game: Not triggering');
+        }
+
         // Scroll to bottom
         playerGameLogDisplay.scrollTop = playerGameLogDisplay.scrollHeight;
     }
@@ -2218,5 +2244,577 @@
         localStorage.clear();
         sessionStorage.clear();
         window.catGameWon = false;
+        location.reload();
+    };
+
+    /* ========== WAGON GAME (STEP 95) ========== */
+
+    // Wagon game configuration
+    const WAGON_GAME_STEP = 95;
+    const STEP_95_PROMPT = "Mamá se sienta en el gati-móvil y vos te acomodás en su regazo. El coso de las A empieza a hacer ruido y el carrito comienza a subir la cuesta, esquivando los puestos del mercado...";
+    const STEP_95_OUTCOME = "Después de un viaje turbulento pero exitoso, llegás a la nave. Mamá te acaricia la cabeza. \"Buen trabajo, gatito\", dice.";
+
+    // Wagon game state
+    let wagonGameWon = localStorage.getItem('wagonGameWon') === 'true';
+    let wagonCanvas, wagonCtx;
+    let wagonGameRunning = false;
+    let wagonGameOver = false;
+    let wagonGameWonState = false;
+
+    // Wagon game constants
+    const WAGON_CANVAS_WIDTH = 700;
+    const WAGON_CANVAS_HEIGHT = 500;
+    const WAGON_LANE_COUNT = 3;
+    const WAGON_LANE_HEIGHT = WAGON_CANVAS_HEIGHT / WAGON_LANE_COUNT;
+
+    // Wagon state
+    let wagon = {
+        lane: 1, // 0, 1, or 2 (top, middle, bottom)
+        x: 100,
+        targetLane: 1,
+        transitioning: false
+    };
+
+    // Obstacles for wagon game
+    let wagonObstacles = [];
+    let wagonScore = 0;
+    let wagonDistance = 0;
+    const WAGON_WIN_DISTANCE = 1000;
+
+    // Wagon game input
+    const wagonKeys = {};
+
+    // ASCII art for the wagon/gati-móvil
+    const WAGON_ART = [
+        "  /\\_/\\  ╔══╗",
+        " ( o.o )═╣██╠══AAA",
+        "  />━</ ╚══╝ ○○"
+    ];
+
+    const WAGON_ART_STRESSED = [
+        "  /\\_/\\  ╔══╗",
+        " ( O.O )═╣██╠══AAA",
+        "  />━</ ╚══╝ ○○"
+    ];
+
+    // Obstacle types for wagon game
+    const WAGON_OBSTACLE_TYPES = [
+        { art: ["  ╔═╗", "  ║█║", "══╩═╩══"], name: "puesto" },
+        { art: ["  §§§", " §$§$§", "  §§§"], name: "mercaderia" },
+        { art: [" ¤¤¤¤", "¤○¤¤○¤", " ¤¤¤¤"], name: "vendedor" },
+        { art: ["~~~~~", "≈≈≈≈≈", "~~~~~"], name: "charco" },
+        { art: ["▓▓▓▓▓", "▓░▓░▓", "▓▓▓▓▓"], name: "caja" }
+    ];
+
+    // Check if step 95 should show the wagon game
+    function shouldTriggerWagonGame(steps) {
+        if (steps.length === 0) return false;
+
+        const latestStep = steps[steps.length - 1];
+        const stepNum = latestStep.number;
+
+        console.log('🛒 Wagon Game: Checking step', stepNum, 'wagonGameWon:', wagonGameWon);
+
+        // Trigger on step 95 if game hasn't been won
+        if (stepNum === WAGON_GAME_STEP && !wagonGameWon) {
+            // Check if step 94 is complete (has outcome)
+            const step94 = steps.find(s => s.number === 94);
+            if (step94) {
+                const hasOutcome = step94.sequence.some(s => s.type === 'outcome');
+                console.log('🛒 Wagon Game: Step 94 has outcome:', hasOutcome);
+                return hasOutcome;
+            }
+        }
+
+        return false;
+    }
+
+    // Render step 95 with special UI (play button instead of action input)
+    function renderStep95Special(stepEl) {
+        // Clear normal content and add special step 95 content
+        const stepContent = stepEl.querySelector('.step-content');
+        if (!stepContent) return;
+
+        // Add the hardcoded prompt
+        const promptEl = document.createElement('div');
+        promptEl.className = 'prompt';
+        promptEl.innerHTML = `
+            <strong>Prompt:</strong>
+            <div>${STEP_95_PROMPT}</div>
+        `;
+        stepContent.appendChild(promptEl);
+
+        // Add play button instead of action input
+        const playButton = document.createElement('button');
+        playButton.className = 'step95-play-button';
+        playButton.textContent = '¡SUBIR LA CUESTA!';
+        playButton.onclick = startLetterScrambleAnimation;
+        stepContent.appendChild(playButton);
+    }
+
+    // Letter scramble animation - the magical effect!
+    function startLetterScrambleAnimation() {
+        console.log('🛒 Wagon Game: Starting letter scramble animation');
+
+        // Get all visible text from the player container
+        const playerContainer = document.getElementById('playerMainContainer');
+        const textContent = playerContainer.innerText;
+
+        // Hide the player container
+        playerContainer.style.visibility = 'hidden';
+
+        // Create a dark overlay
+        const overlay = document.createElement('div');
+        overlay.id = 'scrambleOverlay';
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #1a1a1a;
+            z-index: 998;
+        `;
+        document.body.appendChild(overlay);
+
+        // Get all text nodes and their positions
+        const textNodes = [];
+        const walker = document.createTreeWalker(
+            playerContainer,
+            NodeFilter.SHOW_TEXT,
+            null,
+            false
+        );
+
+        // Collect characters with their positions
+        const chars = [];
+        const allText = textContent.replace(/\s+/g, ' ').trim();
+
+        // Create floating letters from the text
+        for (let i = 0; i < Math.min(allText.length, 300); i++) {
+            const char = allText[i];
+            if (char.trim() === '') continue;
+
+            const span = document.createElement('span');
+            span.className = 'scramble-letter';
+            span.textContent = char;
+
+            // Random starting position across the screen
+            const startX = Math.random() * window.innerWidth;
+            const startY = Math.random() * window.innerHeight;
+
+            span.style.left = startX + 'px';
+            span.style.top = startY + 'px';
+            span.style.opacity = '0';
+
+            document.body.appendChild(span);
+            chars.push({ el: span, startX, startY });
+        }
+
+        // Fade in all letters
+        setTimeout(() => {
+            chars.forEach(c => {
+                c.el.style.opacity = '1';
+            });
+        }, 100);
+
+        // After a moment, start moving letters to form the game
+        setTimeout(() => {
+            animateLettersToGame(chars);
+        }, 800);
+    }
+
+    function animateLettersToGame(chars) {
+        console.log('🛒 Wagon Game: Animating letters to game positions');
+
+        // Define target positions forming the game scene
+        const centerX = window.innerWidth / 2;
+        const centerY = window.innerHeight / 2;
+
+        // Create target pattern - a rough game board shape
+        const gameChars = `
+            ════════════════════════════════════════
+            ║  SUBIENDO LA CUESTA...              ║
+            ║                                      ║
+            ║    /\\_/\\  ╔══╗                      ║
+            ║   ( o.o )═╣██╠══AAA                  ║
+            ║    />━</  ╚══╝ ○○                    ║
+            ║                                      ║
+            ║         ~~~  ▓▓▓   §§§              ║
+            ║                                      ║
+            ════════════════════════════════════════
+        `.split('');
+
+        // Filter to only visible chars
+        const visibleGameChars = gameChars.filter(c => c.trim() !== '' && c !== '\n');
+
+        // Assign each floating letter a target position
+        const gridWidth = 50;
+        const gridHeight = 12;
+        const charWidth = 14;
+        const charHeight = 24;
+        const startX = centerX - (gridWidth * charWidth) / 2;
+        const startY = centerY - (gridHeight * charHeight) / 2;
+
+        let charIndex = 0;
+        chars.forEach((charObj, i) => {
+            if (charIndex < visibleGameChars.length) {
+                // Calculate grid position
+                const gridPos = charIndex;
+                const row = Math.floor(gridPos / gridWidth);
+                const col = gridPos % gridWidth;
+
+                const targetX = startX + col * charWidth;
+                const targetY = startY + row * charHeight;
+
+                // Change the character to match the game pattern
+                charObj.el.textContent = visibleGameChars[charIndex] || charObj.el.textContent;
+
+                // Animate to position
+                charObj.el.classList.add('moving');
+                charObj.el.style.left = targetX + 'px';
+                charObj.el.style.top = targetY + 'px';
+
+                charIndex++;
+            } else {
+                // Extra letters fade out
+                charObj.el.style.opacity = '0';
+            }
+        });
+
+        // After animation completes, show the actual game
+        setTimeout(() => {
+            // Remove all scramble letters
+            document.querySelectorAll('.scramble-letter').forEach(el => el.remove());
+            document.getElementById('scrambleOverlay')?.remove();
+
+            // Show the wagon game
+            showWagonGame();
+        }, 1800);
+    }
+
+    function showWagonGame() {
+        console.log('🛒 Wagon Game: Showing wagon game');
+
+        document.getElementById('wagonGameContainer').style.display = 'flex';
+        document.getElementById('playerMainContainer').style.display = 'none';
+        document.getElementById('wagonGameOverScreen').style.display = 'none';
+
+        // Initialize canvas
+        wagonCanvas = document.getElementById('wagonGameCanvas');
+        wagonCtx = wagonCanvas.getContext('2d');
+        wagonCanvas.width = WAGON_CANVAS_WIDTH;
+        wagonCanvas.height = WAGON_CANVAS_HEIGHT;
+
+        // Reset game state
+        wagon = {
+            lane: 1,
+            x: 100,
+            targetLane: 1,
+            transitioning: false
+        };
+        wagonObstacles = [];
+        wagonScore = 0;
+        wagonDistance = 0;
+        wagonGameOver = false;
+        wagonGameWonState = false;
+        wagonGameRunning = true;
+
+        // Start the game loop
+        wagonGameLoop();
+    }
+
+    function hideWagonGame() {
+        document.getElementById('wagonGameContainer').style.display = 'none';
+        document.getElementById('playerMainContainer').style.display = 'block';
+        document.getElementById('playerMainContainer').style.visibility = 'visible';
+    }
+
+    function wagonDrawText(text, x, y, color = '#f0f0f0') {
+        wagonCtx.fillStyle = color;
+        wagonCtx.font = '16px Courier New';
+        wagonCtx.fillText(text, x, y);
+    }
+
+    function wagonClearScreen() {
+        // Draw gradient background (darker at bottom = downhill behind us)
+        const gradient = wagonCtx.createLinearGradient(0, 0, WAGON_CANVAS_WIDTH, WAGON_CANVAS_HEIGHT);
+        gradient.addColorStop(0, '#1a1a2e');
+        gradient.addColorStop(1, '#16213e');
+        wagonCtx.fillStyle = gradient;
+        wagonCtx.fillRect(0, 0, WAGON_CANVAS_WIDTH, WAGON_CANVAS_HEIGHT);
+    }
+
+    function wagonDrawLanes() {
+        // Draw lane separators
+        wagonCtx.strokeStyle = '#3a3a5a';
+        wagonCtx.setLineDash([20, 10]);
+        wagonCtx.lineWidth = 2;
+
+        for (let i = 1; i < WAGON_LANE_COUNT; i++) {
+            const y = i * WAGON_LANE_HEIGHT;
+            wagonCtx.beginPath();
+            wagonCtx.moveTo(0, y);
+            wagonCtx.lineTo(WAGON_CANVAS_WIDTH, y);
+            wagonCtx.stroke();
+        }
+
+        wagonCtx.setLineDash([]);
+
+        // Draw "uphill" visual - diagonal lines suggesting slope
+        wagonCtx.strokeStyle = '#2a2a4a';
+        wagonCtx.lineWidth = 1;
+        for (let x = -WAGON_CANVAS_HEIGHT; x < WAGON_CANVAS_WIDTH; x += 40) {
+            wagonCtx.beginPath();
+            wagonCtx.moveTo(x, WAGON_CANVAS_HEIGHT);
+            wagonCtx.lineTo(x + WAGON_CANVAS_HEIGHT * 0.3, 0);
+            wagonCtx.stroke();
+        }
+    }
+
+    function wagonDrawHUD() {
+        // Distance/progress bar
+        const progress = Math.min(wagonDistance / WAGON_WIN_DISTANCE, 1);
+        const barWidth = 300;
+        const barHeight = 20;
+        const barX = WAGON_CANVAS_WIDTH / 2 - barWidth / 2;
+        const barY = 15;
+
+        // Bar background
+        wagonCtx.fillStyle = '#333';
+        wagonCtx.fillRect(barX, barY, barWidth, barHeight);
+
+        // Progress fill
+        wagonCtx.fillStyle = '#4CAF50';
+        wagonCtx.fillRect(barX, barY, barWidth * progress, barHeight);
+
+        // Bar border
+        wagonCtx.strokeStyle = '#8B7355';
+        wagonCtx.lineWidth = 2;
+        wagonCtx.strokeRect(barX, barY, barWidth, barHeight);
+
+        // Labels
+        wagonDrawText('INICIO', barX - 50, barY + 15, '#888');
+        wagonDrawText('NAVE', barX + barWidth + 10, barY + 15, '#888');
+
+        // Controls hint
+        wagonDrawText('↑↓ Cambiar carril', 20, WAGON_CANVAS_HEIGHT - 20, '#666');
+    }
+
+    function wagonDrawWagon() {
+        // Calculate Y position based on lane
+        const targetY = wagon.lane * WAGON_LANE_HEIGHT + WAGON_LANE_HEIGHT / 2 - 30;
+
+        // Choose art based on stress level
+        const art = wagonObstacles.some(obs => obs.x - wagon.x < 200) ? WAGON_ART_STRESSED : WAGON_ART;
+
+        // Draw the wagon
+        art.forEach((line, i) => {
+            wagonDrawText(line, wagon.x, targetY + i * 20, '#f0f0f0');
+        });
+    }
+
+    function wagonCreateObstacle() {
+        if (Math.random() < 0.02 && wagonObstacles.length < 4) {
+            const type = WAGON_OBSTACLE_TYPES[Math.floor(Math.random() * WAGON_OBSTACLE_TYPES.length)];
+            const lane = Math.floor(Math.random() * WAGON_LANE_COUNT);
+
+            wagonObstacles.push({
+                x: WAGON_CANVAS_WIDTH + 50,
+                lane: lane,
+                type: type,
+                speed: 3 + Math.random() * 2
+            });
+        }
+    }
+
+    function wagonUpdateObstacles() {
+        wagonObstacles.forEach(obs => {
+            obs.x -= obs.speed;
+        });
+
+        // Remove off-screen obstacles
+        wagonObstacles = wagonObstacles.filter(obs => obs.x > -100);
+    }
+
+    function wagonDrawObstacles() {
+        wagonObstacles.forEach(obs => {
+            const y = obs.lane * WAGON_LANE_HEIGHT + WAGON_LANE_HEIGHT / 2 - 30;
+            obs.type.art.forEach((line, i) => {
+                wagonDrawText(line, obs.x, y + i * 20, '#ff6b6b');
+            });
+        });
+    }
+
+    function wagonCheckCollisions() {
+        const wagonHitboxX = wagon.x + 20;
+        const wagonHitboxWidth = 120;
+
+        for (const obs of wagonObstacles) {
+            if (obs.lane === wagon.lane) {
+                const obsHitboxX = obs.x;
+                const obsHitboxWidth = 60;
+
+                // Check horizontal overlap
+                if (wagonHitboxX < obsHitboxX + obsHitboxWidth &&
+                    wagonHitboxX + wagonHitboxWidth > obsHitboxX) {
+                    return true; // Collision!
+                }
+            }
+        }
+        return false;
+    }
+
+    function wagonUpdateInput() {
+        if (wagonKeys['ArrowUp'] && wagon.lane > 0 && !wagon.transitioning) {
+            wagon.lane--;
+            wagon.transitioning = true;
+            setTimeout(() => { wagon.transitioning = false; }, 200);
+        }
+        if (wagonKeys['ArrowDown'] && wagon.lane < WAGON_LANE_COUNT - 1 && !wagon.transitioning) {
+            wagon.lane++;
+            wagon.transitioning = true;
+            setTimeout(() => { wagon.transitioning = false; }, 200);
+        }
+    }
+
+    function wagonGameLoop() {
+        if (!wagonGameRunning) return;
+
+        wagonClearScreen();
+        wagonDrawLanes();
+
+        if (!wagonGameOver) {
+            wagonUpdateInput();
+            wagonCreateObstacle();
+            wagonUpdateObstacles();
+
+            // Increase distance
+            wagonDistance += 2;
+
+            // Check win condition
+            if (wagonDistance >= WAGON_WIN_DISTANCE) {
+                wagonGameOver = true;
+                wagonGameWonState = true;
+            }
+
+            // Check collisions
+            if (wagonCheckCollisions()) {
+                wagonGameOver = true;
+                wagonGameWonState = false;
+            }
+        }
+
+        wagonDrawObstacles();
+        wagonDrawWagon();
+        wagonDrawHUD();
+
+        if (wagonGameOver) {
+            wagonEndGame();
+        } else {
+            requestAnimationFrame(wagonGameLoop);
+        }
+    }
+
+    function wagonEndGame() {
+        wagonGameRunning = false;
+
+        const endCat = document.getElementById('wagonEndCat');
+        const message = document.getElementById('wagonGameOverMessage');
+        const button = document.getElementById('wagonGameOverButton');
+
+        if (wagonGameWonState) {
+            endCat.innerHTML = `  /\\_/\\
+ ( ^.^ )
+  > v <
+ ╱ | ╲`;
+            message.textContent = '¡Llegaste a la nave!';
+            button.textContent = '¡CONTINUAR!';
+            button.onclick = () => {
+                handleWagonGameWin();
+            };
+
+            // Auto-continue after 2 seconds
+            setTimeout(() => {
+                if (wagonGameOver && wagonGameWonState) {
+                    handleWagonGameWin();
+                }
+            }, 2500);
+        } else {
+            endCat.innerHTML = `  /\\_/\\
+ ( x.x )
+  > _ <
+ ╱ | ╲`;
+            message.textContent = '¡Chocaste! El gati-móvil necesita reparaciones...';
+            button.textContent = 'REINTENTAR';
+            button.onclick = () => {
+                document.getElementById('wagonGameOverScreen').style.display = 'none';
+                showWagonGame();
+            };
+        }
+
+        document.getElementById('wagonGameOverScreen').style.display = 'flex';
+    }
+
+    async function handleWagonGameWin() {
+        console.log('🛒 Wagon Game: Player won! Saving state and posting outcome');
+
+        // Store win state
+        localStorage.setItem('wagonGameWon', 'true');
+        wagonGameWon = true;
+
+        // Hide wagon game
+        hideWagonGame();
+
+        try {
+            if (!isPlayerLoggedIn) {
+                throw new Error('Player not logged in');
+            }
+
+            const timestamp = new Date().toISOString();
+
+            // Post the action (playing the game) and outcome
+            await appendToSheet([
+                [timestamp, 'PLAYER', 'ACTION', '[Jugó el minijuego del gati-móvil y llegó a la nave]', null],
+                [timestamp, 'DM', 'OUTCOME', STEP_95_OUTCOME, null]
+            ]);
+
+            console.log('🛒 Wagon Game: Posted action and outcome to sheet');
+
+            // Refresh game data
+            await loadGameData();
+        } catch (error) {
+            console.error('🛒 Wagon Game: Error posting to sheet:', error);
+            await loadGameData();
+        }
+    }
+
+    // Input handling for wagon game
+    window.addEventListener('keydown', (e) => {
+        if (document.getElementById('wagonGameContainer').style.display === 'flex') {
+            wagonKeys[e.key] = true;
+            if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                e.preventDefault();
+            }
+        }
+    });
+
+    window.addEventListener('keyup', (e) => {
+        if (document.getElementById('wagonGameContainer').style.display === 'flex') {
+            wagonKeys[e.key] = false;
+        }
+    });
+
+    // Export functions
+    window.startLetterScrambleAnimation = startLetterScrambleAnimation;
+    window.showWagonGame = showWagonGame;
+    window.shouldTriggerWagonGame = shouldTriggerWagonGame;
+    window.renderStep95Special = renderStep95Special;
+
+    // Debug reset for wagon game
+    window.resetWagonGameState = function() {
+        localStorage.removeItem('wagonGameWon');
+        wagonGameWon = false;
+        console.log('🛒 Wagon Game: State reset');
         location.reload();
     };
