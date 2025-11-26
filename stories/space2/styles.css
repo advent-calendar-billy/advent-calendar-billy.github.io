@@ -589,14 +589,19 @@
 
         #wagonGameArea {
             position: relative;
+            width: 800px;
+            height: 500px;
             border: 3px solid var(--primary-color);
             border-radius: var(--radius);
             background-color: white;
             box-shadow: var(--shadow);
+            overflow: hidden;
         }
 
         #wagonGameCanvas {
             display: block;
+            width: 800px;
+            height: 500px;
             image-rendering: pixelated;
             image-rendering: crisp-edges;
             border-radius: var(--radius);

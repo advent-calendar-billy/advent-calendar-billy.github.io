@@ -2260,66 +2260,165 @@
     // Wagon game constants
     const WAGON_CANVAS_WIDTH = 800;
     const WAGON_CANVAS_HEIGHT = 500;
-    const WAGON_LINE_HEIGHT = 18; // Each vertical "line"
-    const WAGON_MIN_Y = 60; // Top boundary (below HUD)
-    const WAGON_MAX_Y = WAGON_CANVAS_HEIGHT - 100; // Bottom boundary
+    const WAGON_MIN_Y = 70; // Top boundary (below HUD)
+    const WAGON_MAX_Y = WAGON_CANVAS_HEIGHT - 90; // Bottom boundary
+    const WAGON_WIN_DISTANCE = 7500; // 3x longer
 
-    // Wagon state - continuous Y position instead of lanes
+    // Game state
     let wagon = {
-        x: 80,
-        y: WAGON_CANVAS_HEIGHT / 2, // Start in middle
+        x: 60,
+        y: WAGON_CANVAS_HEIGHT / 2,
         roaring: false,
-        roarTimer: 0
+        roarTimer: 0,
+        pushVelocityY: 0 // When creatures make noise, this pushes the wagon
     };
 
-    // Creatures (small alien animals) instead of big obstacles
+    // Resource bars
+    let roarPower = 100;        // 0-100, depletes on roar, replenishes slowly
+    let momSleep = 100;         // 0-100, drops naturally and on hits, 0 = lose
+    let turboActive = false;    // SHIFT for turbo
+    let gameSpeed = 1;          // Multiplier, increases with turbo
+    let momShakeTimer = 0;      // Visual shake effect when hit
+    let collisionCooldown = 0;  // Frames of invincibility after hit
+
+    // Game entities
     let wagonCreatures = [];
-    let wagonScore = 0;
+    let wagonObstacles = [];    // Shops and people
     let wagonDistance = 0;
-    const WAGON_WIN_DISTANCE = 2000;
 
     // Wagon game input
     const wagonKeys = {};
-    let wagonKeyPressed = { up: false, down: false }; // For continuous movement
 
-    // Better ASCII art for the gati-móvil with cat and sleeping mamá
-    // Cat in mom's lap on a wagon with AAA battery propulsion
-    // Mom is sleeping (got hit on the head earlier) - Zs are animated in draw function
+    // Animation frame counter
+    let zzzFrame = 0;
+    let turboGlowFrame = 0;
+
+    // Wagon ASCII art - normal
     const WAGON_ART_BASE = [
         "   /\\_/\\  (-_-)",
         "  ( o.o ) /|  |\\",
         "   > ^ <_/    |",
         " _|_____|_____|____",
-        "|    GATIMÓVIL    |~AAA⚡",
+        "|    GATIMÓVIL    |~AAA",
         "|_○_____________○_|"
     ];
 
-    const WAGON_ART_STRESSED_BASE = [
+    // Wagon ASCII art - stressed (when creatures nearby)
+    const WAGON_ART_STRESSED = [
         "   /\\_/\\  (-_-)",
         "  ( O.O ) /|  |\\",
         "   > ^ <_/    |",
         " _|_____|_____|____",
-        "|    GATIMÓVIL    |~AAA⚡",
+        "|    GATIMÓVIL    |~AAA",
         "|_○_____________○_|"
     ];
 
-    // Zzz animation frames
-    let zzzFrame = 0;
+    // Wagon ASCII art - turbo mode (batteries glowing)
+    const WAGON_ART_TURBO = [
+        "   /\\_/\\  (-_-)",
+        "  ( °o° ) /|  |\\",
+        "   > ^ <_/    |",
+        " _|_____|_____|____",
+        "|    GATIMÓVIL    |⚡AAA⚡",
+        "|_◉_____________◉_|"
+    ];
 
-    // Small alien creatures - weird space animals that scatter when you roar
+    // Multi-character alien creatures with noises
     const ALIEN_CREATURES = [
-        { char: "◉", name: "blinkbug", color: "#e91e63" },      // Pink eye creature
-        { char: "҂", name: "skitter", color: "#9c27b0" },       // Purple spider-thing
-        { char: "Ѫ", name: "flapper", color: "#673ab7" },       // Weird flying thing
-        { char: "ꙮ", name: "multieye", color: "#3f51b5" },      // Many-eyed blob
-        { char: "ᚙ", name: "crawly", color: "#00bcd4" },        // Cyan crawler
-        { char: "۞", name: "spinner", color: "#4caf50" },       // Green spinning thing
-        { char: "ᗣ", name: "chomper", color: "#ff5722" },       // Orange biter
-        { char: "ᘛ", name: "scooch", color: "#795548" },        // Brown scooter
-        { char: "⍥", name: "peeper", color: "#607d8b" },        // Grey watcher
-        { char: "Ω", name: "bouncer", color: "#f44336" },       // Red bouncy thing
-        { char: "∰", name: "floaty", color: "#2196f3" },        // Blue floater
-        { char: "⌘", name: "twirly", color: "#ff9800" }         // Orange twirler
+        {
+            art: ["~∘°", " ◔◔", "〰〰"],
+            name: "burbujoso",
+            color: "#e91e63",
+            noise: "blub",
+            pushForce: 2
+        },
+        {
+            art: [" ᗜ ", "╱│╲", "  ╿"],
+            name: "patitas",
+            color: "#9c27b0",
+            noise: "tik tik",
+            pushForce: 3
+        },
+        {
+            art: ["◎_◎", " ╲│╱", "  ∿"],
+            name: "flotín",
+            color: "#673ab7",
+            noise: "wiii",
+            pushForce: 2
+        },
+        {
+            art: ["⊚⊚⊚", "╰─╯"],
+            name: "multiojos",
+            color: "#3f51b5",
+            noise: "blink",
+            pushForce: 1
+        },
+        {
+            art: ["┌∩┐", "│◕│", "└┴┘"],
+            name: "cubox",
+            color: "#00bcd4",
+            noise: "bonk",
+            pushForce: 4
+        },
+        {
+            art: [" ╭─╮", "╭┴─┴╮", " ╰○╯"],
+            name: "campana",
+            color: "#4caf50",
+            noise: "ding",
+            pushForce: 3
+        },
+        {
+            art: ["ᗢ══ᗢ", " ╰╯"],
+            name: "gemelos",
+            color: "#ff5722",
+            noise: "ñam ñam",
+            pushForce: 2
+        },
+        {
+            art: [" ◠◠ ", "◜██◝", "└──┘"],
+            name: "gordo",
+            color: "#795548",
+            noise: "oof",
+            pushForce: 5
+        }
+    ];
+
+    // Shop obstacles with alien names
+    const SHOP_TYPES = [
+        { name: "ZLÖRP's", subtitle: "Cosas", art: ["┌────────┐", "│ ZLÖRP's│", "│ Cosas  │", "├────────┤", "│ ◊  ◊  ◊│", "└────────┘"] },
+        { name: "Ñ!Ñ!Ñ!", subtitle: "Baratijas", art: ["┌────────┐", "│Ñ!Ñ!Ñ!Ñ!│", "│Baratija│", "├────────┤", "│ $ $$ $ │", "└────────┘"] },
+        { name: "KRZZX", subtitle: "Partes", art: ["┌────────┐", "│ KRZZX  │", "│ Partes │", "├────────┤", "│ ⚙  ⚙  ⚙│", "└────────┘"] },
+        { name: "Bloop", subtitle: "Comida?", art: ["┌────────┐", "│ Bloop  │", "│Comida? │", "├────────┤", "│ ~  ≈  ~│", "└────────┘"] },
+        { name: "QWЯTY", subtitle: "Electro", art: ["┌────────┐", "│ QWЯTY  │", "│Electro │", "├────────┤", "│ ⚡ ⚡ ⚡│", "└────────┘"] }
+    ];
+
+    // People with dialogue
+    const PEOPLE_TYPES = [
+        {
+            art: [" ◯ ", "/|\\", "/ \\"],
+            dialogue: ["¿Viste el", "precio del", "zlörp?"],
+            color: "#5d4037"
+        },
+        {
+            art: ["(◕)", "╱|╲", " Λ "],
+            dialogue: ["Yo digo que", "los humanos", "no existen"],
+            color: "#7b1fa2"
+        },
+        {
+            art: [" ☉ ", "═╪═", " ╨ "],
+            dialogue: ["Mi primo", "vio una", "nave ayer"],
+            color: "#1565c0"
+        },
+        {
+            art: ["◉◉◉", " │ ", "╱ ╲"],
+            dialogue: ["Este clima", "está muy", "raro..."],
+            color: "#2e7d32"
+        },
+        {
+            art: [" ∩ ", "│█│", "╘═╛"],
+            dialogue: ["¿Escuchaste", "ese ruido?", ""],
+            color: "#c62828"
+        }
     ];
 
     // Check if step 95 should show the wagon game
@@ -2552,19 +2651,30 @@
         wagonCanvas.width = WAGON_CANVAS_WIDTH;
         wagonCanvas.height = WAGON_CANVAS_HEIGHT;
 
-        // Reset game state - continuous Y position
+        // Reset all game state
         wagon = {
-            x: 80,
+            x: 60,
             y: WAGON_CANVAS_HEIGHT / 2,
             roaring: false,
-            roarTimer: 0
+            roarTimer: 0,
+            pushVelocityY: 0
         };
         wagonCreatures = [];
-        wagonScore = 0;
+        wagonObstacles = [];
         wagonDistance = 0;
         wagonGameOver = false;
         wagonGameWonState = false;
         wagonGameRunning = true;
+
+        // Reset resource bars
+        roarPower = 100;
+        momSleep = 100;
+        turboActive = false;
+        gameSpeed = 1;
+        momShakeTimer = 0;
+        collisionCooldown = 0;
+        zzzFrame = 0;
+        turboGlowFrame = 0;
 
         // Start the game loop
         wagonGameLoop();
@@ -2583,20 +2693,20 @@
     }
 
     function wagonClearScreen() {
-        // Light background matching RPG theme with subtle gradient
+        // Light background with gradient toward goal
         const gradient = wagonCtx.createLinearGradient(0, 0, WAGON_CANVAS_WIDTH, 0);
         gradient.addColorStop(0, '#fafafa');
-        gradient.addColorStop(0.5, '#f5f5f5');
-        gradient.addColorStop(1, '#e8f5e9'); // Green tint toward the goal (nave)
+        gradient.addColorStop(0.7, '#f5f5f5');
+        gradient.addColorStop(1, '#e8f5e9');
         wagonCtx.fillStyle = gradient;
         wagonCtx.fillRect(0, 0, WAGON_CANVAS_WIDTH, WAGON_CANVAS_HEIGHT);
     }
 
     function wagonDrawBackground() {
-        // Draw subtle uphill visual - diagonal lines suggesting slope
+        // Scrolling diagonal lines for uphill effect
         wagonCtx.strokeStyle = '#e8e8e8';
         wagonCtx.lineWidth = 1;
-        const offset = (wagonDistance * 0.5) % 60; // Scrolling effect
+        const offset = (wagonDistance * 0.5 * gameSpeed) % 60;
         for (let x = -WAGON_CANVAS_HEIGHT - offset; x < WAGON_CANVAS_WIDTH; x += 60) {
             wagonCtx.beginPath();
             wagonCtx.moveTo(x, WAGON_CANVAS_HEIGHT);
@@ -2604,11 +2714,11 @@
             wagonCtx.stroke();
         }
 
-        // Draw some "ground" dots for texture
+        // Ground texture dots
         wagonCtx.fillStyle = '#ddd';
-        for (let i = 0; i < 30; i++) {
-            const dotX = ((i * 97 + wagonDistance * 0.3) % WAGON_CANVAS_WIDTH);
-            const dotY = 80 + (i * 73) % (WAGON_CANVAS_HEIGHT - 120);
+        for (let i = 0; i < 25; i++) {
+            const dotX = ((i * 97 + wagonDistance * 0.3 * gameSpeed) % WAGON_CANVAS_WIDTH);
+            const dotY = 90 + (i * 73) % (WAGON_CANVAS_HEIGHT - 140);
             wagonCtx.beginPath();
             wagonCtx.arc(dotX, dotY, 2, 0, Math.PI * 2);
             wagonCtx.fill();
@@ -2616,159 +2726,316 @@
     }
 
     function wagonDrawHUD() {
-        // Distance/progress bar
+        const hudY = 8;
+
+        // === DISTANCE BAR (top center) ===
         const progress = Math.min(wagonDistance / WAGON_WIN_DISTANCE, 1);
-        const barWidth = 400;
-        const barHeight = 22;
-        const barX = WAGON_CANVAS_WIDTH / 2 - barWidth / 2;
-        const barY = 15;
+        const distBarWidth = 300;
+        const distBarHeight = 18;
+        const distBarX = WAGON_CANVAS_WIDTH / 2 - distBarWidth / 2;
 
-        // Bar background
         wagonCtx.fillStyle = '#e0e0e0';
-        wagonCtx.fillRect(barX, barY, barWidth, barHeight);
+        wagonCtx.fillRect(distBarX, hudY, distBarWidth, distBarHeight);
 
-        // Progress fill - green gradient
-        const progressGradient = wagonCtx.createLinearGradient(barX, 0, barX + barWidth, 0);
+        const progressGradient = wagonCtx.createLinearGradient(distBarX, 0, distBarX + distBarWidth, 0);
         progressGradient.addColorStop(0, '#66bb6a');
         progressGradient.addColorStop(1, '#43a047');
         wagonCtx.fillStyle = progressGradient;
-        wagonCtx.fillRect(barX, barY, barWidth * progress, barHeight);
+        wagonCtx.fillRect(distBarX, hudY, distBarWidth * progress, distBarHeight);
 
-        // Bar border
-        wagonCtx.strokeStyle = '#3f51b5';
+        wagonCtx.strokeStyle = '#388e3c';
         wagonCtx.lineWidth = 2;
-        wagonCtx.strokeRect(barX, barY, barWidth, barHeight);
+        wagonCtx.strokeRect(distBarX, hudY, distBarWidth, distBarHeight);
 
-        // Labels
-        wagonDrawText('MERCADO', barX - 60, barY + 16, '#666', 12);
-        wagonDrawText('NAVE', barX + barWidth + 8, barY + 16, '#388e3c', 12);
+        wagonDrawText('MERCADO', distBarX - 55, hudY + 13, '#666', 10);
+        wagonDrawText('NAVE', distBarX + distBarWidth + 5, hudY + 13, '#388e3c', 10);
+        wagonDrawText(Math.floor(progress * 100) + '%', distBarX + distBarWidth / 2 - 10, hudY + 13, '#fff', 11);
 
-        // Distance counter
-        const distPercent = Math.floor(progress * 100);
-        wagonDrawText(distPercent + '%', barX + barWidth / 2 - 12, barY + 16, '#fff', 13);
+        // === MOM SLEEP BAR (top left) ===
+        const sleepBarX = 15;
+        const sleepBarWidth = 100;
+        const sleepBarHeight = 14;
 
-        // Controls hint
-        wagonDrawText('↑↓ mover   ESPACIO rugir', WAGON_CANVAS_WIDTH / 2 - 100, WAGON_CANVAS_HEIGHT - 12, '#999', 12);
+        wagonDrawText('😴 MAMÁ', sleepBarX, hudY + 10, '#6a5acd', 10);
+        wagonCtx.fillStyle = '#e0e0e0';
+        wagonCtx.fillRect(sleepBarX, hudY + 15, sleepBarWidth, sleepBarHeight);
 
-        // Roar indicator
+        // Color changes as sleep drops
+        let sleepColor = '#9c27b0';
+        if (momSleep < 30) sleepColor = '#f44336';
+        else if (momSleep < 60) sleepColor = '#ff9800';
+
+        wagonCtx.fillStyle = sleepColor;
+        wagonCtx.fillRect(sleepBarX, hudY + 15, sleepBarWidth * (momSleep / 100), sleepBarHeight);
+
+        wagonCtx.strokeStyle = '#6a5acd';
+        wagonCtx.lineWidth = 1;
+        wagonCtx.strokeRect(sleepBarX, hudY + 15, sleepBarWidth, sleepBarHeight);
+
+        // === ROAR POWER BAR (top right) ===
+        const roarBarX = WAGON_CANVAS_WIDTH - 115;
+        const roarBarWidth = 100;
+        const roarBarHeight = 14;
+
+        wagonDrawText('🐱 RUGIDO', roarBarX, hudY + 10, '#ff5722', 10);
+        wagonCtx.fillStyle = '#e0e0e0';
+        wagonCtx.fillRect(roarBarX, hudY + 15, roarBarWidth, roarBarHeight);
+
+        let roarColor = '#ff5722';
+        if (roarPower < 25) roarColor = '#9e9e9e';
+
+        wagonCtx.fillStyle = roarColor;
+        wagonCtx.fillRect(roarBarX, hudY + 15, roarBarWidth * (roarPower / 100), roarBarHeight);
+
+        wagonCtx.strokeStyle = '#ff5722';
+        wagonCtx.lineWidth = 1;
+        wagonCtx.strokeRect(roarBarX, hudY + 15, roarBarWidth, roarBarHeight);
+
+        // === TURBO INDICATOR ===
+        if (turboActive) {
+            turboGlowFrame++;
+            const glowAlpha = 0.5 + Math.sin(turboGlowFrame * 0.3) * 0.3;
+            wagonCtx.fillStyle = `rgba(255, 193, 7, ${glowAlpha})`;
+            wagonCtx.fillRect(WAGON_CANVAS_WIDTH / 2 - 40, hudY + 22, 80, 16);
+            wagonDrawText('⚡TURBO⚡', WAGON_CANVAS_WIDTH / 2 - 30, hudY + 35, '#f57f17', 12);
+        }
+
+        // === CONTROLS HINT ===
+        wagonDrawText('↑↓ mover  ESPACIO rugir  SHIFT turbo', WAGON_CANVAS_WIDTH / 2 - 130, WAGON_CANVAS_HEIGHT - 8, '#999', 11);
+
+        // === VERSION NUMBER ===
+        wagonDrawText('GATIMÓVIL v2', WAGON_CANVAS_WIDTH - 85, WAGON_CANVAS_HEIGHT - 8, '#aaa', 10);
+
+        // === ROAR TEXT ===
         if (wagon.roaring) {
-            wagonDrawText('¡¡¡MRRRAAAAUU!!!', wagon.x + 180, wagon.y - 10, '#ff5722', 16);
+            const roarAlpha = 1 - wagon.roarTimer / 20;
+            wagonCtx.globalAlpha = roarAlpha;
+            wagonDrawText('¡MRRAAUU!', wagon.x + 160, wagon.y - 20, '#ff5722', 18);
+            wagonCtx.globalAlpha = 1;
         }
     }
 
     function wagonDrawWagon() {
-        // Choose art based on roaring or stress
-        const nearCreature = wagonCreatures.some(c => c.x - wagon.x < 150 && c.x > wagon.x && !c.scared);
-        const art = (wagon.roaring || nearCreature) ? WAGON_ART_STRESSED_BASE : WAGON_ART_BASE;
+        // Apply mom shake if recently hit
+        let shakeX = 0, shakeY = 0;
+        if (momShakeTimer > 0) {
+            shakeX = (Math.random() - 0.5) * momShakeTimer;
+            shakeY = (Math.random() - 0.5) * momShakeTimer;
+        }
 
-        // Draw the wagon at continuous Y position
+        // Choose art based on state
+        let art = WAGON_ART_BASE;
+        if (turboActive) {
+            art = WAGON_ART_TURBO;
+        } else if (wagon.roaring || wagonCreatures.some(c => c.x - wagon.x < 120 && c.x > wagon.x && !c.scared)) {
+            art = WAGON_ART_STRESSED;
+        }
+
         const wagonHeight = art.length * 14;
-        const drawY = wagon.y - wagonHeight / 2;
+        const drawY = wagon.y - wagonHeight / 2 + shakeY;
+        const drawX = wagon.x + shakeX;
 
+        // Blinking effect during invincibility
+        if (collisionCooldown > 0 && Math.floor(collisionCooldown / 4) % 2 === 0) {
+            wagonCtx.globalAlpha = 0.4;
+        }
+
+        // Draw wagon
         art.forEach((line, i) => {
-            wagonDrawText(line, wagon.x, drawY + i * 14, '#333', 13);
+            wagonDrawText(line, drawX, drawY + i * 14, '#333', 13);
         });
 
-        // Animate Zzz above sleeping mom's head
-        zzzFrame++;
-        const zOffset = Math.sin(zzzFrame * 0.1) * 3; // Gentle floating
-        const zCycle = Math.floor(zzzFrame / 15) % 4; // Cycle through z patterns
-
-        // Draw floating Zs with varying sizes and positions
-        const momHeadX = wagon.x + 95;
-        const momHeadY = drawY - 5;
-
-        // Small z
-        if (zCycle >= 0) {
-            const z1Alpha = 0.4 + Math.sin(zzzFrame * 0.15) * 0.2;
-            wagonCtx.globalAlpha = z1Alpha;
-            wagonDrawText('z', momHeadX + 20 + zOffset, momHeadY + 5 - zOffset, '#6a5acd', 10);
-        }
-        // Medium z
-        if (zCycle >= 1) {
-            const z2Alpha = 0.5 + Math.sin(zzzFrame * 0.12 + 1) * 0.2;
-            wagonCtx.globalAlpha = z2Alpha;
-            wagonDrawText('z', momHeadX + 30 + zOffset * 1.2, momHeadY - 5 - zOffset * 1.5, '#6a5acd', 12);
-        }
-        // Large Z
-        if (zCycle >= 2) {
-            const z3Alpha = 0.6 + Math.sin(zzzFrame * 0.1 + 2) * 0.2;
-            wagonCtx.globalAlpha = z3Alpha;
-            wagonDrawText('Z', momHeadX + 42 + zOffset * 1.5, momHeadY - 18 - zOffset * 2, '#6a5acd', 14);
-        }
+        // Reset alpha after wagon draw
         wagonCtx.globalAlpha = 1;
 
-        // Draw roar wave effect
+        // Turbo glow effect on batteries
+        if (turboActive) {
+            turboGlowFrame++;
+            const glow = Math.sin(turboGlowFrame * 0.4) * 0.3 + 0.7;
+            wagonCtx.fillStyle = `rgba(255, 193, 7, ${glow * 0.5})`;
+            wagonCtx.fillRect(drawX + 155, drawY + 52, 35, 14);
+        }
+
+        // Animated Zzz above sleeping mom (only if sleep > 0)
+        if (momSleep > 0) {
+            zzzFrame++;
+            const zOffset = Math.sin(zzzFrame * 0.1) * 3;
+            const zCycle = Math.floor(zzzFrame / 15) % 4;
+            const momHeadX = drawX + 95;
+            const momHeadY = drawY - 5;
+
+            const zAlphaBase = momSleep / 100; // Zs fade as mom wakes
+
+            if (zCycle >= 0) {
+                wagonCtx.globalAlpha = zAlphaBase * (0.4 + Math.sin(zzzFrame * 0.15) * 0.2);
+                wagonDrawText('z', momHeadX + 20 + zOffset, momHeadY + 5 - zOffset, '#6a5acd', 10);
+            }
+            if (zCycle >= 1) {
+                wagonCtx.globalAlpha = zAlphaBase * (0.5 + Math.sin(zzzFrame * 0.12 + 1) * 0.2);
+                wagonDrawText('z', momHeadX + 30 + zOffset * 1.2, momHeadY - 5 - zOffset * 1.5, '#6a5acd', 12);
+            }
+            if (zCycle >= 2) {
+                wagonCtx.globalAlpha = zAlphaBase * (0.6 + Math.sin(zzzFrame * 0.1 + 2) * 0.2);
+                wagonDrawText('Z', momHeadX + 42 + zOffset * 1.5, momHeadY - 18 - zOffset * 2, '#6a5acd', 14);
+            }
+            wagonCtx.globalAlpha = 1;
+        }
+
+        // Roar wave effect
         if (wagon.roaring) {
-            const waveRadius = wagon.roarTimer * 8;
-            wagonCtx.strokeStyle = `rgba(255, 87, 34, ${0.6 - wagon.roarTimer * 0.04})`;
+            const waveRadius = wagon.roarTimer * 10;
+            wagonCtx.strokeStyle = `rgba(255, 87, 34, ${0.7 - wagon.roarTimer * 0.035})`;
             wagonCtx.lineWidth = 3;
             wagonCtx.beginPath();
-            wagonCtx.arc(wagon.x + 100, wagon.y, waveRadius, -Math.PI/3, Math.PI/3);
+            wagonCtx.arc(wagon.x + 80, wagon.y, waveRadius, -Math.PI / 3, Math.PI / 3);
             wagonCtx.stroke();
         }
     }
 
     function wagonCreateCreature() {
-        // Spawn creatures frequently - they're small so many can fit
-        const spawnRate = 0.06 + (wagonDistance / WAGON_WIN_DISTANCE) * 0.04;
-        const maxCreatures = 15 + Math.floor(wagonDistance / 200);
+        const spawnRate = 0.03 + (wagonDistance / WAGON_WIN_DISTANCE) * 0.02;
+        const maxCreatures = 6 + Math.floor(wagonDistance / 400);
 
-        if (Math.random() < spawnRate && wagonCreatures.length < maxCreatures) {
+        if (Math.random() < spawnRate * gameSpeed && wagonCreatures.length < maxCreatures) {
             const type = ALIEN_CREATURES[Math.floor(Math.random() * ALIEN_CREATURES.length)];
-
-            // Random Y position within play area
-            const y = WAGON_MIN_Y + Math.random() * (WAGON_MAX_Y - WAGON_MIN_Y);
-
-            // Speed increases over time
-            const baseSpeed = 2 + (wagonDistance / WAGON_WIN_DISTANCE) * 2;
-            const speedVariation = Math.random() * 1.5;
+            const y = WAGON_MIN_Y + 20 + Math.random() * (WAGON_MAX_Y - WAGON_MIN_Y - 40);
+            const baseSpeed = 1.5 + (wagonDistance / WAGON_WIN_DISTANCE) * 1.5;
 
             wagonCreatures.push({
-                x: WAGON_CANVAS_WIDTH + 20,
+                x: WAGON_CANVAS_WIDTH + 30,
                 y: y,
                 type: type,
-                speed: baseSpeed + speedVariation,
+                speed: baseSpeed + Math.random(),
                 scared: false,
-                scaredVelocityY: 0
+                scaredVelocityY: 0,
+                noiseTimer: Math.random() * 60, // For periodic noise
+                showingNoise: false
             });
+        }
+    }
+
+    function wagonCreateObstacle() {
+        const spawnRate = 0.008 + (wagonDistance / WAGON_WIN_DISTANCE) * 0.005;
+
+        if (Math.random() < spawnRate * gameSpeed && wagonObstacles.length < 3) {
+            const isShop = Math.random() < 0.5;
+
+            if (isShop) {
+                const type = SHOP_TYPES[Math.floor(Math.random() * SHOP_TYPES.length)];
+                const y = WAGON_MIN_Y + 30 + Math.random() * (WAGON_MAX_Y - WAGON_MIN_Y - 80);
+                wagonObstacles.push({
+                    x: WAGON_CANVAS_WIDTH + 50,
+                    y: y,
+                    type: 'shop',
+                    data: type,
+                    speed: 1 + (wagonDistance / WAGON_WIN_DISTANCE) * 0.5
+                });
+            } else {
+                const type = PEOPLE_TYPES[Math.floor(Math.random() * PEOPLE_TYPES.length)];
+                const y = WAGON_MIN_Y + 20 + Math.random() * (WAGON_MAX_Y - WAGON_MIN_Y - 50);
+                wagonObstacles.push({
+                    x: WAGON_CANVAS_WIDTH + 30,
+                    y: y,
+                    type: 'person',
+                    data: type,
+                    speed: 0.8 + Math.random() * 0.5
+                });
+            }
         }
     }
 
     function wagonUpdateCreatures() {
         wagonCreatures.forEach(creature => {
             if (creature.scared) {
-                // Scared creatures flee upward/downward quickly
-                creature.x -= creature.speed * 0.5;
+                creature.x -= creature.speed * 0.3 * gameSpeed;
                 creature.y += creature.scaredVelocityY;
-                creature.scaredVelocityY *= 0.95; // Slow down
+                creature.scaredVelocityY *= 0.92;
             } else {
-                creature.x -= creature.speed;
-                // Small random vertical wiggle
-                creature.y += (Math.random() - 0.5) * 2;
-                // Keep in bounds
+                creature.x -= creature.speed * gameSpeed;
+                creature.y += (Math.random() - 0.5) * 1.5;
                 creature.y = Math.max(WAGON_MIN_Y, Math.min(WAGON_MAX_Y, creature.y));
+
+                // Periodic noise that pushes player
+                creature.noiseTimer -= gameSpeed;
+                if (creature.noiseTimer <= 0) {
+                    creature.showingNoise = true;
+                    creature.noiseTimer = 80 + Math.random() * 60;
+
+                    // Push wagon if creature is close
+                    const dx = creature.x - wagon.x;
+                    const dy = creature.y - wagon.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 200 && creature.x > wagon.x) {
+                        wagon.pushVelocityY += (dy > 0 ? -1 : 1) * creature.type.pushForce * 0.5;
+                    }
+                }
+                if (creature.showingNoise && creature.noiseTimer < 70) {
+                    creature.showingNoise = false;
+                }
             }
         });
 
-        // Remove off-screen creatures
-        wagonCreatures = wagonCreatures.filter(c => c.x > -30 && c.y > -50 && c.y < WAGON_CANVAS_HEIGHT + 50);
+        wagonCreatures = wagonCreatures.filter(c => c.x > -60 && c.y > -50 && c.y < WAGON_CANVAS_HEIGHT + 50);
+    }
+
+    function wagonUpdateObstacles() {
+        wagonObstacles.forEach(obs => {
+            obs.x -= obs.speed * gameSpeed;
+        });
+        wagonObstacles = wagonObstacles.filter(o => o.x > -100);
     }
 
     function wagonDrawCreatures() {
         wagonCreatures.forEach(creature => {
-            const alpha = creature.scared ? 0.5 : 1;
+            const alpha = creature.scared ? 0.4 : 1;
             const color = creature.scared ? '#999' : creature.type.color;
             wagonCtx.globalAlpha = alpha;
-            wagonDrawText(creature.type.char, creature.x, creature.y, color, 20);
+
+            // Draw multi-line art
+            creature.type.art.forEach((line, i) => {
+                wagonDrawText(line, creature.x, creature.y + i * 12, color, 12);
+            });
+
+            // Draw noise bubble
+            if (creature.showingNoise && !creature.scared) {
+                wagonDrawText(creature.type.noise, creature.x - 5, creature.y - 10, '#666', 9);
+            }
+
             wagonCtx.globalAlpha = 1;
         });
     }
 
+    function wagonDrawObstacles() {
+        wagonObstacles.forEach(obs => {
+            if (obs.type === 'shop') {
+                obs.data.art.forEach((line, i) => {
+                    wagonDrawText(line, obs.x, obs.y + i * 12, '#5d4037', 11);
+                });
+            } else if (obs.type === 'person') {
+                // Draw person
+                obs.data.art.forEach((line, i) => {
+                    wagonDrawText(line, obs.x, obs.y + i * 12, obs.data.color, 12);
+                });
+                // Draw dialogue bubble
+                const bubbleX = obs.x + 25;
+                const bubbleY = obs.y - 25;
+                wagonCtx.fillStyle = 'rgba(255,255,255,0.9)';
+                wagonCtx.fillRect(bubbleX - 2, bubbleY - 10, 70, 36);
+                wagonCtx.strokeStyle = '#999';
+                wagonCtx.lineWidth = 1;
+                wagonCtx.strokeRect(bubbleX - 2, bubbleY - 10, 70, 36);
+                obs.data.dialogue.forEach((line, i) => {
+                    wagonDrawText(line, bubbleX, bubbleY + i * 10, '#333', 8);
+                });
+            }
+        });
+    }
+
     function wagonDoRoar() {
-        if (!wagon.roaring) {
+        if (!wagon.roaring && roarPower >= 25) {
             wagon.roaring = true;
             wagon.roarTimer = 0;
+            roarPower -= 25; // Costs 25 power
 
             // Scare nearby creatures
             wagonCreatures.forEach(creature => {
@@ -2776,48 +3043,64 @@
                 const dy = creature.y - wagon.y;
                 const dist = Math.sqrt(dx * dx + dy * dy);
 
-                if (dist < 250 && !creature.scared) {
+                if (dist < 200 && !creature.scared) {
                     creature.scared = true;
-                    // Flee away from wagon
-                    creature.scaredVelocityY = (dy > 0 ? 1 : -1) * (8 + Math.random() * 5);
-                    creature.speed *= 2;
+                    creature.scaredVelocityY = (dy > 0 ? 1 : -1) * (6 + Math.random() * 4);
+                    creature.speed *= 1.5;
                 }
             });
         }
     }
 
     function wagonCheckCollisions() {
-        const wagonCenterX = wagon.x + 100;
+        const wagonCenterX = wagon.x + 90;
         const wagonCenterY = wagon.y;
 
+        // Check creatures
         for (const creature of wagonCreatures) {
-            if (creature.scared) continue; // Can't hit scared creatures
-
+            if (creature.scared) continue;
             const dx = creature.x - wagonCenterX;
             const dy = creature.y - wagonCenterY;
             const dist = Math.sqrt(dx * dx + dy * dy);
 
-            // Collision if creature is close to wagon center
-            if (dist < 50 && creature.x > wagon.x && creature.x < wagon.x + 180) {
-                return true;
+            if (dist < 40 && creature.x > wagon.x && creature.x < wagon.x + 160) {
+                return 'creature';
             }
         }
-        return false;
+
+        // Check obstacles
+        for (const obs of wagonObstacles) {
+            const obsWidth = obs.type === 'shop' ? 70 : 30;
+            const obsHeight = obs.type === 'shop' ? 70 : 40;
+
+            if (wagon.x + 150 > obs.x && wagon.x < obs.x + obsWidth) {
+                if (wagon.y + 40 > obs.y - 10 && wagon.y - 40 < obs.y + obsHeight) {
+                    return obs.type;
+                }
+            }
+        }
+
+        return null;
     }
 
     function wagonUpdateInput() {
-        // Continuous vertical movement
-        if (wagonKeys['ArrowUp']) {
-            wagon.y -= 4;
-        }
-        if (wagonKeys['ArrowDown']) {
-            wagon.y += 4;
-        }
+        // Vertical movement
+        const moveSpeed = 4;
+        if (wagonKeys['ArrowUp']) wagon.y -= moveSpeed;
+        if (wagonKeys['ArrowDown']) wagon.y += moveSpeed;
 
-        // Keep wagon in bounds
+        // Apply push velocity from creature noises
+        wagon.y += wagon.pushVelocityY;
+        wagon.pushVelocityY *= 0.9; // Decay
+
+        // Keep in bounds
         wagon.y = Math.max(WAGON_MIN_Y, Math.min(WAGON_MAX_Y, wagon.y));
 
-        // Space bar to roar
+        // Turbo with SHIFT
+        turboActive = wagonKeys['Shift'] === true;
+        gameSpeed = turboActive ? 1.8 : 1;
+
+        // Roar with SPACE
         if (wagonKeys[' '] && !wagon.roaring) {
             wagonDoRoar();
         }
@@ -2825,11 +3108,22 @@
         // Update roar timer
         if (wagon.roaring) {
             wagon.roarTimer++;
-            if (wagon.roarTimer > 15) {
+            if (wagon.roarTimer > 20) {
                 wagon.roaring = false;
                 wagon.roarTimer = 0;
             }
         }
+
+        // Replenish roar power slowly
+        if (!wagon.roaring && roarPower < 100) {
+            roarPower += 0.15;
+        }
+
+        // Mom sleep decreases naturally (faster with turbo)
+        momSleep -= 0.02 * gameSpeed;
+
+        // Mom shake decay
+        if (momShakeTimer > 0) momShakeTimer -= 0.5;
     }
 
     function wagonGameLoop() {
@@ -2841,10 +3135,12 @@
         if (!wagonGameOver) {
             wagonUpdateInput();
             wagonCreateCreature();
+            wagonCreateObstacle();
             wagonUpdateCreatures();
+            wagonUpdateObstacles();
 
-            // Increase distance
-            wagonDistance += 2;
+            // Increase distance (scales with turbo)
+            wagonDistance += 2 * gameSpeed;
 
             // Check win condition
             if (wagonDistance >= WAGON_WIN_DISTANCE) {
@@ -2852,14 +3148,36 @@
                 wagonGameWonState = true;
             }
 
-            // Check collisions
-            if (wagonCheckCollisions()) {
+            // Decrease collision cooldown
+            if (collisionCooldown > 0) collisionCooldown--;
+
+            // Check collisions - doesn't immediately end game, decreases mom sleep
+            const collision = wagonCheckCollisions();
+            if (collision && collisionCooldown <= 0) {
+                // Different damage for different collision types
+                let damage = 15;
+                if (collision === 'creature') damage = 12;
+                else if (collision === 'shop') damage = 20;
+                else if (collision === 'person') damage = 18;
+
+                momSleep -= damage;
+                momShakeTimer = 15; // Visual shake effect
+                collisionCooldown = 45; // ~0.75 seconds of invincibility
+
+                // Push wagon back slightly
+                wagon.pushVelocityY += (Math.random() - 0.5) * 6;
+            }
+
+            // Lose condition: mom wakes up
+            if (momSleep <= 0) {
+                momSleep = 0;
                 wagonGameOver = true;
                 wagonGameWonState = false;
             }
         }
 
         wagonDrawCreatures();
+        wagonDrawObstacles();
         wagonDrawWagon();
         wagonDrawHUD();
 
@@ -2896,10 +3214,10 @@
             }, 2500);
         } else {
             endCat.innerHTML = `  /\\_/\\
- ( x.x )
-  > _ <
+ ( o.o )
+  > ~ <
  ╱ | ╲`;
-            message.textContent = '¡Chocaste! El gati-móvil necesita reparaciones...';
+            message.textContent = '¡Mamá se despertó! "¿QUÉ ESTÁ PASANDO?"';
             button.textContent = 'REINTENTAR';
             button.onclick = () => {
                 document.getElementById('wagonGameOverScreen').style.display = 'none';
@@ -2947,8 +3265,10 @@
     window.addEventListener('keydown', (e) => {
         if (document.getElementById('wagonGameContainer').style.display === 'flex') {
             wagonKeys[e.key] = true;
+            // Also track shiftKey directly for better cross-browser support
+            if (e.shiftKey) wagonKeys['Shift'] = true;
             // Prevent page scroll for game controls
-            if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === ' ') {
+            if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === ' ' || e.key === 'Shift') {
                 e.preventDefault();
             }
         }
@@ -2957,6 +3277,8 @@
     window.addEventListener('keyup', (e) => {
         if (document.getElementById('wagonGameContainer').style.display === 'flex') {
             wagonKeys[e.key] = false;
+            // Also track shiftKey directly
+            if (!e.shiftKey) wagonKeys['Shift'] = false;
         }
     });
 
