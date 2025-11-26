@@ -2258,10 +2258,12 @@
     let wagonGameWonState = false;
 
     // Wagon game constants
-    const WAGON_CANVAS_WIDTH = 800;
-    const WAGON_CANVAS_HEIGHT = 500;
+    const WAGON_CANVAS_WIDTH = 1100;
+    const WAGON_CANVAS_HEIGHT = 650;
     const WAGON_MIN_Y = 70; // Top boundary (below HUD)
     const WAGON_MAX_Y = WAGON_CANVAS_HEIGHT - 90; // Bottom boundary
+    const WAGON_MIN_X = 20; // Left boundary
+    const WAGON_MAX_X = 300; // Right boundary (don't go too far right)
     const WAGON_WIN_DISTANCE = 7500; // 3x longer
 
     // Game state
@@ -2386,38 +2388,81 @@
     // Shop obstacles with alien names
     const SHOP_TYPES = [
         { name: "ZLÖRP's", subtitle: "Cosas", art: ["┌────────┐", "│ ZLÖRP's│", "│ Cosas  │", "├────────┤", "│ ◊  ◊  ◊│", "└────────┘"] },
-        { name: "Ñ!Ñ!Ñ!", subtitle: "Baratijas", art: ["┌────────┐", "│Ñ!Ñ!Ñ!Ñ!│", "│Baratija│", "├────────┤", "│ $ $$ $ │", "└────────┘"] },
-        { name: "KRZZX", subtitle: "Partes", art: ["┌────────┐", "│ KRZZX  │", "│ Partes │", "├────────┤", "│ ⚙  ⚙  ⚙│", "└────────┘"] },
-        { name: "Bloop", subtitle: "Comida?", art: ["┌────────┐", "│ Bloop  │", "│Comida? │", "├────────┤", "│ ~  ≈  ~│", "└────────┘"] },
-        { name: "QWЯTY", subtitle: "Electro", art: ["┌────────┐", "│ QWЯTY  │", "│Electro │", "├────────┤", "│ ⚡ ⚡ ⚡│", "└────────┘"] }
+        { name: "Ñ!Ñ!Ñ!", subtitle: "Pies", art: ["┌────────┐", "│Ñ!Ñ!Ñ!Ñ!│", "│  Pies  │", "├────────┤", "│ 👣 👣 👣│", "└────────┘"] },
+        { name: "KRZZX", subtitle: "Pilas", art: ["┌────────┐", "│ KRZZX  │", "│ Pilas  │", "├────────┤", "│ ⚡ ⚡ ⚡│", "└────────┘"] },
+        { name: "Bloop", subtitle: "4X4s", art: ["┌────────┐", "│ Bloop  │", "│  4X4s  │", "├────────┤", "│ ⊞  ⊞  ⊞│", "└────────┘"] },
+        { name: "QWЯTY", subtitle: "Chistes", art: ["┌────────┐", "│ QWЯTY  │", "│Chistes │", "├────────┤", "│ :) :D ;)│", "└────────┘"] },
+        { name: "GRPLX", subtitle: "OtrasCosas", art: ["┌────────┐", "│ GRPLX  │", "│OtrasCos│", "├────────┤", "│ ?  ?  ?│", "└────────┘"] },
+        { name: "ZZZRB", subtitle: "Zlorbs", art: ["┌────────┐", "│ ZZZRB  │", "│ Zlorbs │", "├────────┤", "│ ◉  ◉  ◉│", "└────────┘"] },
+        { name: "ÜNAX", subtitle: "Uñas", art: ["┌────────┐", "│  ÜNAX  │", "│  Uñas  │", "├────────┤", "│ 💅 💅 💅│", "└────────┘"] },
+        { name: "MØNØ", subtitle: "Monoculos", art: ["┌────────┐", "│  MØNØ  │", "│Monocul │", "├────────┤", "│ 🧐 🧐 🧐│", "└────────┘"] },
+        { name: "SPYC", subtitle: "Especias", art: ["┌────────┐", "│  SPYC  │", "│Especias│", "├────────┤", "│ ✿  ✿  ✿│", "└────────┘"] },
+        { name: "BÏØX", subtitle: "Especies", art: ["┌────────┐", "│  BÏØX  │", "│Especies│", "├────────┤", "│ 🐛 🦎 🐙│", "└────────┘"] },
+        { name: "CRBÑ", subtitle: "Carbon", art: ["┌────────┐", "│  CRBÑ  │", "│ Carbon │", "├────────┤", "│ ite■ite│", "└────────┘"] },
+        { name: "PTRX", subtitle: "Petroleo", art: ["┌────────┐", "│  PTRX  │", "│Petroleo│", "├────────┤", "│ 🛢 🛢 🛢│", "└────────┘"] },
+        { name: "JRGS", subtitle: "Jorges", art: ["┌────────┐", "│  JRGS  │", "│ Jorges │", "├────────┤", "│ 👤 👤 👤│", "└────────┘"] },
+        { name: "SLVX", subtitle: "Salvacion", art: ["┌────────┐", "│  SLVX  │", "│Salvacio│", "├────────┤", "│ ✝  ✝  ✝│", "└────────┘"] },
+        { name: "MSNX", subtitle: "Misiones", art: ["┌────────┐", "│  MSNX  │", "│Misiones│", "├────────┤", "│ !  !  !│", "└────────┘"] },
+        { name: "TRSH", subtitle: "Basura", art: ["┌────────┐", "│  TRSH  │", "│ Basura │", "├────────┤", "│ 🗑 🗑 🗑│", "└────────┘"] },
+        { name: "MËKA", subtitle: "MechaGato", art: ["┌────────┐", "│  MËKA  │", "│MechaGat│", "├────────┤", "│ 🤖🐱🤖│", "└────────┘"] },
+        { name: "SØLZ", subtitle: "Ant.Soles", art: ["┌────────┐", "│  SØLZ  │", "│Ant.Sol │", "├────────┤", "│ 🕶 🕶 🕶│", "└────────┘"] }
     ];
 
     // People with dialogue
-    const PEOPLE_TYPES = [
+    // People come in pairs having conversations
+    const PEOPLE_CONVERSATIONS = [
         {
-            art: [" ◯ ", "/|\\", "/ \\"],
-            dialogue: ["¿Viste el", "precio del", "zlörp?"],
-            color: "#5d4037"
+            person1: { art: [" ◯ ", "/|\\", "/ \\"], color: "#5d4037" },
+            person2: { art: ["(◕)", "╱|╲", " Λ "], color: "#7b1fa2" },
+            dialogue: [
+                { speaker: 1, text: "¿Viste la última" },
+                { speaker: 1, text: "temporada del" },
+                { speaker: 1, text: "gato con botas?" },
+                { speaker: 2, text: "¡Sí! Increíble" },
+                { speaker: 2, text: "el final..." }
+            ]
         },
         {
-            art: ["(◕)", "╱|╲", " Λ "],
-            dialogue: ["Yo digo que", "los humanos", "no existen"],
-            color: "#7b1fa2"
+            person1: { art: [" ☉ ", "═╪═", " ╨ "], color: "#1565c0" },
+            person2: { art: ["◉◉◉", " │ ", "╱ ╲"], color: "#2e7d32" },
+            dialogue: [
+                { speaker: 1, text: "Me duelen" },
+                { speaker: 1, text: "las espaldas" },
+                { speaker: 2, text: "A mí también," },
+                { speaker: 2, text: "será la edad..." }
+            ]
         },
         {
-            art: [" ☉ ", "═╪═", " ╨ "],
-            dialogue: ["Mi primo", "vio una", "nave ayer"],
-            color: "#1565c0"
+            person1: { art: [" ∩ ", "│█│", "╘═╛"], color: "#c62828" },
+            person2: { art: [" ◇ ", "╱█╲", " ║ "], color: "#ff6f00" },
+            dialogue: [
+                { speaker: 1, text: "¡Qué vehículo" },
+                { speaker: 1, text: "tan extraño!" },
+                { speaker: 2, text: "¿Viste eso?" },
+                { speaker: 2, text: "¿Era un gato?" }
+            ]
         },
         {
-            art: ["◉◉◉", " │ ", "╱ ╲"],
-            dialogue: ["Este clima", "está muy", "raro..."],
-            color: "#2e7d32"
+            person1: { art: ["◎◎ ", " ┃ ", "┗┻┛"], color: "#6a1b9a" },
+            person2: { art: [" ▽ ", "┌┼┐", " ┴ "], color: "#00695c" },
+            dialogue: [
+                { speaker: 1, text: "...y entonces" },
+                { speaker: 1, text: "xonbloxionó" },
+                { speaker: 1, text: "su apperliz!" },
+                { speaker: 2, text: "¡No te creo!" },
+                { speaker: 2, text: "¡Qué locura!" }
+            ]
         },
         {
-            art: [" ∩ ", "│█│", "╘═╛"],
-            dialogue: ["¿Escuchaste", "ese ruido?", ""],
-            color: "#c62828"
+            person1: { art: ["⊙⊙⊙", " ╽ ", "═╧═"], color: "#37474f" },
+            person2: { art: [" ◬ ", "╱╲╱", " ╨ "], color: "#ad1457" },
+            dialogue: [
+                { speaker: 1, text: "Hay días en los" },
+                { speaker: 1, text: "que me siento" },
+                { speaker: 1, text: "bidimensional" },
+                { speaker: 2, text: "Yo también..." },
+                { speaker: 2, text: "Es existencial" }
+            ]
         }
     ];
 
@@ -2801,16 +2846,16 @@
         }
 
         // === CONTROLS HINT ===
-        wagonDrawText('↑↓ mover  ESPACIO rugir  SHIFT turbo', WAGON_CANVAS_WIDTH / 2 - 130, WAGON_CANVAS_HEIGHT - 8, '#999', 11);
+        wagonDrawText('↑↓←→ mover  ESPACIO rugir  SHIFT turbo', WAGON_CANVAS_WIDTH / 2 - 140, WAGON_CANVAS_HEIGHT - 8, '#999', 11);
 
         // === VERSION NUMBER ===
-        wagonDrawText('GATIMÓVIL v2', WAGON_CANVAS_WIDTH - 85, WAGON_CANVAS_HEIGHT - 8, '#aaa', 10);
+        wagonDrawText('GATIMÓVIL v3', WAGON_CANVAS_WIDTH - 85, WAGON_CANVAS_HEIGHT - 8, '#aaa', 10);
 
         // === ROAR TEXT ===
-        if (wagon.roaring) {
+        if (wagon.roaring && wagon.currentRoarText) {
             const roarAlpha = 1 - wagon.roarTimer / 20;
             wagonCtx.globalAlpha = roarAlpha;
-            wagonDrawText('¡MRRAAUU!', wagon.x + 160, wagon.y - 20, '#ff5722', 18);
+            wagonDrawText(wagon.currentRoarText, wagon.x + 160, wagon.y - 20, '#ff5722', 18);
             wagonCtx.globalAlpha = 1;
         }
     }
@@ -2917,8 +2962,8 @@
     function wagonCreateObstacle() {
         const spawnRate = 0.008 + (wagonDistance / WAGON_WIN_DISTANCE) * 0.005;
 
-        if (Math.random() < spawnRate * gameSpeed && wagonObstacles.length < 3) {
-            const isShop = Math.random() < 0.5;
+        if (Math.random() < spawnRate * gameSpeed && wagonObstacles.length < 4) {
+            const isShop = Math.random() < 0.4; // 40% shops, 60% people pairs
 
             if (isShop) {
                 const type = SHOP_TYPES[Math.floor(Math.random() * SHOP_TYPES.length)];
@@ -2931,14 +2976,18 @@
                     speed: 1 + (wagonDistance / WAGON_WIN_DISTANCE) * 0.5
                 });
             } else {
-                const type = PEOPLE_TYPES[Math.floor(Math.random() * PEOPLE_TYPES.length)];
-                const y = WAGON_MIN_Y + 20 + Math.random() * (WAGON_MAX_Y - WAGON_MIN_Y - 50);
+                // Spawn people in pairs having a conversation
+                const convo = PEOPLE_CONVERSATIONS[Math.floor(Math.random() * PEOPLE_CONVERSATIONS.length)];
+                const y = WAGON_MIN_Y + 20 + Math.random() * (WAGON_MAX_Y - WAGON_MIN_Y - 80);
+                const speed = 0.8 + Math.random() * 0.5;
                 wagonObstacles.push({
                     x: WAGON_CANVAS_WIDTH + 30,
                     y: y,
-                    type: 'person',
-                    data: type,
-                    speed: 0.8 + Math.random() * 0.5
+                    type: 'people_pair',
+                    data: convo,
+                    speed: speed,
+                    dialogueIndex: 0,
+                    dialogueTimer: 0
                 });
             }
         }
@@ -3011,30 +3060,68 @@
                 obs.data.art.forEach((line, i) => {
                     wagonDrawText(line, obs.x, obs.y + i * 12, '#5d4037', 11);
                 });
-            } else if (obs.type === 'person') {
-                // Draw person
-                obs.data.art.forEach((line, i) => {
-                    wagonDrawText(line, obs.x, obs.y + i * 12, obs.data.color, 12);
+            } else if (obs.type === 'people_pair') {
+                const convo = obs.data;
+                const spacing = 50; // Space between two people
+
+                // Draw person 1 (left)
+                convo.person1.art.forEach((line, i) => {
+                    wagonDrawText(line, obs.x, obs.y + i * 12, convo.person1.color, 12);
                 });
-                // Draw dialogue bubble
-                const bubbleX = obs.x + 25;
-                const bubbleY = obs.y - 25;
-                wagonCtx.fillStyle = 'rgba(255,255,255,0.9)';
-                wagonCtx.fillRect(bubbleX - 2, bubbleY - 10, 70, 36);
-                wagonCtx.strokeStyle = '#999';
+
+                // Draw person 2 (right)
+                convo.person2.art.forEach((line, i) => {
+                    wagonDrawText(line, obs.x + spacing, obs.y + i * 12, convo.person2.color, 12);
+                });
+
+                // Update dialogue timer
+                obs.dialogueTimer++;
+                if (obs.dialogueTimer > 40) {
+                    obs.dialogueTimer = 0;
+                    obs.dialogueIndex = (obs.dialogueIndex + 1) % convo.dialogue.length;
+                }
+
+                // Get current dialogue line
+                const currentLine = convo.dialogue[obs.dialogueIndex];
+                const speaker = currentLine.speaker;
+
+                // Draw dialogue bubble above the speaking person
+                const bubbleX = obs.x + (speaker === 1 ? -5 : spacing - 5);
+                const bubbleY = obs.y - 20;
+
+                // Bubble background
+                wagonCtx.fillStyle = 'rgba(255,255,255,0.95)';
+                const textWidth = currentLine.text.length * 6 + 10;
+                wagonCtx.fillRect(bubbleX - 2, bubbleY - 10, textWidth, 18);
+                wagonCtx.strokeStyle = speaker === 1 ? convo.person1.color : convo.person2.color;
                 wagonCtx.lineWidth = 1;
-                wagonCtx.strokeRect(bubbleX - 2, bubbleY - 10, 70, 36);
-                obs.data.dialogue.forEach((line, i) => {
-                    wagonDrawText(line, bubbleX, bubbleY + i * 10, '#333', 8);
-                });
+                wagonCtx.strokeRect(bubbleX - 2, bubbleY - 10, textWidth, 18);
+
+                // Dialogue text
+                wagonDrawText(currentLine.text, bubbleX + 2, bubbleY + 2, '#333', 9);
             }
         });
     }
+
+    // Random miau variants for roar (cat-like sounds)
+    const MIAU_VARIANTS = [
+        '¡MIAU!',
+        '¡MIAAAU!',
+        '¡MIAU MIAU!',
+        '¡MIIIAU!',
+        '¡MRRRAU!',
+        '¡PRRRR!',
+        '¡MIAU~!',
+        '¡MIAUMIAU!',
+        '¡MRRR!',
+        '¡MIAUUUU!'
+    ];
 
     function wagonDoRoar() {
         if (!wagon.roaring && roarPower >= 25) {
             wagon.roaring = true;
             wagon.roarTimer = 0;
+            wagon.currentRoarText = MIAU_VARIANTS[Math.floor(Math.random() * MIAU_VARIANTS.length)];
             roarPower -= 25; // Costs 25 power
 
             // Scare nearby creatures
@@ -3070,12 +3157,21 @@
 
         // Check obstacles
         for (const obs of wagonObstacles) {
-            const obsWidth = obs.type === 'shop' ? 70 : 30;
-            const obsHeight = obs.type === 'shop' ? 70 : 40;
+            let obsWidth, obsHeight;
+            if (obs.type === 'shop') {
+                obsWidth = 70;
+                obsHeight = 70;
+            } else if (obs.type === 'people_pair') {
+                obsWidth = 80; // Two people side by side
+                obsHeight = 40;
+            } else {
+                obsWidth = 30;
+                obsHeight = 40;
+            }
 
             if (wagon.x + 150 > obs.x && wagon.x < obs.x + obsWidth) {
                 if (wagon.y + 40 > obs.y - 10 && wagon.y - 40 < obs.y + obsHeight) {
-                    return obs.type;
+                    return obs.type === 'people_pair' ? 'person' : obs.type;
                 }
             }
         }
@@ -3084,10 +3180,12 @@
     }
 
     function wagonUpdateInput() {
-        // Vertical movement
+        // Movement (all 4 directions)
         const moveSpeed = 4;
         if (wagonKeys['ArrowUp']) wagon.y -= moveSpeed;
         if (wagonKeys['ArrowDown']) wagon.y += moveSpeed;
+        if (wagonKeys['ArrowLeft']) wagon.x -= moveSpeed;
+        if (wagonKeys['ArrowRight']) wagon.x += moveSpeed;
 
         // Apply push velocity from creature noises
         wagon.y += wagon.pushVelocityY;
@@ -3095,6 +3193,7 @@
 
         // Keep in bounds
         wagon.y = Math.max(WAGON_MIN_Y, Math.min(WAGON_MAX_Y, wagon.y));
+        wagon.x = Math.max(WAGON_MIN_X, Math.min(WAGON_MAX_X, wagon.x));
 
         // Turbo with SHIFT
         turboActive = wagonKeys['Shift'] === true;
@@ -3217,7 +3316,7 @@
  ( o.o )
   > ~ <
  ╱ | ╲`;
-            message.textContent = '¡Mamá se despertó! "¿QUÉ ESTÁ PASANDO?"';
+            message.textContent = '¡AY NO, ESTABA TENIENDO UN SUEÑO MUY LINDO Y ME DESPERTASTE!';
             button.textContent = 'REINTENTAR';
             button.onclick = () => {
                 document.getElementById('wagonGameOverScreen').style.display = 'none';
@@ -3268,7 +3367,7 @@
             // Also track shiftKey directly for better cross-browser support
             if (e.shiftKey) wagonKeys['Shift'] = true;
             // Prevent page scroll for game controls
-            if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === ' ' || e.key === 'Shift') {
+            if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Shift') {
                 e.preventDefault();
             }
         }
