@@ -2282,10 +2282,11 @@
     const wagonKeys = {};
     let wagonKeyPressed = { up: false, down: false }; // For continuous movement
 
-    // Better ASCII art for the gati-móvil with cat and mamá
+    // Better ASCII art for the gati-móvil with cat and sleeping mamá
     // Cat in mom's lap on a wagon with AAA battery propulsion
-    const WAGON_ART = [
-        "   /\\_/\\  (◠‿◠)",
+    // Mom is sleeping (got hit on the head earlier) - Zs are animated in draw function
+    const WAGON_ART_BASE = [
+        "   /\\_/\\  (-_-)",
         "  ( o.o ) /|  |\\",
         "   > ^ <_/    |",
         " _|_____|_____|____",
@@ -2293,14 +2294,17 @@
         "|_○_____________○_|"
     ];
 
-    const WAGON_ART_STRESSED = [
-        "   /\\_/\\  (°□°)",
+    const WAGON_ART_STRESSED_BASE = [
+        "   /\\_/\\  (-_-)",
         "  ( O.O ) /|  |\\",
         "   > ^ <_/    |",
         " _|_____|_____|____",
         "|    GATIMÓVIL    |~AAA⚡",
         "|_○_____________○_|"
     ];
+
+    // Zzz animation frames
+    let zzzFrame = 0;
 
     // Small alien creatures - weird space animals that scatter when you roar
     const ALIEN_CREATURES = [
@@ -2456,21 +2460,21 @@
         const centerX = window.innerWidth / 2;
         const centerY = window.innerHeight / 2;
 
-        // Target pattern - the game intro scene with better art
+        // Target pattern - the game intro scene with sleeping mom
         const gamePattern = [
             "╔═══════════════════════════════════════════════════╗",
             "║                                                   ║",
             "║           S U B I E N D O   L A                   ║",
             "║              C U E S T A . . .                    ║",
-            "║                                                   ║",
-            "║          /\\_/\\  (◠‿◠)                             ║",
+            "║                          z z Z                    ║",
+            "║          /\\_/\\  (-_-)                             ║",
             "║         ( o.o ) /|  |\\                            ║",
             "║          > ^ <_/    |                             ║",
             "║        _|_____|_____|____                         ║",
             "║       |    GATIMÓVIL    |~AAA⚡                    ║",
             "║       |_○_____________○_|                         ║",
             "║                                                   ║",
-            "║                  ↑ ↓  cambiar carril              ║",
+            "║            ↑↓ mover  ESPACIO rugir                ║",
             "║                                                   ║",
             "╚═══════════════════════════════════════════════════╝"
         ];
@@ -2655,7 +2659,7 @@
     function wagonDrawWagon() {
         // Choose art based on roaring or stress
         const nearCreature = wagonCreatures.some(c => c.x - wagon.x < 150 && c.x > wagon.x && !c.scared);
-        const art = (wagon.roaring || nearCreature) ? WAGON_ART_STRESSED : WAGON_ART;
+        const art = (wagon.roaring || nearCreature) ? WAGON_ART_STRESSED_BASE : WAGON_ART_BASE;
 
         // Draw the wagon at continuous Y position
         const wagonHeight = art.length * 14;
@@ -2664,6 +2668,35 @@
         art.forEach((line, i) => {
             wagonDrawText(line, wagon.x, drawY + i * 14, '#333', 13);
         });
+
+        // Animate Zzz above sleeping mom's head
+        zzzFrame++;
+        const zOffset = Math.sin(zzzFrame * 0.1) * 3; // Gentle floating
+        const zCycle = Math.floor(zzzFrame / 15) % 4; // Cycle through z patterns
+
+        // Draw floating Zs with varying sizes and positions
+        const momHeadX = wagon.x + 95;
+        const momHeadY = drawY - 5;
+
+        // Small z
+        if (zCycle >= 0) {
+            const z1Alpha = 0.4 + Math.sin(zzzFrame * 0.15) * 0.2;
+            wagonCtx.globalAlpha = z1Alpha;
+            wagonDrawText('z', momHeadX + 20 + zOffset, momHeadY + 5 - zOffset, '#6a5acd', 10);
+        }
+        // Medium z
+        if (zCycle >= 1) {
+            const z2Alpha = 0.5 + Math.sin(zzzFrame * 0.12 + 1) * 0.2;
+            wagonCtx.globalAlpha = z2Alpha;
+            wagonDrawText('z', momHeadX + 30 + zOffset * 1.2, momHeadY - 5 - zOffset * 1.5, '#6a5acd', 12);
+        }
+        // Large Z
+        if (zCycle >= 2) {
+            const z3Alpha = 0.6 + Math.sin(zzzFrame * 0.1 + 2) * 0.2;
+            wagonCtx.globalAlpha = z3Alpha;
+            wagonDrawText('Z', momHeadX + 42 + zOffset * 1.5, momHeadY - 18 - zOffset * 2, '#6a5acd', 14);
+        }
+        wagonCtx.globalAlpha = 1;
 
         // Draw roar wave effect
         if (wagon.roaring) {
