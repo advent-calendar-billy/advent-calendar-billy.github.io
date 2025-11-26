@@ -3366,7 +3366,7 @@
  ( o.o )
   > ~ <
  ╱ | ╲`;
-            message.textContent = '¡AY NO, ESTABA TENIENDO UN SUEÑO MUY LINDO Y ME DESPERTASTE!';
+            message.textContent = '¡AY NO, ESTABA TENIENDO UN SUEÑO MUY LINDO Y LA DESPERTASTE!';
             button.textContent = 'REINTENTAR';
             button.onclick = () => {
                 document.getElementById('wagonGameOverScreen').style.display = 'none';
