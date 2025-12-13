@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fede's Falling Dream - Dec 15</title>
+    <link rel="stylesheet" href="css/game.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="game-container">
+        <!-- Bedroom section (top) -->
+        <div class="bedroom-section">
+            <div class="bedroom-background"></div>
+            <div class="bed-container">
+                <img src="icons/bed.svg" alt="Bed" class="bed">
+                <div class="sleeping-character-container" id="sleepingContainer">
+                    <img src="icons/character-sleeping.svg" alt="Sleeping Fede" class="sleeping-character" id="sleepingCharacter">
+                </div>
+            </div>
+            <div class="lamp"></div>
+            <div class="dream-bubble" id="dreamBubble">
+                <span>zzz...</span>
+            </div>
+        </div>
+
+        <!-- Dream section (bottom - the falling game) -->
+        <div class="dream-section" id="dreamSection">
+            <div class="dream-background" id="dreamBackground">
+                <!-- Stars layer -->
+                <div class="stars-layer" id="starsLayer"></div>
+                <!-- Earth visible in the distance -->
+                <div class="earth-container" id="earthContainer">
+                    <img src="icons/earth.svg" alt="Earth" class="earth">
+                </div>
+            </div>
+
+            <!-- Game canvas area -->
+            <div class="game-area" id="gameArea">
+                <!-- Falling character -->
+                <div class="falling-character" id="fallingCharacter">
+                    <img src="icons/character-falling.svg" alt="Falling">
+                </div>
+
+                <!-- Obstacles spawn here -->
+                <div class="obstacles-container" id="obstaclesContainer"></div>
+
+                <!-- Landing zone (appears at end) -->
+                <div class="landing-zone" id="landingZone">
+                    <img src="icons/casino.svg" alt="Casino" class="casino">
+                    <img src="icons/trampoline.svg" alt="Trampoline" class="trampoline">
+                </div>
+            </div>
+
+            <!-- Game UI -->
+            <div class="game-ui">
+                <div class="altitude" id="altitude">Altitude: <span>99,000</span> m</div>
+                <!-- Lives display will be added by JS -->
+                <!-- Speed display will be added by JS -->
+                <!-- Wind indicator will be added by JS -->
+            </div>
+
+            <!-- Progress bar at bottom -->
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-labels">
+                    <span class="progress-label-start">SPACE</span>
+                    <span class="progress-label-end">EARTH</span>
+                </div>
+                <div class="progress-bar-outer">
+                    <div class="progress-bar-inner" id="progressBar"></div>
+                    <div class="progress-marker" id="progressMarker"></div>
+                </div>
+                <div class="progress-phases">
+                    <span class="phase-marker" data-phase="space">99km</span>
+                    <span class="phase-marker" data-phase="atmosphere">75km</span>
+                    <span class="phase-marker" data-phase="sky">55km</span>
+                    <span class="phase-marker" data-phase="ground">20km</span>
+                    <span class="phase-marker" data-phase="landing">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game overlays -->
+        <div class="game-overlay start-overlay" id="startOverlay">
+            <div class="overlay-content">
+                <h1>Fede's Falling Dream</h1>
+                <p>Use <strong>ARROW KEYS</strong> to navigate</p>
+                <p class="controls-detail">UP slows your fall / DOWN speeds up</p>
+                <p class="subtitle">Survive the fall through space...</p>
+                <button id="startButton">Start Dream</button>
+            </div>
+        </div>
+
+        <div class="game-overlay win-overlay" id="winOverlay">
+            <div class="overlay-content">
+                <h1>Safe Landing!</h1>
+                <button id="playAgainButton">Dream Again</button>
+                <a href="../index.html" class="back-link">Back to Calendar</a>
+            </div>
+        </div>
+
+        <div class="game-overlay lose-overlay" id="loseOverlay">
+            <div class="overlay-content">
+                <h1>Ouch!</h1>
+                <p>Fede woke up from the nightmare!</p>
+                <button id="retryButton">Try Again</button>
+                <a href="../index.html" class="back-link">Back to Calendar</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/game.js"></script>
+</body>
+</html>

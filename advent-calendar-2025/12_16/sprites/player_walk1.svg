@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 96">
+  <!-- Fedecard - Walk frame 1 (no sword - drawn dynamically) -->
+
+  <!-- Cape (flowing back) -->
+  <path d="M20 25 Q5 55 10 90 L45 90 Q55 50 45 25 Z" fill="#2a2a4a" stroke="#1a1a3a" stroke-width="1"/>
+  <path d="M22 28 Q10 55 14 85 L43 85 Q52 50 44 28 Z" fill="#3a3a5a"/>
+
+  <!-- Body/Armor (slight lean forward) -->
+  <rect x="26" y="28" width="16" height="35" rx="2" fill="#4a4a6a" transform="rotate(5 34 45)"/>
+  <rect x="28" y="30" width="12" height="15" rx="1" fill="#5a5a7a" transform="rotate(5 34 37)"/>
+
+  <!-- Belt -->
+  <rect x="25" y="58" width="18" height="4" fill="#8b7355" transform="rotate(5 34 60)"/>
+  <rect x="32" y="57" width="4" height="6" rx="1" fill="#c4a000" transform="rotate(5 34 60)"/>
+
+  <!-- Legs (walking pose) -->
+  <rect x="28" y="63" width="5" height="24" fill="#3a3a5a" transform="rotate(15 30 63)"/>
+  <rect x="35" y="63" width="5" height="24" fill="#3a3a5a" transform="rotate(-10 37 63)"/>
+
+  <!-- Boots -->
+  <path d="M32 87 L30 93 L38 93 L38 87 Z" fill="#2a2a3a"/>
+  <path d="M30 83 L30 90 L37 88 L37 83 Z" fill="#2a2a3a"/>
+
+  <!-- Head -->
+  <ellipse cx="34" cy="18" rx="10" ry="12" fill="#e8ddd0"/>
+
+  <!-- Hair (short black) -->
+  <path d="M24 14 Q24 6 34 5 Q44 6 44 14 L44 10 Q40 6 34 7 Q28 6 24 10 Z" fill="#1a1a1a"/>
+  <path d="M26 12 Q26 8 34 7 Q42 8 42 12" fill="#1a1a1a"/>
+  <path d="M24 14 L24 18 Q25 16 26 18 L26 14 Z" fill="#1a1a1a"/>
+  <path d="M42 14 L42 18 Q43 16 44 18 L44 14 Z" fill="#1a1a1a"/>
+
+  <!-- Face details -->
+  <ellipse cx="30" cy="16" rx="1.5" ry="2" fill="#4a3a3a"/>
+  <ellipse cx="38" cy="16" rx="1.5" ry="2" fill="#4a3a3a"/>
+  <rect x="37" y="15" width="1" height="1" fill="#ff0000"/>
+  <path d="M32 22 Q34 24 36 22" stroke="#8a6a6a" stroke-width="1" fill="none"/>
+
+  <!-- Collar -->
+  <path d="M22 25 L26 30 L26 25 Z" fill="#4a2a4a"/>
+  <path d="M46 25 L42 30 L42 25 Z" fill="#4a2a4a"/>
+</svg>

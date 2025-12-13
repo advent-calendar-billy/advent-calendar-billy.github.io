@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 60">
+  <!-- Bouncing trampoline/safety landing -->
+  <defs>
+    <linearGradient id="trampolineMat" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff6b6b"/>
+      <stop offset="50%" style="stop-color:#e74c3c"/>
+      <stop offset="100%" style="stop-color:#c0392b"/>
+    </linearGradient>
+    <linearGradient id="trampolineFrame" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#95a5a6"/>
+      <stop offset="100%" style="stop-color:#7f8c8d"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Frame legs -->
+  <path d="M15 55 L20 30" stroke="url(#trampolineFrame)" stroke-width="4" stroke-linecap="round"/>
+  <path d="M105 55 L100 30" stroke="url(#trampolineFrame)" stroke-width="4" stroke-linecap="round"/>
+  <path d="M35 55 L35 35" stroke="url(#trampolineFrame)" stroke-width="3" stroke-linecap="round"/>
+  <path d="M85 55 L85 35" stroke="url(#trampolineFrame)" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- Frame ring -->
+  <ellipse cx="60" cy="32" rx="48" ry="10" fill="none" stroke="url(#trampolineFrame)" stroke-width="5"/>
+
+  <!-- Mat (bouncy surface) -->
+  <ellipse cx="60" cy="32" rx="42" ry="8" fill="url(#trampolineMat)"/>
+
+  <!-- Springs (connecting mat to frame) -->
+  <g stroke="#bdc3c7" stroke-width="1.5" fill="none">
+    <path d="M18 32 Q20 30 22 32 Q24 34 26 32"/>
+    <path d="M30 27 Q32 25 34 27 Q36 29 38 27"/>
+    <path d="M50 24 Q52 22 54 24 Q56 26 58 24"/>
+    <path d="M66 24 Q68 22 70 24 Q72 26 74 24"/>
+    <path d="M82 27 Q84 25 86 27 Q88 29 90 27"/>
+    <path d="M94 32 Q96 30 98 32 Q100 34 102 32"/>
+  </g>
+
+  <!-- Mat pattern/stitching -->
+  <ellipse cx="60" cy="32" rx="35" ry="6" fill="none" stroke="#c0392b" stroke-width="0.5" stroke-dasharray="4,2"/>
+
+  <!-- Highlight -->
+  <ellipse cx="50" cy="29" rx="20" ry="4" fill="white" opacity="0.2"/>
+
+  <!-- Bounce effect lines -->
+  <path d="M45 18 L45 12" stroke="#ffd700" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+  <path d="M60 15 L60 8" stroke="#ffd700" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+  <path d="M75 18 L75 12" stroke="#ffd700" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+</svg>

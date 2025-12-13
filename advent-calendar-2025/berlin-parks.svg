@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 250">
+  <g fill="none" stroke="#c9a0dc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Tree 1 (large) -->
+    <line x1="60" y1="180" x2="60" y2="250"/>
+    <circle cx="60" cy="145" r="40"/>
+    <circle cx="35" cy="175" r="28"/>
+    <circle cx="85" cy="175" r="28"/>
+    <circle cx="60" cy="120" r="25"/>
+
+    <!-- Tree 2 (medium) -->
+    <line x1="150" y1="195" x2="150" y2="250"/>
+    <circle cx="150" cy="165" r="32"/>
+    <circle cx="130" cy="185" r="22"/>
+    <circle cx="170" cy="185" r="22"/>
+
+    <!-- Tree 3 (small) -->
+    <line x1="230" y1="210" x2="230" y2="250"/>
+    <circle cx="230" cy="185" r="26"/>
+    <circle cx="215" cy="200" r="18"/>
+    <circle cx="245" cy="200" r="18"/>
+
+    <!-- Bushes -->
+    <ellipse cx="105" cy="240" rx="25" ry="12"/>
+    <ellipse cx="190" cy="245" rx="20" ry="10"/>
+
+    <!-- Bench -->
+    <rect x="95" y="220" width="50" height="6" rx="2"/>
+    <line x1="100" y1="226" x2="100" y2="240"/>
+    <line x1="140" y1="226" x2="140" y2="240"/>
+    <rect x="95" y="212" width="50" height="4"/>
+    <line x1="95" y1="212" x2="95" y2="226"/>
+    <line x1="145" y1="212" x2="145" y2="226"/>
+
+    <!-- Path/walkway -->
+    <path d="M0 250 Q80 235 150 240 Q220 245 300 235" stroke-dasharray="5,5"/>
+
+    <!-- Lamp post -->
+    <line x1="200" y1="180" x2="200" y2="240"/>
+    <ellipse cx="200" cy="175" rx="8" ry="5"/>
+    <line x1="192" y1="175" x2="208" y2="175"/>
+  </g>
+</svg>

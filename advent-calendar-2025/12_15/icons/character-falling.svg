@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 100">
+  <!-- Character falling - arms and legs spread, looking down -->
+  <defs>
+    <linearGradient id="skinFall" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffd5b8"/>
+      <stop offset="100%" style="stop-color:#f4c4a0"/>
+    </linearGradient>
+    <linearGradient id="hairFall" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#4a3728"/>
+      <stop offset="100%" style="stop-color:#2d1f15"/>
+    </linearGradient>
+    <linearGradient id="pajamaTop" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#6b8cce"/>
+      <stop offset="100%" style="stop-color:#4a6aab"/>
+    </linearGradient>
+    <linearGradient id="pajamaBottom" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#5a7cbd"/>
+      <stop offset="100%" style="stop-color:#3a5a9b"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Hair (flowing up from falling) -->
+  <path d="M22 15 Q20 5 30 3 Q40 5 38 15 Q35 8 30 10 Q25 8 22 15" fill="url(#hairFall)"/>
+  <path d="M20 12 Q18 2 25 0" stroke="url(#hairFall)" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M40 12 Q42 2 35 0" stroke="url(#hairFall)" stroke-width="3" fill="none" stroke-linecap="round"/>
+
+  <!-- Head -->
+  <ellipse cx="30" cy="22" rx="13" ry="12" fill="url(#skinFall)"/>
+
+  <!-- Ears -->
+  <ellipse cx="17" cy="22" rx="3" ry="4" fill="#f4c4a0"/>
+  <ellipse cx="43" cy="22" rx="3" ry="4" fill="#f4c4a0"/>
+
+  <!-- Wide surprised eyes -->
+  <ellipse cx="25" cy="22" rx="4" ry="5" fill="white"/>
+  <ellipse cx="35" cy="22" rx="4" ry="5" fill="white"/>
+  <ellipse cx="25" cy="23" rx="2.5" ry="3" fill="#4a3728"/>
+  <ellipse cx="35" cy="23" rx="2.5" ry="3" fill="#4a3728"/>
+  <ellipse cx="24" cy="22" rx="1" ry="1.5" fill="white"/>
+  <ellipse cx="34" cy="22" rx="1" ry="1.5" fill="white"/>
+
+  <!-- Eyebrows (worried) -->
+  <path d="M21 15 Q25 17 29 15" stroke="#3d2817" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <path d="M31 15 Q35 17 39 15" stroke="#3d2817" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+
+  <!-- Open mouth (screaming/surprised) -->
+  <ellipse cx="30" cy="30" rx="5" ry="4" fill="#8b4040"/>
+  <ellipse cx="30" cy="28" rx="3" ry="1.5" fill="#ff9090"/>
+
+  <!-- Cheek blush -->
+  <ellipse cx="20" cy="26" rx="3" ry="2" fill="#ffb8b8" opacity="0.4"/>
+  <ellipse cx="40" cy="26" rx="3" ry="2" fill="#ffb8b8" opacity="0.4"/>
+
+  <!-- Neck -->
+  <rect x="26" y="33" width="8" height="5" fill="url(#skinFall)"/>
+
+  <!-- Pajama top -->
+  <path d="M18 38 L42 38 L44 65 L16 65 Z" fill="url(#pajamaTop)"/>
+  <!-- Buttons -->
+  <circle cx="30" cy="45" r="2" fill="#3a5a9b"/>
+  <circle cx="30" cy="53" r="2" fill="#3a5a9b"/>
+  <circle cx="30" cy="61" r="2" fill="#3a5a9b"/>
+  <!-- Collar -->
+  <path d="M24 38 L30 43 L36 38" stroke="#4a6aab" stroke-width="2" fill="none"/>
+
+  <!-- Left arm (spread out) -->
+  <path d="M18 40 Q5 50 3 55" stroke="url(#pajamaTop)" stroke-width="8" fill="none" stroke-linecap="round"/>
+  <!-- Left hand -->
+  <ellipse cx="3" cy="57" rx="5" ry="4" fill="url(#skinFall)"/>
+  <path d="M1 54 L0 52" stroke="url(#skinFall)" stroke-width="2" stroke-linecap="round"/>
+  <path d="M3 53 L3 51" stroke="url(#skinFall)" stroke-width="2" stroke-linecap="round"/>
+  <path d="M5 54 L6 52" stroke="url(#skinFall)" stroke-width="2" stroke-linecap="round"/>
+
+  <!-- Right arm (spread out) -->
+  <path d="M42 40 Q55 50 57 55" stroke="url(#pajamaTop)" stroke-width="8" fill="none" stroke-linecap="round"/>
+  <!-- Right hand -->
+  <ellipse cx="57" cy="57" rx="5" ry="4" fill="url(#skinFall)"/>
+  <path d="M55 54 L54 52" stroke="url(#skinFall)" stroke-width="2" stroke-linecap="round"/>
+  <path d="M57 53 L57 51" stroke="url(#skinFall)" stroke-width="2" stroke-linecap="round"/>
+  <path d="M59 54 L60 52" stroke="url(#skinFall)" stroke-width="2" stroke-linecap="round"/>
+
+  <!-- Pajama pants -->
+  <path d="M16 65 L20 95 L28 95 L30 72 L32 95 L40 95 L44 65 Z" fill="url(#pajamaBottom)"/>
+
+  <!-- Feet -->
+  <ellipse cx="24" cy="96" rx="6" ry="4" fill="url(#skinFall)"/>
+  <ellipse cx="36" cy="96" rx="6" ry="4" fill="url(#skinFall)"/>
+
+  <!-- Motion lines -->
+  <path d="M12 5 L12 -5" stroke="#a8d8ea" stroke-width="1" opacity="0.5"/>
+  <path d="M30 0 L30 -10" stroke="#a8d8ea" stroke-width="1" opacity="0.5"/>
+  <path d="M48 5 L48 -5" stroke="#a8d8ea" stroke-width="1" opacity="0.5"/>
+</svg>

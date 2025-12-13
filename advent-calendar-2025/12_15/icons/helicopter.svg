@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 50">
+  <!-- Helicopter silhouette -->
+  <defs>
+    <linearGradient id="heliBody" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#505050"/>
+      <stop offset="50%" style="stop-color:#383838"/>
+      <stop offset="100%" style="stop-color:#252525"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Main rotor -->
+  <ellipse cx="40" cy="8" rx="35" ry="3" fill="#404040" opacity="0.6"/>
+  <rect x="38" y="6" width="4" height="12" fill="#353535"/>
+
+  <!-- Cockpit/Body -->
+  <ellipse cx="45" cy="25" rx="20" ry="12" fill="url(#heliBody)"/>
+
+  <!-- Cockpit window -->
+  <ellipse cx="55" cy="23" rx="10" ry="7" fill="#4080c0"/>
+  <ellipse cx="56" cy="22" rx="7" ry="5" fill="#60a0e0" opacity="0.5"/>
+
+  <!-- Tail boom -->
+  <path d="M25 22 L5 20 L5 28 L25 28" fill="url(#heliBody)"/>
+
+  <!-- Tail rotor -->
+  <ellipse cx="5" cy="24" rx="2" ry="8" fill="#404040" opacity="0.6"/>
+  <rect x="3" y="22" width="4" height="4" fill="#353535"/>
+
+  <!-- Tail fin -->
+  <path d="M8 18 L3 10 L5 10 L10 18" fill="url(#heliBody)"/>
+
+  <!-- Landing skids -->
+  <rect x="30" y="35" width="25" height="2" rx="1" fill="#353535"/>
+  <rect x="35" y="32" width="3" height="5" fill="#353535"/>
+  <rect x="47" y="32" width="3" height="5" fill="#353535"/>
+
+  <!-- Highlight -->
+  <path d="M35 20 Q45 17 55 20" stroke="#ffffff" stroke-width="0.5" fill="none" opacity="0.3"/>
+</svg>

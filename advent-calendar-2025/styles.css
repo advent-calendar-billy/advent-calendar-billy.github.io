@@ -1,0 +1,506 @@
+/* Advent Calendar 2025 - Boston & Berlin Split Design */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Inter:wght@300;400;500&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+    background: #0a0a1a;
+}
+
+/* ========================================
+   BACKGROUND - DIAGONAL CITY SPLIT
+   ======================================== */
+
+.background-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.city-side {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+/* Boston side - deep blue night sky (left/top) */
+.boston-side {
+    clip-path: polygon(0 0, 100% 0, 35% 100%, 0 100%);
+    background: linear-gradient(180deg,
+        #0a1628 0%,
+        #1a2d4a 30%,
+        #2a4a6a 60%,
+        #3a5a7a 80%,
+        #1a3050 100%
+    );
+}
+
+.boston-side::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+        radial-gradient(1px 1px at 20% 15%, #fff 100%, transparent),
+        radial-gradient(1.5px 1.5px at 40% 25%, #ffd 100%, transparent),
+        radial-gradient(1px 1px at 60% 10%, #fff 100%, transparent),
+        radial-gradient(1px 1px at 15% 35%, #fff 100%, transparent),
+        radial-gradient(1.2px 1.2px at 35% 45%, #ffd 100%, transparent),
+        radial-gradient(1px 1px at 25% 55%, #fff 100%, transparent),
+        radial-gradient(1px 1px at 10% 20%, #fff 100%, transparent),
+        radial-gradient(1.3px 1.3px at 5% 40%, #fff 100%, transparent),
+        radial-gradient(1px 1px at 55% 35%, #fff 100%, transparent),
+        radial-gradient(1px 1px at 45% 18%, #fff 100%, transparent);
+    opacity: 0.7;
+}
+
+/* Berlin side - warm purple night (right/bottom) */
+.berlin-side {
+    clip-path: polygon(35% 100%, 100% 0, 100% 100%);
+    background: linear-gradient(180deg,
+        #1a0a28 0%,
+        #2d1a4a 30%,
+        #4a2a6a 60%,
+        #5a3a7a 80%,
+        #301a50 100%
+    );
+}
+
+.berlin-side::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+        radial-gradient(1px 1px at 70% 15%, #fff 100%, transparent),
+        radial-gradient(1.5px 1.5px at 80% 25%, #fdf 100%, transparent),
+        radial-gradient(1px 1px at 90% 10%, #fff 100%, transparent),
+        radial-gradient(1px 1px at 75% 35%, #fff 100%, transparent),
+        radial-gradient(1.2px 1.2px at 85% 45%, #fdf 100%, transparent),
+        radial-gradient(1px 1px at 95% 55%, #fff 100%, transparent),
+        radial-gradient(1px 1px at 60% 20%, #fff 100%, transparent),
+        radial-gradient(1.3px 1.3px at 65% 40%, #fff 100%, transparent),
+        radial-gradient(1px 1px at 88% 35%, #fff 100%, transparent),
+        radial-gradient(1px 1px at 78% 18%, #fff 100%, transparent);
+    opacity: 0.7;
+}
+
+/* City skylines at the bottom */
+.city-skyline {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 200px;
+    pointer-events: none;
+}
+
+/* City skylines - removed, using landmark SVGs instead */
+.boston-skyline,
+.berlin-skyline {
+    display: none;
+}
+
+/* City landmark line drawings - z-index 1 keeps them behind calendar (z-index 10) */
+.landmark {
+    position: absolute;
+    pointer-events: none;
+    background-repeat: no-repeat;
+    z-index: 1;
+}
+
+/* Boston: State House + Towers */
+.boston-landmark {
+    bottom: 10%;
+    left: 3%;
+    width: 25%;
+    height: 45%;
+    background-image: url('state-house.svg');
+    background-size: contain;
+    background-position: left bottom;
+    opacity: 0.35;
+}
+
+.boston-landmark-towers {
+    bottom: 0;
+    left: 0;
+    width: 18%;
+    height: 55%;
+    background-image: url('boston-towers.svg');
+    background-size: contain;
+    background-position: left bottom;
+    opacity: 0.2;
+}
+
+/* Berlin: TV Tower + Parks + Train */
+.berlin-landmark {
+    bottom: 15%;
+    right: 3%;
+    width: 15%;
+    height: 50%;
+    background-image: url('berlin-tower.svg');
+    background-size: contain;
+    background-position: right bottom;
+    opacity: 0.4;
+}
+
+.berlin-landmark-parks {
+    bottom: 5%;
+    right: 25%;
+    width: 20%;
+    height: 30%;
+    background-image: url('berlin-parks.svg');
+    background-size: contain;
+    background-position: right bottom;
+    opacity: 0.3;
+}
+
+.berlin-landmark-train {
+    bottom: 0;
+    right: 0;
+    width: 22%;
+    height: 18%;
+    background-image: url('berlin-train.svg');
+    background-size: contain;
+    background-position: right bottom;
+    opacity: 0.3;
+}
+
+/* ========================================
+   WEATHER EFFECTS
+   ======================================== */
+
+/* Snow in Berlin */
+.snow-container {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 65%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+    clip-path: polygon(35% 100%, 100% 0, 100% 100%);
+}
+
+.snowflake {
+    position: absolute;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 10px;
+    animation: snowfall linear infinite;
+}
+
+@keyframes snowfall {
+    0% {
+        transform: translateY(-10px) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0.3;
+    }
+}
+
+/* Canvas-based wind for Boston */
+.wind-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 2;
+}
+
+#windCanvas {
+    width: 100%;
+    height: 100%;
+}
+
+/* ========================================
+   MAIN CONTENT
+   ======================================== */
+
+.container {
+    position: relative;
+    z-index: 10;
+    max-width: 850px;
+    margin: 0 auto;
+    padding: 50px 30px;
+}
+
+/* Header */
+header {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.header-cities {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.city-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 400;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+.boston-name {
+    color: #7eb8da;
+}
+
+.berlin-name {
+    color: #c9a0dc;
+}
+
+.city-separator {
+    color: rgba(255, 255, 255, 0.4);
+    font-weight: 300;
+    font-size: 1.5rem;
+}
+
+header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.8rem;
+    font-weight: 400;
+    letter-spacing: 5px;
+    color: #fff;
+    text-shadow: 0 2px 20px rgba(255, 255, 255, 0.2);
+    margin-bottom: 12px;
+}
+
+.subtitle {
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.7);
+    letter-spacing: 2px;
+    font-style: italic;
+}
+
+/* ========================================
+   CALENDAR GRID
+   ======================================== */
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+    margin-bottom: 50px;
+}
+
+.calendar-day {
+    aspect-ratio: 1;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.calendar-day::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+.day-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 600;
+    z-index: 1;
+}
+
+/* Decorative Days (1-14) - subtle background */
+.calendar-day.decorative {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.calendar-day.decorative .day-number {
+    color: rgba(255, 255, 255, 0.25);
+}
+
+/* Locked game days */
+.calendar-day.locked {
+    background: linear-gradient(145deg, rgba(80, 80, 120, 0.2), rgba(40, 40, 80, 0.3));
+    cursor: not-allowed;
+}
+
+.calendar-day.locked .day-number {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.calendar-day.locked .lock-icon {
+    position: absolute;
+    bottom: 6px;
+    color: rgba(255, 255, 255, 0.3);
+}
+
+/* Unlocked / Coming soon */
+.calendar-day.coming-soon {
+    background: linear-gradient(145deg, rgba(100, 140, 180, 0.2), rgba(60, 100, 140, 0.3));
+}
+
+.calendar-day.coming-soon .day-number {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.calendar-day.coming-soon::after {
+    content: '...';
+    position: absolute;
+    bottom: 5px;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.3);
+    letter-spacing: 2px;
+}
+
+/* Has game - playable */
+.calendar-day.has-game {
+    background: linear-gradient(145deg,
+        rgba(255, 107, 107, 0.25),
+        rgba(180, 80, 120, 0.35)
+    );
+    cursor: pointer;
+    border-color: rgba(255, 150, 150, 0.3);
+    box-shadow: 0 0 20px rgba(255, 107, 107, 0.15);
+}
+
+.calendar-day.has-game .day-number {
+    color: #ffd700;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.calendar-day.has-game:hover {
+    transform: scale(1.08);
+    box-shadow: 0 8px 30px rgba(255, 107, 107, 0.3);
+    border-color: rgba(255, 180, 180, 0.5);
+}
+
+.play-icon {
+    position: absolute;
+    bottom: 5px;
+    opacity: 0.8;
+    animation: pulse-play 2s ease-in-out infinite;
+}
+
+@keyframes pulse-play {
+    0%, 100% { transform: scale(1); opacity: 0.7; }
+    50% { transform: scale(1.1); opacity: 1; }
+}
+
+/* Christmas Eve special */
+.calendar-day.christmas-eve {
+    background: linear-gradient(145deg,
+        rgba(220, 50, 50, 0.3),
+        rgba(50, 180, 50, 0.2)
+    );
+    border-color: rgba(255, 200, 200, 0.3);
+}
+
+.calendar-day.christmas-eve.has-game {
+    animation: christmas-glow 3s ease-in-out infinite;
+}
+
+@keyframes christmas-glow {
+    0%, 100% {
+        box-shadow: 0 0 15px rgba(255, 50, 50, 0.3), 0 0 30px rgba(50, 255, 50, 0.2);
+    }
+    50% {
+        box-shadow: 0 0 25px rgba(255, 50, 50, 0.5), 0 0 50px rgba(50, 255, 50, 0.3);
+    }
+}
+
+/* ========================================
+   FOOTER
+   ======================================== */
+
+footer {
+    text-align: center;
+    padding: 20px 0;
+}
+
+.dedication {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.6);
+    letter-spacing: 2px;
+    font-style: italic;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+@media (max-width: 650px) {
+    .calendar-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+    }
+
+    header h1 {
+        font-size: 2rem;
+        letter-spacing: 3px;
+    }
+
+    .header-cities {
+        gap: 12px;
+    }
+
+    .city-name {
+        font-size: 1rem;
+    }
+
+    .day-number {
+        font-size: 1.3rem;
+    }
+
+    .container {
+        padding: 30px 15px;
+    }
+}
+
+@media (max-width: 400px) {
+    .calendar-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .header-cities {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    header h1 {
+        font-size: 1.6rem;
+    }
+}

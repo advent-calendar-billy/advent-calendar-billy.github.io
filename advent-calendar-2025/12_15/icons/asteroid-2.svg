@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50">
+  <!-- Smaller, rounder asteroid -->
+  <defs>
+    <radialGradient id="asteroidGrad2" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" style="stop-color:#8b7355"/>
+      <stop offset="50%" style="stop-color:#6b5344"/>
+      <stop offset="100%" style="stop-color:#4b3324"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Main body -->
+  <path d="M25 3 Q40 5 45 20 Q47 35 38 43 Q25 50 12 42 Q3 32 5 18 Q8 5 25 3"
+        fill="url(#asteroidGrad2)"/>
+
+  <!-- Craters -->
+  <ellipse cx="20" cy="18" rx="7" ry="5" fill="#3b2314" opacity="0.5"/>
+  <ellipse cx="19" cy="17" rx="5" ry="3" fill="#4b3324" opacity="0.4"/>
+
+  <ellipse cx="32" cy="30" rx="6" ry="5" fill="#3b2314" opacity="0.5"/>
+  <ellipse cx="31" cy="29" rx="4" ry="3" fill="#4b3324" opacity="0.4"/>
+
+  <circle cx="15" cy="35" r="4" fill="#3b2314" opacity="0.4"/>
+  <circle cx="38" cy="18" r="3" fill="#3b2314" opacity="0.4"/>
+
+  <!-- Highlights -->
+  <ellipse cx="15" cy="10" rx="4" ry="2" fill="#9b8365" opacity="0.5"/>
+</svg>

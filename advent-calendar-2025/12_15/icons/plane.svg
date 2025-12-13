@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 40">
+  <!-- Commercial airplane silhouette -->
+  <defs>
+    <linearGradient id="planeBody" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#e8e8e8"/>
+      <stop offset="50%" style="stop-color:#c0c0c0"/>
+      <stop offset="100%" style="stop-color:#a0a0a0"/>
+    </linearGradient>
+    <linearGradient id="planeWing" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#d0d0d0"/>
+      <stop offset="100%" style="stop-color:#909090"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Fuselage -->
+  <ellipse cx="40" cy="20" rx="35" ry="6" fill="url(#planeBody)"/>
+
+  <!-- Nose cone -->
+  <path d="M75 20 Q80 20 78 18 L75 14 Q76 20 75 26 L78 22 Q80 20 75 20" fill="#a0a0a0"/>
+
+  <!-- Cockpit windows -->
+  <ellipse cx="70" cy="18" rx="4" ry="2" fill="#4080c0"/>
+  <ellipse cx="70" cy="18" rx="3" ry="1.5" fill="#60a0e0" opacity="0.6"/>
+
+  <!-- Passenger windows -->
+  <g fill="#4080c0">
+    <ellipse cx="55" cy="18" rx="2" ry="1.5"/>
+    <ellipse cx="48" cy="18" rx="2" ry="1.5"/>
+    <ellipse cx="41" cy="18" rx="2" ry="1.5"/>
+    <ellipse cx="34" cy="18" rx="2" ry="1.5"/>
+    <ellipse cx="27" cy="18" rx="2" ry="1.5"/>
+    <ellipse cx="20" cy="18" rx="2" ry="1.5"/>
+  </g>
+
+  <!-- Main wing -->
+  <path d="M25 20 L5 8 L8 8 L45 20 L8 32 L5 32 L25 20" fill="url(#planeWing)"/>
+
+  <!-- Tail wing -->
+  <path d="M8 20 L2 10 L5 10 L12 20 L5 30 L2 30 L8 20" fill="url(#planeWing)"/>
+
+  <!-- Vertical stabilizer (tail) -->
+  <path d="M5 20 L5 5 L8 3 L10 5 L10 20" fill="url(#planeBody)"/>
+
+  <!-- Engine under wing -->
+  <ellipse cx="25" cy="25" rx="6" ry="3" fill="#808080"/>
+  <ellipse cx="25" cy="25" rx="4" ry="2" fill="#606060"/>
+
+  <!-- Reflection highlight -->
+  <path d="M15 16 Q40 14 65 16" stroke="#ffffff" stroke-width="0.5" fill="none" opacity="0.4"/>
+</svg>

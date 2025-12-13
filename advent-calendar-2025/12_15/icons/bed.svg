@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 120">
+  <!-- Cozy bed with wooden frame -->
+  <defs>
+    <linearGradient id="woodDark" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#8B4513"/>
+      <stop offset="50%" style="stop-color:#654321"/>
+      <stop offset="100%" style="stop-color:#4a3015"/>
+    </linearGradient>
+    <linearGradient id="woodLight" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#a0522d"/>
+      <stop offset="50%" style="stop-color:#8B4513"/>
+      <stop offset="100%" style="stop-color:#a0522d"/>
+    </linearGradient>
+    <linearGradient id="blanketGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#e8ddd4"/>
+      <stop offset="100%" style="stop-color:#d4c8bc"/>
+    </linearGradient>
+    <linearGradient id="sheetGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#fff8f0"/>
+      <stop offset="100%" style="stop-color:#f5e8d8"/>
+    </linearGradient>
+    <linearGradient id="pillowGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff"/>
+      <stop offset="100%" style="stop-color:#f0e8e0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Bed frame - bottom rail -->
+  <rect x="10" y="100" width="280" height="15" rx="3" fill="url(#woodDark)"/>
+
+  <!-- Bed legs -->
+  <rect x="15" y="100" width="12" height="20" rx="2" fill="url(#woodDark)"/>
+  <rect x="273" y="100" width="12" height="20" rx="2" fill="url(#woodDark)"/>
+
+  <!-- Headboard -->
+  <rect x="5" y="10" width="20" height="100" rx="5" fill="url(#woodDark)"/>
+  <rect x="8" y="15" width="14" height="40" rx="3" fill="url(#woodLight)"/>
+  <rect x="8" y="60" width="14" height="35" rx="3" fill="url(#woodLight)"/>
+
+  <!-- Footboard -->
+  <rect x="275" y="40" width="20" height="70" rx="5" fill="url(#woodDark)"/>
+  <rect x="278" y="45" width="14" height="25" rx="3" fill="url(#woodLight)"/>
+  <rect x="278" y="75" width="14" height="30" rx="3" fill="url(#woodLight)"/>
+
+  <!-- Mattress -->
+  <rect x="25" y="55" width="250" height="45" rx="8" fill="#f5e5d5"/>
+  <path d="M25 75 Q150 85 275 75" stroke="#e5d5c5" stroke-width="1" fill="none"/>
+
+  <!-- Sheet layer -->
+  <path d="M30 52 Q150 48 270 52 L270 65 Q150 70 30 65 Z" fill="url(#sheetGrad)"/>
+
+  <!-- Blanket (wavy, cozy) -->
+  <path d="M30 50 Q80 45 150 50 Q220 55 270 50 L275 95 Q220 100 150 95 Q80 90 25 95 Z" fill="url(#blanketGrad)"/>
+  <!-- Blanket texture/folds -->
+  <path d="M50 60 Q100 70 150 65 Q200 60 250 70" stroke="#c8bab0" stroke-width="1" fill="none" opacity="0.5"/>
+  <path d="M40 80 Q120 85 200 80 Q260 75 270 85" stroke="#c8bab0" stroke-width="1" fill="none" opacity="0.5"/>
+
+  <!-- Pillow -->
+  <ellipse cx="70" cy="45" rx="40" ry="18" fill="url(#pillowGrad)"/>
+  <path d="M35 45 Q70 50 105 45" stroke="#e0d8d0" stroke-width="1" fill="none" opacity="0.5"/>
+  <!-- Pillow shadow -->
+  <ellipse cx="70" cy="55" rx="35" ry="5" fill="#d0c0b0" opacity="0.3"/>
+</svg>

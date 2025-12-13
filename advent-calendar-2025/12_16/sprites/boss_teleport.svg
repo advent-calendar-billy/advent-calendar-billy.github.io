@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 120">
+  <!-- Dracula - Teleport/dissolving into bats -->
+
+  <defs>
+    <linearGradient id="fadeGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#4a0a0a" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#4a0a0a" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#4a0a0a" stop-opacity="1"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Fading cape -->
+  <path d="M10 35 Q-5 70 5 115 L75 115 Q85 70 70 35 Z" fill="url(#fadeGrad)"/>
+
+  <!-- Partial body (fading) -->
+  <rect x="28" y="40" width="24" height="45" rx="2" fill="#1a1a2a" opacity="0.6"/>
+
+  <!-- Head (still visible) -->
+  <ellipse cx="40" cy="25" rx="12" ry="14" fill="#d4c4b0"/>
+
+  <!-- Hair -->
+  <path d="M28 20 Q25 10 32 8 L40 5 L48 8 Q55 10 52 20 L52 12 Q48 8 40 10 Q32 8 28 12 Z" fill="#1a1a2a"/>
+
+  <!-- Eyes (glowing intensely) -->
+  <ellipse cx="35" cy="22" rx="2.5" ry="3" fill="#ff0000"/>
+  <ellipse cx="45" cy="22" rx="2.5" ry="3" fill="#ff0000"/>
+
+  <!-- Bats flying away -->
+  <g fill="#1a0a1a">
+    <!-- Bat 1 -->
+    <path d="M15 30 Q10 25 5 30 L10 28 L15 30 Q10 35 5 30" transform="rotate(-20 10 30)"/>
+    <!-- Bat 2 -->
+    <path d="M70 25 Q65 20 60 25 L65 23 L70 25 Q65 30 60 25" transform="rotate(15 65 25)"/>
+    <!-- Bat 3 -->
+    <path d="M25 50 Q20 45 15 50 L20 48 L25 50 Q20 55 15 50" transform="rotate(-30 20 50)"/>
+    <!-- Bat 4 -->
+    <path d="M65 45 Q60 40 55 45 L60 43 L65 45 Q60 50 55 45" transform="rotate(25 60 45)"/>
+    <!-- Bat 5 -->
+    <path d="M20 70 Q15 65 10 70 L15 68 L20 70 Q15 75 10 70" transform="rotate(-10 15 70)"/>
+    <!-- Bat 6 -->
+    <path d="M70 65 Q65 60 60 65 L65 63 L70 65 Q65 70 60 65" transform="rotate(10 65 65)"/>
+    <!-- Bat 7 (larger) -->
+    <path d="M40 15 Q32 8 24 15 L32 12 L40 15 Q32 22 24 15" transform="scale(1.3) translate(-5 -5)"/>
+  </g>
+
+  <!-- Swirling dark particles -->
+  <circle cx="30" cy="60" r="3" fill="#2a0a2a" opacity="0.7"/>
+  <circle cx="50" cy="55" r="2" fill="#2a0a2a" opacity="0.5"/>
+  <circle cx="35" cy="80" r="4" fill="#2a0a2a" opacity="0.4"/>
+  <circle cx="55" cy="75" r="2" fill="#2a0a2a" opacity="0.6"/>
+  <circle cx="25" cy="90" r="3" fill="#2a0a2a" opacity="0.3"/>
+  <circle cx="60" cy="95" r="3" fill="#2a0a2a" opacity="0.3"/>
+
+  <!-- Sinister smile -->
+  <path d="M35 32 Q40 36 45 32" stroke="#4a2a2a" stroke-width="1.5" fill="none"/>
+</svg>

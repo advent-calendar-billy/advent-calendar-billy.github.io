@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <!-- Dracula - Attack pose, casting dark magic -->
+
+  <!-- Large cape (spread wide dramatically) -->
+  <path d="M5 35 Q-15 70 0 115 L115 115 Q130 70 115 35 Z" fill="#4a0a0a" stroke="#2a0505" stroke-width="2"/>
+  <path d="M10 38 Q-10 70 5 110 L110 110 Q125 70 110 38 Z" fill="#6a1515"/>
+
+  <!-- Inner cape lining -->
+  <path d="M20 42 Q10 70 15 100 L100 100 Q105 70 95 42 Z" fill="#8b0000"/>
+
+  <!-- Body leaning forward -->
+  <rect x="45" y="40" width="24" height="45" rx="2" fill="#1a1a2a" transform="rotate(10 57 62)"/>
+  <rect x="47" y="42" width="20" height="20" rx="1" fill="#2a2a3a" transform="rotate(10 57 52)"/>
+
+  <!-- Vest details -->
+  <rect x="55" y="45" width="4" height="35" fill="#3a1a1a" transform="rotate(10 57 62)"/>
+
+  <!-- Medallion (glowing) -->
+  <circle cx="57" cy="44" r="6" fill="#ff6600" opacity="0.8"/>
+  <circle cx="57" cy="44" r="4" fill="#ffaa00"/>
+
+  <!-- Extended arm casting spell -->
+  <rect x="70" y="45" width="35" height="8" rx="3" fill="#d4c4b0" transform="rotate(-15 87 49)"/>
+
+  <!-- Magic orb in hand -->
+  <defs>
+    <radialGradient id="fireGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffff00"/>
+      <stop offset="50%" stop-color="#ff6600"/>
+      <stop offset="100%" stop-color="#ff0000"/>
+    </radialGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <circle cx="105" cy="38" r="12" fill="url(#fireGrad)" filter="url(#glow)"/>
+  <circle cx="105" cy="38" r="8" fill="#ffcc00" opacity="0.8"/>
+  <circle cx="105" cy="38" r="4" fill="#ffffff"/>
+
+  <!-- Legs -->
+  <rect x="48" y="85" width="8" height="28" fill="#1a1a2a" transform="rotate(5 52 99)"/>
+  <rect x="60" y="85" width="8" height="28" fill="#1a1a2a" transform="rotate(-5 64 99)"/>
+
+  <!-- Head (intense expression) -->
+  <ellipse cx="55" cy="25" rx="12" ry="14" fill="#d4c4b0"/>
+
+  <!-- Hair -->
+  <path d="M43 20 Q40 10 47 8 L55 5 L63 8 Q70 10 67 20 L67 12 Q63 8 55 10 Q47 8 43 12 Z" fill="#1a1a2a"/>
+
+  <!-- Glowing red eyes -->
+  <ellipse cx="50" cy="22" rx="2.5" ry="3" fill="#ff0000"/>
+  <ellipse cx="60" cy="22" rx="2.5" ry="3" fill="#ff0000"/>
+  <ellipse cx="50" cy="22" rx="1" ry="1.5" fill="#ffffff"/>
+  <ellipse cx="60" cy="22" rx="1" ry="1.5" fill="#ffffff"/>
+
+  <!-- Angry eyebrows -->
+  <path d="M46 17 L53 20" stroke="#1a1a2a" stroke-width="2.5"/>
+  <path d="M64 17 L57 20" stroke="#1a1a2a" stroke-width="2.5"/>
+
+  <!-- Mouth open showing fangs -->
+  <ellipse cx="55" cy="33" rx="5" ry="3" fill="#2a0a0a"/>
+  <path d="M51 31 L50 35 L52 31" fill="#ffffff"/>
+  <path d="M59 31 L60 35 L58 31" fill="#ffffff"/>
+
+  <!-- High collar -->
+  <path d="M40 35 L47 48 L47 35 Z" fill="#4a0a0a"/>
+  <path d="M70 35 L63 48 L63 35 Z" fill="#4a0a0a"/>
+
+  <!-- Other arm back -->
+  <rect x="25" y="50" width="25" height="7" rx="3" fill="#d4c4b0" transform="rotate(30 37 53)"/>
+</svg>

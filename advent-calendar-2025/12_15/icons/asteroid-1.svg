@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60">
+  <!-- Rocky asteroid with craters -->
+  <defs>
+    <radialGradient id="asteroidGrad1" cx="30%" cy="30%" r="70%">
+      <stop offset="0%" style="stop-color:#a0a0a0"/>
+      <stop offset="50%" style="stop-color:#707070"/>
+      <stop offset="100%" style="stop-color:#404040"/>
+    </radialGradient>
+    <filter id="asteroidShadow">
+      <feDropShadow dx="2" dy="2" stdDeviation="2" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+
+  <!-- Main body (irregular shape) -->
+  <path d="M30 5 Q45 3 52 15 Q58 25 55 38 Q52 52 40 55 Q25 58 15 50 Q5 42 8 28 Q10 15 22 8 Q28 5 30 5"
+        fill="url(#asteroidGrad1)" filter="url(#asteroidShadow)"/>
+
+  <!-- Surface details / craters -->
+  <ellipse cx="25" cy="20" rx="8" ry="6" fill="#505050" opacity="0.6"/>
+  <ellipse cx="25" cy="19" rx="6" ry="4" fill="#606060" opacity="0.5"/>
+
+  <ellipse cx="40" cy="35" rx="10" ry="8" fill="#505050" opacity="0.6"/>
+  <ellipse cx="39" cy="33" rx="7" ry="5" fill="#606060" opacity="0.5"/>
+
+  <ellipse cx="18" cy="40" rx="6" ry="5" fill="#505050" opacity="0.6"/>
+  <ellipse cx="17" cy="39" rx="4" ry="3" fill="#606060" opacity="0.5"/>
+
+  <circle cx="35" cy="15" r="3" fill="#505050" opacity="0.5"/>
+  <circle cx="48" cy="28" r="4" fill="#505050" opacity="0.4"/>
+  <circle cx="22" cy="50" r="3" fill="#505050" opacity="0.5"/>
+
+  <!-- Highlights -->
+  <ellipse cx="20" cy="12" rx="5" ry="3" fill="#b0b0b0" opacity="0.4"/>
+  <ellipse cx="12" cy="25" rx="3" ry="4" fill="#b0b0b0" opacity="0.3"/>
+</svg>

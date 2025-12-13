@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Castlevania: Symphony of the Night - Dec 16</title>
+    <link rel="stylesheet" href="css/game.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=MedievalSharp&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="game-container" id="gameContainer">
+        <!-- Main game canvas -->
+        <canvas id="gameCanvas"></canvas>
+
+        <!-- HUD Overlay -->
+        <div class="hud" id="hud">
+            <div class="hud-left">
+                <div class="player-name">ALUCARD</div>
+                <div class="hp-container">
+                    <span class="stat-label">HP</span>
+                    <div class="hp-bar">
+                        <div class="hp-fill" id="hpFill"></div>
+                    </div>
+                    <span class="stat-value" id="hpValue">100/100</span>
+                </div>
+                <div class="mp-container">
+                    <span class="stat-label">MP</span>
+                    <div class="mp-bar">
+                        <div class="mp-fill" id="mpFill"></div>
+                    </div>
+                    <span class="stat-value" id="mpValue">50/50</span>
+                </div>
+            </div>
+            <div class="hud-center">
+                <div class="boss-container" id="bossHud">
+                    <div class="boss-name">DRACULA</div>
+                    <div class="boss-hp-bar">
+                        <div class="boss-hp-fill" id="bossHpFill"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="hud-right">
+                <div class="equipment-display">
+                    <div class="equip-slot" id="weaponSlot">
+                        <span class="slot-label">R.HAND</span>
+                        <div class="slot-icon" id="weaponIcon"></div>
+                    </div>
+                    <div class="equip-slot" id="shieldSlot">
+                        <span class="slot-label">L.HAND</span>
+                        <div class="slot-icon" id="shieldIcon"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dialogue Box -->
+        <div class="dialogue-box" id="dialogueBox">
+            <div class="dialogue-portrait" id="dialoguePortrait"></div>
+            <div class="dialogue-content">
+                <div class="dialogue-speaker" id="dialogueSpeaker"></div>
+                <div class="dialogue-text" id="dialogueText"></div>
+            </div>
+            <div class="dialogue-continue">Press SPACE to continue</div>
+        </div>
+
+        <!-- Pause Menu -->
+        <div class="pause-menu" id="pauseMenu">
+            <div class="pause-header">
+                <div class="pause-title">STATUS</div>
+                <div class="pause-tabs">
+                    <button class="tab-btn active" data-tab="equip">EQUIP</button>
+                    <button class="tab-btn" data-tab="items">ITEMS</button>
+                    <button class="tab-btn" data-tab="spells">SPELLS</button>
+                    <button class="tab-btn" data-tab="stats">STATS</button>
+                </div>
+            </div>
+
+            <div class="pause-content">
+                <!-- Equipment Tab -->
+                <div class="tab-content active" id="equipTab">
+                    <div class="equip-section">
+                        <div class="current-equipment">
+                            <div class="equip-row">
+                                <span class="equip-label">R. HAND</span>
+                                <span class="equip-item" id="currentWeapon">Alucard Sword</span>
+                            </div>
+                            <div class="equip-row">
+                                <span class="equip-label">L. HAND</span>
+                                <span class="equip-item" id="currentShield">Alucard Shield</span>
+                            </div>
+                            <div class="equip-row">
+                                <span class="equip-label">HEAD</span>
+                                <span class="equip-item" id="currentHelm">Dragon Helm</span>
+                            </div>
+                            <div class="equip-row">
+                                <span class="equip-label">BODY</span>
+                                <span class="equip-item" id="currentArmor">Alucard Mail</span>
+                            </div>
+                            <div class="equip-row">
+                                <span class="equip-label">CLOAK</span>
+                                <span class="equip-item" id="currentCloak">Twilight Cloak</span>
+                            </div>
+                            <div class="equip-row">
+                                <span class="equip-label">ACCESSORY 1</span>
+                                <span class="equip-item" id="currentAcc1">Ring of Varda</span>
+                            </div>
+                            <div class="equip-row">
+                                <span class="equip-label">ACCESSORY 2</span>
+                                <span class="equip-item" id="currentAcc2">Duplicator</span>
+                            </div>
+                        </div>
+                        <div class="inventory-grid" id="inventoryGrid">
+                            <!-- Inventory items will be populated by JS -->
+                        </div>
+                    </div>
+                    <div class="item-description" id="itemDescription">
+                        Select an item to view its description.
+                    </div>
+                </div>
+
+                <!-- Items Tab -->
+                <div class="tab-content" id="itemsTab">
+                    <div class="items-grid" id="itemsGrid">
+                        <!-- Items populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Spells Tab -->
+                <div class="tab-content" id="spellsTab">
+                    <div class="spells-list">
+                        <div class="spell-row">
+                            <span class="spell-name">Hellfire</span>
+                            <span class="spell-input">↑ ↓ → + ATK</span>
+                            <span class="spell-mp">15 MP</span>
+                        </div>
+                        <div class="spell-row">
+                            <span class="spell-name">Soul Steal</span>
+                            <span class="spell-input">← → ↓ ↑ + ATK</span>
+                            <span class="spell-mp">50 MP</span>
+                        </div>
+                        <div class="spell-row">
+                            <span class="spell-name">Dark Metamorphosis</span>
+                            <span class="spell-input">← ↑ → ↓ + ATK</span>
+                            <span class="spell-mp">10 MP</span>
+                        </div>
+                        <div class="spell-row">
+                            <span class="spell-name">Summon Spirit</span>
+                            <span class="spell-input">← → ↑ ↓ + ATK</span>
+                            <span class="spell-mp">5 MP</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Tab -->
+                <div class="tab-content" id="statsTab">
+                    <div class="stats-display">
+                        <div class="stat-row"><span>STR</span><span id="statStr">25</span></div>
+                        <div class="stat-row"><span>CON</span><span id="statCon">20</span></div>
+                        <div class="stat-row"><span>INT</span><span id="statInt">30</span></div>
+                        <div class="stat-row"><span>LCK</span><span id="statLck">15</span></div>
+                        <div class="stat-row"><span>ATT</span><span id="statAtt">45</span></div>
+                        <div class="stat-row"><span>DEF</span><span id="statDef">35</span></div>
+                        <div class="stat-row"><span>LEVEL</span><span id="statLevel">50</span></div>
+                        <div class="stat-row"><span>EXP</span><span id="statExp">999999</span></div>
+                    </div>
+                    <div class="character-preview" id="characterPreview"></div>
+                </div>
+            </div>
+
+            <div class="pause-footer">
+                <span>ENTER - Select | ESC - Close | Arrow Keys - Navigate</span>
+            </div>
+        </div>
+
+        <!-- Start Screen -->
+        <div class="start-screen" id="startScreen">
+            <div class="start-content">
+                <div class="game-logo">
+                    <div class="logo-text">CASTLEVANIA</div>
+                    <div class="logo-subtitle">SYMPHONY OF THE NIGHT</div>
+                </div>
+                <div class="start-menu">
+                    <button class="menu-btn selected" id="startBtn">START GAME</button>
+                    <button class="menu-btn" id="controlsBtn">CONTROLS</button>
+                </div>
+                <div class="controls-info" id="controlsInfo">
+                    <div class="control-row"><span>ARROW KEYS</span><span>Move</span></div>
+                    <div class="control-row"><span>Z</span><span>Attack</span></div>
+                    <div class="control-row"><span>X</span><span>Jump</span></div>
+                    <div class="control-row"><span>C</span><span>Backdash</span></div>
+                    <div class="control-row"><span>ENTER</span><span>Pause/Menu</span></div>
+                    <div class="control-row"><span>SPACE</span><span>Advance Dialogue</span></div>
+                </div>
+                <div class="copyright">KONAMI 1997</div>
+            </div>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div class="game-over-screen" id="gameOverScreen">
+            <div class="game-over-content">
+                <div class="game-over-text">GAME OVER</div>
+                <button class="menu-btn" id="retryBtn">CONTINUE</button>
+                <a href="../index.html" class="back-link">Back to Calendar</a>
+            </div>
+        </div>
+
+        <!-- Victory Screen -->
+        <div class="victory-screen" id="victoryScreen">
+            <div class="victory-content">
+                <div class="victory-text">DRACULA HAS BEEN DEFEATED</div>
+                <div class="victory-subtitle">The dark lord's reign has ended...</div>
+                <button class="menu-btn" id="playAgainBtn">PLAY AGAIN</button>
+                <a href="../index.html" class="back-link">Back to Calendar</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/sprites.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>

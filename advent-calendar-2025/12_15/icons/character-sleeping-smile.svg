@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 60">
+  <!-- Character sleeping - smiling (win state) -->
+  <defs>
+    <linearGradient id="skinGradSmile" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffd5b8"/>
+      <stop offset="100%" style="stop-color:#f4c4a0"/>
+    </linearGradient>
+    <linearGradient id="hairGradSmile" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#4a3728"/>
+      <stop offset="100%" style="stop-color:#2d1f15"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Head (lying on side) -->
+  <ellipse cx="50" cy="30" rx="22" ry="18" fill="url(#skinGradSmile)"/>
+
+  <!-- Hair -->
+  <path d="M28 25 Q30 10 50 8 Q70 10 72 25 Q70 18 50 16 Q30 18 28 25" fill="url(#hairGradSmile)"/>
+  <ellipse cx="32" cy="22" rx="6" ry="8" fill="url(#hairGradSmile)"/>
+
+  <!-- Ear -->
+  <ellipse cx="72" cy="30" rx="4" ry="6" fill="#f4c4a0"/>
+  <ellipse cx="72" cy="30" rx="2" ry="4" fill="#e8b090"/>
+
+  <!-- Closed eyes (sleeping, happy curve) -->
+  <path d="M38 28 Q42 24 46 28" stroke="#5c4033" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M54 28 Q58 24 62 28" stroke="#5c4033" stroke-width="2" fill="none" stroke-linecap="round"/>
+
+  <!-- Eyelashes -->
+  <path d="M37 29 L36 31" stroke="#5c4033" stroke-width="1" stroke-linecap="round"/>
+  <path d="M42 30 L42 32" stroke="#5c4033" stroke-width="1" stroke-linecap="round"/>
+  <path d="M47 29 L48 31" stroke="#5c4033" stroke-width="1" stroke-linecap="round"/>
+  <path d="M53 29 L52 31" stroke="#5c4033" stroke-width="1" stroke-linecap="round"/>
+  <path d="M58 30 L58 32" stroke="#5c4033" stroke-width="1" stroke-linecap="round"/>
+  <path d="M63 29 L64 31" stroke="#5c4033" stroke-width="1" stroke-linecap="round"/>
+
+  <!-- Eyebrows (happy) -->
+  <path d="M36 22 Q42 20 48 22" stroke="#3d2817" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <path d="M52 22 Q58 20 64 22" stroke="#3d2817" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+
+  <!-- Nose -->
+  <path d="M50 32 Q52 36 50 38" stroke="#d4a088" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+
+  <!-- Big happy smile -->
+  <path d="M42 42 Q50 50 58 42" stroke="#c97878" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+
+  <!-- Cheek blush (more prominent when smiling) -->
+  <ellipse cx="36" cy="36" rx="6" ry="4" fill="#ffb8b8" opacity="0.5"/>
+  <ellipse cx="64" cy="36" rx="6" ry="4" fill="#ffb8b8" opacity="0.5"/>
+
+  <!-- Happy sparkles -->
+  <g filter="url(#glow)">
+    <path d="M78 20 L80 18 L82 20 L80 22 Z" fill="#ffd700"/>
+    <path d="M85 28 L86 26 L87 28 L86 30 Z" fill="#ffd700"/>
+    <path d="M75 30 L76 29 L77 30 L76 31 Z" fill="#ffd700"/>
+  </g>
+
+  <!-- Hearts floating -->
+  <path d="M80 12 C80 10 82 10 82 12 C82 10 84 10 84 12 C84 15 82 17 82 17 C82 17 80 15 80 12" fill="#ff6b6b" opacity="0.7">
+    <animate attributeName="opacity" values="0.7;0.3;0.7" dur="1.5s" repeatCount="indefinite"/>
+  </path>
+  <path d="M88 18 C88 17 89 17 89 18 C89 17 90 17 90 18 C90 19.5 89 20.5 89 20.5 C89 20.5 88 19.5 88 18" fill="#ff6b6b" opacity="0.5">
+    <animate attributeName="opacity" values="0.5;0.2;0.5" dur="2s" repeatCount="indefinite"/>
+  </path>
+</svg>

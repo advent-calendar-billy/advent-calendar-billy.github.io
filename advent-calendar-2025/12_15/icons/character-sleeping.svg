@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 60">
+  <!-- Character sleeping - neutral face, lying down -->
+  <defs>
+    <linearGradient id="skinGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffd5b8"/>
+      <stop offset="100%" style="stop-color:#f4c4a0"/>
+    </linearGradient>
+    <linearGradient id="hairGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#4a3728"/>
+      <stop offset="100%" style="stop-color:#2d1f15"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Head (lying on side) -->
+  <ellipse cx="50" cy="30" rx="22" ry="18" fill="url(#skinGrad)"/>
+
+  <!-- Hair -->
+  <path d="M28 25 Q30 10 50 8 Q70 10 72 25 Q70 18 50 16 Q30 18 28 25" fill="url(#hairGrad)"/>
+  <ellipse cx="32" cy="22" rx="6" ry="8" fill="url(#hairGrad)"/>
+
+  <!-- Ear -->
+  <ellipse cx="72" cy="30" rx="4" ry="6" fill="#f4c4a0"/>
+  <ellipse cx="72" cy="30" rx="2" ry="4" fill="#e8b090"/>
+
+  <!-- Closed eyes (sleeping) -->
+  <path d="M38 28 Q42 32 46 28" stroke="#5c4033" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M54 28 Q58 32 62 28" stroke="#5c4033" stroke-width="2" fill="none" stroke-linecap="round"/>
+
+  <!-- Eyelashes -->
+  <path d="M37 27 L36 25" stroke="#5c4033" stroke-width="1" stroke-linecap="round"/>
+  <path d="M42 26 L42 24" stroke="#5c4033" stroke-width="1" stroke-linecap="round"/>
+  <path d="M47 27 L48 25" stroke="#5c4033" stroke-width="1" stroke-linecap="round"/>
+  <path d="M53 27 L52 25" stroke="#5c4033" stroke-width="1" stroke-linecap="round"/>
+  <path d="M58 26 L58 24" stroke="#5c4033" stroke-width="1" stroke-linecap="round"/>
+  <path d="M63 27 L64 25" stroke="#5c4033" stroke-width="1" stroke-linecap="round"/>
+
+  <!-- Eyebrows (relaxed) -->
+  <path d="M36 22 Q42 20 48 22" stroke="#3d2817" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <path d="M52 22 Q58 20 64 22" stroke="#3d2817" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+
+  <!-- Nose -->
+  <path d="M50 32 Q52 36 50 38" stroke="#d4a088" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+
+  <!-- Mouth (slightly open, peaceful) -->
+  <ellipse cx="50" cy="44" rx="4" ry="2" fill="#c97878"/>
+
+  <!-- Cheek blush -->
+  <ellipse cx="38" cy="36" rx="5" ry="3" fill="#ffb8b8" opacity="0.4"/>
+  <ellipse cx="62" cy="36" rx="5" ry="3" fill="#ffb8b8" opacity="0.4"/>
+
+  <!-- Z's for sleeping -->
+  <text x="75" y="15" font-family="Arial, sans-serif" font-size="8" fill="#a8d8ea" opacity="0.8">z</text>
+  <text x="82" y="10" font-family="Arial, sans-serif" font-size="10" fill="#a8d8ea" opacity="0.6">z</text>
+  <text x="90" y="5" font-family="Arial, sans-serif" font-size="12" fill="#a8d8ea" opacity="0.4">z</text>
+</svg>

@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 180">
+  <!-- Casino entrance building -->
+  <defs>
+    <linearGradient id="casinoWall" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#d4af37"/>
+      <stop offset="50%" style="stop-color:#b8960c"/>
+      <stop offset="100%" style="stop-color:#8b7500"/>
+    </linearGradient>
+    <linearGradient id="casinoPillar" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#f0e68c"/>
+      <stop offset="50%" style="stop-color:#d4af37"/>
+      <stop offset="100%" style="stop-color:#b8960c"/>
+    </linearGradient>
+    <linearGradient id="casinoRoof" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" style="stop-color:#8b0000"/>
+      <stop offset="100%" style="stop-color:#dc143c"/>
+    </linearGradient>
+    <filter id="neonGlow">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Main building -->
+  <rect x="30" y="60" width="240" height="120" fill="url(#casinoWall)"/>
+
+  <!-- Roof/top decoration -->
+  <path d="M20 60 L150 15 L280 60" fill="url(#casinoRoof)"/>
+  <rect x="20" y="55" width="260" height="8" fill="#8b0000"/>
+
+  <!-- Pillars -->
+  <rect x="45" y="65" width="15" height="110" fill="url(#casinoPillar)"/>
+  <rect x="85" y="65" width="15" height="110" fill="url(#casinoPillar)"/>
+  <rect x="200" y="65" width="15" height="110" fill="url(#casinoPillar)"/>
+  <rect x="240" y="65" width="15" height="110" fill="url(#casinoPillar)"/>
+
+  <!-- Pillar capitals -->
+  <rect x="42" y="62" width="21" height="6" fill="#f0e68c"/>
+  <rect x="82" y="62" width="21" height="6" fill="#f0e68c"/>
+  <rect x="197" y="62" width="21" height="6" fill="#f0e68c"/>
+  <rect x="237" y="62" width="21" height="6" fill="#f0e68c"/>
+
+  <!-- Main entrance door -->
+  <rect x="115" y="90" width="70" height="90" fill="#2c1810"/>
+  <rect x="120" y="95" width="28" height="80" fill="#4a3020"/>
+  <rect x="152" y="95" width="28" height="80" fill="#4a3020"/>
+
+  <!-- Door handles -->
+  <circle cx="145" cy="140" r="3" fill="#d4af37"/>
+  <circle cx="155" cy="140" r="3" fill="#d4af37"/>
+
+  <!-- Windows -->
+  <rect x="50" y="85" width="25" height="35" fill="#4080c0"/>
+  <rect x="50" y="130" width="25" height="30" fill="#4080c0"/>
+  <rect x="225" y="85" width="25" height="35" fill="#4080c0"/>
+  <rect x="225" y="130" width="25" height="30" fill="#4080c0"/>
+
+  <!-- Window reflections -->
+  <rect x="52" y="87" width="8" height="31" fill="#60a0e0" opacity="0.5"/>
+  <rect x="227" y="87" width="8" height="31" fill="#60a0e0" opacity="0.5"/>
+
+  <!-- CASINO text (neon style) -->
+  <g filter="url(#neonGlow)">
+    <text x="150" y="50" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#ff1493">CASINO</text>
+  </g>
+
+  <!-- Decorative lights on roof -->
+  <g fill="#ffd700">
+    <circle cx="50" cy="58" r="3"/>
+    <circle cx="80" cy="58" r="3"/>
+    <circle cx="110" cy="58" r="3"/>
+    <circle cx="150" cy="40" r="4"/>
+    <circle cx="190" cy="58" r="3"/>
+    <circle cx="220" cy="58" r="3"/>
+    <circle cx="250" cy="58" r="3"/>
+  </g>
+
+  <!-- Light glow effect -->
+  <g fill="#ffd700" opacity="0.3">
+    <circle cx="50" cy="58" r="6"/>
+    <circle cx="150" cy="40" r="8"/>
+    <circle cx="250" cy="58" r="6"/>
+  </g>
+
+  <!-- Red carpet -->
+  <rect x="125" y="175" width="50" height="5" fill="#dc143c"/>
+  <path d="M125 175 L115 180 L185 180 L175 175" fill="#dc143c"/>
+
+  <!-- Ground/entrance step -->
+  <rect x="100" y="175" width="100" height="5" fill="#8b7500"/>
+</svg>
