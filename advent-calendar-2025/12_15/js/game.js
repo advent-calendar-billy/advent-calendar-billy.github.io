@@ -122,6 +122,7 @@ class FallingDreamGame {
         this.createWindIndicator();
         this.createLivesDisplay();
         this.createParachuteButton();
+        this.createParachuteElement();
         this.dreamBackground.classList.add('space');
         this.bindEvents();
         this.startOverlay.classList.add('active');
@@ -206,6 +207,15 @@ class FallingDreamGame {
         parachuteBtn.addEventListener('click', () => this.deployParachute());
     }
 
+    createParachuteElement() {
+        const parachute = document.createElement('div');
+        parachute.className = 'parachute-element';
+        parachute.id = 'parachuteElement';
+        parachute.innerHTML = `<img src="icons/parachute.svg" alt="Parachute">`;
+        document.getElementById('gameArea').appendChild(parachute);
+        this.parachuteElement = parachute;
+    }
+
     updateLivesDisplay() {
         for (let i = 0; i < this.maxLives; i++) {
             const heart = document.getElementById(`heart${i}`);
@@ -248,8 +258,18 @@ class FallingDreamGame {
         this.parachuteDeployed = true;
         this.parachuteButton.classList.add('deployed');
         this.fallingCharacter.classList.add('parachute-deployed');
+        this.parachuteElement.classList.add('deployed');
         this.descentRate = 400;
         this.screenShake.intensity = 5;
+        this.updateParachutePosition();
+    }
+
+    updateParachutePosition() {
+        if (this.parachuteDeployed && this.parachuteElement) {
+            // Position parachute above the falling character
+            this.parachuteElement.style.left = `${this.playerX}%`;
+            this.parachuteElement.style.top = `${this.playerY - 12}%`;
+        }
     }
 
     startGame() {
@@ -300,7 +320,8 @@ class FallingDreamGame {
         this.sleepingContainer.style.transform = 'translate(0, 0) rotate(0deg)';
         this.fallingCharacter.style.left = '50%';
         this.fallingCharacter.style.top = '25%';
-        this.fallingCharacter.classList.remove('parachute-deployed', 'invulnerable');
+        this.fallingCharacter.classList.remove('parachute-deployed', 'invulnerable', 'landing-descent');
+        this.fallingCharacter.style.transition = '';
         this.gameContainer.style.transform = 'translate(0, 0)';
         this.gameContainer.classList.remove('near-miss');
         this.dreamBubble.querySelector('span').textContent = 'zzz...';
@@ -308,6 +329,14 @@ class FallingDreamGame {
         this.parachuteButton.classList.remove('visible', 'deployed');
         this.progressBar.style.width = '0%';
         this.progressMarker.style.left = '0%';
+
+        // Reset parachute element
+        if (this.parachuteElement) {
+            this.parachuteElement.classList.remove('deployed');
+            this.parachuteElement.style.opacity = '0';
+            this.parachuteElement.style.transform = 'translateX(-50%) scale(0.3)';
+            this.parachuteElement.style.transition = '';
+        }
 
         this.updateLivesDisplay();
         this.winOverlay.classList.remove('active');
@@ -346,6 +375,7 @@ class FallingDreamGame {
         this.updatePhase();
         this.updateProgressBar();
         this.updateParachuteAvailability();
+        this.updateParachutePosition();
 
         const phase = this.getCurrentPhase();
         if (this.gameTime - this.lastSpawnTime > this.phases[phase].spawnRate) {
@@ -458,19 +488,31 @@ class FallingDreamGame {
         this.sleepTossTimer += this.deltaTime * 1000;
         if (this.sleepTossTimer > 600 - this.sleepRestlessness * 300) {
             this.sleepTossTimer = 0;
-            this.sleepTargetY = Math.random() * this.sleepRestlessness * 8 - 4;
         }
 
-        // Head rotation based on left/right input - like turning head on pillow
-        const inputRotation = (this.playerX - 50) * 0.25;
-        const randomToss = Math.sin(this.gameTime * 0.002) * this.sleepRestlessness * 6;
+        // When dream character moves left/right, sleeping character rolls in bed
+        // Since bed is horizontal (viewed from front), rolling left/right creates vertical visual shift
+        // Rolling left = body turns toward us (moves up in view)
+        // Rolling right = body turns away (moves down in view)
+        const rollAmount = (this.playerX - 50) * 0.15; // How much to shift based on dream position
+        const restlessNoise = Math.sin(this.gameTime * 0.002) * this.sleepRestlessness * 4;
+
+        // Target Y position - rolling creates vertical shift in bed view
+        this.sleepTargetY = -rollAmount + restlessNoise;
+
+        // Rotation based on rolling direction (subtle tilt when rolled to side)
+        const inputRotation = (this.playerX - 50) * 0.12;
+        const randomToss = Math.sin(this.gameTime * 0.003) * this.sleepRestlessness * 4;
         this.sleepTargetRotation = inputRotation + randomToss;
 
+        // Smooth interpolation
         this.sleepCurrentRotation += (this.sleepTargetRotation - this.sleepCurrentRotation) * 5 * this.deltaTime;
-        this.sleepCurrentY += (this.sleepTargetY - this.sleepCurrentY) * 3 * this.deltaTime;
+        this.sleepCurrentY += (this.sleepTargetY - this.sleepCurrentY) * 4 * this.deltaTime;
 
-        // Switch sleeping SVG based on player position (head turned left/right)
-        const threshold = 15;
+        // Switch sleeping SVG based on player left/right position
+        // Dream moves left -> sleeping character rolls left (shows left-rolled SVG)
+        // Dream moves right -> sleeping character rolls right (shows right-rolled SVG)
+        const threshold = 12;
         if (this.playerX < 50 - threshold && this.currentSleepDirection !== 'left') {
             this.sleepingCharacter.src = 'icons/character-sleeping-left.svg';
             this.currentSleepDirection = 'left';
@@ -482,7 +524,7 @@ class FallingDreamGame {
             this.currentSleepDirection = 'center';
         }
 
-        // Only rotation and slight Y shift (up/down in bed), no horizontal sliding
+        // Apply transform: vertical shift (rolling effect) + slight rotation
         this.sleepingContainer.style.transform = `translateY(${this.sleepCurrentY}px) rotate(${this.sleepCurrentRotation}deg)`;
 
         if (this.sleepRestlessness > 0.6) this.dreamBubble.classList.add('distressed');
@@ -741,9 +783,8 @@ class FallingDreamGame {
         if (this.animationFrameId) cancelAnimationFrame(this.animationFrameId);
 
         if (won) {
-            this.sleepingCharacter.src = 'icons/character-sleeping-smile.svg';
-            this.dreamBubble.style.opacity = '0';
-            setTimeout(() => this.winOverlay.classList.add('active'), 800);
+            // Trigger landing animation
+            this.triggerLandingAnimation();
         } else {
             this.screenShake.intensity = 20;
             this.gameContainer.classList.add('hit');
@@ -752,6 +793,46 @@ class FallingDreamGame {
             this.sleepTargetRotation = 30;
             setTimeout(() => { this.gameContainer.classList.remove('hit'); this.loseOverlay.classList.add('active'); }, 500);
         }
+    }
+
+    triggerLandingAnimation() {
+        // Add landing descent class for smooth animation
+        this.fallingCharacter.classList.add('landing-descent');
+
+        // Move character to land in front of casino (center bottom)
+        this.fallingCharacter.style.left = '50%';
+        this.fallingCharacter.style.top = '75%';
+
+        // Update parachute position to follow
+        if (this.parachuteElement) {
+            this.parachuteElement.style.transition = 'left 2s ease-out, top 3s ease-out';
+            this.parachuteElement.style.left = '50%';
+            this.parachuteElement.style.top = '63%';
+        }
+
+        // After initial descent, make sleeping character smile
+        setTimeout(() => {
+            this.sleepingCharacter.src = 'icons/character-sleeping-smile.svg';
+            this.currentSleepDirection = 'smile';
+            this.dreamBubble.querySelector('span').textContent = '...';
+            this.sleepingContainer.style.transform = 'translateY(0) rotate(0deg)';
+        }, 1000);
+
+        // Fade out dream bubble
+        setTimeout(() => {
+            this.dreamBubble.style.opacity = '0';
+        }, 1500);
+
+        // Collapse parachute slightly when landed
+        setTimeout(() => {
+            if (this.parachuteElement) {
+                this.parachuteElement.style.transform = 'translateX(-50%) scale(0.7) rotate(0deg)';
+                this.parachuteElement.style.opacity = '0.6';
+            }
+        }, 2500);
+
+        // Show win overlay
+        setTimeout(() => this.winOverlay.classList.add('active'), 3000);
     }
 }
 

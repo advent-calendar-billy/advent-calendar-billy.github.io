@@ -1,55 +1,68 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 60">
-  <!-- Character sleeping - head turned right -->
+  <!-- Character sleeping - rolled to RIGHT side (we see more of left side of face) -->
   <defs>
-    <linearGradient id="skinGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+    <linearGradient id="skinGradR" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" style="stop-color:#ffd5b8"/>
       <stop offset="100%" style="stop-color:#f4c4a0"/>
     </linearGradient>
-    <linearGradient id="hairGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+    <linearGradient id="hairGradR" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" style="stop-color:#4a3728"/>
       <stop offset="100%" style="stop-color:#2d1f15"/>
     </linearGradient>
+    <linearGradient id="blanketGradR" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#7a9fd4"/>
+      <stop offset="100%" style="stop-color:#5a7fbc"/>
+    </linearGradient>
   </defs>
 
-  <!-- Head (turned right) -->
-  <ellipse cx="55" cy="30" rx="22" ry="18" fill="url(#skinGrad)"/>
+  <!-- Blanket/body shape (rolled right - body tilted, shoulder up) -->
+  <ellipse cx="52" cy="50" rx="30" ry="8" fill="url(#blanketGradR)" opacity="0.9" transform="rotate(8, 52, 50)"/>
 
-  <!-- Hair -->
-  <path d="M33 25 Q35 10 55 8 Q75 10 77 25 Q75 18 55 16 Q35 18 33 25" fill="url(#hairGrad)"/>
-  <ellipse cx="37" cy="22" rx="6" ry="8" fill="url(#hairGrad)"/>
+  <!-- Shoulder hint (left shoulder raised since rolled right) -->
+  <ellipse cx="45" cy="40" rx="14" ry="8" fill="url(#blanketGradR)" transform="rotate(15, 45, 40)"/>
 
-  <!-- Ear (more visible on left side) -->
-  <ellipse cx="33" cy="30" rx="4" ry="6" fill="#f4c4a0"/>
-  <ellipse cx="33" cy="30" rx="2" ry="4" fill="#e8b090"/>
+  <!-- Head (turned right, we see 3/4 view from left) -->
+  <ellipse cx="55" cy="26" rx="17" ry="14" fill="url(#skinGradR)" transform="rotate(12, 55, 26)"/>
 
-  <!-- Closed eyes (sleeping) - shifted right -->
-  <path d="M44 28 Q48 32 52 28" stroke="#5c4033" stroke-width="2" fill="none" stroke-linecap="round"/>
-  <path d="M60 28 Q64 32 68 28" stroke="#5c4033" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <!-- Hair (shifted with head turn) -->
+  <path d="M40 18 Q42 6 55 4 Q68 6 72 18 Q68 10 55 8 Q42 10 40 18" fill="url(#hairGradR)" transform="rotate(12, 55, 18)"/>
+  <ellipse cx="70" cy="15" rx="5" ry="7" fill="url(#hairGradR)"/>
+
+  <!-- Ear (left ear more visible) -->
+  <ellipse cx="38" cy="26" rx="3" ry="5" fill="#f4c4a0"/>
+  <ellipse cx="38" cy="26" rx="1.5" ry="3" fill="#e8b090"/>
+
+  <!-- Closed eyes - positioned for 3/4 view facing right -->
+  <path d="M47 23 Q50 27 53 23" stroke="#5c4033" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M59 24 Q62 28 65 24" stroke="#5c4033" stroke-width="2" fill="none" stroke-linecap="round"/>
 
   <!-- Eyelashes -->
-  <path d="M43 27 L42 25" stroke="#5c4033" stroke-width="1" stroke-linecap="round"/>
-  <path d="M48 26 L48 24" stroke="#5c4033" stroke-width="1" stroke-linecap="round"/>
-  <path d="M53 27 L54 25" stroke="#5c4033" stroke-width="1" stroke-linecap="round"/>
-  <path d="M59 27 L58 25" stroke="#5c4033" stroke-width="1" stroke-linecap="round"/>
-  <path d="M64 26 L64 24" stroke="#5c4033" stroke-width="1" stroke-linecap="round"/>
-  <path d="M69 27 L70 25" stroke="#5c4033" stroke-width="1" stroke-linecap="round"/>
+  <path d="M46 22 L45 20" stroke="#5c4033" stroke-width="1" stroke-linecap="round"/>
+  <path d="M50 21 L50 19" stroke="#5c4033" stroke-width="1" stroke-linecap="round"/>
+  <path d="M54 22 L55 20" stroke="#5c4033" stroke-width="1" stroke-linecap="round"/>
+  <path d="M58 23 L57 21" stroke="#5c4033" stroke-width="1" stroke-linecap="round"/>
+  <path d="M62 22 L62 20" stroke="#5c4033" stroke-width="1" stroke-linecap="round"/>
+  <path d="M66 23 L67 21" stroke="#5c4033" stroke-width="1" stroke-linecap="round"/>
 
   <!-- Eyebrows (relaxed) -->
-  <path d="M42 22 Q48 20 54 22" stroke="#3d2817" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-  <path d="M58 22 Q64 20 70 22" stroke="#3d2817" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <path d="M45 17 Q50 15 55 17" stroke="#3d2817" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <path d="M57 18 Q62 16 67 18" stroke="#3d2817" stroke-width="1.5" fill="none" stroke-linecap="round"/>
 
-  <!-- Nose -->
-  <path d="M56 32 Q58 36 56 38" stroke="#d4a088" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <!-- Nose (shifted for 3/4 view) -->
+  <path d="M56 28 Q58 32 56 34" stroke="#d4a088" stroke-width="1.5" fill="none" stroke-linecap="round"/>
 
   <!-- Mouth (slightly open, peaceful) -->
-  <ellipse cx="56" cy="44" rx="4" ry="2" fill="#c97878"/>
+  <ellipse cx="56" cy="38" rx="4" ry="2" fill="#c97878"/>
 
   <!-- Cheek blush -->
-  <ellipse cx="44" cy="36" rx="5" ry="3" fill="#ffb8b8" opacity="0.4"/>
-  <ellipse cx="68" cy="36" rx="5" ry="3" fill="#ffb8b8" opacity="0.4"/>
+  <ellipse cx="46" cy="31" rx="5" ry="3" fill="#ffb8b8" opacity="0.4"/>
+  <ellipse cx="66" cy="32" rx="4" ry="3" fill="#ffb8b8" opacity="0.4"/>
+
+  <!-- Pillow indent visual cue -->
+  <path d="M65 35 Q70 38 75 35" stroke="#b8d0e8" stroke-width="1" fill="none" opacity="0.3"/>
 
   <!-- Z's for sleeping -->
-  <text x="80" y="15" font-family="Arial, sans-serif" font-size="8" fill="#a8d8ea" opacity="0.8">z</text>
-  <text x="87" y="10" font-family="Arial, sans-serif" font-size="10" fill="#a8d8ea" opacity="0.6">z</text>
-  <text x="95" y="5" font-family="Arial, sans-serif" font-size="12" fill="#a8d8ea" opacity="0.4">z</text>
+  <text x="75" y="10" font-family="Arial, sans-serif" font-size="8" fill="#a8d8ea" opacity="0.8">z</text>
+  <text x="82" y="5" font-family="Arial, sans-serif" font-size="10" fill="#a8d8ea" opacity="0.6">z</text>
+  <text x="90" y="0" font-family="Arial, sans-serif" font-size="12" fill="#a8d8ea" opacity="0.4">z</text>
 </svg>

@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shoesy - Neon Platformer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0a0f;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+        }
+
+        #gameContainer {
+            position: relative;
+        }
+
+        canvas {
+            display: block;
+            border: 2px solid #0ff;
+            box-shadow: 0 0 20px #0ff, inset 0 0 20px rgba(0, 255, 255, 0.1);
+        }
+
+        #ui {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: #0ff;
+            font-size: 14px;
+            text-shadow: 0 0 10px #0ff;
+        }
+
+        #instructions {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            color: #0ff;
+            font-size: 12px;
+            text-shadow: 0 0 10px #0ff;
+            opacity: 0.8;
+        }
+
+        #title {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #0ff;
+            font-size: 24px;
+            text-shadow: 0 0 20px #0ff, 0 0 40px #0ff;
+            letter-spacing: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <div id="title">SHOESY</div>
+        <canvas id="game" width="900" height="600"></canvas>
+        <div id="ui">
+            <div>Deaths: <span id="deaths">0</span></div>
+        </div>
+        <div id="instructions">
+            ARROWS/WASD: Move & Jump | SPACE (hold): Create trail | R: Restart | ESC: Menu
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('game');
+        const ctx = canvas.getContext('2d');
+
+        // Game state
+        let gameState = 'menu'; // 'menu' or 'playing'
+        let currentLevel = 0;
+        let deaths = 0;
+        let selectedMenuItem = 0;
+
+        // Colors - Neon palette
+        const COLORS = {
+            background: '#0a0a0f',
+            grid: '#1a1a2f',
+            player: '#111',
+            playerFeet: '#0ff',
+            trail: '#0ff',
+            platform: '#1a1a2f',
+            platformEdge: '#f0f',
+            enemy: '#f0f',
+            enemyGlow: '#f0f',
+            projectile: '#ff6600',
+            goal: '#0f0',
+            danger: '#ff0044',
+            zombie: '#4f4',
+            zombieGlow: '#0f0'
+        };
+
+        // Player
+        const player = {
+            x: 60,
+            y: 500,
+            width: 24,
+            height: 36,
+            vx: 0,
+            vy: 0,
+            speed: 3.5,
+            jumpForce: -9,
+            onGround: false,
+            trailActive: false
+        };
+
+        let startPos = { x: 60, y: 500 };
+
+        // Trail system
+        let trails = [];
+        const TRAIL_SOLIDIFY_DELAY = 100;
+        const TRAIL_THICKNESS = 6;
+        const MAX_TRAIL_LENGTH = 800;
+        let currentTrailLength = 0;
+
+        // Level data
+        let platforms = [];
+        let enemies = [];
+        let zombies = [];
+        let bouncyTurrets = [];
+        let projectiles = [];
+        let bouncyProjectiles = []; // These bounce off trails
+        let goal = {};
+        let spikes = [];
+        let button = null;
+        let door = null;
+
+        // Level definitions
+        const LEVELS = [
+            // Level 1
+            {
+                name: "The Beginning",
+                startPos: { x: 60, y: 500 },
+                platforms: [
+                    { x: 0, y: 560, width: 200, height: 40 },
+                    { x: 280, y: 560, width: 150, height: 40 },
+                    { x: 510, y: 560, width: 150, height: 40 },
+                    { x: 740, y: 560, width: 160, height: 40 },
+                    { x: 150, y: 450, width: 100, height: 20 },
+                    { x: 350, y: 380, width: 120, height: 20 },
+                    { x: 550, y: 320, width: 100, height: 20 },
+                    { x: 50, y: 300, width: 80, height: 20 },
+                    { x: 200, y: 250, width: 80, height: 20 },
+                    { x: 780, y: 280, width: 120, height: 20 },
+                    { x: 0, y: 0, width: 20, height: 600 },
+                    { x: 880, y: 0, width: 20, height: 600 },
+                    { x: 0, y: 0, width: 900, height: 20 }
+                ],
+                enemies: [
+                    { x: 380, y: 530, width: 30, height: 30, shootDir: -1, shootTimer: 0, shootInterval: 1800 },
+                    { x: 600, y: 300, width: 30, height: 20, shootDir: -1, shootTimer: 800, shootInterval: 2200 }
+                ],
+                zombies: [],
+                goal: { x: 820, y: 240, width: 40, height: 40 },
+                spikes: [
+                    { x: 200, y: 545, width: 80, height: 15 },
+                    { x: 660, y: 545, width: 80, height: 15 }
+                ],
+                bouncyTurrets: [],
+                button: null,
+                door: null
+            },
+            // Level 2 - Harder with zombies
+            {
+                name: "Zombie Gauntlet",
+                startPos: { x: 60, y: 520 },
+                platforms: [
+                    // Ground level - broken up
+                    { x: 0, y: 560, width: 120, height: 40 },
+                    { x: 200, y: 560, width: 100, height: 40 },
+                    { x: 380, y: 560, width: 120, height: 40 },
+                    { x: 580, y: 560, width: 100, height: 40 },
+                    { x: 760, y: 560, width: 140, height: 40 },
+
+                    // Lower mid platforms
+                    { x: 120, y: 480, width: 80, height: 20 },
+                    { x: 300, y: 450, width: 100, height: 20 },
+                    { x: 480, y: 420, width: 80, height: 20 },
+
+                    // Upper platforms
+                    { x: 50, y: 350, width: 100, height: 20 },
+                    { x: 220, y: 320, width: 120, height: 20 },
+                    { x: 420, y: 280, width: 100, height: 20 },
+                    { x: 600, y: 250, width: 120, height: 20 },
+
+                    // Top route
+                    { x: 150, y: 180, width: 80, height: 20 },
+                    { x: 320, y: 150, width: 100, height: 20 },
+                    { x: 500, y: 120, width: 80, height: 20 },
+
+                    // Goal platform
+                    { x: 780, y: 150, width: 100, height: 20 },
+
+                    // Walls
+                    { x: 0, y: 0, width: 20, height: 600 },
+                    { x: 880, y: 0, width: 20, height: 600 },
+                    { x: 0, y: 0, width: 900, height: 20 }
+                ],
+                enemies: [
+                    { x: 450, y: 400, width: 30, height: 20, shootDir: -1, shootTimer: 0, shootInterval: 1500 },
+                    { x: 670, y: 230, width: 30, height: 20, shootDir: -1, shootTimer: 600, shootInterval: 1800 },
+                    { x: 370, y: 130, width: 30, height: 20, shootDir: 1, shootTimer: 300, shootInterval: 2000 }
+                ],
+                zombies: [
+                    { x: 220, y: 520, width: 28, height: 40, vx: 1, patrolLeft: 200, patrolRight: 290 },
+                    { x: 400, y: 520, width: 28, height: 40, vx: -1, patrolLeft: 380, patrolRight: 490 },
+                    { x: 780, y: 520, width: 28, height: 40, vx: 1, patrolLeft: 760, patrolRight: 870 },
+                    { x: 250, y: 280, width: 28, height: 40, vx: 1, patrolLeft: 220, patrolRight: 330 },
+                    { x: 620, y: 210, width: 28, height: 40, vx: -1, patrolLeft: 600, patrolRight: 710 }
+                ],
+                goal: { x: 810, y: 110, width: 40, height: 40 },
+                spikes: [
+                    { x: 120, y: 545, width: 80, height: 15 },
+                    { x: 300, y: 545, width: 80, height: 15 },
+                    { x: 500, y: 545, width: 80, height: 15 },
+                    { x: 680, y: 545, width: 80, height: 15 }
+                ],
+                bouncyTurrets: [],
+                button: null,
+                door: null
+            },
+            // Level 3 - Bouncy bullet puzzle
+            {
+                name: "Ricochet",
+                startPos: { x: 60, y: 520 },
+                platforms: [
+                    // Main floor left
+                    { x: 0, y: 560, width: 550, height: 40 },
+
+                    // Bouncy turret platform
+                    { x: 50, y: 420, width: 150, height: 20 },
+
+                    // Middle stepping platforms
+                    { x: 250, y: 350, width: 100, height: 20 },
+                    { x: 400, y: 280, width: 100, height: 20 },
+
+                    // Goal room - completely walled off
+                    // Floor of goal room
+                    { x: 680, y: 400, width: 200, height: 20 },
+                    // Ceiling of goal room
+                    { x: 680, y: 250, width: 200, height: 20 },
+                    // Back wall of goal room (right side)
+                    { x: 860, y: 250, width: 20, height: 170 },
+                    // Front wall above door
+                    { x: 680, y: 270, width: 20, height: 60 },
+                    // Front wall BELOW door (this blocks entry!)
+                    { x: 680, y: 400, width: 20, height: 160 },
+
+                    // Button platform (high up in corner)
+                    { x: 30, y: 150, width: 100, height: 20 },
+
+                    // Outer walls
+                    { x: 0, y: 0, width: 20, height: 600 },
+                    { x: 880, y: 0, width: 20, height: 600 },
+                    { x: 0, y: 0, width: 900, height: 20 }
+                ],
+                enemies: [],
+                zombies: [],
+                bouncyTurrets: [
+                    // The bouncy turret on left platform - shoots right
+                    { x: 150, y: 395, width: 40, height: 25, shootDir: 1, shootTimer: 0, shootInterval: 2500 }
+                ],
+                button: { x: 50, y: 125, width: 40, height: 25, pressed: false },
+                door: { x: 680, y: 330, width: 20, height: 70, open: false },
+                goal: { x: 760, y: 350, width: 50, height: 50 },
+                spikes: [
+                    { x: 550, y: 545, width: 130, height: 15 }
+                ]
+            }
+        ];
+
+        // Input
+        const keys = {};
+
+        document.addEventListener('keydown', (e) => {
+            keys[e.code] = true;
+            if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'KeyW', 'KeyA', 'KeyS', 'KeyD'].includes(e.code)) {
+                e.preventDefault();
+            }
+
+            if (gameState === 'menu') {
+                if (e.code === 'ArrowUp' || e.code === 'KeyW') {
+                    selectedMenuItem = Math.max(0, selectedMenuItem - 1);
+                } else if (e.code === 'ArrowDown' || e.code === 'KeyS') {
+                    selectedMenuItem = Math.min(LEVELS.length - 1, selectedMenuItem + 1);
+                } else if (e.code === 'Enter' || e.code === 'Space') {
+                    startLevel(selectedMenuItem);
+                }
+            } else if (gameState === 'playing') {
+                if (e.code === 'KeyR') {
+                    respawn();
+                } else if (e.code === 'Escape') {
+                    gameState = 'menu';
+                }
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            keys[e.code] = false;
+        });
+
+        // Trail management
+        let lastTrailPos = null;
+
+        function getTrailSegmentLength(trail) {
+            const dx = trail.x2 - trail.x1;
+            const dy = trail.y2 - trail.y1;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+
+        function addTrailSegment(x1, y1, x2, y2) {
+            if (Math.abs(x2 - x1) < 1 && Math.abs(y2 - y1) < 1) return;
+
+            const newSegment = {
+                x1, y1, x2, y2,
+                createdAt: Date.now()
+            };
+            const segmentLength = getTrailSegmentLength(newSegment);
+
+            trails.push(newSegment);
+            currentTrailLength += segmentLength;
+
+            while (currentTrailLength > MAX_TRAIL_LENGTH && trails.length > 1) {
+                const oldest = trails.shift();
+                currentTrailLength -= getTrailSegmentLength(oldest);
+            }
+        }
+
+        function updateTrails() {
+            // No time-based decay
+        }
+
+        // Collision detection
+        function rectCollision(a, b) {
+            return a.x < b.x + b.width &&
+                   a.x + a.width > b.x &&
+                   a.y < b.y + b.height &&
+                   a.y + a.height > b.y;
+        }
+
+        function pointLineDistance(px, py, x1, y1, x2, y2) {
+            const A = px - x1;
+            const B = py - y1;
+            const C = x2 - x1;
+            const D = y2 - y1;
+
+            const dot = A * C + B * D;
+            const lenSq = C * C + D * D;
+            let param = -1;
+
+            if (lenSq !== 0) param = dot / lenSq;
+
+            let xx, yy;
+
+            if (param < 0) {
+                xx = x1;
+                yy = y1;
+            } else if (param > 1) {
+                xx = x2;
+                yy = y2;
+            } else {
+                xx = x1 + param * C;
+                yy = y1 + param * D;
+            }
+
+            const dx = px - xx;
+            const dy = py - yy;
+
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+
+        function checkTrailCollision(rect) {
+            const now = Date.now();
+            for (const trail of trails) {
+                if (now - trail.createdAt < TRAIL_SOLIDIFY_DELAY) continue;
+
+                const minX = Math.min(trail.x1, trail.x2) - TRAIL_THICKNESS / 2;
+                const maxX = Math.max(trail.x1, trail.x2) + TRAIL_THICKNESS / 2;
+                const minY = Math.min(trail.y1, trail.y2) - TRAIL_THICKNESS / 2;
+                const maxY = Math.max(trail.y1, trail.y2) + TRAIL_THICKNESS / 2;
+
+                const trailRect = {
+                    x: minX,
+                    y: minY,
+                    width: maxX - minX,
+                    height: maxY - minY
+                };
+
+                if (rectCollision(rect, trailRect)) {
+                    return trail;
+                }
+            }
+            return null;
+        }
+
+        function startLevel(levelIndex) {
+            currentLevel = levelIndex;
+            const level = LEVELS[levelIndex];
+
+            platforms = JSON.parse(JSON.stringify(level.platforms));
+            enemies = JSON.parse(JSON.stringify(level.enemies));
+            zombies = JSON.parse(JSON.stringify(level.zombies));
+            bouncyTurrets = JSON.parse(JSON.stringify(level.bouncyTurrets || []));
+            goal = { ...level.goal };
+            spikes = JSON.parse(JSON.stringify(level.spikes));
+            startPos = { ...level.startPos };
+            button = level.button ? { ...level.button, pressed: false } : null;
+            door = level.door ? { ...level.door, open: false } : null;
+
+            projectiles = [];
+            bouncyProjectiles = [];
+            trails = [];
+            currentTrailLength = 0;
+            deaths = 0;
+            document.getElementById('deaths').textContent = deaths;
+
+            player.x = startPos.x;
+            player.y = startPos.y;
+            player.vx = 0;
+            player.vy = 0;
+            player.onGround = false;
+            player.trailActive = false;
+            lastTrailPos = null;
+
+            gameState = 'playing';
+        }
+
+        function respawn() {
+            player.x = startPos.x;
+            player.y = startPos.y;
+            player.vx = 0;
+            player.vy = 0;
+            player.onGround = false;
+            player.trailActive = false;
+            lastTrailPos = null;
+            trails = [];
+            currentTrailLength = 0;
+            bouncyProjectiles = [];
+
+            // Reset zombies and bouncy turrets to original positions
+            const level = LEVELS[currentLevel];
+            zombies = JSON.parse(JSON.stringify(level.zombies));
+            bouncyTurrets = JSON.parse(JSON.stringify(level.bouncyTurrets || []));
+
+            // Reset button and door
+            if (button) button.pressed = false;
+            if (door) door.open = false;
+
+            deaths++;
+            document.getElementById('deaths').textContent = deaths;
+        }
+
+        function update() {
+            if (gameState !== 'playing') return;
+
+            // Trail activation
+            player.trailActive = keys['Space'];
+
+            // Horizontal movement
+            if (keys['ArrowLeft'] || keys['KeyA']) {
+                player.vx = -player.speed;
+            } else if (keys['ArrowRight'] || keys['KeyD']) {
+                player.vx = player.speed;
+            } else {
+                player.vx = 0;
+            }
+
+            // Jump
+            if ((keys['ArrowUp'] || keys['KeyW']) && player.onGround) {
+                player.vy = player.jumpForce;
+                player.onGround = false;
+            }
+
+            // Gravity
+            player.vy += 0.25;
+            if (player.vy > 8) player.vy = 8;
+
+            // Move horizontally
+            player.x += player.vx;
+
+            // Horizontal collision with platforms
+            for (const plat of platforms) {
+                if (rectCollision(player, plat)) {
+                    if (player.vx > 0) {
+                        player.x = plat.x - player.width;
+                    } else if (player.vx < 0) {
+                        player.x = plat.x + plat.width;
+                    }
+                }
+            }
+
+            // Move vertically
+            player.y += player.vy;
+            player.onGround = false;
+
+            // Vertical collision with platforms
+            for (const plat of platforms) {
+                if (rectCollision(player, plat)) {
+                    if (player.vy > 0) {
+                        player.y = plat.y - player.height;
+                        player.vy = 0;
+                        player.onGround = true;
+                    } else if (player.vy < 0) {
+                        player.y = plat.y + plat.height;
+                        player.vy = 0;
+                    }
+                }
+            }
+
+            // Trail collision (as solid walls)
+            const playerRect = { x: player.x, y: player.y, width: player.width, height: player.height };
+            const collidingTrail = checkTrailCollision(playerRect);
+
+            if (collidingTrail) {
+                const trailMinX = Math.min(collidingTrail.x1, collidingTrail.x2) - TRAIL_THICKNESS / 2;
+                const trailMaxX = Math.max(collidingTrail.x1, collidingTrail.x2) + TRAIL_THICKNESS / 2;
+                const trailMinY = Math.min(collidingTrail.y1, collidingTrail.y2) - TRAIL_THICKNESS / 2;
+                const trailMaxY = Math.max(collidingTrail.y1, collidingTrail.y2) + TRAIL_THICKNESS / 2;
+
+                const overlapLeft = (player.x + player.width) - trailMinX;
+                const overlapRight = trailMaxX - player.x;
+                const overlapTop = (player.y + player.height) - trailMinY;
+                const overlapBottom = trailMaxY - player.y;
+
+                const minOverlap = Math.min(overlapLeft, overlapRight, overlapTop, overlapBottom);
+
+                if (minOverlap === overlapTop && player.vy >= 0) {
+                    player.y = trailMinY - player.height;
+                    player.vy = 0;
+                    player.onGround = true;
+                } else if (minOverlap === overlapBottom && player.vy < 0) {
+                    player.y = trailMaxY;
+                    player.vy = 0;
+                } else if (minOverlap === overlapLeft && player.vx > 0) {
+                    player.x = trailMinX - player.width;
+                    player.vx = 0;
+                } else if (minOverlap === overlapRight && player.vx < 0) {
+                    player.x = trailMaxX;
+                    player.vx = 0;
+                }
+            }
+
+            // Add trail segment
+            if (player.trailActive && lastTrailPos) {
+                const currX = player.x + player.width / 2;
+                const currY = player.y + player.height;
+                addTrailSegment(lastTrailPos.x, lastTrailPos.y, currX, currY);
+            }
+
+            if (player.trailActive) {
+                lastTrailPos = {
+                    x: player.x + player.width / 2,
+                    y: player.y + player.height
+                };
+            } else {
+                lastTrailPos = null;
+            }
+
+            updateTrails();
+
+            // Update zombies
+            for (const zombie of zombies) {
+                zombie.x += zombie.vx;
+
+                // Patrol boundaries
+                if (zombie.x <= zombie.patrolLeft) {
+                    zombie.x = zombie.patrolLeft;
+                    zombie.vx = Math.abs(zombie.vx);
+                } else if (zombie.x + zombie.width >= zombie.patrolRight) {
+                    zombie.x = zombie.patrolRight - zombie.width;
+                    zombie.vx = -Math.abs(zombie.vx);
+                }
+
+                // Check collision with player
+                if (rectCollision(player, zombie)) {
+                    respawn();
+                    return;
+                }
+            }
+
+            // Update enemies (turrets)
+            for (const enemy of enemies) {
+                enemy.shootTimer += 16;
+                if (enemy.shootTimer >= enemy.shootInterval) {
+                    enemy.shootTimer = 0;
+                    projectiles.push({
+                        x: enemy.x + (enemy.shootDir > 0 ? enemy.width + 5 : -15),
+                        y: enemy.y + enemy.height / 2 - 3,
+                        vx: enemy.shootDir * 3,
+                        vy: 0,
+                        width: 12,
+                        height: 6
+                    });
+                }
+            }
+
+            // Update bouncy turrets (special turrets whose bullets bounce off trails)
+            for (const turret of bouncyTurrets) {
+                turret.shootTimer += 16;
+                if (turret.shootTimer >= turret.shootInterval) {
+                    turret.shootTimer = 0;
+                    bouncyProjectiles.push({
+                        x: turret.x + (turret.shootDir > 0 ? turret.width + 5 : -15),
+                        y: turret.y + turret.height / 2 - 7,
+                        vx: turret.shootDir * 3,
+                        vy: 0, // Straight horizontal
+                        width: 14,
+                        height: 14,
+                        bounces: 0,
+                        maxBounces: 5
+                    });
+                }
+            }
+
+            // Update regular projectiles
+            for (let i = projectiles.length - 1; i >= 0; i--) {
+                const proj = projectiles[i];
+                proj.x += proj.vx;
+                proj.y += proj.vy;
+
+                // Check collision with trails
+                let hitTrail = false;
+                const now = Date.now();
+                for (const trail of trails) {
+                    if (now - trail.createdAt < TRAIL_SOLIDIFY_DELAY) continue;
+
+                    const dist = pointLineDistance(
+                        proj.x + proj.width / 2,
+                        proj.y + proj.height / 2,
+                        trail.x1, trail.y1, trail.x2, trail.y2
+                    );
+                    if (dist < TRAIL_THICKNESS / 2 + proj.width / 2) {
+                        hitTrail = true;
+                        break;
+                    }
+                }
+
+                // Check collision with platforms
+                let hitPlatform = false;
+                for (const plat of platforms) {
+                    if (rectCollision(proj, plat)) {
+                        hitPlatform = true;
+                        break;
+                    }
+                }
+
+                if (hitTrail || hitPlatform || proj.x < 0 || proj.x > canvas.width) {
+                    projectiles.splice(i, 1);
+                    continue;
+                }
+
+                if (rectCollision(proj, player)) {
+                    respawn();
+                    projectiles.splice(i, 1);
+                }
+            }
+
+            // Update bouncy projectiles (bounce off trails and screen edges!)
+            for (let i = bouncyProjectiles.length - 1; i >= 0; i--) {
+                const proj = bouncyProjectiles[i];
+                proj.x += proj.vx;
+                proj.y += proj.vy;
+                // No gravity - travels straight until it hits something
+
+                // Bounce off screen edges
+                if (proj.x <= 20) {
+                    proj.x = 20;
+                    proj.vx = Math.abs(proj.vx);
+                    proj.bounces++;
+                }
+                if (proj.x + proj.width >= canvas.width - 20) {
+                    proj.x = canvas.width - 20 - proj.width;
+                    proj.vx = -Math.abs(proj.vx);
+                    proj.bounces++;
+                }
+                if (proj.y <= 20) {
+                    proj.y = 20;
+                    proj.vy = Math.abs(proj.vy);
+                    proj.bounces++;
+                }
+                if (proj.y + proj.height >= canvas.height) {
+                    proj.y = canvas.height - proj.height;
+                    proj.vy = -Math.abs(proj.vy);
+                    proj.bounces++;
+                }
+
+                // Check collision with trails - BOUNCE instead of destroy
+                const now = Date.now();
+                for (const trail of trails) {
+                    if (now - trail.createdAt < TRAIL_SOLIDIFY_DELAY) continue;
+
+                    const dist = pointLineDistance(
+                        proj.x + proj.width / 2,
+                        proj.y + proj.height / 2,
+                        trail.x1, trail.y1, trail.x2, trail.y2
+                    );
+                    if (dist < TRAIL_THICKNESS / 2 + proj.width / 2) {
+                        // Calculate trail angle and reflect
+                        const dx = trail.x2 - trail.x1;
+                        const dy = trail.y2 - trail.y1;
+                        const len = Math.sqrt(dx * dx + dy * dy);
+                        const nx = -dy / len; // Normal perpendicular to trail
+                        const ny = dx / len;
+
+                        // Reflect velocity
+                        const dot = proj.vx * nx + proj.vy * ny;
+                        proj.vx = proj.vx - 2 * dot * nx;
+                        proj.vy = proj.vy - 2 * dot * ny;
+
+                        // Move out of collision
+                        proj.x += proj.vx * 2;
+                        proj.y += proj.vy * 2;
+
+                        proj.bounces++;
+                        break;
+                    }
+                }
+
+                // Check collision with platforms - bounce off them too
+                for (const plat of platforms) {
+                    if (rectCollision(proj, plat)) {
+                        // Determine which side we hit
+                        const projCenterX = proj.x + proj.width / 2;
+                        const projCenterY = proj.y + proj.height / 2;
+                        const platCenterX = plat.x + plat.width / 2;
+                        const platCenterY = plat.y + plat.height / 2;
+
+                        const overlapX = (proj.width / 2 + plat.width / 2) - Math.abs(projCenterX - platCenterX);
+                        const overlapY = (proj.height / 2 + plat.height / 2) - Math.abs(projCenterY - platCenterY);
+
+                        if (overlapX < overlapY) {
+                            // Horizontal bounce
+                            proj.vx = -proj.vx;
+                            proj.x += proj.vx * 2;
+                        } else {
+                            // Vertical bounce
+                            proj.vy = -proj.vy;
+                            proj.y += proj.vy * 2;
+                        }
+                        proj.bounces++;
+                        break;
+                    }
+                }
+
+                // Check collision with button!
+                if (button && !button.pressed && rectCollision(proj, button)) {
+                    button.pressed = true;
+                    if (door) door.open = true;
+                    bouncyProjectiles.splice(i, 1);
+                    continue;
+                }
+
+                // Remove if too many bounces
+                if (proj.bounces > proj.maxBounces) {
+                    bouncyProjectiles.splice(i, 1);
+                    continue;
+                }
+
+                // Check collision with player
+                if (rectCollision(proj, player)) {
+                    respawn();
+                    bouncyProjectiles.splice(i, 1);
+                }
+            }
+
+            // Check spike collision
+            for (const spike of spikes) {
+                if (rectCollision(player, spike)) {
+                    respawn();
+                    break;
+                }
+            }
+
+            // Door collision (acts as wall when closed)
+            if (door && !door.open) {
+                if (rectCollision(player, door)) {
+                    // Push player out of door
+                    if (player.x + player.width / 2 < door.x + door.width / 2) {
+                        player.x = door.x - player.width;
+                    } else {
+                        player.x = door.x + door.width;
+                    }
+                    player.vx = 0;
+                }
+            }
+
+            // Check goal
+            if (rectCollision(player, goal)) {
+                if (currentLevel < LEVELS.length - 1) {
+                    alert('Level ' + (currentLevel + 1) + ' Complete! Deaths: ' + deaths + '\n\nOnto the next level!');
+                    startLevel(currentLevel + 1);
+                } else {
+                    alert('YOU WIN! All levels complete!\nTotal Deaths: ' + deaths);
+                    gameState = 'menu';
+                }
+            }
+
+            // Keep player in bounds
+            if (player.x < 20) player.x = 20;
+            if (player.x + player.width > canvas.width - 20) player.x = canvas.width - 20 - player.width;
+            if (player.y > canvas.height) {
+                respawn();
+            }
+        }
+
+        function drawMenu() {
+            // Background
+            ctx.fillStyle = COLORS.background;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Grid
+            ctx.strokeStyle = COLORS.grid;
+            ctx.lineWidth = 1;
+            for (let x = 0; x < canvas.width; x += 40) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            for (let y = 0; y < canvas.height; y += 40) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+
+            // Title
+            ctx.fillStyle = '#0ff';
+            ctx.shadowColor = '#0ff';
+            ctx.shadowBlur = 30;
+            ctx.font = 'bold 64px Courier New';
+            ctx.textAlign = 'center';
+            ctx.fillText('SHOESY', canvas.width / 2, 150);
+            ctx.shadowBlur = 0;
+
+            // Subtitle
+            ctx.fillStyle = '#f0f';
+            ctx.shadowColor = '#f0f';
+            ctx.shadowBlur = 15;
+            ctx.font = '18px Courier New';
+            ctx.fillText('The Neon Trail Platformer', canvas.width / 2, 190);
+            ctx.shadowBlur = 0;
+
+            // Instructions
+            ctx.fillStyle = '#888';
+            ctx.font = '14px Courier New';
+            ctx.fillText('Use your glowing shoes to create trails - shields and platforms!', canvas.width / 2, 240);
+            ctx.fillText('Hold SPACE while moving to draw. Oldest trail disappears when full.', canvas.width / 2, 260);
+
+            // Level selection
+            ctx.fillStyle = '#fff';
+            ctx.font = '20px Courier New';
+            ctx.fillText('SELECT LEVEL', canvas.width / 2, 330);
+
+            for (let i = 0; i < LEVELS.length; i++) {
+                const y = 380 + i * 60;
+                const isSelected = i === selectedMenuItem;
+
+                if (isSelected) {
+                    ctx.fillStyle = '#0ff';
+                    ctx.shadowColor = '#0ff';
+                    ctx.shadowBlur = 20;
+                    ctx.fillRect(canvas.width / 2 - 200, y - 25, 400, 50);
+                    ctx.shadowBlur = 0;
+                    ctx.fillStyle = '#000';
+                } else {
+                    ctx.strokeStyle = '#f0f';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(canvas.width / 2 - 200, y - 25, 400, 50);
+                    ctx.fillStyle = '#f0f';
+                }
+
+                ctx.font = 'bold 20px Courier New';
+                ctx.fillText(`Level ${i + 1}: ${LEVELS[i].name}`, canvas.width / 2, y + 7);
+            }
+
+            // Controls hint
+            ctx.fillStyle = '#666';
+            ctx.font = '14px Courier New';
+            ctx.fillText('UP/DOWN to select, ENTER to start', canvas.width / 2, 550);
+
+            // Draw decorative Shoesy character
+            const shoeX = 150;
+            const shoeY = 450;
+
+            ctx.fillStyle = COLORS.player;
+            ctx.fillRect(shoeX, shoeY, 24, 28);
+            ctx.beginPath();
+            ctx.arc(shoeX + 12, shoeY + 8, 10, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = COLORS.playerFeet;
+            ctx.shadowColor = COLORS.playerFeet;
+            ctx.shadowBlur = 20;
+            ctx.beginPath();
+            ctx.ellipse(shoeX + 6, shoeY + 32, 6, 5, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(shoeX + 18, shoeY + 32, 6, 5, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+        }
+
+        function drawGame() {
+            // Clear
+            ctx.fillStyle = COLORS.background;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw grid
+            ctx.strokeStyle = COLORS.grid;
+            ctx.lineWidth = 1;
+            for (let x = 0; x < canvas.width; x += 40) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            for (let y = 0; y < canvas.height; y += 40) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+
+            // Draw platforms
+            for (const plat of platforms) {
+                ctx.fillStyle = COLORS.platform;
+                ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
+                ctx.strokeStyle = COLORS.platformEdge;
+                ctx.lineWidth = 2;
+                ctx.shadowColor = COLORS.platformEdge;
+                ctx.shadowBlur = 10;
+                ctx.strokeRect(plat.x, plat.y, plat.width, plat.height);
+                ctx.shadowBlur = 0;
+            }
+
+            // Draw spikes
+            for (const spike of spikes) {
+                ctx.fillStyle = COLORS.danger;
+                ctx.shadowColor = COLORS.danger;
+                ctx.shadowBlur = 15;
+
+                const spikeCount = Math.floor(spike.width / 15);
+                for (let i = 0; i < spikeCount; i++) {
+                    const sx = spike.x + i * 15 + 7.5;
+                    ctx.beginPath();
+                    ctx.moveTo(sx - 7, spike.y + spike.height);
+                    ctx.lineTo(sx, spike.y);
+                    ctx.lineTo(sx + 7, spike.y + spike.height);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+                ctx.shadowBlur = 0;
+            }
+
+            // Draw door (if exists)
+            if (door) {
+                if (door.open) {
+                    // Open door - just an outline
+                    ctx.strokeStyle = '#080';
+                    ctx.lineWidth = 2;
+                    ctx.setLineDash([5, 5]);
+                    ctx.strokeRect(door.x, door.y, door.width, door.height);
+                    ctx.setLineDash([]);
+                } else {
+                    // Closed door - solid barrier
+                    ctx.fillStyle = '#a00';
+                    ctx.shadowColor = '#f00';
+                    ctx.shadowBlur = 15;
+                    ctx.fillRect(door.x, door.y, door.width, door.height);
+                    ctx.shadowBlur = 0;
+
+                    ctx.strokeStyle = '#f44';
+                    ctx.lineWidth = 3;
+                    ctx.strokeRect(door.x, door.y, door.width, door.height);
+
+                    // X pattern
+                    ctx.beginPath();
+                    ctx.moveTo(door.x + 3, door.y + 10);
+                    ctx.lineTo(door.x + door.width - 3, door.y + door.height - 10);
+                    ctx.moveTo(door.x + door.width - 3, door.y + 10);
+                    ctx.lineTo(door.x + 3, door.y + door.height - 10);
+                    ctx.stroke();
+                }
+            }
+
+            // Draw button (if exists)
+            if (button) {
+                if (button.pressed) {
+                    ctx.fillStyle = '#0a0';
+                    ctx.shadowColor = '#0f0';
+                } else {
+                    ctx.fillStyle = '#aa0';
+                    ctx.shadowColor = '#ff0';
+                }
+                ctx.shadowBlur = 15;
+                ctx.fillRect(button.x, button.y, button.width, button.height);
+                ctx.shadowBlur = 0;
+
+                ctx.fillStyle = button.pressed ? '#0f0' : '#ff0';
+                ctx.font = 'bold 10px Courier New';
+                ctx.textAlign = 'center';
+                ctx.fillText(button.pressed ? 'ON' : 'HIT', button.x + button.width / 2, button.y + button.height / 2 + 3);
+            }
+
+            // Draw trails
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = COLORS.trail;
+            ctx.lineWidth = TRAIL_THICKNESS;
+            ctx.shadowColor = COLORS.trail;
+            ctx.shadowBlur = 15;
+
+            for (const trail of trails) {
+                ctx.beginPath();
+                ctx.moveTo(trail.x1, trail.y1);
+                ctx.lineTo(trail.x2, trail.y2);
+                ctx.stroke();
+            }
+            ctx.shadowBlur = 0;
+
+            // Draw goal
+            ctx.fillStyle = COLORS.goal;
+            ctx.shadowColor = COLORS.goal;
+            ctx.shadowBlur = 20;
+            ctx.fillRect(goal.x, goal.y, goal.width, goal.height);
+            ctx.shadowBlur = 0;
+
+            ctx.fillStyle = '#000';
+            ctx.font = 'bold 12px Courier New';
+            ctx.textAlign = 'center';
+            ctx.fillText('GOAL', goal.x + goal.width / 2, goal.y + goal.height / 2 + 4);
+
+            // Draw zombies
+            for (const zombie of zombies) {
+                // Body
+                ctx.fillStyle = COLORS.zombie;
+                ctx.shadowColor = COLORS.zombieGlow;
+                ctx.shadowBlur = 15;
+                ctx.fillRect(zombie.x, zombie.y, zombie.width, zombie.height);
+
+                // Head
+                ctx.beginPath();
+                ctx.arc(zombie.x + zombie.width / 2, zombie.y + 8, 10, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+
+                // Eyes (red, menacing)
+                ctx.fillStyle = '#f00';
+                ctx.fillRect(zombie.x + 6, zombie.y + 5, 4, 4);
+                ctx.fillRect(zombie.x + zombie.width - 10, zombie.y + 5, 4, 4);
+
+                // Arms reaching out
+                ctx.strokeStyle = COLORS.zombie;
+                ctx.lineWidth = 4;
+                const armDir = zombie.vx > 0 ? 1 : -1;
+                ctx.beginPath();
+                ctx.moveTo(zombie.x + zombie.width / 2, zombie.y + 18);
+                ctx.lineTo(zombie.x + zombie.width / 2 + armDir * 20, zombie.y + 12);
+                ctx.stroke();
+            }
+
+            // Draw enemies (turrets)
+            for (const enemy of enemies) {
+                ctx.fillStyle = COLORS.enemy;
+                ctx.shadowColor = COLORS.enemyGlow;
+                ctx.shadowBlur = 15;
+                ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+
+                const barrelY = enemy.y + enemy.height / 2 - 3;
+                const barrelX = enemy.shootDir > 0 ? enemy.x + enemy.width : enemy.x - 10;
+                ctx.fillRect(barrelX, barrelY, 10, 6);
+                ctx.shadowBlur = 0;
+
+                const chargeRatio = enemy.shootTimer / enemy.shootInterval;
+                if (chargeRatio > 0.7) {
+                    ctx.fillStyle = COLORS.projectile;
+                    ctx.shadowColor = COLORS.projectile;
+                    ctx.shadowBlur = 10;
+                    ctx.beginPath();
+                    ctx.arc(barrelX + (enemy.shootDir > 0 ? 10 : 0), barrelY + 3, 4 * (chargeRatio - 0.7) / 0.3, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                }
+            }
+
+            // Draw projectiles
+            ctx.fillStyle = COLORS.projectile;
+            ctx.shadowColor = COLORS.projectile;
+            ctx.shadowBlur = 10;
+            for (const proj of projectiles) {
+                ctx.beginPath();
+                ctx.ellipse(proj.x + proj.width / 2, proj.y + proj.height / 2, proj.width / 2, proj.height / 2, 0, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.shadowBlur = 0;
+
+            // Draw bouncy turrets (special - yellow/gold color)
+            for (const turret of bouncyTurrets) {
+                ctx.fillStyle = '#dd0';
+                ctx.shadowColor = '#ff0';
+                ctx.shadowBlur = 20;
+                ctx.fillRect(turret.x, turret.y, turret.width, turret.height);
+
+                const barrelY = turret.y + turret.height / 2 - 4;
+                const barrelX = turret.shootDir > 0 ? turret.x + turret.width : turret.x - 12;
+                ctx.fillRect(barrelX, barrelY, 12, 8);
+
+                // Bouncy indicator - diamond symbol
+                ctx.fillStyle = '#000';
+                ctx.font = 'bold 14px Courier New';
+                ctx.textAlign = 'center';
+                ctx.fillText('◆', turret.x + turret.width / 2, turret.y + turret.height / 2 + 5);
+                ctx.shadowBlur = 0;
+
+                // Charge indicator
+                const chargeRatio = turret.shootTimer / turret.shootInterval;
+                if (chargeRatio > 0.7) {
+                    ctx.fillStyle = '#ff0';
+                    ctx.shadowColor = '#ff0';
+                    ctx.shadowBlur = 15;
+                    ctx.beginPath();
+                    ctx.arc(barrelX + (turret.shootDir > 0 ? 12 : 0), barrelY + 4, 5 * (chargeRatio - 0.7) / 0.3, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                }
+            }
+
+            // Draw bouncy projectiles (yellow diamonds that bounce)
+            for (const proj of bouncyProjectiles) {
+                ctx.save();
+                ctx.translate(proj.x + proj.width / 2, proj.y + proj.height / 2);
+                ctx.rotate(Math.atan2(proj.vy, proj.vx));
+
+                ctx.fillStyle = '#ff0';
+                ctx.shadowColor = '#ff0';
+                ctx.shadowBlur = 15;
+
+                // Diamond shape
+                ctx.beginPath();
+                ctx.moveTo(proj.width / 2, 0);
+                ctx.lineTo(0, proj.height / 2);
+                ctx.lineTo(-proj.width / 2, 0);
+                ctx.lineTo(0, -proj.height / 2);
+                ctx.closePath();
+                ctx.fill();
+
+                ctx.shadowBlur = 0;
+                ctx.restore();
+            }
+
+            // Draw player (Shoesy)
+            ctx.fillStyle = COLORS.player;
+            ctx.fillRect(player.x, player.y, player.width, player.height - 8);
+
+            ctx.beginPath();
+            ctx.arc(player.x + player.width / 2, player.y + 8, 10, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(player.x + 8, player.y + 5, 3, 4);
+            ctx.fillRect(player.x + 13, player.y + 5, 3, 4);
+
+            ctx.fillStyle = COLORS.playerFeet;
+            ctx.shadowColor = COLORS.playerFeet;
+            ctx.shadowBlur = player.trailActive ? 20 : 5;
+
+            ctx.beginPath();
+            ctx.ellipse(player.x + 6, player.y + player.height - 4, 6, 5, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.ellipse(player.x + player.width - 6, player.y + player.height - 4, 6, 5, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.shadowBlur = 0;
+
+            // Draw trail length bar
+            const barWidth = 120;
+            const barHeight = 12;
+            const barX = canvas.width - barWidth - 20;
+            const barY = 30;
+
+            ctx.fillStyle = '#0aa';
+            ctx.shadowColor = '#0ff';
+            ctx.shadowBlur = 5;
+            ctx.fillRect(barX, barY, barWidth, barHeight);
+            ctx.shadowBlur = 0;
+
+            const usedPercent = Math.min(1, currentTrailLength / MAX_TRAIL_LENGTH);
+            ctx.fillStyle = '#1a1a2f';
+            ctx.fillRect(barX, barY, barWidth * usedPercent, barHeight);
+
+            ctx.strokeStyle = player.trailActive ? '#0ff' : '#088';
+            ctx.lineWidth = 2;
+            ctx.shadowColor = '#0ff';
+            ctx.shadowBlur = player.trailActive ? 10 : 0;
+            ctx.strokeRect(barX, barY, barWidth, barHeight);
+            ctx.shadowBlur = 0;
+
+            ctx.fillStyle = '#fff';
+            ctx.font = '10px Courier New';
+            ctx.textAlign = 'right';
+            ctx.fillText('TRAIL', barX - 8, barY + 10);
+
+            // Level indicator
+            ctx.fillStyle = '#f0f';
+            ctx.font = '12px Courier New';
+            ctx.textAlign = 'left';
+            ctx.fillText('Level ' + (currentLevel + 1) + ': ' + LEVELS[currentLevel].name, 10, 55);
+        }
+
+        function draw() {
+            if (gameState === 'menu') {
+                drawMenu();
+            } else {
+                drawGame();
+            }
+        }
+
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        gameLoop();
+    </script>
+</body>
+</html>
