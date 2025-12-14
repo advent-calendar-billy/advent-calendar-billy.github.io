@@ -2126,7 +2126,7 @@
                     <div class="slot-machine lucky7-theme">
                         <div class="slot-top-display lucky7-display">
                             <div class="slot-title lucky7-title">LUCKY 7</div>
-                            <div class="slot-subtitle">3+ SEVENS ANYWHERE = 10 FREE SPINS!</div>
+                            <div class="slot-subtitle">3+ SEVENS ANYWHERE = 5 FREE SPINS!</div>
                         </div>
 
                         <div class="auto-spin-indicator" id="lucky7AutoIndicator">
@@ -2881,7 +2881,7 @@
             '#aaffff', '#ffeeaa', '#eeffaa', '#ffaaee', '#eeaaff',
         ];
 
-        let slotBet = 100;
+        let slotBet = 200;
         let slotLines = 5;  // Number of active paylines
         let freeSpins = 0;
         let isSpinning = false;
@@ -2944,7 +2944,7 @@
             'bell': 42
         };
 
-        let lucky7Bet = 100;
+        let lucky7Bet = 300;
         let lucky7Lines = 5;
         let lucky7FreeSpins = 0;
         let isLucky7Spinning = false;
@@ -3891,9 +3891,9 @@
                 }
             }
 
-            // 3 or more sevens anywhere triggers 10 free spins
+            // 3 or more sevens anywhere triggers 5 free spins
             if (lucky7FreeSpins === 0 && !isLucky7AutoSpinning && sevenCount >= 3) {
-                lucky7FreeSpins = 10;
+                lucky7FreeSpins = 5;
                 isLucky7AutoSpinning = true;
                 stickyCloverPositions.clear();
                 lucky7Multiplier = 1;
@@ -3902,7 +3902,7 @@
                 document.getElementById('lucky7AutoIndicator').classList.add('active');
                 document.getElementById('lucky7FreeSpinsCount').textContent = lucky7FreeSpins;
                 document.getElementById('lucky7MultiplierDisplay').textContent = lucky7Multiplier;
-                message = `${sevenCount} SEVENS! 10 FREE SPINS WON!`;
+                message = `${sevenCount} SEVENS! 5 FREE SPINS WON!`;
             }
 
             // During free spins, check for new clovers and freeze them
