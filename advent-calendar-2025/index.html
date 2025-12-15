@@ -249,8 +249,8 @@
         function isDayUnlocked(day) {
             // Must be December
             if (currentMonth !== 11) return false;
-            // Day 15 is always unlocked (first game)
-            if (day === 15) return true;
+            // Days with early access (always unlocked)
+            if (day <= 16) return true;
             // Other days unlock at midnight Berlin time on their respective day
             return currentDay >= day;
         }
