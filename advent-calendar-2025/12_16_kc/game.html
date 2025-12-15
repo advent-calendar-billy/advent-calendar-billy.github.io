@@ -368,7 +368,7 @@
         let gameState = 'start'; // start, dialogue, playing, paused, gameOver, victory
         let dialogueIndex = 0;
         let currentMusic = null;
-        let musicMuted = true;
+        let musicMuted = false;
         let _t6 = false;
 
         // Music tracks
@@ -383,10 +383,6 @@
         explorationMusic.volume = 0.4;
         lostPaintingMusic.volume = 0.4;
         bossFightMusic.volume = 0.5;
-        // Start muted by default
-        explorationMusic.muted = true;
-        lostPaintingMusic.muted = true;
-        bossFightMusic.muted = true;
 
         function toggleMusic() {
             musicMuted = !musicMuted;
