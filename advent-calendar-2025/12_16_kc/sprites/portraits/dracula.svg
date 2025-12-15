@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Castlevania SOTN style pixel art portrait of Dracula -->
+  <!-- Background - dark red/purple gothic -->
+  <rect x="0" y="0" width="64" height="64" fill="#1a0a1a"/>
+  <rect x="2" y="2" width="60" height="60" fill="#2a0a2a"/>
+
+  <!-- High collar cape -->
+  <rect x="4" y="40" width="56" height="24" fill="#4a0a0a"/>
+  <rect x="6" y="42" width="52" height="20" fill="#6a1a1a"/>
+  <!-- Collar points -->
+  <rect x="4" y="30" width="8" height="14" fill="#4a0a0a"/>
+  <rect x="52" y="30" width="8" height="14" fill="#4a0a0a"/>
+  <rect x="6" y="32" width="6" height="12" fill="#6a1a1a"/>
+  <rect x="52" y="32" width="6" height="12" fill="#6a1a1a"/>
+
+  <!-- Inner vest/shirt -->
+  <rect x="22" y="48" width="20" height="16" fill="#1a1a2a"/>
+  <rect x="24" y="50" width="16" height="12" fill="#2a2a3a"/>
+  <!-- Medallion -->
+  <rect x="28" y="52" width="8" height="8" fill="#c4a000"/>
+  <rect x="30" y="54" width="4" height="4" fill="#ff4444"/>
+
+  <!-- Neck -->
+  <rect x="24" y="44" width="16" height="8" fill="#b8a090"/>
+  <rect x="26" y="46" width="12" height="6" fill="#d4c0b0"/>
+
+  <!-- Face base - pale vampire complexion -->
+  <rect x="16" y="16" width="32" height="32" fill="#b8a090"/>
+  <rect x="18" y="18" width="28" height="28" fill="#d4c0b0"/>
+
+  <!-- Face shading -->
+  <rect x="16" y="16" width="4" height="28" fill="#a89080"/>
+  <rect x="44" y="16" width="4" height="28" fill="#a89080"/>
+
+  <!-- Cheekbones - gaunt -->
+  <rect x="18" y="32" width="4" height="8" fill="#c4b0a0"/>
+  <rect x="42" y="32" width="4" height="8" fill="#c4b0a0"/>
+
+  <!-- Eyes - piercing red -->
+  <rect x="20" y="26" width="10" height="8" fill="#ffffff"/>
+  <rect x="34" y="26" width="10" height="8" fill="#ffffff"/>
+  <!-- Red pupils -->
+  <rect x="24" y="28" width="6" height="6" fill="#aa0000"/>
+  <rect x="34" y="28" width="6" height="6" fill="#aa0000"/>
+  <!-- Eye center -->
+  <rect x="26" y="30" width="2" height="2" fill="#440000"/>
+  <rect x="36" y="30" width="2" height="2" fill="#440000"/>
+  <!-- Eye glow -->
+  <rect x="24" y="28" width="2" height="2" fill="#ff4444"/>
+  <rect x="34" y="28" width="2" height="2" fill="#ff4444"/>
+
+  <!-- Angry eyebrows -->
+  <rect x="18" y="24" width="12" height="2" fill="#1a1410"/>
+  <rect x="34" y="24" width="12" height="2" fill="#1a1410"/>
+  <!-- Angled inner brows -->
+  <rect x="28" y="22" width="4" height="2" fill="#1a1410"/>
+  <rect x="32" y="22" width="4" height="2" fill="#1a1410"/>
+
+  <!-- Nose - aristocratic -->
+  <rect x="30" y="32" width="4" height="8" fill="#c4b0a0"/>
+  <rect x="28" y="38" width="2" height="2" fill="#b8a090"/>
+  <rect x="34" y="38" width="2" height="2" fill="#b8a090"/>
+
+  <!-- Mouth with fangs -->
+  <rect x="24" y="42" width="16" height="2" fill="#8a4040"/>
+  <!-- Fangs -->
+  <rect x="26" y="42" width="2" height="4" fill="#ffffff"/>
+  <rect x="36" y="42" width="2" height="4" fill="#ffffff"/>
+
+  <!-- Widow's peak dark hair -->
+  <rect x="12" y="4" width="40" height="16" fill="#1a1410"/>
+  <rect x="10" y="8" width="6" height="28" fill="#1a1410"/>
+  <rect x="48" y="8" width="6" height="28" fill="#1a1410"/>
+  <!-- Widow's peak -->
+  <rect x="28" y="12" width="8" height="8" fill="#1a1410"/>
+  <rect x="30" y="16" width="4" height="4" fill="#1a1410"/>
+  <!-- Hair shine -->
+  <rect x="16" y="6" width="4" height="4" fill="#2a2420"/>
+  <rect x="36" y="6" width="4" height="4" fill="#2a2420"/>
+  <!-- Receding hairline -->
+  <rect x="14" y="12" width="14" height="6" fill="#d4c0b0"/>
+  <rect x="36" y="12" width="14" height="6" fill="#d4c0b0"/>
+
+  <!-- Ears - pointed vampire ears -->
+  <rect x="10" y="26" width="6" height="10" fill="#d4c0b0"/>
+  <rect x="48" y="26" width="6" height="10" fill="#d4c0b0"/>
+  <!-- Ear points -->
+  <rect x="10" y="24" width="4" height="4" fill="#d4c0b0"/>
+  <rect x="50" y="24" width="4" height="4" fill="#d4c0b0"/>
+
+  <!-- Portrait frame (gothic blood red) -->
+  <rect x="0" y="0" width="64" height="2" fill="#6a0a0a"/>
+  <rect x="0" y="62" width="64" height="2" fill="#6a0a0a"/>
+  <rect x="0" y="0" width="2" height="64" fill="#6a0a0a"/>
+  <rect x="62" y="0" width="2" height="64" fill="#6a0a0a"/>
+  <!-- Frame corners with bat motif -->
+  <rect x="0" y="0" width="6" height="6" fill="#8a1a1a"/>
+  <rect x="58" y="0" width="6" height="6" fill="#8a1a1a"/>
+  <rect x="0" y="58" width="6" height="6" fill="#8a1a1a"/>
+  <rect x="58" y="58" width="6" height="6" fill="#8a1a1a"/>
+</svg>
