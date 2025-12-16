@@ -28,6 +28,112 @@
             background: rgba(255, 50, 50, 1);
             transform: scale(1.05);
         }
+        .title-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .title {
+            font-family: 'Fredoka One', cursive;
+            font-size: 48px;
+            color: #fff;
+            text-shadow: 0 4px 20px rgba(255, 200, 100, 0.3);
+            background: linear-gradient(180deg, #fff 0%, #ffd700 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.1;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .start-info {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 18px 24px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .start-info p {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.8);
+            margin: 8px 0;
+        }
+        .start-info .key {
+            background: linear-gradient(180deg, #4a4a6a, #2a2a4a);
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-weight: 700;
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .hint {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 15px;
+        }
+        .game-over-title, .win-title {
+            font-family: 'Fredoka One', cursive;
+            font-size: 48px;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        .game-over-text, .win-text {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 20px;
+        }
+        .photo-frame {
+            background: #fff;
+            padding: 15px 15px 40px 15px;
+            border-radius: 4px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            margin-bottom: 15px;
+        }
+        #photoCanvas {
+            display: block;
+            border-radius: 2px;
+        }
+        .photo-price {
+            font-family: 'Fredoka One', cursive;
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 10px;
+        }
+        .speech-bubble {
+            position: absolute;
+            bottom: 180px;
+            left: 15%;
+            background: #fff;
+            padding: 10px 16px;
+            border-radius: 20px;
+            font-family: 'Fredoka One', cursive;
+            font-size: 16px;
+            color: #2d2d5a;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transform: translateY(10px) scale(0.9);
+            transition: all 0.3s ease;
+            z-index: 50;
+            max-width: 180px;
+            pointer-events: none;
+        }
+        .speech-bubble.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 25px;
+            width: 0;
+            height: 0;
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-top: 12px solid #fff;
+        }
     </style>
 </head>
 <body>
@@ -35,6 +141,11 @@
         <canvas id="gameCanvas"></canvas>
 
         <button class="back-button" onclick="exitGame()">EXIT (ESC)</button>
+
+        <!-- Speech Bubble for NPC comments -->
+        <div class="speech-bubble" id="speechBubble">
+            <span id="speechText"></span>
+        </div>
 
         <!-- HUD -->
         <div class="hud">
@@ -82,39 +193,49 @@
         </div>
 
         <!-- Start Screen -->
-        <div class="overlay" id="startScreen">
-            <div class="title-container">
-                <h1 class="title">TALL GUY'S<br>ROLLERCOASTER</h1>
-                <p class="subtitle">Can you survive the ride?</p>
+        <div class="overlay" id="startOverlay">
+            <div class="overlay-panel">
+                <div class="title-container">
+                    <h1 class="title">TALL GUY'S<br>ROLLERCOASTER</h1>
+                    <p class="subtitle">Can you survive the ride?</p>
+                </div>
+                <div class="start-info">
+                    <p>Press <span class="key">SPACE</span> to duck under obstacles</p>
+                    <p>Keep your arms inside the ride!</p>
+                </div>
+                <button class="btn-start" id="btnStart">START RIDE</button>
+                <p class="hint">Press SPACE or click to begin</p>
             </div>
-            <div class="start-info">
-                <p>Press <span class="key">SPACE</span> to duck under obstacles</p>
-                <p>Keep your arms inside the ride!</p>
-            </div>
-            <button class="start-button" id="startButton">START RIDE</button>
-            <p class="hint">Press SPACE or click to begin</p>
         </div>
 
         <!-- Game Over Screen -->
-        <div class="overlay hidden" id="gameOverScreen">
-            <h1 class="game-over-title">OUCH!</h1>
-            <p class="game-over-text">You hit too many obstacles!</p>
-            <div class="final-score">
-                <span class="score-label">FINAL SCORE</span>
-                <span class="score-big" id="finalScore">0</span>
+        <div class="overlay hidden" id="loseOverlay">
+            <div class="overlay-panel">
+                <h1 class="game-over-title lose-title">OUCH!</h1>
+                <p class="lose-message" id="loseMessage">You hit too many obstacles!</p>
+                <div class="final-score">
+                    <span class="hud-label">FINAL SCORE</span>
+                    <span id="loseScore">0</span>
+                </div>
+                <button class="btn-start" id="btnRetry">TRY AGAIN</button>
             </div>
-            <button class="start-button" id="retryButton">TRY AGAIN</button>
         </div>
 
         <!-- Win Screen -->
-        <div class="overlay hidden" id="winScreen">
-            <h1 class="win-title">PHOTO FINISH!</h1>
-            <p class="win-text">You survived the ride!</p>
-            <div class="final-score">
-                <span class="score-label">FINAL SCORE</span>
-                <span class="score-big" id="winScore">0</span>
+        <div class="overlay hidden" id="winOverlay">
+            <div class="overlay-panel photo-panel">
+                <h1 class="win-title">PHOTO FINISH!</h1>
+                <p class="win-text">You survived the ride!</p>
+                <div class="photo-frame">
+                    <canvas id="photoCanvas" width="400" height="250"></canvas>
+                </div>
+                <p class="photo-price">$29.99 (or just screenshot it)</p>
+                <div class="final-score">
+                    <span class="hud-label">FINAL SCORE</span>
+                    <span id="finalScore">0</span>
+                </div>
+                <button class="btn-start" id="btnPlayAgain">RIDE AGAIN</button>
             </div>
-            <button class="start-button" id="winRetryButton">RIDE AGAIN</button>
         </div>
     </div>
 
