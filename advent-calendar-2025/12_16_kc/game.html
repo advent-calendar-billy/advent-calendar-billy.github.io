@@ -404,13 +404,16 @@
 
         // Dialogues for intro (when meeting Billycula)
         const introDialogues = [
-            { speaker: 'BILLYCULA', portrait: 'sprites/portraits/dracula.svg', text: 'So... you have finally arrived, Fedecard.' },
-            { speaker: 'BILLYCULA', portrait: 'sprites/portraits/dracula.svg', text: 'Did you really think you could challenge ME in my own castle?' },
-            { speaker: 'FEDECARD', portrait: 'sprites/portraits/fedecard.svg', text: 'Your reign of darkness ends tonight, Billycula!' },
-            { speaker: 'BILLYCULA', portrait: 'sprites/portraits/dracula.svg', text: 'What is a man? A miserable little pile of secrets!' },
-            { speaker: 'BILLYCULA', portrait: 'sprites/portraits/dracula.svg', text: 'But enough talk... HAVE AT YOU!' },
-            { speaker: 'FEDECARD', portrait: 'sprites/portraits/fedecard.svg', text: 'Prepare yourself, vampire lord!' }
+            { speaker: 'BILLYCULA', portrait: 'sprites/portraits/dracula.svg', text: 'So... you have finally arrived, Fedecard.', voice: 'voice_lines/billycula_01.wav' },
+            { speaker: 'BILLYCULA', portrait: 'sprites/portraits/dracula.svg', text: 'Did you really think you could challenge ME in my own castle?', voice: 'voice_lines/billycula_02.wav' },
+            { speaker: 'FEDECARD', portrait: 'sprites/portraits/fedecard.svg', text: 'Your reign of darkness ends tonight, Billycula!', voice: 'voice_lines/fedecard_01.wav' },
+            { speaker: 'BILLYCULA', portrait: 'sprites/portraits/dracula.svg', text: 'What is a man? A miserable little pile of secrets!', voice: 'voice_lines/billycula_03.wav' },
+            { speaker: 'BILLYCULA', portrait: 'sprites/portraits/dracula.svg', text: 'But enough talk... HAVE AT YOU!', voice: 'voice_lines/billycula_04.wav' },
+            { speaker: 'FEDECARD', portrait: 'sprites/portraits/fedecard.svg', text: 'Prepare yourself, vampire lord!', voice: 'voice_lines/fedecard_02.wav' }
         ];
+
+        // Voice audio element
+        const voiceAudio = new Audio();
 
         // Equipment data - weapons can be unlocked by finding them
         // cooldown = milliseconds between attacks
@@ -1673,9 +1676,19 @@
             document.getElementById('dialogueText').textContent = dialogue.text;
             document.getElementById('dialoguePortrait').innerHTML = `<img src="${dialogue.portrait}">`;
             box.classList.add('active');
+
+            // Play voice line
+            if (dialogue.voice) {
+                voiceAudio.src = dialogue.voice;
+                voiceAudio.play().catch(e => console.log('Voice autoplay blocked'));
+            }
         }
 
         function advanceDialogue() {
+            // Stop any playing voice
+            voiceAudio.pause();
+            voiceAudio.currentTime = 0;
+
             dialogueIndex++;
             if (dialogueIndex >= introDialogues.length) {
                 document.getElementById('dialogueBox').classList.remove('active');
