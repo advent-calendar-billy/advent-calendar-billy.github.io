@@ -420,11 +420,11 @@
         // Equipment data - weapons can be unlocked by finding them
         // cooldown = milliseconds between attacks
         const weapons = [
-            { name: 'Alucard Sword', atk: 42, cooldown: 400, desc: 'Balanced blade', unlocked: true,
+            { name: 'Alucard Sword', atk: 42, cooldown: 600, desc: 'Balanced blade', unlocked: true,
               icon: `<svg viewBox="0 0 24 24"><rect x="11" y="2" width="2" height="16" fill="#aaa"/><rect x="8" y="16" width="8" height="2" fill="#c4a000"/><rect x="10" y="18" width="4" height="4" fill="#654"/></svg>` },
-            { name: 'Crissaegrim', atk: 28, cooldown: 180, desc: 'Swift blade', unlocked: false,
+            { name: 'Crissaegrim', atk: 28, cooldown: 350, desc: 'Swift blade', unlocked: false,
               icon: `<svg viewBox="0 0 24 24"><path d="M12 2 L14 14 L12 16 L10 14 Z" fill="#88f"/><rect x="10" y="16" width="4" height="2" fill="#c4a000"/><rect x="11" y="18" width="2" height="4" fill="#654"/></svg>` },
-            { name: 'Holy Sword', atk: 50, cooldown: 550, desc: 'Heavy blessed blade', unlocked: false,
+            { name: 'Holy Sword', atk: 50, cooldown: 800, desc: 'Heavy blessed blade', unlocked: false,
               icon: `<svg viewBox="0 0 24 24"><rect x="11" y="2" width="2" height="14" fill="#fff"/><rect x="8" y="8" width="8" height="2" fill="#fff"/><rect x="10" y="16" width="4" height="2" fill="#fc0"/><rect x="11" y="18" width="2" height="4" fill="#654"/></svg>` }
         ];
 
@@ -1842,18 +1842,18 @@
                 return;
             }
 
-            // Player input
-            if (player.attackTimer <= 0 && player.hurtTimer <= 0 && player.backdashTimer <= 0) {
+            // Player input - movement and jumping always allowed (unless hurt/backdashing)
+            if (player.hurtTimer <= 0 && player.backdashTimer <= 0) {
                 if (keys['ArrowLeft']) {
                     player.vx -= player.accel;
                     player.facing = -1;
-                    if (player.grounded) player.state = 'walk';
+                    if (player.grounded && player.attackTimer <= 0) player.state = 'walk';
                 } else if (keys['ArrowRight']) {
                     player.vx += player.accel;
                     player.facing = 1;
-                    if (player.grounded) player.state = 'walk';
+                    if (player.grounded && player.attackTimer <= 0) player.state = 'walk';
                 } else {
-                    if (player.grounded) player.state = 'idle';
+                    if (player.grounded && player.attackTimer <= 0) player.state = 'idle';
                 }
 
                 if (!keys['ArrowLeft'] && !keys['ArrowRight']) {
@@ -1863,13 +1863,15 @@
 
                 player.vx = Math.max(-player.maxSpeed, Math.min(player.maxSpeed, player.vx));
 
+                // Jumping allowed even while attacking
                 if (keysJustPressed['KeyX'] && player.jumpsRemaining > 0) {
                     player.vy = -15;
                     player.grounded = false;
-                    player.state = 'jump';
+                    if (player.attackTimer <= 0) player.state = 'jump';
                     player.jumpsRemaining--;
                 }
 
+                // Attacking allowed while jumping
                 if (keysJustPressed['KeyZ'] && player.attackTimer <= 0) {
                     // Check for DOWN+Z downward attack (ground break)
                     if (keys['ArrowDown'] && player.grounded) {
@@ -1880,7 +1882,7 @@
                     } else {
                         player.state = 'attack';
                         player.attackTimer = equipped.weapon.cooldown;
-                        player.vx *= 0.3;
+                        if (player.grounded) player.vx *= 0.3; // Only slow down on ground
                         checkAttackHit();
                     }
                 }
