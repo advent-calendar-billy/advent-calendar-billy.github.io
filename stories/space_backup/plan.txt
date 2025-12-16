@@ -1,0 +1,111 @@
+# Cat Pod Landing Game Design
+
+## Story Context
+A smart cat (intelligence level 4) accidentally activated a spacecraft while exploring. The cat pressed buttons that made the craft hit the ceiling, causing damage. Now there's a broken wall letting wind in, and the cat needs to safely land the escape pod using the emergency system.
+
+## Game Goal
+Guide the cat's escape pod from 12 meters height down to the ground safely, avoiding wind-blown debris while managing limited fuel.
+
+## Visual Design (ASCII-based, 2D)
+
+### Main Game Screen Layout
+```
+┌─────────────────────────────────────┐
+│ ▓▓▓▓▓▓▓▓░░░░          ╱╲╱╲  12m   │
+├─────────────────────────────────────┤
+│                                     │
+│     ╔═══╗         >>>---           │
+│     ║   ║                          │
+│     ╚═══╝                          │
+│      |||                           │
+│                                     │
+│  <<<---                            │
+│                                     │
+│ ┌─────────────┐                    │
+│ │    /\_/\    │                    │
+│ │   ( o.o )   │                    │
+│ │    > ^ <    │                    │
+│ │   ╱|||||╲   │                    │
+│ └─────────────┘                    │
+│                                     │
+│_____╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲__________│
+└─────────────────────────────────────┘
+```
+
+### Visual Elements (no text labels)
+- Fuel gauge: Progress bar using filled/empty blocks (▓▓▓▓▓▓▓▓░░░░)
+- Altitude indicator: Mountain symbols (╱╲╱╲) followed by number
+- Landing zone: Textured ground pattern (╱╲╱╲╱╲╱╲)
+- Pod: Simple box made with double lines (╔═══╗)
+- Cat cockpit: Rectangle showing cat at controls
+
+### ASCII Cat Design
+```
+  /\_/\
+ ( o.o )   <- Expressive eyes that change with game state
+  > ^ <     <- Paws on controls
+ ╱|||||╲    <- Multiple levers/buttons representing controls
+```
+
+### Cat Expressions
+- Normal: ( o.o )
+- Stressed/danger: ( O.O )
+- Happy/successful landing: ( ^.^ )
+- Concentrating: ( >.< )
+
+### Pod Thrust Visualization
+The pod shows directional thrust fire opposite to movement direction:
+
+```
+Moving left:        Moving right:      Thrusting up:        No thrust:
+╔═══╗               ╔═══╗              ╔═══╗                ╔═══╗
+║   ║|||>         <|||║   ║              ║   ║                ║   ║
+╚═══╝               ╚═══╝              ╚═v═╝                ╚═══╝
+                                        vvv
+```
+
+### Wind Obstacles
+Due to the broken wall, debris flies horizontally across the screen:
+- Basic debris: >>>--- or <<<---
+- Varied debris: >>o--, --x<<, ===>, <~~~
+- Different speeds and patterns
+- Originate from the side with the "broken wall"
+
+## Game Mechanics
+
+### Controls
+- Arrow keys or WASD for thrust direction
+- Spacebar for emergency brake (uses extra fuel)
+
+### Physics
+- Constant gravity pulling pod downward
+- Thrust provides acceleration in chosen direction
+- Momentum carries over between frames
+- Wind affects horizontal movement slightly
+
+### Win/Lose Conditions
+- Win: Land on ground with velocity below safe threshold
+- Lose: Hit debris, crash too fast, run out of fuel
+
+### Difficulty Elements
+- Limited fuel forces strategic movement
+- Wind debris increases in frequency as you descend
+- Safe landing requires gentle touchdown (velocity check)
+- Pod has slight drift from wind even without obstacles
+
+### Scoring
+- Remaining fuel bonus
+- Time bonus for quick landing
+- Perfect landing bonus (very low velocity)
+- Obstacle avoidance streak
+
+## Technical Implementation Notes
+- Pure HTML/JavaScript, no external dependencies
+- Canvas or DOM-based rendering
+- 30-60 FPS update loop
+- Keyboard event listeners for controls
+- Simple physics simulation (position, velocity, acceleration)
+- Collision detection between pod and obstacles/ground
+
+## File Name
+demo_cat_game_1.html

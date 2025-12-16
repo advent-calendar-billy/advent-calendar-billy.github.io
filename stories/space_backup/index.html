@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego</title>
+    <!-- jsrsasign library for JWT signing (Service Account Auth) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.8.6/jsrsasign-all-min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Login container -->
+    <div class="login-container" id="loginContainer">
+        <h1>Juego</h1>
+        
+        <div id="playerLoginSection">
+            <h2>Ingreso del Jugador</h2>
+            <input type="password" id="playerPassword" placeholder="Contraseña del Jugador">
+            <button id="playerLoginBtn">Ingresar como Jugador</button>
+            <p id="playerLoginError" class="error"></p>
+        </div>
+        
+        <div id="adminLoginSection">
+            <h2>Ingreso del DM</h2>
+            <input type="password" id="adminPassword" placeholder="Contraseña del DM">
+            <button id="adminLoginBtn">Ingresar como DM</button>
+            <p id="adminLoginError" class="error"></p>
+        </div>
+        
+        <p id="loginStatusMessage" class="status"></p>
+    </div>
+    
+    <!-- DM interface -->
+    <div class="main-container" id="dmMainContainer">
+        <div class="dm-container">
+            <!-- Long-term thoughts sidebar -->
+            <div class="dm-sidebar">
+                <h2>Pensamientos a Largo Plazo</h2>
+                <div class="search-box">
+                    <input type="text" id="thoughtSearchInput" placeholder="Buscar pensamientos...">
+                </div>
+                <div class="search-filters">
+                    <button class="filter-button active" data-filter="all">Todos</button>
+                    <button class="filter-button" data-filter="watsonian">Watsonianos</button>
+                    <button class="filter-button" data-filter="doylist">Doylistas</button>
+                </div>
+                <div id="longTermThoughtsContainer"></div>
+            </div>
+            
+            <div class="dm-content">
+                <!-- Game log area -->
+                <div class="log-container">
+                    <div class="game-log-header">
+                        <h2>Registro del Juego</h2>
+                        <button id="refreshGameBtn">Actualizar</button>
+                    </div>
+                    <div id="gameLogDisplay"></div>
+                </div>
+                
+                <!-- DM input area -->
+                <div class="input-area">
+                    <div id="dmTurnLockedMessage" class="locked-message" style="display: none;">
+                        Esperando la Action del jugador...
+                    </div>
+                    
+                    <div id="dmInputControls">
+                        <h3>Pensamientos del DM</h3>
+                        <div class="keyboard-shortcuts">
+                            ⌨️ Atajos
+                            <div class="shortcuts-tooltip">
+                                <div class="shortcut-item">
+                                    <span>Alternar Watsoniano</span>
+                                    <span class="shortcut-key">Ctrl+W</span>
+                                </div>
+                                <div class="shortcut-item">
+                                    <span>Alternar Doylista</span>
+                                    <span class="shortcut-key">Ctrl+D</span>
+                                </div>
+                                <div class="shortcut-item">
+                                    <span>Alternar Largo Plazo</span>
+                                    <span class="shortcut-key">Ctrl+L</span>
+                                </div>
+                                <div class="shortcut-item">
+                                    <span>Enviar</span>
+                                    <span class="shortcut-key">Ctrl+Enter</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Rich Text Editor for Thoughts -->
+                        <div class="rich-text-editor">
+                            <div class="editor-toolbar">
+                                <button class="toolbar-button watsonian active" id="watsonian-btn" title="Watsoniano (Ctrl+W)">
+                                    <span>Watsoniano</span>
+                                </button>
+                                <button class="toolbar-button doylist" id="doylist-btn" title="Doylista (Ctrl+D)">
+                                    <span>Doylista</span>
+                                </button>
+                                <div class="toolbar-separator"></div>
+                                <button class="toolbar-button longterm" id="longterm-btn" title="Largo plazo (Ctrl+L)">
+                                    <span>Largo plazo</span>
+                                </button>
+                                <div class="toolbar-separator"></div>
+                                <div id="selection-info" style="margin-left: auto; font-size: 0.8rem; color: var(--dark-gray);">
+                                    Seleccioná texto para formatear
+                                </div>
+                            </div>
+                            <div class="editor-content" id="dmThoughtEditor" contenteditable="true"></div>
+                        </div>
+                        
+                        <h3>Mensaje del Juego</h3>
+                        <div id="messageTypeIndicator">Actual: <span id="currentMessageType">Prompt</span></div>
+                        <textarea id="dmMessageInput" placeholder="Ingresá un Prompt o Outcome para el jugador"></textarea>
+                        <button id="postDmMessageBtn">Publicar Mensaje</button>
+                    </div>
+                    
+                    <p id="dmStatusMessage" class="status"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Player interface -->
+    <div class="main-container" id="playerMainContainer">
+        <div class="player-container">
+            <!-- Game log area -->
+            <div class="log-container">
+                <div class="game-log-header">
+                    <h2>Juego</h2>
+                    <button id="playerRefreshBtn">Actualizar</button>
+                </div>
+                <div id="playerGameLogDisplay"></div>
+            </div>
+            
+            <!-- Player input area -->
+            <div class="input-area">
+                <div id="playerTurnLockedMessage" class="locked-message" style="display: none;">
+                    Esperando la respuesta del DM...
+                </div>
+                
+                <div id="playerInputControls">
+                    <h3>Action</h3>
+                    <textarea id="playerActionInput" placeholder=""></textarea>
+                    <button id="submitPlayerActionBtn">Enviar Action</button>
+                </div>
+                
+                <p id="playerStatusMessage" class="status"></p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Cat Game Container (hidden by default) -->
+    <div class="cat-game-container" id="catGameContainer" style="display: none;">
+        <div id="catGameContent">
+            <canvas id="gameCanvas"></canvas>
+            
+            <div id="startScreen">
+                <pre>
+  /\_/\
+ ( o.o )
+  > ^ <
+ ╱ | ╲
+                </pre>
+                <p>Y entonces intentaste aterrizar la cosa</p>
+                <button onclick="startCatGame()">COMENZAR</button>
+                <div class="controls">
+                    <p>Controles: ← → ↑</p>
+                </div>
+            </div>
+            
+            <div id="gameOverScreen">
+                <pre id="endCat"></pre>
+                <p id="gameOverMessage"></p>
+                <button id="gameOverButton" onclick="resetCatGame()">REINTENTAR</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</html>

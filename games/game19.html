@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heart Game</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #f0f0f0;
+        }
+
+        .game-wrapper {
+            width: 800px;
+            padding: 1rem;
+        }
+
+        .game-container {
+            position: relative;
+            width: 800px;
+            height: 400px;
+            background: linear-gradient(to bottom, #bae6fd, #60a5fa);
+            border-radius: 0.75rem;
+            overflow: hidden;
+        }
+
+        /* Buildings (SVG elements) */
+        .boston-skyline {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 15rem;
+            width: 15rem;
+            opacity: 0.8;
+            z-index: 1;
+        }
+
+        .berlin-skyline {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            height: 18rem;
+            width: 18rem;
+            opacity: 0.8;
+            z-index: 1;
+        }
+
+        .building {
+            fill: #1e293b;
+        }
+
+        .window {
+            fill: #fde047;
+        }
+
+        /* City labels */
+        .city-label {
+            position: absolute;
+            top: 1rem;
+            color: white;
+            font-weight: bold;
+        }
+
+        .boston { left: 1rem; }
+        .berlin { right: 1rem; }
+
+        /* Game status panel */
+        .status-panel {
+            position: absolute;
+            top: 3rem;
+            left: 1rem;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 3;
+        }
+
+        .status-panel div {
+            margin-bottom: 0.5rem;
+        }
+
+        .sadness-meter {
+            width: 8rem;
+            height: 1rem;
+            background: #e5e7eb;
+            border-radius: 0.25rem;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .sadness-bar {
+            height: 100%;
+            background: #ef4444;
+            transition: width 0.3s;
+            width: 0%;
+        }
+
+        /* Game elements */
+        .npc, .player {
+            position: absolute;
+            width: 48px;
+            height: 48px;
+            bottom: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2;
+        }
+
+        .npc {
+            left: 50px;
+            transition: transform 0.3s;
+        }
+
+        .player {
+            right: 20px;
+        }
+
+        /* SVG Icon Styles */
+        .icon {
+            width: 100%;
+            height: 100%;
+        }
+
+        .heart {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            color: #ec4899;
+        }
+
+        /* Aim guide */
+        .aim-line {
+            position: absolute;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.7);
+            z-index: 3;
+        }
+
+        /* Tears */
+        .tear {
+            position: absolute;
+            width: 0.25rem;
+            height: 1rem;
+            background: #93c5fd;
+            border-radius: 9999px;
+            display: none;
+        }
+
+        .tear-left {
+            left: 25%;
+            top: 70%;
+        }
+
+        .tear-right {
+            left: 75%;
+            top: 70%;
+        }
+
+        /* Game over overlay */
+        .game-over {
+            display: none;
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 4;
+        }
+
+        .game-over-text {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .reset-button {
+            background: #3b82f6;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.25rem;
+            cursor: pointer;
+        }
+
+        .reset-button:hover {
+            background: #2563eb;
+        }
+
+        /* Instructions panel */
+        .instructions {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 0.5rem;
+        }
+
+        .instructions ul {
+            padding-left: 1.5rem;
+        }
+
+        .qr-code {
+            width: 128px;
+            height: 128px;
+            display: none;
+            margin: 1rem 0;
+        }
+
+        /* Timer */
+        .timer {
+            position: absolute;
+            top: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-weight: bold;
+            font-size: 1.5rem;
+            z-index: 3;
+        }
+
+        /* Ammo Display */
+        .ammo-display {
+            margin-top: 0.5rem;
+        }
+
+        /* Clouds */
+        .clouds-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .cloud {
+            position: absolute;
+            width: 100px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            filter: blur(2px);
+            opacity: 0.8;
+            animation: moveClouds linear infinite;
+        }
+
+        @keyframes moveClouds {
+            from { transform: translateX(-150px); }
+            to { transform: translateX(850px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-wrapper">
+        <div class="game-container">
+            <!-- City labels -->
+            <div class="city-label boston">Boston</div>
+            <div class="city-label berlin">Berlin</div>
+
+            <!-- Timer -->
+            <div class="timer">60</div>
+
+            <!-- Skylines -->
+            <svg class="boston-skyline">
+                <!-- Custom Boston Skyline -->
+                <rect class="building" x="10" y="80" width="30" height="120" />
+                <rect class="building" x="50" y="50" width="25" height="150" />
+                <rect class="building" x="85" y="70" width="40" height="130" />
+                <rect class="building" x="135" y="30" width="30" height="170" />
+                <polygon class="building" points="175,70 175,200 215,200 215,100 195,70" />
+                <polygon class="building" points="225,40 225,200 275,200 275,40 250,20" />
+            </svg>
+
+            <svg class="berlin-skyline">
+                <!-- Custom Berlin Skyline with Brandenburg Gate and TV Tower -->
+                <!-- Brandenburg Gate -->
+                <rect class="building" x="20" y="130" width="10" height="70" />
+                <rect class="building" x="40" y="130" width="10" height="70" />
+                <rect class="building" x="60" y="130" width="10" height="70" />
+                <rect class="building" x="80" y="130" width="10" height="70" />
+                <rect class="building" x="100" y="130" width="10" height="70" />
+                <rect class="building" x="120" y="130" width="10" height="70" />
+                <rect class="building" x="20" y="120" width="110" height="10" />
+                <polygon class="building" points="20,120 75,90 130,120" />
+                <!-- TV Tower -->
+                <rect class="building" x="160" y="100" width="5" height="130" />
+                <circle class="building" cx="162.5" cy="90" r="15" />
+                <rect class="building" x="155" y="85" width="15" height="5" />
+            </svg>
+
+            <!-- Clouds Container -->
+            <div class="clouds-container"></div>
+
+            <!-- Game status -->
+            <div class="status-panel">
+                <div>Angle: <span id="angle-display">45</span>°</div>
+                <div>Power: <span id="power-display">50</span></div>
+                <div class="ammo-display">Ammo: <span id="ammo-display">10</span></div>
+                <div>
+                    Sadness:
+                    <div class="sadness-meter">
+                        <div class="sadness-bar"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NPC -->
+            <div class="npc">
+                <!-- Improved Sad Face SVG -->
+                <svg class="icon" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="32" cy="32" r="30" fill="#fde047" stroke="black" stroke-width="2"/>
+                    <circle cx="22" cy="24" r="4" fill="black"/>
+                    <circle cx="42" cy="24" r="4" fill="black"/>
+                    <path d="M20,40 Q32,50 44,40" stroke="black" stroke-width="4" fill="transparent"/>
+                </svg>
+                <div class="tear tear-left"></div>
+                <div class="tear tear-right"></div>
+            </div>
+
+            <!-- Player -->
+            <div class="player">
+                <!-- User/Profile SVG -->
+                <svg class="icon" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 21V19C20 16.7909 18.2091 15 16 15H8C5.79086 15 4 16.7909 4 19V21" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="12" cy="7" r="4" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+
+            <!-- Hearts container -->
+            <div id="hearts-container"></div>
+
+            <!-- Aim Line -->
+            <div class="aim-line"></div>
+
+            <!-- Game over overlay -->
+            <div class="game-over">
+                <div class="game-over-text">Game Over!</div>
+                <img class="qr-code" src="/images/qr_code.png" alt="QR Code">
+                <button class="reset-button">Play Again</button>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <p>Controls:</p>
+            <ul>
+                <li>←/→ - Adjust angle</li>
+                <li>↑/↓ - Adjust power</li>
+                <li>Space - Throw heart</li>
+            </ul>
+            <p>Send hearts from Berlin to Boston to cheer up your friend!</p>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        const gameState = {
+            angle: 45,
+            power: 50,
+            sadness: 0,
+            hearts: [],
+            gameOver: false,
+            npcX: 50,
+            timeLeft: 60,
+            npcMovingRight: true,
+            ammo: 10, // Limited ammo
+            clouds: []
+        };
+
+        // Constants
+        const GRAVITY = 0.5;
+        const HEART_SIZE = 24;
+        const PLAYER_SIZE = 48;
+        const NPC_SIZE = 48;
+        const GAME_WIDTH = 800;
+        const GAME_HEIGHT = 400;
+        const PLAYER_X = GAME_WIDTH - PLAYER_SIZE - 20;
+        const PLAYER_Y = GAME_HEIGHT - PLAYER_SIZE;
+        const NPC_MOVE_RANGE = 100;
+
+        // DOM Elements
+        const npc = document.querySelector('.npc');
+        const heartsContainer = document.getElementById('hearts-container');
+        const sadnessBar = document.querySelector('.sadness-bar');
+        const angleDisplay = document.getElementById('angle-display');
+        const powerDisplay = document.getElementById('power-display');
+        const ammoDisplay = document.getElementById('ammo-display');
+        const gameOverScreen = document.querySelector('.game-over');
+        const resetButton = document.querySelector('.reset-button');
+        const qrCode = document.querySelector('.qr-code');
+        const tears = document.querySelectorAll('.tear');
+        const timerDisplay = document.querySelector('.timer');
+        const aimLine = document.querySelector('.aim-line');
+        const cloudsContainer = document.querySelector('.clouds-container');
+
+        // Add windows to buildings
+        function addBuildingWindows() {
+            const bostonSkyline = document.querySelector('.boston-skyline');
+            const berlinSkyline = document.querySelector('.berlin-skyline');
+
+            // Function to add windows based on building dimensions
+            function addWindows(building) {
+                const bbox = building.getBBox();
+                const windowWidth = 4;
+                const windowHeight = 4;
+                const windowGapX = 8;
+                const windowGapY = 8;
+                const columns = Math.floor((bbox.width - 20) / (windowWidth + windowGapX));
+                const rows = Math.floor((bbox.height - 20) / (windowHeight + windowGapY));
+
+                for (let row = 0; row < rows; row++) {
+                    for (let col = 0; col < columns; col++) {
+                        const window = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                        window.setAttribute('class', 'window');
+                        const x = bbox.x + 10 + col * (windowWidth + windowGapX);
+                        const y = bbox.y + 10 + row * (windowHeight + windowGapY);
+                        window.setAttribute('x', x);
+                        window.setAttribute('y', y);
+                        window.setAttribute('width', windowWidth);
+                        window.setAttribute('height', windowHeight);
+                        building.parentElement.appendChild(window);
+                    }
+                }
+            }
+
+            // Add windows to all buildings in Boston Skyline
+            const bostonBuildings = bostonSkyline.querySelectorAll('.building');
+            bostonBuildings.forEach(building => addWindows(building));
+
+            // Add windows to all buildings in Berlin Skyline
+            const berlinBuildings = berlinSkyline.querySelectorAll('.building');
+            berlinBuildings.forEach(building => addWindows(building));
+        }
+
+        // Update sadness display
+        function updateSadnessDisplay() {
+            sadnessBar.style.width = `${gameState.sadness}%`;
+            const npcFrown = npc.querySelector('svg');
+            npcFrown.style.transform = `rotate(${180 + (gameState.sadness / 100) * 40}deg)`;
+
+            // Show/hide tears based on sadness
+            tears.forEach(tear => {
+                tear.style.display = gameState.sadness > 50 ? 'block' : 'none';
+                tear.style.opacity = gameState.sadness / 100;
+            });
+        }
+
+        // Create a heart element
+        function createHeart(x, y, vx, vy) {
+            const heart = document.createElement('div');
+            heart.className = 'heart';
+            heart.innerHTML = `
+                <svg class="icon" viewBox="0 0 24 24" fill="#ec4899" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 21C12 21 10.5 18.75 6 15C3.79 13.47 2 11.61 2 9.5C2 6.46 4.46 4 7.5 4C9.24 4 10.91 4.81 12 6.09C13.09 4.81 14.76 4 16.5 4C19.54 4 22 6.46 22 9.5C22 11.61 20.21 13.47 18 15C13.5 18.75 12 21 12 21Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            `;
+            heart.style.left = `${x}px`;
+            heart.style.top = `${y}px`;
+            heart.style.transform = `rotate(${Math.atan2(vy, vx) * (180 / Math.PI)}deg)`;
+            heartsContainer.appendChild(heart);
+            return heart;
+        }
+
+        // Throw a heart
+        function throwHeart() {
+            if (gameState.gameOver) return;
+            if (gameState.ammo <= 0) return; // Prevent throwing if no ammo
+
+            const radians = gameState.angle * (Math.PI / 180);
+            const velocity = gameState.power / 5;
+            const vx = Math.cos(radians) * velocity;
+            const vy = Math.sin(radians) * velocity;
+
+            const heart = createHeart(PLAYER_X, PLAYER_Y, vx, vy);
+            gameState.hearts.push({
+                element: heart,
+                x: PLAYER_X,
+                y: PLAYER_Y,
+                vx: vx,
+                vy: vy
+            });
+
+            // Decrease ammo
+            gameState.ammo--;
+            ammoDisplay.textContent = gameState.ammo;
+        }
+
+        // Update aim line
+        function updateAimLine() {
+            const radians = gameState.angle * (Math.PI / 180);
+            const length = gameState.power; // Length of the line based on power
+            const endX = PLAYER_X - Math.cos(radians) * length;
+            const endY = PLAYER_Y - Math.sin(radians) * length;
+
+            const lineLength = Math.sqrt(Math.pow(endX - PLAYER_X, 2) + Math.pow(endY - PLAYER_Y, 2));
+            const lineWidth = lineLength;
+            aimLine.style.width = `${lineWidth}px`;
+            aimLine.style.left = `${PLAYER_X}px`;
+            aimLine.style.top = `${PLAYER_Y + PLAYER_SIZE / 2}px`;
+            aimLine.style.transformOrigin = 'left center';
+            aimLine.style.transform = `rotate(${gameState.angle}deg)`;
+        }
+
+        // Create a cloud
+        function createCloud() {
+            const cloud = document.createElement('div');
+            cloud.className = 'cloud';
+            cloud.style.top = `${Math.random() * (GAME_HEIGHT / 2)}px`;
+            cloud.style.left = `-150px`;
+            cloud.style.width = `${80 + Math.random() * 40}px`;
+            cloud.style.height = `${40 + Math.random() * 20}px`;
+            cloud.style.opacity = `${0.5 + Math.random() * 0.3}`;
+            cloudsContainer.appendChild(cloud);
+
+            // Set animation duration based on cloud size
+            const duration = 20 - (parseInt(cloud.style.width) / 120) * 10; // Between 10s to 20s
+            cloud.style.animationDuration = `${duration}s`;
+
+            // Add to gameState
+            gameState.clouds.push(cloud);
+        }
+
+        // Throw a heart and handle cloud collision
+        function updateGame() {
+            if (gameState.gameOver) return;
+
+            // Move NPC
+            if (gameState.npcMovingRight) {
+                gameState.npcX += 0.5;
+                if (gameState.npcX >= 50 + NPC_MOVE_RANGE) gameState.npcMovingRight = false;
+            } else {
+                gameState.npcX -= 0.5;
+                if (gameState.npcX <= 50) gameState.npcMovingRight = true;
+            }
+            npc.style.left = `${gameState.npcX}px`;
+
+            // Update hearts
+            gameState.hearts = gameState.hearts.filter(heart => {
+                heart.x += heart.vx;
+                heart.y += heart.vy;
+                heart.vy += GRAVITY;
+
+                // Check collision with clouds
+                for (let cloud of gameState.clouds) {
+                    const cloudRect = cloud.getBoundingClientRect();
+                    const heartRect = heart.element.getBoundingClientRect();
+                    const containerRect = heartsContainer.getBoundingClientRect();
+
+                    const cloudX = cloudRect.left - containerRect.left;
+                    const cloudY = cloudRect.top - containerRect.top;
+
+                    if (
+                        heart.x + HEART_SIZE > cloudX &&
+                        heart.x < cloudX + cloudRect.width &&
+                        heart.y + HEART_SIZE > cloudY &&
+                        heart.y < cloudY + cloudRect.height
+                    ) {
+                        // Heart is blocked by cloud
+                        heart.element.remove();
+                        return false;
+                    }
+                }
+
+                // Check collision with NPC
+                if (
+                    heart.x < gameState.npcX + NPC_SIZE &&
+                    heart.x + HEART_SIZE > gameState.npcX &&
+                    heart.y + HEART_SIZE > GAME_HEIGHT - NPC_SIZE &&
+                    heart.y < GAME_HEIGHT
+                ) {
+                    gameState.sadness = Math.max(0, gameState.sadness - 20);
+                    updateSadnessDisplay();
+                    heart.element.remove();
+                    return false;
+                }
+
+                // Remove if out of bounds
+                if (heart.x < -HEART_SIZE || heart.y > GAME_HEIGHT) {
+                    heart.element.remove();
+                    return false;
+                }
+
+                // Update position
+                heart.element.style.left = `${heart.x}px`;
+                heart.element.style.top = `${heart.y}px`;
+                heart.element.style.transform =
+                    `rotate(${Math.atan2(heart.vy, heart.vx) * (180 / Math.PI)}deg)`;
+
+                return true;
+            });
+
+            // Move clouds
+            gameState.clouds = gameState.clouds.filter(cloud => {
+                const transform = getComputedStyle(cloud).transform;
+                if (transform !== 'none') {
+                    const matrix = new DOMMatrix(transform);
+                    const currentX = matrix.m41;
+                    if (currentX > GAME_WIDTH + 100) {
+                        cloud.remove();
+                        return false;
+                    }
+                }
+                return true;
+            });
+
+            updateAimLine();
+        }
+
+        // Game over handler
+        function endGame(won = false) {
+            gameState.gameOver = true;
+            clearInterval(timerInterval);
+            clearInterval(cloudInterval);
+            gameOverScreen.style.display = 'flex';
+            gameOverScreen.querySelector('.game-over-text').textContent =
+                won ? 'You Win!' : 'Game Over!';
+            qrCode.style.display = won ? 'block' : 'none';
+        }
+
+        // Reset game
+        function resetGame() {
+            gameState.angle = 45;
+            gameState.power = 50;
+            gameState.sadness = 0;
+            gameState.hearts.forEach(heart => heart.element.remove());
+            gameState.hearts = [];
+            gameState.gameOver = false;
+            gameState.timeLeft = 60;
+            gameState.npcX = 50;
+            npc.style.left = `${gameState.npcX}px`;
+            gameOverScreen.style.display = 'none';
+            qrCode.style.display = 'none';
+            gameState.ammo = 10;
+            ammoDisplay.textContent = gameState.ammo;
+            updateSadnessDisplay();
+            angleDisplay.textContent = gameState.angle;
+            powerDisplay.textContent = gameState.power;
+            timerDisplay.textContent = gameState.timeLeft;
+            clearInterval(timerInterval);
+            timerInterval = setInterval(updateTimer, 1000);
+            clearInterval(cloudInterval);
+            cloudInterval = setInterval(() => {
+                if (!gameState.gameOver) {
+                    createCloud();
+                }
+            }, 5000 + Math.random() * 5000); // Create clouds every 5-10 seconds
+            updateAimLine();
+        }
+
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            if (gameState.gameOver) return;
+
+            switch(e.key) {
+                case 'ArrowLeft':
+                    gameState.angle = Math.max(gameState.angle - 5, -360);  // Decrease angle when going left
+                    angleDisplay.textContent = gameState.angle;
+                    break;
+                case 'ArrowRight':
+                    gameState.angle = Math.min(gameState.angle + 5, 360);  // Increase angle when going right
+                    angleDisplay.textContent = gameState.angle;
+                    break;
+                case 'ArrowUp':
+                    gameState.power = Math.min(gameState.power + 5, 200);
+                    powerDisplay.textContent = gameState.power;
+                    break;
+                case 'ArrowDown':
+                    gameState.power = Math.max(gameState.power - 5, 10);
+                    powerDisplay.textContent = gameState.power;
+                    break;
+                case ' ':
+                    e.preventDefault();
+                    throwHeart();
+                    break;
+            }
+            updateAimLine();
+        });
+
+        // Reset button handler
+        resetButton.addEventListener('click', resetGame);
+
+        // Sadness increase interval
+        let sadnessInterval = setInterval(() => {
+            if (!gameState.gameOver) {
+                gameState.sadness = Math.min(gameState.sadness + 1, 100);
+                updateSadnessDisplay();
+                if (gameState.sadness >= 100) {
+                    endGame(false);
+                }
+            }
+        }, 500);
+
+        // Timer update
+        function updateTimer() {
+            if (!gameState.gameOver) {
+                gameState.timeLeft--;
+                timerDisplay.textContent = gameState.timeLeft;
+                if (gameState.timeLeft <= 0) {
+                    endGame(true); // Player wins if they survive
+                }
+            }
+        }
+
+        // Timer interval
+        let timerInterval = setInterval(updateTimer, 1000);
+
+        // Cloud generation interval
+        let cloudInterval = setInterval(() => {
+            if (!gameState.gameOver) {
+                createCloud();
+            }
+        }, 7000); // Create clouds every 7 seconds initially
+
+        // Game loop
+        function gameLoop() {
+            updateGame();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Initialize game
+        function initGame() {
+            addBuildingWindows();
+            resetGame();
+            gameLoop();
+        }
+
+        // Start the game when everything is loaded
+        window.addEventListener('load', initGame);
+    </script>
+</body>
+</html>

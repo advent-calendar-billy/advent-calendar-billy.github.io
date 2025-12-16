@@ -380,9 +380,9 @@
         explorationMusic.loop = true;
         lostPaintingMusic.loop = true;
         bossFightMusic.loop = true;
-        explorationMusic.volume = 0.4;
-        lostPaintingMusic.volume = 0.4;
-        bossFightMusic.volume = 0.5;
+        explorationMusic.volume = 0.15;
+        lostPaintingMusic.volume = 0.15;
+        bossFightMusic.volume = 0.15;
 
         function toggleMusic() {
             musicMuted = !musicMuted;
@@ -404,16 +404,17 @@
 
         // Dialogues for intro (when meeting Billycula)
         const introDialogues = [
-            { speaker: 'BILLYCULA', portrait: 'sprites/portraits/dracula.svg', text: 'So... you have finally arrived, Fedecard.', voice: 'voice_lines/billycula_01.wav' },
-            { speaker: 'BILLYCULA', portrait: 'sprites/portraits/dracula.svg', text: 'Did you really think you could challenge ME in my own castle?', voice: 'voice_lines/billycula_02.wav' },
-            { speaker: 'FEDECARD', portrait: 'sprites/portraits/fedecard.svg', text: 'Your reign of darkness ends tonight, Billycula!', voice: 'voice_lines/fedecard_01.wav' },
-            { speaker: 'BILLYCULA', portrait: 'sprites/portraits/dracula.svg', text: 'What is a man? A miserable little pile of secrets!', voice: 'voice_lines/billycula_03.wav' },
-            { speaker: 'BILLYCULA', portrait: 'sprites/portraits/dracula.svg', text: 'But enough talk... HAVE AT YOU!', voice: 'voice_lines/billycula_04.wav' },
-            { speaker: 'FEDECARD', portrait: 'sprites/portraits/fedecard.svg', text: 'Prepare yourself, vampire lord!', voice: 'voice_lines/fedecard_02.wav' }
+            { speaker: 'BILLYCULA', portrait: 'sprites/portraits/dracula.svg', text: 'So... you have finally arrived, Fedecard.', voice: 'voice_lines/billycula_01.mp3' },
+            { speaker: 'BILLYCULA', portrait: 'sprites/portraits/dracula.svg', text: 'Did you really think you could challenge ME in my own castle?', voice: 'voice_lines/billycula_02.mp3' },
+            { speaker: 'FEDECARD', portrait: 'sprites/portraits/fedecard.svg', text: 'Your reign of darkness ends tonight, Billycula!', voice: 'voice_lines/fedecard_01.mp3' },
+            { speaker: 'BILLYCULA', portrait: 'sprites/portraits/dracula.svg', text: 'What is a man? A miserable little pile of secrets!', voice: 'voice_lines/billycula_03.mp3' },
+            { speaker: 'BILLYCULA', portrait: 'sprites/portraits/dracula.svg', text: 'But enough talk... HAVE AT YOU!', voice: 'voice_lines/billycula_04.mp3' },
+            { speaker: 'FEDECARD', portrait: 'sprites/portraits/fedecard.svg', text: 'Prepare yourself, vampire lord!', voice: 'voice_lines/fedecard_02.mp3' }
         ];
 
         // Voice audio element
         const voiceAudio = new Audio();
+        voiceAudio.volume = 1.0;
 
         // Equipment data - weapons can be unlocked by finding them
         // cooldown = milliseconds between attacks

@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Departamento</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #1a1a2e;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Press Start 2P', monospace;
+            overflow: hidden;
+        }
+
+        #gameContainer {
+            position: relative;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+
+        #gameCanvas {
+            display: block;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+            border: 4px solid #3a3a5e;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+        }
+
+        #hud {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .equipped-item {
+            background: rgba(0, 0, 0, 0.85);
+            border: 2px solid #5a5a7e;
+            border-radius: 4px;
+            padding: 8px 12px;
+            color: #aaa;
+            font-size: 8px;
+            min-width: 120px;
+        }
+
+        .equipped-label {
+            color: #666;
+            font-size: 6px;
+            margin-bottom: 4px;
+        }
+
+        #dialogueBox {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #5a5a7e;
+            border-radius: 8px;
+            padding: 12px 20px;
+            color: #fff;
+            font-size: 10px;
+            max-width: 500px;
+            text-align: center;
+            display: none;
+            z-index: 20;
+        }
+
+        #telegramPopup {
+            position: absolute;
+            top: 50px;
+            right: 10px;
+            background: linear-gradient(180deg, #1e3a5f 0%, #152238 100%);
+            border: 3px solid #0088cc;
+            border-radius: 12px;
+            padding: 12px 14px;
+            color: #fff;
+            font-size: 8px;
+            max-width: 220px;
+            display: none;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0, 136, 204, 0.4);
+            animation: telegramSlide 0.3s ease-out;
+        }
+
+        @keyframes telegramSlide {
+            from {
+                transform: translateX(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .telegram-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #0088cc44;
+        }
+
+        .telegram-icon {
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, #0088cc, #00aaff);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+        }
+
+        .telegram-name {
+            color: #0088cc;
+            font-weight: bold;
+        }
+
+        .telegram-message {
+            color: #eee;
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+
+        .telegram-response {
+            color: #88ccff;
+            font-size: 7px;
+            text-align: right;
+            font-style: italic;
+            padding-top: 6px;
+            border-top: 1px solid #0088cc22;
+        }
+
+        #inventoryOverlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.92);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .inventory-title {
+            color: #fff;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 70px);
+            gap: 10px;
+        }
+
+        .inventory-slot {
+            width: 70px;
+            height: 70px;
+            background: #2a2a4e;
+            border: 2px solid #4a4a6e;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            padding: 4px;
+        }
+
+        .inventory-slot:hover {
+            border-color: #7a7a9e;
+            background: #3a3a5e;
+        }
+
+        .inventory-slot.selected {
+            border-color: #ffcc00;
+            box-shadow: 0 0 15px rgba(255, 204, 0, 0.5);
+            background: #3a3a2e;
+        }
+
+        .inventory-slot .item-name {
+            font-size: 6px;
+            color: #aaa;
+            margin-top: 4px;
+            text-align: center;
+        }
+
+        .inventory-hint {
+            color: #666;
+            font-size: 8px;
+            margin-top: 20px;
+        }
+
+        #interactHint {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.85);
+            border: 2px solid #ffcc00;
+            border-radius: 4px;
+            padding: 6px 12px;
+            color: #ffcc00;
+            font-size: 8px;
+            display: none;
+            z-index: 15;
+        }
+
+        .controls-info {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            color: #444;
+            font-size: 6px;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <canvas id="gameCanvas" width="640" height="480"></canvas>
+
+        <div id="hud">
+            <div class="equipped-item">
+                <div class="equipped-label">EQUIPADO:</div>
+                <div id="equippedName">Nada</div>
+            </div>
+        </div>
+
+        <div id="dialogueBox"></div>
+
+        <div id="telegramPopup">
+            <div class="telegram-header">
+                <div class="telegram-icon">✈</div>
+                <span class="telegram-name">Billy</span>
+            </div>
+            <div class="telegram-message" id="telegramMessage"></div>
+            <div class="telegram-response" id="telegramResponse"></div>
+        </div>
+
+        <div id="interactHint">[E] Agarrar</div>
+
+        <div id="inventoryOverlay">
+            <div class="inventory-title">INVENTARIO</div>
+            <div class="inventory-grid" id="inventoryGrid"></div>
+            <div class="inventory-hint">Click para equipar | [I] o [ESC] para cerrar</div>
+        </div>
+
+        <div class="controls-info">WASD: Mover | E: Agarrar | ESPACIO: Usar objeto | I: Inventario</div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // ============ AUDIO SYSTEM ============
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new AudioCtx();
+            }
+        }
+
+        function playSound(type) {
+            initAudio();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            switch(type) {
+                case 'pickup':
+                    oscillator.frequency.setValueAtTime(600, audioCtx.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(900, audioCtx.currentTime + 0.1);
+                    gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                    oscillator.start(audioCtx.currentTime);
+                    oscillator.stop(audioCtx.currentTime + 0.15);
+                    break;
+
+                case 'telegram':
+                    oscillator.frequency.setValueAtTime(800, audioCtx.currentTime);
+                    oscillator.frequency.setValueAtTime(1000, audioCtx.currentTime + 0.08);
+                    oscillator.frequency.setValueAtTime(800, audioCtx.currentTime + 0.16);
+                    gainNode.gain.setValueAtTime(0.12, audioCtx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+                    oscillator.start(audioCtx.currentTime);
+                    oscillator.stop(audioCtx.currentTime + 0.25);
+                    break;
+
+                case 'locked':
+                    oscillator.frequency.setValueAtTime(150, audioCtx.currentTime);
+                    oscillator.frequency.setValueAtTime(100, audioCtx.currentTime + 0.1);
+                    gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                    oscillator.start(audioCtx.currentTime);
+                    oscillator.stop(audioCtx.currentTime + 0.15);
+                    break;
+
+                case 'unlock':
+                    oscillator.frequency.setValueAtTime(400, audioCtx.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.15);
+                    gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                    oscillator.start(audioCtx.currentTime);
+                    oscillator.stop(audioCtx.currentTime + 0.2);
+                    break;
+
+                case 'step':
+                    oscillator.type = 'square';
+                    oscillator.frequency.setValueAtTime(80 + Math.random() * 20, audioCtx.currentTime);
+                    gainNode.gain.setValueAtTime(0.03, audioCtx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+                    oscillator.start(audioCtx.currentTime);
+                    oscillator.stop(audioCtx.currentTime + 0.05);
+                    break;
+            }
+        }
+
+        // ============ GAME STATE ============
+        const game = {
+            player: {
+                x: 100,
+                y: 300,
+                width: 24,
+                height: 32,
+                speed: 2.5,
+                direction: 'down',
+                frame: 0,
+                frameTimer: 0,
+                stepTimer: 0,
+                isMoving: false
+            },
+            inventory: [],
+            equipped: null,
+            showInventory: false,
+            dialogueTimer: 0,
+            currentDialogue: '',
+            telegramTimer: 0,
+            gameTime: 0,
+            flags: {
+                screwdriverTaken: false,
+                keyTaken: false,
+                cabinetOpened: false,
+                flashlightTaken: false,
+                triedDoor: false,
+                noteTaken: false,
+                billyMsg1: false,
+                billyMsg2: false,
+                billyMsg3: false
+            }
+        };
+
+        // ============ COLORS ============
+        const COLORS = {
+            floor: '#4a4035',
+            floorTile: '#3d3528',
+            wall: '#6a5a4a',
+            wallDark: '#4a3a2a',
+            wallTop: '#7a6a5a',
+            door: '#5a3a1a',
+            doorFrame: '#8a6a4a',
+            furniture: '#4a3a2a',
+            furnitureLight: '#6a5a4a',
+            furnitureDark: '#3a2a1a',
+            bathroom: '#3a4a4a',
+            bathroomTile: '#4a5a5a',
+            office: '#3a3a30',
+            bedroom: '#4a3a4a',
+            toolArea: '#3a3a3a',
+            player: '#d4a574',
+            playerShirt: '#4a6a8a',
+            playerHair: '#3a2a1a',
+            rug: '#6a3a3a',
+            rugPattern: '#8a4a4a'
+        };
+
+        // ============ ROOM DEFINITIONS ============
+        const TILE_SIZE = 32;
+        const rooms = {
+            bathroom: { x: 1, y: 1, w: 4, h: 4, color: COLORS.bathroom },
+            hallway: { x: 1, y: 5, w: 4, h: 8, color: COLORS.floor },
+            office: { x: 5, y: 1, w: 6, h: 4, color: COLORS.office },
+            bedroom: { x: 5, y: 5, w: 6, h: 4, color: COLORS.bedroom },
+            tools: { x: 5, y: 9, w: 6, h: 4, color: COLORS.toolArea }
+        };
+
+        // ============ OBJECTS ============
+        const objects = [
+            // Bathroom
+            { id: 'toilet', x: 1.5, y: 1.5, w: 1.2, h: 1.5, type: 'furniture', sprite: 'toilet' },
+            { id: 'bathtub', x: 1.2, y: 3.2, w: 2.5, h: 1.3, type: 'furniture', sprite: 'bathtub' },
+            { id: 'sink', x: 3.5, y: 1.5, w: 1, h: 0.8, type: 'furniture', sprite: 'sink' },
+            { id: 'bathroomMirror', x: 3.5, y: 1, w: 1, h: 0.5, type: 'furniture', sprite: 'mirror' },
+            { id: 'cabinet', x: 3.3, y: 2.5, w: 1.2, h: 1.2, type: 'interactable', sprite: 'cabinet',
+              action: 'cabinet', needsItem: 'Llave pequeña' },
+
+            // Office
+            { id: 'desk', x: 7.5, y: 1.5, w: 2.5, h: 1.5, type: 'furniture', sprite: 'desk' },
+            { id: 'chair', x: 8.2, y: 3.2, w: 0.9, h: 0.9, type: 'furniture', sprite: 'chair' },
+            { id: 'bookshelf', x: 5.5, y: 1.2, w: 1.5, h: 2.8, type: 'furniture', sprite: 'bookshelf' },
+            { id: 'officePlant', x: 10, y: 1.3, w: 0.8, h: 1, type: 'furniture', sprite: 'tallPlant' },
+            { id: 'officeRug', x: 7, y: 2.8, w: 2.5, h: 1.5, type: 'decor', sprite: 'rug' },
+
+            // Bedroom
+            { id: 'bed', x: 7.5, y: 5.5, w: 2.8, h: 2.2, type: 'furniture', sprite: 'bed' },
+            { id: 'nightstand', x: 10.3, y: 5.8, w: 0.8, h: 0.8, type: 'interactable', sprite: 'nightstand',
+              action: 'nightstand' },
+            { id: 'bedroomLamp', x: 10.4, y: 5.5, w: 0.4, h: 0.3, type: 'decor', sprite: 'lamp' },
+            { id: 'plant', x: 5.5, y: 7.8, w: 0.9, h: 0.9, type: 'interactable', sprite: 'plant',
+              action: 'plant', item: 'Llave pequeña' },
+            { id: 'closet', x: 5.3, y: 5.5, w: 1.6, h: 2, type: 'interactable', sprite: 'closet',
+              action: 'closet' },
+            { id: 'bedroomRug', x: 7, y: 7.5, w: 2, h: 1.2, type: 'decor', sprite: 'smallRug' },
+
+            // Tool area
+            { id: 'workbench', x: 6.5, y: 10, w: 3.5, h: 1.2, type: 'furniture', sprite: 'workbench' },
+            { id: 'screwdriver', x: 7.5, y: 11.5, w: 1, h: 0.5, type: 'item', sprite: 'screwdriver',
+              item: 'Destornillador' },
+            { id: 'toolbox', x: 10, y: 10.5, w: 1.2, h: 0.9, type: 'interactable', sprite: 'toolbox',
+              action: 'toolbox' },
+            { id: 'shelves', x: 5.3, y: 9.5, w: 1, h: 2.5, type: 'furniture', sprite: 'metalShelves' },
+
+            // Hallway
+            { id: 'frontDoor', x: 0.6, y: 8, w: 0.6, h: 2, type: 'interactable', sprite: 'door',
+              action: 'frontDoor' },
+            { id: 'coatRack', x: 1.3, y: 5.3, w: 0.7, h: 1.2, type: 'furniture', sprite: 'coatRack' },
+            { id: 'smallTable', x: 3.3, y: 5.5, w: 1, h: 0.8, type: 'furniture', sprite: 'smallTable' },
+            { id: 'hallwayNote', x: 3.5, y: 5.6, w: 0.4, h: 0.3, type: 'item', sprite: 'note',
+              item: 'Nota' },
+            { id: 'stairs', x: 2, y: 10, w: 2, h: 2.5, type: 'interactable', sprite: 'stairs',
+              action: 'stairs' },
+            { id: 'shoe rack', x: 1.3, y: 9.5, w: 1.2, h: 0.6, type: 'furniture', sprite: 'shoeRack' }
+        ];
+
+        // ============ KEYBOARD ============
+        const keys = {};
+
+        document.addEventListener('keydown', (e) => {
+            keys[e.key.toLowerCase()] = true;
+
+            if (e.key.toLowerCase() === 'i' || e.key === 'Escape') {
+                toggleInventory();
+                e.preventDefault();
+            }
+            if (e.key.toLowerCase() === 'e') {
+                tryPickup();
+            }
+            if (e.key === ' ') {
+                tryUseItem();
+                e.preventDefault();
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            keys[e.key.toLowerCase()] = false;
+        });
+
+        // Click to initialize audio
+        document.addEventListener('click', initAudio, { once: true });
+
+        // ============ DRAWING FUNCTIONS ============
+        function drawFloor() {
+            // Background
+            ctx.fillStyle = '#2a2a2e';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw each room
+            for (const [name, room] of Object.entries(rooms)) {
+                ctx.fillStyle = room.color;
+                ctx.fillRect(room.x * TILE_SIZE, room.y * TILE_SIZE,
+                            room.w * TILE_SIZE, room.h * TILE_SIZE);
+
+                // Draw tile pattern
+                for (let x = room.x; x < room.x + room.w; x++) {
+                    for (let y = room.y; y < room.y + room.h; y++) {
+                        // Checkerboard
+                        if ((x + y) % 2 === 0) {
+                            ctx.fillStyle = 'rgba(0,0,0,0.08)';
+                        } else {
+                            ctx.fillStyle = 'rgba(255,255,255,0.03)';
+                        }
+                        ctx.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+
+                        // Tile borders
+                        ctx.strokeStyle = 'rgba(0,0,0,0.1)';
+                        ctx.strokeRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+                    }
+                }
+            }
+        }
+
+        function drawWalls() {
+            // Outer walls
+            ctx.fillStyle = COLORS.wall;
+
+            // Top wall
+            ctx.fillRect(0, 0, canvas.width, TILE_SIZE);
+            // Bottom wall
+            ctx.fillRect(0, canvas.height - TILE_SIZE, canvas.width, TILE_SIZE);
+            // Left wall
+            ctx.fillRect(0, 0, TILE_SIZE, canvas.height);
+            // Right wall
+            ctx.fillRect(canvas.width - TILE_SIZE * 2, 0, TILE_SIZE * 2, canvas.height);
+
+            // Wall tops (3D effect)
+            ctx.fillStyle = COLORS.wallTop;
+            ctx.fillRect(0, 0, canvas.width, 8);
+            ctx.fillRect(0, 0, 8, canvas.height);
+
+            // Inner walls
+            ctx.fillStyle = COLORS.wallDark;
+
+            // Bathroom bottom wall
+            ctx.fillRect(TILE_SIZE, 5 * TILE_SIZE - 4, 3.5 * TILE_SIZE, 8);
+
+            // Vertical divider (hallway | rooms)
+            ctx.fillRect(5 * TILE_SIZE - 4, TILE_SIZE, 8, 12 * TILE_SIZE);
+
+            // Horizontal dividers on right side
+            ctx.fillRect(5 * TILE_SIZE, 5 * TILE_SIZE - 4, 6 * TILE_SIZE, 8);
+            ctx.fillRect(5 * TILE_SIZE, 9 * TILE_SIZE - 4, 6 * TILE_SIZE, 8);
+
+            // Doorway gaps (draw floor color over wall)
+            // Bathroom doorway
+            ctx.fillStyle = COLORS.floor;
+            ctx.fillRect(4 * TILE_SIZE, 5 * TILE_SIZE - 4, TILE_SIZE, 8);
+
+            // Office doorway
+            ctx.fillStyle = COLORS.office;
+            ctx.fillRect(5 * TILE_SIZE - 4, 3 * TILE_SIZE, 8, TILE_SIZE);
+
+            // Bedroom doorway
+            ctx.fillStyle = COLORS.bedroom;
+            ctx.fillRect(5 * TILE_SIZE - 4, 6.5 * TILE_SIZE, 8, TILE_SIZE);
+
+            // Tools doorway
+            ctx.fillStyle = COLORS.toolArea;
+            ctx.fillRect(5 * TILE_SIZE - 4, 10.5 * TILE_SIZE, 8, TILE_SIZE);
+        }
+
+        function drawObject(obj) {
+            const x = obj.x * TILE_SIZE;
+            const y = obj.y * TILE_SIZE;
+            const w = obj.w * TILE_SIZE;
+            const h = obj.h * TILE_SIZE;
+
+            switch(obj.sprite) {
+                case 'toilet':
+                    // Base
+                    ctx.fillStyle = '#eee';
+                    ctx.fillRect(x + 4, y + h - 20, w - 8, 18);
+                    // Bowl
+                    ctx.fillStyle = '#fff';
+                    ctx.beginPath();
+                    ctx.ellipse(x + w/2, y + h/2, w/2 - 6, h/3, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    // Inner
+                    ctx.fillStyle = '#aae';
+                    ctx.beginPath();
+                    ctx.ellipse(x + w/2, y + h/2, w/3 - 4, h/4 - 2, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    // Tank
+                    ctx.fillStyle = '#ddd';
+                    ctx.fillRect(x + 4, y + 2, w - 8, h/3);
+                    break;
+
+                case 'bathtub':
+                    // Outer
+                    ctx.fillStyle = '#ddd';
+                    ctx.fillRect(x, y, w, h);
+                    // Inner
+                    ctx.fillStyle = '#eef';
+                    ctx.fillRect(x + 6, y + 6, w - 12, h - 12);
+                    // Faucet
+                    ctx.fillStyle = '#888';
+                    ctx.fillRect(x + w - 20, y + 8, 12, 8);
+                    break;
+
+                case 'sink':
+                    ctx.fillStyle = '#ccc';
+                    ctx.fillRect(x, y, w, h);
+                    ctx.fillStyle = '#aaf';
+                    ctx.beginPath();
+                    ctx.ellipse(x + w/2, y + h/2, w/3, h/3, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    // Faucet
+                    ctx.fillStyle = '#777';
+                    ctx.fillRect(x + w/2 - 3, y, 6, 8);
+                    break;
+
+                case 'mirror':
+                    ctx.fillStyle = '#668';
+                    ctx.fillRect(x, y, w, h);
+                    ctx.fillStyle = '#99b';
+                    ctx.fillRect(x + 3, y + 2, w - 6, h - 4);
+                    break;
+
+                case 'cabinet':
+                    ctx.fillStyle = game.flags.cabinetOpened ? '#5a4a3a' : '#7a6a5a';
+                    ctx.fillRect(x, y, w, h);
+                    ctx.fillStyle = COLORS.furnitureDark;
+                    ctx.fillRect(x + 3, y + 3, w - 6, h - 6);
+                    if (!game.flags.cabinetOpened) {
+                        // Door lines
+                        ctx.strokeStyle = '#4a3a2a';
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        ctx.moveTo(x + w/2, y + 3);
+                        ctx.lineTo(x + w/2, y + h - 3);
+                        ctx.stroke();
+                        // Handle
+                        ctx.fillStyle = '#aa8';
+                        ctx.fillRect(x + w/2 + 4, y + h/2 - 3, 6, 6);
+                    }
+                    break;
+
+                case 'desk':
+                    // Desk surface
+                    ctx.fillStyle = COLORS.furniture;
+                    ctx.fillRect(x, y, w, h);
+                    ctx.fillStyle = COLORS.furnitureLight;
+                    ctx.fillRect(x + 3, y + 3, w - 6, h - 10);
+                    // Computer monitor
+                    ctx.fillStyle = '#222';
+                    ctx.fillRect(x + w/2 - 18, y + 8, 36, 26);
+                    ctx.fillStyle = '#2a4a3a';
+                    ctx.fillRect(x + w/2 - 15, y + 11, 30, 20);
+                    // Keyboard
+                    ctx.fillStyle = '#333';
+                    ctx.fillRect(x + w/2 - 14, y + h - 16, 28, 10);
+                    break;
+
+                case 'chair':
+                    ctx.fillStyle = '#4a4a5a';
+                    ctx.fillRect(x + 4, y + 4, w - 8, h - 8);
+                    ctx.fillStyle = '#5a5a6a';
+                    ctx.fillRect(x + 6, y + 6, w - 12, h - 16);
+                    break;
+
+                case 'bookshelf':
+                    ctx.fillStyle = COLORS.furniture;
+                    ctx.fillRect(x, y, w, h);
+                    // Shelves with books
+                    const bookColors = ['#8a4a3a', '#3a5a4a', '#4a4a7a', '#7a6a3a', '#5a3a5a'];
+                    for (let i = 0; i < 4; i++) {
+                        const shelfY = y + 8 + i * (h - 16) / 4;
+                        ctx.fillStyle = COLORS.furnitureLight;
+                        ctx.fillRect(x + 2, shelfY + 18, w - 4, 3);
+                        // Books
+                        for (let b = 0; b < 4; b++) {
+                            ctx.fillStyle = bookColors[(i + b) % bookColors.length];
+                            ctx.fillRect(x + 4 + b * 10, shelfY, 8, 18);
+                        }
+                    }
+                    break;
+
+                case 'tallPlant':
+                    // Pot
+                    ctx.fillStyle = '#8a5a4a';
+                    ctx.fillRect(x + 4, y + h - 16, w - 8, 14);
+                    // Plant
+                    ctx.fillStyle = '#3a6a3a';
+                    ctx.beginPath();
+                    ctx.ellipse(x + w/2, y + h/3, w/2 - 2, h/3, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = '#4a8a4a';
+                    ctx.beginPath();
+                    ctx.ellipse(x + w/2 - 4, y + h/3 - 8, w/3, h/4, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    break;
+
+                case 'rug':
+                case 'smallRug':
+                    ctx.fillStyle = COLORS.rug;
+                    ctx.fillRect(x, y, w, h);
+                    ctx.fillStyle = COLORS.rugPattern;
+                    ctx.fillRect(x + 6, y + 6, w - 12, h - 12);
+                    // Pattern
+                    ctx.strokeStyle = COLORS.rug;
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(x + 12, y + 10, w - 24, h - 20);
+                    break;
+
+                case 'bed':
+                    // Frame
+                    ctx.fillStyle = COLORS.furniture;
+                    ctx.fillRect(x, y, w, h);
+                    // Mattress
+                    ctx.fillStyle = '#7a8a9a';
+                    ctx.fillRect(x + 4, y + 4, w - 8, h - 12);
+                    // Pillow
+                    ctx.fillStyle = '#aabbcc';
+                    ctx.fillRect(x + 6, y + 6, w - 12, 18);
+                    // Blanket
+                    ctx.fillStyle = '#5a6a8a';
+                    ctx.fillRect(x + 4, y + 28, w - 8, h - 40);
+                    // Blanket fold
+                    ctx.fillStyle = '#4a5a7a';
+                    ctx.fillRect(x + 4, y + 28, w - 8, 6);
+                    break;
+
+                case 'nightstand':
+                    ctx.fillStyle = COLORS.furniture;
+                    ctx.fillRect(x, y, w, h);
+                    ctx.fillStyle = COLORS.furnitureLight;
+                    ctx.fillRect(x + 2, y + 2, w - 4, h/2 - 2);
+                    // Drawer handle
+                    ctx.fillStyle = '#aa8';
+                    ctx.fillRect(x + w/2 - 4, y + h/2 + 4, 8, 3);
+                    break;
+
+                case 'lamp':
+                    ctx.fillStyle = '#aa8';
+                    ctx.fillRect(x + 4, y + 6, w - 8, h - 4);
+                    ctx.fillStyle = '#ffa';
+                    ctx.beginPath();
+                    ctx.arc(x + w/2, y + 4, 6, 0, Math.PI * 2);
+                    ctx.fill();
+                    break;
+
+                case 'plant':
+                    // Pot
+                    ctx.fillStyle = '#9a6a5a';
+                    ctx.fillRect(x + 6, y + h - 14, w - 12, 12);
+                    ctx.fillRect(x + 4, y + h - 16, w - 8, 4);
+                    // Plant (always visible)
+                    ctx.fillStyle = '#4a8a4a';
+                    ctx.beginPath();
+                    ctx.arc(x + w/2, y + h/2 - 2, w/2 - 4, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = '#5a9a5a';
+                    ctx.beginPath();
+                    ctx.arc(x + w/2 - 4, y + h/2 - 6, w/3, 0, Math.PI * 2);
+                    ctx.fill();
+                    break;
+
+                case 'closet':
+                    ctx.fillStyle = COLORS.furniture;
+                    ctx.fillRect(x, y, w, h);
+                    ctx.fillStyle = COLORS.furnitureLight;
+                    ctx.fillRect(x + 3, y + 3, w/2 - 5, h - 6);
+                    ctx.fillRect(x + w/2 + 2, y + 3, w/2 - 5, h - 6);
+                    // Handles
+                    ctx.fillStyle = '#aa8';
+                    ctx.fillRect(x + w/2 - 6, y + h/2 - 2, 4, 10);
+                    ctx.fillRect(x + w/2 + 2, y + h/2 - 2, 4, 10);
+                    break;
+
+                case 'workbench':
+                    ctx.fillStyle = COLORS.furniture;
+                    ctx.fillRect(x, y, w, h);
+                    ctx.fillStyle = COLORS.furnitureLight;
+                    ctx.fillRect(x + 3, y + 3, w - 6, h - 8);
+                    // Tools on bench
+                    ctx.fillStyle = '#666';
+                    ctx.fillRect(x + 20, y + 8, 25, 6);
+                    ctx.fillStyle = '#888';
+                    ctx.fillRect(x + 60, y + 6, 8, 12);
+                    break;
+
+                case 'screwdriver':
+                    if (!game.flags.screwdriverTaken) {
+                        // Handle
+                        ctx.fillStyle = '#ff8800';
+                        ctx.fillRect(x + 2, y + 2, 18, 10);
+                        // Shaft
+                        ctx.fillStyle = '#888';
+                        ctx.fillRect(x + 20, y + 4, 14, 6);
+                        // Tip
+                        ctx.fillStyle = '#666';
+                        ctx.fillRect(x + 32, y + 5, 6, 4);
+                    }
+                    break;
+
+                case 'toolbox':
+                    ctx.fillStyle = '#c44';
+                    ctx.fillRect(x, y, w, h);
+                    ctx.fillStyle = '#a33';
+                    ctx.fillRect(x + 4, y, w - 8, 8);
+                    // Handle
+                    ctx.fillStyle = '#666';
+                    ctx.fillRect(x + w/2 - 10, y - 2, 20, 6);
+                    // Lock
+                    ctx.fillStyle = '#aa8';
+                    ctx.fillRect(x + w/2 - 4, y + h - 10, 8, 8);
+                    break;
+
+                case 'metalShelves':
+                    ctx.fillStyle = '#666';
+                    ctx.fillRect(x, y, 4, h);
+                    ctx.fillRect(x + w - 4, y, 4, h);
+                    for (let i = 0; i < 4; i++) {
+                        ctx.fillStyle = '#777';
+                        ctx.fillRect(x, y + 8 + i * 20, w, 4);
+                        // Items on shelves
+                        ctx.fillStyle = ['#885', '#558', '#585', '#855'][i];
+                        ctx.fillRect(x + 6, y + i * 20, 12, 16);
+                    }
+                    break;
+
+                case 'door':
+                    ctx.fillStyle = COLORS.door;
+                    ctx.fillRect(x, y, w, h);
+                    // Panels
+                    ctx.fillStyle = COLORS.doorFrame;
+                    ctx.fillRect(x + 3, y + 6, w - 6, h/3 - 8);
+                    ctx.fillRect(x + 3, y + h/3 + 4, w - 6, h/3 - 8);
+                    ctx.fillRect(x + 3, y + 2*h/3 + 2, w - 6, h/3 - 8);
+                    // Handle
+                    ctx.fillStyle = '#cc9';
+                    ctx.fillRect(x + w - 6, y + h/2, 4, 8);
+                    break;
+
+                case 'coatRack':
+                    // Pole
+                    ctx.fillStyle = '#555';
+                    ctx.fillRect(x + w/2 - 2, y + 10, 4, h - 10);
+                    // Base
+                    ctx.fillRect(x + 2, y + h - 6, w - 4, 6);
+                    // Hooks
+                    ctx.fillRect(x, y + 12, w, 4);
+                    // Coat
+                    ctx.fillStyle = '#4a5a6a';
+                    ctx.fillRect(x + 4, y + 16, 10, 20);
+                    break;
+
+                case 'smallTable':
+                    ctx.fillStyle = COLORS.furniture;
+                    ctx.fillRect(x, y, w, h);
+                    ctx.fillStyle = COLORS.furnitureLight;
+                    ctx.fillRect(x + 2, y + 2, w - 4, h - 6);
+                    break;
+
+                case 'note':
+                    if (!game.flags.noteTaken) {
+                        ctx.fillStyle = '#ffc';
+                        ctx.fillRect(x, y, w, h);
+                        ctx.strokeStyle = '#aa8';
+                        ctx.lineWidth = 1;
+                        ctx.strokeRect(x, y, w, h);
+                        // Lines on note
+                        ctx.strokeStyle = '#dda';
+                        ctx.beginPath();
+                        ctx.moveTo(x + 2, y + 4);
+                        ctx.lineTo(x + w - 2, y + 4);
+                        ctx.moveTo(x + 2, y + 7);
+                        ctx.lineTo(x + w - 2, y + 7);
+                        ctx.stroke();
+                    }
+                    break;
+
+                case 'stairs':
+                    ctx.fillStyle = COLORS.furnitureLight;
+                    for (let i = 0; i < 6; i++) {
+                        ctx.fillRect(x + 4, y + 4 + i * (h-8)/6, w - 8, (h-8)/6 - 2);
+                        ctx.fillStyle = COLORS.furniture;
+                        ctx.fillRect(x + 4, y + 4 + i * (h-8)/6 + (h-8)/6 - 4, w - 8, 4);
+                        ctx.fillStyle = COLORS.furnitureLight;
+                    }
+                    // Arrow up
+                    ctx.fillStyle = '#888';
+                    ctx.beginPath();
+                    ctx.moveTo(x + w/2, y + 10);
+                    ctx.lineTo(x + w/2 - 8, y + 22);
+                    ctx.lineTo(x + w/2 + 8, y + 22);
+                    ctx.fill();
+                    break;
+
+                case 'shoeRack':
+                    ctx.fillStyle = COLORS.furniture;
+                    ctx.fillRect(x, y, w, h);
+                    // Shoes
+                    ctx.fillStyle = '#333';
+                    ctx.fillRect(x + 4, y + 4, 12, 8);
+                    ctx.fillStyle = '#533';
+                    ctx.fillRect(x + 20, y + 4, 12, 8);
+                    break;
+            }
+        }
+
+        function drawPlayer() {
+            const p = game.player;
+
+            // Shadow
+            ctx.fillStyle = 'rgba(0,0,0,0.2)';
+            ctx.beginPath();
+            ctx.ellipse(p.x, p.y + p.height/2 - 2, p.width/2 - 2, 6, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Body
+            ctx.fillStyle = COLORS.playerShirt;
+            ctx.fillRect(p.x - p.width/2 + 4, p.y - p.height/2 + 12, p.width - 8, p.height - 16);
+
+            // Head
+            ctx.fillStyle = COLORS.player;
+            ctx.fillRect(p.x - p.width/2 + 5, p.y - p.height/2, p.width - 10, 15);
+
+            // Hair
+            ctx.fillStyle = COLORS.playerHair;
+            ctx.fillRect(p.x - p.width/2 + 5, p.y - p.height/2, p.width - 10, 6);
+
+            // Eyes based on direction
+            ctx.fillStyle = '#222';
+            if (p.direction === 'down') {
+                ctx.fillRect(p.x - 4, p.y - p.height/2 + 8, 2, 3);
+                ctx.fillRect(p.x + 2, p.y - p.height/2 + 8, 2, 3);
+            } else if (p.direction === 'up') {
+                // Back of head - no eyes
+                ctx.fillStyle = COLORS.playerHair;
+                ctx.fillRect(p.x - p.width/2 + 5, p.y - p.height/2, p.width - 10, 10);
+            } else if (p.direction === 'left') {
+                ctx.fillRect(p.x - 5, p.y - p.height/2 + 8, 2, 3);
+            } else {
+                ctx.fillRect(p.x + 3, p.y - p.height/2 + 8, 2, 3);
+            }
+        }
+
+        // ============ UI FUNCTIONS ============
+        function showDialogue(text, duration = 2500) {
+            game.currentDialogue = text;
+            game.dialogueTimer = duration;
+            document.getElementById('dialogueBox').textContent = text;
+            document.getElementById('dialogueBox').style.display = 'block';
+        }
+
+        function showTelegram(message, response) {
+            playSound('telegram');
+            document.getElementById('telegramMessage').textContent = message;
+            document.getElementById('telegramResponse').textContent = response ? `→ "${response}"` : '';
+            document.getElementById('telegramPopup').style.display = 'block';
+            game.telegramTimer = 5000;
+
+            // Brief pause
+            const prevSpeed = game.player.speed;
+            game.player.speed = 0;
+            setTimeout(() => {
+                game.player.speed = prevSpeed;
+            }, 600);
+        }
+
+        function toggleInventory() {
+            game.showInventory = !game.showInventory;
+            const overlay = document.getElementById('inventoryOverlay');
+            overlay.style.display = game.showInventory ? 'flex' : 'none';
+
+            if (game.showInventory) {
+                renderInventory();
+            }
+        }
+
+        function renderInventory() {
+            const grid = document.getElementById('inventoryGrid');
+            grid.innerHTML = '';
+
+            for (let i = 0; i < 8; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'inventory-slot';
+
+                if (game.inventory[i]) {
+                    const itemName = document.createElement('div');
+                    itemName.className = 'item-name';
+                    itemName.textContent = game.inventory[i];
+                    slot.appendChild(itemName);
+
+                    if (game.equipped === game.inventory[i]) {
+                        slot.classList.add('selected');
+                    }
+
+                    slot.onclick = () => {
+                        game.equipped = game.inventory[i];
+                        document.getElementById('equippedName').textContent = game.equipped;
+                        playSound('pickup');
+                        renderInventory();
+                    };
+                }
+
+                grid.appendChild(slot);
+            }
+        }
+
+        function addToInventory(item) {
+            if (!game.inventory.includes(item)) {
+                game.inventory.push(item);
+                playSound('pickup');
+            }
+        }
+
+        // ============ INTERACTION ============
+        function getNearbyObject() {
+            const p = game.player;
+
+            // First check for items (priority) - skip if already taken
+            for (const obj of objects) {
+                if (obj.type === 'item') {
+                    if (obj.id === 'screwdriver' && game.flags.screwdriverTaken) continue;
+                    if (obj.id === 'hallwayNote' && game.flags.noteTaken) continue;
+
+                    const ox = obj.x * TILE_SIZE + (obj.w * TILE_SIZE) / 2;
+                    const oy = obj.y * TILE_SIZE + (obj.h * TILE_SIZE) / 2;
+                    const dist = Math.sqrt((p.x - ox) ** 2 + (p.y - oy) ** 2);
+                    if (dist < 70) return obj;
+                }
+            }
+
+            // Then check interactables
+            for (const obj of objects) {
+                if (obj.type === 'interactable') {
+                    const ox = obj.x * TILE_SIZE + (obj.w * TILE_SIZE) / 2;
+                    const oy = obj.y * TILE_SIZE + (obj.h * TILE_SIZE) / 2;
+                    const dist = Math.sqrt((p.x - ox) ** 2 + (p.y - oy) ** 2);
+                    if (dist < 55) return obj;
+                }
+            }
+
+            // Finally furniture
+            for (const obj of objects) {
+                if (obj.type === 'furniture') {
+                    const ox = obj.x * TILE_SIZE + (obj.w * TILE_SIZE) / 2;
+                    const oy = obj.y * TILE_SIZE + (obj.h * TILE_SIZE) / 2;
+                    const dist = Math.sqrt((p.x - ox) ** 2 + (p.y - oy) ** 2);
+                    if (dist < 45) return obj;
+                }
+            }
+
+            return null;
+        }
+
+        function tryPickup() {
+            const obj = getNearbyObject();
+            if (!obj) return;
+
+            // Handle items
+            if (obj.type === 'item' && obj.item) {
+                if (obj.id === 'screwdriver' && !game.flags.screwdriverTaken) {
+                    game.flags.screwdriverTaken = true;
+                    addToInventory(obj.item);
+                    showDialogue('"Un destornillador..."');
+                    return;
+                }
+                if (obj.id === 'hallwayNote' && !game.flags.noteTaken) {
+                    game.flags.noteTaken = true;
+                    addToInventory(obj.item);
+                    showDialogue('"1-9-8-7... qué es esto?"');
+                    return;
+                }
+            }
+
+            // Handle interactables that give items
+            if (obj.action === 'plant' && !game.flags.keyTaken) {
+                game.flags.keyTaken = true;
+                addToInventory(obj.item);
+                showDialogue('"Una llave en la maceta... qué raro."');
+                return;
+            }
+        }
+
+        function tryUseItem() {
+            const obj = getNearbyObject();
+            if (!obj) return;
+
+            if (obj.action === 'frontDoor') {
+                playSound('locked');
+                if (!game.flags.triedDoor) {
+                    game.flags.triedDoor = true;
+                    showDialogue('"Cerrada... dónde dejé la llave?"');
+                } else {
+                    showDialogue('"Sigue cerrada."');
+                }
+                return;
+            }
+
+            if (obj.action === 'stairs') {
+                showDialogue('"Después subo a limpiar arriba..."');
+                return;
+            }
+
+            if (obj.action === 'cabinet') {
+                if (game.flags.cabinetOpened) {
+                    showDialogue('"Ya no hay nada."');
+                } else if (game.equipped === 'Llave pequeña') {
+                    game.flags.cabinetOpened = true;
+                    addToInventory('Linterna');
+                    playSound('unlock');
+                    showDialogue('"Una linterna... por qué estaba con llave?"');
+                } else {
+                    playSound('locked');
+                    showDialogue('"Tiene un candadito."');
+                }
+                return;
+            }
+
+            if (obj.action === 'toolbox') {
+                playSound('locked');
+                showDialogue('"Combinación de 4 dígitos..."');
+                return;
+            }
+
+            if (obj.action === 'closet') {
+                showDialogue('"Mi ropa..."');
+                return;
+            }
+
+            if (obj.action === 'nightstand') {
+                showDialogue('"Nada útil en el cajón."');
+                return;
+            }
+
+            // Generic furniture interaction
+            if (obj.type === 'furniture') {
+                const responses = [
+                    '"..."',
+                    '"Normal."',
+                    '"Nada."'
+                ];
+                showDialogue(responses[Math.floor(Math.random() * responses.length)]);
+            }
+        }
+
+        // ============ COLLISION ============
+        function checkCollision(newX, newY) {
+            const p = game.player;
+            const hw = p.width / 2 - 6;
+            const hh = p.height / 2 - 6;
+
+            // Outer walls
+            if (newX - hw < TILE_SIZE + 4) return true;
+            if (newX + hw > canvas.width - TILE_SIZE * 2 - 4) return true;
+            if (newY - hh < TILE_SIZE + 4) return true;
+            if (newY + hh > canvas.height - TILE_SIZE - 4) return true;
+
+            // Furniture collision (skip decor)
+            for (const obj of objects) {
+                if (obj.type === 'item' || obj.type === 'decor') continue;
+
+                const ox = obj.x * TILE_SIZE;
+                const oy = obj.y * TILE_SIZE;
+                const ow = obj.w * TILE_SIZE;
+                const oh = obj.h * TILE_SIZE;
+
+                // Shrink collision box a bit
+                const margin = 4;
+                if (newX + hw > ox + margin && newX - hw < ox + ow - margin &&
+                    newY + hh > oy + margin && newY - hh < oy + oh - margin) {
+                    return true;
+                }
+            }
+
+            // Inner walls
+            const wallThickness = 6;
+
+            // Vertical divider (x = 5 tiles)
+            const divX = 5 * TILE_SIZE;
+            if (newX + hw > divX - wallThickness && newX - hw < divX + wallThickness) {
+                const doorway1 = newY > 2.8 * TILE_SIZE && newY < 4 * TILE_SIZE; // Office
+                const doorway2 = newY > 6.3 * TILE_SIZE && newY < 7.5 * TILE_SIZE; // Bedroom
+                const doorway3 = newY > 10.3 * TILE_SIZE && newY < 11.5 * TILE_SIZE; // Tools
+                if (!doorway1 && !doorway2 && !doorway3) return true;
+            }
+
+            // Bathroom bottom wall (y = 5 tiles)
+            if (newY + hh > 5 * TILE_SIZE - wallThickness && newY - hh < 5 * TILE_SIZE + wallThickness) {
+                if (newX < 5 * TILE_SIZE) {
+                    const doorway = newX > 3.8 * TILE_SIZE;
+                    if (!doorway) return true;
+                }
+            }
+
+            // Office/Bedroom divider (y = 5 tiles, right side)
+            if (newY + hh > 5 * TILE_SIZE - wallThickness && newY - hh < 5 * TILE_SIZE + wallThickness) {
+                if (newX > 5 * TILE_SIZE) return true;
+            }
+
+            // Bedroom/Tools divider (y = 9 tiles, right side)
+            if (newY + hh > 9 * TILE_SIZE - wallThickness && newY - hh < 9 * TILE_SIZE + wallThickness) {
+                if (newX > 5 * TILE_SIZE) return true;
+            }
+
+            return false;
+        }
+
+        // ============ UPDATE ============
+        function update(deltaTime) {
+            const p = game.player;
+
+            if (!game.showInventory) {
+                let dx = 0, dy = 0;
+
+                if (keys['w'] || keys['arrowup']) { dy = -1; p.direction = 'up'; }
+                if (keys['s'] || keys['arrowdown']) { dy = 1; p.direction = 'down'; }
+                if (keys['a'] || keys['arrowleft']) { dx = -1; p.direction = 'left'; }
+                if (keys['d'] || keys['arrowright']) { dx = 1; p.direction = 'right'; }
+
+                p.isMoving = (dx !== 0 || dy !== 0);
+
+                if (p.isMoving && p.speed > 0) {
+                    const len = Math.sqrt(dx * dx + dy * dy);
+                    dx = dx / len * p.speed;
+                    dy = dy / len * p.speed;
+
+                    const newX = p.x + dx;
+                    const newY = p.y + dy;
+
+                    if (!checkCollision(newX, p.y)) p.x = newX;
+                    if (!checkCollision(p.x, newY)) p.y = newY;
+
+                    // Footstep sounds
+                    p.stepTimer += deltaTime;
+                    if (p.stepTimer > 280) {
+                        p.stepTimer = 0;
+                        playSound('step');
+                    }
+                }
+            }
+
+            // Dialogue timer
+            if (game.dialogueTimer > 0) {
+                game.dialogueTimer -= deltaTime;
+                if (game.dialogueTimer <= 0) {
+                    document.getElementById('dialogueBox').style.display = 'none';
+                }
+            }
+
+            // Telegram timer
+            if (game.telegramTimer > 0) {
+                game.telegramTimer -= deltaTime;
+                if (game.telegramTimer <= 0) {
+                    document.getElementById('telegramPopup').style.display = 'none';
+                }
+            }
+
+            // Game time and triggers
+            game.gameTime += deltaTime;
+
+            // Billy's messages
+            if (!game.flags.billyMsg1 && game.gameTime > 3000) {
+                game.flags.billyMsg1 = true;
+                showTelegram('Cómo va la limpieza?', 'Recién arranco');
+            }
+
+            if (!game.flags.billyMsg2 && game.inventory.length >= 2 && game.gameTime > 20000) {
+                game.flags.billyMsg2 = true;
+                showTelegram('Todo bien?', 'Sí sí, tranqui');
+            }
+
+            if (!game.flags.billyMsg3 && game.flags.triedDoor && game.gameTime > 35000) {
+                game.flags.billyMsg3 = true;
+                showTelegram('Fede?', 'Acá ando');
+            }
+
+            // Interact hint
+            const nearby = getNearbyObject();
+            if (nearby) {
+                document.getElementById('interactHint').style.display = 'block';
+                const action = nearby.type === 'item' ? 'Agarrar' : 'Usar';
+                document.getElementById('interactHint').textContent = `[E] ${action}`;
+            } else {
+                document.getElementById('interactHint').style.display = 'none';
+            }
+        }
+
+        // ============ RENDER ============
+        function render() {
+            ctx.fillStyle = '#1a1a2e';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            drawFloor();
+            drawWalls();
+
+            // Draw decor first (rugs under furniture)
+            for (const obj of objects) {
+                if (obj.type === 'decor') drawObject(obj);
+            }
+
+            // Sort other objects by Y for proper overlap
+            const sortedObjects = objects
+                .filter(o => o.type !== 'decor')
+                .sort((a, b) => (a.y + a.h) - (b.y + b.h));
+
+            for (const obj of sortedObjects) {
+                drawObject(obj);
+            }
+
+            drawPlayer();
+        }
+
+        // ============ GAME LOOP ============
+        let lastTime = 0;
+        function gameLoop(timestamp) {
+            const deltaTime = timestamp - lastTime;
+            lastTime = timestamp;
+
+            update(deltaTime);
+            render();
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Start
+        requestAnimationFrame(gameLoop);
+    </script>
+</body>
+</html>

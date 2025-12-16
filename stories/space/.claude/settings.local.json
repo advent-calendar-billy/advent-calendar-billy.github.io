@@ -8,7 +8,10 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(git push:*)",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "WebSearch",
+      "WebFetch(domain:www.asciiart.eu)",
+      "WebFetch(domain:ascii.co.uk)"
     ],
     "deny": []
   }
