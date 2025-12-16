@@ -9,7 +9,7 @@ class RollercoasterGame {
         // Game state
         this.isRunning = false;
         this.score = 0;
-        this.lives = 50; // Playtest mode
+        this.lives = 15;
         this.trackOffset = 0;
         this.progress = 0;
         this.speed = 8; // Faster base speed
@@ -60,7 +60,7 @@ class RollercoasterGame {
         this.currentComment = '';
         this.commentVisible = false;
 
-        // Colors
+        // Colors (Fede's look: burgundy blazer, white shirt, black hair)
         this.colors = {
             sky: ['#1a1a3e', '#2d2d5a', '#4a3f6b', '#6b5a7a', '#8b7a8a'],
             track: '#5a4a3a',
@@ -69,12 +69,13 @@ class RollercoasterGame {
             wagon: '#dc2626',
             wagonHighlight: '#ef4444',
             wagonDark: '#991b1b',
-            skin: '#fcd5b8',
-            skinShadow: '#e5b89a',
-            shirt: '#3b82f6',
-            shirtDark: '#2563eb',
-            hair: '#4a3728',
-            pants: '#1e3a5f'
+            skin: '#e8c4a0',
+            skinShadow: '#d4a880',
+            shirt: '#722f37',      // Burgundy blazer
+            shirtDark: '#5a252c',
+            shirtWhite: '#ffffff', // White shirt underneath
+            hair: '#0a0a0a',       // Black styled hair
+            pants: '#1a1a1a'       // Dark fitted pants
         };
 
         this.init();
@@ -358,7 +359,7 @@ class RollercoasterGame {
 
     reset() {
         this.score = 0;
-        this.lives = 50; // Playtest mode
+        this.lives = 15;
         this.trackOffset = 0;
         this.progress = 0;
         this.speed = 8;
@@ -538,9 +539,9 @@ class RollercoasterGame {
                 });
             }
 
-            // Vary obstacle spacing
-            const baseSpacing = trackData.section === 'tunnel' ? 300 : 450;
-            this.nextObstacleDistance += baseSpacing + Math.random() * 200;
+            // Vary obstacle spacing (wider spacing = fewer obstacles)
+            const baseSpacing = trackData.section === 'tunnel' ? 500 : 700;
+            this.nextObstacleDistance += baseSpacing + Math.random() * 300;
         }
     }
 
@@ -1299,16 +1300,27 @@ class RollercoasterGame {
         } else {
             // NORMAL STANDING - Tall guy with head sticking way up
 
-            // Body (in wagon)
+            // Body (in wagon) - Burgundy blazer
             ctx.fillStyle = this.colors.shirt;
             ctx.beginPath();
             ctx.roundRect(x - 18, baseY - 50, 36, 55, 8);
             ctx.fill();
 
-            // Shirt detail
+            // Blazer lapels (darker)
             ctx.fillStyle = this.colors.shirtDark;
             ctx.beginPath();
             ctx.roundRect(x - 18, baseY - 50, 36, 15, [8, 8, 0, 0]);
+            ctx.fill();
+
+            // White shirt underneath (V-neck opening)
+            ctx.fillStyle = this.colors.shirtWhite;
+            ctx.beginPath();
+            ctx.moveTo(x - 6, baseY - 50);
+            ctx.lineTo(x + 6, baseY - 50);
+            ctx.lineTo(x + 4, baseY - 35);
+            ctx.lineTo(x, baseY - 30);
+            ctx.lineTo(x - 4, baseY - 35);
+            ctx.closePath();
             ctx.fill();
 
             // Arms
@@ -1675,13 +1687,21 @@ class RollercoasterGame {
 
         // Character
         if (isPlayer) {
-            // Terrified tall guy
-            // Body
-            ctx.fillStyle = '#3b82f6';
+            // Terrified Fede
+            // Body - Burgundy blazer
+            ctx.fillStyle = '#722f37';
             ctx.fillRect(x - 10, y - 55, 20, 35);
+            // White shirt V
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.moveTo(x - 4, y - 55);
+            ctx.lineTo(x + 4, y - 55);
+            ctx.lineTo(x, y - 40);
+            ctx.closePath();
+            ctx.fill();
 
             // Arms flailing
-            ctx.strokeStyle = '#3b82f6';
+            ctx.strokeStyle = '#722f37';
             ctx.lineWidth = 6;
             ctx.beginPath();
             ctx.moveTo(x - 10, y - 45);
@@ -1693,7 +1713,7 @@ class RollercoasterGame {
             ctx.stroke();
 
             // Hands
-            ctx.fillStyle = '#fcd5b8';
+            ctx.fillStyle = '#e8c4a0';
             ctx.beginPath();
             ctx.arc(x - 35, y - 60, 5, 0, Math.PI * 2);
             ctx.fill();
@@ -1702,13 +1722,13 @@ class RollercoasterGame {
             ctx.fill();
 
             // Head
-            ctx.fillStyle = '#fcd5b8';
+            ctx.fillStyle = '#e8c4a0';
             ctx.beginPath();
             ctx.arc(x, y - 70, 15, 0, Math.PI * 2);
             ctx.fill();
 
-            // Messy hair
-            ctx.fillStyle = '#4a3728';
+            // Black styled hair
+            ctx.fillStyle = '#0a0a0a';
             ctx.beginPath();
             ctx.arc(x, y - 78, 12, Math.PI, Math.PI * 2);
             ctx.fill();

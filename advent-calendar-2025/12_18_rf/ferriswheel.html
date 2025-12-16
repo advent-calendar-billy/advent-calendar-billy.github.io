@@ -516,14 +516,16 @@
 
             ctx.restore();
 
-            // Thought bubbles based on position and direction
-            // Going UP (first half of ride): "¡Se ve todo!" near the top
-            // Going DOWN (second half): "Qué vista..." as descending
+            // Thought bubbles - only when perspective has truly changed
+            // At the very top (height > 0.9): "¡Se ve todo!" (I can see everything!)
+            // Coming down from top (height 0.7-0.85, descending): "Qué vista..." (What a view...)
             const goingUp = rideProgress < 0.5;
 
-            if (goingUp && height > 0.7 && height < 0.95) {
+            if (height > 0.9) {
+                // At the peak - can see everything
                 drawThoughtBubble(fedeX + 90, fedeY - 30, '¡Se ve todo!');
-            } else if (!goingUp && height > 0.4 && height < 0.7) {
+            } else if (!goingUp && height > 0.65 && height < 0.85) {
+                // Descending from top, still great view
                 drawThoughtBubble(fedeX + 90, fedeY - 30, 'Qué vista...');
             }
         }
