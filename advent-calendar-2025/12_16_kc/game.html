@@ -249,7 +249,7 @@
         <div class="start-content">
             <div class="game-title">CASTLEVANIA</div>
             <div class="game-subtitle">Fedecard's Quest</div>
-            <div style="font-size: 10px; color: #666; margin-top: 5px;">v4.1</div>
+            <div style="font-size: 10px; color: #666; margin-top: 5px;">v4.2</div>
 
             <div style="margin: 30px auto; max-width: 500px; text-align: left; color: #aaa; font-size: 13px; line-height: 1.8;">
                 <div style="color: #ffcc00; margin-bottom: 10px; text-align: center;">CONTROLS</div>
@@ -2792,7 +2792,8 @@
                     vy: -4,
                     damage: sw.damage,
                     life: 2500,
-                    state: 'flying'
+                    state: 'flying',
+                    damageTimer: 0 // Cooldown between damage ticks
                 });
             } else if (sw.name === 'Cross') {
                 playerProjectiles.push({
@@ -2834,6 +2835,7 @@
                         }
                     } else if (p.state === 'burning') {
                         p.burnTimer -= dt;
+                        p.damageTimer -= dt;
                         if (p.burnTimer <= 0) return false;
                     }
                 } else if (p.type === 'cross') {
@@ -2853,19 +2855,36 @@
                 // Check collision with enemies
                 enemies.forEach(e => {
                     if (rectsOverlap(p.x - 15, p.y - 15, 30, 30, e.x, e.y, e.width, e.height)) {
-                        e.hp -= p.damage;
-                        e.hurtTimer = 200;
-                        if (p.type !== 'holyWater' && p.type !== 'cross') {
-                            p.life = 0; // Destroy on hit (except burning holy water and cross)
+                        // Holy Water only damages every 250ms when burning
+                        if (p.type === 'holyWater' && p.state === 'burning') {
+                            if (p.damageTimer <= 0) {
+                                e.hp -= p.damage;
+                                e.hurtTimer = 200;
+                                p.damageTimer = 250;
+                            }
+                        } else {
+                            e.hp -= p.damage;
+                            e.hurtTimer = 200;
+                            if (p.type !== 'holyWater' && p.type !== 'cross') {
+                                p.life = 0; // Destroy on hit (except burning holy water and cross)
+                            }
                         }
                     }
                 });
 
                 // Check collision with boss
                 if (boss.active && rectsOverlap(p.x - 15, p.y - 15, 30, 30, boss.x, boss.y, boss.width, boss.height)) {
-                    damageBoss(p.damage);
-                    if (p.type !== 'holyWater' && p.type !== 'cross') {
-                        p.life = 0;
+                    // Holy Water only damages every 250ms when burning
+                    if (p.type === 'holyWater' && p.state === 'burning') {
+                        if (p.damageTimer <= 0) {
+                            damageBoss(p.damage);
+                            p.damageTimer = 250;
+                        }
+                    } else {
+                        damageBoss(p.damage);
+                        if (p.type !== 'holyWater' && p.type !== 'cross') {
+                            p.life = 0;
+                        }
                     }
                 }
 
