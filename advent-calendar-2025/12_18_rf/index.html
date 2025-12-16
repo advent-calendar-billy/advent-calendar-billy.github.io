@@ -320,10 +320,10 @@
                 objects: [
                     // Central fountain
                     { x: 340, y: 250, width: 120, height: 100, type: 'fountain' },
-                    // Food stands (interactable - buy food!)
-                    { x: 100, y: 100, width: 80, height: 60, type: 'food_stand', label: 'PANCHITO', foodType: 'panchito', interactable: true },
-                    { x: 620, y: 100, width: 80, height: 60, type: 'food_stand', label: 'GASEOSA', foodType: 'gaseosa', interactable: true },
-                    { x: 100, y: 350, width: 80, height: 60, type: 'food_stand', label: 'MEDIALUNA', foodType: 'medialuna', interactable: true },
+                    // Food stands (interactable - buy food!) - each with unique style
+                    { x: 100, y: 100, width: 80, height: 60, type: 'food_stand', label: 'PANCHITO', foodType: 'panchito', standColor: '#e74c3c', awningColor: '#f1c40f', interactable: true },
+                    { x: 620, y: 100, width: 80, height: 60, type: 'food_stand', label: 'GASEOSA', foodType: 'gaseosa', standColor: '#3498db', awningColor: '#e74c3c', interactable: true },
+                    { x: 100, y: 350, width: 80, height: 60, type: 'food_stand', label: 'MEDIALUNA', foodType: 'medialuna', standColor: '#f39c12', awningColor: '#fff', interactable: true },
                     // Benches around fountain
                     { x: 280, y: 380, width: 60, height: 30, type: 'bench' },
                     { x: 460, y: 380, width: 60, height: 30, type: 'bench' },
@@ -336,10 +336,10 @@
                     { x: 380, y: 80, width: 40, height: 60, type: 'sign', label: 'RUEDA' },
                 ],
                 npcs: [
-                    { x: 125, y: 115, direction: 'down', type: 'food_vendor', standFood: 'panchito', interactText: "Hot dogs! Fresh hot dogs! ...A muscular guy? Ran towards the Horror House." },
-                    { x: 645, y: 115, direction: 'down', type: 'food_vendor', standFood: 'gaseosa', interactText: "Cold drinks here! ...Scared-looking guy? Went to the right, I think." },
-                    { x: 125, y: 365, direction: 'down', type: 'food_vendor', standFood: 'medialuna', interactText: "Fresh croissants! ...Someone ran past here looking terrified!" },
-                    { x: 400, y: 450, direction: 'up', type: 'visitor', interactText: "The Horror House is really scary... Saw a big guy run in there." },
+                    { x: 125, y: 70, direction: 'down', type: 'food_vendor', standFood: 'panchito', vendorColor: '#e74c3c', interactText: "Hot dogs! Fresh hot dogs! ...A muscular guy? Ran towards the Horror House." },
+                    { x: 645, y: 70, direction: 'down', type: 'food_vendor', standFood: 'gaseosa', vendorColor: '#3498db', interactText: "Cold drinks here! ...Scared-looking guy? Went to the right, I think." },
+                    { x: 125, y: 320, direction: 'down', type: 'food_vendor', standFood: 'medialuna', vendorColor: '#f39c12', interactText: "Fresh croissants! ...Someone ran past here looking terrified!" },
+                    { x: 400, y: 450, direction: 'up', type: 'visitor', interactText: "The Horror House is really scary... Saw a really muscular guy get in there and never come out." },
                 ]
             },
             rollercoaster: {
@@ -2290,23 +2290,80 @@
         }
 
         function drawFoodStand(obj) {
-            // Stand body
-            ctx.fillStyle = '#ff6b9d';
+            const standColor = obj.standColor || '#ff6b9d';
+            const awningColor = obj.awningColor || '#ff0';
+
+            // Stand body with wood texture
+            ctx.fillStyle = standColor;
             ctx.fillRect(obj.x, obj.y, obj.width, obj.height);
-            // Awning
-            ctx.fillStyle = '#ff0';
-            ctx.fillRect(obj.x - 5, obj.y - 10, obj.width + 10, 15);
-            // Stripes
-            ctx.fillStyle = '#ff6b9d';
+
+            // Wood grain lines
+            ctx.fillStyle = 'rgba(0,0,0,0.1)';
             for (let i = 0; i < 4; i++) {
-                ctx.fillRect(obj.x - 5 + i * 22, obj.y - 10, 10, 15);
+                ctx.fillRect(obj.x, obj.y + 12 + i * 14, obj.width, 2);
             }
-            // Label
+
+            // Counter top (lighter)
+            ctx.fillStyle = '#deb887';
+            ctx.fillRect(obj.x - 3, obj.y - 3, obj.width + 6, 8);
+
+            // Awning with scalloped edge
+            ctx.fillStyle = awningColor;
+            ctx.fillRect(obj.x - 8, obj.y - 18, obj.width + 16, 18);
+
+            // Stripes on awning
+            const stripeColor = standColor;
+            ctx.fillStyle = stripeColor;
+            const stripeWidth = (obj.width + 16) / 8;
+            for (let i = 0; i < 8; i += 2) {
+                ctx.fillRect(obj.x - 8 + i * stripeWidth, obj.y - 18, stripeWidth, 18);
+            }
+
+            // Scalloped bottom of awning
+            ctx.fillStyle = awningColor;
+            for (let i = 0; i < 5; i++) {
+                ctx.beginPath();
+                ctx.arc(obj.x + 8 + i * 16, obj.y, 8, 0, Math.PI);
+                ctx.fill();
+            }
+
+            // Food-specific decorations
+            if (obj.foodType === 'panchito') {
+                // Hot dog icon on stand
+                ctx.fillStyle = '#f5deb3';
+                ctx.fillRect(obj.x + 30, obj.y + 15, 20, 8);
+                ctx.fillStyle = '#cd5c5c';
+                ctx.fillRect(obj.x + 32, obj.y + 17, 16, 4);
+            } else if (obj.foodType === 'gaseosa') {
+                // Cup icons
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(obj.x + 25, obj.y + 12, 12, 16);
+                ctx.fillRect(obj.x + 42, obj.y + 14, 10, 14);
+                // Straws
+                ctx.fillStyle = '#e74c3c';
+                ctx.fillRect(obj.x + 30, obj.y + 8, 2, 8);
+                ctx.fillRect(obj.x + 46, obj.y + 10, 2, 8);
+            } else if (obj.foodType === 'medialuna') {
+                // Croissant shapes
+                ctx.fillStyle = '#daa520';
+                ctx.beginPath();
+                ctx.arc(obj.x + 32, obj.y + 20, 8, 0.5, Math.PI - 0.5);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(obj.x + 50, obj.y + 22, 6, 0.5, Math.PI - 0.5);
+                ctx.fill();
+            }
+
+            // Label on stand front
             if (obj.label) {
+                // Label background
+                ctx.fillStyle = 'rgba(0,0,0,0.6)';
+                ctx.fillRect(obj.x + 10, obj.y + 38, obj.width - 20, 16);
+                // Label text
                 ctx.fillStyle = '#fff';
                 ctx.font = '8px "Press Start 2P"';
                 ctx.textAlign = 'center';
-                ctx.fillText(obj.label, obj.x + obj.width/2, obj.y + 35);
+                ctx.fillText(obj.label, obj.x + obj.width/2, obj.y + 50);
             }
         }
 
@@ -3250,7 +3307,7 @@
                     hairColor = '#1a1a1a';
                     break;
                 case 'food_vendor':
-                    shirtColor = '#e74c3c'; // Red shirt
+                    shirtColor = npc.vendorColor || '#e74c3c'; // Use custom color or red default
                     hairColor = '#3d2314';
                     break;
             }
@@ -3396,29 +3453,64 @@
                 drawFoodItem(player.heldFood, foodX, foodY);
             }
 
-            // Eating animation
+            // Eating/Drinking animation
             if (player.eatFrame > 0) {
-                const eatY = y + 6 + Math.sin(player.eatFrame * 0.3) * 2; // Bobbing food
                 const eatProgress = player.eatFrame / 60;
 
-                // Food getting smaller as eaten
-                const foodScale = 1 - eatProgress * 0.8;
-                if (foodScale > 0.2) {
+                if (player.heldFood === 'gaseosa') {
+                    // DRINKING animation - cup tilts towards mouth
+                    const tiltAngle = Math.sin(eatProgress * Math.PI) * 0.5; // Tilt cup
+                    const drinkY = y + 4 - eatProgress * 8; // Cup rises to mouth
+
+                    // Draw tilting cup
                     ctx.save();
-                    ctx.translate(x + 14, eatY);
-                    ctx.scale(foodScale, foodScale);
-                    drawFoodItem(player.heldFood, -4, -4);
+                    ctx.translate(x + 14, drinkY + 8);
+                    ctx.rotate(tiltAngle);
+
+                    // Cup getting emptier (liquid level drops)
+                    const liquidLevel = 1 - eatProgress;
+                    ctx.fillStyle = '#e74c3c';
+                    ctx.fillRect(-4, -4, 8, 10);
+                    ctx.fillStyle = '#c0392b';
+                    ctx.fillRect(-5, -5, 10, 2);
+                    // Liquid inside
+                    ctx.fillStyle = '#4a2c2c';
+                    ctx.fillRect(-3, -3 + (1 - liquidLevel) * 8, 6, liquidLevel * 8);
+                    // Straw
+                    ctx.fillStyle = '#fff';
+                    ctx.fillRect(2, -10, 2, 8);
+
                     ctx.restore();
-                }
 
-                // Mouth open while eating
-                ctx.fillStyle = '#5a3a2a';
-                ctx.fillRect(x + 11, y + 11, 5, 2);
+                    // Drinking mouth (pursed lips)
+                    ctx.fillStyle = '#c4956a';
+                    ctx.beginPath();
+                    ctx.arc(x + 14, y + 10, 2, 0, Math.PI * 2);
+                    ctx.fill();
 
-                // Crumbs falling
-                if (player.eatFrame % 10 < 5) {
-                    ctx.fillStyle = '#d4a574';
-                    ctx.fillRect(x + 12 + (player.eatFrame % 4), y + 14 + (player.eatFrame % 8), 2, 2);
+                } else {
+                    // EATING animation for solid food
+                    const eatY = y + 6 + Math.sin(player.eatFrame * 0.3) * 2;
+
+                    // Food getting smaller as eaten
+                    const foodScale = 1 - eatProgress * 0.8;
+                    if (foodScale > 0.2) {
+                        ctx.save();
+                        ctx.translate(x + 14, eatY);
+                        ctx.scale(foodScale, foodScale);
+                        drawFoodItem(player.heldFood, -4, -4);
+                        ctx.restore();
+                    }
+
+                    // Mouth open while eating
+                    ctx.fillStyle = '#5a3a2a';
+                    ctx.fillRect(x + 11, y + 11, 5, 2);
+
+                    // Crumbs falling
+                    if (player.eatFrame % 10 < 5) {
+                        ctx.fillStyle = '#d4a574';
+                        ctx.fillRect(x + 12 + (player.eatFrame % 4), y + 14 + (player.eatFrame % 8), 2, 2);
+                    }
                 }
             }
 
