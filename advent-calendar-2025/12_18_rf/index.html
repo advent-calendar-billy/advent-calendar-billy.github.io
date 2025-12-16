@@ -3,113 +3,3569 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tall Guy's Rollercoaster - Dec 18</title>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/game.css">
+    <title>Finding Billy - Amusement Park Adventure</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #1a1a2e;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Press Start 2P', monospace;
+            overflow: hidden;
+        }
+
+        #gameContainer {
+            position: relative;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+
+        #gameCanvas {
+            display: block;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+            border: 4px solid #ff6b9d;
+            box-shadow: 0 0 30px rgba(255, 107, 157, 0.3);
+        }
+
+        #hud {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .hud-box {
+            background: linear-gradient(180deg, #2d1b4e 0%, #1a0a2e 100%);
+            border: 3px solid #ff6b9d;
+            border-radius: 8px;
+            padding: 8px 16px;
+            color: #fff;
+            font-size: 10px;
+            text-shadow: 2px 2px 0 #000;
+            box-shadow: 0 4px 0 #aa4477;
+        }
+
+        .room-name {
+            background: linear-gradient(180deg, #4a1a6e 0%, #2d1b4e 100%);
+            border-color: #ffd700;
+            color: #ffd700;
+        }
+
+        #interactHint {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.9);
+            border: 3px solid #ffd700;
+            border-radius: 8px;
+            padding: 10px 20px;
+            color: #fff;
+            font-size: 10px;
+            display: none;
+            animation: bounce 0.5s ease infinite alternate;
+            z-index: 10;
+        }
+
+        @keyframes bounce {
+            from { transform: translateX(-50%) translateY(0); }
+            to { transform: translateX(-50%) translateY(-5px); }
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        #minigameOverlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: none;
+            z-index: 500;
+        }
+
+        #minigameOverlay iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .minigame-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 40px;
+            height: 40px;
+            background: #ff4444;
+            border: 3px solid #aa0000;
+            border-radius: 50%;
+            color: white;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 16px;
+            cursor: pointer;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .minigame-close:hover {
+            background: #ff6666;
+            transform: scale(1.1);
+        }
+
+        #winOverlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+        }
+
+        .win-title {
+            color: #ffd700;
+            font-size: 32px;
+            text-shadow: 4px 4px 0 #000;
+            margin-bottom: 30px;
+            animation: rainbow 2s linear infinite;
+        }
+
+        @keyframes rainbow {
+            0% { color: #ff6b9d; }
+            25% { color: #ffd700; }
+            50% { color: #7cfc00; }
+            75% { color: #00bfff; }
+            100% { color: #ff6b9d; }
+        }
+
+        .win-message {
+            color: #fff;
+            font-size: 14px;
+            line-height: 2;
+            text-align: center;
+            max-width: 500px;
+            text-shadow: 2px 2px 0 #000;
+        }
+
+        #startScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, #1a0a2e 0%, #0a0a1e 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 300;
+        }
+
+        .start-title {
+            color: #ff6b9d;
+            font-size: 24px;
+            text-shadow: 4px 4px 0 #000;
+            margin-bottom: 20px;
+        }
+
+        .start-subtitle {
+            color: #ffd700;
+            font-size: 14px;
+            margin-bottom: 40px;
+            text-shadow: 2px 2px 0 #000;
+        }
+
+        .start-instructions {
+            color: #fff;
+            font-size: 10px;
+            line-height: 2.5;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .start-prompt {
+            color: #7cfc00;
+            font-size: 12px;
+            animation: blink 1s infinite;
+        }
+    </style>
 </head>
 <body>
-    <div class="game-wrapper">
-        <canvas id="gameCanvas"></canvas>
+    <div id="gameContainer">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
 
-        <!-- HUD -->
-        <div class="hud">
-            <div class="hud-section hud-left">
-                <div class="lives-container">
-                    <span class="hud-label">LIVES</span>
-                    <div class="hearts" id="hearts"></div>
-                </div>
-                <div class="score-container">
-                    <span class="hud-label">SCORE</span>
-                    <span class="score-value" id="scoreValue">0</span>
-                </div>
+        <div id="hud">
+            <div class="hud-box">
+                <span id="objective">Find Billy!</span>
             </div>
-
-            <div class="hud-section hud-center">
-                <div class="progress-track">
-                    <div class="progress-fill" id="progressFill"></div>
-                    <div class="progress-labels">
-                        <span>START</span>
-                        <span>TUNNEL</span>
-                        <span>LOOPS</span>
-                        <span>PHOTO!</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="hud-section hud-right">
-                <div class="ability-container">
-                    <div class="ability" id="bendAbility">
-                        <span class="ability-key">SPACE</span>
-                        <span class="ability-name">DUCK</span>
-                        <div class="ability-bar">
-                            <div class="ability-fill" id="bendFill"></div>
-                        </div>
-                    </div>
-                    <div class="ability hidden" id="armsAbility">
-                        <span class="ability-key">SHIFT</span>
-                        <span class="ability-name">ARMS</span>
-                        <div class="ability-bar">
-                            <div class="ability-fill" id="armsFill"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <div class="hud-box room-name" id="roomName">Park Entrance</div>
         </div>
 
-        <!-- NPC Speech Bubble -->
-        <div class="speech-bubble" id="speechBubble">
-            <span id="speechText"></span>
+        <div id="interactHint">Press SPACE to interact</div>
+
+        <div id="minigameOverlay">
+            <button class="minigame-close" onclick="closeMinigame()">X</button>
+            <iframe id="minigameFrame" src=""></iframe>
         </div>
 
-        <!-- Start Screen -->
-        <div class="overlay" id="startOverlay">
-            <div class="overlay-panel">
-                <h1>TALL GUY'S<br>ROLLERCOASTER</h1>
-                <div class="story-text">
-                    <p>You're 2 meters tall...</p>
-                    <p>The height limit was 1.8m...</p>
-                    <p>You got on anyway.</p>
-                </div>
-                <div class="controls-box">
-                    <div class="control-row">
-                        <span class="key">SPACE</span>
-                        <span>Duck your head (0.5s max!)</span>
-                    </div>
-                    <div class="control-row">
-                        <span class="key">SHIFT</span>
-                        <span>Tuck arms (when upside down)</span>
-                    </div>
-                </div>
-                <button class="btn-start" id="btnStart">START RIDE</button>
-            </div>
+        <div id="winOverlay">
+            <div class="win-title">BILLY FOUND!</div>
+            <canvas id="winCanvas" width="300" height="200"></canvas>
         </div>
 
-        <!-- Win Screen -->
-        <div class="overlay hidden" id="winOverlay">
-            <div class="overlay-panel photo-panel">
-                <div class="photo-frame" id="photoFrame">
-                    <canvas id="photoCanvas" width="400" height="280"></canvas>
-                    <div class="photo-stamp">RIDE PHOTO</div>
-                </div>
-                <p class="photo-price">Only $34.99!</p>
-                <div class="final-score">Score: <span id="finalScore">0</span></div>
-                <button class="btn-start" id="btnPlayAgain">RIDE AGAIN</button>
-                <a href="../index.html" class="back-link">Back to Calendar</a>
+        <div id="startScreen">
+            <div class="start-title">FINDING BILLY</div>
+            <div class="start-subtitle">An Amusement Park Adventure</div>
+            <div class="start-instructions">
+                Arrow Keys / WASD - Move<br>
+                SPACE - Interact<br><br>
+                Billy ran off somewhere in the<br>
+                amusement park! Help Fede find him!
             </div>
-        </div>
-
-        <!-- Lose Screen -->
-        <div class="overlay hidden" id="loseOverlay">
-            <div class="overlay-panel">
-                <h1 class="lose-title">OUCH!</h1>
-                <p class="lose-message" id="loseMessage">You hit your head!</p>
-                <div class="final-score">Score: <span id="loseScore">0</span></div>
-                <button class="btn-start" id="btnRetry">TRY AGAIN</button>
-                <a href="../index.html" class="back-link">Back to Calendar</a>
-            </div>
+            <div class="start-prompt">Press SPACE to start</div>
         </div>
     </div>
 
-    <script src="js/game.js"></script>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const winCanvas = document.getElementById('winCanvas');
+        const winCtx = winCanvas.getContext('2d');
+
+        // Game state
+        let gameStarted = false;
+        let gameWon = false;
+        let currentRoom = 'entrance';
+        let roomTransitioning = false;
+        let dialogActive = false;
+        let dialogQueue = [];
+
+        // Player (Fede)
+        const player = {
+            x: 400,
+            y: 500,
+            width: 32,
+            height: 32,
+            speed: 3,
+            direction: 'up',
+            frame: 0,
+            frameTimer: 0
+        };
+
+        const keys = {};
+
+        // Room definitions
+        const rooms = {
+            entrance: {
+                name: 'Park Entrance',
+                bgColor: '#1a2a1a',
+                exits: { up: 'plaza' },
+                objects: [
+                    // Ticket booths
+                    { x: 100, y: 100, width: 120, height: 80, type: 'ticket_booth' },
+                    { x: 580, y: 100, width: 120, height: 80, type: 'ticket_booth' },
+                    // Entrance arch
+                    { x: 300, y: 50, width: 200, height: 100, type: 'entrance_arch' },
+                    // Benches
+                    { x: 50, y: 350, width: 60, height: 30, type: 'bench' },
+                    { x: 690, y: 350, width: 60, height: 30, type: 'bench' },
+                    // Lamp posts
+                    { x: 250, y: 200, width: 20, height: 60, type: 'lamp' },
+                    { x: 530, y: 200, width: 20, height: 60, type: 'lamp' },
+                    // Bushes
+                    { x: 30, y: 450, width: 50, height: 40, type: 'bush' },
+                    { x: 720, y: 450, width: 50, height: 40, type: 'bush' },
+                ],
+                npcs: [
+                    { x: 150, y: 200, direction: 'down', type: 'ticket_seller', interactText: "¡Bienvenido a Fun World! ¿Buscás a alguien? Probá en la plaza principal." },
+                    { x: 600, y: 400, direction: 'left', type: 'visitor', interactText: "Vi a alguien corriendo hacia los juegos..." },
+                ]
+            },
+            plaza: {
+                name: 'Plaza Central',
+                bgColor: '#2a1a2a',
+                exits: { down: 'entrance', left: 'rollercoaster', right: 'horrorhouse', up: 'ferriswheel' },
+                objects: [
+                    // Central fountain
+                    { x: 340, y: 250, width: 120, height: 100, type: 'fountain' },
+                    // Food stands (moved away from edges)
+                    { x: 100, y: 100, width: 80, height: 60, type: 'food_stand', label: 'POCHOCLO' },
+                    { x: 620, y: 100, width: 80, height: 60, type: 'food_stand', label: 'ALGODON' },
+                    // Benches around fountain
+                    { x: 280, y: 380, width: 60, height: 30, type: 'bench' },
+                    { x: 460, y: 380, width: 60, height: 30, type: 'bench' },
+                    // Lamp posts
+                    { x: 200, y: 250, width: 20, height: 60, type: 'lamp' },
+                    { x: 580, y: 250, width: 20, height: 60, type: 'lamp' },
+                    // Signs (moved away from spawn points)
+                    { x: 30, y: 200, width: 40, height: 80, type: 'sign', label: 'MONTAÑA' },
+                    { x: 730, y: 200, width: 40, height: 80, type: 'sign', label: 'TERROR' },
+                    { x: 380, y: 80, width: 40, height: 60, type: 'sign', label: 'RUEDA' },
+                ],
+                npcs: [
+                    { x: 120, y: 180, direction: 'down', type: 'vendor', interactText: "¡Pochoclo! ¡Pochoclo fresco! ...Alguien corrió hacia la Casa del Terror." },
+                    { x: 650, y: 180, direction: 'down', type: 'vendor', interactText: "¡Algodón de azúcar! ...¿Billy? ¿Asustado? Corrió para la derecha." },
+                    { x: 400, y: 450, direction: 'up', type: 'visitor', interactText: "La Casa del Terror da bastante miedo..." },
+                ]
+            },
+            rollercoaster: {
+                name: 'Montaña Rusa',
+                bgColor: '#1a1a3a',
+                exits: { right: 'plaza' },
+                objects: [
+                    // Rollercoaster structure
+                    { x: 100, y: 80, width: 500, height: 300, type: 'rollercoaster' },
+                    // Queue area
+                    { x: 50, y: 420, width: 300, height: 80, type: 'queue_area' },
+                    // Ride entrance
+                    { x: 400, y: 400, width: 100, height: 80, type: 'ride_entrance', interactable: true },
+                ],
+                npcs: [
+                    { x: 450, y: 500, direction: 'up', type: 'ride_operator', interactText: "¿Listo para la Montaña del Hombre Alto?" },
+                    { x: 150, y: 450, direction: 'right', type: 'visitor', interactText: "¡Este juego es increíble! Pero no vi a nadie pasar por acá..." },
+                ]
+            },
+            ferriswheel: {
+                name: 'Rueda de la Fortuna',
+                bgColor: '#1a2a3a',
+                exits: { down: 'plaza' },
+                objects: [
+                    // Ferris wheel structure
+                    { x: 200, y: 50, width: 400, height: 400, type: 'ferris_wheel' },
+                    // Ride entrance
+                    { x: 350, y: 480, width: 100, height: 60, type: 'ferris_entrance', interactable: true },
+                ],
+                npcs: [
+                    { x: 450, y: 530, direction: 'up', type: 'ride_operator', interactText: "¡La mejor vista del parque! ...¿Billy? No, no lo vi por acá." },
+                    { x: 150, y: 500, direction: 'right', type: 'visitor', interactText: "¡Se ve todo el parque desde arriba!" },
+                ]
+            },
+            horrorhouse: {
+                name: 'Casa del Terror',
+                bgColor: '#0a0a1a',
+                exits: { left: 'plaza', up: 'horrorhouse_inside' },
+                objects: [
+                    // Horror house building
+                    { x: 200, y: 100, width: 400, height: 250, type: 'horror_building' },
+                    // Entrance door
+                    { x: 350, y: 280, width: 100, height: 80, type: 'horror_entrance', interactable: true },
+                    // Gravestones (moved away from left edge)
+                    { x: 150, y: 400, width: 40, height: 50, type: 'gravestone' },
+                    { x: 230, y: 420, width: 40, height: 50, type: 'gravestone' },
+                    { x: 550, y: 400, width: 40, height: 50, type: 'gravestone' },
+                    { x: 630, y: 420, width: 40, height: 50, type: 'gravestone' },
+                    // Dead trees (moved away from edges)
+                    { x: 100, y: 200, width: 60, height: 120, type: 'dead_tree' },
+                    { x: 640, y: 200, width: 60, height: 120, type: 'dead_tree' },
+                    // Fence (shortened to not block spawn)
+                    { x: 100, y: 350, width: 600, height: 20, type: 'fence' },
+                ],
+                npcs: [
+                    { x: 450, y: 400, direction: 'left', type: 'spooky_attendant', interactText: "Entrá si te animás... *risa malvada* ...La verdad, creo que escuché a alguien llorando adentro." },
+                ]
+            },
+            horrorhouse_inside: {
+                name: 'Hall de Entrada',
+                bgColor: '#050508',
+                exits: { down: 'horrorhouse', right: 'horror_corridor' },
+                objects: [
+                    { x: 50, y: 100, width: 60, height: 100, type: 'coffin' },
+                    { x: 690, y: 100, width: 60, height: 100, type: 'coffin' },
+                    { x: 0, y: 0, width: 100, height: 100, type: 'cobweb' },
+                    { x: 700, y: 0, width: 100, height: 100, type: 'cobweb' },
+                    { x: 200, y: 150, width: 20, height: 40, type: 'candle' },
+                    { x: 580, y: 150, width: 20, height: 40, type: 'candle' },
+                    { x: 350, y: 100, width: 100, height: 150, type: 'creepy_painting' },
+                    { x: 300, y: 400, width: 200, height: 100, type: 'bloody_carpet' },
+                ],
+                npcs: [],
+                jumpScares: [
+                    { x: 400, y: 300, type: 'ghost_appear', triggered: false, triggerRadius: 80 }
+                ]
+            },
+            horror_corridor: {
+                name: 'Pasillo Oscuro',
+                bgColor: '#030306',
+                exits: { left: 'horrorhouse_inside', right: 'horror_mirror' },
+                objects: [
+                    { x: 100, y: 80, width: 40, height: 60, type: 'swinging_lamp' },
+                    { x: 400, y: 80, width: 40, height: 60, type: 'swinging_lamp' },
+                    { x: 700, y: 80, width: 40, height: 60, type: 'swinging_lamp' },
+                    { x: 0, y: 0, width: 100, height: 100, type: 'cobweb' },
+                    { x: 700, y: 0, width: 100, height: 100, type: 'cobweb' },
+                    { x: 200, y: 200, width: 80, height: 200, type: 'bloody_handprints' },
+                    { x: 500, y: 250, width: 80, height: 150, type: 'bloody_handprints' },
+                    { x: 300, y: 450, width: 60, height: 40, type: 'rat_holes' },
+                ],
+                npcs: [],
+                jumpScares: [
+                    { x: 350, y: 300, type: 'zombie_hand', triggered: false, triggerRadius: 60 },
+                    { x: 600, y: 400, type: 'scream', triggered: false, triggerRadius: 100 }
+                ],
+                crawlingMonster: { x: 100, y: 500, speed: 0.5, direction: 1 }
+            },
+            horror_mirror: {
+                name: 'Sala de los Espejos',
+                bgColor: '#040410',
+                exits: { left: 'horror_corridor', up: 'horror_final' },
+                objects: [
+                    { x: 330, y: 200, width: 140, height: 180, type: 'monster_mirror', interactable: true },
+                    { x: 50, y: 150, width: 20, height: 40, type: 'candle' },
+                    { x: 730, y: 150, width: 20, height: 40, type: 'candle' },
+                    { x: 50, y: 350, width: 20, height: 40, type: 'candle' },
+                    { x: 730, y: 350, width: 20, height: 40, type: 'candle' },
+                    { x: 0, y: 0, width: 100, height: 100, type: 'cobweb' },
+                    { x: 700, y: 0, width: 100, height: 100, type: 'cobweb' },
+                    { x: 600, y: 400, width: 80, height: 100, type: 'broken_doll' },
+                ],
+                npcs: [],
+                jumpScares: [
+                    { x: 400, y: 250, type: 'mirror_crack', triggered: false, triggerRadius: 120 }
+                ]
+            },
+            horror_final: {
+                name: 'La Sala Oscura',
+                bgColor: '#020205',
+                exits: { down: 'horror_mirror' },
+                objects: [
+                    { x: 50, y: 100, width: 60, height: 100, type: 'coffin' },
+                    { x: 690, y: 100, width: 60, height: 100, type: 'coffin' },
+                    { x: 100, y: 300, width: 50, height: 80, type: 'skeleton' },
+                    { x: 650, y: 300, width: 50, height: 80, type: 'skeleton' },
+                    { x: 0, y: 0, width: 100, height: 100, type: 'cobweb' },
+                    { x: 700, y: 0, width: 100, height: 100, type: 'cobweb' },
+                    { x: 200, y: 100, width: 20, height: 40, type: 'candle' },
+                    { x: 580, y: 100, width: 20, height: 40, type: 'candle' },
+                    { x: 350, y: 200, width: 100, height: 120, type: 'curtain', interactable: true, isBillyHere: true },
+                ],
+                npcs: [],
+                jumpScares: [
+                    { x: 200, y: 400, type: 'actor_jumpscare', triggered: false, triggerRadius: 70 }
+                ]
+            }
+        };
+
+        // Horror house state
+        let jumpScareActive = null;
+        let jumpScareTimer = 0;
+        let screenShake = 0;
+        let horrorAmbience = { flicker: 1, darkness: 0 };
+
+        let nearObject = null;
+        let nearNPC = null;
+
+        // Input handling
+        document.addEventListener('keydown', (e) => {
+            keys[e.key] = true;
+
+            if (e.key === ' ' || e.key === 'Space') {
+                e.preventDefault();
+
+                // Don't allow interactions after game is won
+                if (gameWon) return;
+
+                if (!gameStarted) {
+                    gameStarted = true;
+                    document.getElementById('startScreen').style.display = 'none';
+                    showDialog('Fede', "Billy! ¿Dónde te metiste?!");
+                    return;
+                }
+
+                if (dialogActive) {
+                    advanceDialog();
+                    return;
+                }
+
+                if (nearNPC) {
+                    showDialog(nearNPC.type, nearNPC.interactText);
+                } else if (nearObject && nearObject.interactable) {
+                    handleObjectInteraction(nearObject);
+                }
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            keys[e.key] = false;
+        });
+
+        // Speech bubble system
+        let currentSpeechBubble = null;
+
+        function showDialog(speaker, text) {
+            dialogActive = true;
+            currentSpeechBubble = { speaker, text };
+        }
+
+        function advanceDialog() {
+            if (dialogQueue.length > 0) {
+                const next = dialogQueue.shift();
+                currentSpeechBubble = { speaker: next.speaker, text: next.text };
+            } else {
+                dialogActive = false;
+                currentSpeechBubble = null;
+            }
+        }
+
+        function getSpeakerPosition(speaker) {
+            // Get position for speech bubble based on speaker
+            if (speaker === 'Fede') {
+                return { x: player.x + 16, y: player.y - 10 };
+            } else if (speaker === 'Billy') {
+                // Billy is at the curtain in horror house
+                const curtain = rooms[currentRoom].objects.find(o => o.type === 'curtain');
+                if (curtain) {
+                    return { x: curtain.x + curtain.width / 2, y: curtain.y - 10 };
+                }
+                return { x: 400, y: 200 };
+            } else if (nearNPC) {
+                return { x: nearNPC.x + 16, y: nearNPC.y - 10 };
+            }
+            return { x: 400, y: 100 };
+        }
+
+        function drawSpeechBubble() {
+            if (!currentSpeechBubble) return;
+
+            const pos = getSpeakerPosition(currentSpeechBubble.speaker);
+            const text = currentSpeechBubble.text;
+
+            // Measure text and create bubble
+            ctx.font = '10px "Press Start 2P"';
+            const words = text.split(' ');
+            const lines = [];
+            let currentLine = '';
+            const maxWidth = 200;
+
+            for (const word of words) {
+                const testLine = currentLine + (currentLine ? ' ' : '') + word;
+                const metrics = ctx.measureText(testLine);
+                if (metrics.width > maxWidth && currentLine) {
+                    lines.push(currentLine);
+                    currentLine = word;
+                } else {
+                    currentLine = testLine;
+                }
+            }
+            if (currentLine) lines.push(currentLine);
+
+            const lineHeight = 16;
+            const padding = 12;
+            const bubbleWidth = Math.min(maxWidth + padding * 2, 240);
+            const bubbleHeight = lines.length * lineHeight + padding * 2;
+
+            // Position bubble above speaker, keep on screen
+            let bubbleX = pos.x - bubbleWidth / 2;
+            let bubbleY = pos.y - bubbleHeight - 15;
+
+            // Keep on screen
+            bubbleX = Math.max(10, Math.min(790 - bubbleWidth, bubbleX));
+            bubbleY = Math.max(50, bubbleY);
+
+            // Draw bubble background
+            ctx.fillStyle = '#fff';
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 3;
+
+            // Rounded rectangle
+            const radius = 8;
+            ctx.beginPath();
+            ctx.moveTo(bubbleX + radius, bubbleY);
+            ctx.lineTo(bubbleX + bubbleWidth - radius, bubbleY);
+            ctx.quadraticCurveTo(bubbleX + bubbleWidth, bubbleY, bubbleX + bubbleWidth, bubbleY + radius);
+            ctx.lineTo(bubbleX + bubbleWidth, bubbleY + bubbleHeight - radius);
+            ctx.quadraticCurveTo(bubbleX + bubbleWidth, bubbleY + bubbleHeight, bubbleX + bubbleWidth - radius, bubbleY + bubbleHeight);
+            ctx.lineTo(bubbleX + radius, bubbleY + bubbleHeight);
+            ctx.quadraticCurveTo(bubbleX, bubbleY + bubbleHeight, bubbleX, bubbleY + bubbleHeight - radius);
+            ctx.lineTo(bubbleX, bubbleY + radius);
+            ctx.quadraticCurveTo(bubbleX, bubbleY, bubbleX + radius, bubbleY);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // Draw tail pointing to speaker
+            const tailX = Math.max(bubbleX + 20, Math.min(bubbleX + bubbleWidth - 20, pos.x));
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.moveTo(tailX - 8, bubbleY + bubbleHeight);
+            ctx.lineTo(tailX, bubbleY + bubbleHeight + 12);
+            ctx.lineTo(tailX + 8, bubbleY + bubbleHeight);
+            ctx.closePath();
+            ctx.fill();
+            ctx.strokeStyle = '#333';
+            ctx.beginPath();
+            ctx.moveTo(tailX - 8, bubbleY + bubbleHeight);
+            ctx.lineTo(tailX, bubbleY + bubbleHeight + 12);
+            ctx.lineTo(tailX + 8, bubbleY + bubbleHeight);
+            ctx.stroke();
+
+            // Cover the line inside bubble
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(tailX - 9, bubbleY + bubbleHeight - 2, 18, 4);
+
+            // Draw text
+            ctx.fillStyle = '#333';
+            ctx.font = '10px "Press Start 2P"';
+            ctx.textAlign = 'left';
+            for (let i = 0; i < lines.length; i++) {
+                ctx.fillText(lines[i], bubbleX + padding, bubbleY + padding + 10 + i * lineHeight);
+            }
+
+            // Draw "press space" hint
+            ctx.fillStyle = '#999';
+            ctx.font = '8px "Press Start 2P"';
+            ctx.textAlign = 'center';
+            const hintBounce = Math.sin(Date.now() / 300) * 2;
+            ctx.fillText('[ SPACE ]', bubbleX + bubbleWidth / 2, bubbleY + bubbleHeight + 30 + hintBounce);
+        }
+
+        function handleObjectInteraction(obj) {
+            if (obj.type === 'curtain' && obj.isBillyHere) {
+                // Found Billy!
+                dialogQueue = [
+                    { speaker: 'Billy', text: "¿Fede...? Me asusté mucho..." },
+                    { speaker: 'Fede', text: "¡Billy! Te estuve buscando por todos lados." },
+                    { speaker: 'Billy', text: "Los monstruos parecían tan reales..." },
+                    { speaker: 'Fede', text: "Ya está, ya pasó. Vení." }
+                ];
+                showDialog('Fede', "¿Billy?");
+                setTimeout(() => {
+                    if (!dialogActive) triggerWin();
+                }, 100);
+
+                // Set up win trigger after dialog
+                const checkDialogEnd = setInterval(() => {
+                    if (!dialogActive && dialogQueue.length === 0) {
+                        clearInterval(checkDialogEnd);
+                        setTimeout(triggerWin, 500);
+                    }
+                }, 100);
+            } else if (obj.type === 'ride_entrance') {
+                showDialog('Fede', "¡Vamos a subirnos!");
+                setTimeout(() => {
+                    if (!dialogActive) openMinigame('rollercoaster.html');
+                }, 100);
+                const checkDialog = setInterval(() => {
+                    if (!dialogActive) {
+                        clearInterval(checkDialog);
+                        openMinigame('rollercoaster.html');
+                    }
+                }, 100);
+            } else if (obj.type === 'horror_entrance') {
+                showDialog('Fede', "La Casa del Terror... Billy debe estar acá adentro.");
+                setTimeout(() => {
+                    if (!dialogActive) changeRoom('horrorhouse_inside', 'down');
+                }, 100);
+                const checkDialog = setInterval(() => {
+                    if (!dialogActive) {
+                        clearInterval(checkDialog);
+                        changeRoom('horrorhouse_inside', 'down');
+                    }
+                }, 100);
+            } else if (obj.type === 'monster_mirror') {
+                showDialog('Fede', "Ese reflejo... no soy yo. ¿O sí?");
+            } else if (obj.type === 'ferris_entrance') {
+                showDialog('Fede', "¡Qué vista!");
+                setTimeout(() => {
+                    if (!dialogActive) openMinigame('ferriswheel.html');
+                }, 100);
+                const checkDialog = setInterval(() => {
+                    if (!dialogActive) {
+                        clearInterval(checkDialog);
+                        openMinigame('ferriswheel.html');
+                    }
+                }, 100);
+            }
+        }
+
+        function triggerWin() {
+            gameWon = true;
+            document.getElementById('winOverlay').style.display = 'flex';
+            drawWinScene();
+        }
+
+        let winAnimationFrame = 0;
+        let winAnimationPhase = 0; // 0: approach, 1: hug
+
+        function drawWinScene() {
+            winCtx.fillStyle = '#1a0a2e';
+            winCtx.fillRect(0, 0, 300, 200);
+
+            winAnimationFrame++;
+
+            // Animation phases
+            const approachDuration = 60;
+            const progress = Math.min(1, winAnimationFrame / approachDuration);
+
+            if (winAnimationFrame > approachDuration) {
+                winAnimationPhase = 1;
+            }
+
+            const scale = 2.5;
+            const centerX = 150;
+            const centerY = 100;
+
+            if (winAnimationPhase === 0) {
+                // Approaching each other
+                const fedeX = 60 + progress * 40;
+                const billyX = 240 - progress * 50;
+
+                drawFedeWin(winCtx, fedeX, centerY, scale, 'right');
+                drawBillyWin(winCtx, billyX, centerY - 10, scale, 'left', false);
+            } else {
+                // Hugging - draw as single combined sprite
+                drawHugSprite(winCtx, centerX, centerY, scale);
+
+                // Floating hearts
+                winCtx.fillStyle = '#ff6b9d';
+                const heartPhase = (winAnimationFrame - approachDuration) / 30;
+                for (let i = 0; i < 3; i++) {
+                    const hx = centerX - 30 + i * 30;
+                    const hy = 40 + Math.sin(heartPhase + i * 2) * 8;
+                    const hs = 6 + Math.sin(heartPhase * 2 + i) * 2;
+                    drawHeart(winCtx, hx, hy, hs);
+                }
+
+                // Billy's speech bubble after a moment
+                const hugDuration = winAnimationFrame - approachDuration;
+                if (hugDuration > 40) {
+                    // Speech bubble
+                    winCtx.fillStyle = '#fff';
+                    winCtx.strokeStyle = '#333';
+                    winCtx.lineWidth = 2;
+                    winCtx.beginPath();
+                    winCtx.ellipse(220, 45, 45, 18, 0, 0, Math.PI * 2);
+                    winCtx.fill();
+                    winCtx.stroke();
+                    // Tail
+                    winCtx.fillStyle = '#fff';
+                    winCtx.beginPath();
+                    winCtx.moveTo(195, 55);
+                    winCtx.lineTo(180, 70);
+                    winCtx.lineTo(200, 60);
+                    winCtx.fill();
+                    // Text
+                    winCtx.fillStyle = '#333';
+                    winCtx.font = '9px "Press Start 2P"';
+                    winCtx.textAlign = 'center';
+                    winCtx.fillText('Cojemos?', 220, 49);
+                }
+            }
+
+            if (gameWon) {
+                requestAnimationFrame(drawWinScene);
+            }
+        }
+
+        function drawFedeWin(ctx, x, y, scale, dir) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.scale(scale, scale);
+
+            // Shadow
+            ctx.fillStyle = 'rgba(0,0,0,0.3)';
+            ctx.beginPath();
+            ctx.ellipse(0, 28, 8, 4, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Burgundy jacket
+            ctx.fillStyle = '#722f37';
+            ctx.fillRect(-9, 10, 18, 14);
+            ctx.fillStyle = '#5a252c';
+            ctx.fillRect(-7, 10, 3, 6);
+            ctx.fillRect(4, 10, 3, 6);
+            // White shirt
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(-3, 12, 6, 8);
+
+            // Pants
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(-6, 22, 5, 6);
+            ctx.fillRect(1, 22, 5, 6);
+
+            // Face
+            ctx.fillStyle = '#e8c4a0';
+            ctx.fillRect(-7, 0, 14, 11);
+
+            // Black hair
+            ctx.fillStyle = '#0a0a0a';
+            ctx.fillRect(-8, -3, 16, 5);
+            ctx.fillRect(-9, -1, 3, 4);
+            ctx.fillRect(6, -1, 3, 4);
+
+            // Eyes looking right
+            ctx.fillStyle = '#000';
+            ctx.fillRect(1, 4, 2, 2);
+            ctx.fillRect(5, 4, 2, 2);
+
+            ctx.restore();
+        }
+
+        function drawBillyWin(ctx, x, y, scale, dir, crying) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.scale(scale, scale);
+
+            // Shadow
+            ctx.fillStyle = 'rgba(0,0,0,0.3)';
+            ctx.beginPath();
+            ctx.ellipse(0, 32, 10, 5, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Grey t-shirt (muscular)
+            ctx.fillStyle = '#555';
+            ctx.fillRect(-11, 10, 22, 14);
+            ctx.fillStyle = '#444';
+            ctx.fillRect(-9, 12, 2, 8);
+            ctx.fillRect(7, 12, 2, 8);
+            // Shoulders
+            ctx.fillRect(-13, 10, 4, 5);
+            ctx.fillRect(9, 10, 4, 5);
+
+            // Jeans
+            ctx.fillStyle = '#3d5a80';
+            ctx.fillRect(-8, 22, 7, 8);
+            ctx.fillRect(1, 22, 7, 8);
+
+            // Face (broader)
+            ctx.fillStyle = '#e8c4a0';
+            ctx.fillRect(-9, -2, 18, 13);
+
+            // Black messy hair
+            ctx.fillStyle = '#0a0a0a';
+            ctx.fillRect(-10, -6, 20, 6);
+            ctx.fillRect(-11, -3, 3, 4);
+            ctx.fillRect(8, -3, 3, 4);
+            ctx.fillRect(-6, -7, 3, 2);
+            ctx.fillRect(4, -7, 4, 2);
+
+            // Eyes looking left
+            ctx.fillStyle = '#000';
+            ctx.fillRect(-7, 4, 3, 3);
+            ctx.fillRect(0, 4, 3, 3);
+
+            if (crying) {
+                ctx.fillStyle = '#87ceeb';
+                ctx.fillRect(-5, 8, 2, 3);
+                ctx.fillRect(2, 8, 2, 3);
+            }
+
+            ctx.restore();
+        }
+
+        function drawHugSprite(ctx, x, y, scale) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.scale(scale, scale);
+
+            // Combined shadow
+            ctx.fillStyle = 'rgba(0,0,0,0.3)';
+            ctx.beginPath();
+            ctx.ellipse(0, 32, 14, 6, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Billy's back (grey shirt, muscular)
+            ctx.fillStyle = '#555';
+            ctx.fillRect(2, 8, 18, 16);
+            ctx.fillStyle = '#444';
+            ctx.fillRect(4, 10, 2, 10);
+            ctx.fillRect(16, 10, 2, 10);
+            // Billy's shoulder
+            ctx.fillRect(18, 8, 4, 6);
+
+            // Billy's jeans
+            ctx.fillStyle = '#3d5a80';
+            ctx.fillRect(4, 22, 7, 8);
+            ctx.fillRect(12, 22, 7, 8);
+
+            // Billy's head (side view, looking down at Fede)
+            ctx.fillStyle = '#e8c4a0';
+            ctx.fillRect(6, -4, 14, 13);
+            // Billy's black hair
+            ctx.fillStyle = '#0a0a0a';
+            ctx.fillRect(5, -8, 16, 6);
+            ctx.fillRect(18, -5, 3, 4);
+            ctx.fillRect(8, -9, 4, 2);
+
+            // Fede (shorter, in front, being hugged)
+            // Fede's burgundy jacket
+            ctx.fillStyle = '#722f37';
+            ctx.fillRect(-16, 10, 16, 14);
+            ctx.fillStyle = '#5a252c';
+            ctx.fillRect(-14, 10, 3, 6);
+
+            // Fede's pants
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(-14, 22, 5, 6);
+            ctx.fillRect(-8, 22, 5, 6);
+
+            // Fede's head (side, face buried in Billy's chest)
+            ctx.fillStyle = '#e8c4a0';
+            ctx.fillRect(-12, 0, 12, 10);
+            // Fede's black hair
+            ctx.fillStyle = '#0a0a0a';
+            ctx.fillRect(-13, -3, 14, 5);
+            ctx.fillRect(-14, -1, 3, 4);
+
+            // Billy's arms wrapped around Fede
+            ctx.fillStyle = '#e8c4a0'; // skin
+            ctx.fillRect(-18, 12, 6, 4); // left hand on Fede's back
+            ctx.fillRect(-4, 14, 6, 4); // right hand on Fede's side
+            // Grey sleeve
+            ctx.fillStyle = '#555';
+            ctx.fillRect(-18, 10, 4, 3);
+            ctx.fillRect(-2, 10, 4, 5);
+
+            // Fede's arms around Billy
+            ctx.fillStyle = '#e8c4a0';
+            ctx.fillRect(8, 16, 5, 4); // hand on Billy's back
+            // Burgundy sleeve
+            ctx.fillStyle = '#722f37';
+            ctx.fillRect(4, 14, 5, 4);
+
+            ctx.restore();
+        }
+
+        function drawHeart(context, x, y, size) {
+            context.beginPath();
+            context.moveTo(x, y + size/4);
+            context.bezierCurveTo(x, y, x - size/2, y, x - size/2, y + size/4);
+            context.bezierCurveTo(x - size/2, y + size/2, x, y + size*0.75, x, y + size);
+            context.bezierCurveTo(x, y + size*0.75, x + size/2, y + size/2, x + size/2, y + size/4);
+            context.bezierCurveTo(x + size/2, y, x, y, x, y + size/4);
+            context.fill();
+        }
+
+        function drawCharacterAt(context, x, y, type, direction, scale = 1) {
+            context.save();
+            context.translate(x, y);
+            context.scale(scale, scale);
+
+            if (type === 'fede') {
+                // Fede: shorter, leaner, well-dressed, black hair
+                // Shadow
+                context.fillStyle = 'rgba(0,0,0,0.3)';
+                context.beginPath();
+                context.ellipse(14, 28, 10, 5, 0, 0, Math.PI * 2);
+                context.fill();
+
+                // Nice blazer/jacket (burgundy)
+                context.fillStyle = '#722f37';
+                context.fillRect(5, 12, 18, 14);
+                // Jacket lapels
+                context.fillStyle = '#5a252c';
+                context.beginPath();
+                context.moveTo(8, 12);
+                context.lineTo(12, 18);
+                context.lineTo(8, 18);
+                context.fill();
+                context.beginPath();
+                context.moveTo(20, 12);
+                context.lineTo(16, 18);
+                context.lineTo(20, 18);
+                context.fill();
+                // White shirt underneath
+                context.fillStyle = '#fff';
+                context.fillRect(11, 14, 6, 8);
+
+                // Dark fitted pants
+                context.fillStyle = '#1a1a1a';
+                context.fillRect(7, 24, 5, 6);
+                context.fillRect(16, 24, 5, 6);
+
+                // Face (leaner)
+                context.fillStyle = '#e8c4a0';
+                context.fillRect(7, 1, 14, 12);
+
+                // Black hair (styled)
+                context.fillStyle = '#0a0a0a';
+                context.fillRect(6, -2, 16, 5);
+                context.fillRect(5, 0, 3, 4);
+                context.fillRect(20, 0, 3, 4);
+                // Side part
+                context.fillRect(6, 2, 2, 2);
+
+                // Eyes
+                context.fillStyle = '#000';
+                if (direction === 'right') {
+                    context.fillRect(17, 6, 2, 2);
+                } else {
+                    context.fillRect(9, 6, 2, 2);
+                    context.fillRect(15, 6, 2, 2);
+                }
+            } else if (type === 'billy') {
+                // Billy: taller, muscular, black hair, casual clothes
+                // Shadow
+                context.fillStyle = 'rgba(0,0,0,0.3)';
+                context.beginPath();
+                context.ellipse(16, 34, 12, 6, 0, 0, Math.PI * 2);
+                context.fill();
+
+                // Casual t-shirt (grey)
+                context.fillStyle = '#555';
+                context.fillRect(4, 12, 24, 16);
+                // Shirt wrinkles for muscle definition
+                context.fillStyle = '#444';
+                context.fillRect(6, 14, 2, 10);
+                context.fillRect(24, 14, 2, 10);
+                // Broader shoulders
+                context.fillRect(2, 12, 4, 6);
+                context.fillRect(26, 12, 4, 6);
+
+                // Jeans
+                context.fillStyle = '#3d5a80';
+                context.fillRect(6, 26, 7, 8);
+                context.fillRect(19, 26, 7, 8);
+
+                // Face (broader)
+                context.fillStyle = '#e8c4a0';
+                context.fillRect(6, 0, 20, 14);
+
+                // Black hair (messier, casual)
+                context.fillStyle = '#0a0a0a';
+                context.fillRect(5, -4, 22, 6);
+                context.fillRect(4, -1, 3, 4);
+                context.fillRect(25, -1, 3, 4);
+                // Messy bits
+                context.fillRect(8, -5, 3, 2);
+                context.fillRect(18, -5, 4, 2);
+
+                // Eyes (teary when found)
+                context.fillStyle = '#000';
+                context.fillRect(10, 6, 3, 3);
+                context.fillRect(19, 6, 3, 3);
+
+                // Tears
+                context.fillStyle = '#87ceeb';
+                context.fillRect(11, 10, 2, 3);
+                context.fillRect(20, 10, 2, 3);
+            }
+
+            context.restore();
+        }
+
+        // Room transitions
+        function changeRoom(newRoom, fromDirection) {
+            if (roomTransitioning) return;
+            roomTransitioning = true;
+            currentRoom = newRoom;
+
+            // Position player based on where they came FROM (appear at opposite edge)
+            // Use safe positions away from typical object placements
+            switch(fromDirection) {
+                case 'left': // came from left, appear on left side
+                    player.x = 60;
+                    player.y = 400; // lower to avoid objects usually at top
+                    break;
+                case 'right': // came from right, appear on right side
+                    player.x = 710;
+                    player.y = 400;
+                    break;
+                case 'up': // came from above, appear at top
+                    player.x = 400;
+                    player.y = 80;
+                    break;
+                case 'down': // came from below, appear at bottom
+                    player.x = 400;
+                    player.y = 510;
+                    break;
+            }
+
+            // Nudge player if they spawn inside an object
+            let attempts = 0;
+            while (checkCollision(player.x, player.y) && attempts < 10) {
+                // Try moving toward center
+                if (player.x < 400) player.x += 30;
+                else player.x -= 30;
+                if (player.y < 300) player.y += 30;
+                else player.y -= 30;
+                attempts++;
+            }
+
+            document.getElementById('roomName').textContent = rooms[currentRoom].name;
+
+            setTimeout(() => {
+                roomTransitioning = false;
+            }, 200);
+        }
+
+        function checkRoomTransition() {
+            const room = rooms[currentRoom];
+
+            if (player.x > 760 && room.exits.right) {
+                changeRoom(room.exits.right, 'left'); // going right, enter from left
+            } else if (player.x < 20 && room.exits.left) {
+                changeRoom(room.exits.left, 'right'); // going left, enter from right
+            } else if (player.y > 560 && room.exits.down) {
+                changeRoom(room.exits.down, 'up'); // going down, enter from top
+            } else if (player.y < 50 && room.exits.up) {
+                changeRoom(room.exits.up, 'down'); // going up, enter from bottom
+            }
+        }
+
+        // Collision detection
+        function checkCollision(newX, newY) {
+            const playerBounds = { x: newX + 8, y: newY + 20, width: 16, height: 12 };
+            const currentObjects = rooms[currentRoom].objects;
+
+            for (const obj of currentObjects) {
+                // Skip non-solid objects (visual only)
+                const nonSolidTypes = [
+                    'cobweb', 'candle', 'ferris_wheel', 'rollercoaster',
+                    'swinging_lamp', 'bloody_carpet', 'bloody_handprints',
+                    'rat_holes', 'creepy_painting'
+                ];
+                if (nonSolidTypes.includes(obj.type)) continue;
+
+                if (playerBounds.x < obj.x + obj.width &&
+                    playerBounds.x + playerBounds.width > obj.x &&
+                    playerBounds.y < obj.y + obj.height &&
+                    playerBounds.y + playerBounds.height > obj.y) {
+                    return true;
+                }
+            }
+
+            // Room boundaries
+            const room = rooms[currentRoom];
+            if (newX < 10 && !room.exits.left) return true;
+            if (newX > 760 && !room.exits.right) return true;
+            if (newY < 40 && !room.exits.up) return true;
+            if (newY > 560 && !room.exits.down) return true;
+
+            return false;
+        }
+
+        // Check proximity to objects/NPCs
+        function checkProximity() {
+            nearObject = null;
+            nearNPC = null;
+
+            const currentObjects = rooms[currentRoom].objects;
+            const currentNPCs = rooms[currentRoom].npcs;
+
+            // Check objects
+            for (const obj of currentObjects) {
+                if (obj.interactable) {
+                    const dx = (player.x + 16) - (obj.x + obj.width / 2);
+                    const dy = (player.y + 16) - (obj.y + obj.height / 2);
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 60) {
+                        nearObject = obj;
+                        break;
+                    }
+                }
+            }
+
+            // Check NPCs
+            for (const npc of currentNPCs) {
+                const dx = (player.x + 16) - (npc.x + 16);
+                const dy = (player.y + 16) - (npc.y + 16);
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 50) {
+                    nearNPC = npc;
+                    break;
+                }
+            }
+
+            // Update hint display
+            const hint = document.getElementById('interactHint');
+            if ((nearObject || nearNPC) && !dialogActive) {
+                hint.style.display = 'block';
+            } else {
+                hint.style.display = 'none';
+            }
+        }
+
+        // Update game state
+        function update() {
+            if (!gameStarted || gameWon || dialogActive || roomTransitioning) return;
+
+            let dx = 0, dy = 0;
+
+            if (keys['ArrowUp'] || keys['w'] || keys['W']) { dy = -player.speed; player.direction = 'up'; }
+            if (keys['ArrowDown'] || keys['s'] || keys['S']) { dy = player.speed; player.direction = 'down'; }
+            if (keys['ArrowLeft'] || keys['a'] || keys['A']) { dx = -player.speed; player.direction = 'left'; }
+            if (keys['ArrowRight'] || keys['d'] || keys['D']) { dx = player.speed; player.direction = 'right'; }
+
+            if (dx !== 0 || dy !== 0) {
+                player.frameTimer++;
+                if (player.frameTimer > 5) {
+                    player.frame++;
+                    player.frameTimer = 0;
+                }
+                if (!checkCollision(player.x + dx, player.y)) player.x += dx;
+                if (!checkCollision(player.x, player.y + dy)) player.y += dy;
+            }
+
+            checkRoomTransition();
+            checkProximity();
+            updateHorror();
+        }
+
+        // Drawing functions
+        function drawBackground() {
+            const room = rooms[currentRoom];
+            ctx.fillStyle = room.bgColor;
+            ctx.fillRect(0, 0, 800, 600);
+
+            // Draw ground pattern
+            ctx.fillStyle = 'rgba(255,255,255,0.03)';
+            for (let x = 0; x < 800; x += 32) {
+                for (let y = 0; y < 600; y += 32) {
+                    if ((x + y) % 64 === 0) {
+                        ctx.fillRect(x, y, 32, 32);
+                    }
+                }
+            }
+        }
+
+        function drawObjects() {
+            const currentObjects = rooms[currentRoom].objects;
+
+            for (const obj of currentObjects) {
+                switch(obj.type) {
+                    case 'ticket_booth':
+                        drawTicketBooth(obj);
+                        break;
+                    case 'entrance_arch':
+                        drawEntranceArch(obj);
+                        break;
+                    case 'bench':
+                        drawBench(obj);
+                        break;
+                    case 'lamp':
+                        drawLamp(obj);
+                        break;
+                    case 'bush':
+                        drawBush(obj);
+                        break;
+                    case 'fountain':
+                        drawFountain(obj);
+                        break;
+                    case 'food_stand':
+                        drawFoodStand(obj);
+                        break;
+                    case 'sign':
+                        drawSign(obj);
+                        break;
+                    case 'rollercoaster':
+                        drawRollercoaster(obj);
+                        break;
+                    case 'queue_area':
+                        drawQueueArea(obj);
+                        break;
+                    case 'ride_entrance':
+                        drawRideEntrance(obj);
+                        break;
+                    case 'ferris_wheel':
+                        drawFerrisWheel(obj);
+                        break;
+                    case 'ferris_booth':
+                        drawFerrisBooth(obj);
+                        break;
+                    case 'ferris_entrance':
+                        drawFerrisEntrance(obj);
+                        break;
+                    case 'horror_building':
+                        drawHorrorBuilding(obj);
+                        break;
+                    case 'horror_entrance':
+                        drawHorrorEntrance(obj);
+                        break;
+                    case 'gravestone':
+                        drawGravestone(obj);
+                        break;
+                    case 'dead_tree':
+                        drawDeadTree(obj);
+                        break;
+                    case 'fence':
+                        drawFence(obj);
+                        break;
+                    case 'coffin':
+                        drawCoffin(obj);
+                        break;
+                    case 'skeleton':
+                        drawSkeleton(obj);
+                        break;
+                    case 'cobweb':
+                        drawCobweb(obj);
+                        break;
+                    case 'candle':
+                        drawCandle(obj);
+                        break;
+                    case 'curtain':
+                        drawCurtain(obj);
+                        break;
+                    case 'creepy_painting':
+                        drawCreepyPainting(obj);
+                        break;
+                    case 'bloody_carpet':
+                        drawBloodyCarpet(obj);
+                        break;
+                    case 'swinging_lamp':
+                        drawSwingingLamp(obj);
+                        break;
+                    case 'bloody_handprints':
+                        drawBloodyHandprints(obj);
+                        break;
+                    case 'rat_holes':
+                        drawRatHoles(obj);
+                        break;
+                    case 'monster_mirror':
+                        drawMonsterMirror(obj);
+                        break;
+                    case 'broken_doll':
+                        drawBrokenDoll(obj);
+                        break;
+                }
+            }
+        }
+
+        function drawCreepyPainting(obj) {
+            // Ornate gilded frame
+            ctx.fillStyle = '#5a4020';
+            ctx.fillRect(obj.x - 12, obj.y - 12, obj.width + 24, obj.height + 24);
+            ctx.fillStyle = '#8b7355';
+            ctx.fillRect(obj.x - 8, obj.y - 8, obj.width + 16, obj.height + 16);
+            ctx.fillStyle = '#6b5335';
+            ctx.fillRect(obj.x - 4, obj.y - 4, obj.width + 8, obj.height + 8);
+
+            // Frame decorations (corner flourishes)
+            ctx.fillStyle = '#9b8365';
+            for (let corner = 0; corner < 4; corner++) {
+                const cx = corner % 2 === 0 ? obj.x - 10 : obj.x + obj.width + 2;
+                const cy = corner < 2 ? obj.y - 10 : obj.y + obj.height + 2;
+                ctx.beginPath();
+                ctx.arc(cx + 4, cy + 4, 6, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Dark canvas background with aged look
+            ctx.fillStyle = '#1a1a2e';
+            ctx.fillRect(obj.x, obj.y, obj.width, obj.height);
+            // Aged varnish cracks
+            ctx.strokeStyle = 'rgba(40, 30, 20, 0.3)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < 5; i++) {
+                ctx.beginPath();
+                ctx.moveTo(obj.x + i * 20, obj.y);
+                ctx.lineTo(obj.x + i * 20 + 10, obj.y + obj.height);
+                ctx.stroke();
+            }
+
+            // Creepy face that follows player
+            const eyeOffsetX = Math.max(-4, Math.min(4, (player.x - obj.x - obj.width/2) / 30));
+            const eyeOffsetY = Math.max(-3, Math.min(3, (player.y - obj.y - obj.height/2) / 40));
+
+            // Victorian collar/clothing
+            ctx.fillStyle = '#1a1a1a';
+            ctx.beginPath();
+            ctx.moveTo(obj.x + obj.width/2 - 40, obj.y + obj.height);
+            ctx.lineTo(obj.x + obj.width/2 - 30, obj.y + 90);
+            ctx.lineTo(obj.x + obj.width/2 + 30, obj.y + 90);
+            ctx.lineTo(obj.x + obj.width/2 + 40, obj.y + obj.height);
+            ctx.fill();
+            // White collar
+            ctx.fillStyle = '#ddd';
+            ctx.beginPath();
+            ctx.moveTo(obj.x + obj.width/2 - 15, obj.y + 92);
+            ctx.lineTo(obj.x + obj.width/2, obj.y + 105);
+            ctx.lineTo(obj.x + obj.width/2 + 15, obj.y + 92);
+            ctx.fill();
+
+            // Face - pale, gaunt
+            ctx.fillStyle = '#c9b896';
+            ctx.beginPath();
+            ctx.ellipse(obj.x + obj.width/2, obj.y + 55, 32, 40, 0, 0, Math.PI * 2);
+            ctx.fill();
+            // Face shadows
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.beginPath();
+            ctx.ellipse(obj.x + obj.width/2 - 20, obj.y + 60, 10, 15, 0.3, 0, Math.PI * 2);
+            ctx.ellipse(obj.x + obj.width/2 + 20, obj.y + 60, 10, 15, -0.3, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Dark hair
+            ctx.fillStyle = '#1a1a1a';
+            ctx.beginPath();
+            ctx.ellipse(obj.x + obj.width/2, obj.y + 30, 35, 30, 0, Math.PI, 0);
+            ctx.fill();
+            ctx.fillRect(obj.x + obj.width/2 - 35, obj.y + 25, 12, 40);
+            ctx.fillRect(obj.x + obj.width/2 + 23, obj.y + 25, 12, 40);
+
+            // Eyebrows (stern)
+            ctx.fillStyle = '#1a1a1a';
+            ctx.save();
+            ctx.translate(obj.x + obj.width/2 - 15, obj.y + 40);
+            ctx.rotate(-0.2);
+            ctx.fillRect(-8, 0, 12, 3);
+            ctx.restore();
+            ctx.save();
+            ctx.translate(obj.x + obj.width/2 + 15, obj.y + 40);
+            ctx.rotate(0.2);
+            ctx.fillRect(-4, 0, 12, 3);
+            ctx.restore();
+
+            // Eyes that follow - more detailed
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.ellipse(obj.x + obj.width/2 - 14, obj.y + 50, 9, 11, 0, 0, Math.PI * 2);
+            ctx.ellipse(obj.x + obj.width/2 + 14, obj.y + 50, 9, 11, 0, 0, Math.PI * 2);
+            ctx.fill();
+            // Irises
+            ctx.fillStyle = '#2a4a6a';
+            ctx.beginPath();
+            ctx.arc(obj.x + obj.width/2 - 14 + eyeOffsetX, obj.y + 50 + eyeOffsetY, 6, 0, Math.PI * 2);
+            ctx.arc(obj.x + obj.width/2 + 14 + eyeOffsetX, obj.y + 50 + eyeOffsetY, 6, 0, Math.PI * 2);
+            ctx.fill();
+            // Pupils
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.arc(obj.x + obj.width/2 - 14 + eyeOffsetX, obj.y + 50 + eyeOffsetY, 3, 0, Math.PI * 2);
+            ctx.arc(obj.x + obj.width/2 + 14 + eyeOffsetX, obj.y + 50 + eyeOffsetY, 3, 0, Math.PI * 2);
+            ctx.fill();
+            // Eye highlights
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(obj.x + obj.width/2 - 16 + eyeOffsetX, obj.y + 47 + eyeOffsetY, 2, 2);
+            ctx.fillRect(obj.x + obj.width/2 + 12 + eyeOffsetX, obj.y + 47 + eyeOffsetY, 2, 2);
+
+            // Nose
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+            ctx.beginPath();
+            ctx.moveTo(obj.x + obj.width/2, obj.y + 55);
+            ctx.lineTo(obj.x + obj.width/2 - 5, obj.y + 70);
+            ctx.lineTo(obj.x + obj.width/2 + 5, obj.y + 70);
+            ctx.fill();
+
+            // Creepy thin-lipped smile
+            ctx.strokeStyle = '#4a3030';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(obj.x + obj.width/2, obj.y + 78, 15, 0.3, Math.PI - 0.3);
+            ctx.stroke();
+            // Slight upward curl at edges (unsettling)
+            ctx.beginPath();
+            ctx.arc(obj.x + obj.width/2 - 14, obj.y + 76, 4, 0.5, Math.PI);
+            ctx.arc(obj.x + obj.width/2 + 14, obj.y + 76, 4, 0, Math.PI - 0.5);
+            ctx.stroke();
+
+            // Nameplate
+            ctx.fillStyle = '#8b7355';
+            ctx.fillRect(obj.x + obj.width/2 - 30, obj.y + obj.height + 2, 60, 12);
+            ctx.fillStyle = '#1a1a1a';
+            ctx.font = '6px "Press Start 2P"';
+            ctx.textAlign = 'center';
+            ctx.fillText('1887', obj.x + obj.width/2, obj.y + obj.height + 10);
+        }
+
+        function drawBloodyCarpet(obj) {
+            // Carpet base
+            ctx.fillStyle = '#4a1a1a';
+            ctx.fillRect(obj.x, obj.y, obj.width, obj.height);
+            // Pattern
+            ctx.fillStyle = '#3a0a0a';
+            for (let i = 0; i < obj.width; i += 20) {
+                ctx.fillRect(obj.x + i, obj.y, 10, obj.height);
+            }
+            // Blood stains
+            ctx.fillStyle = '#8b0000';
+            ctx.beginPath();
+            ctx.ellipse(obj.x + 50, obj.y + 30, 25, 15, 0.3, 0, Math.PI * 2);
+            ctx.ellipse(obj.x + 120, obj.y + 60, 30, 20, -0.2, 0, Math.PI * 2);
+            ctx.ellipse(obj.x + 80, obj.y + 70, 20, 12, 0.5, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawSwingingLamp(obj) {
+            const swing = Math.sin(Date.now() / 500 + obj.x) * 15;
+            const cx = obj.x + obj.width/2;
+
+            ctx.save();
+            ctx.translate(cx, obj.y);
+            ctx.rotate(swing * Math.PI / 180);
+
+            // Chain
+            ctx.strokeStyle = '#555';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(0, 40);
+            ctx.stroke();
+
+            // Lamp
+            ctx.fillStyle = '#333';
+            ctx.beginPath();
+            ctx.moveTo(-15, 40);
+            ctx.lineTo(15, 40);
+            ctx.lineTo(10, 55);
+            ctx.lineTo(-10, 55);
+            ctx.closePath();
+            ctx.fill();
+
+            // Light glow (flickering)
+            const flicker = Math.random() > 0.1 ? 1 : 0.3;
+            ctx.fillStyle = `rgba(255, 200, 100, ${0.3 * flicker})`;
+            ctx.beginPath();
+            ctx.ellipse(0, 80, 40, 60, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Bulb
+            ctx.fillStyle = `rgba(255, 220, 150, ${flicker})`;
+            ctx.beginPath();
+            ctx.arc(0, 50, 5, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        function drawBloodyHandprints(obj) {
+            ctx.fillStyle = '#6b0000';
+            for (let i = 0; i < 3; i++) {
+                const hx = obj.x + (i % 2) * 30 + Math.sin(i) * 10;
+                const hy = obj.y + i * 50;
+                // Palm
+                ctx.beginPath();
+                ctx.ellipse(hx + 15, hy + 30, 12, 15, 0, 0, Math.PI * 2);
+                ctx.fill();
+                // Fingers
+                for (let f = 0; f < 4; f++) {
+                    ctx.fillRect(hx + 5 + f * 7, hy, 5, 25);
+                }
+                // Thumb
+                ctx.fillRect(hx - 3, hy + 15, 8, 15);
+                // Drips
+                ctx.fillStyle = '#4a0000';
+                ctx.fillRect(hx + 10, hy + 45, 3, 20 + Math.random() * 30);
+                ctx.fillRect(hx + 20, hy + 45, 2, 15 + Math.random() * 20);
+                ctx.fillStyle = '#6b0000';
+            }
+        }
+
+        function drawRatHoles(obj) {
+            // Holes in wall
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.ellipse(obj.x + 15, obj.y + 20, 12, 8, 0, 0, Math.PI * 2);
+            ctx.ellipse(obj.x + 45, obj.y + 25, 10, 7, 0, 0, Math.PI * 2);
+            ctx.fill();
+            // Occasional rat peeking out
+            if (Math.sin(Date.now() / 1000) > 0.7) {
+                ctx.fillStyle = '#4a4a4a';
+                ctx.beginPath();
+                ctx.ellipse(obj.x + 15, obj.y + 18, 6, 4, 0, 0, Math.PI * 2);
+                ctx.fill();
+                // Eyes
+                ctx.fillStyle = '#ff0000';
+                ctx.fillRect(obj.x + 12, obj.y + 16, 2, 2);
+                ctx.fillRect(obj.x + 17, obj.y + 16, 2, 2);
+            }
+        }
+
+        function drawMonsterMirror(obj) {
+            // Elaborate gothic frame - outer layer
+            ctx.fillStyle = '#2a1a0a';
+            ctx.fillRect(obj.x - 18, obj.y - 18, obj.width + 36, obj.height + 36);
+
+            // Middle frame with carved pattern
+            ctx.fillStyle = '#4a3a2a';
+            ctx.fillRect(obj.x - 12, obj.y - 12, obj.width + 24, obj.height + 24);
+
+            // Carved decorations on frame
+            ctx.fillStyle = '#5a4a3a';
+            // Top decorations
+            for (let i = 0; i < 5; i++) {
+                ctx.beginPath();
+                ctx.arc(obj.x + i * (obj.width / 4), obj.y - 8, 6, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            // Side decorations
+            for (let i = 0; i < 4; i++) {
+                ctx.beginPath();
+                ctx.arc(obj.x - 8, obj.y + 20 + i * 40, 5, 0, Math.PI * 2);
+                ctx.arc(obj.x + obj.width + 8, obj.y + 20 + i * 40, 5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Inner frame
+            ctx.fillStyle = '#3a2a1a';
+            ctx.fillRect(obj.x - 5, obj.y - 5, obj.width + 10, obj.height + 10);
+
+            // Mirror surface - dark with eerie tint
+            const mirrorGradient = ctx.createLinearGradient(obj.x, obj.y, obj.x + obj.width, obj.y + obj.height);
+            mirrorGradient.addColorStop(0, '#1a2530');
+            mirrorGradient.addColorStop(0.5, '#2a3545');
+            mirrorGradient.addColorStop(1, '#1a2530');
+            ctx.fillStyle = mirrorGradient;
+            ctx.fillRect(obj.x, obj.y, obj.width, obj.height);
+
+            // Aged mirror spots/imperfections
+            ctx.fillStyle = 'rgba(60, 50, 40, 0.3)';
+            ctx.beginPath();
+            ctx.ellipse(obj.x + 20, obj.y + 30, 15, 20, 0.3, 0, Math.PI * 2);
+            ctx.ellipse(obj.x + obj.width - 30, obj.y + obj.height - 40, 12, 18, -0.2, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Reflection shimmer
+            ctx.fillStyle = 'rgba(100, 150, 200, 0.08)';
+            ctx.fillRect(obj.x + 5, obj.y + 5, obj.width - 10, obj.height / 3);
+
+            // Calculate reflection position based on player position
+            const mirrorCenterX = obj.x + obj.width / 2;
+            const mirrorCenterY = obj.y + obj.height / 2;
+
+            // Check if player Y is aligned with mirror (within mirror's Y range)
+            const playerInMirrorYRange = player.y > obj.y && player.y < obj.y + obj.height + 100;
+            const distToMirrorX = Math.abs(player.x - mirrorCenterX);
+
+            // Only draw monster reflection if player is near mirror AND at correct Y
+            if (distToMirrorX < 180 && playerInMirrorYRange) {
+                // Mirror the player's X position - reflection follows player horizontally
+                const relativeX = player.x - mirrorCenterX;
+                const reflectX = mirrorCenterX - relativeX * 0.4; // Mirrored position
+                // Clamp reflection to stay within mirror bounds
+                const clampedReflectX = Math.max(obj.x + 25, Math.min(obj.x + obj.width - 25, reflectX));
+                const reflectY = obj.y + obj.height / 2 - 10;
+
+                // Draw a subtle "normal" reflection outline first (very faint)
+                ctx.globalAlpha = 0.1;
+                ctx.fillStyle = '#e8c4a0';
+                ctx.fillRect(clampedReflectX - 8, reflectY, 16, 20);
+                ctx.beginPath();
+                ctx.arc(clampedReflectX, reflectY - 5, 8, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1;
+
+                // Then the monster version overlaid
+                drawMonsterReflection(clampedReflectX, reflectY, player.direction, distToMirrorX);
+            }
+
+            // Cracks (after jumpscare) - more elaborate
+            const room = rooms[currentRoom];
+            if (room.jumpScares && room.jumpScares.find(j => j.type === 'mirror_crack' && j.triggered)) {
+                ctx.strokeStyle = '#bbb';
+                ctx.lineWidth = 2;
+                // Main crack
+                ctx.beginPath();
+                ctx.moveTo(obj.x + obj.width/2, obj.y + obj.height/4);
+                ctx.lineTo(obj.x + obj.width/2 - 10, obj.y + obj.height/2);
+                ctx.lineTo(obj.x + obj.width/3, obj.y + obj.height * 0.7);
+                ctx.lineTo(obj.x + obj.width/4, obj.y + obj.height);
+                ctx.stroke();
+                // Branch cracks
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(obj.x + obj.width/2, obj.y + obj.height/4);
+                ctx.lineTo(obj.x + obj.width * 0.65, obj.y + obj.height * 0.4);
+                ctx.lineTo(obj.x + obj.width * 0.75, obj.y + obj.height * 0.6);
+                ctx.lineTo(obj.x + obj.width * 0.85, obj.y + obj.height);
+                ctx.stroke();
+                // Minor cracks
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(obj.x + obj.width/2 - 10, obj.y + obj.height/2);
+                ctx.lineTo(obj.x + obj.width/2 + 15, obj.y + obj.height * 0.55);
+                ctx.moveTo(obj.x + obj.width/3, obj.y + obj.height * 0.7);
+                ctx.lineTo(obj.x + obj.width/5, obj.y + obj.height * 0.75);
+                ctx.stroke();
+
+                // Crack highlights
+                ctx.strokeStyle = 'rgba(200, 200, 200, 0.5)';
+                ctx.lineWidth = 0.5;
+                ctx.beginPath();
+                ctx.moveTo(obj.x + obj.width/2 + 1, obj.y + obj.height/4 + 1);
+                ctx.lineTo(obj.x + obj.width/2 - 9, obj.y + obj.height/2 + 1);
+                ctx.stroke();
+            }
+
+            // Dust particles floating
+            ctx.fillStyle = 'rgba(150, 140, 130, 0.4)';
+            for (let i = 0; i < 5; i++) {
+                const px = obj.x + 10 + Math.sin(Date.now() / 1000 + i * 2) * 30 + i * 20;
+                const py = obj.y + 20 + Math.cos(Date.now() / 800 + i) * 15 + i * 25;
+                ctx.fillRect(px, py, 2, 2);
+            }
+
+            // Interaction indicator
+            if (nearObject === obj) {
+                ctx.fillStyle = '#ff0000';
+                const bounce = Math.sin(Date.now() / 200) * 3;
+                ctx.font = '10px "Press Start 2P"';
+                ctx.textAlign = 'center';
+                ctx.fillText('???', obj.x + obj.width/2, obj.y - 25 + bounce);
+            }
+        }
+
+        function drawMonsterReflection(x, y, direction, distance) {
+            // Monster version of Fede - more detailed demon
+            const scale = 0.9;
+            const intensity = 1 - (distance / 200); // More intense when closer
+
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.scale(scale, scale);
+
+            // Eerie glow behind monster
+            ctx.fillStyle = `rgba(100, 0, 0, ${0.2 * intensity})`;
+            ctx.beginPath();
+            ctx.ellipse(0, 10, 25, 35, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Distorted shadow
+            ctx.fillStyle = 'rgba(30, 0, 0, 0.6)';
+            ctx.beginPath();
+            ctx.ellipse(0, 38, 18, 10, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Tattered dark robes/clothes
+            ctx.fillStyle = '#1a0808';
+            ctx.beginPath();
+            ctx.moveTo(-14, 8);
+            ctx.lineTo(14, 8);
+            ctx.lineTo(16, 35);
+            ctx.lineTo(-16, 35);
+            ctx.closePath();
+            ctx.fill();
+            // Robe texture/tears
+            ctx.fillStyle = '#0a0404';
+            ctx.fillRect(-10, 12, 3, 18);
+            ctx.fillRect(7, 15, 3, 15);
+            ctx.fillRect(-5, 20, 2, 12);
+            // Ragged bottom edge
+            for (let i = 0; i < 6; i++) {
+                ctx.fillStyle = '#1a0808';
+                ctx.beginPath();
+                ctx.moveTo(-14 + i * 5, 35);
+                ctx.lineTo(-12 + i * 5, 40 + Math.sin(i) * 3);
+                ctx.lineTo(-10 + i * 5, 35);
+                ctx.fill();
+            }
+
+            // Clawed hands - more detailed
+            ctx.fillStyle = '#4a5a4a';
+            // Left hand
+            ctx.fillRect(-18, 14, 5, 12);
+            ctx.fillStyle = '#3a4a3a';
+            for (let i = 0; i < 4; i++) {
+                ctx.beginPath();
+                ctx.moveTo(-19 + i * 2, 26);
+                ctx.lineTo(-20 + i * 2, 32);
+                ctx.lineTo(-17 + i * 2, 26);
+                ctx.fill();
+            }
+            // Right hand
+            ctx.fillStyle = '#4a5a4a';
+            ctx.fillRect(13, 14, 5, 12);
+            ctx.fillStyle = '#3a4a3a';
+            for (let i = 0; i < 4; i++) {
+                ctx.beginPath();
+                ctx.moveTo(13 + i * 2, 26);
+                ctx.lineTo(12 + i * 2, 32);
+                ctx.lineTo(15 + i * 2, 26);
+                ctx.fill();
+            }
+
+            // Monster face (decayed greenish skin)
+            ctx.fillStyle = '#4a5a48';
+            ctx.beginPath();
+            ctx.ellipse(0, 0, 12, 14, 0, 0, Math.PI * 2);
+            ctx.fill();
+            // Face shadows/decay
+            ctx.fillStyle = '#3a4a38';
+            ctx.beginPath();
+            ctx.ellipse(-6, 3, 4, 6, 0.2, 0, Math.PI * 2);
+            ctx.ellipse(6, 3, 4, 6, -0.2, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Sunken cheeks
+            ctx.fillStyle = '#2a3a28';
+            ctx.beginPath();
+            ctx.ellipse(-8, 5, 3, 5, 0.3, 0, Math.PI * 2);
+            ctx.ellipse(8, 5, 3, 5, -0.3, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Glowing red eyes with pulsing effect
+            const eyePulse = 0.7 + Math.sin(Date.now() / 150) * 0.3;
+            ctx.fillStyle = `rgba(255, 0, 0, ${eyePulse})`;
+            ctx.beginPath();
+            ctx.ellipse(-5, -2, 4, 5, 0, 0, Math.PI * 2);
+            ctx.ellipse(5, -2, 4, 5, 0, 0, Math.PI * 2);
+            ctx.fill();
+            // Eye glow
+            ctx.fillStyle = `rgba(255, 50, 0, ${0.4 * eyePulse})`;
+            ctx.beginPath();
+            ctx.arc(-5, -2, 10, 0, Math.PI * 2);
+            ctx.arc(5, -2, 10, 0, Math.PI * 2);
+            ctx.fill();
+            // Pupils (slits)
+            ctx.fillStyle = '#000';
+            ctx.fillRect(-6, -5, 2, 6);
+            ctx.fillRect(4, -5, 2, 6);
+
+            // Nose - just holes
+            ctx.fillStyle = '#1a2a18';
+            ctx.beginPath();
+            ctx.ellipse(-2, 5, 2, 2, 0, 0, Math.PI * 2);
+            ctx.ellipse(2, 5, 2, 2, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Gaping mouth with sharp teeth
+            ctx.fillStyle = '#0a0a0a';
+            ctx.beginPath();
+            ctx.ellipse(0, 10, 8, 5, 0, 0, Math.PI * 2);
+            ctx.fill();
+            // Teeth - upper row
+            ctx.fillStyle = '#ddd';
+            for (let i = 0; i < 6; i++) {
+                ctx.beginPath();
+                ctx.moveTo(-7 + i * 3, 7);
+                ctx.lineTo(-6 + i * 3, 11);
+                ctx.lineTo(-5 + i * 3, 7);
+                ctx.fill();
+            }
+            // Teeth - lower row
+            for (let i = 0; i < 5; i++) {
+                ctx.beginPath();
+                ctx.moveTo(-5 + i * 3, 14);
+                ctx.lineTo(-4 + i * 3, 10);
+                ctx.lineTo(-3 + i * 3, 14);
+                ctx.fill();
+            }
+            // Fangs (larger corner teeth)
+            ctx.beginPath();
+            ctx.moveTo(-8, 7);
+            ctx.lineTo(-7, 13);
+            ctx.lineTo(-6, 7);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(6, 7);
+            ctx.lineTo(7, 13);
+            ctx.lineTo(8, 7);
+            ctx.fill();
+
+            // Horns - more elaborate
+            ctx.fillStyle = '#1a1010';
+            // Left horn
+            ctx.beginPath();
+            ctx.moveTo(-8, -12);
+            ctx.quadraticCurveTo(-15, -18, -14, -28);
+            ctx.lineTo(-10, -25);
+            ctx.quadraticCurveTo(-10, -16, -5, -12);
+            ctx.fill();
+            // Right horn
+            ctx.beginPath();
+            ctx.moveTo(8, -12);
+            ctx.quadraticCurveTo(15, -18, 14, -28);
+            ctx.lineTo(10, -25);
+            ctx.quadraticCurveTo(10, -16, 5, -12);
+            ctx.fill();
+            // Horn ridges
+            ctx.strokeStyle = '#2a1a1a';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(-10, -16);
+            ctx.lineTo(-12, -22);
+            ctx.moveTo(10, -16);
+            ctx.lineTo(12, -22);
+            ctx.stroke();
+
+            // Veins on face
+            ctx.strokeStyle = 'rgba(100, 0, 0, 0.4)';
+            ctx.lineWidth = 0.5;
+            ctx.beginPath();
+            ctx.moveTo(-8, -8);
+            ctx.lineTo(-10, -3);
+            ctx.lineTo(-11, 2);
+            ctx.moveTo(8, -8);
+            ctx.lineTo(10, -3);
+            ctx.lineTo(11, 2);
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        function drawBrokenDoll(obj) {
+            // Shadow on ground
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.beginPath();
+            ctx.ellipse(obj.x + 40, obj.y + 78, 25, 8, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Detached arm on ground (porcelain)
+            ctx.fillStyle = '#e8d0d0';
+            ctx.save();
+            ctx.translate(obj.x + 12, obj.y + 60);
+            ctx.rotate(0.3);
+            // Upper arm
+            ctx.fillRect(0, 0, 8, 18);
+            // Joint
+            ctx.fillStyle = '#c0a0a0';
+            ctx.beginPath();
+            ctx.arc(4, 18, 4, 0, Math.PI * 2);
+            ctx.fill();
+            // Forearm
+            ctx.fillStyle = '#e8d0d0';
+            ctx.fillRect(0, 20, 7, 14);
+            // Hand with fingers
+            ctx.fillRect(-2, 34, 10, 6);
+            for (let i = 0; i < 4; i++) {
+                ctx.fillRect(-1 + i * 3, 40, 2, 5);
+            }
+            ctx.restore();
+
+            // Detached leg near body
+            ctx.fillStyle = '#e8d0d0';
+            ctx.save();
+            ctx.translate(obj.x + 55, obj.y + 55);
+            ctx.rotate(-0.4);
+            ctx.fillRect(0, 0, 10, 25);
+            // Shoe
+            ctx.fillStyle = '#2a2a2a';
+            ctx.fillRect(-2, 25, 14, 8);
+            ctx.restore();
+
+            // Torso/dress
+            ctx.fillStyle = '#8b4050';
+            ctx.beginPath();
+            ctx.moveTo(obj.x + 30, obj.y + 32);
+            ctx.lineTo(obj.x + 50, obj.y + 32);
+            ctx.lineTo(obj.x + 55, obj.y + 70);
+            ctx.lineTo(obj.x + 25, obj.y + 70);
+            ctx.closePath();
+            ctx.fill();
+            // Dress details - lace trim
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(obj.x + 26, obj.y + 65, 28, 3);
+            // Buttons
+            ctx.fillStyle = '#ddd';
+            ctx.beginPath();
+            ctx.arc(obj.x + 40, obj.y + 38, 2, 0, Math.PI * 2);
+            ctx.arc(obj.x + 40, obj.y + 45, 2, 0, Math.PI * 2);
+            ctx.arc(obj.x + 40, obj.y + 52, 2, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Remaining arm attached
+            ctx.fillStyle = '#e8d0d0';
+            ctx.fillRect(obj.x + 48, obj.y + 34, 8, 16);
+            ctx.fillRect(obj.x + 46, obj.y + 48, 7, 10);
+
+            // Remaining leg
+            ctx.fillStyle = '#e8d0d0';
+            ctx.fillRect(obj.x + 30, obj.y + 62, 10, 20);
+            ctx.fillStyle = '#2a2a2a';
+            ctx.fillRect(obj.x + 28, obj.y + 78, 14, 8);
+
+            // Head (porcelain, cracked)
+            ctx.fillStyle = '#f0e0e0';
+            ctx.beginPath();
+            ctx.arc(obj.x + 40, obj.y + 18, 18, 0, Math.PI * 2);
+            ctx.fill();
+            // Face base
+            ctx.fillStyle = '#e8d5d5';
+            ctx.beginPath();
+            ctx.arc(obj.x + 40, obj.y + 20, 14, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Hair (disheveled)
+            ctx.fillStyle = '#4a3020';
+            ctx.beginPath();
+            ctx.ellipse(obj.x + 40, obj.y + 10, 18, 14, 0, Math.PI, 0);
+            ctx.fill();
+            // Messy strands
+            ctx.fillRect(obj.x + 22, obj.y + 5, 5, 25);
+            ctx.fillRect(obj.x + 53, obj.y + 8, 4, 20);
+            ctx.fillStyle = '#3a2015';
+            ctx.fillRect(obj.x + 28, obj.y + 2, 3, 10);
+            ctx.fillRect(obj.x + 48, obj.y + 4, 3, 8);
+            // Bow (falling off)
+            ctx.fillStyle = '#c02050';
+            ctx.save();
+            ctx.translate(obj.x + 52, obj.y + 6);
+            ctx.rotate(0.4);
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(-8, -5);
+            ctx.lineTo(-5, 0);
+            ctx.lineTo(-8, 5);
+            ctx.closePath();
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(6, -4);
+            ctx.lineTo(4, 0);
+            ctx.lineTo(6, 4);
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+
+            // Major crack across face
+            ctx.strokeStyle = '#444';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(obj.x + 32, obj.y + 3);
+            ctx.lineTo(obj.x + 38, obj.y + 15);
+            ctx.lineTo(obj.x + 35, obj.y + 25);
+            ctx.lineTo(obj.x + 40, obj.y + 32);
+            ctx.stroke();
+            // Crack branches
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(obj.x + 38, obj.y + 15);
+            ctx.lineTo(obj.x + 44, obj.y + 18);
+            ctx.moveTo(obj.x + 35, obj.y + 25);
+            ctx.lineTo(obj.x + 30, obj.y + 28);
+            ctx.stroke();
+
+            // Missing chunk from head
+            ctx.fillStyle = '#1a0a0a';
+            ctx.beginPath();
+            ctx.arc(obj.x + 28, obj.y + 12, 6, 0.5, 2.5);
+            ctx.lineTo(obj.x + 30, obj.y + 14);
+            ctx.fill();
+
+            // Remaining glass eye (staring)
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.ellipse(obj.x + 45, obj.y + 18, 5, 6, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#4a7090';
+            ctx.beginPath();
+            ctx.arc(obj.x + 45, obj.y + 18, 3, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.arc(obj.x + 45, obj.y + 18, 1.5, 0, Math.PI * 2);
+            ctx.fill();
+            // Eye highlight
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(obj.x + 43, obj.y + 16, 1.5, 1.5);
+
+            // Empty eye socket (dark, hollow)
+            ctx.fillStyle = '#0a0505';
+            ctx.beginPath();
+            ctx.ellipse(obj.x + 34, obj.y + 18, 5, 6, 0, 0, Math.PI * 2);
+            ctx.fill();
+            // Socket depth
+            ctx.fillStyle = '#1a0a0a';
+            ctx.beginPath();
+            ctx.ellipse(obj.x + 34, obj.y + 17, 3, 4, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Nose (small)
+            ctx.fillStyle = '#d8c0c0';
+            ctx.beginPath();
+            ctx.moveTo(obj.x + 40, obj.y + 22);
+            ctx.lineTo(obj.x + 38, obj.y + 26);
+            ctx.lineTo(obj.x + 42, obj.y + 26);
+            ctx.fill();
+
+            // Creepy painted smile (faded, unsettling)
+            ctx.strokeStyle = '#8b2020';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.arc(obj.x + 40, obj.y + 28, 7, 0.3, Math.PI - 0.3);
+            ctx.stroke();
+            // Smile extends too far on one side
+            ctx.beginPath();
+            ctx.moveTo(obj.x + 46, obj.y + 31);
+            ctx.lineTo(obj.x + 50, obj.y + 29);
+            ctx.stroke();
+        }
+
+        function drawTicketBooth(obj) {
+            // Booth body
+            ctx.fillStyle = '#8b0000';
+            ctx.fillRect(obj.x, obj.y, obj.width, obj.height);
+            // Window
+            ctx.fillStyle = '#ffd700';
+            ctx.fillRect(obj.x + 20, obj.y + 10, obj.width - 40, 40);
+            // Roof
+            ctx.fillStyle = '#ffd700';
+            ctx.fillRect(obj.x - 10, obj.y - 15, obj.width + 20, 20);
+            // Stripes
+            ctx.fillStyle = '#fff';
+            for (let i = 0; i < 4; i++) {
+                ctx.fillRect(obj.x - 10 + i * 35, obj.y - 15, 15, 20);
+            }
+        }
+
+        function drawEntranceArch(obj) {
+            // Arch structure
+            ctx.fillStyle = '#ffd700';
+            ctx.fillRect(obj.x, obj.y + 50, 30, 50);
+            ctx.fillRect(obj.x + obj.width - 30, obj.y + 50, 30, 50);
+            // Top
+            ctx.fillRect(obj.x, obj.y + 30, obj.width, 30);
+            // Sign
+            ctx.fillStyle = '#ff6b9d';
+            ctx.fillRect(obj.x + 30, obj.y + 35, obj.width - 60, 20);
+            ctx.fillStyle = '#fff';
+            ctx.font = '12px "Press Start 2P"';
+            ctx.textAlign = 'center';
+            ctx.fillText('FUN WORLD', obj.x + obj.width/2, obj.y + 50);
+            // Lights
+            ctx.fillStyle = '#ff0';
+            for (let i = 0; i < 8; i++) {
+                const blink = Math.sin(Date.now() / 200 + i) > 0;
+                ctx.fillStyle = blink ? '#ff0' : '#aa0';
+                ctx.beginPath();
+                ctx.arc(obj.x + 20 + i * 25, obj.y + 25, 5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function drawBench(obj) {
+            // Seat
+            ctx.fillStyle = '#8b4513';
+            ctx.fillRect(obj.x, obj.y + 10, obj.width, 10);
+            // Legs
+            ctx.fillStyle = '#5c3317';
+            ctx.fillRect(obj.x + 5, obj.y + 20, 8, 10);
+            ctx.fillRect(obj.x + obj.width - 13, obj.y + 20, 8, 10);
+            // Back
+            ctx.fillStyle = '#8b4513';
+            ctx.fillRect(obj.x, obj.y, obj.width, 12);
+        }
+
+        function drawLamp(obj) {
+            // Pole
+            ctx.fillStyle = '#333';
+            ctx.fillRect(obj.x + 7, obj.y + 20, 6, 40);
+            // Light
+            ctx.fillStyle = '#ffd700';
+            ctx.beginPath();
+            ctx.arc(obj.x + 10, obj.y + 15, 12, 0, Math.PI * 2);
+            ctx.fill();
+            // Glow
+            ctx.fillStyle = 'rgba(255, 215, 0, 0.2)';
+            ctx.beginPath();
+            ctx.arc(obj.x + 10, obj.y + 15, 25, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawBush(obj) {
+            ctx.fillStyle = '#228b22';
+            ctx.beginPath();
+            ctx.arc(obj.x + 15, obj.y + 25, 20, 0, Math.PI * 2);
+            ctx.arc(obj.x + 35, obj.y + 20, 18, 0, Math.PI * 2);
+            ctx.arc(obj.x + 25, obj.y + 30, 15, 0, Math.PI * 2);
+            ctx.fill();
+            // Highlights
+            ctx.fillStyle = '#32cd32';
+            ctx.beginPath();
+            ctx.arc(obj.x + 12, obj.y + 20, 8, 0, Math.PI * 2);
+            ctx.arc(obj.x + 38, obj.y + 15, 6, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawFountain(obj) {
+            // Base
+            ctx.fillStyle = '#708090';
+            ctx.fillRect(obj.x, obj.y + 60, obj.width, 40);
+            ctx.fillRect(obj.x + 20, obj.y + 40, obj.width - 40, 30);
+            // Water
+            ctx.fillStyle = '#4169e1';
+            ctx.fillRect(obj.x + 10, obj.y + 70, obj.width - 20, 20);
+            // Center pillar
+            ctx.fillStyle = '#a9a9a9';
+            ctx.fillRect(obj.x + 50, obj.y + 20, 20, 50);
+            // Water spray
+            ctx.fillStyle = '#87ceeb';
+            const spray = Math.sin(Date.now() / 100) * 5;
+            ctx.beginPath();
+            ctx.moveTo(obj.x + 60, obj.y + 20);
+            ctx.lineTo(obj.x + 55, obj.y - 10 + spray);
+            ctx.lineTo(obj.x + 65, obj.y - 10 + spray);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function drawFoodStand(obj) {
+            // Stand body
+            ctx.fillStyle = '#ff6b9d';
+            ctx.fillRect(obj.x, obj.y, obj.width, obj.height);
+            // Awning
+            ctx.fillStyle = '#ff0';
+            ctx.fillRect(obj.x - 5, obj.y - 10, obj.width + 10, 15);
+            // Stripes
+            ctx.fillStyle = '#ff6b9d';
+            for (let i = 0; i < 4; i++) {
+                ctx.fillRect(obj.x - 5 + i * 22, obj.y - 10, 10, 15);
+            }
+            // Label
+            if (obj.label) {
+                ctx.fillStyle = '#fff';
+                ctx.font = '8px "Press Start 2P"';
+                ctx.textAlign = 'center';
+                ctx.fillText(obj.label, obj.x + obj.width/2, obj.y + 35);
+            }
+        }
+
+        function drawSign(obj) {
+            // Post
+            ctx.fillStyle = '#8b4513';
+            ctx.fillRect(obj.x + 15, obj.y + 30, 10, 50);
+            // Sign board
+            ctx.fillStyle = '#ffd700';
+            ctx.fillRect(obj.x, obj.y, obj.width, 35);
+            // Arrow
+            ctx.fillStyle = '#ff6b9d';
+            ctx.beginPath();
+            if (obj.label === 'COASTER') {
+                ctx.moveTo(obj.x, obj.y + 17);
+                ctx.lineTo(obj.x - 15, obj.y + 17);
+                ctx.lineTo(obj.x - 5, obj.y + 10);
+                ctx.lineTo(obj.x - 15, obj.y + 17);
+                ctx.lineTo(obj.x - 5, obj.y + 24);
+            } else if (obj.label === 'HORROR') {
+                ctx.moveTo(obj.x + obj.width, obj.y + 17);
+                ctx.lineTo(obj.x + obj.width + 15, obj.y + 17);
+                ctx.lineTo(obj.x + obj.width + 5, obj.y + 10);
+                ctx.lineTo(obj.x + obj.width + 15, obj.y + 17);
+                ctx.lineTo(obj.x + obj.width + 5, obj.y + 24);
+            } else {
+                ctx.moveTo(obj.x + 20, obj.y);
+                ctx.lineTo(obj.x + 20, obj.y - 10);
+                ctx.lineTo(obj.x + 13, obj.y - 3);
+                ctx.lineTo(obj.x + 20, obj.y - 10);
+                ctx.lineTo(obj.x + 27, obj.y - 3);
+            }
+            ctx.stroke();
+            // Text
+            ctx.fillStyle = '#000';
+            ctx.font = '6px "Press Start 2P"';
+            ctx.textAlign = 'center';
+            ctx.fillText(obj.label || '', obj.x + obj.width/2, obj.y + 22);
+        }
+
+        function drawRollercoaster(obj) {
+            const loopCenterX = obj.x + 300;
+            const loopCenterY = obj.y + 130;
+            const loopRadius = 50;
+
+            // Track path function - returns point and angle at position t (0 to 1)
+            function getTrackPoint(t) {
+                // Section 1: downhill approach (0 to 0.25)
+                // Section 2: pre-loop flat (0.25 to 0.35)
+                // Section 3: loop (0.35 to 0.65)
+                // Section 4: exit and small hill (0.65 to 1)
+                if (t < 0.25) {
+                    const localT = t / 0.25;
+                    const x = obj.x + 20 + localT * 180;
+                    const startY = obj.y + 120;
+                    const endY = obj.y + 180;
+                    const y = startY + (endY - startY) * localT;
+                    const angle = Math.atan2(endY - startY, 180);
+                    return { x, y, angle };
+                } else if (t < 0.35) {
+                    const localT = (t - 0.25) / 0.1;
+                    const x = obj.x + 200 + localT * 50;
+                    const y = obj.y + 180;
+                    return { x, y, angle: 0 };
+                } else if (t < 0.65) {
+                    const localT = (t - 0.35) / 0.3;
+                    // Full loop - start from bottom, go up and around
+                    const angle = Math.PI / 2 + localT * Math.PI * 2;
+                    const x = loopCenterX + Math.cos(angle) * loopRadius;
+                    const y = loopCenterY + Math.sin(angle) * loopRadius;
+                    return { x, y, angle: angle - Math.PI / 2 };
+                } else {
+                    const localT = (t - 0.65) / 0.35;
+                    const startX = loopCenterX + loopRadius;
+                    const x = startX + localT * 140;
+                    // Small hill after loop
+                    const y = obj.y + 180 - Math.sin(localT * Math.PI) * 25;
+                    const angle = -Math.cos(localT * Math.PI) * 0.3;
+                    return { x, y, angle };
+                }
+            }
+
+            // Draw track supports (wooden beams)
+            ctx.fillStyle = '#5d4037';
+            const supportXPositions = [60, 140, 220, 420, 490];
+            for (const sx of supportXPositions) {
+                // Main vertical beam
+                ctx.fillRect(obj.x + sx - 4, obj.y + 170, 8, obj.height - 170);
+                // Cross braces
+                ctx.fillStyle = '#4a3228';
+                ctx.fillRect(obj.x + sx - 3, obj.y + 200, 6, 4);
+                ctx.fillRect(obj.x + sx - 3, obj.y + 240, 6, 4);
+                ctx.fillStyle = '#5d4037';
+            }
+
+            // Loop support structure
+            ctx.fillStyle = '#5d4037';
+            ctx.fillRect(loopCenterX - 5, loopCenterY + loopRadius, 10, obj.height - loopCenterY - loopRadius + obj.y);
+            // Diagonal braces for loop
+            ctx.strokeStyle = '#4a3228';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(loopCenterX - 40, obj.y + obj.height);
+            ctx.lineTo(loopCenterX, loopCenterY + loopRadius);
+            ctx.moveTo(loopCenterX + 40, obj.y + obj.height);
+            ctx.lineTo(loopCenterX, loopCenterY + loopRadius);
+            ctx.stroke();
+
+            // Draw track rails (two parallel rails)
+            const railOffset = 4;
+            ctx.strokeStyle = '#888';
+            ctx.lineWidth = 3;
+
+            // Inner rail
+            ctx.beginPath();
+            for (let i = 0; i <= 100; i++) {
+                const pt = getTrackPoint(i / 100);
+                const offsetX = Math.sin(pt.angle) * railOffset;
+                const offsetY = -Math.cos(pt.angle) * railOffset;
+                if (i === 0) {
+                    ctx.moveTo(pt.x + offsetX, pt.y + offsetY);
+                } else {
+                    ctx.lineTo(pt.x + offsetX, pt.y + offsetY);
+                }
+            }
+            ctx.stroke();
+
+            // Outer rail
+            ctx.beginPath();
+            for (let i = 0; i <= 100; i++) {
+                const pt = getTrackPoint(i / 100);
+                const offsetX = -Math.sin(pt.angle) * railOffset;
+                const offsetY = Math.cos(pt.angle) * railOffset;
+                if (i === 0) {
+                    ctx.moveTo(pt.x + offsetX, pt.y + offsetY);
+                } else {
+                    ctx.lineTo(pt.x + offsetX, pt.y + offsetY);
+                }
+            }
+            ctx.stroke();
+
+            // Draw track ties (cross pieces)
+            ctx.strokeStyle = '#666';
+            ctx.lineWidth = 2;
+            for (let i = 0; i <= 100; i += 4) {
+                const pt = getTrackPoint(i / 100);
+                const perpX = Math.sin(pt.angle);
+                const perpY = -Math.cos(pt.angle);
+                ctx.beginPath();
+                ctx.moveTo(pt.x + perpX * 6, pt.y + perpY * 6);
+                ctx.lineTo(pt.x - perpX * 6, pt.y - perpY * 6);
+                ctx.stroke();
+            }
+
+            // Animated cart
+            const cartT = ((Date.now() / 30) % 100) / 100;
+            const cartPt = getTrackPoint(cartT);
+
+            ctx.save();
+            ctx.translate(cartPt.x, cartPt.y);
+            ctx.rotate(cartPt.angle);
+
+            // Cart body
+            ctx.fillStyle = '#cc0000';
+            ctx.fillRect(-14, -10, 28, 12);
+            // Cart top edge
+            ctx.fillStyle = '#ff2222';
+            ctx.fillRect(-14, -10, 28, 3);
+            // Cart front
+            ctx.fillStyle = '#aa0000';
+            ctx.fillRect(-14, -10, 4, 12);
+
+            // Safety bar
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(0, -6, 8, Math.PI, 0);
+            ctx.stroke();
+
+            // Wheels
+            ctx.fillStyle = '#333';
+            ctx.beginPath();
+            ctx.arc(-8, 4, 4, 0, Math.PI * 2);
+            ctx.arc(8, 4, 4, 0, Math.PI * 2);
+            ctx.fill();
+            // Wheel centers
+            ctx.fillStyle = '#666';
+            ctx.beginPath();
+            ctx.arc(-8, 4, 2, 0, Math.PI * 2);
+            ctx.arc(8, 4, 2, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Riders (2 people)
+            // Person 1
+            ctx.fillStyle = '#e8c4a0'; // skin
+            ctx.beginPath();
+            ctx.arc(-4, -16, 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#4169e1'; // blue shirt
+            ctx.fillRect(-7, -11, 6, 6);
+            // Hair
+            ctx.fillStyle = '#4a3020';
+            ctx.fillRect(-7, -20, 6, 4);
+
+            // Person 2
+            ctx.fillStyle = '#e8c4a0';
+            ctx.beginPath();
+            ctx.arc(4, -16, 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#ff6b9d'; // pink shirt
+            ctx.fillRect(1, -11, 6, 6);
+            // Hair
+            ctx.fillStyle = '#ffd700';
+            ctx.fillRect(1, -20, 6, 5);
+
+            // Arms up! (when going through loop or down hill)
+            if ((cartT > 0.35 && cartT < 0.65) || cartT < 0.15) {
+                ctx.strokeStyle = '#e8c4a0';
+                ctx.lineWidth = 2;
+                // Person 1 arms
+                ctx.beginPath();
+                ctx.moveTo(-4, -13);
+                ctx.lineTo(-8, -22);
+                ctx.moveTo(-4, -13);
+                ctx.lineTo(0, -23);
+                ctx.stroke();
+                // Person 2 arms
+                ctx.beginPath();
+                ctx.moveTo(4, -13);
+                ctx.lineTo(0, -23);
+                ctx.moveTo(4, -13);
+                ctx.lineTo(8, -22);
+                ctx.stroke();
+            }
+
+            ctx.restore();
+
+            // Sign
+            ctx.fillStyle = '#ffd700';
+            ctx.fillRect(obj.x + 10, obj.y + 80, 100, 30);
+            ctx.fillStyle = '#cc0000';
+            ctx.font = '8px "Press Start 2P"';
+            ctx.textAlign = 'center';
+            ctx.fillText('THUNDER', obj.x + 60, obj.y + 95);
+            ctx.fillText('COASTER', obj.x + 60, obj.y + 106);
+        }
+
+        function drawQueueArea(obj) {
+            // Queue rails
+            ctx.strokeStyle = '#c0c0c0';
+            ctx.lineWidth = 3;
+            for (let i = 0; i < 4; i++) {
+                ctx.beginPath();
+                ctx.moveTo(obj.x + i * 80, obj.y);
+                ctx.lineTo(obj.x + i * 80, obj.y + obj.height);
+                ctx.stroke();
+            }
+            // Rope
+            ctx.strokeStyle = '#ff0000';
+            ctx.lineWidth = 2;
+            for (let i = 0; i < 3; i++) {
+                ctx.beginPath();
+                ctx.moveTo(obj.x + i * 80, obj.y + 30);
+                ctx.quadraticCurveTo(obj.x + i * 80 + 40, obj.y + 40, obj.x + (i + 1) * 80, obj.y + 30);
+                ctx.stroke();
+            }
+        }
+
+        function drawRideEntrance(obj) {
+            // Gate
+            ctx.fillStyle = '#ffd700';
+            ctx.fillRect(obj.x, obj.y, obj.width, 10);
+            ctx.fillRect(obj.x, obj.y, 10, obj.height);
+            ctx.fillRect(obj.x + obj.width - 10, obj.y, 10, obj.height);
+            // Sign
+            ctx.fillStyle = '#ff0000';
+            ctx.fillRect(obj.x + 10, obj.y + 15, obj.width - 20, 25);
+            ctx.fillStyle = '#fff';
+            ctx.font = '8px "Press Start 2P"';
+            ctx.textAlign = 'center';
+            ctx.fillText('ENTER', obj.x + obj.width/2, obj.y + 32);
+            // Interaction indicator
+            if (nearObject === obj) {
+                ctx.fillStyle = '#ffd700';
+                const bounce = Math.sin(Date.now() / 200) * 3;
+                ctx.beginPath();
+                ctx.moveTo(obj.x + obj.width/2, obj.y - 10 + bounce);
+                ctx.lineTo(obj.x + obj.width/2 - 8, obj.y - 25 + bounce);
+                ctx.lineTo(obj.x + obj.width/2 + 8, obj.y - 25 + bounce);
+                ctx.closePath();
+                ctx.fill();
+            }
+        }
+
+        function drawFerrisWheel(obj) {
+            const centerX = obj.x + obj.width / 2;
+            const centerY = obj.y + obj.height / 2;
+            const radius = 180;
+
+            // Support structure
+            ctx.strokeStyle = '#8b4513';
+            ctx.lineWidth = 10;
+            ctx.beginPath();
+            ctx.moveTo(centerX - 80, obj.y + obj.height);
+            ctx.lineTo(centerX, centerY);
+            ctx.lineTo(centerX + 80, obj.y + obj.height);
+            ctx.stroke();
+
+            // Wheel rim
+            ctx.strokeStyle = '#c0c0c0';
+            ctx.lineWidth = 8;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Spokes and cabins
+            const rotation = Date.now() / 3000;
+            for (let i = 0; i < 8; i++) {
+                const angle = rotation + (i * Math.PI / 4);
+                const x = centerX + Math.cos(angle) * radius;
+                const y = centerY + Math.sin(angle) * radius;
+
+                // Spoke
+                ctx.strokeStyle = '#a0a0a0';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(x, y);
+                ctx.stroke();
+
+                // Cabin
+                ctx.fillStyle = ['#ff6b9d', '#ffd700', '#7cfc00', '#00bfff'][i % 4];
+                ctx.fillRect(x - 15, y - 10, 30, 25);
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(x - 10, y - 5, 20, 12);
+            }
+
+            // Center hub
+            ctx.fillStyle = '#ffd700';
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 20, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawFerrisBooth(obj) {
+            ctx.fillStyle = '#4169e1';
+            ctx.fillRect(obj.x, obj.y, obj.width, obj.height);
+            ctx.fillStyle = '#ffd700';
+            ctx.fillRect(obj.x + 10, obj.y + 10, obj.width - 20, 30);
+            ctx.fillStyle = '#000';
+            ctx.font = '8px "Press Start 2P"';
+            ctx.textAlign = 'center';
+            ctx.fillText('TICKETS', obj.x + obj.width/2, obj.y + 30);
+        }
+
+        function drawFerrisEntrance(obj) {
+            // Platform
+            ctx.fillStyle = '#4a4a6a';
+            ctx.fillRect(obj.x - 20, obj.y + obj.height - 10, obj.width + 40, 15);
+            // Gate
+            ctx.fillStyle = '#ffd700';
+            ctx.fillRect(obj.x, obj.y, 10, obj.height);
+            ctx.fillRect(obj.x + obj.width - 10, obj.y, 10, obj.height);
+            ctx.fillRect(obj.x, obj.y, obj.width, 10);
+            // Sign
+            ctx.fillStyle = '#4169e1';
+            ctx.fillRect(obj.x + 15, obj.y + 15, obj.width - 30, 25);
+            ctx.fillStyle = '#fff';
+            ctx.font = '8px "Press Start 2P"';
+            ctx.textAlign = 'center';
+            ctx.fillText('SUBIR', obj.x + obj.width/2, obj.y + 32);
+            // Interaction indicator
+            if (nearObject === obj) {
+                ctx.fillStyle = '#ffd700';
+                const bounce = Math.sin(Date.now() / 200) * 3;
+                ctx.beginPath();
+                ctx.moveTo(obj.x + obj.width/2, obj.y - 10 + bounce);
+                ctx.lineTo(obj.x + obj.width/2 - 8, obj.y - 25 + bounce);
+                ctx.lineTo(obj.x + obj.width/2 + 8, obj.y - 25 + bounce);
+                ctx.closePath();
+                ctx.fill();
+            }
+        }
+
+        function drawHorrorBuilding(obj) {
+            // Main building with stone texture
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(obj.x, obj.y, obj.width, obj.height);
+
+            // Stone brick pattern
+            ctx.fillStyle = '#252525';
+            for (let row = 0; row < 10; row++) {
+                for (let col = 0; col < 12; col++) {
+                    const offset = row % 2 === 0 ? 0 : 17;
+                    ctx.fillRect(obj.x + col * 35 + offset, obj.y + row * 22 + 50, 32, 18);
+                }
+            }
+            // Cracks in the wall
+            ctx.strokeStyle = '#0a0a0a';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(obj.x + 80, obj.y + 100);
+            ctx.lineTo(obj.x + 95, obj.y + 130);
+            ctx.lineTo(obj.x + 85, obj.y + 160);
+            ctx.moveTo(obj.x + 300, obj.y + 80);
+            ctx.lineTo(obj.x + 315, obj.y + 120);
+            ctx.stroke();
+
+            // Ornate gothic roof with multiple spires
+            ctx.fillStyle = '#2a0a2a';
+            ctx.beginPath();
+            ctx.moveTo(obj.x - 20, obj.y);
+            for (let i = 0; i <= 8; i++) {
+                ctx.lineTo(obj.x + i * 55, i % 2 === 0 ? obj.y : obj.y - 50);
+            }
+            ctx.lineTo(obj.x + obj.width + 20, obj.y);
+            ctx.closePath();
+            ctx.fill();
+
+            // Roof shingles
+            ctx.fillStyle = '#3a1a3a';
+            for (let i = 0; i < 7; i++) {
+                const sx = obj.x + i * 55;
+                for (let j = 0; j < 3; j++) {
+                    ctx.fillRect(sx + 10 + j * 12, obj.y - 35 + j * 12, 10, 8);
+                }
+            }
+
+            // Central tower
+            ctx.fillStyle = '#1a0a1a';
+            ctx.fillRect(obj.x + obj.width/2 - 40, obj.y - 80, 80, 80);
+            ctx.beginPath();
+            ctx.moveTo(obj.x + obj.width/2 - 50, obj.y - 80);
+            ctx.lineTo(obj.x + obj.width/2, obj.y - 120);
+            ctx.lineTo(obj.x + obj.width/2 + 50, obj.y - 80);
+            ctx.fill();
+            // Tower window (glowing)
+            ctx.fillStyle = '#ff3300';
+            ctx.fillRect(obj.x + obj.width/2 - 12, obj.y - 70, 24, 30);
+            ctx.fillStyle = 'rgba(255, 50, 0, 0.3)';
+            ctx.beginPath();
+            ctx.arc(obj.x + obj.width/2, obj.y - 55, 30, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Gothic windows with arched tops
+            for (let row = 0; row < 2; row++) {
+                for (let col = 0; col < 4; col++) {
+                    const wx = obj.x + 35 + col * 95;
+                    const wy = obj.y + 50 + row * 85;
+                    const lit = Math.sin(Date.now() / 800 + row * 2 + col) > 0.3;
+
+                    // Window frame
+                    ctx.fillStyle = '#3a2a2a';
+                    ctx.fillRect(wx - 5, wy - 5, 60, 75);
+
+                    // Arched top
+                    ctx.beginPath();
+                    ctx.arc(wx + 25, wy, 30, Math.PI, 0);
+                    ctx.fill();
+
+                    // Window glass
+                    ctx.fillStyle = lit ? '#4a0000' : '#0a0505';
+                    ctx.fillRect(wx, wy, 50, 60);
+                    ctx.beginPath();
+                    ctx.arc(wx + 25, wy, 25, Math.PI, 0);
+                    ctx.fill();
+
+                    // Window dividers
+                    ctx.fillStyle = '#2a1a1a';
+                    ctx.fillRect(wx + 23, wy - 20, 4, 80);
+                    ctx.fillRect(wx, wy + 25, 50, 4);
+
+                    // Eerie glow when lit
+                    if (lit) {
+                        ctx.fillStyle = 'rgba(255, 0, 0, 0.15)';
+                        ctx.beginPath();
+                        ctx.arc(wx + 25, wy + 30, 40, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+
+                    // Occasional silhouette
+                    if (lit && Math.sin(Date.now() / 2000 + col) > 0.8) {
+                        ctx.fillStyle = '#000';
+                        ctx.beginPath();
+                        ctx.arc(wx + 25, wy + 20, 12, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.fillRect(wx + 18, wy + 30, 14, 20);
+                    }
+                }
+            }
+
+            // Creepy sign with skull decorations
+            ctx.fillStyle = '#4a0000';
+            ctx.fillRect(obj.x + 110, obj.y + 5, 180, 40);
+            ctx.fillStyle = '#6a1010';
+            ctx.fillRect(obj.x + 115, obj.y + 10, 170, 30);
+
+            // Sign border
+            ctx.strokeStyle = '#8b0000';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(obj.x + 110, obj.y + 5, 180, 40);
+
+            // Sign text
+            ctx.fillStyle = '#ff4444';
+            ctx.font = 'bold 12px "Press Start 2P"';
+            ctx.textAlign = 'center';
+            ctx.fillText('HORROR HOUSE', obj.x + obj.width/2, obj.y + 30);
+
+            // Skull decorations on sign
+            for (let side = 0; side < 2; side++) {
+                const sx = side === 0 ? obj.x + 120 : obj.x + 275;
+                ctx.fillStyle = '#ddd';
+                ctx.beginPath();
+                ctx.arc(sx, obj.y + 25, 10, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#000';
+                ctx.fillRect(sx - 5, obj.y + 21, 3, 4);
+                ctx.fillRect(sx + 2, obj.y + 21, 3, 4);
+                ctx.fillRect(sx - 4, obj.y + 28, 2, 3);
+                ctx.fillRect(sx - 1, obj.y + 28, 2, 3);
+                ctx.fillRect(sx + 2, obj.y + 28, 2, 3);
+            }
+
+            // Animated bats with better detail
+            const time = Date.now() / 150;
+            for (let i = 0; i < 5; i++) {
+                const bx = obj.x + 80 + Math.sin(time + i * 1.5) * 60 + i * 70;
+                const by = obj.y - 30 + Math.cos(time * 0.8 + i) * 15;
+                const wingFlap = Math.sin(time * 3 + i * 2) * 0.3;
+
+                ctx.fillStyle = '#1a0a1a';
+                // Body
+                ctx.beginPath();
+                ctx.ellipse(bx, by, 4, 6, 0, 0, Math.PI * 2);
+                ctx.fill();
+                // Left wing
+                ctx.beginPath();
+                ctx.moveTo(bx - 3, by);
+                ctx.quadraticCurveTo(bx - 12, by - 8 + wingFlap * 10, bx - 15, by + 2);
+                ctx.quadraticCurveTo(bx - 10, by + 3, bx - 3, by + 2);
+                ctx.fill();
+                // Right wing
+                ctx.beginPath();
+                ctx.moveTo(bx + 3, by);
+                ctx.quadraticCurveTo(bx + 12, by - 8 + wingFlap * 10, bx + 15, by + 2);
+                ctx.quadraticCurveTo(bx + 10, by + 3, bx + 3, by + 2);
+                ctx.fill();
+                // Ears
+                ctx.fillRect(bx - 3, by - 7, 2, 4);
+                ctx.fillRect(bx + 1, by - 7, 2, 4);
+                // Eyes
+                ctx.fillStyle = '#ff0000';
+                ctx.fillRect(bx - 2, by - 3, 1, 1);
+                ctx.fillRect(bx + 1, by - 3, 1, 1);
+            }
+
+            // Gargoyles on corners
+            for (let side = 0; side < 2; side++) {
+                const gx = side === 0 ? obj.x - 10 : obj.x + obj.width - 20;
+                ctx.fillStyle = '#3a3a3a';
+                // Body
+                ctx.fillRect(gx, obj.y - 5, 30, 25);
+                // Head
+                ctx.fillRect(gx + 5, obj.y - 15, 20, 15);
+                // Horns
+                ctx.fillStyle = '#2a2a2a';
+                ctx.beginPath();
+                ctx.moveTo(gx + 5, obj.y - 15);
+                ctx.lineTo(gx + 2, obj.y - 25);
+                ctx.lineTo(gx + 10, obj.y - 15);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.moveTo(gx + 20, obj.y - 15);
+                ctx.lineTo(gx + 28, obj.y - 25);
+                ctx.lineTo(gx + 25, obj.y - 15);
+                ctx.fill();
+                // Eyes
+                ctx.fillStyle = '#550000';
+                ctx.fillRect(gx + 8, obj.y - 12, 4, 3);
+                ctx.fillRect(gx + 18, obj.y - 12, 4, 3);
+            }
+        }
+
+        function drawHorrorEntrance(obj) {
+            // Stone archway frame
+            ctx.fillStyle = '#3a2a2a';
+            ctx.fillRect(obj.x - 15, obj.y - 20, obj.width + 30, obj.height + 20);
+
+            // Arch top
+            ctx.beginPath();
+            ctx.arc(obj.x + obj.width/2, obj.y - 10, obj.width/2 + 10, Math.PI, 0);
+            ctx.fill();
+
+            // Stone texture on frame
+            ctx.fillStyle = '#4a3a3a';
+            for (let i = 0; i < 6; i++) {
+                ctx.fillRect(obj.x - 12 + (i % 2) * 8, obj.y + i * 15, 8, 12);
+                ctx.fillRect(obj.x + obj.width + 4 - (i % 2) * 8, obj.y + i * 15, 8, 12);
+            }
+
+            // Door itself - old wooden planks
+            ctx.fillStyle = '#2a1515';
+            ctx.fillRect(obj.x, obj.y, obj.width, obj.height);
+
+            // Wood grain / planks
+            ctx.fillStyle = '#3a2020';
+            ctx.fillRect(obj.x, obj.y, obj.width/2 - 2, obj.height);
+            ctx.fillStyle = '#251010';
+            ctx.fillRect(obj.x + 3, obj.y + 5, 3, obj.height - 10);
+            ctx.fillRect(obj.x + obj.width/2 + 3, obj.y + 5, 3, obj.height - 10);
+
+            // Metal bands across door
+            ctx.fillStyle = '#333';
+            ctx.fillRect(obj.x + 2, obj.y + 15, obj.width - 4, 6);
+            ctx.fillRect(obj.x + 2, obj.y + 55, obj.width - 4, 6);
+            // Rivets
+            ctx.fillStyle = '#555';
+            for (let i = 0; i < 4; i++) {
+                ctx.beginPath();
+                ctx.arc(obj.x + 8 + i * 18, obj.y + 18, 2, 0, Math.PI * 2);
+                ctx.arc(obj.x + 8 + i * 18, obj.y + 58, 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Ornate door knocker (skull)
+            ctx.fillStyle = '#8b7355';
+            ctx.beginPath();
+            ctx.arc(obj.x + obj.width/2, obj.y + 35, 12, 0, Math.PI * 2);
+            ctx.fill();
+            // Skull face
+            ctx.fillStyle = '#c0c0c0';
+            ctx.beginPath();
+            ctx.arc(obj.x + obj.width/2, obj.y + 34, 8, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#000';
+            ctx.fillRect(obj.x + obj.width/2 - 5, obj.y + 31, 3, 4);
+            ctx.fillRect(obj.x + obj.width/2 + 2, obj.y + 31, 3, 4);
+            // Nose hole
+            ctx.beginPath();
+            ctx.moveTo(obj.x + obj.width/2, obj.y + 36);
+            ctx.lineTo(obj.x + obj.width/2 - 2, obj.y + 39);
+            ctx.lineTo(obj.x + obj.width/2 + 2, obj.y + 39);
+            ctx.fill();
+            // Ring
+            ctx.strokeStyle = '#8b7355';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(obj.x + obj.width/2, obj.y + 48, 8, 0, Math.PI);
+            ctx.stroke();
+
+            // Creepy welcome mat
+            ctx.fillStyle = '#4a3020';
+            ctx.fillRect(obj.x - 5, obj.y + obj.height - 5, obj.width + 10, 8);
+            ctx.fillStyle = '#3a2015';
+            ctx.fillRect(obj.x, obj.y + obj.height - 3, obj.width, 4);
+
+            // Top decoration - skull with crossbones
+            ctx.fillStyle = '#ddd';
+            ctx.beginPath();
+            ctx.arc(obj.x + obj.width/2, obj.y - 25, 15, 0, Math.PI * 2);
+            ctx.fill();
+            // Jaw
+            ctx.fillRect(obj.x + obj.width/2 - 10, obj.y - 15, 20, 8);
+            // Eye sockets
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.ellipse(obj.x + obj.width/2 - 6, obj.y - 28, 4, 5, 0, 0, Math.PI * 2);
+            ctx.ellipse(obj.x + obj.width/2 + 6, obj.y - 28, 4, 5, 0, 0, Math.PI * 2);
+            ctx.fill();
+            // Nose
+            ctx.beginPath();
+            ctx.moveTo(obj.x + obj.width/2, obj.y - 22);
+            ctx.lineTo(obj.x + obj.width/2 - 3, obj.y - 17);
+            ctx.lineTo(obj.x + obj.width/2 + 3, obj.y - 17);
+            ctx.fill();
+            // Teeth
+            ctx.fillStyle = '#ddd';
+            for (let i = 0; i < 5; i++) {
+                ctx.fillRect(obj.x + obj.width/2 - 8 + i * 4, obj.y - 14, 3, 5);
+            }
+            // Crossbones
+            ctx.strokeStyle = '#ccc';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(obj.x + obj.width/2 - 25, obj.y - 35);
+            ctx.lineTo(obj.x + obj.width/2 + 25, obj.y - 15);
+            ctx.moveTo(obj.x + obj.width/2 + 25, obj.y - 35);
+            ctx.lineTo(obj.x + obj.width/2 - 25, obj.y - 15);
+            ctx.stroke();
+
+            // ENTER text with glow
+            ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
+            ctx.font = '10px "Press Start 2P"';
+            ctx.textAlign = 'center';
+            ctx.fillText('ENTER', obj.x + obj.width/2 + 1, obj.y + 75 + 1);
+            ctx.fillStyle = '#ff0000';
+            ctx.fillText('ENTER', obj.x + obj.width/2, obj.y + 75);
+
+            // Cobwebs in corners
+            ctx.strokeStyle = 'rgba(200, 200, 200, 0.4)';
+            ctx.lineWidth = 1;
+            for (let corner = 0; corner < 2; corner++) {
+                const cx = corner === 0 ? obj.x - 10 : obj.x + obj.width + 10;
+                const dir = corner === 0 ? 1 : -1;
+                for (let i = 0; i < 4; i++) {
+                    ctx.beginPath();
+                    ctx.moveTo(cx, obj.y - 15);
+                    ctx.lineTo(cx + dir * (15 + i * 8), obj.y - 15 + i * 10);
+                    ctx.stroke();
+                }
+            }
+
+            // Interaction indicator
+            if (nearObject === obj) {
+                ctx.fillStyle = '#ff0000';
+                const bounce = Math.sin(Date.now() / 200) * 3;
+                ctx.beginPath();
+                ctx.moveTo(obj.x + obj.width/2, obj.y - 55 + bounce);
+                ctx.lineTo(obj.x + obj.width/2 - 10, obj.y - 70 + bounce);
+                ctx.lineTo(obj.x + obj.width/2 + 10, obj.y - 70 + bounce);
+                ctx.closePath();
+                ctx.fill();
+            }
+        }
+
+        function drawGravestone(obj) {
+            ctx.fillStyle = '#708090';
+            ctx.fillRect(obj.x, obj.y + 10, obj.width, obj.height - 10);
+            // Rounded top
+            ctx.beginPath();
+            ctx.arc(obj.x + obj.width/2, obj.y + 10, obj.width/2, Math.PI, 0);
+            ctx.fill();
+            // RIP text
+            ctx.fillStyle = '#333';
+            ctx.font = '8px "Press Start 2P"';
+            ctx.textAlign = 'center';
+            ctx.fillText('RIP', obj.x + obj.width/2, obj.y + 35);
+        }
+
+        function drawDeadTree(obj) {
+            // Trunk
+            ctx.fillStyle = '#3d2817';
+            ctx.fillRect(obj.x + 20, obj.y + 40, 20, 80);
+            // Branches
+            ctx.strokeStyle = '#3d2817';
+            ctx.lineWidth = 6;
+            ctx.beginPath();
+            ctx.moveTo(obj.x + 30, obj.y + 50);
+            ctx.lineTo(obj.x + 5, obj.y + 20);
+            ctx.moveTo(obj.x + 30, obj.y + 50);
+            ctx.lineTo(obj.x + 55, obj.y + 10);
+            ctx.moveTo(obj.x + 30, obj.y + 70);
+            ctx.lineTo(obj.x + 0, obj.y + 50);
+            ctx.moveTo(obj.x + 30, obj.y + 70);
+            ctx.lineTo(obj.x + 60, obj.y + 40);
+            ctx.stroke();
+        }
+
+        function drawFence(obj) {
+            ctx.fillStyle = '#1a1a1a';
+            for (let i = 0; i < obj.width; i += 30) {
+                // Vertical bars
+                ctx.fillRect(obj.x + i, obj.y - 30, 8, 50);
+                // Spikes
+                ctx.beginPath();
+                ctx.moveTo(obj.x + i, obj.y - 30);
+                ctx.lineTo(obj.x + i + 4, obj.y - 40);
+                ctx.lineTo(obj.x + i + 8, obj.y - 30);
+                ctx.fill();
+            }
+            // Horizontal bars
+            ctx.fillRect(obj.x, obj.y - 20, obj.width, 5);
+            ctx.fillRect(obj.x, obj.y, obj.width, 5);
+        }
+
+        function drawCoffin(obj) {
+            ctx.fillStyle = '#4a3728';
+            // Coffin shape
+            ctx.beginPath();
+            ctx.moveTo(obj.x + 10, obj.y);
+            ctx.lineTo(obj.x + obj.width - 10, obj.y);
+            ctx.lineTo(obj.x + obj.width, obj.y + 30);
+            ctx.lineTo(obj.x + obj.width - 5, obj.y + obj.height);
+            ctx.lineTo(obj.x + 5, obj.y + obj.height);
+            ctx.lineTo(obj.x, obj.y + 30);
+            ctx.closePath();
+            ctx.fill();
+            // Cross
+            ctx.fillStyle = '#8b7355';
+            ctx.fillRect(obj.x + 25, obj.y + 20, 10, 40);
+            ctx.fillRect(obj.x + 15, obj.y + 30, 30, 10);
+        }
+
+        function drawSkeleton(obj) {
+            ctx.fillStyle = '#f0f0f0';
+            // Skull
+            ctx.beginPath();
+            ctx.arc(obj.x + obj.width/2, obj.y + 15, 15, 0, Math.PI * 2);
+            ctx.fill();
+            // Eye sockets
+            ctx.fillStyle = '#000';
+            ctx.fillRect(obj.x + 15, obj.y + 10, 6, 8);
+            ctx.fillRect(obj.x + 29, obj.y + 10, 6, 8);
+            // Nose
+            ctx.beginPath();
+            ctx.moveTo(obj.x + 25, obj.y + 18);
+            ctx.lineTo(obj.x + 22, obj.y + 25);
+            ctx.lineTo(obj.x + 28, obj.y + 25);
+            ctx.fill();
+            // Ribs
+            ctx.fillStyle = '#f0f0f0';
+            for (let i = 0; i < 4; i++) {
+                ctx.fillRect(obj.x + 10, obj.y + 35 + i * 10, 30, 5);
+            }
+            // Spine
+            ctx.fillRect(obj.x + 22, obj.y + 30, 6, 50);
+        }
+
+        function drawCobweb(obj) {
+            ctx.strokeStyle = 'rgba(200, 200, 200, 0.3)';
+            ctx.lineWidth = 1;
+            const cx = obj.x < 100 ? 0 : 800;
+            const cy = 0;
+            for (let i = 0; i < 8; i++) {
+                const angle = (Math.PI / 2) * (i / 8) + (cx === 0 ? 0 : Math.PI / 2);
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(cx + Math.cos(angle) * 100, cy + Math.sin(angle) * 100);
+                ctx.stroke();
+            }
+            // Concentric arcs
+            for (let r = 20; r < 100; r += 20) {
+                ctx.beginPath();
+                ctx.arc(cx, cy, r, cx === 0 ? 0 : Math.PI / 2, cx === 0 ? Math.PI / 2 : Math.PI);
+                ctx.stroke();
+            }
+        }
+
+        function drawCandle(obj) {
+            // Candle body
+            ctx.fillStyle = '#f5deb3';
+            ctx.fillRect(obj.x, obj.y + 15, obj.width, 25);
+            // Flame
+            const flicker = Math.sin(Date.now() / 50) * 2;
+            ctx.fillStyle = '#ffa500';
+            ctx.beginPath();
+            ctx.ellipse(obj.x + obj.width/2, obj.y + 10 + flicker, 5, 10, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#ffff00';
+            ctx.beginPath();
+            ctx.ellipse(obj.x + obj.width/2, obj.y + 12 + flicker, 3, 6, 0, 0, Math.PI * 2);
+            ctx.fill();
+            // Glow
+            ctx.fillStyle = 'rgba(255, 165, 0, 0.2)';
+            ctx.beginPath();
+            ctx.arc(obj.x + obj.width/2, obj.y + 10, 30, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawCurtain(obj) {
+            // Curtain rod
+            ctx.fillStyle = '#4a3728';
+            ctx.fillRect(obj.x - 10, obj.y - 10, obj.width + 20, 10);
+            // Curtain fabric
+            ctx.fillStyle = '#8b0000';
+            // Left curtain
+            ctx.fillRect(obj.x, obj.y, obj.width/2 - 10, obj.height);
+            // Right curtain
+            ctx.fillRect(obj.x + obj.width/2 + 10, obj.y, obj.width/2 - 10, obj.height);
+            // Folds
+            ctx.fillStyle = '#6b0000';
+            for (let i = 0; i < 3; i++) {
+                ctx.fillRect(obj.x + i * 12, obj.y, 3, obj.height);
+                ctx.fillRect(obj.x + obj.width/2 + 10 + i * 12, obj.y, 3, obj.height);
+            }
+            // Gap (mysterious)
+            ctx.fillStyle = '#000';
+            ctx.fillRect(obj.x + obj.width/2 - 10, obj.y, 20, obj.height);
+            // Question marks
+            if (!gameWon) {
+                ctx.fillStyle = '#ff6b9d';
+                ctx.font = '16px "Press Start 2P"';
+                ctx.textAlign = 'center';
+                const bounce = Math.sin(Date.now() / 300) * 3;
+                ctx.fillText('?', obj.x + obj.width/2, obj.y + obj.height/2 + bounce);
+            }
+            // Interaction indicator
+            if (nearObject === obj) {
+                ctx.fillStyle = '#ffd700';
+                const bounce = Math.sin(Date.now() / 200) * 3;
+                ctx.beginPath();
+                ctx.moveTo(obj.x + obj.width/2, obj.y - 25 + bounce);
+                ctx.lineTo(obj.x + obj.width/2 - 8, obj.y - 40 + bounce);
+                ctx.lineTo(obj.x + obj.width/2 + 8, obj.y - 40 + bounce);
+                ctx.closePath();
+                ctx.fill();
+            }
+        }
+
+        function drawNPCs() {
+            const currentNPCs = rooms[currentRoom].npcs;
+
+            for (const npc of currentNPCs) {
+                drawNPC(npc);
+            }
+        }
+
+        function drawNPC(npc) {
+            const { x, y, direction, type } = npc;
+            const bob = Math.sin(Date.now() / 300 + x) * 2;
+
+            // Shadow
+            ctx.fillStyle = 'rgba(0,0,0,0.3)';
+            ctx.beginPath();
+            ctx.ellipse(x + 16, y + 30, 12, 6, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Different NPC types
+            let shirtColor = '#4CAF50';
+            let hairColor = '#8b4513';
+
+            switch(type) {
+                case 'ticket_seller':
+                    shirtColor = '#ff6b9d';
+                    hairColor = '#ffd700';
+                    break;
+                case 'visitor':
+                    shirtColor = '#4169e1';
+                    hairColor = '#1a1a1a';
+                    break;
+                case 'vendor':
+                    shirtColor = '#ff0000';
+                    hairColor = '#8b4513';
+                    break;
+                case 'ride_operator':
+                    shirtColor = '#ffa500';
+                    hairColor = '#000';
+                    break;
+                case 'spooky_attendant':
+                    shirtColor = '#2a0a2a';
+                    hairColor = '#1a1a1a';
+                    break;
+            }
+
+            // Shirt
+            ctx.fillStyle = shirtColor;
+            ctx.fillRect(x + 6, y + 14 + bob, 20, 18);
+
+            // Pants
+            ctx.fillStyle = '#2c3e50';
+            ctx.fillRect(x + 8, y + 28 + bob, 6, 6);
+            ctx.fillRect(x + 18, y + 28 + bob, 6, 6);
+
+            // Face
+            ctx.fillStyle = '#ffcc99';
+            ctx.fillRect(x + 8, y + 2 + bob, 16, 14);
+
+            // Hair
+            ctx.fillStyle = hairColor;
+            ctx.fillRect(x + 7, y - 2 + bob, 18, 6);
+
+            // Eyes
+            ctx.fillStyle = '#000';
+            ctx.fillRect(x + 11, y + 8 + bob, 3, 3);
+            ctx.fillRect(x + 18, y + 8 + bob, 3, 3);
+
+            // Interaction indicator when near
+            if (nearNPC === npc) {
+                ctx.fillStyle = '#ffd700';
+                const bounce = Math.sin(Date.now() / 200) * 3;
+                ctx.beginPath();
+                ctx.moveTo(x + 16, y - 15 + bounce);
+                ctx.lineTo(x + 8, y - 30 + bounce);
+                ctx.lineTo(x + 24, y - 30 + bounce);
+                ctx.closePath();
+                ctx.fill();
+            }
+        }
+
+        function drawPlayer() {
+            const { x, y, direction, frame } = player;
+            const moving = keys['ArrowUp'] || keys['ArrowDown'] || keys['ArrowLeft'] || keys['ArrowRight'] ||
+                          keys['w'] || keys['W'] || keys['s'] || keys['S'] || keys['a'] || keys['A'] || keys['d'] || keys['D'];
+            const legOffset = Math.sin(frame * 0.3) * 2;
+
+            // Shadow
+            ctx.fillStyle = 'rgba(0,0,0,0.3)';
+            ctx.beginPath();
+            ctx.ellipse(x + 14, y + 30, 10, 5, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Burgundy blazer/jacket
+            ctx.fillStyle = '#722f37';
+            ctx.fillRect(x + 5, y + 14, 18, 14);
+            // Jacket lapels
+            ctx.fillStyle = '#5a252c';
+            ctx.beginPath();
+            ctx.moveTo(x + 8, y + 14);
+            ctx.lineTo(x + 12, y + 20);
+            ctx.lineTo(x + 8, y + 20);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(x + 20, y + 14);
+            ctx.lineTo(x + 16, y + 20);
+            ctx.lineTo(x + 20, y + 20);
+            ctx.fill();
+            // White shirt underneath
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(x + 11, y + 16, 6, 8);
+
+            // Dark fitted pants with leg animation
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(x + 7, y + 26, 5, 6 + (moving ? legOffset : 0));
+            ctx.fillRect(x + 16, y + 26, 5, 6 - (moving ? legOffset : 0));
+
+            // Face (leaner)
+            ctx.fillStyle = '#e8c4a0';
+            ctx.fillRect(x + 7, y + 2, 14, 12);
+
+            // Black styled hair
+            ctx.fillStyle = '#0a0a0a';
+            ctx.fillRect(x + 6, y - 2, 16, 5);
+            ctx.fillRect(x + 5, y, 3, 4);
+            ctx.fillRect(x + 20, y, 3, 4);
+            // Side part
+            ctx.fillRect(x + 6, y + 2, 2, 2);
+
+            // Eyes based on direction
+            ctx.fillStyle = '#000';
+            if (direction === 'down') {
+                ctx.fillRect(x + 9, y + 7, 2, 2);
+                ctx.fillRect(x + 15, y + 7, 2, 2);
+            } else if (direction === 'up') {
+                ctx.fillRect(x + 9, y + 5, 2, 2);
+                ctx.fillRect(x + 15, y + 5, 2, 2);
+            } else if (direction === 'left') {
+                ctx.fillRect(x + 8, y + 7, 2, 2);
+                ctx.fillRect(x + 13, y + 7, 2, 2);
+            } else if (direction === 'right') {
+                ctx.fillRect(x + 12, y + 7, 2, 2);
+                ctx.fillRect(x + 17, y + 7, 2, 2);
+            }
+        }
+
+        function getShortRoomName(name) {
+            // For room names, take first 2 words or abbreviate sensibly
+            const words = name.split(' ');
+            if (words.length === 1) return words[0];
+            if (words[0] === 'La' || words[0] === 'El') {
+                // Include article with next word
+                return words.slice(0, 2).join(' ');
+            }
+            return words[0];
+        }
+
+        function drawExitIndicators() {
+            const room = rooms[currentRoom];
+            ctx.fillStyle = '#ffd700';
+            ctx.font = '8px "Press Start 2P"';
+            ctx.textAlign = 'center';
+
+            if (room.exits.right) {
+                ctx.save();
+                ctx.translate(780, 300);
+                ctx.rotate(Math.PI / 2);
+                ctx.fillText(getShortRoomName(rooms[room.exits.right].name), 0, 0);
+                ctx.restore();
+                // Arrow
+                ctx.beginPath();
+                ctx.moveTo(790, 290);
+                ctx.lineTo(795, 300);
+                ctx.lineTo(790, 310);
+                ctx.fill();
+            }
+            if (room.exits.left) {
+                ctx.save();
+                ctx.translate(20, 300);
+                ctx.rotate(-Math.PI / 2);
+                ctx.fillText(getShortRoomName(rooms[room.exits.left].name), 0, 0);
+                ctx.restore();
+                // Arrow
+                ctx.beginPath();
+                ctx.moveTo(10, 290);
+                ctx.lineTo(5, 300);
+                ctx.lineTo(10, 310);
+                ctx.fill();
+            }
+            if (room.exits.up) {
+                ctx.fillText(getShortRoomName(rooms[room.exits.up].name), 400, 25);
+                // Arrow
+                ctx.beginPath();
+                ctx.moveTo(390, 10);
+                ctx.lineTo(400, 5);
+                ctx.lineTo(410, 10);
+                ctx.fill();
+            }
+            if (room.exits.down) {
+                ctx.fillText(getShortRoomName(rooms[room.exits.down].name), 400, 590);
+                // Arrow
+                ctx.beginPath();
+                ctx.moveTo(390, 595);
+                ctx.lineTo(400, 600);
+                ctx.lineTo(410, 595);
+                ctx.fill();
+            }
+        }
+
+        // Jump scare system
+        function checkJumpScares() {
+            const room = rooms[currentRoom];
+            if (!room.jumpScares) return;
+
+            for (const scare of room.jumpScares) {
+                if (scare.triggered) continue;
+
+                const dx = player.x - scare.x;
+                const dy = player.y - scare.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist < scare.triggerRadius) {
+                    triggerJumpScare(scare);
+                }
+            }
+        }
+
+        function triggerJumpScare(scare) {
+            scare.triggered = true;
+            jumpScareActive = scare;
+            jumpScareTimer = 60;
+            screenShake = 20;
+
+            if (scare.type === 'ghost_appear') {
+                showDialog('Fede', "¡¿Qué fue eso?!");
+            } else if (scare.type === 'zombie_hand') {
+                showDialog('Fede', "¡Ay, casi me agarra!");
+            } else if (scare.type === 'mirror_crack') {
+                showDialog('Fede', "El espejo... ¿ese soy yo?");
+            } else if (scare.type === 'actor_jumpscare') {
+                showDialog('Fede', "¡AHHH! ...es un actor, es un actor...");
+            } else if (scare.type === 'scream') {
+                showDialog('Fede', "¿Escuchaste eso...?");
+            }
+        }
+
+        function updateHorror() {
+            if (jumpScareTimer > 0) {
+                jumpScareTimer--;
+                if (jumpScareTimer === 0) jumpScareActive = null;
+            }
+            if (screenShake > 0) {
+                screenShake *= 0.9;
+                if (screenShake < 0.5) screenShake = 0;
+            }
+
+            const room = rooms[currentRoom];
+            if (room.crawlingMonster) {
+                const monster = room.crawlingMonster;
+                monster.x += monster.speed * monster.direction;
+                if (monster.x > 700) monster.direction = -1;
+                if (monster.x < 100) monster.direction = 1;
+            }
+
+            if (currentRoom.startsWith('horror')) {
+                horrorAmbience.flicker = Math.random() > 0.95 ? 0.3 : 1;
+                horrorAmbience.darkness = 0.3 + Math.sin(Date.now() / 2000) * 0.1;
+            } else {
+                horrorAmbience.flicker = 1;
+                horrorAmbience.darkness = 0;
+            }
+
+            checkJumpScares();
+        }
+
+        function drawJumpScare() {
+            if (!jumpScareActive || jumpScareTimer <= 0) return;
+
+            const alpha = jumpScareTimer / 60;
+
+            if (jumpScareActive.type === 'ghost_appear') {
+                ctx.fillStyle = `rgba(200, 200, 255, ${alpha * 0.8})`;
+                ctx.beginPath();
+                ctx.ellipse(400, 300, 100, 120, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = `rgba(0, 0, 0, ${alpha})`;
+                ctx.beginPath();
+                ctx.ellipse(360, 280, 20, 30, 0, 0, Math.PI * 2);
+                ctx.ellipse(440, 280, 20, 30, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.ellipse(400, 350, 30, 40, 0, 0, Math.PI * 2);
+                ctx.fill();
+            } else if (jumpScareActive.type === 'zombie_hand') {
+                ctx.fillStyle = `rgba(100, 150, 100, ${alpha})`;
+                const handY = 600 - (60 - jumpScareTimer) * 5;
+                ctx.fillRect(jumpScareActive.x - 10, handY, 8, 60);
+                ctx.fillRect(jumpScareActive.x, handY, 8, 70);
+                ctx.fillRect(jumpScareActive.x + 10, handY, 8, 65);
+                ctx.fillRect(jumpScareActive.x + 20, handY, 8, 55);
+                ctx.fillRect(jumpScareActive.x - 15, handY + 40, 50, 30);
+            } else if (jumpScareActive.type === 'actor_jumpscare') {
+                const scale = 1 + (60 - jumpScareTimer) / 30;
+                ctx.save();
+                ctx.translate(400, 300);
+                ctx.scale(scale, scale);
+                ctx.fillStyle = `rgba(80, 100, 80, ${alpha})`;
+                ctx.beginPath();
+                ctx.ellipse(0, 0, 80, 100, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = `rgba(255, 0, 0, ${alpha})`;
+                ctx.beginPath();
+                ctx.arc(-25, -20, 15, 0, Math.PI * 2);
+                ctx.arc(25, -20, 15, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+                for (let i = 0; i < 6; i++) {
+                    ctx.beginPath();
+                    ctx.moveTo(-40 + i * 16, 40);
+                    ctx.lineTo(-32 + i * 16, 70);
+                    ctx.lineTo(-24 + i * 16, 40);
+                    ctx.fill();
+                }
+                ctx.restore();
+            } else if (jumpScareActive.type === 'scream') {
+                ctx.fillStyle = `rgba(100, 0, 0, ${alpha * 0.5})`;
+                ctx.fillRect(0, 0, 800, 600);
+            } else if (jumpScareActive.type === 'mirror_crack') {
+                ctx.strokeStyle = `rgba(255, 255, 255, ${alpha})`;
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(400, 0);
+                ctx.lineTo(350, 200);
+                ctx.lineTo(300, 400);
+                ctx.lineTo(250, 600);
+                ctx.moveTo(400, 0);
+                ctx.lineTo(450, 150);
+                ctx.lineTo(500, 350);
+                ctx.lineTo(550, 600);
+                ctx.stroke();
+            }
+        }
+
+        function drawCrawlingMonster() {
+            const room = rooms[currentRoom];
+            if (!room.crawlingMonster) return;
+
+            const monster = room.crawlingMonster;
+            const crawl = Math.sin(Date.now() / 100) * 3;
+
+            ctx.fillStyle = '#2a3a2a';
+            ctx.beginPath();
+            ctx.ellipse(monster.x, monster.y + crawl, 30, 15, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(monster.x + monster.direction * 25, monster.y - 5 + crawl, 15, 12, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#ff0000';
+            ctx.beginPath();
+            ctx.arc(monster.x + monster.direction * 30, monster.y - 8 + crawl, 3, 0, Math.PI * 2);
+            ctx.arc(monster.x + monster.direction * 22, monster.y - 8 + crawl, 3, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#1a2a1a';
+            for (let i = 0; i < 4; i++) {
+                const legX = monster.x - 20 + i * 15;
+                const legPhase = Math.sin(Date.now() / 100 + i) * 5;
+                ctx.fillRect(legX, monster.y + 10, 4, 15 + legPhase);
+            }
+        }
+
+        function drawHorrorOverlay() {
+            if (horrorAmbience.darkness > 0) {
+                ctx.fillStyle = `rgba(0, 0, 0, ${horrorAmbience.darkness})`;
+                ctx.fillRect(0, 0, 800, 600);
+            }
+
+            if (currentRoom.startsWith('horror')) {
+                const gradient = ctx.createRadialGradient(400, 300, 100, 400, 300, 450);
+                gradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
+                gradient.addColorStop(1, 'rgba(0, 0, 0, 0.7)');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, 800, 600);
+            }
+
+            if (horrorAmbience.flicker < 1) {
+                ctx.fillStyle = `rgba(0, 0, 0, ${1 - horrorAmbience.flicker})`;
+                ctx.fillRect(0, 0, 800, 600);
+            }
+        }
+
+        // Main render loop
+        function render() {
+            ctx.save();
+
+            if (screenShake > 0) {
+                ctx.translate(
+                    (Math.random() - 0.5) * screenShake,
+                    (Math.random() - 0.5) * screenShake
+                );
+            }
+
+            drawBackground();
+            drawObjects();
+            drawCrawlingMonster();
+            drawNPCs();
+            drawPlayer();
+            drawExitIndicators();
+            drawHorrorOverlay();
+            drawJumpScare();
+            drawSpeechBubble();
+
+            ctx.restore();
+        }
+
+        // Minigame system
+        let minigameActive = false;
+
+        function openMinigame(url) {
+            minigameActive = true;
+            document.getElementById('minigameOverlay').style.display = 'block';
+            document.getElementById('minigameFrame').src = url;
+        }
+
+        function closeMinigame() {
+            minigameActive = false;
+            document.getElementById('minigameOverlay').style.display = 'none';
+            document.getElementById('minigameFrame').src = '';
+        }
+
+        // Listen for messages from minigame iframe
+        window.addEventListener('message', (e) => {
+            if (e.data === 'closeMinigame') {
+                closeMinigame();
+            }
+        });
+
+        // Game loop
+        function gameLoop() {
+            if (!minigameActive) {
+                update();
+                render();
+            }
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Start the game
+        gameLoop();
+    </script>
 </body>
 </html>

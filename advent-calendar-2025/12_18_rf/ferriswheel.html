@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ferris Wheel View</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Press Start 2P', monospace;
+            background: #000;
+            overflow: hidden;
+            min-height: 100vh;
+        }
+
+        #gameCanvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+            image-rendering: pixelated;
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 100, 100, 0.9);
+            border: 3px solid #aa0000;
+            border-radius: 8px;
+            color: white;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 12px;
+            padding: 10px 20px;
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 50, 50, 1);
+        }
+
+        #hint {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            border: 2px solid #ffd700;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 10px;
+            padding: 10px 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <button class="back-button" onclick="exitGame()">EXIT (ESC)</button>
+    <div id="hint">Press SPACE to start the ride</div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let wheelAngle = 0; // Current rotation of wheel (0 = bottom, PI = top)
+        let rideProgress = 0; // 0 to 1, full rotation
+        let viewAngle = 0; // Player looking left/right
+        let rideStarted = false;
+        let rideComplete = false;
+
+        const keys = {};
+
+        document.addEventListener('keydown', (e) => {
+            keys[e.key] = true;
+            if (e.key === 'Escape') exitGame();
+            if (e.key === ' ' && !rideStarted) {
+                rideStarted = true;
+                document.getElementById('hint').textContent = 'Enjoy the view!';
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            keys[e.key] = false;
+        });
+
+        function exitGame() {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage('closeMinigame', '*');
+            } else {
+                window.history.back();
+            }
+        }
+
+        function update() {
+            // Look around
+            if (keys['ArrowLeft'] || keys['a']) viewAngle -= 0.02;
+            if (keys['ArrowRight'] || keys['d']) viewAngle += 0.02;
+            viewAngle = Math.max(-0.5, Math.min(0.5, viewAngle));
+
+            // Ride progress - gentle pace, ~45 seconds for full rotation
+            if (rideStarted && !rideComplete) {
+                rideProgress += 0.0012;
+                wheelAngle = rideProgress * Math.PI * 2;
+                if (rideProgress >= 1) {
+                    rideComplete = true;
+                    document.getElementById('hint').textContent = 'Press ESC to return';
+                }
+            }
+        }
+
+        // Calculate height position on wheel (0 = bottom, 1 = top)
+        function getHeightOnWheel() {
+            // wheelAngle 0 = bottom, PI = top, 2PI = bottom again
+            // Using sin: at 0 sin=0, at PI/2 sin=1, at PI sin=0, at 3PI/2 sin=-1
+            // We want: at 0 (bottom) = 0, at PI (top) = 1
+            // So use (1 - cos(wheelAngle)) / 2
+            return (1 - Math.cos(wheelAngle)) / 2;
+        }
+
+        function render() {
+            const w = canvas.width;
+            const h = canvas.height;
+
+            // Height on wheel affects perspective
+            const height = getHeightOnWheel(); // 0 = bottom, 1 = top
+
+            // At bottom: horizon is high (see mostly ground/nearby)
+            // At top: horizon is low (see far, panoramic view)
+            const horizonY = h * (0.3 + (1 - height) * 0.4); // 0.3 at top, 0.7 at bottom
+
+            // Sunny daytime sky - constant throughout
+            const skyGradient = ctx.createLinearGradient(0, 0, 0, horizonY);
+            skyGradient.addColorStop(0, '#4a90d9');
+            skyGradient.addColorStop(0.5, '#87ceeb');
+            skyGradient.addColorStop(1, '#b0e0e6');
+
+            ctx.fillStyle = skyGradient;
+            ctx.fillRect(0, 0, w, horizonY);
+
+            // Ground/far view gradient
+            const groundGradient = ctx.createLinearGradient(0, horizonY, 0, h);
+            groundGradient.addColorStop(0, '#90b060'); // Far grass
+            groundGradient.addColorStop(0.3, '#70a050'); // Mid grass
+            groundGradient.addColorStop(1, '#507030'); // Near grass (darker when at top)
+            ctx.fillStyle = groundGradient;
+            ctx.fillRect(0, horizonY, w, h - horizonY);
+
+            // Sun - always visible, position shifts slightly with height
+            const sunX = w * 0.75 + viewAngle * w * 0.2;
+            const sunY = 80 + height * 40; // Sun appears higher when we're higher
+            ctx.fillStyle = '#ffdd44';
+            ctx.beginPath();
+            ctx.arc(sunX, sunY, 35, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = 'rgba(255, 230, 100, 0.3)';
+            ctx.beginPath();
+            ctx.arc(sunX, sunY, 55, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Clouds
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            for (let i = 0; i < 6; i++) {
+                const cx = (i * 180 + Date.now() / 80) % (w + 300) - 150 - viewAngle * 40;
+                const cy = 60 + i * 25 + (1 - height) * 30; // Clouds shift up when we're higher
+                drawCloud(cx, cy, 35 + i * 8);
+            }
+
+            // Flying birds
+            drawBirds(w, h, viewAngle, height);
+
+            // Draw scene based on height
+            drawCitySkyline(w, h, horizonY, height, viewAngle);
+            drawParkBelow(w, h, horizonY, height, viewAngle);
+
+            // Ferris wheel cabin interior
+            drawCabinInterior(w, h, height);
+
+            // Fede looking out
+            drawFedeInCabin(w, h, viewAngle, height);
+
+            // Height indicator
+            drawHeightIndicator(w, h, height);
+        }
+
+        function drawCloud(x, y, size) {
+            ctx.beginPath();
+            ctx.arc(x, y, size * 0.5, 0, Math.PI * 2);
+            ctx.arc(x + size * 0.4, y - size * 0.2, size * 0.4, 0, Math.PI * 2);
+            ctx.arc(x + size * 0.8, y, size * 0.45, 0, Math.PI * 2);
+            ctx.arc(x + size * 0.4, y + size * 0.1, size * 0.35, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawBirds(w, h, viewAngle, height) {
+            const time = Date.now() / 1000;
+
+            // Multiple birds flying across
+            for (let i = 0; i < 3; i++) {
+                const speed = 40 + i * 15;
+                const bx = ((time * speed + i * 300) % (w + 200)) - 100 - viewAngle * 60;
+                const by = 100 + i * 50 + Math.sin(time * 2 + i) * 20 + (1 - height) * 40;
+                const wingFlap = Math.sin(time * 8 + i * 3) * 0.4;
+
+                ctx.fillStyle = '#1a1a1a';
+
+                // Bird body
+                ctx.beginPath();
+                ctx.ellipse(bx, by, 8, 4, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Head
+                ctx.beginPath();
+                ctx.arc(bx + 7, by - 1, 3, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Beak
+                ctx.fillStyle = '#ff8c00';
+                ctx.beginPath();
+                ctx.moveTo(bx + 10, by - 1);
+                ctx.lineTo(bx + 14, by);
+                ctx.lineTo(bx + 10, by + 1);
+                ctx.fill();
+
+                // Wings (animated)
+                ctx.fillStyle = '#2a2a2a';
+                ctx.beginPath();
+                ctx.moveTo(bx - 3, by);
+                ctx.quadraticCurveTo(bx - 2, by - 12 * (1 + wingFlap), bx + 5, by - 2);
+                ctx.quadraticCurveTo(bx, by - 5 * (1 + wingFlap), bx - 3, by);
+                ctx.fill();
+
+                // Tail
+                ctx.fillStyle = '#1a1a1a';
+                ctx.beginPath();
+                ctx.moveTo(bx - 8, by);
+                ctx.lineTo(bx - 14, by - 2);
+                ctx.lineTo(bx - 14, by + 2);
+                ctx.closePath();
+                ctx.fill();
+            }
+        }
+
+        function drawCitySkyline(w, h, horizonY, height, viewAngle) {
+            const offset = viewAngle * 150;
+
+            // City only visible when high enough
+            if (height > 0.3) {
+                const cityAlpha = Math.min(1, (height - 0.3) / 0.4);
+
+                // Far buildings (silhouette)
+                ctx.fillStyle = `rgba(80, 80, 120, ${cityAlpha * 0.7})`;
+                for (let i = 0; i < 25; i++) {
+                    const bx = i * 50 - 100 - offset * 0.3;
+                    const bw = 30 + Math.sin(i * 3.7) * 12;
+                    const bh = (60 + Math.sin(i * 2.3) * 50) * height;
+                    const by = horizonY - bh;
+                    ctx.fillRect(bx, by, bw, bh);
+                }
+
+                // Mid buildings
+                ctx.fillStyle = `rgba(60, 60, 100, ${cityAlpha * 0.8})`;
+                for (let i = 0; i < 20; i++) {
+                    const bx = i * 65 - 80 - offset * 0.5;
+                    const bw = 40 + Math.sin(i * 4.1) * 15;
+                    const bh = (80 + Math.sin(i * 1.9) * 60) * height;
+                    const by = horizonY - bh;
+                    ctx.fillRect(bx, by, bw, bh);
+
+                    // Windows
+                    ctx.fillStyle = `rgba(200, 220, 255, ${cityAlpha * 0.5})`;
+                    for (let wy = 10; wy < bh - 10; wy += 12) {
+                        for (let wx = 6; wx < bw - 6; wx += 10) {
+                            ctx.fillRect(bx + wx, by + wy, 5, 6);
+                        }
+                    }
+                    ctx.fillStyle = `rgba(60, 60, 100, ${cityAlpha * 0.8})`;
+                }
+
+                // Closer buildings (only when very high)
+                if (height > 0.6) {
+                    const closeAlpha = (height - 0.6) / 0.4;
+                    ctx.fillStyle = `rgba(50, 50, 80, ${closeAlpha * 0.9})`;
+                    for (let i = 0; i < 12; i++) {
+                        const bx = i * 90 - 60 - offset * 0.8;
+                        const bw = 55 + Math.sin(i * 2.7) * 20;
+                        const bh = (120 + Math.sin(i * 3.2) * 80) * height;
+                        const by = horizonY - bh;
+                        ctx.fillRect(bx, by, bw, bh);
+                    }
+                }
+            }
+        }
+
+        function drawParkBelow(w, h, horizonY, height, viewAngle) {
+            const offset = viewAngle * 200;
+            const parkY = horizonY + 20;
+
+            // Other ferris wheel structure (visible from cabin)
+            if (height > 0.2) {
+                ctx.strokeStyle = '#666';
+                ctx.lineWidth = 4;
+                // Central support seen from side
+                ctx.beginPath();
+                ctx.moveTo(w * 0.1 - offset, parkY + 100);
+                ctx.lineTo(w * 0.15 - offset, parkY);
+                ctx.lineTo(w * 0.2 - offset, parkY + 100);
+                ctx.stroke();
+            }
+
+            // Rollercoaster track
+            ctx.strokeStyle = '#777';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            const coasterScale = 0.5 + height * 0.5; // Smaller when low
+            ctx.moveTo(w * 0.4 - offset, parkY + 50);
+            for (let i = 0; i < 80; i++) {
+                const x = w * 0.4 + i * 4 * coasterScale - offset;
+                const y = parkY + 50 - Math.sin(i * 0.12) * 40 * coasterScale;
+                ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+
+            // Loop of the rollercoaster
+            if (height > 0.4) {
+                ctx.beginPath();
+                ctx.arc(w * 0.6 - offset, parkY + 30, 25 * coasterScale, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+
+            // Food stands
+            ctx.fillStyle = '#e74c3c';
+            ctx.fillRect(w * 0.25 - offset, parkY + 70, 25, 18);
+            ctx.fillStyle = '#f39c12';
+            ctx.fillRect(w * 0.32 - offset, parkY + 65, 30, 22);
+
+            // Striped awnings
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(w * 0.25 - offset, parkY + 65, 25, 5);
+            ctx.fillRect(w * 0.32 - offset, parkY + 60, 30, 5);
+
+            // Horror house (visible when higher)
+            if (height > 0.3) {
+                ctx.fillStyle = '#2c1810';
+                ctx.fillRect(w * 0.7 - offset, parkY + 30, 60, 55);
+                // Spooky roof
+                ctx.fillStyle = '#1a0f0a';
+                ctx.beginPath();
+                ctx.moveTo(w * 0.7 - 10 - offset, parkY + 30);
+                ctx.lineTo(w * 0.7 + 30 - offset, parkY);
+                ctx.lineTo(w * 0.7 + 70 - offset, parkY + 30);
+                ctx.fill();
+            }
+
+            // Paths
+            ctx.fillStyle = '#c0a070';
+            ctx.fillRect(0, parkY + 90, w, 12);
+
+            // Trees
+            for (let i = 0; i < 12; i++) {
+                const tx = i * 90 + 40 - offset;
+                const treeSize = 12 + height * 8;
+                // Trunk
+                ctx.fillStyle = '#5d4037';
+                ctx.fillRect(tx - 3, parkY + 80, 6, 15);
+                // Foliage
+                ctx.fillStyle = '#228b22';
+                ctx.beginPath();
+                ctx.arc(tx, parkY + 70, treeSize, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Tiny people walking (when high enough to see them)
+            if (height > 0.5) {
+                const peopleColors = ['#e74c3c', '#3498db', '#2ecc71', '#f1c40f', '#9b59b6'];
+                for (let i = 0; i < 15; i++) {
+                    const px = (i * 80 + Date.now() / 30 * (i % 2 === 0 ? 1 : -1)) % (w + 100) - 50 - offset;
+                    const py = parkY + 85 + (i % 3) * 5;
+                    ctx.fillStyle = peopleColors[i % peopleColors.length];
+                    ctx.fillRect(px, py, 4, 8);
+                    ctx.fillStyle = '#ffd5b4';
+                    ctx.fillRect(px, py - 3, 4, 4);
+                }
+            }
+        }
+
+        function drawCabinInterior(w, h, height) {
+            // Cabin frame - golden/yellow color
+            ctx.fillStyle = '#ffd700';
+            // Left side
+            ctx.fillRect(0, 0, 35, h);
+            // Right side
+            ctx.fillRect(w - 35, 0, 35, h);
+            // Top
+            ctx.fillRect(0, 0, w, 45);
+            // Bottom
+            ctx.fillRect(0, h - 90, w, 90);
+
+            // Cabin frame details
+            ctx.fillStyle = '#cc9900';
+            ctx.fillRect(8, 55, 22, h - 160);
+            ctx.fillRect(w - 30, 55, 22, h - 160);
+
+            // Window bars
+            ctx.fillStyle = '#aa8800';
+            ctx.fillRect(w/3, 0, 4, 45);
+            ctx.fillRect(2*w/3, 0, 4, 45);
+
+            // Safety bar
+            ctx.fillStyle = '#666';
+            ctx.fillRect(35, h - 160, w - 70, 10);
+
+            // Bar supports
+            ctx.fillRect(w/2 - 3, h - 160, 6, 30);
+
+            // Seat
+            ctx.fillStyle = '#8b0000';
+            ctx.fillRect(55, h - 125, w - 110, 35);
+            ctx.fillStyle = '#6b0000';
+            ctx.fillRect(55, h - 130, w - 110, 8);
+
+            // Cabin sway indicator (slight tilt based on movement)
+            const sway = Math.sin(Date.now() / 500) * 0.5;
+            ctx.save();
+            ctx.translate(w/2, 25);
+            ctx.rotate(sway * 0.01);
+            ctx.fillStyle = '#aa8800';
+            ctx.fillRect(-2, 0, 4, 20);
+            ctx.fillStyle = '#ffd700';
+            ctx.beginPath();
+            ctx.arc(0, 0, 8, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        }
+
+        function drawFedeInCabin(w, h, viewAngle, height) {
+            const fedeX = w / 2 + viewAngle * 80;
+            const fedeY = h - 185;
+
+            ctx.save();
+            ctx.translate(fedeX, fedeY);
+            ctx.scale(3, 3);
+
+            // Burgundy jacket
+            ctx.fillStyle = '#722f37';
+            ctx.fillRect(-9, 14, 18, 14);
+            // Collar/lapels
+            ctx.fillStyle = '#5a252c';
+            ctx.fillRect(-9, 14, 3, 6);
+            ctx.fillRect(6, 14, 3, 6);
+
+            // White shirt
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(-3, 16, 6, 8);
+            // Shirt buttons
+            ctx.fillStyle = '#ddd';
+            ctx.fillRect(-1, 17, 2, 1);
+            ctx.fillRect(-1, 20, 2, 1);
+
+            // Arms resting on bar
+            ctx.fillStyle = '#722f37';
+            ctx.fillRect(-12, 18, 4, 10);
+            ctx.fillRect(8, 18, 4, 10);
+            // Hands
+            ctx.fillStyle = '#e8c4a0';
+            ctx.fillRect(-12, 26, 4, 3);
+            ctx.fillRect(8, 26, 4, 3);
+
+            // Face looking at view
+            ctx.fillStyle = '#e8c4a0';
+            ctx.fillRect(-7, 2, 14, 12);
+
+            // Ears
+            ctx.fillRect(-9, 5, 3, 5);
+            ctx.fillRect(6, 5, 3, 5);
+
+            // Black hair - styled
+            ctx.fillStyle = '#0a0a0a';
+            ctx.fillRect(-8, -3, 16, 6);
+            ctx.fillRect(-9, 0, 3, 5);
+            ctx.fillRect(6, 0, 3, 5);
+            // Hair detail
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(-6, -2, 4, 3);
+
+            // Eyebrows
+            ctx.fillStyle = '#0a0a0a';
+            ctx.fillRect(-5, 4, 3, 1);
+            ctx.fillRect(2, 4, 3, 1);
+
+            // Eyes looking at view
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(-5, 5, 4, 3);
+            ctx.fillRect(1, 5, 4, 3);
+            ctx.fillStyle = '#3d2314';
+            const eyeOffset = viewAngle * 2;
+            ctx.fillRect(-4 + eyeOffset, 6, 2, 2);
+            ctx.fillRect(2 + eyeOffset, 6, 2, 2);
+
+            // Nose
+            ctx.fillStyle = '#d4a574';
+            ctx.fillRect(-1, 8, 2, 2);
+
+            // Slight smile (enjoying the view)
+            ctx.fillStyle = '#000';
+            ctx.fillRect(-2, 11, 4, 1);
+
+            ctx.restore();
+
+            // Thought bubbles based on position and direction
+            // Going UP (first half of ride): "¡Se ve todo!" near the top
+            // Going DOWN (second half): "Qué vista..." as descending
+            const goingUp = rideProgress < 0.5;
+
+            if (goingUp && height > 0.7 && height < 0.95) {
+                drawThoughtBubble(fedeX + 90, fedeY - 30, '¡Se ve todo!');
+            } else if (!goingUp && height > 0.4 && height < 0.7) {
+                drawThoughtBubble(fedeX + 90, fedeY - 30, 'Qué vista...');
+            }
+        }
+
+        function drawThoughtBubble(x, y, text) {
+            ctx.fillStyle = '#fff';
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+
+            // Main bubble
+            ctx.beginPath();
+            ctx.ellipse(x, y, 70, 25, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            // Thought dots
+            ctx.beginPath();
+            ctx.arc(x - 55, y + 20, 6, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(x - 65, y + 30, 4, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            // Text
+            ctx.fillStyle = '#333';
+            ctx.font = '10px "Press Start 2P"';
+            ctx.textAlign = 'center';
+            ctx.fillText(text, x, y + 4);
+        }
+
+        function drawHeightIndicator(w, h, height) {
+            // Small height indicator on the left
+            const indicatorX = 60;
+            const indicatorY = h / 2;
+            const indicatorH = 150;
+
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+            ctx.fillRect(indicatorX - 15, indicatorY - indicatorH/2 - 10, 30, indicatorH + 40);
+
+            // Track
+            ctx.fillStyle = '#444';
+            ctx.fillRect(indicatorX - 3, indicatorY - indicatorH/2, 6, indicatorH);
+
+            // Current position
+            const cabinY = indicatorY + indicatorH/2 - height * indicatorH;
+            ctx.fillStyle = '#ffd700';
+            ctx.fillRect(indicatorX - 8, cabinY - 5, 16, 10);
+
+            // Labels
+            ctx.fillStyle = '#fff';
+            ctx.font = '8px "Press Start 2P"';
+            ctx.textAlign = 'center';
+            ctx.fillText('TOP', indicatorX, indicatorY - indicatorH/2 - 2);
+            ctx.fillText('BTM', indicatorX, indicatorY + indicatorH/2 + 18);
+        }
+
+        function gameLoop() {
+            update();
+            render();
+            requestAnimationFrame(gameLoop);
+        }
+
+        gameLoop();
+    </script>
+</body>
+</html>
