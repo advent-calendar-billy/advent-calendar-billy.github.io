@@ -249,7 +249,7 @@
         <div class="start-content">
             <div class="game-title">CASTLEVANIA</div>
             <div class="game-subtitle">Fedecard's Quest</div>
-            <div style="font-size: 10px; color: #666; margin-top: 5px;">v1.002</div>
+            <div style="font-size: 10px; color: #666; margin-top: 5px;">v2</div>
 
             <div style="margin: 30px auto; max-width: 500px; text-align: left; color: #aaa; font-size: 13px; line-height: 1.8;">
                 <div style="color: #ffcc00; margin-bottom: 10px; text-align: center;">CONTROLS</div>
@@ -1920,7 +1920,10 @@
                 // Apply gravity
                 if (!player.grounded) {
                     player.vy += 0.7;
-                    player.state = 'jump';
+                    // Only set jump state if not attacking
+                    if (player.attackTimer <= 0) {
+                        player.state = 'jump';
+                    }
                 }
             }
 
