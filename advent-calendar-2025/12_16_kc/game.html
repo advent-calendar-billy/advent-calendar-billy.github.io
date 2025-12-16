@@ -1799,9 +1799,10 @@
 
         // Game loop
         let lastTime = 0;
+        const GAME_SPEED = 1.3; // 30% faster
 
         function gameLoop(time) {
-            const dt = Math.min(time - lastTime, 50);
+            const dt = Math.min(time - lastTime, 50) * GAME_SPEED;
             lastTime = time;
 
             if (deathAnimation && !victory) {
@@ -3639,6 +3640,11 @@
             // Draw boss room gate
             if (bossRoomSealed) {
                 drawBossGate();
+            }
+
+            // Draw frozen boss during dialogue
+            if (gameState === 'dialogue') {
+                drawBoss();
             }
 
             if (boss.active) {
