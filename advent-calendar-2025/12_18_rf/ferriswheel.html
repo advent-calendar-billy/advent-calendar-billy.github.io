@@ -107,11 +107,11 @@
             if (keys['ArrowRight'] || keys['d']) viewAngle += 0.02;
             viewAngle = Math.max(-0.5, Math.min(0.5, viewAngle));
 
-            // Ride progress - gentle pace, ~45 seconds for full rotation
+            // Ride progress - 3 full rotations
             if (rideStarted && !rideComplete) {
                 rideProgress += 0.0012;
                 wheelAngle = rideProgress * Math.PI * 2;
-                if (rideProgress >= 1) {
+                if (rideProgress >= 3) {
                     rideComplete = true;
                     document.getElementById('hint').textContent = 'Press ESC to return';
                 }
@@ -155,8 +155,9 @@
             ctx.fillStyle = groundGradient;
             ctx.fillRect(0, horizonY, w, h - horizonY);
 
-            // Sun - always visible, position shifts slightly with height
-            const sunX = w * 0.75 + viewAngle * w * 0.2;
+            // Sun - moves slightly left during the ride (time passing)
+            const sunProgress = rideStarted ? rideProgress / 3 : 0; // 0 to 1 over full ride
+            const sunX = w * 0.75 - sunProgress * w * 0.15 + viewAngle * w * 0.2;
             const sunY = 80 + height * 40; // Sun appears higher when we're higher
             ctx.fillStyle = '#ffdd44';
             ctx.beginPath();
@@ -182,14 +183,15 @@
             drawCitySkyline(w, h, horizonY, height, viewAngle);
             drawParkBelow(w, h, horizonY, height, viewAngle);
 
+            // Loop-specific surprises (plane in loop 2, Superman in loop 3)
+            const currentLoop = Math.floor(rideProgress) + 1; // 1, 2, or 3
+            drawLoopSurprises(w, h, height, viewAngle, currentLoop);
+
             // Ferris wheel cabin interior
             drawCabinInterior(w, h, height);
 
             // Fede looking out
-            drawFedeInCabin(w, h, viewAngle, height);
-
-            // Height indicator
-            drawHeightIndicator(w, h, height);
+            drawFedeInCabin(w, h, viewAngle, height, currentLoop);
         }
 
         function drawCloud(x, y, size) {
@@ -247,6 +249,215 @@
                 ctx.lineTo(bx - 14, by + 2);
                 ctx.closePath();
                 ctx.fill();
+            }
+        }
+
+        function drawLoopSurprises(w, h, height, viewAngle, currentLoop) {
+            const time = Date.now() / 1000;
+
+            // Loop 2: Airplane flies across when at peak
+            if (currentLoop >= 2 && height > 0.6) {
+                const planeAlpha = Math.min(1, (height - 0.6) / 0.3);
+                const planeX = ((time * 80) % (w + 400)) - 200 - viewAngle * 100;
+                const planeY = 100 + (1 - height) * 50;
+
+                ctx.save();
+                ctx.globalAlpha = planeAlpha;
+                ctx.translate(planeX, planeY);
+
+                // Fuselage
+                ctx.fillStyle = '#f0f0f0';
+                ctx.beginPath();
+                ctx.ellipse(0, 0, 50, 12, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Nose
+                ctx.beginPath();
+                ctx.moveTo(50, 0);
+                ctx.lineTo(65, 0);
+                ctx.lineTo(50, -5);
+                ctx.closePath();
+                ctx.fill();
+
+                // Cockpit windows
+                ctx.fillStyle = '#4a90d9';
+                ctx.beginPath();
+                ctx.ellipse(40, -3, 8, 5, -0.2, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Wings
+                ctx.fillStyle = '#d0d0d0';
+                ctx.beginPath();
+                ctx.moveTo(-10, 0);
+                ctx.lineTo(-30, -35);
+                ctx.lineTo(-15, -35);
+                ctx.lineTo(10, 0);
+                ctx.closePath();
+                ctx.fill();
+                ctx.beginPath();
+                ctx.moveTo(-10, 0);
+                ctx.lineTo(-30, 35);
+                ctx.lineTo(-15, 35);
+                ctx.lineTo(10, 0);
+                ctx.closePath();
+                ctx.fill();
+
+                // Tail
+                ctx.fillStyle = '#e0e0e0';
+                ctx.beginPath();
+                ctx.moveTo(-45, 0);
+                ctx.lineTo(-55, -20);
+                ctx.lineTo(-40, -20);
+                ctx.lineTo(-35, 0);
+                ctx.closePath();
+                ctx.fill();
+
+                // Tail fin (red stripe)
+                ctx.fillStyle = '#e74c3c';
+                ctx.beginPath();
+                ctx.moveTo(-50, -5);
+                ctx.lineTo(-55, -20);
+                ctx.lineTo(-48, -20);
+                ctx.lineTo(-45, -5);
+                ctx.closePath();
+                ctx.fill();
+
+                // Windows
+                ctx.fillStyle = '#4a90d9';
+                for (let i = 0; i < 8; i++) {
+                    ctx.beginPath();
+                    ctx.arc(25 - i * 8, -4, 2, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                // Contrail
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(-55, -10);
+                ctx.lineTo(-150, -10 + Math.sin(time * 2) * 5);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(-55, 10);
+                ctx.lineTo(-150, 10 + Math.sin(time * 2 + 1) * 5);
+                ctx.stroke();
+
+                ctx.restore();
+            }
+
+            // Loop 3: Superman flies across when at peak
+            if (currentLoop >= 3 && height > 0.7) {
+                const supermanAlpha = Math.min(1, (height - 0.7) / 0.2);
+                const supermanX = w + 100 - ((time * 120) % (w + 400)) - viewAngle * 80;
+                const supermanY = 140 + Math.sin(time * 3) * 20 + (1 - height) * 30;
+
+                ctx.save();
+                ctx.globalAlpha = supermanAlpha;
+                ctx.translate(supermanX, supermanY);
+                ctx.scale(-1, 1); // Flying left
+
+                // Cape (billowing)
+                ctx.fillStyle = '#dc2626';
+                ctx.beginPath();
+                ctx.moveTo(-5, 5);
+                ctx.quadraticCurveTo(-40 + Math.sin(time * 8) * 10, 0, -50 + Math.sin(time * 6) * 8, 15);
+                ctx.quadraticCurveTo(-35 + Math.sin(time * 7) * 5, 20, -5, 12);
+                ctx.closePath();
+                ctx.fill();
+
+                // Body (blue suit)
+                ctx.fillStyle = '#2563eb';
+                ctx.beginPath();
+                ctx.ellipse(0, 8, 8, 15, 0.3, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Red trunks
+                ctx.fillStyle = '#dc2626';
+                ctx.beginPath();
+                ctx.ellipse(0, 15, 7, 5, 0.3, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Legs
+                ctx.fillStyle = '#2563eb';
+                ctx.beginPath();
+                ctx.moveTo(-3, 18);
+                ctx.lineTo(-8, 35);
+                ctx.lineTo(-4, 35);
+                ctx.lineTo(0, 20);
+                ctx.closePath();
+                ctx.fill();
+                ctx.beginPath();
+                ctx.moveTo(3, 18);
+                ctx.lineTo(8, 35);
+                ctx.lineTo(4, 35);
+                ctx.lineTo(0, 20);
+                ctx.closePath();
+                ctx.fill();
+
+                // Red boots
+                ctx.fillStyle = '#dc2626';
+                ctx.fillRect(-8, 30, 5, 6);
+                ctx.fillRect(4, 30, 5, 6);
+
+                // Arms (extended forward - flying pose)
+                ctx.fillStyle = '#2563eb';
+                ctx.beginPath();
+                ctx.moveTo(5, 2);
+                ctx.lineTo(30, -15);
+                ctx.lineTo(32, -12);
+                ctx.lineTo(8, 5);
+                ctx.closePath();
+                ctx.fill();
+                ctx.beginPath();
+                ctx.moveTo(5, 5);
+                ctx.lineTo(28, -8);
+                ctx.lineTo(30, -5);
+                ctx.lineTo(8, 8);
+                ctx.closePath();
+                ctx.fill();
+
+                // Fists
+                ctx.fillStyle = '#e8c4a0';
+                ctx.beginPath();
+                ctx.arc(31, -13, 3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(29, -6, 3, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Head
+                ctx.fillStyle = '#e8c4a0';
+                ctx.beginPath();
+                ctx.arc(3, -8, 7, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Hair (black, slicked back with iconic curl)
+                ctx.fillStyle = '#0a0a0a';
+                ctx.beginPath();
+                ctx.arc(3, -12, 6, Math.PI, 0, false);
+                ctx.fill();
+                // The curl
+                ctx.beginPath();
+                ctx.moveTo(8, -10);
+                ctx.quadraticCurveTo(12, -8, 10, -5);
+                ctx.quadraticCurveTo(8, -7, 8, -10);
+                ctx.fill();
+
+                // S logo on chest
+                ctx.fillStyle = '#ffd700';
+                ctx.beginPath();
+                ctx.moveTo(-2, 0);
+                ctx.lineTo(6, 0);
+                ctx.lineTo(4, 10);
+                ctx.lineTo(-4, 10);
+                ctx.closePath();
+                ctx.fill();
+                ctx.fillStyle = '#dc2626';
+                ctx.font = 'bold 8px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('S', 1, 8);
+
+                ctx.restore();
             }
         }
 
@@ -442,7 +653,7 @@
             ctx.restore();
         }
 
-        function drawFedeInCabin(w, h, viewAngle, height) {
+        function drawFedeInCabin(w, h, viewAngle, height, currentLoop) {
             const fedeX = w / 2 + viewAngle * 80;
             const fedeY = h - 185;
 
@@ -516,18 +727,19 @@
 
             ctx.restore();
 
-            // Thought bubbles - only when ride has progressed AND perspective has truly changed
-            // Require rideProgress > 0.2 (about 20% of the way up) before showing any thoughts
-            // At the very top (height > 0.9): "¡Se ve todo!" (I can see everything!)
-            // Coming down from top (rideProgress > 0.5 AND height 0.65-0.85): "Qué vista..." (What a view...)
+            // Thought bubbles - different per loop, only when at peak
+            // Loop 1: "¡Se ve todo!" at peak
+            // Loop 2: "¡Un avión!" when seeing plane
+            // Loop 3: "¿¡Superman!?" when seeing Superman
+            const loopProgress = rideProgress % 1; // 0 to 1 within current loop
 
-            if (rideStarted && rideProgress > 0.2) {
-                if (height > 0.9) {
-                    // At the peak - can see everything
+            if (rideStarted && loopProgress > 0.2 && height > 0.85) {
+                if (currentLoop === 1) {
                     drawThoughtBubble(fedeX + 90, fedeY - 30, '¡Se ve todo!');
-                } else if (rideProgress > 0.5 && height > 0.65 && height < 0.85) {
-                    // Descending from top (rideProgress > 0.5 means past the peak), still great view
-                    drawThoughtBubble(fedeX + 90, fedeY - 30, 'Qué vista...');
+                } else if (currentLoop === 2) {
+                    drawThoughtBubble(fedeX + 90, fedeY - 30, '¡Un avión!');
+                } else if (currentLoop === 3) {
+                    drawThoughtBubble(fedeX + 90, fedeY - 30, '¿¡Superman!?');
                 }
             }
         }
@@ -558,32 +770,6 @@
             ctx.font = '10px "Press Start 2P"';
             ctx.textAlign = 'center';
             ctx.fillText(text, x, y + 4);
-        }
-
-        function drawHeightIndicator(w, h, height) {
-            // Small height indicator on the left
-            const indicatorX = 60;
-            const indicatorY = h / 2;
-            const indicatorH = 150;
-
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-            ctx.fillRect(indicatorX - 15, indicatorY - indicatorH/2 - 10, 30, indicatorH + 40);
-
-            // Track
-            ctx.fillStyle = '#444';
-            ctx.fillRect(indicatorX - 3, indicatorY - indicatorH/2, 6, indicatorH);
-
-            // Current position
-            const cabinY = indicatorY + indicatorH/2 - height * indicatorH;
-            ctx.fillStyle = '#ffd700';
-            ctx.fillRect(indicatorX - 8, cabinY - 5, 16, 10);
-
-            // Labels
-            ctx.fillStyle = '#fff';
-            ctx.font = '8px "Press Start 2P"';
-            ctx.textAlign = 'center';
-            ctx.fillText('TOP', indicatorX, indicatorY - indicatorH/2 - 2);
-            ctx.fillText('BTM', indicatorX, indicatorY + indicatorH/2 + 18);
         }
 
         function gameLoop() {
