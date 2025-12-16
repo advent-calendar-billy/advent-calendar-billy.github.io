@@ -276,9 +276,12 @@
             frame: 0,
             frameTimer: 0,
             // Food system
-            heldFood: null,       // 'panchito', 'bagel', 'medialuna', null
+            heldFood: null,       // 'panchito', 'gaseosa', 'medialuna', null
             eatingTimer: 0,       // Countdown for eating animation
-            eatFrame: 0           // Animation frame for eating
+            eatFrame: 0,          // Animation frame for eating
+            // Money animation
+            payingFrame: 0,       // Animation frame for paying
+            payingVendor: null    // Reference to vendor being paid
         };
 
         const keys = {};
@@ -306,8 +309,8 @@
                     { x: 720, y: 450, width: 50, height: 40, type: 'bush' },
                 ],
                 npcs: [
-                    { x: 150, y: 200, direction: 'down', type: 'ticket_seller', interactText: "¡Bienvenido a Fun World! ¿Buscás a alguien? Probá en la plaza principal." },
-                    { x: 600, y: 400, direction: 'left', type: 'visitor', interactText: "Vi a alguien corriendo hacia los juegos..." },
+                    { x: 150, y: 200, direction: 'down', type: 'ticket_seller', interactText: "Welcome to Fun World! Looking for someone? Try the main plaza!" },
+                    { x: 600, y: 400, direction: 'left', type: 'visitor', interactText: "I saw someone running towards the rides... looked pretty buff." },
                 ]
             },
             plaza: {
@@ -319,7 +322,7 @@
                     { x: 340, y: 250, width: 120, height: 100, type: 'fountain' },
                     // Food stands (interactable - buy food!)
                     { x: 100, y: 100, width: 80, height: 60, type: 'food_stand', label: 'PANCHITO', foodType: 'panchito', interactable: true },
-                    { x: 620, y: 100, width: 80, height: 60, type: 'food_stand', label: 'BAGEL', foodType: 'bagel', interactable: true },
+                    { x: 620, y: 100, width: 80, height: 60, type: 'food_stand', label: 'GASEOSA', foodType: 'gaseosa', interactable: true },
                     { x: 100, y: 350, width: 80, height: 60, type: 'food_stand', label: 'MEDIALUNA', foodType: 'medialuna', interactable: true },
                     // Benches around fountain
                     { x: 280, y: 380, width: 60, height: 30, type: 'bench' },
@@ -333,9 +336,10 @@
                     { x: 380, y: 80, width: 40, height: 60, type: 'sign', label: 'RUEDA' },
                 ],
                 npcs: [
-                    { x: 120, y: 180, direction: 'down', type: 'vendor', interactText: "¡Panchitos! ¡Bagels! ...Alguien corrió hacia la Casa del Terror." },
-                    { x: 650, y: 180, direction: 'down', type: 'vendor', interactText: "¡Medialunas calentitas! ...¿Billy? ¿Asustado? Corrió para la derecha." },
-                    { x: 400, y: 450, direction: 'up', type: 'visitor', interactText: "La Casa del Terror da bastante miedo..." },
+                    { x: 125, y: 115, direction: 'down', type: 'food_vendor', standFood: 'panchito', interactText: "Hot dogs! Fresh hot dogs! ...A muscular guy? Ran towards the Horror House." },
+                    { x: 645, y: 115, direction: 'down', type: 'food_vendor', standFood: 'gaseosa', interactText: "Cold drinks here! ...Scared-looking guy? Went to the right, I think." },
+                    { x: 125, y: 365, direction: 'down', type: 'food_vendor', standFood: 'medialuna', interactText: "Fresh croissants! ...Someone ran past here looking terrified!" },
+                    { x: 400, y: 450, direction: 'up', type: 'visitor', interactText: "The Horror House is really scary... Saw a big guy run in there." },
                 ]
             },
             rollercoaster: {
@@ -351,8 +355,8 @@
                     { x: 400, y: 400, width: 100, height: 80, type: 'ride_entrance', interactable: true },
                 ],
                 npcs: [
-                    { x: 450, y: 500, direction: 'up', type: 'ride_operator', interactText: "¿Listo para la Montaña del Hombre Alto?" },
-                    { x: 150, y: 450, direction: 'right', type: 'visitor', interactText: "¡Este juego es increíble! Pero no vi a nadie pasar por acá..." },
+                    { x: 450, y: 500, direction: 'up', type: 'ride_operator', interactText: "Ready for Tall Guy's Rollercoaster? It's a wild ride!" },
+                    { x: 150, y: 450, direction: 'right', type: 'visitor', interactText: "This ride is amazing! Haven't seen anyone come through here though..." },
                 ]
             },
             ferriswheel: {
@@ -366,8 +370,8 @@
                     { x: 350, y: 480, width: 100, height: 60, type: 'ferris_entrance', interactable: true },
                 ],
                 npcs: [
-                    { x: 450, y: 530, direction: 'up', type: 'ride_operator', interactText: "¡La mejor vista del parque! ...¿Billy? No, no lo vi por acá." },
-                    { x: 150, y: 500, direction: 'right', type: 'visitor', interactText: "¡Se ve todo el parque desde arriba!" },
+                    { x: 450, y: 530, direction: 'up', type: 'ride_operator', interactText: "Best view in the park! ...A jacked guy? Nope, haven't seen him here." },
+                    { x: 150, y: 500, direction: 'right', type: 'visitor', interactText: "You can see the whole park from up there! So romantic..." },
                 ]
             },
             horrorhouse: {
@@ -391,7 +395,7 @@
                     { x: 100, y: 350, width: 600, height: 20, type: 'fence' },
                 ],
                 npcs: [
-                    { x: 450, y: 400, direction: 'left', type: 'spooky_attendant', interactText: "Entrá si te animás... *risa malvada* ...La verdad, creo que escuché a alguien llorando adentro." },
+                    { x: 450, y: 400, direction: 'left', type: 'spooky_attendant', interactText: "Enter if you dare... *evil laugh* ...Actually, I think I heard someone crying inside." },
                 ]
             },
             horrorhouse_inside: {
@@ -439,7 +443,7 @@
                 bgColor: '#040410',
                 exits: { left: 'horror_corridor', up: 'horror_final' },
                 objects: [
-                    { x: 330, y: 200, width: 140, height: 180, type: 'monster_mirror', interactable: true },
+                    { x: 360, y: 250, width: 80, height: 100, type: 'monster_mirror', interactable: true },
                     { x: 50, y: 150, width: 20, height: 40, type: 'candle' },
                     { x: 730, y: 150, width: 20, height: 40, type: 'candle' },
                     { x: 50, y: 350, width: 20, height: 40, type: 'candle' },
@@ -507,7 +511,12 @@
                 }
 
                 if (nearNPC) {
-                    showDialog(nearNPC.type, nearNPC.interactText);
+                    // Check if it's a food vendor
+                    if (nearNPC.type === 'food_vendor' && nearNPC.standFood) {
+                        handleFoodPurchase(nearNPC);
+                    } else {
+                        showDialog(nearNPC.type, nearNPC.interactText);
+                    }
                 } else if (nearObject && nearObject.interactable) {
                     handleObjectInteraction(nearObject);
                 }
@@ -705,20 +714,62 @@
                     }
                 }, 100);
             } else if (obj.type === 'food_stand' && obj.foodType) {
-                // Buy food!
-                if (player.heldFood) {
-                    showDialog('Fede', "Ya tengo algo para comer...");
-                } else {
-                    const foodNames = {
-                        panchito: 'un panchito',
-                        bagel: 'un bagel',
-                        medialuna: 'una medialuna'
-                    };
-                    player.heldFood = obj.foodType;
-                    player.eatingTimer = 180; // Start eating after 3 seconds (60fps * 3)
-                    showDialog('Fede', `¡${foodNames[obj.foodType]}! Qué rico.`);
-                }
+                // Food stands need vendor NPC to buy from
+                showDialog('Fede', "Necesito hablar con el vendedor...");
             }
+        }
+
+        // Food purchase with money animation
+        function handleFoodPurchase(vendor) {
+            if (player.heldFood) {
+                const alreadyHaveLines = [
+                    "Ya tengo algo...",
+                    "Todavía no terminé esto.",
+                    "Después vuelvo."
+                ];
+                showDialog('Fede', alreadyHaveLines[Math.floor(Math.random() * alreadyHaveLines.length)]);
+                return;
+            }
+
+            if (player.payingFrame > 0) return; // Already paying
+
+            // Start paying animation
+            player.payingFrame = 1;
+            player.payingVendor = vendor;
+
+            // After animation completes, give food
+            setTimeout(() => {
+                const foodType = vendor.standFood;
+                player.heldFood = foodType;
+                player.eatingTimer = 180; // Start eating after 3 seconds
+
+                const foodReactions = {
+                    panchito: [
+                        "¡Un panchito! Qué rico.",
+                        "Mmm... panchito.",
+                        "¡Justo lo que necesitaba!",
+                        "Hace rato quería uno de estos."
+                    ],
+                    gaseosa: [
+                        "¡Una gaseosa! Tenía sed.",
+                        "Ahh, refrescante.",
+                        "Justo para el calor.",
+                        "¡Bien fría!"
+                    ],
+                    medialuna: [
+                        "¡Una medialuna! Qué rico.",
+                        "Mmm... recién hecha.",
+                        "¡Me encantan las medialunas!",
+                        "Todavía está calentita."
+                    ]
+                };
+
+                const lines = foodReactions[foodType] || ["¡Gracias!"];
+                showDialog('Fede', lines[Math.floor(Math.random() * lines.length)]);
+
+                player.payingFrame = 0;
+                player.payingVendor = null;
+            }, 500); // Half second for animation
         }
 
         function triggerWin() {
@@ -1755,9 +1806,9 @@
         }
 
         function drawMonsterReflection(x, y, direction, distance) {
-            // Monster version of Fede - more detailed demon
-            const scale = 0.9;
-            const intensity = 1 - (distance / 200); // More intense when closer
+            // Monster version of Fede - more detailed demon (scaled to match Fede's size)
+            const scale = 0.5;
+            const intensity = 1 - (distance / 150); // More intense when closer
 
             ctx.save();
             ctx.translate(x, y);
@@ -3198,29 +3249,67 @@
                     shirtColor = '#2a0a2a';
                     hairColor = '#1a1a1a';
                     break;
+                case 'food_vendor':
+                    shirtColor = '#e74c3c'; // Red shirt
+                    hairColor = '#3d2314';
+                    break;
             }
 
             // Shirt
             ctx.fillStyle = shirtColor;
             ctx.fillRect(x + 6, y + 14 + bob, 20, 18);
 
-            // Pants
-            ctx.fillStyle = '#2c3e50';
-            ctx.fillRect(x + 8, y + 28 + bob, 6, 6);
-            ctx.fillRect(x + 18, y + 28 + bob, 6, 6);
+            // Food vendor gets an apron
+            if (type === 'food_vendor') {
+                // White apron
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(x + 8, y + 18 + bob, 16, 14);
+                // Apron strings
+                ctx.fillStyle = '#ddd';
+                ctx.fillRect(x + 6, y + 18 + bob, 2, 4);
+                ctx.fillRect(x + 24, y + 18 + bob, 2, 4);
+                // Name tag
+                ctx.fillStyle = '#ffd700';
+                ctx.fillRect(x + 20, y + 15 + bob, 5, 4);
+            }
+
+            // Pants (hidden for food vendors behind counter)
+            if (type !== 'food_vendor') {
+                ctx.fillStyle = '#2c3e50';
+                ctx.fillRect(x + 8, y + 28 + bob, 6, 6);
+                ctx.fillRect(x + 18, y + 28 + bob, 6, 6);
+            }
 
             // Face
             ctx.fillStyle = '#ffcc99';
             ctx.fillRect(x + 8, y + 2 + bob, 16, 14);
 
-            // Hair
+            // Hair - different styles for food vendors
             ctx.fillStyle = hairColor;
-            ctx.fillRect(x + 7, y - 2 + bob, 18, 6);
+            if (type === 'food_vendor') {
+                // Chef/vendor cap
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(x + 6, y - 4 + bob, 20, 6);
+                ctx.fillStyle = '#ddd';
+                ctx.fillRect(x + 6, y - 4 + bob, 20, 2);
+                // Hair peeking out
+                ctx.fillStyle = hairColor;
+                ctx.fillRect(x + 7, y + 1 + bob, 3, 3);
+                ctx.fillRect(x + 22, y + 1 + bob, 3, 3);
+            } else {
+                ctx.fillRect(x + 7, y - 2 + bob, 18, 6);
+            }
 
             // Eyes
             ctx.fillStyle = '#000';
             ctx.fillRect(x + 11, y + 8 + bob, 3, 3);
             ctx.fillRect(x + 18, y + 8 + bob, 3, 3);
+
+            // Food vendor smile
+            if (type === 'food_vendor') {
+                ctx.fillStyle = '#000';
+                ctx.fillRect(x + 13, y + 12 + bob, 6, 1);
+            }
 
             // Interaction indicator when near
             if (nearNPC === npc) {
@@ -3332,6 +3421,44 @@
                     ctx.fillRect(x + 12 + (player.eatFrame % 4), y + 14 + (player.eatFrame % 8), 2, 2);
                 }
             }
+
+            // Money giving animation
+            if (player.payingFrame > 0 && player.payingVendor) {
+                const vendor = player.payingVendor;
+                const progress = Math.min(1, player.payingFrame / 30); // 0.5 second animation
+
+                // Draw arm extending with money
+                const armX = x + 25;
+                const armY = y + 18;
+                const targetX = vendor.x + 16;
+                const targetY = vendor.y + 20;
+
+                const moneyX = armX + (targetX - armX) * progress * 0.5;
+                const moneyY = armY + (targetY - armY) * progress * 0.3 - Math.sin(progress * Math.PI) * 10;
+
+                // Extended arm
+                ctx.strokeStyle = '#722f37';
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.moveTo(x + 23, y + 18);
+                ctx.lineTo(moneyX - 3, moneyY);
+                ctx.stroke();
+
+                // Hand
+                ctx.fillStyle = '#e8c4a0';
+                ctx.beginPath();
+                ctx.arc(moneyX - 3, moneyY, 4, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Money bill
+                ctx.fillStyle = '#85bb65'; // Dollar green
+                ctx.fillRect(moneyX, moneyY - 4, 10, 6);
+                // Dollar sign
+                ctx.fillStyle = '#5a8a45';
+                ctx.fillRect(moneyX + 4, moneyY - 3, 2, 4);
+
+                player.payingFrame++;
+            }
         }
 
         // Draw food item sprite
@@ -3344,19 +3471,26 @@
                 ctx.fillRect(x + 1, y + 3, 8, 3);
                 ctx.fillStyle = '#ff0'; // Mustard
                 ctx.fillRect(x + 2, y + 3, 6, 1);
-            } else if (foodType === 'bagel') {
-                // Bagel
-                ctx.fillStyle = '#d2691e'; // Golden brown
-                ctx.beginPath();
-                ctx.arc(x + 5, y + 5, 5, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.fillStyle = '#f5deb3'; // Lighter center
-                ctx.beginPath();
-                ctx.arc(x + 5, y + 5, 2, 0, Math.PI * 2);
-                ctx.fill();
-                // Cream cheese
+            } else if (foodType === 'gaseosa') {
+                // Soda cup with straw
+                ctx.fillStyle = '#e74c3c'; // Red cup
+                ctx.fillRect(x + 2, y + 2, 8, 10);
+                // Cup rim
+                ctx.fillStyle = '#c0392b';
+                ctx.fillRect(x + 1, y + 1, 10, 2);
+                // Cup bottom (narrower)
+                ctx.fillStyle = '#e74c3c';
+                ctx.fillRect(x + 3, y + 10, 6, 2);
+                // Straw
                 ctx.fillStyle = '#fff';
-                ctx.fillRect(x + 3, y + 4, 4, 2);
+                ctx.fillRect(x + 7, y - 3, 2, 8);
+                // Lid
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(x + 1, y + 1, 10, 1);
+                // Bubbles
+                ctx.fillStyle = 'rgba(255,255,255,0.5)';
+                ctx.fillRect(x + 4, y + 5, 2, 1);
+                ctx.fillRect(x + 6, y + 7, 1, 1);
             } else if (foodType === 'medialuna') {
                 // Croissant / medialuna
                 ctx.fillStyle = '#daa520'; // Golden

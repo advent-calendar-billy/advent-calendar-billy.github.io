@@ -219,8 +219,8 @@ class RollercoasterGame {
                 const y = loop.centerY - loop.radius * Math.sin(theta);
 
                 // Tangent angle (perpendicular to radius, pointing in direction of travel)
-                // Going counter-clockwise: tangent angle = theta + π/2
-                const tangentAngle = theta + Math.PI / 2;
+                // Going clockwise through the loop: tangent angle = -(theta - π/2)
+                const tangentAngle = -theta + Math.PI / 2;
 
                 return {
                     y: y,
