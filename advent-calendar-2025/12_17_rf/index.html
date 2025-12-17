@@ -589,6 +589,13 @@
         document.addEventListener('keydown', (e) => {
             keys[e.key] = true;
 
+            // Handle shopkeeper intro input
+            if (shopkeeperIntroActive) {
+                e.preventDefault();
+                handleShopkeeperIntroInput(e.key);
+                return;
+            }
+
             // Handle plushie menu input
             if (plushieMenuActive) {
                 e.preventDefault();
@@ -962,8 +969,9 @@
             { name: 'Shakra', id: 'shakra' },
             { name: 'Lace', id: 'lace' },
             { name: 'Hornet', id: 'hornet' },
-            { name: 'No gracias', id: null }
+            { name: 'Salir', id: null }
         ];
+        let shopkeeperIntroActive = false;
 
         // Vendor animation state
         let vendorAnimation = {
@@ -982,15 +990,34 @@
 
             if (player.boughtPlushie) {
                 // Already bought one
-                showDialog('shopkeeper', "¡Ya tenés tu plushie de Silksong! Cuidalo bien.");
+                showDialog('shopkeeper', "Lo siento, me da fiaca venderte otro.");
                 return;
             }
 
-            // Show plushie selection menu
+            // Show intro dialog first
+            shopkeeperIntroActive = true;
+            dialogActive = true;
+            currentSpeechBubble = { speaker: 'shopkeeper', text: "¡Bienvenido a la tienda de regalos! Tenemos plushies de Silksong, ¿te interesa?" };
+        }
+
+        function showPlushieMenu() {
+            shopkeeperIntroActive = false;
             plushieMenuActive = true;
             plushieMenuSelection = 0;
             dialogActive = true;
-            currentSpeechBubble = { speaker: 'shopkeeper', text: "¡Plushies de Silksong! ¿Cuál querés?" };
+            currentSpeechBubble = { speaker: 'shopkeeper', text: "¿Cuál querés?" };
+        }
+
+        function handleShopkeeperIntroInput(key) {
+            if (key === ' ' || key === 'Enter') {
+                // Show the plushie menu
+                showPlushieMenu();
+            } else if (key === 'Escape') {
+                // Exit without buying
+                shopkeeperIntroActive = false;
+                dialogActive = false;
+                currentSpeechBubble = null;
+            }
         }
 
         function handlePlushieMenuInput(key) {
@@ -1011,9 +1038,17 @@
                     dialogActive = false;
                     currentSpeechBubble = null;
                 } else {
-                    // Declined
+                    // Exit option selected
+                    dialogActive = false;
+                    currentSpeechBubble = null;
                     showDialog('shopkeeper', "¡Volvé cuando quieras!");
                 }
+            } else if (key === 'Escape') {
+                // Exit without buying
+                plushieMenuActive = false;
+                dialogActive = false;
+                currentSpeechBubble = null;
+                showDialog('shopkeeper', "¡Volvé cuando quieras!");
             }
         }
 
@@ -3672,11 +3707,12 @@
                     return { x, y, angle: 0 };
                 } else if (t < 0.65) {
                     const localT = (t - 0.35) / 0.3;
-                    // Full loop - start from bottom, go up and around
-                    const angle = Math.PI / 2 + localT * Math.PI * 2;
+                    // Full loop - start from bottom, go counter-clockwise
+                    const angle = Math.PI / 2 - localT * Math.PI * 2;
                     const x = loopCenterX + Math.cos(angle) * loopRadius;
                     const y = loopCenterY + Math.sin(angle) * loopRadius;
-                    return { x, y, angle: angle - Math.PI / 2 };
+                    // inLoop flag to offset cart to inside of loop
+                    return { x, y, angle: angle + Math.PI / 2, inLoop: true, loopAngle: angle };
                 } else {
                     const localT = (t - 0.65) / 0.35;
                     const startX = loopCenterX + loopRadius;
@@ -3764,9 +3800,23 @@
             const cartT = ((Date.now() / 30) % 100) / 100;
             const cartPt = getTrackPoint(cartT);
 
+            // Offset cart to inside of loop when in loop section
+            let cartX = cartPt.x;
+            let cartY = cartPt.y;
+            if (cartPt.inLoop) {
+                // Move cart toward loop center (inward)
+                const inwardOffset = 10;
+                cartX = loopCenterX + Math.cos(cartPt.loopAngle) * (loopRadius - inwardOffset);
+                cartY = loopCenterY + Math.sin(cartPt.loopAngle) * (loopRadius - inwardOffset);
+            }
+
             ctx.save();
-            ctx.translate(cartPt.x, cartPt.y);
+            ctx.translate(cartX, cartY);
             ctx.rotate(cartPt.angle);
+            // Flip cart vertically when in loop so wheels point outward
+            if (cartPt.inLoop) {
+                ctx.scale(1, -1);
+            }
 
             // Cart body
             ctx.fillStyle = '#cc0000';
@@ -3921,8 +3971,8 @@
             ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
             ctx.stroke();
 
-            // Spokes and cabins
-            const rotation = Date.now() / 3000;
+            // Spokes and cabins (negative for counter-clockwise rotation)
+            const rotation = -Date.now() / 3000;
             for (let i = 0; i < 8; i++) {
                 const angle = rotation + (i * Math.PI / 4);
                 const x = centerX + Math.cos(angle) * radius;

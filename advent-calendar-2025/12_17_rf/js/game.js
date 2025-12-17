@@ -9,7 +9,7 @@ class RollercoasterGame {
         // Game state
         this.isRunning = false;
         this.score = 0;
-        this.lives = 15;
+        this.lives = 7;
         this.trackOffset = 0;
         this.progress = 0;
         this.speed = 8; // Faster base speed
@@ -359,7 +359,7 @@ class RollercoasterGame {
 
     reset() {
         this.score = 0;
-        this.lives = 15;
+        this.lives = 7;
         this.trackOffset = 0;
         this.progress = 0;
         this.speed = 8;
@@ -1531,7 +1531,7 @@ class RollercoasterGame {
         const trackDataStart = this.getTrackDataAt(this.tunnelStartX);
         const trackDataEnd = this.getTrackDataAt(this.tunnelEndX);
 
-        const tunnelHeight = 180;
+        const tunnelHeight = 250;
         const tunnelTop = trackDataStart.y - tunnelHeight;
         const tunnelBottom = trackDataStart.y + 40;
 
