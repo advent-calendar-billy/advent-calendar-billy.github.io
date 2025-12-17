@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ring Toss</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Press Start 2P', monospace;
+            background: #2d5a27;
+            overflow: hidden;
+            min-height: 100vh;
+        }
+        #gameCanvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+            image-rendering: pixelated;
+        }
+        .back-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 100, 100, 0.9);
+            border: 3px solid #aa0000;
+            border-radius: 8px;
+            color: white;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 12px;
+            padding: 10px 20px;
+            cursor: pointer;
+            z-index: 1000;
+        }
+        .back-button:hover { background: rgba(255, 50, 50, 1); }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <button class="back-button" onclick="exitGame()">EXIT (ESC)</button>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const keys = {};
+        let gameState = 'aiming'; // 'aiming', 'charging', 'throwing', 'landed', 'won'
+        let power = 0;
+        let maxPower = 100;
+        let rings = 3;
+        let score = 0;
+        let ringAngle = 0;
+        let aimAngle = -30; // degrees, -45 to 0
+
+        // Thrown ring physics
+        let ring = {
+            x: 150,
+            y: canvas.height - 200,
+            vx: 0,
+            vy: 0,
+            angle: 0,
+            angularVel: 0,
+            landed: false,
+            onPole: -1 // -1 = not on pole, 0-4 = pole index
+        };
+
+        // Poles with prizes
+        const poles = [];
+        const poleStartX = canvas.width * 0.4;
+        const poleSpacing = 100;
+        const prizeNames = ['Teddy', 'Duck', 'Star', 'Heart', 'Crown'];
+        const prizeColors = ['#8B4513', '#FFD700', '#FFD700', '#FF69B4', '#FFD700'];
+
+        for (let i = 0; i < 5; i++) {
+            poles.push({
+                x: poleStartX + i * poleSpacing,
+                y: canvas.height - 180,
+                height: 80 + Math.sin(i * 1.5) * 20,
+                width: 15,
+                prize: prizeNames[i],
+                prizeColor: prizeColors[i],
+                scored: false
+            });
+        }
+
+        // Fede position
+        const fede = {
+            x: 120,
+            y: canvas.height - 220
+        };
+
+        const gravity = 0.4;
+        const airResistance = 0.99;
+
+        document.addEventListener('keydown', (e) => {
+            keys[e.key] = true;
+            if (e.key === 'Escape') exitGame();
+
+            if (e.key === ' ' && gameState === 'aiming' && rings > 0) {
+                gameState = 'charging';
+                power = 0;
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            keys[e.key] = false;
+
+            if (e.key === ' ' && gameState === 'charging') {
+                throwRing();
+            }
+        });
+
+        function exitGame() {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage('closeMinigame', '*');
+            } else {
+                window.history.back();
+            }
+        }
+
+        function throwRing() {
+            gameState = 'throwing';
+            rings--;
+
+            const throwPower = power / maxPower;
+            const angleRad = aimAngle * Math.PI / 180;
+
+            ring.x = fede.x + 40;
+            ring.y = fede.y - 20;
+            ring.vx = Math.cos(angleRad) * throwPower * 18;
+            ring.vy = Math.sin(angleRad) * throwPower * 18;
+            ring.angle = 0;
+            ring.angularVel = (Math.random() - 0.5) * 0.3;
+            ring.landed = false;
+            ring.onPole = -1;
+        }
+
+        function resetForNextThrow() {
+            if (rings > 0) {
+                gameState = 'aiming';
+                power = 0;
+            } else {
+                gameState = score > 0 ? 'won' : 'lost';
+            }
+        }
+
+        function update() {
+            // Aim angle control
+            if (gameState === 'aiming' || gameState === 'charging') {
+                if (keys['ArrowUp'] || keys['w']) aimAngle = Math.max(-45, aimAngle - 1);
+                if (keys['ArrowDown'] || keys['s']) aimAngle = Math.min(-5, aimAngle + 1);
+            }
+
+            // Charging power
+            if (gameState === 'charging') {
+                power += 2;
+                if (power > maxPower) power = maxPower;
+            }
+
+            // Ring physics
+            if (gameState === 'throwing') {
+                ring.vy += gravity;
+                ring.vx *= airResistance;
+                ring.vy *= airResistance;
+
+                ring.x += ring.vx;
+                ring.y += ring.vy;
+                ring.angle += ring.angularVel;
+                ring.angularVel *= 0.98;
+
+                // Check pole collisions
+                for (let i = 0; i < poles.length; i++) {
+                    const pole = poles[i];
+                    const poleTop = pole.y - pole.height;
+                    const poleCenterX = pole.x + pole.width / 2;
+
+                    // Check if ring is around pole top
+                    const dx = ring.x - poleCenterX;
+                    const dy = ring.y - poleTop;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    // Ring needs to be close to pole top and moving down
+                    if (dist < 25 && ring.vy > 0 && ring.y < poleTop + 20 && ring.y > poleTop - 30) {
+                        // Ring lands on pole!
+                        ring.onPole = i;
+                        ring.landed = true;
+                        ring.x = poleCenterX;
+                        ring.y = poleTop + 5;
+                        ring.vx = 0;
+                        ring.vy = 0;
+                        ring.angularVel = 0;
+
+                        if (!pole.scored) {
+                            pole.scored = true;
+                            score++;
+                        }
+
+                        setTimeout(resetForNextThrow, 1000);
+                        break;
+                    }
+                }
+
+                // Ground collision
+                if (ring.y > canvas.height - 100) {
+                    ring.landed = true;
+                    ring.y = canvas.height - 100;
+                    ring.vx = 0;
+                    ring.vy = 0;
+                    setTimeout(resetForNextThrow, 800);
+                }
+
+                // Off screen
+                if (ring.x > canvas.width + 50 || ring.x < -50) {
+                    ring.landed = true;
+                    setTimeout(resetForNextThrow, 500);
+                }
+            }
+        }
+
+        function render() {
+            // Sky gradient
+            const skyGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            skyGrad.addColorStop(0, '#87CEEB');
+            skyGrad.addColorStop(0.6, '#98D8E8');
+            skyGrad.addColorStop(1, '#4a7c3f');
+            ctx.fillStyle = skyGrad;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Ground
+            ctx.fillStyle = '#4a7c3f';
+            ctx.fillRect(0, canvas.height - 120, canvas.width, 120);
+
+            // Booth back
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(poleStartX - 60, canvas.height - 280, poles.length * poleSpacing + 60, 180);
+
+            // Striped awning
+            for (let i = 0; i < 8; i++) {
+                ctx.fillStyle = i % 2 === 0 ? '#e74c3c' : '#fff';
+                ctx.beginPath();
+                ctx.moveTo(poleStartX - 80 + i * 70, canvas.height - 320);
+                ctx.lineTo(poleStartX - 45 + i * 70, canvas.height - 280);
+                ctx.lineTo(poleStartX + 25 + i * 70, canvas.height - 280);
+                ctx.lineTo(poleStartX - 10 + i * 70, canvas.height - 320);
+                ctx.closePath();
+                ctx.fill();
+            }
+
+            // Counter
+            ctx.fillStyle = '#DEB887';
+            ctx.fillRect(poleStartX - 80, canvas.height - 130, poles.length * poleSpacing + 100, 30);
+
+            // Draw poles and prizes
+            poles.forEach((pole, i) => {
+                // Pole
+                ctx.fillStyle = '#654321';
+                ctx.fillRect(pole.x, pole.y - pole.height, pole.width, pole.height);
+
+                // Pole top (shiny)
+                ctx.fillStyle = '#FFD700';
+                ctx.beginPath();
+                ctx.arc(pole.x + pole.width / 2, pole.y - pole.height, 10, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Prize behind pole
+                if (!pole.scored) {
+                    drawPrize(pole.x + pole.width / 2, pole.y - pole.height - 40, pole.prize, pole.prizeColor);
+                }
+            });
+
+            // Draw Fede
+            drawFede(fede.x, fede.y, gameState === 'charging' || gameState === 'aiming');
+
+            // Draw aim line
+            if (gameState === 'aiming' || gameState === 'charging') {
+                ctx.strokeStyle = 'rgba(255, 255, 0, 0.6)';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                ctx.moveTo(fede.x + 40, fede.y - 20);
+                const aimLen = 100;
+                const angleRad = aimAngle * Math.PI / 180;
+                ctx.lineTo(fede.x + 40 + Math.cos(angleRad) * aimLen, fede.y - 20 + Math.sin(angleRad) * aimLen);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            // Draw ring in hand or flying
+            if (gameState === 'aiming' || gameState === 'charging') {
+                drawRing(fede.x + 45, fede.y - 15, 0);
+            } else if (gameState === 'throwing' || ring.landed) {
+                drawRing(ring.x, ring.y, ring.angle);
+            }
+
+            // Power bar
+            if (gameState === 'charging') {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                ctx.fillRect(fede.x - 20, fede.y + 40, 80, 20);
+
+                const powerColor = power < 50 ? '#2ecc71' : power < 80 ? '#f1c40f' : '#e74c3c';
+                ctx.fillStyle = powerColor;
+                ctx.fillRect(fede.x - 18, fede.y + 42, (power / maxPower) * 76, 16);
+
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(fede.x - 20, fede.y + 40, 80, 20);
+            }
+
+            // UI
+            ctx.fillStyle = '#fff';
+            ctx.font = '16px "Press Start 2P"';
+            ctx.textAlign = 'left';
+            ctx.fillText(`Rings: ${rings}`, 30, 40);
+            ctx.fillText(`Score: ${score}`, 30, 70);
+
+            // Instructions
+            if (gameState === 'aiming') {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                ctx.fillRect(canvas.width / 2 - 200, canvas.height - 60, 400, 40);
+                ctx.fillStyle = '#ffd700';
+                ctx.font = '10px "Press Start 2P"';
+                ctx.textAlign = 'center';
+                ctx.fillText('UP/DOWN to aim - HOLD SPACE to charge', canvas.width / 2, canvas.height - 35);
+            }
+
+            // Win/Lose screen
+            if (gameState === 'won' || gameState === 'lost') {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                ctx.fillStyle = gameState === 'won' ? '#ffd700' : '#ff6b6b';
+                ctx.font = '28px "Press Start 2P"';
+                ctx.textAlign = 'center';
+                ctx.fillText(gameState === 'won' ? 'YOU WIN!' : 'GAME OVER', canvas.width / 2, canvas.height / 2 - 30);
+
+                ctx.fillStyle = '#fff';
+                ctx.font = '16px "Press Start 2P"';
+                ctx.fillText(`Prizes Won: ${score}`, canvas.width / 2, canvas.height / 2 + 20);
+
+                ctx.fillStyle = '#7cfc00';
+                ctx.font = '12px "Press Start 2P"';
+                ctx.fillText('Press ESC to exit', canvas.width / 2, canvas.height / 2 + 70);
+            }
+        }
+
+        function drawRing(x, y, angle) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(angle);
+
+            // Ring (torus viewed from side = ellipse)
+            ctx.strokeStyle = '#e74c3c';
+            ctx.lineWidth = 6;
+            ctx.beginPath();
+            ctx.ellipse(0, 0, 20, 8, 0, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Highlight
+            ctx.strokeStyle = '#ff8888';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.ellipse(0, -2, 18, 5, 0, Math.PI, Math.PI * 2);
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        function drawPrize(x, y, type, color) {
+            ctx.save();
+            ctx.translate(x, y);
+
+            if (type === 'Teddy') {
+                // Teddy bear
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.arc(0, 0, 15, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(-10, -12, 6, 0, Math.PI * 2);
+                ctx.arc(10, -12, 6, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#000';
+                ctx.beginPath();
+                ctx.arc(-5, -2, 2, 0, Math.PI * 2);
+                ctx.arc(5, -2, 2, 0, Math.PI * 2);
+                ctx.fill();
+            } else if (type === 'Duck') {
+                // Rubber duck
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.arc(0, 0, 12, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(10, -5, 8, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#ff8800';
+                ctx.beginPath();
+                ctx.moveTo(15, -5);
+                ctx.lineTo(22, -3);
+                ctx.lineTo(15, -1);
+                ctx.closePath();
+                ctx.fill();
+            } else if (type === 'Star') {
+                ctx.fillStyle = color;
+                drawStar(0, 0, 5, 15, 7);
+            } else if (type === 'Heart') {
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.moveTo(0, 5);
+                ctx.bezierCurveTo(-15, -10, -15, -20, 0, -10);
+                ctx.bezierCurveTo(15, -20, 15, -10, 0, 5);
+                ctx.fill();
+            } else if (type === 'Crown') {
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.moveTo(-12, 5);
+                ctx.lineTo(-12, -5);
+                ctx.lineTo(-8, 0);
+                ctx.lineTo(0, -12);
+                ctx.lineTo(8, 0);
+                ctx.lineTo(12, -5);
+                ctx.lineTo(12, 5);
+                ctx.closePath();
+                ctx.fill();
+            }
+
+            ctx.restore();
+        }
+
+        function drawStar(cx, cy, spikes, outerRadius, innerRadius) {
+            let rot = Math.PI / 2 * 3;
+            let step = Math.PI / spikes;
+
+            ctx.beginPath();
+            ctx.moveTo(cx, cy - outerRadius);
+
+            for (let i = 0; i < spikes; i++) {
+                ctx.lineTo(cx + Math.cos(rot) * outerRadius, cy + Math.sin(rot) * outerRadius);
+                rot += step;
+                ctx.lineTo(cx + Math.cos(rot) * innerRadius, cy + Math.sin(rot) * innerRadius);
+                rot += step;
+            }
+            ctx.lineTo(cx, cy - outerRadius);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function drawFede(x, y, holdingRing) {
+            ctx.save();
+            ctx.translate(x, y);
+
+            const p = 3; // pixel size
+
+            // Body (burgundy jacket)
+            ctx.fillStyle = '#722f37';
+            ctx.fillRect(-4*p, 0, 8*p, 10*p);
+
+            // White shirt
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(-2*p, 2*p, 4*p, 6*p);
+
+            // Arm throwing
+            ctx.fillStyle = '#722f37';
+            if (holdingRing) {
+                // Arm back
+                ctx.fillRect(3*p, -2*p, 6*p, 3*p);
+                ctx.fillStyle = '#e8c4a0';
+                ctx.fillRect(8*p, -2*p, 2*p, 3*p);
+            } else {
+                // Arm forward
+                ctx.fillRect(3*p, 2*p, 4*p, 3*p);
+                ctx.fillStyle = '#e8c4a0';
+                ctx.fillRect(6*p, 2*p, 2*p, 3*p);
+            }
+
+            // Other arm
+            ctx.fillStyle = '#722f37';
+            ctx.fillRect(-7*p, 2*p, 3*p, 3*p);
+
+            // Head
+            ctx.fillStyle = '#e8c4a0';
+            ctx.fillRect(-3*p, -8*p, 6*p, 7*p);
+
+            // Hair
+            ctx.fillStyle = '#0a0a0a';
+            ctx.fillRect(-3*p, -10*p, 6*p, 3*p);
+            ctx.fillRect(-4*p, -8*p, 2*p, 3*p);
+            ctx.fillRect(2*p, -8*p, 2*p, 3*p);
+
+            // Eyes
+            ctx.fillStyle = '#000';
+            ctx.fillRect(-2*p, -5*p, p, p);
+            ctx.fillRect(1*p, -5*p, p, p);
+
+            // Legs
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(-3*p, 10*p, 3*p, 6*p);
+            ctx.fillRect(0*p, 10*p, 3*p, 6*p);
+
+            ctx.restore();
+        }
+
+        function gameLoop() {
+            update();
+            render();
+            requestAnimationFrame(gameLoop);
+        }
+
+        gameLoop();
+    </script>
+</body>
+</html>

@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Booth</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Press Start 2P', monospace;
+            background: #2a1a3a;
+            overflow: hidden;
+            min-height: 100vh;
+        }
+        #gameCanvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+            image-rendering: pixelated;
+        }
+        .back-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 100, 100, 0.9);
+            border: 3px solid #aa0000;
+            border-radius: 8px;
+            color: white;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 12px;
+            padding: 10px 20px;
+            cursor: pointer;
+            z-index: 1000;
+        }
+        .back-button:hover { background: rgba(255, 50, 50, 1); }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <button class="back-button" onclick="exitGame()">EXIT (ESC)</button>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const keys = {};
+        let state = 'intro'; // 'intro', 'posing', 'countdown', 'flash', 'photo', 'billyPhoto'
+        let countdown = 3;
+        let countdownTimer = 0;
+        let flashOpacity = 0;
+        let poseIndex = 0;
+        let photoTaken = false;
+        let showBillyPhoto = false;
+        let billyPhotoFound = false;
+
+        const poses = ['normal', 'peace', 'flex', 'surprised'];
+        const poseNames = ['Normal', 'Peace Sign', 'Flexing', 'Surprised'];
+
+        document.addEventListener('keydown', (e) => {
+            keys[e.key] = true;
+            if (e.key === 'Escape') exitGame();
+
+            if (e.key === ' ') {
+                if (state === 'intro') {
+                    state = 'posing';
+                } else if (state === 'posing') {
+                    state = 'countdown';
+                    countdown = 3;
+                    countdownTimer = 60;
+                } else if (state === 'photo') {
+                    // Check for Billy's photo
+                    showBillyPhoto = true;
+                    state = 'billyPhoto';
+                } else if (state === 'billyPhoto') {
+                    exitGame();
+                }
+            }
+
+            if (state === 'posing') {
+                if (e.key === 'ArrowLeft' || e.key === 'a') {
+                    poseIndex = (poseIndex - 1 + poses.length) % poses.length;
+                }
+                if (e.key === 'ArrowRight' || e.key === 'd') {
+                    poseIndex = (poseIndex + 1) % poses.length;
+                }
+            }
+        });
+
+        document.addEventListener('keyup', (e) => { keys[e.key] = false; });
+
+        function exitGame() {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage('closeMinigame', '*');
+            } else {
+                window.history.back();
+            }
+        }
+
+        function update() {
+            if (state === 'countdown') {
+                countdownTimer--;
+                if (countdownTimer <= 0) {
+                    countdown--;
+                    countdownTimer = 60;
+                    if (countdown <= 0) {
+                        state = 'flash';
+                        flashOpacity = 1;
+                        photoTaken = true;
+                    }
+                }
+            }
+
+            if (state === 'flash') {
+                flashOpacity -= 0.03;
+                if (flashOpacity <= 0) {
+                    flashOpacity = 0;
+                    state = 'photo';
+                }
+            }
+        }
+
+        function render() {
+            // Booth interior background
+            const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            grad.addColorStop(0, '#4a2a6a');
+            grad.addColorStop(1, '#2a1a3a');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Booth curtains
+            ctx.fillStyle = '#8B0000';
+            ctx.fillRect(0, 0, 80, canvas.height);
+            ctx.fillRect(canvas.width - 80, 0, 80, canvas.height);
+
+            // Curtain folds
+            for (let i = 0; i < 5; i++) {
+                ctx.fillStyle = i % 2 === 0 ? '#6B0000' : '#9B0000';
+                ctx.fillRect(i * 16, 0, 16, canvas.height);
+                ctx.fillRect(canvas.width - 80 + i * 16, 0, 16, canvas.height);
+            }
+
+            // Booth seat
+            ctx.fillStyle = '#4a4a4a';
+            ctx.fillRect(100, canvas.height - 150, canvas.width - 200, 150);
+            ctx.fillStyle = '#6a6a6a';
+            ctx.fillRect(100, canvas.height - 150, canvas.width - 200, 20);
+
+            // Camera
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(canvas.width / 2 - 40, 50, 80, 60);
+            ctx.fillStyle = '#333';
+            ctx.beginPath();
+            ctx.arc(canvas.width / 2, 80, 25, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#4a90d9';
+            ctx.beginPath();
+            ctx.arc(canvas.width / 2, 80, 18, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Red recording light
+            ctx.fillStyle = state === 'countdown' ? '#ff0000' : '#440000';
+            ctx.beginPath();
+            ctx.arc(canvas.width / 2 + 30, 60, 5, 0, Math.PI * 2);
+            ctx.fill();
+
+            if (state === 'intro') {
+                drawIntroScreen();
+            } else if (state === 'posing' || state === 'countdown') {
+                drawPosing();
+                if (state === 'countdown') {
+                    drawCountdown();
+                }
+            } else if (state === 'flash') {
+                drawPosing();
+            } else if (state === 'photo') {
+                drawPhotoResult();
+            } else if (state === 'billyPhoto') {
+                drawBillyPhoto();
+            }
+
+            // Flash effect
+            if (flashOpacity > 0) {
+                ctx.fillStyle = `rgba(255, 255, 255, ${flashOpacity})`;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+
+        function drawIntroScreen() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+            ctx.fillRect(canvas.width / 2 - 250, canvas.height / 2 - 150, 500, 300);
+
+            ctx.fillStyle = '#ffd700';
+            ctx.font = '24px "Press Start 2P"';
+            ctx.textAlign = 'center';
+            ctx.fillText('PHOTO BOOTH', canvas.width / 2, canvas.height / 2 - 80);
+
+            ctx.fillStyle = '#fff';
+            ctx.font = '12px "Press Start 2P"';
+            ctx.fillText('Take a fun photo!', canvas.width / 2, canvas.height / 2 - 20);
+            ctx.fillText('Choose your pose and', canvas.width / 2, canvas.height / 2 + 20);
+            ctx.fillText('press SPACE to snap!', canvas.width / 2, canvas.height / 2 + 50);
+
+            ctx.fillStyle = '#7cfc00';
+            ctx.font = '14px "Press Start 2P"';
+            ctx.fillText('Press SPACE to start', canvas.width / 2, canvas.height / 2 + 110);
+        }
+
+        function drawPosing() {
+            // Draw Fede in booth
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height - 280;
+
+            drawFedePose(centerX, centerY, poses[poseIndex]);
+
+            // Pose indicator
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+            ctx.fillRect(centerX - 150, canvas.height - 100, 300, 60);
+
+            ctx.fillStyle = '#fff';
+            ctx.font = '12px "Press Start 2P"';
+            ctx.textAlign = 'center';
+            ctx.fillText(`< ${poseNames[poseIndex]} >`, centerX, canvas.height - 65);
+
+            ctx.fillStyle = '#aaa';
+            ctx.font = '10px "Press Start 2P"';
+            ctx.fillText('SPACE to take photo', centerX, canvas.height - 45);
+        }
+
+        function drawCountdown() {
+            ctx.fillStyle = '#ff0000';
+            ctx.font = '120px "Press Start 2P"';
+            ctx.textAlign = 'center';
+            ctx.fillText(countdown.toString(), canvas.width / 2, canvas.height / 2);
+        }
+
+        function drawPhotoResult() {
+            // Photo frame
+            const photoW = 300;
+            const photoH = 400;
+            const photoX = canvas.width / 2 - photoW / 2;
+            const photoY = canvas.height / 2 - photoH / 2 - 30;
+
+            // White border (polaroid style)
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(photoX - 20, photoY - 20, photoW + 40, photoH + 80);
+
+            // Photo area
+            ctx.fillStyle = '#4a2a6a';
+            ctx.fillRect(photoX, photoY, photoW, photoH);
+
+            // Booth background in photo
+            ctx.fillStyle = '#6B0000';
+            ctx.fillRect(photoX, photoY, 30, photoH);
+            ctx.fillRect(photoX + photoW - 30, photoY, 30, photoH);
+
+            // Draw Fede in photo
+            drawFedePose(photoX + photoW / 2, photoY + photoH - 100, poses[poseIndex], 0.8);
+
+            // Date stamp
+            ctx.fillStyle = '#ff6600';
+            ctx.font = '10px "Press Start 2P"';
+            ctx.textAlign = 'right';
+            ctx.fillText('12/18/2024', photoX + photoW - 10, photoY + photoH - 10);
+
+            // Caption
+            ctx.fillStyle = '#333';
+            ctx.font = '12px "Press Start 2P"';
+            ctx.textAlign = 'center';
+            ctx.fillText('FUN WORLD!', canvas.width / 2, photoY + photoH + 45);
+
+            // Hint
+            ctx.fillStyle = '#ffd700';
+            ctx.font = '10px "Press Start 2P"';
+            ctx.fillText('Press SPACE - someone left a photo here!', canvas.width / 2, canvas.height - 50);
+        }
+
+        function drawBillyPhoto() {
+            // Billy's forgotten photo
+            const photoW = 300;
+            const photoH = 400;
+            const photoX = canvas.width / 2 - photoW / 2;
+            const photoY = canvas.height / 2 - photoH / 2 - 30;
+
+            // Slightly crumpled/old polaroid
+            ctx.save();
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+            ctx.rotate(-0.05);
+            ctx.translate(-canvas.width / 2, -canvas.height / 2);
+
+            // Yellowed border
+            ctx.fillStyle = '#f5f0dc';
+            ctx.fillRect(photoX - 20, photoY - 20, photoW + 40, photoH + 80);
+
+            // Photo area
+            ctx.fillStyle = '#4a2a6a';
+            ctx.fillRect(photoX, photoY, photoW, photoH);
+
+            // Booth background
+            ctx.fillStyle = '#6B0000';
+            ctx.fillRect(photoX, photoY, 30, photoH);
+            ctx.fillRect(photoX + photoW - 30, photoY, 30, photoH);
+
+            // Draw Billy in photo (muscular, tank top)
+            drawBillyPose(photoX + photoW / 2, photoY + photoH - 100, 0.8);
+
+            // Old date stamp
+            ctx.fillStyle = '#ff6600';
+            ctx.font = '10px "Press Start 2P"';
+            ctx.textAlign = 'right';
+            ctx.fillText('12/18/2024', photoX + photoW - 10, photoY + photoH - 10);
+
+            // Billy's handwriting
+            ctx.fillStyle = '#333';
+            ctx.font = '10px "Press Start 2P"';
+            ctx.textAlign = 'center';
+            ctx.fillText('BILLY <3', canvas.width / 2, photoY + photoH + 35);
+            ctx.font = '8px "Press Start 2P"';
+            ctx.fillText('waiting 4 Fede', canvas.width / 2, photoY + photoH + 55);
+
+            ctx.restore();
+
+            // Dialog
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+            ctx.fillRect(canvas.width / 2 - 200, 40, 400, 80);
+            ctx.fillStyle = '#fff';
+            ctx.font = '11px "Press Start 2P"';
+            ctx.textAlign = 'center';
+            ctx.fillText('Fede: "Billy estuvo aqui!"', canvas.width / 2, 70);
+            ctx.fillStyle = '#ff6b9d';
+            ctx.fillText('"Tengo que encontrarlo!"', canvas.width / 2, 100);
+
+            // Exit hint
+            ctx.fillStyle = '#7cfc00';
+            ctx.font = '10px "Press Start 2P"';
+            ctx.fillText('Press SPACE to continue', canvas.width / 2, canvas.height - 40);
+        }
+
+        function drawFedePose(x, y, pose, scale = 1) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.scale(scale * 4, scale * 4);
+
+            const p = 1; // pixel
+
+            // Body (burgundy jacket)
+            ctx.fillStyle = '#722f37';
+            ctx.fillRect(-5*p, 4*p, 10*p, 12*p);
+
+            // White shirt
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(-3*p, 6*p, 6*p, 8*p);
+
+            // Head
+            ctx.fillStyle = '#e8c4a0';
+            ctx.fillRect(-4*p, -6*p, 8*p, 9*p);
+
+            // Hair
+            ctx.fillStyle = '#0a0a0a';
+            ctx.fillRect(-4*p, -8*p, 8*p, 4*p);
+            ctx.fillRect(-5*p, -6*p, 2*p, 4*p);
+            ctx.fillRect(3*p, -6*p, 2*p, 4*p);
+
+            // Eyes
+            ctx.fillStyle = '#000';
+            if (pose === 'surprised') {
+                ctx.fillRect(-3*p, -3*p, 2*p, 2*p);
+                ctx.fillRect(1*p, -3*p, 2*p, 2*p);
+            } else {
+                ctx.fillRect(-3*p, -2*p, 2*p, p);
+                ctx.fillRect(1*p, -2*p, 2*p, p);
+            }
+
+            // Mouth
+            if (pose === 'surprised') {
+                ctx.fillRect(-1*p, 1*p, 2*p, 2*p);
+            } else {
+                ctx.fillRect(-2*p, 1*p, 4*p, p);
+            }
+
+            // Arms based on pose
+            ctx.fillStyle = '#722f37';
+            if (pose === 'peace') {
+                // Peace sign
+                ctx.fillRect(5*p, 2*p, 3*p, 6*p);
+                ctx.fillStyle = '#e8c4a0';
+                ctx.fillRect(6*p, -2*p, 2*p, 4*p);
+                ctx.fillRect(8*p, -1*p, 2*p, 3*p);
+                ctx.fillStyle = '#722f37';
+                ctx.fillRect(-8*p, 6*p, 3*p, 4*p);
+            } else if (pose === 'flex') {
+                // Flexing
+                ctx.fillRect(5*p, 2*p, 3*p, 4*p);
+                ctx.fillRect(7*p, -2*p, 3*p, 4*p);
+                ctx.fillStyle = '#e8c4a0';
+                ctx.fillRect(8*p, -3*p, 2*p, 2*p);
+                ctx.fillStyle = '#722f37';
+                ctx.fillRect(-8*p, 2*p, 3*p, 4*p);
+                ctx.fillRect(-10*p, -2*p, 3*p, 4*p);
+            } else {
+                // Normal
+                ctx.fillRect(5*p, 6*p, 3*p, 6*p);
+                ctx.fillRect(-8*p, 6*p, 3*p, 6*p);
+            }
+
+            // Legs
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(-4*p, 16*p, 3*p, 6*p);
+            ctx.fillRect(1*p, 16*p, 3*p, 6*p);
+
+            ctx.restore();
+        }
+
+        function drawBillyPose(x, y, scale = 1) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.scale(scale * 4, scale * 4);
+
+            const p = 1;
+
+            // Muscular body (tank top)
+            ctx.fillStyle = '#e8c4a0'; // skin showing
+            ctx.fillRect(-6*p, 4*p, 12*p, 14*p);
+
+            // Tank top
+            ctx.fillStyle = '#2ecc71';
+            ctx.fillRect(-4*p, 6*p, 8*p, 10*p);
+
+            // Muscular arms
+            ctx.fillStyle = '#e8c4a0';
+            ctx.fillRect(-9*p, 4*p, 4*p, 8*p);
+            ctx.fillRect(5*p, 4*p, 4*p, 8*p);
+
+            // Head
+            ctx.fillRect(-4*p, -6*p, 8*p, 9*p);
+
+            // Blonde/light hair
+            ctx.fillStyle = '#daa520';
+            ctx.fillRect(-4*p, -8*p, 8*p, 4*p);
+            ctx.fillRect(-5*p, -6*p, 2*p, 3*p);
+            ctx.fillRect(3*p, -6*p, 2*p, 3*p);
+
+            // Happy eyes
+            ctx.fillStyle = '#000';
+            ctx.fillRect(-3*p, -2*p, 2*p, p);
+            ctx.fillRect(1*p, -2*p, 2*p, p);
+
+            // Big smile
+            ctx.fillRect(-2*p, 1*p, 4*p, p);
+            ctx.fillRect(-1*p, 2*p, 2*p, p);
+
+            // Flexing pose
+            ctx.fillStyle = '#e8c4a0';
+            ctx.fillRect(-10*p, 0*p, 4*p, 4*p);
+            ctx.fillRect(6*p, 0*p, 4*p, 4*p);
+
+            // Legs
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(-4*p, 18*p, 3*p, 6*p);
+            ctx.fillRect(1*p, 18*p, 3*p, 6*p);
+
+            ctx.restore();
+        }
+
+        function gameLoop() {
+            update();
+            render();
+            requestAnimationFrame(gameLoop);
+        }
+
+        gameLoop();
+    </script>
+</body>
+</html>

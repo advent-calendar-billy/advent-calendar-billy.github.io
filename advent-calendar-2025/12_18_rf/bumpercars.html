@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bumper Cars</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Press Start 2P', monospace;
+            background: #1a1a2e;
+            overflow: hidden;
+            min-height: 100vh;
+        }
+        #gameCanvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+            image-rendering: pixelated;
+        }
+        .back-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 100, 100, 0.9);
+            border: 3px solid #aa0000;
+            border-radius: 8px;
+            color: white;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 12px;
+            padding: 10px 20px;
+            cursor: pointer;
+            z-index: 1000;
+        }
+        .back-button:hover { background: rgba(255, 50, 50, 1); }
+        #hint {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            border: 2px solid #ffd700;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 10px;
+            padding: 10px 20px;
+            text-align: center;
+        }
+        #score {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.8);
+            border: 2px solid #ffd700;
+            border-radius: 8px;
+            color: #ffd700;
+            font-size: 14px;
+            padding: 10px 20px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <button class="back-button" onclick="exitGame()">EXIT (ESC)</button>
+    <div id="hint">Arrow Keys to drive - Bump into others!</div>
+    <div id="score">BUMPS: <span id="bumpCount">0</span></div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const keys = {};
+        let bumpCount = 0;
+        let screenShake = 0;
+        let shakeX = 0, shakeY = 0;
+        let gameTime = 60; // 60 seconds
+        let gameOver = false;
+        let lastTime = Date.now();
+
+        // Arena bounds
+        const arena = {
+            x: 100,
+            y: 100,
+            width: canvas.width - 200,
+            height: canvas.height - 200,
+            cornerRadius: 50
+        };
+
+        // Player car (Fede)
+        const player = {
+            x: canvas.width / 2,
+            y: canvas.height / 2 + 100,
+            vx: 0,
+            vy: 0,
+            angle: -Math.PI / 2,
+            width: 60,
+            height: 40,
+            color: '#722f37', // Burgundy like Fede
+            accentColor: '#ffd700',
+            isPlayer: true,
+            bumpCooldown: 0
+        };
+
+        // AI cars
+        const aiCars = [
+            { x: 300, y: 250, vx: 2, vy: 1, angle: 0, width: 60, height: 40, color: '#e74c3c', accentColor: '#fff', targetAngle: 0, changeTimer: 0, bumpCooldown: 0 },
+            { x: 600, y: 350, vx: -1, vy: 2, angle: Math.PI, width: 60, height: 40, color: '#3498db', accentColor: '#fff', targetAngle: Math.PI, changeTimer: 0, bumpCooldown: 0 },
+            { x: 450, y: 200, vx: 1, vy: -1, angle: Math.PI/2, width: 60, height: 40, color: '#2ecc71', accentColor: '#fff', targetAngle: Math.PI/2, changeTimer: 0, bumpCooldown: 0 },
+            { x: 200, y: 450, vx: -2, vy: -1, angle: -Math.PI/2, width: 60, height: 40, color: '#9b59b6', accentColor: '#fff', targetAngle: -Math.PI/2, changeTimer: 0, bumpCooldown: 0 },
+        ];
+
+        // Reposition cars based on actual canvas size
+        function repositionCars() {
+            player.x = canvas.width / 2;
+            player.y = canvas.height / 2 + 100;
+            aiCars[0].x = arena.x + 150; aiCars[0].y = arena.y + 150;
+            aiCars[1].x = arena.x + arena.width - 150; aiCars[1].y = arena.y + arena.height - 150;
+            aiCars[2].x = arena.x + arena.width - 150; aiCars[2].y = arena.y + 150;
+            aiCars[3].x = arena.x + 150; aiCars[3].y = arena.y + arena.height - 150;
+        }
+        repositionCars();
+
+        document.addEventListener('keydown', (e) => {
+            keys[e.key] = true;
+            if (e.key === 'Escape') exitGame();
+            if (e.key === ' ' && gameOver) {
+                // Restart
+                gameOver = false;
+                bumpCount = 0;
+                gameTime = 60;
+                repositionCars();
+                player.vx = 0; player.vy = 0;
+                aiCars.forEach(car => { car.vx = 0; car.vy = 0; });
+            }
+        });
+        document.addEventListener('keyup', (e) => { keys[e.key] = false; });
+
+        function exitGame() {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage('closeMinigame', '*');
+            } else {
+                window.history.back();
+            }
+        }
+
+        function update() {
+            const now = Date.now();
+            const dt = (now - lastTime) / 1000;
+            lastTime = now;
+
+            if (gameOver) return;
+
+            // Timer
+            gameTime -= dt;
+            if (gameTime <= 0) {
+                gameTime = 0;
+                gameOver = true;
+            }
+
+            // Screen shake decay
+            if (screenShake > 0) {
+                screenShake *= 0.9;
+                shakeX = (Math.random() - 0.5) * screenShake;
+                shakeY = (Math.random() - 0.5) * screenShake;
+                if (screenShake < 0.5) screenShake = 0;
+            }
+
+            // Player controls
+            const accel = 0.3;
+            const turnSpeed = 0.05;
+            const friction = 0.98;
+            const maxSpeed = 8;
+
+            if (keys['ArrowUp'] || keys['w'] || keys['W']) {
+                player.vx += Math.cos(player.angle) * accel;
+                player.vy += Math.sin(player.angle) * accel;
+            }
+            if (keys['ArrowDown'] || keys['s'] || keys['S']) {
+                player.vx -= Math.cos(player.angle) * accel * 0.5;
+                player.vy -= Math.sin(player.angle) * accel * 0.5;
+            }
+            if (keys['ArrowLeft'] || keys['a'] || keys['A']) {
+                player.angle -= turnSpeed;
+            }
+            if (keys['ArrowRight'] || keys['d'] || keys['D']) {
+                player.angle += turnSpeed;
+            }
+
+            // Apply friction
+            player.vx *= friction;
+            player.vy *= friction;
+
+            // Limit speed
+            const speed = Math.sqrt(player.vx * player.vx + player.vy * player.vy);
+            if (speed > maxSpeed) {
+                player.vx = (player.vx / speed) * maxSpeed;
+                player.vy = (player.vy / speed) * maxSpeed;
+            }
+
+            // Move player
+            player.x += player.vx;
+            player.y += player.vy;
+
+            // Update cooldowns
+            if (player.bumpCooldown > 0) player.bumpCooldown--;
+
+            // AI behavior
+            aiCars.forEach(car => {
+                if (car.bumpCooldown > 0) car.bumpCooldown--;
+
+                car.changeTimer--;
+                if (car.changeTimer <= 0) {
+                    // Sometimes target player, sometimes random
+                    if (Math.random() < 0.4) {
+                        car.targetAngle = Math.atan2(player.y - car.y, player.x - car.x);
+                    } else {
+                        car.targetAngle = Math.random() * Math.PI * 2;
+                    }
+                    car.changeTimer = 60 + Math.random() * 120;
+                }
+
+                // Turn towards target
+                let angleDiff = car.targetAngle - car.angle;
+                while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
+                while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
+                car.angle += angleDiff * 0.03;
+
+                // Move forward
+                car.vx += Math.cos(car.angle) * 0.15;
+                car.vy += Math.sin(car.angle) * 0.15;
+                car.vx *= friction;
+                car.vy *= friction;
+
+                const carSpeed = Math.sqrt(car.vx * car.vx + car.vy * car.vy);
+                if (carSpeed > 5) {
+                    car.vx = (car.vx / carSpeed) * 5;
+                    car.vy = (car.vy / carSpeed) * 5;
+                }
+
+                car.x += car.vx;
+                car.y += car.vy;
+            });
+
+            // Collisions with walls (oval arena)
+            constrainToArena(player);
+            aiCars.forEach(car => constrainToArena(car));
+
+            // Car-to-car collisions
+            const allCars = [player, ...aiCars];
+            for (let i = 0; i < allCars.length; i++) {
+                for (let j = i + 1; j < allCars.length; j++) {
+                    checkCarCollision(allCars[i], allCars[j]);
+                }
+            }
+        }
+
+        function constrainToArena(car) {
+            const centerX = arena.x + arena.width / 2;
+            const centerY = arena.y + arena.height / 2;
+            const radiusX = arena.width / 2 - 40;
+            const radiusY = arena.height / 2 - 40;
+
+            // Normalized position in ellipse
+            const dx = (car.x - centerX) / radiusX;
+            const dy = (car.y - centerY) / radiusY;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            if (dist > 1) {
+                // Push back inside
+                car.x = centerX + (dx / dist) * radiusX;
+                car.y = centerY + (dy / dist) * radiusY;
+
+                // Bounce velocity
+                const nx = dx / dist;
+                const ny = dy / dist;
+                const dot = car.vx * nx + car.vy * ny;
+                car.vx -= 2 * dot * nx * 0.5;
+                car.vy -= 2 * dot * ny * 0.5;
+
+                // Small bump effect
+                if (Math.abs(dot) > 2) {
+                    screenShake = Math.max(screenShake, 5);
+                }
+            }
+        }
+
+        function checkCarCollision(car1, car2) {
+            const dx = car2.x - car1.x;
+            const dy = car2.y - car1.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            const minDist = 50;
+
+            if (dist < minDist && dist > 0) {
+                // Collision!
+                const nx = dx / dist;
+                const ny = dy / dist;
+
+                // Separate cars
+                const overlap = minDist - dist;
+                car1.x -= nx * overlap * 0.5;
+                car1.y -= ny * overlap * 0.5;
+                car2.x += nx * overlap * 0.5;
+                car2.y += ny * overlap * 0.5;
+
+                // Exchange velocities (bumper car physics)
+                const relVx = car1.vx - car2.vx;
+                const relVy = car1.vy - car2.vy;
+                const relDot = relVx * nx + relVy * ny;
+
+                if (relDot > 0) {
+                    const impulse = relDot * 1.5;
+                    car1.vx -= impulse * nx;
+                    car1.vy -= impulse * ny;
+                    car2.vx += impulse * nx;
+                    car2.vy += impulse * ny;
+
+                    // Screen shake based on impact
+                    const impactForce = Math.abs(relDot);
+                    screenShake = Math.max(screenShake, impactForce * 3);
+
+                    // Count bump if player is involved
+                    if ((car1.isPlayer || car2.isPlayer) && car1.bumpCooldown === 0 && car2.bumpCooldown === 0) {
+                        bumpCount++;
+                        document.getElementById('bumpCount').textContent = bumpCount;
+                        car1.bumpCooldown = 30;
+                        car2.bumpCooldown = 30;
+                    }
+                }
+            }
+        }
+
+        function render() {
+            ctx.save();
+            ctx.translate(shakeX, shakeY);
+
+            // Background
+            ctx.fillStyle = '#1a1a2e';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Arena floor (oval)
+            const centerX = arena.x + arena.width / 2;
+            const centerY = arena.y + arena.height / 2;
+
+            // Floor pattern
+            ctx.save();
+            ctx.beginPath();
+            ctx.ellipse(centerX, centerY, arena.width / 2, arena.height / 2, 0, 0, Math.PI * 2);
+            ctx.clip();
+
+            // Checkered floor
+            const tileSize = 40;
+            for (let y = arena.y; y < arena.y + arena.height; y += tileSize) {
+                for (let x = arena.x; x < arena.x + arena.width; x += tileSize) {
+                    const isLight = ((Math.floor(x / tileSize) + Math.floor(y / tileSize)) % 2 === 0);
+                    ctx.fillStyle = isLight ? '#3a3a5e' : '#2a2a4e';
+                    ctx.fillRect(x, y, tileSize, tileSize);
+                }
+            }
+            ctx.restore();
+
+            // Arena border
+            ctx.strokeStyle = '#ffd700';
+            ctx.lineWidth = 8;
+            ctx.beginPath();
+            ctx.ellipse(centerX, centerY, arena.width / 2, arena.height / 2, 0, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Inner border glow
+            ctx.strokeStyle = '#ffaa00';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.ellipse(centerX, centerY, arena.width / 2 - 10, arena.height / 2 - 10, 0, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Bumper posts around the edge
+            for (let angle = 0; angle < Math.PI * 2; angle += Math.PI / 8) {
+                const postX = centerX + Math.cos(angle) * (arena.width / 2 - 25);
+                const postY = centerY + Math.sin(angle) * (arena.height / 2 - 25);
+
+                ctx.fillStyle = '#aa0000';
+                ctx.beginPath();
+                ctx.arc(postX, postY, 12, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#ff4444';
+                ctx.beginPath();
+                ctx.arc(postX, postY, 8, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Draw AI cars
+            aiCars.forEach(car => drawCar(car));
+
+            // Draw player car
+            drawCar(player);
+
+            // Timer
+            ctx.fillStyle = '#fff';
+            ctx.font = '20px "Press Start 2P"';
+            ctx.textAlign = 'center';
+            ctx.fillText(`TIME: ${Math.ceil(gameTime)}`, canvas.width / 2, 50);
+
+            // Game over screen
+            if (gameOver) {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                ctx.fillStyle = '#ffd700';
+                ctx.font = '32px "Press Start 2P"';
+                ctx.textAlign = 'center';
+                ctx.fillText('TIME UP!', canvas.width / 2, canvas.height / 2 - 50);
+
+                ctx.fillStyle = '#fff';
+                ctx.font = '20px "Press Start 2P"';
+                ctx.fillText(`Total Bumps: ${bumpCount}`, canvas.width / 2, canvas.height / 2 + 10);
+
+                ctx.fillStyle = '#7cfc00';
+                ctx.font = '14px "Press Start 2P"';
+                ctx.fillText('Press SPACE to play again', canvas.width / 2, canvas.height / 2 + 60);
+                ctx.fillText('Press ESC to exit', canvas.width / 2, canvas.height / 2 + 90);
+            }
+
+            ctx.restore();
+        }
+
+        function drawCar(car) {
+            ctx.save();
+            ctx.translate(car.x, car.y);
+            ctx.rotate(car.angle);
+
+            // Shadow
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.beginPath();
+            ctx.ellipse(3, 3, car.width / 2, car.height / 2.5, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Car body
+            ctx.fillStyle = car.color;
+            ctx.fillRect(-car.width / 2, -car.height / 2, car.width, car.height);
+
+            // Rounded front
+            ctx.beginPath();
+            ctx.arc(car.width / 2 - 5, 0, car.height / 2, -Math.PI / 2, Math.PI / 2);
+            ctx.fill();
+
+            // Bumper ring
+            ctx.strokeStyle = car.accentColor;
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.ellipse(0, 0, car.width / 2 + 2, car.height / 2 + 2, 0, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Seat area
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(-10, -8, 20, 16);
+
+            // Driver (simple)
+            if (car.isPlayer) {
+                // Fede
+                ctx.fillStyle = '#e8c4a0'; // skin
+                ctx.fillRect(-4, -5, 8, 8);
+                ctx.fillStyle = '#0a0a0a'; // hair
+                ctx.fillRect(-4, -6, 8, 3);
+                ctx.fillStyle = '#722f37'; // burgundy collar
+                ctx.fillRect(-5, 2, 10, 4);
+            } else {
+                // Generic driver
+                ctx.fillStyle = '#e8c4a0';
+                ctx.beginPath();
+                ctx.arc(0, 0, 5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#333';
+                ctx.beginPath();
+                ctx.arc(0, -2, 5, Math.PI, 0);
+                ctx.fill();
+            }
+
+            // Headlights
+            ctx.fillStyle = '#ffff88';
+            ctx.fillRect(car.width / 2 - 3, -car.height / 2 + 3, 5, 6);
+            ctx.fillRect(car.width / 2 - 3, car.height / 2 - 9, 5, 6);
+
+            // Number on back
+            ctx.fillStyle = '#fff';
+            ctx.font = '10px "Press Start 2P"';
+            ctx.textAlign = 'center';
+            ctx.fillText(car.isPlayer ? 'F' : (aiCars.indexOf(car) + 1).toString(), -car.width / 4, 4);
+
+            ctx.restore();
+        }
+
+        function gameLoop() {
+            update();
+            render();
+            requestAnimationFrame(gameLoop);
+        }
+
+        gameLoop();
+    </script>
+</body>
+</html>

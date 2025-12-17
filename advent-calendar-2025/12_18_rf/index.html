@@ -224,7 +224,13 @@
                 <span id="objective">Find Billy!</span>
             </div>
             <div class="hud-box room-name" id="roomName">Park Entrance</div>
+            <button id="muteBtn" class="hud-box" style="pointer-events: auto; cursor: pointer; font-size: 16px;">🔊</button>
         </div>
+
+        <!-- Background Music -->
+        <audio id="bgMusic" loop preload="auto">
+            <source src="music/calliope.mp3" type="audio/mpeg">
+        </audio>
 
         <div id="interactHint">Press SPACE to interact</div>
 
@@ -265,6 +271,28 @@
         let dialogActive = false;
         let dialogQueue = [];
 
+        // Audio system
+        const bgMusic = document.getElementById('bgMusic');
+        const muteBtn = document.getElementById('muteBtn');
+        let musicMuted = false;
+        bgMusic.volume = 0.3;
+
+        muteBtn.addEventListener('click', () => {
+            musicMuted = !musicMuted;
+            bgMusic.muted = musicMuted;
+            muteBtn.textContent = musicMuted ? '🔇' : '🔊';
+        });
+
+        function startMusic() {
+            if (!musicMuted) {
+                bgMusic.play().catch(e => console.log('Audio autoplay blocked'));
+            }
+        }
+
+        function stopMusic() {
+            bgMusic.pause();
+        }
+
         // Player (Fede)
         const player = {
             x: 400,
@@ -281,7 +309,10 @@
             eatFrame: 0,          // Animation frame for eating
             // Money animation
             payingFrame: 0,       // Animation frame for paying
-            payingVendor: null    // Reference to vendor being paid
+            payingVendor: null,   // Reference to vendor being paid
+            // Sitting
+            sitting: false,       // Is player sitting on a bench
+            sittingBench: null    // Reference to bench being sat on
         };
 
         const keys = {};
@@ -291,7 +322,8 @@
             entrance: {
                 name: 'Park Entrance',
                 bgColor: '#1a2a1a',
-                exits: { up: 'plaza' },
+                isOutdoor: true,
+                exits: { up: 'plaza', left: 'games_area' },
                 objects: [
                     // Ticket booths
                     { x: 100, y: 100, width: 120, height: 80, type: 'ticket_booth' },
@@ -299,14 +331,16 @@
                     // Entrance arch
                     { x: 300, y: 50, width: 200, height: 100, type: 'entrance_arch' },
                     // Benches
-                    { x: 50, y: 350, width: 60, height: 30, type: 'bench' },
-                    { x: 690, y: 350, width: 60, height: 30, type: 'bench' },
+                    { x: 50, y: 350, width: 60, height: 30, type: 'bench', sittable: true },
+                    { x: 690, y: 350, width: 60, height: 30, type: 'bench', sittable: true },
                     // Lamp posts
                     { x: 250, y: 200, width: 20, height: 60, type: 'lamp' },
                     { x: 530, y: 200, width: 20, height: 60, type: 'lamp' },
                     // Bushes
                     { x: 30, y: 450, width: 50, height: 40, type: 'bush' },
                     { x: 720, y: 450, width: 50, height: 40, type: 'bush' },
+                    // Sign to games
+                    { x: 30, y: 250, width: 40, height: 60, type: 'sign', label: 'JUEGOS' },
                 ],
                 npcs: [
                     { x: 150, y: 200, direction: 'down', type: 'ticket_seller', interactText: "Welcome to Fun World! Looking for someone? Try the main plaza!" },
@@ -316,6 +350,7 @@
             plaza: {
                 name: 'Plaza Central',
                 bgColor: '#2a1a2a',
+                isOutdoor: true,
                 exits: { down: 'entrance', left: 'rollercoaster', right: 'horrorhouse', up: 'ferriswheel' },
                 objects: [
                     // Central fountain
@@ -362,12 +397,15 @@
             ferriswheel: {
                 name: 'Rueda de la Fortuna',
                 bgColor: '#1a2a3a',
-                exits: { down: 'plaza' },
+                isOutdoor: true,
+                exits: { down: 'plaza', left: 'souvenir_shop' },
                 objects: [
                     // Ferris wheel structure
                     { x: 200, y: 50, width: 400, height: 400, type: 'ferris_wheel' },
                     // Ride entrance
                     { x: 350, y: 480, width: 100, height: 60, type: 'ferris_entrance', interactable: true },
+                    // Sign to gift shop
+                    { x: 30, y: 300, width: 40, height: 60, type: 'sign', label: 'TIENDA' },
                 ],
                 npcs: [
                     { x: 450, y: 530, direction: 'up', type: 'ride_operator', interactText: "Best view in the park! ...A jacked guy? Nope, haven't seen him here." },
@@ -476,6 +514,56 @@
                 jumpScares: [
                     { x: 200, y: 400, type: 'actor_jumpscare', triggered: false, triggerRadius: 70 }
                 ]
+            },
+            games_area: {
+                name: 'Zona de Juegos',
+                bgColor: '#2a3a2a',
+                isOutdoor: true,
+                exits: { down: 'entrance' },
+                objects: [
+                    // Bumper cars arena
+                    { x: 50, y: 80, width: 300, height: 200, type: 'bumper_arena' },
+                    { x: 120, y: 290, width: 100, height: 50, type: 'bumper_entrance', interactable: true },
+                    // Ring toss booth
+                    { x: 450, y: 100, width: 150, height: 120, type: 'ring_toss_booth' },
+                    { x: 480, y: 230, width: 90, height: 40, type: 'ring_toss_entrance', interactable: true },
+                    // Photo booth
+                    { x: 620, y: 80, width: 120, height: 180, type: 'photo_booth' },
+                    { x: 640, y: 270, width: 80, height: 40, type: 'photo_entrance', interactable: true },
+                    // Decorations
+                    { x: 380, y: 350, width: 60, height: 30, type: 'bench', sittable: true },
+                    { x: 200, y: 450, width: 20, height: 60, type: 'lamp' },
+                    { x: 550, y: 450, width: 20, height: 60, type: 'lamp' },
+                    { x: 30, y: 400, width: 50, height: 40, type: 'bush' },
+                    { x: 720, y: 400, width: 50, height: 40, type: 'bush' },
+                ],
+                npcs: [
+                    { x: 170, y: 350, direction: 'down', type: 'ride_operator', interactText: "Bumper cars! Crash into everyone! It's super fun!" },
+                    { x: 525, y: 280, direction: 'down', type: 'game_attendant', interactText: "Ring toss! Win a prize! Three rings for one try!" },
+                    { x: 680, y: 320, direction: 'left', type: 'visitor', interactText: "The photo booth is so fun! You should try it!" },
+                ]
+            },
+            souvenir_shop: {
+                name: 'Tienda de Regalos',
+                bgColor: '#3a2a3a',
+                exits: { right: 'plaza' },
+                objects: [
+                    // Shop shelves
+                    { x: 50, y: 80, width: 200, height: 150, type: 'shop_shelf', items: ['hornet', 'knight', 'grub'] },
+                    { x: 300, y: 80, width: 200, height: 150, type: 'shop_shelf', items: ['zote', 'grimm', 'quirrel'] },
+                    { x: 550, y: 80, width: 200, height: 150, type: 'shop_shelf', items: ['elderbug', 'cornifer', 'iselda'] },
+                    // Counter
+                    { x: 250, y: 350, width: 300, height: 60, type: 'shop_counter' },
+                    // Display cases
+                    { x: 100, y: 280, width: 100, height: 60, type: 'display_case', item: 'silksong_poster' },
+                    { x: 600, y: 280, width: 100, height: 60, type: 'display_case', item: 'map' },
+                    // Billy's jacket! (he left it here)
+                    { x: 50, y: 450, width: 60, height: 30, type: 'bench', sittable: true },
+                    { x: 55, y: 445, width: 40, height: 20, type: 'billy_jacket', interactable: true },
+                ],
+                npcs: [
+                    { x: 400, y: 320, direction: 'down', type: 'shopkeeper', interactText: "Welcome to the gift shop! We have plushies from Hollow Knight Silksong! ...A jacket? Oh yes, some muscular guy left it here. He ran off looking scared!" },
+                ]
             }
         };
 
@@ -501,12 +589,47 @@
                 if (!gameStarted) {
                     gameStarted = true;
                     document.getElementById('startScreen').style.display = 'none';
+                    startMusic(); // Start background music
                     showDialog('Fede', "Billy! ¿Dónde te metiste?!");
                     return;
                 }
 
                 if (dialogActive) {
                     advanceDialog();
+                    return;
+                }
+
+                // Handle sitting/standing from bench
+                if (player.sitting) {
+                    // Stand up from bench
+                    player.sitting = false;
+                    player.y = player.sittingBench.y + player.sittingBench.height + 5;
+                    player.sittingBench = null;
+                    player.direction = 'down';
+                    const standUpLines = [
+                        "Listo, a seguir buscando...",
+                        "Bueno, ya descansé.",
+                        "Ok, vamos."
+                    ];
+                    showDialog('Fede', standUpLines[Math.floor(Math.random() * standUpLines.length)]);
+                    return;
+                }
+
+                // Sit down on bench
+                if (nearBench && !player.sitting) {
+                    player.sitting = true;
+                    player.sittingBench = nearBench;
+                    // Position player on bench
+                    player.x = nearBench.x + nearBench.width / 2 - 16;
+                    player.y = nearBench.y - 10;
+                    player.direction = 'down';
+                    const sitDownLines = [
+                        "Un descanso no viene mal...",
+                        "Qué lindo día.",
+                        "Esperá Billy, ya voy...",
+                        "Uff, estos pies."
+                    ];
+                    showDialog('Fede', sitDownLines[Math.floor(Math.random() * sitDownLines.length)]);
                     return;
                 }
 
@@ -716,6 +839,36 @@
             } else if (obj.type === 'food_stand' && obj.foodType) {
                 // Food stands need vendor NPC to buy from
                 showDialog('Fede', "Necesito hablar con el vendedor...");
+            } else if (obj.type === 'bumper_entrance') {
+                showDialog('Fede', "¡Autitos chocadores!");
+                const checkDialog = setInterval(() => {
+                    if (!dialogActive) {
+                        clearInterval(checkDialog);
+                        openMinigame('bumpercars.html');
+                    }
+                }, 100);
+            } else if (obj.type === 'ring_toss_entrance') {
+                showDialog('Fede', "¡A ganar un premio!");
+                const checkDialog = setInterval(() => {
+                    if (!dialogActive) {
+                        clearInterval(checkDialog);
+                        openMinigame('ringtoss.html');
+                    }
+                }, 100);
+            } else if (obj.type === 'photo_entrance') {
+                showDialog('Fede', "¡Una foto para el recuerdo!");
+                const checkDialog = setInterval(() => {
+                    if (!dialogActive) {
+                        clearInterval(checkDialog);
+                        openMinigame('photobooth.html');
+                    }
+                }, 100);
+            } else if (obj.type === 'billy_jacket') {
+                dialogQueue = [
+                    { speaker: 'Fede', text: "Esta campera... ¡Es de Billy!" },
+                    { speaker: 'Fede', text: "Estaba por acá entonces..." }
+                ];
+                showDialog('Fede', "¿Qué es esto?");
             }
         }
 
@@ -1229,16 +1382,28 @@
             return false;
         }
 
+        let nearBench = null; // For sitting mechanic
+
         // Check proximity to objects/NPCs
         function checkProximity() {
             nearObject = null;
             nearNPC = null;
+            nearBench = null;
 
             const currentObjects = rooms[currentRoom].objects;
             const currentNPCs = rooms[currentRoom].npcs;
 
             // Check objects
             for (const obj of currentObjects) {
+                // Check for sittable benches
+                if (obj.type === 'bench' && obj.sittable) {
+                    const dx = (player.x + 16) - (obj.x + obj.width / 2);
+                    const dy = (player.y + 16) - (obj.y + obj.height / 2);
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 50) {
+                        nearBench = obj;
+                    }
+                }
                 if (obj.interactable) {
                     const dx = (player.x + 16) - (obj.x + obj.width / 2);
                     const dy = (player.y + 16) - (obj.y + obj.height / 2);
@@ -1263,7 +1428,7 @@
 
             // Update hint display
             const hint = document.getElementById('interactHint');
-            if ((nearObject || nearNPC) && !dialogActive) {
+            if ((nearObject || nearNPC || (nearBench && !player.sitting)) && !dialogActive) {
                 hint.style.display = 'block';
             } else {
                 hint.style.display = 'none';
@@ -1273,6 +1438,9 @@
         // Update game state
         function update() {
             if (!gameStarted || gameWon || dialogActive || roomTransitioning) return;
+
+            // Can't move while sitting
+            if (player.sitting) return;
 
             let dx = 0, dy = 0;
 
@@ -1315,15 +1483,93 @@
         // Drawing functions
         function drawBackground() {
             const room = rooms[currentRoom];
-            ctx.fillStyle = room.bgColor;
-            ctx.fillRect(0, 0, 800, 600);
 
-            // Draw ground pattern
-            ctx.fillStyle = 'rgba(255,255,255,0.03)';
-            for (let x = 0; x < 800; x += 32) {
-                for (let y = 0; y < 600; y += 32) {
-                    if ((x + y) % 64 === 0) {
-                        ctx.fillRect(x, y, 32, 32);
+            // Outdoor rooms get special treatment
+            if (room.isOutdoor) {
+                // Sky gradient at top
+                const skyGrad = ctx.createLinearGradient(0, 0, 0, 150);
+                skyGrad.addColorStop(0, '#87CEEB');
+                skyGrad.addColorStop(1, '#98D8E8');
+                ctx.fillStyle = skyGrad;
+                ctx.fillRect(0, 0, 800, 100);
+
+                // Ground/grass
+                const groundGrad = ctx.createLinearGradient(0, 100, 0, 600);
+                groundGrad.addColorStop(0, '#4a7c3f');
+                groundGrad.addColorStop(0.3, '#3d6b35');
+                groundGrad.addColorStop(1, '#2d5a27');
+                ctx.fillStyle = groundGrad;
+                ctx.fillRect(0, 100, 800, 500);
+
+                // Cobblestone/path pattern
+                ctx.fillStyle = '#8b7355';
+                for (let x = 0; x < 800; x += 40) {
+                    ctx.fillRect(x, 450, 800, 150);
+                }
+                // Path texture
+                for (let x = 0; x < 800; x += 25) {
+                    for (let y = 450; y < 600; y += 20) {
+                        const offset = (Math.floor(y / 20) % 2) * 12;
+                        ctx.fillStyle = (x + y) % 50 < 25 ? '#9b8365' : '#7b6345';
+                        ctx.fillRect(x + offset, y, 22, 17);
+                    }
+                }
+
+                // Sun
+                const sunX = 700;
+                const sunY = 50;
+                ctx.fillStyle = '#FFD700';
+                ctx.beginPath();
+                ctx.arc(sunX, sunY, 30, 0, Math.PI * 2);
+                ctx.fill();
+                // Sun glow
+                ctx.fillStyle = 'rgba(255, 215, 0, 0.3)';
+                ctx.beginPath();
+                ctx.arc(sunX, sunY, 45, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Moving clouds casting shadows
+                const time = Date.now() / 3000;
+                for (let i = 0; i < 3; i++) {
+                    const cloudX = ((time * 50 + i * 300) % 1000) - 100;
+                    const cloudY = 30 + i * 25;
+
+                    // Cloud
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                    ctx.beginPath();
+                    ctx.arc(cloudX, cloudY, 20, 0, Math.PI * 2);
+                    ctx.arc(cloudX + 25, cloudY - 5, 25, 0, Math.PI * 2);
+                    ctx.arc(cloudX + 50, cloudY, 20, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Shadow on ground (offset and larger)
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
+                    ctx.beginPath();
+                    ctx.ellipse(cloudX + 25 + 50, 350 + i * 50, 80, 30, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                // Grass tufts
+                ctx.fillStyle = '#5a8c4f';
+                for (let i = 0; i < 30; i++) {
+                    const gx = (i * 97 + 23) % 800;
+                    const gy = 120 + (i * 73) % 320;
+                    ctx.fillRect(gx, gy, 3, 8);
+                    ctx.fillRect(gx + 4, gy + 2, 2, 6);
+                }
+
+            } else {
+                // Indoor rooms
+                ctx.fillStyle = room.bgColor;
+                ctx.fillRect(0, 0, 800, 600);
+
+                // Draw ground pattern
+                ctx.fillStyle = 'rgba(255,255,255,0.03)';
+                for (let x = 0; x < 800; x += 32) {
+                    for (let y = 0; y < 600; y += 32) {
+                        if ((x + y) % 64 === 0) {
+                            ctx.fillRect(x, y, 32, 32);
+                        }
                     }
                 }
             }
@@ -1426,6 +1672,36 @@
                         break;
                     case 'broken_doll':
                         drawBrokenDoll(obj);
+                        break;
+                    case 'bumper_arena':
+                        drawBumperArena(obj);
+                        break;
+                    case 'bumper_entrance':
+                        drawBumperEntrance(obj);
+                        break;
+                    case 'ring_toss_booth':
+                        drawRingTossBooth(obj);
+                        break;
+                    case 'ring_toss_entrance':
+                        drawRingTossEntrance(obj);
+                        break;
+                    case 'photo_booth':
+                        drawPhotoBooth(obj);
+                        break;
+                    case 'photo_entrance':
+                        drawPhotoEntrance(obj);
+                        break;
+                    case 'shop_shelf':
+                        drawShopShelf(obj);
+                        break;
+                    case 'shop_counter':
+                        drawShopCounter(obj);
+                        break;
+                    case 'display_case':
+                        drawDisplayCase(obj);
+                        break;
+                    case 'billy_jacket':
+                        drawBillyJacket(obj);
                         break;
                 }
             }
@@ -2179,6 +2455,384 @@
             ctx.moveTo(obj.x + 46, obj.y + 31);
             ctx.lineTo(obj.x + 50, obj.y + 29);
             ctx.stroke();
+        }
+
+        // ===== NEW GAME AREA DRAWING FUNCTIONS =====
+
+        function drawBumperArena(obj) {
+            // Arena floor
+            ctx.fillStyle = '#2a2a4a';
+            ctx.fillRect(obj.x, obj.y, obj.width, obj.height);
+
+            // Checkered pattern
+            const tileSize = 20;
+            for (let y = obj.y; y < obj.y + obj.height; y += tileSize) {
+                for (let x = obj.x; x < obj.x + obj.width; x += tileSize) {
+                    if ((Math.floor((x - obj.x) / tileSize) + Math.floor((y - obj.y) / tileSize)) % 2 === 0) {
+                        ctx.fillStyle = '#3a3a5a';
+                        ctx.fillRect(x, y, tileSize, tileSize);
+                    }
+                }
+            }
+
+            // Border
+            ctx.strokeStyle = '#ffd700';
+            ctx.lineWidth = 4;
+            ctx.strokeRect(obj.x, obj.y, obj.width, obj.height);
+
+            // Bumper posts
+            ctx.fillStyle = '#ff4444';
+            for (let i = 0; i < 5; i++) {
+                const px = obj.x + 30 + i * 60;
+                ctx.beginPath();
+                ctx.arc(px, obj.y + 30, 8, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(px, obj.y + obj.height - 30, 8, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Animated cars inside
+            const time = Date.now() / 1000;
+            for (let i = 0; i < 3; i++) {
+                const cx = obj.x + 50 + Math.sin(time + i * 2) * 80 + i * 60;
+                const cy = obj.y + 60 + Math.cos(time * 0.8 + i) * 40;
+                const colors = ['#e74c3c', '#3498db', '#2ecc71'];
+                ctx.fillStyle = colors[i];
+                ctx.beginPath();
+                ctx.ellipse(cx, cy, 15, 10, Math.sin(time + i) * 0.3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#ffd700';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+
+            // Sign
+            ctx.fillStyle = '#ffd700';
+            ctx.font = '10px "Press Start 2P"';
+            ctx.textAlign = 'center';
+            ctx.fillText('AUTITOS', obj.x + obj.width / 2, obj.y - 5);
+        }
+
+        function drawBumperEntrance(obj) {
+            // Gate
+            ctx.fillStyle = '#8b4513';
+            ctx.fillRect(obj.x, obj.y, obj.width, obj.height);
+            ctx.fillStyle = '#ffd700';
+            ctx.fillRect(obj.x + 5, obj.y + 5, obj.width - 10, obj.height - 10);
+
+            // Arrow
+            ctx.fillStyle = '#228b22';
+            ctx.beginPath();
+            ctx.moveTo(obj.x + obj.width / 2, obj.y + 10);
+            ctx.lineTo(obj.x + obj.width / 2 + 15, obj.y + 25);
+            ctx.lineTo(obj.x + obj.width / 2 - 15, obj.y + 25);
+            ctx.fill();
+
+            ctx.fillStyle = '#000';
+            ctx.font = '8px "Press Start 2P"';
+            ctx.textAlign = 'center';
+            ctx.fillText('ENTRAR', obj.x + obj.width / 2, obj.y + 40);
+        }
+
+        function drawRingTossBooth(obj) {
+            // Back panel
+            ctx.fillStyle = '#8b0000';
+            ctx.fillRect(obj.x, obj.y, obj.width, obj.height);
+
+            // Striped awning
+            for (let i = 0; i < 6; i++) {
+                ctx.fillStyle = i % 2 === 0 ? '#e74c3c' : '#fff';
+                ctx.fillRect(obj.x + i * 25, obj.y - 20, 25, 25);
+            }
+
+            // Poles with prizes
+            const prizeColors = ['#ffd700', '#ff69b4', '#00bfff', '#32cd32'];
+            for (let i = 0; i < 4; i++) {
+                const px = obj.x + 20 + i * 35;
+                // Pole
+                ctx.fillStyle = '#654321';
+                ctx.fillRect(px, obj.y + 30, 8, 60);
+                // Top
+                ctx.fillStyle = '#ffd700';
+                ctx.beginPath();
+                ctx.arc(px + 4, obj.y + 30, 6, 0, Math.PI * 2);
+                ctx.fill();
+                // Prize
+                ctx.fillStyle = prizeColors[i];
+                ctx.beginPath();
+                ctx.arc(px + 4, obj.y + 15, 10, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Counter
+            ctx.fillStyle = '#deb887';
+            ctx.fillRect(obj.x - 10, obj.y + obj.height - 20, obj.width + 20, 20);
+        }
+
+        function drawRingTossEntrance(obj) {
+            ctx.fillStyle = '#228b22';
+            ctx.fillRect(obj.x, obj.y, obj.width, obj.height);
+            ctx.fillStyle = '#ffd700';
+            ctx.font = '8px "Press Start 2P"';
+            ctx.textAlign = 'center';
+            ctx.fillText('JUGAR', obj.x + obj.width / 2, obj.y + 25);
+
+            // Ring icon
+            ctx.strokeStyle = '#e74c3c';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(obj.x + obj.width / 2, obj.y + 12, 8, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+
+        function drawPhotoBooth(obj) {
+            // Main structure
+            ctx.fillStyle = '#4a2a6a';
+            ctx.fillRect(obj.x, obj.y, obj.width, obj.height);
+
+            // Curtain entrance
+            ctx.fillStyle = '#8b0000';
+            ctx.fillRect(obj.x + 20, obj.y + obj.height - 80, obj.width - 40, 80);
+
+            // Curtain folds
+            ctx.fillStyle = '#6b0000';
+            for (let i = 0; i < 3; i++) {
+                ctx.fillRect(obj.x + 25 + i * 25, obj.y + obj.height - 80, 8, 80);
+            }
+
+            // Stars decoration
+            ctx.fillStyle = '#ffd700';
+            ctx.font = '16px "Press Start 2P"';
+            ctx.fillText('★', obj.x + 10, obj.y + 30);
+            ctx.fillText('★', obj.x + obj.width - 25, obj.y + 30);
+
+            // Sign
+            ctx.fillStyle = '#ff69b4';
+            ctx.fillRect(obj.x + 10, obj.y + 40, obj.width - 20, 25);
+            ctx.fillStyle = '#fff';
+            ctx.font = '8px "Press Start 2P"';
+            ctx.textAlign = 'center';
+            ctx.fillText('FOTOS', obj.x + obj.width / 2, obj.y + 58);
+
+            // Photo strip coming out
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(obj.x + obj.width - 25, obj.y + 80, 20, 60);
+            ctx.fillStyle = '#ccc';
+            for (let i = 0; i < 3; i++) {
+                ctx.fillRect(obj.x + obj.width - 23, obj.y + 85 + i * 18, 16, 14);
+            }
+        }
+
+        function drawPhotoEntrance(obj) {
+            ctx.fillStyle = '#ff69b4';
+            ctx.fillRect(obj.x, obj.y, obj.width, obj.height);
+            ctx.fillStyle = '#fff';
+            ctx.font = '8px "Press Start 2P"';
+            ctx.textAlign = 'center';
+            ctx.fillText('ENTRAR', obj.x + obj.width / 2, obj.y + 25);
+
+            // Camera icon
+            ctx.fillStyle = '#333';
+            ctx.fillRect(obj.x + obj.width / 2 - 10, obj.y + 5, 20, 12);
+            ctx.fillStyle = '#4a90d9';
+            ctx.beginPath();
+            ctx.arc(obj.x + obj.width / 2, obj.y + 11, 4, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawShopShelf(obj) {
+            // Shelf back
+            ctx.fillStyle = '#5a3a2a';
+            ctx.fillRect(obj.x, obj.y, obj.width, obj.height);
+
+            // Shelf boards
+            ctx.fillStyle = '#8b6914';
+            for (let i = 0; i < 3; i++) {
+                ctx.fillRect(obj.x - 5, obj.y + 10 + i * 50, obj.width + 10, 8);
+            }
+
+            // Draw Hollow Knight plushies
+            if (obj.items) {
+                obj.items.forEach((item, idx) => {
+                    const px = obj.x + 25 + idx * 60;
+                    const py = obj.y + 25 + (idx % 2) * 50;
+                    drawSilksongPlushie(px, py, item);
+                });
+            }
+        }
+
+        function drawSilksongPlushie(x, y, type) {
+            ctx.save();
+            ctx.translate(x, y);
+
+            if (type === 'hornet' || type === 'knight') {
+                // Body
+                ctx.fillStyle = type === 'hornet' ? '#c0c0c0' : '#2a2a2a';
+                ctx.beginPath();
+                ctx.ellipse(0, 0, 12, 15, 0, 0, Math.PI * 2);
+                ctx.fill();
+                // Head/horns
+                ctx.fillStyle = type === 'hornet' ? '#a0a0a0' : '#1a1a1a';
+                ctx.beginPath();
+                ctx.moveTo(-8, -10);
+                ctx.lineTo(0, -25);
+                ctx.lineTo(8, -10);
+                ctx.fill();
+                // Eyes
+                ctx.fillStyle = '#fff';
+                ctx.beginPath();
+                ctx.ellipse(-3, -5, 3, 4, 0, 0, Math.PI * 2);
+                ctx.ellipse(3, -5, 3, 4, 0, 0, Math.PI * 2);
+                ctx.fill();
+                // Hornet's needle
+                if (type === 'hornet') {
+                    ctx.fillStyle = '#888';
+                    ctx.fillRect(10, -5, 15, 3);
+                }
+            } else if (type === 'grub') {
+                // Grub body
+                ctx.fillStyle = '#90EE90';
+                ctx.beginPath();
+                ctx.ellipse(0, 0, 10, 12, 0, 0, Math.PI * 2);
+                ctx.fill();
+                // Face
+                ctx.fillStyle = '#fff';
+                ctx.beginPath();
+                ctx.arc(-3, -3, 3, 0, Math.PI * 2);
+                ctx.arc(3, -3, 3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#000';
+                ctx.beginPath();
+                ctx.arc(-3, -3, 1.5, 0, Math.PI * 2);
+                ctx.arc(3, -3, 1.5, 0, Math.PI * 2);
+                ctx.fill();
+            } else if (type === 'zote') {
+                // Zote body
+                ctx.fillStyle = '#f5f5dc';
+                ctx.beginPath();
+                ctx.ellipse(0, 0, 10, 12, 0, 0, Math.PI * 2);
+                ctx.fill();
+                // Horns
+                ctx.fillStyle = '#ddd';
+                ctx.beginPath();
+                ctx.moveTo(-6, -8);
+                ctx.lineTo(-10, -20);
+                ctx.lineTo(-2, -10);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.moveTo(6, -8);
+                ctx.lineTo(10, -20);
+                ctx.lineTo(2, -10);
+                ctx.fill();
+                // Angry eyes
+                ctx.fillStyle = '#000';
+                ctx.fillRect(-5, -4, 3, 2);
+                ctx.fillRect(2, -4, 3, 2);
+            } else if (type === 'grimm') {
+                // Grimm body
+                ctx.fillStyle = '#8b0000';
+                ctx.beginPath();
+                ctx.ellipse(0, 0, 12, 14, 0, 0, Math.PI * 2);
+                ctx.fill();
+                // Cape/wings
+                ctx.fillStyle = '#4a0000';
+                ctx.beginPath();
+                ctx.moveTo(-12, 0);
+                ctx.lineTo(-18, 15);
+                ctx.lineTo(-8, 10);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.moveTo(12, 0);
+                ctx.lineTo(18, 15);
+                ctx.lineTo(8, 10);
+                ctx.fill();
+                // Eyes
+                ctx.fillStyle = '#ff0000';
+                ctx.beginPath();
+                ctx.ellipse(-4, -5, 3, 4, 0, 0, Math.PI * 2);
+                ctx.ellipse(4, -5, 3, 4, 0, 0, Math.PI * 2);
+                ctx.fill();
+            } else {
+                // Generic plushie
+                ctx.fillStyle = '#9370db';
+                ctx.beginPath();
+                ctx.ellipse(0, 0, 10, 12, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#fff';
+                ctx.beginPath();
+                ctx.arc(-3, -3, 2, 0, Math.PI * 2);
+                ctx.arc(3, -3, 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            ctx.restore();
+        }
+
+        function drawShopCounter(obj) {
+            // Counter base
+            ctx.fillStyle = '#654321';
+            ctx.fillRect(obj.x, obj.y, obj.width, obj.height);
+            // Counter top
+            ctx.fillStyle = '#deb887';
+            ctx.fillRect(obj.x - 5, obj.y, obj.width + 10, 10);
+            // Cash register
+            ctx.fillStyle = '#2a2a2a';
+            ctx.fillRect(obj.x + obj.width / 2 - 20, obj.y + 15, 40, 30);
+            ctx.fillStyle = '#228b22';
+            ctx.fillRect(obj.x + obj.width / 2 - 15, obj.y + 20, 30, 15);
+        }
+
+        function drawDisplayCase(obj) {
+            // Glass case
+            ctx.fillStyle = 'rgba(200, 220, 255, 0.3)';
+            ctx.fillRect(obj.x, obj.y, obj.width, obj.height);
+            ctx.strokeStyle = '#888';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(obj.x, obj.y, obj.width, obj.height);
+
+            // Item inside
+            if (obj.item === 'silksong_poster') {
+                ctx.fillStyle = '#ff69b4';
+                ctx.fillRect(obj.x + 15, obj.y + 10, obj.width - 30, obj.height - 20);
+                ctx.fillStyle = '#fff';
+                ctx.font = '6px "Press Start 2P"';
+                ctx.textAlign = 'center';
+                ctx.fillText('SILK', obj.x + obj.width / 2, obj.y + 30);
+                ctx.fillText('SONG', obj.x + obj.width / 2, obj.y + 42);
+            } else if (obj.item === 'map') {
+                ctx.fillStyle = '#f5deb3';
+                ctx.fillRect(obj.x + 10, obj.y + 10, obj.width - 20, obj.height - 20);
+                ctx.strokeStyle = '#654321';
+                ctx.beginPath();
+                ctx.moveTo(obj.x + 20, obj.y + 20);
+                ctx.lineTo(obj.x + obj.width - 20, obj.y + obj.height - 20);
+                ctx.stroke();
+            }
+        }
+
+        function drawBillyJacket(obj) {
+            // Green tank top style jacket
+            ctx.fillStyle = '#2ecc71';
+            ctx.fillRect(obj.x, obj.y, obj.width, obj.height);
+
+            // Arm holes
+            ctx.fillStyle = '#1a1a1a';
+            ctx.beginPath();
+            ctx.arc(obj.x + 5, obj.y + obj.height / 2, 4, 0, Math.PI * 2);
+            ctx.arc(obj.x + obj.width - 5, obj.y + obj.height / 2, 4, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Collar
+            ctx.fillStyle = '#27ae60';
+            ctx.fillRect(obj.x + 10, obj.y, obj.width - 20, 5);
+
+            // Sparkle to draw attention
+            const sparkle = Math.sin(Date.now() / 200) * 0.5 + 0.5;
+            ctx.fillStyle = `rgba(255, 255, 0, ${sparkle * 0.6})`;
+            ctx.beginPath();
+            ctx.arc(obj.x + obj.width / 2, obj.y - 5, 5, 0, Math.PI * 2);
+            ctx.fill();
         }
 
         function drawTicketBooth(obj) {
@@ -3381,11 +4035,76 @@
             }
         }
 
+        function drawPlayerSitting(x, y) {
+            // Sitting sprite - legs bent forward, relaxed pose
+
+            // Shadow (no legs under)
+            ctx.fillStyle = 'rgba(0,0,0,0.2)';
+            ctx.beginPath();
+            ctx.ellipse(x + 14, y + 32, 14, 4, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Legs bent (sitting) - horizontal
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(x + 4, y + 26, 20, 5); // Thighs
+            ctx.fillRect(x + 2, y + 30, 5, 6);  // Left lower leg
+            ctx.fillRect(x + 21, y + 30, 5, 6); // Right lower leg
+
+            // Burgundy blazer/jacket
+            ctx.fillStyle = '#722f37';
+            ctx.fillRect(x + 5, y + 14, 18, 14);
+            // Jacket lapels
+            ctx.fillStyle = '#5a252c';
+            ctx.beginPath();
+            ctx.moveTo(x + 8, y + 14);
+            ctx.lineTo(x + 12, y + 20);
+            ctx.lineTo(x + 8, y + 20);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(x + 20, y + 14);
+            ctx.lineTo(x + 16, y + 20);
+            ctx.lineTo(x + 20, y + 20);
+            ctx.fill();
+            // White shirt underneath
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(x + 11, y + 16, 6, 8);
+
+            // Face
+            ctx.fillStyle = '#e8c4a0';
+            ctx.fillRect(x + 7, y + 2, 14, 12);
+
+            // Black styled hair
+            ctx.fillStyle = '#0a0a0a';
+            ctx.fillRect(x + 6, y - 2, 16, 5);
+            ctx.fillRect(x + 5, y, 3, 4);
+            ctx.fillRect(x + 20, y, 3, 4);
+            // Side part
+            ctx.fillRect(x + 6, y + 2, 2, 2);
+
+            // Eyes - looking down/relaxed
+            ctx.fillStyle = '#000';
+            ctx.fillRect(x + 9, y + 7, 2, 2);
+            ctx.fillRect(x + 15, y + 7, 2, 2);
+
+            // Draw held food if any
+            if (player.heldFood && player.eatFrame === 0) {
+                const foodX = x + 25;
+                const foodY = y + 20;
+                drawFoodItem(player.heldFood, foodX, foodY);
+            }
+        }
+
         function drawPlayer() {
             const { x, y, direction, frame } = player;
             const moving = keys['ArrowUp'] || keys['ArrowDown'] || keys['ArrowLeft'] || keys['ArrowRight'] ||
                           keys['w'] || keys['W'] || keys['s'] || keys['S'] || keys['a'] || keys['A'] || keys['d'] || keys['D'];
             const legOffset = Math.sin(frame * 0.3) * 2;
+
+            // Draw sitting sprite if sitting
+            if (player.sitting) {
+                drawPlayerSitting(x, y);
+                return;
+            }
 
             // Shadow
             ctx.fillStyle = 'rgba(0,0,0,0.3)';
@@ -3872,12 +4591,14 @@
             minigameActive = true;
             document.getElementById('minigameOverlay').style.display = 'block';
             document.getElementById('minigameFrame').src = url;
+            stopMusic(); // Pause main game music (minigame may have its own)
         }
 
         function closeMinigame() {
             minigameActive = false;
             document.getElementById('minigameOverlay').style.display = 'none';
             document.getElementById('minigameFrame').src = '';
+            startMusic(); // Resume main game music
         }
 
         // Listen for messages from minigame iframe
