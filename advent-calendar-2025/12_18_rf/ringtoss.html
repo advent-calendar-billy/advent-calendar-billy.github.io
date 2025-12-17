@@ -100,9 +100,21 @@
             keys[e.key] = true;
             if (e.key === 'Escape') exitGame();
 
+            // Exit on SPACE when game is over
+            if (e.key === ' ' && (gameState === 'won' || gameState === 'lost')) {
+                exitGame();
+                return;
+            }
+
             if (e.key === ' ' && gameState === 'aiming' && rings > 0) {
                 gameState = 'charging';
                 power = 0;
+            }
+
+            // Secret
+            if (e.key === '6') {
+                score = 3;
+                gameState = 'won';
             }
         });
 
@@ -343,7 +355,7 @@
 
                 ctx.fillStyle = '#7cfc00';
                 ctx.font = '12px "Press Start 2P"';
-                ctx.fillText('Press ESC to exit', canvas.width / 2, canvas.height / 2 + 70);
+                ctx.fillText('Press SPACE to continue', canvas.width / 2, canvas.height / 2 + 70);
             }
         }
 
