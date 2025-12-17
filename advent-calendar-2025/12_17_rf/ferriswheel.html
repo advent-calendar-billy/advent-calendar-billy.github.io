@@ -322,9 +322,11 @@
             }
 
             // Loop 3: Mary Poppins floats across when at peak (pixel-art style)
-            if (currentLoop >= 3 && height > 0.7) {
-                const maryAlpha = Math.min(1, (height - 0.7) / 0.2);
-                const maryX = w + 100 - ((time * 50) % (w + 400)) - viewAngle * 80;
+            if (currentLoop >= 3 && height > 0.5) {
+                const maryAlpha = Math.min(1, (height - 0.5) / 0.3);
+                // Float from right to left across screen - always visible when conditions met
+                const maryProgress = (rideProgress - 2) % 1; // 0 to 1 within loop 3
+                const maryX = w + 150 - maryProgress * (w + 300) - viewAngle * 80;
                 const maryY = 100 + Math.sin(time * 2) * 10 + (1 - height) * 25;
 
                 ctx.save();

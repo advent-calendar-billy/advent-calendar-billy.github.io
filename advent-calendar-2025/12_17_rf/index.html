@@ -321,7 +321,8 @@
             // Inventory
             heldItem: null,       // 'hornet', 'knight', 'grub', 'billy_jacket', etc.
             itemPickupAnim: 0,    // Animation frame for picking up item
-            foundJacket: false    // Has player found Billy's jacket
+            foundJacket: false,   // Has player found Billy's jacket
+            boughtPlushie: null   // Track which plushie was bought (for ending)
         };
 
         const keys = {};
@@ -329,7 +330,7 @@
         // Room definitions
         const rooms = {
             entrance: {
-                name: 'Park Entrance',
+                name: 'Entrada del Parque',
                 bgColor: '#1a2a1a',
                 isOutdoor: true,
                 exits: { up: 'plaza', left: 'games_area' },
@@ -377,7 +378,7 @@
                     // Signs (moved away from spawn points)
                     { x: 30, y: 200, width: 40, height: 80, type: 'sign', label: 'MONTAÑA' },
                     { x: 730, y: 200, width: 40, height: 80, type: 'sign', label: 'TERROR' },
-                    { x: 380, y: 80, width: 40, height: 60, type: 'sign', label: 'RUEDA' },
+                    { x: 380, y: 80, width: 40, height: 60, type: 'sign', label: 'WHEEL' },
                 ],
                 npcs: [
                     { x: 125, y: 70, direction: 'down', type: 'food_vendor', standFood: 'panchito', vendorColor: '#e74c3c', interactText: "Hot dogs! Fresh hot dogs! ...A muscular guy? Ran towards the Horror House." },
@@ -404,7 +405,7 @@
                 ]
             },
             ferriswheel: {
-                name: 'Rueda de la Fortuna',
+                name: 'Ferris Wheel',
                 bgColor: '#1a2a3a',
                 isOutdoor: true,
                 exits: { down: 'plaza', left: 'souvenir_shop' },
@@ -528,7 +529,7 @@
                 name: 'Zona de Juegos',
                 bgColor: '#2a3a2a',
                 isOutdoor: true,
-                exits: { down: 'entrance' },
+                exits: { right: 'entrance' },
                 objects: [
                     // Bumper cars arena
                     { x: 50, y: 80, width: 300, height: 200, type: 'bumper_arena' },
@@ -557,21 +558,20 @@
                 bgColor: '#3a2a3a',
                 exits: { right: 'plaza' },
                 objects: [
-                    // Shop shelves (interactable)
-                    { x: 50, y: 80, width: 200, height: 150, type: 'shop_shelf', items: ['hornet', 'knight', 'grub'], interactable: true },
-                    { x: 300, y: 80, width: 200, height: 150, type: 'shop_shelf', items: ['zote', 'grimm', 'quirrel'], interactable: true },
-                    { x: 550, y: 80, width: 200, height: 150, type: 'shop_shelf', items: ['elderbug', 'cornifer', 'iselda'], interactable: true },
+                    // Single plushie stand with all Silksong plushies
+                    { x: 280, y: 80, width: 240, height: 160, type: 'plushie_stand', items: ['sherma', 'shakra', 'lace', 'hornet'] },
                     // Counter
                     { x: 250, y: 350, width: 300, height: 60, type: 'shop_counter' },
-                    // Display cases
-                    { x: 100, y: 280, width: 100, height: 60, type: 'display_case', item: 'silksong_poster' },
-                    { x: 600, y: 280, width: 100, height: 60, type: 'display_case', item: 'map' },
+                    // Silksong poster
+                    { x: 80, y: 100, width: 120, height: 160, type: 'silksong_poster' },
+                    // Other decorations
+                    { x: 600, y: 100, width: 100, height: 140, type: 'display_case', item: 'map' },
                     // Billy's jacket! (he left it here)
                     { x: 50, y: 450, width: 60, height: 30, type: 'bench', sittable: true },
                     { x: 55, y: 445, width: 40, height: 20, type: 'billy_jacket', interactable: true },
                 ],
                 npcs: [
-                    { x: 400, y: 320, direction: 'down', type: 'shopkeeper', interactText: "Welcome to the gift shop! We have plushies from Hollow Knight Silksong! ...A jacket? Oh yes, some muscular guy left it here. He ran off looking scared!" },
+                    { x: 400, y: 320, direction: 'down', type: 'shopkeeper', interactText: "¡Bienvenido! Tenemos plushies de Silksong... ¿Una campera? Sí, un chico musculoso la dejó acá. ¡Salió corriendo asustado!" },
                 ]
             }
         };
@@ -588,6 +588,13 @@
         // Input handling
         document.addEventListener('keydown', (e) => {
             keys[e.key] = true;
+
+            // Handle plushie menu input
+            if (plushieMenuActive) {
+                e.preventDefault();
+                handlePlushieMenuInput(e.key);
+                return;
+            }
 
             if (e.key === ' ' || e.key === 'Space') {
                 e.preventDefault();
@@ -646,6 +653,8 @@
                     // Check if it's a food vendor
                     if (nearNPC.type === 'food_vendor' && nearNPC.standFood) {
                         handleFoodPurchase(nearNPC);
+                    } else if (nearNPC.type === 'shopkeeper') {
+                        handleShopkeeperInteraction(nearNPC);
                     } else {
                         showDialog(nearNPC.type, nearNPC.interactText);
                     }
@@ -792,12 +801,27 @@
         function handleObjectInteraction(obj) {
             if (obj.type === 'curtain' && obj.isBillyHere) {
                 // Found Billy!
-                dialogQueue = [
-                    { speaker: 'Billy', text: "¿Fede...? Me asusté mucho..." },
-                    { speaker: 'Fede', text: "¡Billy! Te estuve buscando por todos lados." },
-                    { speaker: 'Billy', text: "Los monstruos parecían tan reales..." },
-                    { speaker: 'Fede', text: "Ya está, ya pasó. Vení." }
-                ];
+                if (player.boughtPlushie) {
+                    // Player bought a plushie - special ending!
+                    const plushieName = player.boughtPlushie === 'sherma' ? 'Sherma' :
+                                       player.boughtPlushie === 'shakra' ? 'Shakra' :
+                                       player.boughtPlushie === 'lace' ? 'Lace' :
+                                       player.boughtPlushie === 'hornet' ? 'Hornet' : 'un plushie';
+                    dialogQueue = [
+                        { speaker: 'Billy', text: "¿Fede...? Me asusté mucho..." },
+                        { speaker: 'Fede', text: "¡Billy! Te estuve buscando por todos lados." },
+                        { speaker: 'Fede', text: "Toma, te traje un plushie de " + plushieName + "." },
+                        { speaker: 'Billy', text: "¡¿De Silksong?! ¡Gracias!" },
+                        { speaker: 'Fede', text: "Ya está, ya pasó. Vení." }
+                    ];
+                } else {
+                    dialogQueue = [
+                        { speaker: 'Billy', text: "¿Fede...? Me asusté mucho..." },
+                        { speaker: 'Fede', text: "¡Billy! Te estuve buscando por todos lados." },
+                        { speaker: 'Billy', text: "Los monstruos parecían tan reales..." },
+                        { speaker: 'Fede', text: "Ya está, ya pasó. Vení." }
+                    ];
+                }
                 showDialog('Fede', "¿Billy?");
                 setTimeout(() => {
                     if (!dialogActive) triggerWin();
@@ -835,16 +859,7 @@
             } else if (obj.type === 'monster_mirror') {
                 showDialog('Fede', "Ese reflejo... no soy yo. ¿O sí?");
             } else if (obj.type === 'ferris_entrance') {
-                showDialog('Fede', "¡Qué vista!");
-                setTimeout(() => {
-                    if (!dialogActive) openMinigame('ferriswheel.html');
-                }, 100);
-                const checkDialog = setInterval(() => {
-                    if (!dialogActive) {
-                        clearInterval(checkDialog);
-                        openMinigame('ferriswheel.html');
-                    }
-                }, 100);
+                openMinigame('ferriswheel.html');
             } else if (obj.type === 'food_stand' && obj.foodType) {
                 // Food stands need vendor NPC to buy from
                 showDialog('Fede', "Necesito hablar con el vendedor...");
@@ -882,17 +897,6 @@
                     const roomObjs = rooms[currentRoom].objects;
                     const jacketIdx = roomObjs.findIndex(o => o.type === 'billy_jacket');
                     if (jacketIdx !== -1) roomObjs.splice(jacketIdx, 1);
-                }
-            } else if (obj.type === 'shop_shelf') {
-                // Buy a plushie from the shelf
-                if (player.heldItem) {
-                    // Already holding something - put it away first
-                    player.heldItem = null;
-                } else if (obj.items && obj.items.length > 0) {
-                    // Pick a random plushie from this shelf
-                    const plushie = obj.items[Math.floor(Math.random() * obj.items.length)];
-                    player.heldItem = plushie;
-                    player.itemPickupAnim = 30;
                 }
             }
         }
@@ -950,6 +954,163 @@
             }, 500); // Half second for animation
         }
 
+        // Shopkeeper plushie purchase
+        let plushieMenuActive = false;
+        let plushieMenuSelection = 0;
+        const plushieOptions = [
+            { name: 'Sherma', id: 'sherma' },
+            { name: 'Shakra', id: 'shakra' },
+            { name: 'Lace', id: 'lace' },
+            { name: 'Hornet', id: 'hornet' },
+            { name: 'No gracias', id: null }
+        ];
+
+        // Vendor animation state
+        let vendorAnimation = {
+            active: false,
+            phase: 0, // 0: walking to stand, 1: picking up, 2: walking back, 3: giving
+            progress: 0,
+            plushieId: null,
+            startX: 400,
+            startY: 320,
+            standX: 400, // center of plushie stand
+            standY: 160
+        };
+
+        function handleShopkeeperInteraction(npc) {
+            if (vendorAnimation.active) return; // Animation in progress
+
+            if (player.boughtPlushie) {
+                // Already bought one
+                showDialog('shopkeeper', "¡Ya tenés tu plushie de Silksong! Cuidalo bien.");
+                return;
+            }
+
+            // Show plushie selection menu
+            plushieMenuActive = true;
+            plushieMenuSelection = 0;
+            dialogActive = true;
+            currentSpeechBubble = { speaker: 'shopkeeper', text: "¡Plushies de Silksong! ¿Cuál querés?" };
+        }
+
+        function handlePlushieMenuInput(key) {
+            if (key === 'ArrowUp' || key === 'w') {
+                plushieMenuSelection = (plushieMenuSelection - 1 + plushieOptions.length) % plushieOptions.length;
+            } else if (key === 'ArrowDown' || key === 's') {
+                plushieMenuSelection = (plushieMenuSelection + 1) % plushieOptions.length;
+            } else if (key === ' ' || key === 'Enter') {
+                const selected = plushieOptions[plushieMenuSelection];
+                plushieMenuActive = false;
+
+                if (selected.id) {
+                    // Start vendor animation
+                    vendorAnimation.active = true;
+                    vendorAnimation.phase = 0;
+                    vendorAnimation.progress = 0;
+                    vendorAnimation.plushieId = selected.id;
+                    dialogActive = false;
+                    currentSpeechBubble = null;
+                } else {
+                    // Declined
+                    showDialog('shopkeeper', "¡Volvé cuando quieras!");
+                }
+            }
+        }
+
+        function updateVendorAnimation() {
+            if (!vendorAnimation.active) return;
+
+            vendorAnimation.progress += 2;
+
+            const phaseDuration = 60; // frames per phase
+
+            if (vendorAnimation.progress >= phaseDuration) {
+                vendorAnimation.progress = 0;
+                vendorAnimation.phase++;
+
+                if (vendorAnimation.phase === 3) {
+                    // Animation complete - give plushie to player
+                    player.boughtPlushie = vendorAnimation.plushieId;
+                    player.heldItem = vendorAnimation.plushieId;
+                    player.itemPickupAnim = 30;
+
+                    const plushieName = plushieOptions.find(p => p.id === vendorAnimation.plushieId)?.name || 'plushie';
+                    dialogQueue = [
+                        { speaker: 'Fede', text: "¡Gracias! A Billy le va a encantar." }
+                    ];
+                    showDialog('shopkeeper', "¡Acá tenés tu " + plushieName + "!");
+
+                    vendorAnimation.active = false;
+
+                    // Reset shopkeeper position
+                    const shop = rooms['souvenir_shop'];
+                    if (shop && shop.npcs[0]) {
+                        shop.npcs[0].x = vendorAnimation.startX;
+                        shop.npcs[0].y = vendorAnimation.startY;
+                        shop.npcs[0].direction = 'down';
+                    }
+                }
+            }
+
+            // Update shopkeeper position based on phase
+            if (currentRoom === 'souvenir_shop' && rooms[currentRoom].npcs[0]) {
+                const npc = rooms[currentRoom].npcs[0];
+                const t = vendorAnimation.progress / phaseDuration;
+
+                if (vendorAnimation.phase === 0) {
+                    // Walking to stand
+                    npc.x = vendorAnimation.startX + (vendorAnimation.standX - vendorAnimation.startX) * t;
+                    npc.y = vendorAnimation.startY + (vendorAnimation.standY - vendorAnimation.startY) * t;
+                    npc.direction = 'up';
+                } else if (vendorAnimation.phase === 1) {
+                    // At stand, picking up
+                    npc.x = vendorAnimation.standX;
+                    npc.y = vendorAnimation.standY;
+                    npc.direction = 'up';
+                } else if (vendorAnimation.phase === 2) {
+                    // Walking back
+                    npc.x = vendorAnimation.standX + (vendorAnimation.startX - vendorAnimation.standX) * t;
+                    npc.y = vendorAnimation.standY + (vendorAnimation.startY - vendorAnimation.standY) * t;
+                    npc.direction = 'down';
+                }
+            }
+        }
+
+        function drawPlushieMenu() {
+            if (!plushieMenuActive) return;
+
+            const menuX = 300;
+            const menuY = 180;
+            const menuW = 200;
+            const menuH = 170;
+
+            // Menu background
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
+            ctx.fillRect(menuX, menuY, menuW, menuH);
+            ctx.strokeStyle = '#ffd700';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(menuX, menuY, menuW, menuH);
+
+            // Title
+            ctx.fillStyle = '#ffd700';
+            ctx.font = '10px "Press Start 2P"';
+            ctx.textAlign = 'center';
+            ctx.fillText('SILKSONG', menuX + menuW/2, menuY + 20);
+
+            // Options
+            ctx.font = '8px "Press Start 2P"';
+            ctx.textAlign = 'left';
+            plushieOptions.forEach((opt, i) => {
+                const y = menuY + 45 + i * 25;
+                if (i === plushieMenuSelection) {
+                    ctx.fillStyle = '#ffd700';
+                    ctx.fillText('>', menuX + 15, y);
+                }
+                ctx.fillStyle = i === plushieMenuSelection ? '#fff' : '#aaa';
+                ctx.fillText(opt.name, menuX + 30, y);
+            });
+        }
+
         function triggerWin() {
             gameWon = true;
             document.getElementById('winOverlay').style.display = 'flex';
@@ -957,7 +1118,7 @@
         }
 
         let winAnimationFrame = 0;
-        let winAnimationPhase = 0; // 0: approach, 1: hug
+        let winAnimationPhase = 0; // 0: approach, 1: give plushie (if has), 2: billy receives, 3: hug
 
         function drawWinScene() {
             winCtx.fillStyle = '#1a0a2e';
@@ -965,32 +1126,90 @@
 
             winAnimationFrame++;
 
-            // Animation phases
-            const approachDuration = 60;
-            const progress = Math.min(1, winAnimationFrame / approachDuration);
-
-            if (winAnimationFrame > approachDuration) {
-                winAnimationPhase = 1;
-            }
-
+            const hasPlushie = player.boughtPlushie !== null;
             const scale = 2.5;
             const centerX = 150;
             const centerY = 100;
 
+            // Animation timing
+            const approachDuration = 60;
+            const giveDuration = hasPlushie ? 40 : 0;
+            const receiveDuration = hasPlushie ? 50 : 0;
+
+            // Calculate current phase
+            let phaseStartFrame = 0;
+            if (winAnimationFrame <= approachDuration) {
+                winAnimationPhase = 0;
+            } else if (hasPlushie && winAnimationFrame <= approachDuration + giveDuration) {
+                winAnimationPhase = 1;
+                phaseStartFrame = approachDuration;
+            } else if (hasPlushie && winAnimationFrame <= approachDuration + giveDuration + receiveDuration) {
+                winAnimationPhase = 2;
+                phaseStartFrame = approachDuration + giveDuration;
+            } else {
+                winAnimationPhase = 3;
+                phaseStartFrame = approachDuration + giveDuration + receiveDuration;
+            }
+
             if (winAnimationPhase === 0) {
                 // Approaching each other
+                const progress = Math.min(1, winAnimationFrame / approachDuration);
                 const fedeX = 60 + progress * 40;
                 const billyX = 240 - progress * 50;
 
-                drawFedeWin(winCtx, fedeX, centerY, scale, 'right');
+                drawFedeWin(winCtx, fedeX, centerY, scale, 'right', hasPlushie);
                 drawBillyWin(winCtx, billyX, centerY - 10, scale, 'left', false);
+            } else if (winAnimationPhase === 1) {
+                // Fede extends arm with plushie
+                const progress = Math.min(1, (winAnimationFrame - phaseStartFrame) / giveDuration);
+                const fedeX = 100;
+                const billyX = 190;
+
+                drawFedeWin(winCtx, fedeX, centerY, scale, 'right', true, progress);
+                drawBillyWin(winCtx, billyX, centerY - 10, scale, 'left', false);
+
+                // Draw plushie moving from Fede to middle
+                const plushieX = fedeX + 30 + progress * 25;
+                const plushieY = centerY - 10 + Math.sin(progress * Math.PI) * -10;
+                drawMiniPlushieWin(winCtx, player.boughtPlushie, plushieX, plushieY, 2);
+            } else if (winAnimationPhase === 2) {
+                // Billy receives plushie - happy reaction
+                const progress = Math.min(1, (winAnimationFrame - phaseStartFrame) / receiveDuration);
+                const fedeX = 100;
+                const billyX = 190;
+
+                drawFedeWin(winCtx, fedeX, centerY, scale, 'right', false);
+                drawBillyWin(winCtx, billyX, centerY - 10, scale, 'left', false, true); // holding plushie
+
+                // Draw plushie in Billy's hands
+                drawMiniPlushieWin(winCtx, player.boughtPlushie, billyX - 20, centerY - 5, 2);
+
+                // Sparkles around Billy
+                winCtx.fillStyle = '#ffd700';
+                for (let i = 0; i < 4; i++) {
+                    const sparkleAngle = (Date.now() / 200 + i * Math.PI / 2) % (Math.PI * 2);
+                    const sparkleX = billyX + Math.cos(sparkleAngle) * 35;
+                    const sparkleY = centerY - 20 + Math.sin(sparkleAngle) * 25;
+                    const sparkleSize = 3 + Math.sin(Date.now() / 100 + i) * 2;
+                    winCtx.beginPath();
+                    winCtx.arc(sparkleX, sparkleY, sparkleSize, 0, Math.PI * 2);
+                    winCtx.fill();
+                }
+
+                // "!" reaction
+                if (progress < 0.6) {
+                    winCtx.fillStyle = '#fff';
+                    winCtx.font = 'bold 16px "Press Start 2P"';
+                    winCtx.textAlign = 'center';
+                    winCtx.fillText('!', billyX, centerY - 55);
+                }
             } else {
                 // Hugging - draw as single combined sprite
-                drawHugSprite(winCtx, centerX, centerY, scale);
+                drawHugSprite(winCtx, centerX, centerY, scale, hasPlushie ? player.boughtPlushie : null);
 
                 // Floating hearts
                 winCtx.fillStyle = '#ff6b9d';
-                const heartPhase = (winAnimationFrame - approachDuration) / 30;
+                const heartPhase = (winAnimationFrame - phaseStartFrame) / 30;
                 for (let i = 0; i < 3; i++) {
                     const hx = centerX - 30 + i * 30;
                     const hy = 40 + Math.sin(heartPhase + i * 2) * 8;
@@ -999,7 +1218,7 @@
                 }
 
                 // Billy's speech bubble after a moment
-                const hugDuration = winAnimationFrame - approachDuration;
+                const hugDuration = winAnimationFrame - phaseStartFrame;
                 if (hugDuration > 40) {
                     // Speech bubble
                     winCtx.fillStyle = '#fff';
@@ -1029,7 +1248,7 @@
             }
         }
 
-        function drawFedeWin(ctx, x, y, scale, dir) {
+        function drawFedeWin(ctx, x, y, scale, dir, holdingPlushie = false, extendArm = 0) {
             ctx.save();
             ctx.translate(x, y);
             ctx.scale(scale, scale);
@@ -1049,6 +1268,16 @@
             // White shirt
             ctx.fillStyle = '#fff';
             ctx.fillRect(-3, 12, 6, 8);
+
+            // Extended arm if giving plushie
+            if (extendArm > 0) {
+                ctx.fillStyle = '#722f37'; // Jacket sleeve
+                const armLength = 8 + extendArm * 8;
+                ctx.fillRect(7, 12, armLength, 4);
+                // Hand
+                ctx.fillStyle = '#e8c4a0';
+                ctx.fillRect(7 + armLength - 3, 11, 4, 5);
+            }
 
             // Pants
             ctx.fillStyle = '#1a1a1a';
@@ -1070,10 +1299,91 @@
             ctx.fillRect(1, 4, 2, 2);
             ctx.fillRect(5, 4, 2, 2);
 
+            // Smile if giving plushie
+            if (holdingPlushie || extendArm > 0) {
+                ctx.fillRect(1, 7, 4, 1);
+            }
+
             ctx.restore();
         }
 
-        function drawBillyWin(ctx, x, y, scale, dir, crying) {
+        // Mini plushie for win scene - Silksong characters
+        function drawMiniPlushieWin(ctx, type, x, y, scale) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.scale(scale, scale);
+
+            if (type === 'sherma') {
+                // Sherma - grey cloak, white face, bronze cymbal hat
+                ctx.fillStyle = '#707070';
+                ctx.fillRect(-4, -2, 8, 10);
+                // Face
+                ctx.fillStyle = '#f5f5f0';
+                ctx.fillRect(-3, -6, 6, 5);
+                // Bronze hat
+                ctx.fillStyle = '#cd7f32';
+                ctx.fillRect(-5, -9, 10, 3);
+                // Eyes
+                ctx.fillStyle = '#1a1a1a';
+                ctx.fillRect(-2, -5, 2, 2);
+                ctx.fillRect(1, -5, 2, 2);
+            } else if (type === 'shakra') {
+                // Shakra - yellow/sand warrior
+                ctx.fillStyle = '#d4a84b';
+                ctx.fillRect(-4, -2, 8, 10);
+                // Head
+                ctx.fillStyle = '#e8c547';
+                ctx.fillRect(-3, -6, 6, 5);
+                // Stripes
+                ctx.fillStyle = '#8b6914';
+                ctx.fillRect(-3, 0, 6, 2);
+                // Eyes
+                ctx.fillStyle = '#1a1a1a';
+                ctx.fillRect(-2, -5, 2, 2);
+                ctx.fillRect(1, -5, 2, 2);
+            } else if (type === 'lace') {
+                // Lace - all white, big eyes
+                ctx.fillStyle = '#f8f8ff';
+                ctx.fillRect(-4, -2, 8, 10);
+                // Head
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(-4, -7, 8, 6);
+                // Hat
+                ctx.fillStyle = '#e0e0e8';
+                ctx.fillRect(-2, -9, 4, 3);
+                // Large eyes
+                ctx.fillStyle = '#1a1a1a';
+                ctx.fillRect(-3, -5, 3, 3);
+                ctx.fillRect(1, -5, 3, 3);
+            } else if (type === 'hornet') {
+                // Hornet - red cloak, white head, black horns
+                ctx.fillStyle = '#c41e3a';
+                ctx.fillRect(-4, -2, 8, 10);
+                // Head
+                ctx.fillStyle = '#e8e8e8';
+                ctx.fillRect(-3, -6, 6, 5);
+                // Horns
+                ctx.fillStyle = '#1a1a1a';
+                ctx.fillRect(-4, -9, 2, 4);
+                ctx.fillRect(2, -9, 2, 4);
+                // Eyes
+                ctx.fillRect(-2, -5, 2, 2);
+                ctx.fillRect(1, -5, 2, 2);
+            } else {
+                // Generic plushie
+                ctx.fillStyle = '#9370db';
+                ctx.fillRect(-3, -2, 6, 8);
+                ctx.fillStyle = '#654321';
+                ctx.fillRect(-3, -6, 6, 5);
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(-2, -5, 2, 2);
+                ctx.fillRect(1, -5, 2, 2);
+            }
+
+            ctx.restore();
+        }
+
+        function drawBillyWin(ctx, x, y, scale, dir, crying, holdingPlushie = false) {
             ctx.save();
             ctx.translate(x, y);
             ctx.scale(scale, scale);
@@ -1094,6 +1404,15 @@
             ctx.fillRect(-13, 10, 4, 5);
             ctx.fillRect(9, 10, 4, 5);
 
+            // Arms extended if holding plushie
+            if (holdingPlushie) {
+                ctx.fillStyle = '#555';
+                ctx.fillRect(-17, 12, 6, 4);
+                // Hands
+                ctx.fillStyle = '#e8c4a0';
+                ctx.fillRect(-19, 11, 4, 5);
+            }
+
             // Jeans
             ctx.fillStyle = '#3d5a80';
             ctx.fillRect(-8, 22, 7, 8);
@@ -1111,10 +1430,18 @@
             ctx.fillRect(-6, -7, 3, 2);
             ctx.fillRect(4, -7, 4, 2);
 
-            // Eyes looking left
+            // Eyes looking left (or at plushie if holding)
             ctx.fillStyle = '#000';
-            ctx.fillRect(-7, 4, 3, 3);
-            ctx.fillRect(0, 4, 3, 3);
+            if (holdingPlushie) {
+                // Eyes looking down at plushie, happy
+                ctx.fillRect(-6, 5, 2, 2);
+                ctx.fillRect(1, 5, 2, 2);
+                // Big smile
+                ctx.fillRect(-4, 8, 8, 1);
+            } else {
+                ctx.fillRect(-7, 4, 3, 3);
+                ctx.fillRect(0, 4, 3, 3);
+            }
 
             if (crying) {
                 ctx.fillStyle = '#87ceeb';
@@ -1125,7 +1452,7 @@
             ctx.restore();
         }
 
-        function drawHugSprite(ctx, x, y, scale) {
+        function drawHugSprite(ctx, x, y, scale, plushieType = null) {
             ctx.save();
             ctx.translate(x, y);
             ctx.scale(scale, scale);
@@ -1179,7 +1506,7 @@
             ctx.fillRect(-13, -3, 14, 5);
             ctx.fillRect(-14, -1, 3, 4);
 
-            // Billy's arms wrapped around Fede
+            // Billy's arms wrapped around Fede (one hand holds plushie if given)
             ctx.fillStyle = '#e8c4a0'; // skin
             ctx.fillRect(-18, 12, 6, 4); // left hand on Fede's back
             ctx.fillRect(-4, 14, 6, 4); // right hand on Fede's side
@@ -1194,6 +1521,69 @@
             // Burgundy sleeve
             ctx.fillStyle = '#722f37';
             ctx.fillRect(4, 14, 5, 4);
+
+            // Draw plushie held by Billy if given - Silksong characters
+            if (plushieType) {
+                ctx.save();
+                ctx.translate(22, 18); // Position on Billy's other side
+                ctx.scale(0.6, 0.6);
+
+                if (plushieType === 'sherma') {
+                    // Sherma - grey cloak, bronze hat
+                    ctx.fillStyle = '#707070';
+                    ctx.fillRect(-4, -2, 8, 10);
+                    ctx.fillStyle = '#f5f5f0';
+                    ctx.fillRect(-3, -6, 6, 5);
+                    ctx.fillStyle = '#cd7f32';
+                    ctx.fillRect(-5, -9, 10, 3);
+                    ctx.fillStyle = '#1a1a1a';
+                    ctx.fillRect(-2, -5, 2, 2);
+                    ctx.fillRect(1, -5, 2, 2);
+                } else if (plushieType === 'shakra') {
+                    // Shakra - yellow/sand
+                    ctx.fillStyle = '#d4a84b';
+                    ctx.fillRect(-4, -2, 8, 10);
+                    ctx.fillStyle = '#e8c547';
+                    ctx.fillRect(-3, -6, 6, 5);
+                    ctx.fillStyle = '#8b6914';
+                    ctx.fillRect(-3, 0, 6, 2);
+                    ctx.fillStyle = '#1a1a1a';
+                    ctx.fillRect(-2, -5, 2, 2);
+                    ctx.fillRect(1, -5, 2, 2);
+                } else if (plushieType === 'lace') {
+                    // Lace - white
+                    ctx.fillStyle = '#f8f8ff';
+                    ctx.fillRect(-4, -2, 8, 10);
+                    ctx.fillStyle = '#fff';
+                    ctx.fillRect(-4, -7, 8, 6);
+                    ctx.fillStyle = '#e0e0e8';
+                    ctx.fillRect(-2, -9, 4, 3);
+                    ctx.fillStyle = '#1a1a1a';
+                    ctx.fillRect(-3, -5, 3, 3);
+                    ctx.fillRect(1, -5, 3, 3);
+                } else if (plushieType === 'hornet') {
+                    // Hornet - red cloak
+                    ctx.fillStyle = '#c41e3a';
+                    ctx.fillRect(-4, -2, 8, 10);
+                    ctx.fillStyle = '#e8e8e8';
+                    ctx.fillRect(-3, -6, 6, 5);
+                    ctx.fillStyle = '#1a1a1a';
+                    ctx.fillRect(-4, -9, 2, 4);
+                    ctx.fillRect(2, -9, 2, 4);
+                    ctx.fillRect(-2, -5, 2, 2);
+                    ctx.fillRect(1, -5, 2, 2);
+                } else {
+                    // Generic
+                    ctx.fillStyle = '#9370db';
+                    ctx.fillRect(-3, -2, 6, 8);
+                    ctx.fillStyle = '#654321';
+                    ctx.fillRect(-3, -6, 6, 5);
+                    ctx.fillStyle = '#fff';
+                    ctx.fillRect(-2, -5, 2, 2);
+                    ctx.fillRect(1, -5, 2, 2);
+                }
+                ctx.restore();
+            }
 
             ctx.restore();
         }
@@ -1430,10 +1820,21 @@
                     }
                 }
                 if (obj.interactable) {
-                    const dx = (player.x + 16) - (obj.x + obj.width / 2);
-                    const dy = (player.y + 16) - (obj.y + obj.height / 2);
+                    // For large objects like shelves, check distance from bottom edge
+                    let targetX = obj.x + obj.width / 2;
+                    let targetY = obj.y + obj.height / 2;
+                    let detectRange = 60;
+
+                    if (obj.type === 'plushie_stand') {
+                        // Use bottom edge for tall stands
+                        targetY = obj.y + obj.height;
+                        detectRange = 80;
+                    }
+
+                    const dx = (player.x + 16) - targetX;
+                    const dy = (player.y + 16) - targetY;
                     const dist = Math.sqrt(dx * dx + dy * dy);
-                    if (dist < 60) {
+                    if (dist < detectRange) {
                         nearObject = obj;
                         break;
                     }
@@ -1716,14 +2117,17 @@
                     case 'photo_entrance':
                         drawPhotoEntrance(obj);
                         break;
-                    case 'shop_shelf':
-                        drawShopShelf(obj);
+                    case 'plushie_stand':
+                        drawPlushieStand(obj);
                         break;
                     case 'shop_counter':
                         drawShopCounter(obj);
                         break;
                     case 'display_case':
                         drawDisplayCase(obj);
+                        break;
+                    case 'silksong_poster':
+                        drawSilksongPoster(obj);
                         break;
                     case 'billy_jacket':
                         drawBillyJacket(obj);
@@ -2666,128 +3070,264 @@
             ctx.fill();
         }
 
-        function drawShopShelf(obj) {
-            // Shelf back
-            ctx.fillStyle = '#5a3a2a';
+        function drawPlushieStand(obj) {
+            // Stand back wall
+            ctx.fillStyle = '#4a2a3a';
             ctx.fillRect(obj.x, obj.y, obj.width, obj.height);
 
-            // Shelf boards
+            // Stand frame
             ctx.fillStyle = '#8b6914';
-            for (let i = 0; i < 3; i++) {
-                ctx.fillRect(obj.x - 5, obj.y + 10 + i * 50, obj.width + 10, 8);
-            }
+            ctx.fillRect(obj.x - 5, obj.y - 5, obj.width + 10, 10);
+            ctx.fillRect(obj.x - 5, obj.y + obj.height - 5, obj.width + 10, 10);
+            ctx.fillRect(obj.x - 5, obj.y, 10, obj.height);
+            ctx.fillRect(obj.x + obj.width - 5, obj.y, 10, obj.height);
 
-            // Draw Hollow Knight plushies
+            // Shelf in middle
+            ctx.fillStyle = '#a67c52';
+            ctx.fillRect(obj.x, obj.y + 80, obj.width, 8);
+
+            // "SILKSONG PLUSHIES" banner
+            ctx.fillStyle = '#c41e3a';
+            ctx.fillRect(obj.x + 20, obj.y + 10, obj.width - 40, 25);
+            ctx.fillStyle = '#fff';
+            ctx.font = '10px "Press Start 2P"';
+            ctx.textAlign = 'center';
+            ctx.fillText('SILKSONG', obj.x + obj.width/2, obj.y + 28);
+
+            // Draw the 4 Silksong plushies
             if (obj.items) {
                 obj.items.forEach((item, idx) => {
-                    const px = obj.x + 25 + idx * 60;
-                    const py = obj.y + 25 + (idx % 2) * 50;
+                    const px = obj.x + 35 + idx * 55;
+                    const py = obj.y + 60; // Top row
                     drawSilksongPlushie(px, py, item);
                 });
             }
+        }
+
+        function drawSilksongPoster(obj) {
+            // Poster frame
+            ctx.fillStyle = '#2a2a2a';
+            ctx.fillRect(obj.x - 5, obj.y - 5, obj.width + 10, obj.height + 10);
+
+            // Poster background - dark gradient
+            const gradient = ctx.createLinearGradient(obj.x, obj.y, obj.x, obj.y + obj.height);
+            gradient.addColorStop(0, '#1a1a2e');
+            gradient.addColorStop(1, '#0a0a15');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(obj.x, obj.y, obj.width, obj.height);
+
+            // Hornet silhouette in poster
+            ctx.fillStyle = '#c41e3a';
+            const cx = obj.x + obj.width/2;
+            const cy = obj.y + obj.height/2;
+            // Cloak
+            ctx.beginPath();
+            ctx.moveTo(cx, cy - 30);
+            ctx.lineTo(cx - 25, cy + 40);
+            ctx.lineTo(cx + 25, cy + 40);
+            ctx.closePath();
+            ctx.fill();
+            // Head
+            ctx.fillStyle = '#e8e8e8';
+            ctx.beginPath();
+            ctx.arc(cx, cy - 35, 15, 0, Math.PI * 2);
+            ctx.fill();
+            // Horns
+            ctx.fillStyle = '#1a1a1a';
+            ctx.beginPath();
+            ctx.moveTo(cx - 10, cy - 45);
+            ctx.lineTo(cx - 5, cy - 60);
+            ctx.lineTo(cx, cy - 45);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(cx, cy - 45);
+            ctx.lineTo(cx + 5, cy - 60);
+            ctx.lineTo(cx + 10, cy - 45);
+            ctx.fill();
+
+            // Title
+            ctx.fillStyle = '#fff';
+            ctx.font = '8px "Press Start 2P"';
+            ctx.textAlign = 'center';
+            ctx.fillText('SILKSONG', cx, obj.y + obj.height - 15);
         }
 
         function drawSilksongPlushie(x, y, type) {
             ctx.save();
             ctx.translate(x, y);
 
-            if (type === 'hornet' || type === 'knight') {
-                // Body
-                ctx.fillStyle = type === 'hornet' ? '#c0c0c0' : '#2a2a2a';
+            if (type === 'sherma') {
+                // Sherma - grey body, white face, bronze cymbal hat, grey cloak
+                // Body/cloak (grey)
+                ctx.fillStyle = '#707070';
                 ctx.beginPath();
-                ctx.ellipse(0, 0, 12, 15, 0, 0, Math.PI * 2);
+                ctx.ellipse(0, 5, 10, 14, 0, 0, Math.PI * 2);
                 ctx.fill();
-                // Head/horns
-                ctx.fillStyle = type === 'hornet' ? '#a0a0a0' : '#1a1a1a';
+
+                // Face (white/cream)
+                ctx.fillStyle = '#f5f5f0';
                 ctx.beginPath();
-                ctx.moveTo(-8, -10);
-                ctx.lineTo(0, -25);
-                ctx.lineTo(8, -10);
+                ctx.arc(0, -8, 10, 0, Math.PI * 2);
                 ctx.fill();
+
+                // Bronze cymbal hat
+                ctx.fillStyle = '#cd7f32';
+                ctx.beginPath();
+                ctx.ellipse(0, -18, 14, 5, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#b87333';
+                ctx.beginPath();
+                ctx.arc(0, -20, 6, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Small dot eyes
+                ctx.fillStyle = '#1a1a1a';
+                ctx.beginPath();
+                ctx.arc(-3, -8, 2, 0, Math.PI * 2);
+                ctx.arc(3, -8, 2, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Little chime in hand
+                ctx.fillStyle = '#cd7f32';
+                ctx.fillRect(12, 0, 3, 8);
+                ctx.beginPath();
+                ctx.arc(13, 10, 4, 0, Math.PI * 2);
+                ctx.fill();
+
+            } else if (type === 'shakra') {
+                // Shakra - sand/yellow warrior with chakram ring
+                // Body (sand yellow)
+                ctx.fillStyle = '#d4a84b';
+                ctx.beginPath();
+                ctx.ellipse(0, 5, 11, 14, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Head
+                ctx.fillStyle = '#e8c547';
+                ctx.beginPath();
+                ctx.arc(0, -10, 10, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Wasp-like stripes on body
+                ctx.fillStyle = '#8b6914';
+                ctx.fillRect(-8, 2, 16, 3);
+                ctx.fillRect(-6, 8, 12, 3);
+
+                // Eyes (fierce)
+                ctx.fillStyle = '#1a1a1a';
+                ctx.fillRect(-5, -12, 3, 3);
+                ctx.fillRect(2, -12, 3, 3);
+
+                // Chakram ring weapon
+                ctx.strokeStyle = '#c0c0c0';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(16, -5, 8, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.fillStyle = '#a0a0a0';
+                ctx.beginPath();
+                ctx.arc(16, -5, 4, 0, Math.PI * 2);
+                ctx.fill();
+
+            } else if (type === 'lace') {
+                // Lace - all white, prominent eyes, fancy hat, gilded pin
+                // Body (white)
+                ctx.fillStyle = '#f8f8ff';
+                ctx.beginPath();
+                ctx.ellipse(0, 5, 10, 14, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Flowing dress detail
+                ctx.fillStyle = '#e8e8f0';
+                ctx.beginPath();
+                ctx.moveTo(-10, 10);
+                ctx.lineTo(-14, 20);
+                ctx.lineTo(14, 20);
+                ctx.lineTo(10, 10);
+                ctx.fill();
+
+                // Head (white)
+                ctx.fillStyle = '#fff';
+                ctx.beginPath();
+                ctx.arc(0, -10, 12, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Fancy hat/headdress
+                ctx.fillStyle = '#e0e0e8';
+                ctx.beginPath();
+                ctx.moveTo(-8, -18);
+                ctx.lineTo(0, -30);
+                ctx.lineTo(8, -18);
+                ctx.closePath();
+                ctx.fill();
+
+                // Large prominent eyes
+                ctx.fillStyle = '#1a1a1a';
+                ctx.beginPath();
+                ctx.ellipse(-4, -10, 4, 5, 0, 0, Math.PI * 2);
+                ctx.ellipse(4, -10, 4, 5, 0, 0, Math.PI * 2);
+                ctx.fill();
+                // Eye shine
+                ctx.fillStyle = '#fff';
+                ctx.beginPath();
+                ctx.arc(-5, -11, 1.5, 0, Math.PI * 2);
+                ctx.arc(3, -11, 1.5, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Gilded Pin weapon
+                ctx.fillStyle = '#ffd700';
+                ctx.fillRect(14, -15, 3, 20);
+                ctx.beginPath();
+                ctx.moveTo(15, -15);
+                ctx.lineTo(18, -20);
+                ctx.lineTo(12, -15);
+                ctx.fill();
+
+            } else if (type === 'hornet') {
+                // Hornet - red cloak, white/grey head, black horns, needle
+                // Red cloak/body
+                ctx.fillStyle = '#c41e3a';
+                ctx.beginPath();
+                ctx.moveTo(0, -5);
+                ctx.lineTo(-12, 18);
+                ctx.lineTo(12, 18);
+                ctx.closePath();
+                ctx.fill();
+
+                // Head (white/grey)
+                ctx.fillStyle = '#e8e8e8';
+                ctx.beginPath();
+                ctx.arc(0, -12, 10, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Black horns
+                ctx.fillStyle = '#1a1a1a';
+                ctx.beginPath();
+                ctx.moveTo(-6, -18);
+                ctx.lineTo(-3, -30);
+                ctx.lineTo(0, -18);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.moveTo(0, -18);
+                ctx.lineTo(3, -30);
+                ctx.lineTo(6, -18);
+                ctx.fill();
+
                 // Eyes
-                ctx.fillStyle = '#fff';
+                ctx.fillStyle = '#1a1a1a';
                 ctx.beginPath();
-                ctx.ellipse(-3, -5, 3, 4, 0, 0, Math.PI * 2);
-                ctx.ellipse(3, -5, 3, 4, 0, 0, Math.PI * 2);
+                ctx.ellipse(-3, -12, 3, 4, 0, 0, Math.PI * 2);
+                ctx.ellipse(3, -12, 3, 4, 0, 0, Math.PI * 2);
                 ctx.fill();
-                // Hornet's needle
-                if (type === 'hornet') {
-                    ctx.fillStyle = '#888';
-                    ctx.fillRect(10, -5, 15, 3);
-                }
-            } else if (type === 'grub') {
-                // Grub body
-                ctx.fillStyle = '#90EE90';
+
+                // Needle weapon
+                ctx.fillStyle = '#a0a0a0';
+                ctx.fillRect(14, -10, 18, 3);
+                // Needle tip
                 ctx.beginPath();
-                ctx.ellipse(0, 0, 10, 12, 0, 0, Math.PI * 2);
-                ctx.fill();
-                // Face
-                ctx.fillStyle = '#fff';
-                ctx.beginPath();
-                ctx.arc(-3, -3, 3, 0, Math.PI * 2);
-                ctx.arc(3, -3, 3, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.fillStyle = '#000';
-                ctx.beginPath();
-                ctx.arc(-3, -3, 1.5, 0, Math.PI * 2);
-                ctx.arc(3, -3, 1.5, 0, Math.PI * 2);
-                ctx.fill();
-            } else if (type === 'zote') {
-                // Zote body
-                ctx.fillStyle = '#f5f5dc';
-                ctx.beginPath();
-                ctx.ellipse(0, 0, 10, 12, 0, 0, Math.PI * 2);
-                ctx.fill();
-                // Horns
-                ctx.fillStyle = '#ddd';
-                ctx.beginPath();
-                ctx.moveTo(-6, -8);
-                ctx.lineTo(-10, -20);
-                ctx.lineTo(-2, -10);
-                ctx.fill();
-                ctx.beginPath();
-                ctx.moveTo(6, -8);
-                ctx.lineTo(10, -20);
-                ctx.lineTo(2, -10);
-                ctx.fill();
-                // Angry eyes
-                ctx.fillStyle = '#000';
-                ctx.fillRect(-5, -4, 3, 2);
-                ctx.fillRect(2, -4, 3, 2);
-            } else if (type === 'grimm') {
-                // Grimm body
-                ctx.fillStyle = '#8b0000';
-                ctx.beginPath();
-                ctx.ellipse(0, 0, 12, 14, 0, 0, Math.PI * 2);
-                ctx.fill();
-                // Cape/wings
-                ctx.fillStyle = '#4a0000';
-                ctx.beginPath();
-                ctx.moveTo(-12, 0);
-                ctx.lineTo(-18, 15);
-                ctx.lineTo(-8, 10);
-                ctx.fill();
-                ctx.beginPath();
-                ctx.moveTo(12, 0);
-                ctx.lineTo(18, 15);
-                ctx.lineTo(8, 10);
-                ctx.fill();
-                // Eyes
-                ctx.fillStyle = '#ff0000';
-                ctx.beginPath();
-                ctx.ellipse(-4, -5, 3, 4, 0, 0, Math.PI * 2);
-                ctx.ellipse(4, -5, 3, 4, 0, 0, Math.PI * 2);
-                ctx.fill();
-            } else {
-                // Generic plushie
-                ctx.fillStyle = '#9370db';
-                ctx.beginPath();
-                ctx.ellipse(0, 0, 10, 12, 0, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.fillStyle = '#fff';
-                ctx.beginPath();
-                ctx.arc(-3, -3, 2, 0, Math.PI * 2);
-                ctx.arc(3, -3, 2, 0, Math.PI * 2);
+                ctx.moveTo(32, -10);
+                ctx.lineTo(38, -8);
+                ctx.lineTo(32, -7);
                 ctx.fill();
             }
 
@@ -4726,6 +5266,7 @@
             drawHorrorOverlay();
             drawJumpScare();
             drawSpeechBubble();
+            drawPlushieMenu();
 
             ctx.restore();
         }
@@ -4768,6 +5309,7 @@
         // Game loop
         function gameLoop() {
             if (!minigameActive) {
+                updateVendorAnimation();
                 update();
                 render();
             }
