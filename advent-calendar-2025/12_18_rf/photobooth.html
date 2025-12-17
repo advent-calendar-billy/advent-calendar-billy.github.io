@@ -65,6 +65,16 @@
         let webcamActive = false;
         let webcamError = false;
 
+        // Get today's date formatted
+        function getTodayDate() {
+            const now = new Date();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const year = now.getFullYear();
+            return `${month}/${day}/${year}`;
+        }
+        const todayDate = getTodayDate();
+
         document.addEventListener('keydown', (e) => {
             keys[e.key] = true;
             if (e.key === 'Escape') exitGame();
@@ -371,7 +381,7 @@
             ctx.fillStyle = '#ff6600';
             ctx.font = '10px "Press Start 2P"';
             ctx.textAlign = 'right';
-            ctx.fillText('12/18/2024', photoX + photoW - 10, photoY + photoH - 10);
+            ctx.fillText(todayDate, photoX + photoW - 10, photoY + photoH - 10);
 
             // Caption
             ctx.fillStyle = '#333';
@@ -418,7 +428,7 @@
             ctx.fillStyle = '#ff6600';
             ctx.font = '10px "Press Start 2P"';
             ctx.textAlign = 'right';
-            ctx.fillText('12/18/2024', photoX + photoW - 10, photoY + photoH - 10);
+            ctx.fillText(todayDate, photoX + photoW - 10, photoY + photoH - 10);
 
             // Billy's handwriting
             ctx.fillStyle = '#333';
@@ -437,7 +447,6 @@
             ctx.font = '11px "Press Start 2P"';
             ctx.textAlign = 'center';
             ctx.fillText('Fede: "Billy estuvo acá!"', canvas.width / 2, 70);
-            ctx.fillStyle = '#ff6b9d';
             ctx.fillText('"Tengo que encontrarlo!"', canvas.width / 2, 100);
 
             // Exit hint
