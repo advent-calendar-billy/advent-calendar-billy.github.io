@@ -669,22 +669,7 @@
             ctx.fillRect(-2, 11, 4, 1);
 
             ctx.restore();
-
-            // Thought bubbles - different per loop, only when at peak
-            // Loop 1: "¡Se ve todo!" at peak
-            // Loop 2: "¡Un avión!" when seeing plane
-            // Loop 3: "¿¡Mary Poppins!?" when seeing Mary Poppins
-            const loopProgress = rideProgress % 1; // 0 to 1 within current loop
-
-            if (rideStarted && loopProgress > 0.2 && height > 0.85) {
-                if (currentLoop === 1) {
-                    drawThoughtBubble(fedeX + 90, fedeY - 30, '¡Se ve todo!');
-                } else if (currentLoop === 2) {
-                    drawThoughtBubble(fedeX + 90, fedeY - 30, '¡Un avión!');
-                } else if (currentLoop === 3) {
-                    drawThoughtBubble(fedeX + 90, fedeY - 30, '¿¡Mary Poppins!?');
-                }
-            }
+            // No thought bubbles - "show, don't tell"
         }
 
         function drawThoughtBubble(x, y, text) {

@@ -217,7 +217,7 @@
 </head>
 <body>
     <div id="gameContainer">
-        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        <canvas id="gameCanvas" width="800" height="600" tabindex="0"></canvas>
 
         <div id="hud">
             <div class="hud-box">
@@ -262,6 +262,11 @@
         const ctx = canvas.getContext('2d');
         const winCanvas = document.getElementById('winCanvas');
         const winCtx = winCanvas.getContext('2d');
+
+        // Focus game on click
+        document.getElementById('gameContainer').addEventListener('click', () => {
+            canvas.focus();
+        });
 
         // Game state
         let gameStarted = false;
@@ -2878,16 +2883,39 @@
         }
 
         function drawBench(obj) {
-            // Seat
-            ctx.fillStyle = '#8b4513';
-            ctx.fillRect(obj.x, obj.y + 10, obj.width, 10);
-            // Legs
-            ctx.fillStyle = '#5c3317';
-            ctx.fillRect(obj.x + 5, obj.y + 20, 8, 10);
-            ctx.fillRect(obj.x + obj.width - 13, obj.y + 20, 8, 10);
-            // Back
-            ctx.fillStyle = '#8b4513';
-            ctx.fillRect(obj.x, obj.y, obj.width, 12);
+            // Decorative metal frame
+            ctx.fillStyle = '#2a2a2a';
+            // Left arm
+            ctx.fillRect(obj.x, obj.y, 6, obj.height);
+            // Right arm
+            ctx.fillRect(obj.x + obj.width - 6, obj.y, 6, obj.height);
+            // Decorative curl on arms
+            ctx.fillStyle = '#3a3a3a';
+            ctx.beginPath();
+            ctx.arc(obj.x + 3, obj.y + 5, 4, 0, Math.PI * 2);
+            ctx.arc(obj.x + obj.width - 3, obj.y + 5, 4, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Wooden slats (seat)
+            ctx.fillStyle = '#a0522d';
+            for (let i = 0; i < 4; i++) {
+                const slotY = obj.y + 8 + i * 5;
+                ctx.fillRect(obj.x + 6, slotY, obj.width - 12, 4);
+                // Wood grain
+                ctx.fillStyle = '#8b4513';
+                ctx.fillRect(obj.x + 10 + i * 8, slotY + 1, 3, 2);
+                ctx.fillStyle = '#a0522d';
+            }
+
+            // Legs (decorative iron)
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(obj.x + 2, obj.y + obj.height - 4, 4, 6);
+            ctx.fillRect(obj.x + obj.width - 6, obj.y + obj.height - 4, 4, 6);
+
+            // Highlight on metal
+            ctx.fillStyle = '#4a4a4a';
+            ctx.fillRect(obj.x + 1, obj.y + 2, 2, 8);
+            ctx.fillRect(obj.x + obj.width - 3, obj.y + 2, 2, 8);
         }
 
         function drawLamp(obj) {
@@ -4598,7 +4626,18 @@
             minigameActive = false;
             document.getElementById('minigameOverlay').style.display = 'none';
             document.getElementById('minigameFrame').src = '';
+            // Clear any lingering dialog state
+            dialogActive = false;
+            dialogQueue = [];
+            currentSpeechBubble = null;
+            // Clear all held keys to prevent stuck movement
+            for (const key in keys) {
+                keys[key] = false;
+            }
             startMusic(); // Resume main game music
+            // Return focus to main game
+            canvas.focus();
+            window.focus();
         }
 
         // Listen for messages from minigame iframe

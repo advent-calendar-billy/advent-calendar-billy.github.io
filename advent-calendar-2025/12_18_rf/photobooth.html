@@ -19,6 +19,11 @@
             height: 100vh;
             image-rendering: pixelated;
         }
+        #webcam {
+            position: fixed;
+            opacity: 0;
+            pointer-events: none;
+        }
         .back-button {
             position: fixed;
             top: 20px;
@@ -37,12 +42,14 @@
     </style>
 </head>
 <body>
+    <video id="webcam" autoplay playsinline></video>
     <canvas id="gameCanvas"></canvas>
     <button class="back-button" onclick="exitGame()">EXIT (ESC)</button>
 
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
+        const video = document.getElementById('webcam');
 
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
@@ -52,13 +59,11 @@
         let countdown = 3;
         let countdownTimer = 0;
         let flashOpacity = 0;
-        let poseIndex = 0;
         let photoTaken = false;
         let showBillyPhoto = false;
-        let billyPhotoFound = false;
-
-        const poses = ['normal', 'peace', 'flex', 'surprised'];
-        const poseNames = ['Normal', 'Peace Sign', 'Flexing', 'Surprised'];
+        let capturedImage = null;
+        let webcamActive = false;
+        let webcamError = false;
 
         document.addEventListener('keydown', (e) => {
             keys[e.key] = true;
@@ -67,32 +72,57 @@
             if (e.key === ' ') {
                 if (state === 'intro') {
                     state = 'posing';
+                    startWebcam();
                 } else if (state === 'posing') {
                     state = 'countdown';
                     countdown = 3;
                     countdownTimer = 60;
                 } else if (state === 'photo') {
-                    // Check for Billy's photo
                     showBillyPhoto = true;
                     state = 'billyPhoto';
                 } else if (state === 'billyPhoto') {
                     exitGame();
                 }
             }
-
-            if (state === 'posing') {
-                if (e.key === 'ArrowLeft' || e.key === 'a') {
-                    poseIndex = (poseIndex - 1 + poses.length) % poses.length;
-                }
-                if (e.key === 'ArrowRight' || e.key === 'd') {
-                    poseIndex = (poseIndex + 1) % poses.length;
-                }
-            }
         });
 
         document.addEventListener('keyup', (e) => { keys[e.key] = false; });
 
+        async function startWebcam() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } }
+                });
+                video.srcObject = stream;
+                webcamActive = true;
+            } catch (err) {
+                console.log('Webcam not available:', err);
+                webcamError = true;
+            }
+        }
+
+        function capturePhoto() {
+            if (webcamActive && video.readyState >= 2) {
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = video.videoWidth;
+                tempCanvas.height = video.videoHeight;
+                const tempCtx = tempCanvas.getContext('2d');
+                // Mirror the image for selfie effect
+                tempCtx.translate(tempCanvas.width, 0);
+                tempCtx.scale(-1, 1);
+                tempCtx.drawImage(video, 0, 0);
+                capturedImage = tempCanvas;
+            }
+        }
+
+        function stopWebcam() {
+            if (video.srcObject) {
+                video.srcObject.getTracks().forEach(track => track.stop());
+            }
+        }
+
         function exitGame() {
+            stopWebcam();
             if (window.parent && window.parent !== window) {
                 window.parent.postMessage('closeMinigame', '*');
             } else {
@@ -107,6 +137,7 @@
                     countdown--;
                     countdownTimer = 60;
                     if (countdown <= 0) {
+                        capturePhoto();
                         state = 'flash';
                         flashOpacity = 1;
                         photoTaken = true;
@@ -156,7 +187,7 @@
             ctx.beginPath();
             ctx.arc(canvas.width / 2, 80, 25, 0, Math.PI * 2);
             ctx.fill();
-            ctx.fillStyle = '#4a90d9';
+            ctx.fillStyle = webcamActive ? '#4aff4a' : '#4a90d9';
             ctx.beginPath();
             ctx.arc(canvas.width / 2, 80, 18, 0, Math.PI * 2);
             ctx.fill();
@@ -200,9 +231,9 @@
 
             ctx.fillStyle = '#fff';
             ctx.font = '12px "Press Start 2P"';
-            ctx.fillText('Take a fun photo!', canvas.width / 2, canvas.height / 2 - 20);
-            ctx.fillText('Choose your pose and', canvas.width / 2, canvas.height / 2 + 20);
-            ctx.fillText('press SPACE to snap!', canvas.width / 2, canvas.height / 2 + 50);
+            ctx.fillText('Take a REAL selfie!', canvas.width / 2, canvas.height / 2 - 20);
+            ctx.fillText('Uses your camera', canvas.width / 2, canvas.height / 2 + 10);
+            ctx.fillText('Press SPACE to snap!', canvas.width / 2, canvas.height / 2 + 50);
 
             ctx.fillStyle = '#7cfc00';
             ctx.font = '14px "Press Start 2P"';
@@ -210,24 +241,73 @@
         }
 
         function drawPosing() {
-            // Draw Fede in booth
-            const centerX = canvas.width / 2;
-            const centerY = canvas.height - 280;
+            // Live webcam preview area
+            const previewW = Math.min(500, canvas.width - 200);
+            const previewH = previewW * 0.75;
+            const previewX = canvas.width / 2 - previewW / 2;
+            const previewY = canvas.height / 2 - previewH / 2 - 30;
 
-            drawFedePose(centerX, centerY, poses[poseIndex]);
+            // Preview frame
+            ctx.fillStyle = '#333';
+            ctx.fillRect(previewX - 10, previewY - 10, previewW + 20, previewH + 20);
 
-            // Pose indicator
+            if (webcamActive && video.readyState >= 2) {
+                // Mirror and draw live feed
+                ctx.save();
+                ctx.translate(previewX + previewW, previewY);
+                ctx.scale(-1, 1);
+                ctx.drawImage(video, 0, 0, previewW, previewH);
+                ctx.restore();
+            } else if (webcamError) {
+                ctx.fillStyle = '#4a2a6a';
+                ctx.fillRect(previewX, previewY, previewW, previewH);
+                ctx.fillStyle = '#ff6b9d';
+                ctx.font = '14px "Press Start 2P"';
+                ctx.textAlign = 'center';
+                ctx.fillText('Camera not available', canvas.width / 2, canvas.height / 2 - 20);
+                ctx.fillStyle = '#fff';
+                ctx.font = '10px "Press Start 2P"';
+                ctx.fillText('(Using pixel Fede instead)', canvas.width / 2, canvas.height / 2 + 10);
+                // Draw pixel Fede as fallback
+                drawFedePose(canvas.width / 2, canvas.height / 2 + 80, 'normal');
+            } else {
+                ctx.fillStyle = '#4a2a6a';
+                ctx.fillRect(previewX, previewY, previewW, previewH);
+                ctx.fillStyle = '#fff';
+                ctx.font = '12px "Press Start 2P"';
+                ctx.textAlign = 'center';
+                ctx.fillText('Loading camera...', canvas.width / 2, canvas.height / 2);
+            }
+
+            // Cute frame overlay (optional decorations)
+            ctx.strokeStyle = '#ff6b9d';
+            ctx.lineWidth = 4;
+            ctx.strokeRect(previewX - 5, previewY - 5, previewW + 10, previewH + 10);
+
+            // Corner hearts
+            const corners = [
+                [previewX - 15, previewY - 15],
+                [previewX + previewW + 5, previewY - 15],
+                [previewX - 15, previewY + previewH + 5],
+                [previewX + previewW + 5, previewY + previewH + 5]
+            ];
+            ctx.fillStyle = '#ff6b9d';
+            for (const [hx, hy] of corners) {
+                drawHeart(ctx, hx, hy, 8);
+            }
+
+            // Instructions
             ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-            ctx.fillRect(centerX - 150, canvas.height - 100, 300, 60);
+            ctx.fillRect(canvas.width / 2 - 150, canvas.height - 100, 300, 60);
 
             ctx.fillStyle = '#fff';
             ctx.font = '12px "Press Start 2P"';
             ctx.textAlign = 'center';
-            ctx.fillText(`< ${poseNames[poseIndex]} >`, centerX, canvas.height - 65);
+            ctx.fillText('Strike a pose!', canvas.width / 2, canvas.height - 75);
 
-            ctx.fillStyle = '#aaa';
+            ctx.fillStyle = '#7cfc00';
             ctx.font = '10px "Press Start 2P"';
-            ctx.fillText('SPACE to take photo', centerX, canvas.height - 45);
+            ctx.fillText('SPACE to take photo', canvas.width / 2, canvas.height - 50);
         }
 
         function drawCountdown() {
@@ -238,27 +318,48 @@
         }
 
         function drawPhotoResult() {
-            // Photo frame
+            // Photo frame (polaroid style)
             const photoW = 300;
             const photoH = 400;
             const photoX = canvas.width / 2 - photoW / 2;
             const photoY = canvas.height / 2 - photoH / 2 - 30;
 
-            // White border (polaroid style)
+            // White border
             ctx.fillStyle = '#fff';
             ctx.fillRect(photoX - 20, photoY - 20, photoW + 40, photoH + 80);
 
             // Photo area
-            ctx.fillStyle = '#4a2a6a';
-            ctx.fillRect(photoX, photoY, photoW, photoH);
+            if (capturedImage) {
+                // Draw captured selfie
+                const imgAspect = capturedImage.width / capturedImage.height;
+                const frameAspect = photoW / photoH;
+                let drawW, drawH, offsetX = 0, offsetY = 0;
 
-            // Booth background in photo
-            ctx.fillStyle = '#6B0000';
-            ctx.fillRect(photoX, photoY, 30, photoH);
-            ctx.fillRect(photoX + photoW - 30, photoY, 30, photoH);
+                if (imgAspect > frameAspect) {
+                    drawH = photoH;
+                    drawW = photoH * imgAspect;
+                    offsetX = -(drawW - photoW) / 2;
+                } else {
+                    drawW = photoW;
+                    drawH = photoW / imgAspect;
+                    offsetY = -(drawH - photoH) / 2;
+                }
 
-            // Draw Fede in photo
-            drawFedePose(photoX + photoW / 2, photoY + photoH - 100, poses[poseIndex], 0.8);
+                ctx.save();
+                ctx.beginPath();
+                ctx.rect(photoX, photoY, photoW, photoH);
+                ctx.clip();
+                ctx.drawImage(capturedImage, photoX + offsetX, photoY + offsetY, drawW, drawH);
+                ctx.restore();
+            } else {
+                // Fallback pixel art
+                ctx.fillStyle = '#4a2a6a';
+                ctx.fillRect(photoX, photoY, photoW, photoH);
+                ctx.fillStyle = '#6B0000';
+                ctx.fillRect(photoX, photoY, 30, photoH);
+                ctx.fillRect(photoX + photoW - 30, photoY, 30, photoH);
+                drawFedePose(photoX + photoW / 2, photoY + photoH - 100, 'normal', 0.8);
+            }
 
             // Date stamp
             ctx.fillStyle = '#ff6600';
@@ -304,7 +405,7 @@
             ctx.fillRect(photoX, photoY, 30, photoH);
             ctx.fillRect(photoX + photoW - 30, photoY, 30, photoH);
 
-            // Draw Billy in photo (muscular, tank top)
+            // Draw Billy in photo (muscular, grey t-shirt, black hair)
             drawBillyPose(photoX + photoW / 2, photoY + photoH - 100, 0.8);
 
             // Old date stamp
@@ -319,7 +420,7 @@
             ctx.textAlign = 'center';
             ctx.fillText('BILLY <3', canvas.width / 2, photoY + photoH + 35);
             ctx.font = '8px "Press Start 2P"';
-            ctx.fillText('waiting 4 Fede', canvas.width / 2, photoY + photoH + 55);
+            ctx.fillText('esperando a Fede', canvas.width / 2, photoY + photoH + 55);
 
             ctx.restore();
 
@@ -329,7 +430,7 @@
             ctx.fillStyle = '#fff';
             ctx.font = '11px "Press Start 2P"';
             ctx.textAlign = 'center';
-            ctx.fillText('Fede: "Billy estuvo aqui!"', canvas.width / 2, 70);
+            ctx.fillText('Fede: "Billy estuvo acá!"', canvas.width / 2, 70);
             ctx.fillStyle = '#ff6b9d';
             ctx.fillText('"Tengo que encontrarlo!"', canvas.width / 2, 100);
 
@@ -339,12 +440,22 @@
             ctx.fillText('Press SPACE to continue', canvas.width / 2, canvas.height - 40);
         }
 
+        function drawHeart(context, x, y, size) {
+            context.beginPath();
+            context.moveTo(x, y + size / 4);
+            context.bezierCurveTo(x, y, x - size / 2, y, x - size / 2, y + size / 4);
+            context.bezierCurveTo(x - size / 2, y + size / 2, x, y + size * 0.75, x, y + size);
+            context.bezierCurveTo(x, y + size * 0.75, x + size / 2, y + size / 2, x + size / 2, y + size / 4);
+            context.bezierCurveTo(x + size / 2, y, x, y, x, y + size / 4);
+            context.fill();
+        }
+
         function drawFedePose(x, y, pose, scale = 1) {
             ctx.save();
             ctx.translate(x, y);
             ctx.scale(scale * 4, scale * 4);
 
-            const p = 1; // pixel
+            const p = 1;
 
             // Body (burgundy jacket)
             ctx.fillStyle = '#722f37';
@@ -366,45 +477,16 @@
 
             // Eyes
             ctx.fillStyle = '#000';
-            if (pose === 'surprised') {
-                ctx.fillRect(-3*p, -3*p, 2*p, 2*p);
-                ctx.fillRect(1*p, -3*p, 2*p, 2*p);
-            } else {
-                ctx.fillRect(-3*p, -2*p, 2*p, p);
-                ctx.fillRect(1*p, -2*p, 2*p, p);
-            }
+            ctx.fillRect(-3*p, -2*p, 2*p, p);
+            ctx.fillRect(1*p, -2*p, 2*p, p);
 
             // Mouth
-            if (pose === 'surprised') {
-                ctx.fillRect(-1*p, 1*p, 2*p, 2*p);
-            } else {
-                ctx.fillRect(-2*p, 1*p, 4*p, p);
-            }
+            ctx.fillRect(-2*p, 1*p, 4*p, p);
 
-            // Arms based on pose
+            // Arms
             ctx.fillStyle = '#722f37';
-            if (pose === 'peace') {
-                // Peace sign
-                ctx.fillRect(5*p, 2*p, 3*p, 6*p);
-                ctx.fillStyle = '#e8c4a0';
-                ctx.fillRect(6*p, -2*p, 2*p, 4*p);
-                ctx.fillRect(8*p, -1*p, 2*p, 3*p);
-                ctx.fillStyle = '#722f37';
-                ctx.fillRect(-8*p, 6*p, 3*p, 4*p);
-            } else if (pose === 'flex') {
-                // Flexing
-                ctx.fillRect(5*p, 2*p, 3*p, 4*p);
-                ctx.fillRect(7*p, -2*p, 3*p, 4*p);
-                ctx.fillStyle = '#e8c4a0';
-                ctx.fillRect(8*p, -3*p, 2*p, 2*p);
-                ctx.fillStyle = '#722f37';
-                ctx.fillRect(-8*p, 2*p, 3*p, 4*p);
-                ctx.fillRect(-10*p, -2*p, 3*p, 4*p);
-            } else {
-                // Normal
-                ctx.fillRect(5*p, 6*p, 3*p, 6*p);
-                ctx.fillRect(-8*p, 6*p, 3*p, 6*p);
-            }
+            ctx.fillRect(5*p, 6*p, 3*p, 6*p);
+            ctx.fillRect(-8*p, 6*p, 3*p, 6*p);
 
             // Legs
             ctx.fillStyle = '#1a1a1a';
@@ -421,27 +503,32 @@
 
             const p = 1;
 
-            // Muscular body (tank top)
-            ctx.fillStyle = '#e8c4a0'; // skin showing
+            // Grey t-shirt (muscular)
+            ctx.fillStyle = '#555';
             ctx.fillRect(-6*p, 4*p, 12*p, 14*p);
+            // Shirt wrinkles
+            ctx.fillStyle = '#444';
+            ctx.fillRect(-4*p, 6*p, 2*p, 8*p);
+            ctx.fillRect(2*p, 6*p, 2*p, 8*p);
+            // Broader shoulders
+            ctx.fillRect(-8*p, 4*p, 3*p, 5*p);
+            ctx.fillRect(5*p, 4*p, 3*p, 5*p);
 
-            // Tank top
-            ctx.fillStyle = '#2ecc71';
-            ctx.fillRect(-4*p, 6*p, 8*p, 10*p);
-
-            // Muscular arms
+            // Muscular arms (skin)
             ctx.fillStyle = '#e8c4a0';
-            ctx.fillRect(-9*p, 4*p, 4*p, 8*p);
-            ctx.fillRect(5*p, 4*p, 4*p, 8*p);
+            ctx.fillRect(-9*p, 6*p, 3*p, 6*p);
+            ctx.fillRect(6*p, 6*p, 3*p, 6*p);
 
-            // Head
-            ctx.fillRect(-4*p, -6*p, 8*p, 9*p);
+            // Head (broader)
+            ctx.fillRect(-5*p, -6*p, 10*p, 11*p);
 
-            // Blonde/light hair
-            ctx.fillStyle = '#daa520';
-            ctx.fillRect(-4*p, -8*p, 8*p, 4*p);
-            ctx.fillRect(-5*p, -6*p, 2*p, 3*p);
-            ctx.fillRect(3*p, -6*p, 2*p, 3*p);
+            // Black messy hair
+            ctx.fillStyle = '#0a0a0a';
+            ctx.fillRect(-5*p, -9*p, 10*p, 5*p);
+            ctx.fillRect(-6*p, -7*p, 2*p, 4*p);
+            ctx.fillRect(4*p, -7*p, 2*p, 4*p);
+            // Messy tuft
+            ctx.fillRect(-3*p, -10*p, 3*p, 2*p);
 
             // Happy eyes
             ctx.fillStyle = '#000';
@@ -449,16 +536,16 @@
             ctx.fillRect(1*p, -2*p, 2*p, p);
 
             // Big smile
-            ctx.fillRect(-2*p, 1*p, 4*p, p);
-            ctx.fillRect(-1*p, 2*p, 2*p, p);
+            ctx.fillRect(-2*p, 2*p, 4*p, p);
+            ctx.fillRect(-1*p, 3*p, 2*p, p);
 
-            // Flexing pose
+            // Flexing pose (arms up)
             ctx.fillStyle = '#e8c4a0';
-            ctx.fillRect(-10*p, 0*p, 4*p, 4*p);
-            ctx.fillRect(6*p, 0*p, 4*p, 4*p);
+            ctx.fillRect(-11*p, 0*p, 4*p, 5*p);
+            ctx.fillRect(7*p, 0*p, 4*p, 5*p);
 
-            // Legs
-            ctx.fillStyle = '#1a1a1a';
+            // Jeans
+            ctx.fillStyle = '#3d5a80';
             ctx.fillRect(-4*p, 18*p, 3*p, 6*p);
             ctx.fillRect(1*p, 18*p, 3*p, 6*p);
 
