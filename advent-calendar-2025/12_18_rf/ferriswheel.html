@@ -255,207 +255,142 @@
         function drawLoopSurprises(w, h, height, viewAngle, currentLoop) {
             const time = Date.now() / 1000;
 
-            // Loop 2: Airplane flies across when at peak
+            // Loop 2: Airplane flies across when at peak (smaller, higher)
             if (currentLoop >= 2 && height > 0.6) {
                 const planeAlpha = Math.min(1, (height - 0.6) / 0.3);
-                const planeX = ((time * 80) % (w + 400)) - 200 - viewAngle * 100;
-                const planeY = 100 + (1 - height) * 50;
+                const planeX = ((time * 60) % (w + 300)) - 150 - viewAngle * 80;
+                const planeY = 55 + (1 - height) * 30; // Higher up
 
                 ctx.save();
                 ctx.globalAlpha = planeAlpha;
                 ctx.translate(planeX, planeY);
+                ctx.scale(0.5, 0.5); // Smaller plane (distant)
 
-                // Fuselage
+                // Fuselage (rectangular, pixel-art style)
                 ctx.fillStyle = '#f0f0f0';
-                ctx.beginPath();
-                ctx.ellipse(0, 0, 50, 12, 0, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.fillRect(-40, -6, 80, 12);
 
-                // Nose
+                // Nose cone
                 ctx.beginPath();
-                ctx.moveTo(50, 0);
-                ctx.lineTo(65, 0);
-                ctx.lineTo(50, -5);
+                ctx.moveTo(40, -6);
+                ctx.lineTo(55, 0);
+                ctx.lineTo(40, 6);
                 ctx.closePath();
                 ctx.fill();
 
-                // Cockpit windows
+                // Cockpit window
                 ctx.fillStyle = '#4a90d9';
-                ctx.beginPath();
-                ctx.ellipse(40, -3, 8, 5, -0.2, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.fillRect(30, -4, 8, 5);
 
                 // Wings
                 ctx.fillStyle = '#d0d0d0';
-                ctx.beginPath();
-                ctx.moveTo(-10, 0);
-                ctx.lineTo(-30, -35);
-                ctx.lineTo(-15, -35);
-                ctx.lineTo(10, 0);
-                ctx.closePath();
-                ctx.fill();
-                ctx.beginPath();
-                ctx.moveTo(-10, 0);
-                ctx.lineTo(-30, 35);
-                ctx.lineTo(-15, 35);
-                ctx.lineTo(10, 0);
-                ctx.closePath();
-                ctx.fill();
+                ctx.fillRect(-15, -28, 20, 22);
+                ctx.fillRect(-15, 6, 20, 22);
 
-                // Tail
+                // Wing tips
+                ctx.fillStyle = '#c0c0c0';
+                ctx.fillRect(-15, -28, 5, 22);
+                ctx.fillRect(-15, 6, 5, 22);
+
+                // Tail fin (vertical)
                 ctx.fillStyle = '#e0e0e0';
-                ctx.beginPath();
-                ctx.moveTo(-45, 0);
-                ctx.lineTo(-55, -20);
-                ctx.lineTo(-40, -20);
-                ctx.lineTo(-35, 0);
-                ctx.closePath();
-                ctx.fill();
+                ctx.fillRect(-38, -18, 8, 12);
 
-                // Tail fin (red stripe)
+                // Tail stripe (red)
                 ctx.fillStyle = '#e74c3c';
-                ctx.beginPath();
-                ctx.moveTo(-50, -5);
-                ctx.lineTo(-55, -20);
-                ctx.lineTo(-48, -20);
-                ctx.lineTo(-45, -5);
-                ctx.closePath();
-                ctx.fill();
+                ctx.fillRect(-38, -18, 8, 4);
+
+                // Horizontal stabilizers
+                ctx.fillStyle = '#e0e0e0';
+                ctx.fillRect(-42, -4, 12, 3);
+                ctx.fillRect(-42, 1, 12, 3);
 
                 // Windows
                 ctx.fillStyle = '#4a90d9';
-                for (let i = 0; i < 8; i++) {
-                    ctx.beginPath();
-                    ctx.arc(25 - i * 8, -4, 2, 0, Math.PI * 2);
-                    ctx.fill();
+                for (let i = 0; i < 6; i++) {
+                    ctx.fillRect(18 - i * 10, -3, 4, 3);
                 }
 
-                // Contrail
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
-                ctx.lineWidth = 3;
-                ctx.beginPath();
-                ctx.moveTo(-55, -10);
-                ctx.lineTo(-150, -10 + Math.sin(time * 2) * 5);
-                ctx.stroke();
-                ctx.beginPath();
-                ctx.moveTo(-55, 10);
-                ctx.lineTo(-150, 10 + Math.sin(time * 2 + 1) * 5);
-                ctx.stroke();
+                // Contrails
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                const trail1 = Math.sin(time * 3) * 3;
+                const trail2 = Math.sin(time * 3 + 1) * 3;
+                ctx.fillRect(-140, -10 + trail1, 100, 4);
+                ctx.fillRect(-140, 6 + trail2, 100, 4);
 
                 ctx.restore();
             }
 
-            // Loop 3: Superman flies across when at peak
+            // Loop 3: Superman flies across when at peak (pixel-art style)
             if (currentLoop >= 3 && height > 0.7) {
                 const supermanAlpha = Math.min(1, (height - 0.7) / 0.2);
-                const supermanX = w + 100 - ((time * 120) % (w + 400)) - viewAngle * 80;
-                const supermanY = 140 + Math.sin(time * 3) * 20 + (1 - height) * 30;
+                const supermanX = w + 100 - ((time * 100) % (w + 400)) - viewAngle * 80;
+                const supermanY = 120 + Math.sin(time * 3) * 15 + (1 - height) * 25;
 
                 ctx.save();
                 ctx.globalAlpha = supermanAlpha;
                 ctx.translate(supermanX, supermanY);
-                ctx.scale(-1, 1); // Flying left
 
-                // Cape (billowing)
+                // Pixel art Superman flying left (all rectangles)
+                const p = 2; // pixel size
+
+                // Cape (animated wave)
                 ctx.fillStyle = '#dc2626';
-                ctx.beginPath();
-                ctx.moveTo(-5, 5);
-                ctx.quadraticCurveTo(-40 + Math.sin(time * 8) * 10, 0, -50 + Math.sin(time * 6) * 8, 15);
-                ctx.quadraticCurveTo(-35 + Math.sin(time * 7) * 5, 20, -5, 12);
-                ctx.closePath();
-                ctx.fill();
+                const capeWave = Math.floor(Math.sin(time * 6) * 2);
+                ctx.fillRect(-8*p, 1*p, 4*p, 3*p);
+                ctx.fillRect(-12*p, 2*p + capeWave, 4*p, 4*p);
+                ctx.fillRect(-16*p, 3*p + capeWave, 4*p, 4*p);
+                ctx.fillRect(-19*p, 4*p + capeWave * 1.5, 3*p, 3*p);
 
-                // Body (blue suit)
+                // Body (blue suit) - horizontal flying pose
                 ctx.fillStyle = '#2563eb';
-                ctx.beginPath();
-                ctx.ellipse(0, 8, 8, 15, 0.3, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.fillRect(-4*p, 0, 8*p, 4*p); // torso
+                ctx.fillRect(-6*p, 1*p, 2*p, 2*p); // back
 
                 // Red trunks
                 ctx.fillStyle = '#dc2626';
-                ctx.beginPath();
-                ctx.ellipse(0, 15, 7, 5, 0.3, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.fillRect(-4*p, 3*p, 3*p, 2*p);
 
-                // Legs
+                // Legs (stretched back)
                 ctx.fillStyle = '#2563eb';
-                ctx.beginPath();
-                ctx.moveTo(-3, 18);
-                ctx.lineTo(-8, 35);
-                ctx.lineTo(-4, 35);
-                ctx.lineTo(0, 20);
-                ctx.closePath();
-                ctx.fill();
-                ctx.beginPath();
-                ctx.moveTo(3, 18);
-                ctx.lineTo(8, 35);
-                ctx.lineTo(4, 35);
-                ctx.lineTo(0, 20);
-                ctx.closePath();
-                ctx.fill();
+                ctx.fillRect(-7*p, 4*p, 5*p, 2*p);
+                ctx.fillRect(-10*p, 5*p, 4*p, 2*p);
 
                 // Red boots
                 ctx.fillStyle = '#dc2626';
-                ctx.fillRect(-8, 30, 5, 6);
-                ctx.fillRect(4, 30, 5, 6);
+                ctx.fillRect(-12*p, 5*p, 2*p, 2*p);
+                ctx.fillRect(-12*p, 6*p, 2*p, 2*p);
 
                 // Arms (extended forward - flying pose)
                 ctx.fillStyle = '#2563eb';
-                ctx.beginPath();
-                ctx.moveTo(5, 2);
-                ctx.lineTo(30, -15);
-                ctx.lineTo(32, -12);
-                ctx.lineTo(8, 5);
-                ctx.closePath();
-                ctx.fill();
-                ctx.beginPath();
-                ctx.moveTo(5, 5);
-                ctx.lineTo(28, -8);
-                ctx.lineTo(30, -5);
-                ctx.lineTo(8, 8);
-                ctx.closePath();
-                ctx.fill();
+                ctx.fillRect(4*p, -1*p, 6*p, 2*p);
+                ctx.fillRect(10*p, -2*p, 4*p, 2*p);
 
                 // Fists
                 ctx.fillStyle = '#e8c4a0';
-                ctx.beginPath();
-                ctx.arc(31, -13, 3, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.beginPath();
-                ctx.arc(29, -6, 3, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.fillRect(14*p, -2*p, 2*p, 2*p);
 
                 // Head
                 ctx.fillStyle = '#e8c4a0';
-                ctx.beginPath();
-                ctx.arc(3, -8, 7, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.fillRect(1*p, -4*p, 4*p, 4*p);
 
-                // Hair (black, slicked back with iconic curl)
+                // Hair (black with iconic curl)
                 ctx.fillStyle = '#0a0a0a';
-                ctx.beginPath();
-                ctx.arc(3, -12, 6, Math.PI, 0, false);
-                ctx.fill();
+                ctx.fillRect(1*p, -5*p, 4*p, 2*p);
+                ctx.fillRect(0*p, -4*p, 1*p, 2*p);
                 // The curl
-                ctx.beginPath();
-                ctx.moveTo(8, -10);
-                ctx.quadraticCurveTo(12, -8, 10, -5);
-                ctx.quadraticCurveTo(8, -7, 8, -10);
-                ctx.fill();
+                ctx.fillRect(5*p, -4*p, 1*p, 1*p);
+                ctx.fillRect(5*p, -3*p, 2*p, 1*p);
 
-                // S logo on chest
+                // S logo on chest (yellow diamond with red S)
                 ctx.fillStyle = '#ffd700';
-                ctx.beginPath();
-                ctx.moveTo(-2, 0);
-                ctx.lineTo(6, 0);
-                ctx.lineTo(4, 10);
-                ctx.lineTo(-4, 10);
-                ctx.closePath();
-                ctx.fill();
+                ctx.fillRect(0*p, 0*p, 3*p, 2*p);
                 ctx.fillStyle = '#dc2626';
-                ctx.font = 'bold 8px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText('S', 1, 8);
+                ctx.fillRect(1*p, 0*p, 1*p, 2*p);
+
+                // Eye
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(4*p, -3*p, 1*p, 1*p);
 
                 ctx.restore();
             }
