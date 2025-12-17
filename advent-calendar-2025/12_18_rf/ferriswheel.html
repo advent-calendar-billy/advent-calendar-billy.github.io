@@ -321,76 +321,84 @@
                 ctx.restore();
             }
 
-            // Loop 3: Superman flies across when at peak (pixel-art style)
+            // Loop 3: Mary Poppins floats across when at peak (pixel-art style)
             if (currentLoop >= 3 && height > 0.7) {
-                const supermanAlpha = Math.min(1, (height - 0.7) / 0.2);
-                const supermanX = w + 100 - ((time * 100) % (w + 400)) - viewAngle * 80;
-                const supermanY = 120 + Math.sin(time * 3) * 15 + (1 - height) * 25;
+                const maryAlpha = Math.min(1, (height - 0.7) / 0.2);
+                const maryX = w + 100 - ((time * 50) % (w + 400)) - viewAngle * 80;
+                const maryY = 100 + Math.sin(time * 2) * 10 + (1 - height) * 25;
 
                 ctx.save();
-                ctx.globalAlpha = supermanAlpha;
-                ctx.translate(supermanX, supermanY);
+                ctx.globalAlpha = maryAlpha;
+                ctx.translate(maryX, maryY);
 
-                // Pixel art Superman flying left (all rectangles)
+                // Pixel art Mary Poppins floating left (all rectangles)
                 const p = 2; // pixel size
 
-                // Cape (animated wave)
-                ctx.fillStyle = '#dc2626';
-                const capeWave = Math.floor(Math.sin(time * 6) * 2);
-                ctx.fillRect(-8*p, 1*p, 4*p, 3*p);
-                ctx.fillRect(-12*p, 2*p + capeWave, 4*p, 4*p);
-                ctx.fillRect(-16*p, 3*p + capeWave, 4*p, 4*p);
-                ctx.fillRect(-19*p, 4*p + capeWave * 1.5, 3*p, 3*p);
+                // Umbrella (black with curved top)
+                ctx.fillStyle = '#1a1a1a';
+                // Umbrella canopy
+                ctx.fillRect(-6*p, -14*p, 12*p, 2*p);
+                ctx.fillRect(-8*p, -12*p, 16*p, 2*p);
+                ctx.fillRect(-9*p, -10*p, 18*p, 2*p);
+                ctx.fillRect(-8*p, -8*p, 16*p, 1*p);
+                // Umbrella handle
+                ctx.fillRect(0*p, -7*p, 1*p, 8*p);
+                // Curved handle end
+                ctx.fillStyle = '#8B4513';
+                ctx.fillRect(-2*p, 0*p, 2*p, 1*p);
+                ctx.fillRect(-3*p, 1*p, 1*p, 1*p);
 
-                // Body (blue suit) - horizontal flying pose
-                ctx.fillStyle = '#2563eb';
-                ctx.fillRect(-4*p, 0, 8*p, 4*p); // torso
-                ctx.fillRect(-6*p, 1*p, 2*p, 2*p); // back
-
-                // Red trunks
-                ctx.fillStyle = '#dc2626';
-                ctx.fillRect(-4*p, 3*p, 3*p, 2*p);
-
-                // Legs (stretched back)
-                ctx.fillStyle = '#2563eb';
-                ctx.fillRect(-7*p, 4*p, 5*p, 2*p);
-                ctx.fillRect(-10*p, 5*p, 4*p, 2*p);
-
-                // Red boots
-                ctx.fillStyle = '#dc2626';
-                ctx.fillRect(-12*p, 5*p, 2*p, 2*p);
-                ctx.fillRect(-12*p, 6*p, 2*p, 2*p);
-
-                // Arms (extended forward - flying pose)
-                ctx.fillStyle = '#2563eb';
-                ctx.fillRect(4*p, -1*p, 6*p, 2*p);
-                ctx.fillRect(10*p, -2*p, 4*p, 2*p);
-
-                // Fists
+                // Arm holding umbrella
                 ctx.fillStyle = '#e8c4a0';
-                ctx.fillRect(14*p, -2*p, 2*p, 2*p);
+                ctx.fillRect(-1*p, 1*p, 2*p, 2*p);
 
                 // Head
                 ctx.fillStyle = '#e8c4a0';
-                ctx.fillRect(1*p, -4*p, 4*p, 4*p);
+                ctx.fillRect(-2*p, 3*p, 4*p, 4*p);
 
-                // Hair (black with iconic curl)
-                ctx.fillStyle = '#0a0a0a';
-                ctx.fillRect(1*p, -5*p, 4*p, 2*p);
-                ctx.fillRect(0*p, -4*p, 1*p, 2*p);
-                // The curl
-                ctx.fillRect(5*p, -4*p, 1*p, 1*p);
-                ctx.fillRect(5*p, -3*p, 2*p, 1*p);
+                // Hat (dark blue/black fancy hat)
+                ctx.fillStyle = '#1a1a3a';
+                ctx.fillRect(-3*p, 1*p, 6*p, 2*p); // brim
+                ctx.fillRect(-2*p, -1*p, 4*p, 2*p); // top
+                // Flower on hat
+                ctx.fillStyle = '#ff6b6b';
+                ctx.fillRect(1*p, 0*p, 2*p, 1*p);
 
-                // S logo on chest (yellow diamond with red S)
-                ctx.fillStyle = '#ffd700';
-                ctx.fillRect(0*p, 0*p, 3*p, 2*p);
-                ctx.fillStyle = '#dc2626';
-                ctx.fillRect(1*p, 0*p, 1*p, 2*p);
+                // Hair (brown, neat bun style)
+                ctx.fillStyle = '#4a3728';
+                ctx.fillRect(-2*p, 2*p, 1*p, 2*p);
+                ctx.fillRect(1*p, 2*p, 1*p, 2*p);
 
-                // Eye
+                // Eyes and smile
+                ctx.fillStyle = '#000';
+                ctx.fillRect(-1*p, 4*p, 1*p, 1*p);
+                ctx.fillRect(1*p, 4*p, 1*p, 1*p);
+                ctx.fillRect(-1*p, 6*p, 2*p, 1*p); // smile
+
+                // Dress (dark blue Victorian style)
+                ctx.fillStyle = '#1a1a4a';
+                ctx.fillRect(-3*p, 7*p, 6*p, 6*p); // bodice
+                ctx.fillRect(-4*p, 10*p, 8*p, 8*p); // skirt top
+                ctx.fillRect(-5*p, 14*p, 10*p, 6*p); // skirt bottom
+
+                // White collar
                 ctx.fillStyle = '#fff';
-                ctx.fillRect(4*p, -3*p, 1*p, 1*p);
+                ctx.fillRect(-2*p, 7*p, 4*p, 1*p);
+
+                // Other arm (by side, holding bag)
+                ctx.fillStyle = '#e8c4a0';
+                ctx.fillRect(-4*p, 8*p, 1*p, 3*p);
+
+                // Carpet bag
+                ctx.fillStyle = '#8B4513';
+                ctx.fillRect(-6*p, 10*p, 3*p, 4*p);
+                ctx.fillStyle = '#654321';
+                ctx.fillRect(-6*p, 10*p, 3*p, 1*p); // bag top
+
+                // Feet (black boots peeking out)
+                ctx.fillStyle = '#1a1a1a';
+                ctx.fillRect(-3*p, 20*p, 2*p, 1*p);
+                ctx.fillRect(1*p, 20*p, 2*p, 1*p);
 
                 ctx.restore();
             }
@@ -665,7 +673,7 @@
             // Thought bubbles - different per loop, only when at peak
             // Loop 1: "¡Se ve todo!" at peak
             // Loop 2: "¡Un avión!" when seeing plane
-            // Loop 3: "¿¡Superman!?" when seeing Superman
+            // Loop 3: "¿¡Mary Poppins!?" when seeing Mary Poppins
             const loopProgress = rideProgress % 1; // 0 to 1 within current loop
 
             if (rideStarted && loopProgress > 0.2 && height > 0.85) {
@@ -674,7 +682,7 @@
                 } else if (currentLoop === 2) {
                     drawThoughtBubble(fedeX + 90, fedeY - 30, '¡Un avión!');
                 } else if (currentLoop === 3) {
-                    drawThoughtBubble(fedeX + 90, fedeY - 30, '¿¡Superman!?');
+                    drawThoughtBubble(fedeX + 90, fedeY - 30, '¿¡Mary Poppins!?');
                 }
             }
         }
