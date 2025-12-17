@@ -231,9 +231,9 @@
 
             ctx.fillStyle = '#fff';
             ctx.font = '12px "Press Start 2P"';
-            ctx.fillText('Take a REAL selfie!', canvas.width / 2, canvas.height / 2 - 20);
-            ctx.fillText('Uses your camera', canvas.width / 2, canvas.height / 2 + 10);
-            ctx.fillText('Press SPACE to snap!', canvas.width / 2, canvas.height / 2 + 50);
+            ctx.fillText('Strike a pose!', canvas.width / 2, canvas.height / 2 - 20);
+            ctx.fillText('Smile for the camera!', canvas.width / 2, canvas.height / 2 + 20);
+            ctx.fillText('', canvas.width / 2, canvas.height / 2 + 50);
 
             ctx.fillStyle = '#7cfc00';
             ctx.font = '14px "Press Start 2P"';
@@ -351,6 +351,9 @@
                 ctx.clip();
                 ctx.drawImage(capturedImage, photoX + offsetX, photoY + offsetY, drawW, drawH);
                 ctx.restore();
+
+                // Add fun decorations on top of photo
+                drawPhotoDecorations(photoX, photoY, photoW, photoH);
             } else {
                 // Fallback pixel art
                 ctx.fillStyle = '#4a2a6a';
@@ -359,6 +362,9 @@
                 ctx.fillRect(photoX, photoY, 30, photoH);
                 ctx.fillRect(photoX + photoW - 30, photoY, 30, photoH);
                 drawFedePose(photoX + photoW / 2, photoY + photoH - 100, 'normal', 0.8);
+
+                // Add fun decorations
+                drawPhotoDecorations(photoX, photoY, photoW, photoH);
             }
 
             // Date stamp
@@ -438,6 +444,57 @@
             ctx.fillStyle = '#7cfc00';
             ctx.font = '10px "Press Start 2P"';
             ctx.fillText('Press SPACE to continue', canvas.width / 2, canvas.height - 40);
+        }
+
+        function drawPhotoDecorations(photoX, photoY, photoW, photoH) {
+            // Add cute decorations on top of the photo
+
+            // Corner stars
+            ctx.fillStyle = '#ffd700';
+            drawStar(photoX + 25, photoY + 30, 12, 5);
+            drawStar(photoX + photoW - 25, photoY + 30, 10, 5);
+            drawStar(photoX + 20, photoY + photoH - 40, 8, 5);
+            drawStar(photoX + photoW - 20, photoY + photoH - 40, 10, 5);
+
+            // Sparkles scattered
+            ctx.fillStyle = '#fff';
+            for (let i = 0; i < 8; i++) {
+                const sx = photoX + 30 + Math.sin(i * 1.7) * (photoW - 60) * 0.5 + (photoW - 60) * 0.5;
+                const sy = photoY + 50 + Math.cos(i * 2.3) * (photoH - 100) * 0.5 + (photoH - 100) * 0.5;
+                drawSparkle(sx, sy, 4 + (i % 3) * 2);
+            }
+
+            // Hearts
+            ctx.fillStyle = '#ff6b9d';
+            drawHeart(ctx, photoX + photoW - 40, photoY + 60, 12);
+            drawHeart(ctx, photoX + 35, photoY + photoH - 70, 10);
+
+            // "FUN WORLD" banner at top
+            ctx.fillStyle = 'rgba(255, 107, 157, 0.8)';
+            ctx.fillRect(photoX + 20, photoY + 10, photoW - 40, 25);
+            ctx.fillStyle = '#fff';
+            ctx.font = '10px "Press Start 2P"';
+            ctx.textAlign = 'center';
+            ctx.fillText('FUN WORLD!', photoX + photoW / 2, photoY + 27);
+        }
+
+        function drawStar(cx, cy, radius, points) {
+            ctx.beginPath();
+            for (let i = 0; i < points * 2; i++) {
+                const r = i % 2 === 0 ? radius : radius * 0.4;
+                const angle = (i * Math.PI) / points - Math.PI / 2;
+                const x = cx + Math.cos(angle) * r;
+                const y = cy + Math.sin(angle) * r;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function drawSparkle(x, y, size) {
+            ctx.fillRect(x - size / 2, y - 1, size, 2);
+            ctx.fillRect(x - 1, y - size / 2, 2, size);
         }
 
         function drawHeart(context, x, y, size) {
