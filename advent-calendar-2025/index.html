@@ -237,6 +237,7 @@
             15: '12_15_oo/',
             16: '12_16_kc/game.html',
             17: '12_17_rf/',
+            18: '12_18_de/',
             22: '12_22_ja/'
             // Add more games here as they're created
         };
@@ -249,7 +250,7 @@
             // Must be December
             if (currentMonth !== 11) return false;
             // Days with early access (always unlocked)
-            if (day <= 17) return true;
+            if (day <= 18) return true;
             // Other days unlock at midnight Berlin time on their respective day
             return currentDay >= day;
         }
