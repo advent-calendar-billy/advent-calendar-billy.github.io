@@ -100,8 +100,8 @@
         // Levels definition
         const levels = [
             {
-                name: "BOOST",
-                hint: "Blue jumps HIGH, Red jumps FAR. Stack & boost!",
+                name: "Level 1",
+                hint: "",
                 hasTether: false,
                 platforms: [
                     { x: 0, y: 200, w: 320, h: 40 },
@@ -113,8 +113,8 @@
                 player2Start: { x: 100, y: 170 },
             },
             {
-                name: "TETHER",
-                hint: "Blue jumps HIGH to the platform, drags Red across!",
+                name: "Level 2",
+                hint: "",
                 hasTether: true,
                 platforms: [
                     { x: 0, y: 180, w: 60, h: 60 },       // Left ground (start)
@@ -127,8 +127,8 @@
                 player2Start: { x: 40, y: 150 },
             },
             {
-                name: "SEESAW",
-                hint: "One sits, one drops...",
+                name: "Level 3",
+                hint: "",
                 hasTether: false,
                 platforms: [
                     { x: 0, y: 200, w: 70, h: 40 },       // Ground left (Blue starts)
@@ -147,8 +147,8 @@
                 rock: { x: 220, y: 59, w: 24, h: 16 },
             },
             {
-                name: "CANNON",
-                hint: "One flies, one aims...",
+                name: "Level 4",
+                hint: "",
                 hasTether: false,
                 platforms: [
                     { x: 0, y: 200, w: 140, h: 40 },         // Ground left (cannon area + Red)
@@ -163,8 +163,8 @@
                 wall: { x: 245, y: 40, w: 18, h: 52, health: 1 },  // 1 hit to break
             },
             {
-                name: "GENERATOR",
-                hint: "Dodge the turret, power the elevator!",
+                name: "Level 5",
+                hint: "",
                 hasTether: false,
                 platforms: [
                     { x: 0, y: 200, w: 140, h: 40 },          // Ground left (treadmill area) - wider
@@ -2175,9 +2175,6 @@
 
             if (level.cannon) {
                 hint += ' | CANNON: SPACE enter, U/J aim, SPACE fire';
-            }
-            if (level.treadmill) {
-                hint += ' | TREADMILL: Hold D to run';
             }
 
             controlsDiv.innerHTML = hint;
