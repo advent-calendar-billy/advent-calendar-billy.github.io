@@ -1566,6 +1566,14 @@
                     }
                 }
             }
+
+            // Dangling detection - if tethered and not grounded, say skeery
+            if (!player1.grounded && player2.grounded) {
+                playerSay(player1, 'dangling', 0.01);
+            }
+            if (!player2.grounded && player1.grounded) {
+                playerSay(player2, 'dangling', 0.01);
+            }
         }
 
         function drawTether() {
@@ -2039,7 +2047,7 @@
                 treadmill_run: ["hff!", "pff!", "hnng!"],
                 treadmill_pushed: ["woob!", "weh!"],
                 dragged: ["waaab!", "nyeh!"],
-                dangling: ["eeek!", "bwaaah!"],
+                dangling: ["skeery!", "skeery~"],
                 dragging_friend: ["frend!"],
                 cannon_fired: ["BWAAAA!", "YEEEE!"],
                 seesaw_wait: ["hmm~", "dum dee~"],
@@ -2058,7 +2066,7 @@
                 treadmill_run: ["hff!", "pff!", "hnng!"],
                 treadmill_pushed: ["woob!", "weh!"],
                 dragged: ["waaab!", "nyeh!"],
-                dangling: ["eeek!", "bwaaah!"],
+                dangling: ["skeery!", "skeery~"],
                 dragging_friend: ["frend!"],
                 cannon_fired: ["BWAAAA!", "YEEEE!"],
                 seesaw_wait: ["hmm~", "dum dee~"],
