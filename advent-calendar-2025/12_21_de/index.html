@@ -58,14 +58,13 @@
     <canvas id="gameCanvas"></canvas>
     <button class="back-button" onclick="exitGame()">EXIT (ESC)</button>
     <div id="controls">
-        <span class="blue">BLUE: WASD + Q(rope)</span> | <span class="red">RED: ARROWS + /(rope)</span> | R: Restart
+        <span class="blue">BLUE: WASD</span> | <span class="red">RED: ARROWS</span> | R: Restart | CANNON: SPACE enter, U/J aim, SPACE fire
     </div>
 
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
-        // Game dimensions (pixel art scale)
         const GAME_WIDTH = 320;
         const GAME_HEIGHT = 240;
         const SCALE = 3;
@@ -75,297 +74,1539 @@
         ctx.imageSmoothingEnabled = false;
 
         // Physics constants
-        const GRAVITY = 0.25;
-        const FRICTION = 0.75;
-        const JUMP_FORCE = -5.5;
-        const MOVE_SPEED = 1.5;
-        const MAX_FALL_SPEED = 6;
+        const GRAVITY = 0.15;
+        const FRICTION = 0.8;
+        const MAX_FALL_SPEED = 4.5;
 
-        // Rope constants
-        const ROPE_SPEED = 8;
-        const ROPE_MAX_LENGTH = 120;
-        const SWING_FORCE = 0.15;
+        // Player-specific jump properties (tuned for lower gravity)
+        const BLUE_JUMP_FORCE = -5.5;    // Very high jump
+        const BLUE_MOVE_SPEED = 1.0;     // Slow horizontal
+        const RED_JUMP_FORCE = -4.0;     // Medium jump
+        const RED_MOVE_SPEED = 2.2;      // Fast horizontal (long jumps)
+
+        // Tether constants
+        const TETHER_MAX_LENGTH = 70;
+        const TETHER_STIFFNESS = 0.08;  // Strong pull
 
         // Game state
-        let gameState = 'menu'; // 'menu', 'playing', 'win', 'dead'
+        let gameState = 'menu';
         let currentLevel = 0;
         let selectedLevel = 0;
-        let deathTimer = 0;
-        let winTimer = 0;
 
-        // Keys
         const keys = {};
         const keysJustPressed = {};
-
-        // Particles array
         let particles = [];
 
         // Levels definition
         const levels = [
             {
-                name: "TEAMWORK",
-                hint: "Stack up! Bottom player's jump boosts the top.",
+                name: "BOOST",
+                hint: "Blue jumps HIGH, Red jumps FAR. Stack & boost!",
+                hasTether: false,
                 platforms: [
                     { x: 0, y: 200, w: 320, h: 40 },
                     { x: 200, y: 105, w: 120, h: 15 },
                 ],
                 hazards: [],
-                anchors: [], // Rope anchor points
                 exit: { x: 270, y: 75, w: 20, h: 30 },
                 player1Start: { x: 50, y: 170 },
                 player2Start: { x: 100, y: 170 },
             },
             {
-                name: "THE CHASM",
-                hint: "Use ropes to swing across! Q for Blue, / for Red.",
+                name: "TETHER",
+                hint: "Blue jumps HIGH to the platform, drags Red across!",
+                hasTether: true,
                 platforms: [
-                    { x: 0, y: 180, w: 80, h: 60 },
-                    { x: 240, y: 180, w: 80, h: 60 },
+                    { x: 0, y: 180, w: 60, h: 60 },       // Left ground (start)
+                    { x: 30, y: 100, w: 200, h: 12 },     // Floating platform (Blue walks here)
+                    { x: 260, y: 180, w: 60, h: 60 },     // Right ground (exit)
                 ],
-                hazards: [
-                    { x: 80, y: 220, w: 160, h: 20, type: 'spike' },
-                ],
-                anchors: [
-                    { x: 120, y: 40 },
-                    { x: 200, y: 40 },
-                ],
-                exit: { x: 270, y: 150, w: 20, h: 30 },
+                hazards: [],  // Falling = respawn
+                exit: { x: 280, y: 150, w: 20, h: 30 },
                 player1Start: { x: 20, y: 150 },
-                player2Start: { x: 50, y: 150 },
+                player2Start: { x: 40, y: 150 },
             },
             {
-                name: "LASER MAZE",
-                hint: "Time your moves! One can distract while other advances.",
+                name: "SEESAW",
+                hint: "One sits, one drops...",
+                hasTether: false,
                 platforms: [
-                    { x: 0, y: 200, w: 90, h: 40 },
-                    { x: 115, y: 200, w: 90, h: 40 },
-                    { x: 230, y: 200, w: 90, h: 40 },
-                    { x: 230, y: 130, w: 90, h: 15 },
+                    { x: 0, y: 200, w: 70, h: 40 },       // Ground left (Blue starts)
+                    { x: 210, y: 200, w: 110, h: 40 },    // Ground right (Red starts) - extended left for Blue
+                    { x: 250, y: 130, w: 60, h: 12 },     // Step up for Red
+                    { x: 178, y: 75, w: 82, h: 12 },      // Rock ledge: left edge at 178 so rock center lands at seesaw right edge (190)
+                    { x: 30, y: 50, w: 60, h: 12 },       // Exit platform
                 ],
-                hazards: [
-                    { x: 90, y: 160, w: 8, h: 40, type: 'laser' },
-                    { x: 205, y: 160, w: 8, h: 40, type: 'laser' },
-                ],
-                anchors: [],
-                exit: { x: 280, y: 100, w: 20, h: 30 },
-                player1Start: { x: 30, y: 170 },
-                player2Start: { x: 60, y: 170 },
+                hazards: [],
+                exit: { x: 45, y: 20, w: 20, h: 30 },
+                player1Start: { x: 25, y: 170 },           // Blue on left
+                player2Start: { x: 275, y: 170 },         // Red on right
+                // Seesaw: left=90, pivot=140, right=190
+                seesaw: { pivotX: 140, pivotY: 185, length: 100, height: 10 },
+                // Rock on ledge, pushed left to fall at x=178, center lands at x=190 (seesaw right edge)
+                rock: { x: 220, y: 59, w: 24, h: 16 },
             },
             {
-                name: "ROPE CLIMB",
-                hint: "Swing from anchor to anchor to reach the top!",
+                name: "CANNON",
+                hint: "One flies, one aims...",
+                hasTether: false,
                 platforms: [
-                    { x: 0, y: 200, w: 100, h: 40 },
-                    { x: 260, y: 60, w: 60, h: 15 },
+                    { x: 0, y: 200, w: 140, h: 40 },         // Ground left (cannon area + Red)
+                    { x: 240, y: 200, w: 80, h: 40 },        // Ground right (exit area)
+                    { x: 255, y: 90, w: 50, h: 12 },         // Exit platform (behind wall)
                 ],
-                hazards: [
-                    { x: 100, y: 220, w: 160, h: 20, type: 'spike' },
+                hazards: [],
+                exit: { x: 270, y: 60, w: 20, h: 30 },
+                player1Start: { x: 10, y: 170 },             // Blue on left
+                player2Start: { x: 120, y: 170 },            // Red far right
+                cannon: { x: 45, y: 175, baseAngle: 0 },     // Cannon starts horizontal
+                wall: { x: 245, y: 40, w: 18, h: 52, health: 1 },  // 1 hit to break
+            },
+            {
+                name: "GENERATOR",
+                hint: "Dodge the turret, power the elevator!",
+                hasTether: false,
+                platforms: [
+                    { x: 0, y: 200, w: 140, h: 40 },          // Ground left (treadmill area) - wider
+                    { x: 220, y: 200, w: 100, h: 40 },        // Ground right (elevator area)
+                    { x: 260, y: 60, w: 60, h: 12 },          // Exit platform (top right)
                 ],
-                anchors: [
-                    { x: 80, y: 100 },
-                    { x: 160, y: 60 },
-                    { x: 240, y: 100 },
-                ],
+                hazards: [],
                 exit: { x: 280, y: 30, w: 20, h: 30 },
-                player1Start: { x: 30, y: 170 },
-                player2Start: { x: 60, y: 170 },
-            },
-            {
-                name: "COOPERATION",
-                hint: "One stays low to be a platform, other goes high!",
-                platforms: [
-                    { x: 0, y: 200, w: 120, h: 40 },
-                    { x: 200, y: 200, w: 120, h: 40 },
-                    { x: 140, y: 140, w: 40, h: 10 },
-                    { x: 200, y: 80, w: 120, h: 15 },
-                ],
-                hazards: [
-                    { x: 120, y: 220, w: 80, h: 20, type: 'spike' },
-                ],
-                anchors: [
-                    { x: 160, y: 50 },
-                ],
-                exit: { x: 280, y: 50, w: 20, h: 30 },
-                player1Start: { x: 30, y: 170 },
-                player2Start: { x: 60, y: 170 },
+                player1Start: { x: 50, y: 170 },              // Blue on left
+                player2Start: { x: 240, y: 170 },             // Red on right
+                treadmill: { x: 40, y: 195, w: 80, h: 8 },    // Treadmill surface - wider
+                elevator: { x: 270, y: 185, w: 30, h: 8, minY: 65, maxY: 185 },
+                turret: { x: 80, y: 15, hanging: true },      // Turret hanging from ceiling
             },
         ];
 
-        // Rope class
-        class Rope {
-            constructor(owner) {
-                this.owner = owner;
-                this.active = false;
-                this.attached = false;
-                this.anchorX = 0;
-                this.anchorY = 0;
-                this.length = 0;
-                this.angle = 0;
-                this.angleVel = 0;
-                this.tipX = 0;
-                this.tipY = 0;
-                this.shooting = false;
-                this.dirX = 0;
-                this.dirY = 0;
+        // Rock physics
+        let rock = null;
+
+        function initRock() {
+            const level = levels[currentLevel];
+            if (level.rock) {
+                rock = {
+                    x: level.rock.x,
+                    y: level.rock.y,
+                    w: level.rock.w,
+                    h: level.rock.h,
+                    vx: 0,
+                    vy: 0,
+                    grounded: false,
+                    impacted: false,
+                };
+            } else {
+                rock = null;
             }
+        }
 
-            shoot(targetX, targetY) {
-                if (this.active) {
-                    this.release();
-                    return;
-                }
+        function updateRock() {
+            if (!rock) return;
 
-                const dx = targetX - (this.owner.x + this.owner.w / 2);
-                const dy = targetY - (this.owner.y + this.owner.h / 2);
-                const dist = Math.sqrt(dx * dx + dy * dy);
+            const level = levels[currentLevel];
 
-                this.dirX = dx / dist;
-                this.dirY = dy / dist;
-                this.tipX = this.owner.x + this.owner.w / 2;
-                this.tipY = this.owner.y + this.owner.h / 2;
-                this.shooting = true;
-                this.active = true;
-                this.attached = false;
-                this.length = 0;
-            }
+            // Check if players are pushing the rock
+            [player1, player2].forEach(player => {
+                if (!player.alive) return;
 
-            shootToNearest() {
-                const level = levels[currentLevel];
-                if (!level.anchors || level.anchors.length === 0) return;
+                // Check collision with rock
+                if (player.x + player.w > rock.x && player.x < rock.x + rock.w &&
+                    player.y + player.h > rock.y && player.y < rock.y + rock.h) {
 
-                let nearest = null;
-                let nearestDist = Infinity;
-                const px = this.owner.x + this.owner.w / 2;
-                const py = this.owner.y + this.owner.h / 2;
-
-                for (const anchor of level.anchors) {
-                    const dx = anchor.x - px;
-                    const dy = anchor.y - py;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-                    if (dist < nearestDist && dist < ROPE_MAX_LENGTH) {
-                        nearestDist = dist;
-                        nearest = anchor;
+                    // Push rock horizontally
+                    if (player.x + player.w / 2 < rock.x + rock.w / 2) {
+                        // Player on left, push right
+                        rock.vx += 0.3;
+                        player.x = rock.x - player.w;
+                    } else {
+                        // Player on right, push left
+                        rock.vx -= 0.3;
+                        player.x = rock.x + rock.w;
                     }
                 }
+            });
 
-                if (nearest) {
-                    this.shoot(nearest.x, nearest.y);
+            // Apply physics to rock - HEAVY rock falls faster!
+            rock.vx *= 0.85;
+            rock.vy += GRAVITY * 2; // Falls faster (heavy!)
+            if (rock.vy > MAX_FALL_SPEED * 1.8) rock.vy = MAX_FALL_SPEED * 1.8;
+
+            rock.x += rock.vx;
+            rock.y += rock.vy;
+
+            // Rock collision with platforms
+            rock.grounded = false;
+            for (const p of level.platforms) {
+                if (rock.x + rock.w > p.x && rock.x < p.x + p.w &&
+                    rock.y + rock.h > p.y && rock.y < p.y + p.h) {
+
+                    if (rock.vy > 0 && rock.y + rock.h - rock.vy <= p.y) {
+                        rock.y = p.y - rock.h;
+                        rock.vy = 0;
+                        rock.grounded = true;
+                    }
                 }
             }
 
-            release() {
-                if (this.attached) {
-                    // Give player momentum when releasing
-                    this.owner.vx = this.angleVel * this.length * 0.15;
-                    this.owner.vy = -Math.abs(this.angleVel) * this.length * 0.08 - 2;
+            // Rock falls off screen - reset it
+            if (rock.y > GAME_HEIGHT + 50) {
+                rock.x = level.rock.x;
+                rock.y = level.rock.y;
+                rock.vx = 0;
+                rock.vy = 0;
+                rock.impacted = false;
+            }
+        }
+
+        function drawRock() {
+            if (!rock) return;
+
+            // Dark heavy boulder
+            ctx.fillStyle = '#4a4a4a';
+            ctx.fillRect(rock.x, rock.y, rock.w, rock.h);
+
+            // Highlight top
+            ctx.fillStyle = '#666666';
+            ctx.fillRect(rock.x + 2, rock.y + 2, rock.w - 4, 4);
+
+            // Dark bottom (shadow)
+            ctx.fillStyle = '#2a2a2a';
+            ctx.fillRect(rock.x + 2, rock.y + rock.h - 4, rock.w - 4, 3);
+
+            // Cracks for texture
+            ctx.strokeStyle = '#333333';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(rock.x + 3, rock.y + 5);
+            ctx.lineTo(rock.x + rock.w / 2, rock.y + rock.h / 2);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(rock.x + rock.w - 5, rock.y + 4);
+            ctx.lineTo(rock.x + rock.w / 2 + 2, rock.y + rock.h - 5);
+            ctx.stroke();
+        }
+
+        // Seesaw system
+        let seesaw = null;
+
+        function initSeesaw() {
+            const level = levels[currentLevel];
+            if (level.seesaw) {
+                seesaw = {
+                    pivotX: level.seesaw.pivotX,
+                    pivotY: level.seesaw.pivotY,
+                    length: level.seesaw.length,
+                    height: level.seesaw.height,
+                    angle: 0,           // Radians, 0 = level
+                    angularVel: 0,
+                    maxAngle: 0.4,      // Max tilt ~23 degrees
+                };
+            } else {
+                seesaw = null;
+            }
+        }
+
+        function getSeesawEndPoints() {
+            if (!seesaw) return null;
+            const halfLen = seesaw.length / 2;
+            return {
+                leftX: seesaw.pivotX - Math.cos(seesaw.angle) * halfLen,
+                leftY: seesaw.pivotY - Math.sin(seesaw.angle) * halfLen,
+                rightX: seesaw.pivotX + Math.cos(seesaw.angle) * halfLen,
+                rightY: seesaw.pivotY + Math.sin(seesaw.angle) * halfLen,
+            };
+        }
+
+        function updateSeesaw() {
+            if (!seesaw) return;
+
+            const halfLen = seesaw.length / 2;
+            let torque = 0;
+            let rockJustLanded = false;
+            let rockImpactSide = 0; // positive = right side, negative = left side
+            let rockImpactForce = 0;
+
+            // Check rock on seesaw FIRST (to detect impact)
+            if (rock && !rock.impacted) {
+                const rockCenterX = rock.x + rock.w / 2;
+                const rockBottom = rock.y + rock.h;
+                const relX = rockCenterX - seesaw.pivotX;
+                const seesawYAtRock = seesaw.pivotY + Math.sin(seesaw.angle) * relX;
+
+                if (Math.abs(relX) < halfLen &&
+                    rockBottom >= seesawYAtRock - 10 &&
+                    rockBottom <= seesawYAtRock + 20 &&
+                    rock.vy > 1) {
+
+                    // Rock landed on seesaw with force!
+                    rockJustLanded = true;
+                    rockImpactSide = relX;
+                    rockImpactForce = rock.vy; // How fast was it falling
+
+                    rock.impacted = true;
+                    rock.y = seesawYAtRock - rock.h;
+                    rock.vy = 0;
+                    rock.grounded = true;
+
+                    // Big angular impulse from rock impact
+                    seesaw.angularVel += (relX > 0 ? 1 : -1) * rockImpactForce * 0.03;
+
+                    // Impact particles
+                    for (let i = 0; i < 20; i++) {
+                        particles.push(new Particle(
+                            rock.x + rock.w / 2,
+                            rock.y + rock.h,
+                            (Math.random() - 0.5) * 5,
+                            -Math.random() * 4,
+                            '#888888',
+                            25
+                        ));
+                    }
                 }
-                this.active = false;
-                this.attached = false;
-                this.shooting = false;
             }
 
-            update() {
-                if (!this.active) return;
+            // Keep rock on seesaw if already landed
+            if (rock && rock.impacted && rock.grounded) {
+                const rockCenterX = rock.x + rock.w / 2;
+                const relX = rockCenterX - seesaw.pivotX;
+                if (Math.abs(relX) < halfLen) {
+                    const seesawYAtRock = seesaw.pivotY + Math.sin(seesaw.angle) * relX;
+                    rock.y = seesawYAtRock - rock.h;
+                    torque += relX * 0.002; // Rock weight
+                }
+            }
 
-                if (this.shooting) {
-                    // Rope tip moving towards anchor
-                    this.tipX += this.dirX * ROPE_SPEED;
-                    this.tipY += this.dirY * ROPE_SPEED;
-                    this.length += ROPE_SPEED;
+            // Check players on seesaw - use swept collision (check if player crossed seesaw this frame)
+            [player1, player2].forEach(player => {
+                if (!player.alive) return;
 
-                    // Check if hit an anchor
-                    const level = levels[currentLevel];
-                    for (const anchor of level.anchors) {
-                        const dx = this.tipX - anchor.x;
-                        const dy = this.tipY - anchor.y;
-                        if (Math.sqrt(dx * dx + dy * dy) < 15) {
-                            // Attached!
-                            this.attached = true;
-                            this.shooting = false;
-                            this.anchorX = anchor.x;
-                            this.anchorY = anchor.y;
+                const playerCenterX = player.x + player.w / 2;
+                const playerBottom = player.y + player.h;
+                const relX = playerCenterX - seesaw.pivotX;
+                const seesawYAtPlayer = seesaw.pivotY + Math.sin(seesaw.angle) * relX;
 
-                            // Calculate initial angle
-                            const px = this.owner.x + this.owner.w / 2;
-                            const py = this.owner.y + this.owner.h / 2;
-                            this.angle = Math.atan2(px - this.anchorX, py - this.anchorY);
-                            this.length = Math.sqrt((px - this.anchorX) ** 2 + (py - this.anchorY) ** 2);
-                            this.angleVel = this.owner.vx * 0.02;
-                            return;
+                // Check if player is within seesaw X bounds
+                if (Math.abs(relX) < halfLen) {
+                    // Previous position (before this frame's movement)
+                    const prevBottom = playerBottom - player.vy;
+
+                    // Swept collision: was above seesaw, now at or below?
+                    const wasAbove = prevBottom <= seesawYAtPlayer + 5;
+                    const nowAtOrBelow = playerBottom >= seesawYAtPlayer - 5;
+                    const isFalling = player.vy >= 0;
+
+                    // Also check if already standing on seesaw
+                    const onSeesaw = playerBottom >= seesawYAtPlayer - 5 &&
+                                     playerBottom <= seesawYAtPlayer + 20;
+
+                    if ((wasAbove && nowAtOrBelow && isFalling) || onSeesaw) {
+                        // Player is on seesaw - snap to surface
+                        player.y = seesawYAtPlayer - player.h;
+                        player.vy = 0;
+                        player.grounded = true;
+                        torque += relX * 0.001;
+
+                        // LAUNCH! If rock just landed on OPPOSITE side
+                        if (rockJustLanded) {
+                            const onOppositeSide = (relX < 0 && rockImpactSide > 0) ||
+                                                   (relX > 0 && rockImpactSide < 0);
+                            if (onOppositeSide) {
+                                // Rock catapult launch - 15% reduced from original
+                                const leverage = Math.abs(relX) / halfLen;
+                                const launchVel = -8.5 - rockImpactForce * 1.275 * leverage;
+                                player.vy = launchVel;
+                                player.vx = (relX < 0 ? -0.5 : 0.5);
+                                player.grounded = false;
+
+                                // HUGE launch particles!
+                                for (let i = 0; i < 25; i++) {
+                                    particles.push(new Particle(
+                                        player.x + player.w / 2,
+                                        player.y + player.h,
+                                        (Math.random() - 0.5) * 6,
+                                        Math.random() * 4,
+                                        ['#ffff00', '#ff8800', '#ffffff'][Math.floor(Math.random() * 3)],
+                                        35
+                                    ));
+                                }
+                            }
                         }
                     }
+                }
+            });
 
-                    // Check if hit platform (rope fails)
-                    for (const p of level.platforms) {
-                        if (this.tipX > p.x && this.tipX < p.x + p.w &&
-                            this.tipY > p.y && this.tipY < p.y + p.h) {
-                            this.active = false;
-                            this.shooting = false;
-                            return;
-                        }
-                    }
+            // Apply torque to angular velocity
+            seesaw.angularVel += torque;
+            seesaw.angularVel *= 0.92; // Damping
+            seesaw.angle += seesaw.angularVel;
 
-                    // Max length reached
-                    if (this.length > ROPE_MAX_LENGTH) {
-                        this.active = false;
-                        this.shooting = false;
-                    }
-                } else if (this.attached) {
-                    // Pendulum physics
-                    const gravity = 0.015;
-                    this.angleVel += Math.sin(this.angle) * gravity;
+            // Clamp angle
+            if (seesaw.angle > seesaw.maxAngle) {
+                seesaw.angle = seesaw.maxAngle;
+                seesaw.angularVel *= -0.3;
+            }
+            if (seesaw.angle < -seesaw.maxAngle) {
+                seesaw.angle = -seesaw.maxAngle;
+                seesaw.angularVel *= -0.3;
+            }
+        }
 
-                    // Player input affects swing
-                    if (keys[this.owner.controls.left]) {
-                        this.angleVel -= SWING_FORCE * 0.02;
-                    }
-                    if (keys[this.owner.controls.right]) {
-                        this.angleVel += SWING_FORCE * 0.02;
-                    }
+        function drawSeesaw() {
+            if (!seesaw) return;
 
-                    this.angleVel *= 0.995; // Damping
-                    this.angle += this.angleVel;
+            const ends = getSeesawEndPoints();
 
-                    // Update player position
-                    this.owner.x = this.anchorX + Math.sin(this.angle) * this.length - this.owner.w / 2;
-                    this.owner.y = this.anchorY + Math.cos(this.angle) * this.length - this.owner.h / 2;
-                    this.owner.vx = 0;
-                    this.owner.vy = 0;
-                    this.owner.grounded = false;
+            // Draw pivot/fulcrum
+            ctx.fillStyle = '#555555';
+            ctx.beginPath();
+            ctx.moveTo(seesaw.pivotX - 12, seesaw.pivotY + 25);
+            ctx.lineTo(seesaw.pivotX + 12, seesaw.pivotY + 25);
+            ctx.lineTo(seesaw.pivotX, seesaw.pivotY);
+            ctx.closePath();
+            ctx.fill();
+
+            // Draw the plank
+            ctx.save();
+            ctx.translate(seesaw.pivotX, seesaw.pivotY);
+            ctx.rotate(seesaw.angle);
+
+            // Main plank
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(-seesaw.length / 2, -seesaw.height / 2, seesaw.length, seesaw.height);
+
+            // Top surface
+            ctx.fillStyle = '#A0522D';
+            ctx.fillRect(-seesaw.length / 2, -seesaw.height / 2, seesaw.length, 3);
+
+            // End caps
+            ctx.fillStyle = '#654321';
+            ctx.fillRect(-seesaw.length / 2, -seesaw.height / 2, 5, seesaw.height);
+            ctx.fillRect(seesaw.length / 2 - 5, -seesaw.height / 2, 5, seesaw.height);
+
+            ctx.restore();
+        }
+
+        // Cannon system
+        let cannon = null;
+
+        function initCannon() {
+            const level = levels[currentLevel];
+            if (level.cannon) {
+                cannon = {
+                    x: level.cannon.x,
+                    y: level.cannon.y,
+                    angle: level.cannon.baseAngle * Math.PI / 180,  // Convert to radians
+                    minAngle: -75 * Math.PI / 180,   // Up
+                    maxAngle: 15 * Math.PI / 180,    // Slightly down
+                    power: 0,
+                    maxPower: 100,
+                    loadedPlayer: null,
+                    charging: false,
+                    fired: false,
+                    loadCooldown: 0,  // Prevent immediate firing after entering
+                    recoilTimer: 0,
+                    smokeTimer: 0,
+                };
+            } else {
+                cannon = null;
+            }
+        }
+
+        function updateCannon() {
+            if (!cannon) return;
+
+            // Recoil animation
+            if (cannon.recoilTimer > 0) {
+                cannon.recoilTimer--;
+            }
+
+            // Smoke particles after firing
+            if (cannon.smokeTimer > 0) {
+                cannon.smokeTimer--;
+                if (cannon.smokeTimer % 3 === 0) {
+                    const muzzleX = cannon.x + Math.cos(cannon.angle) * 35;
+                    const muzzleY = cannon.y + Math.sin(cannon.angle) * 35;
+                    particles.push(new Particle(
+                        muzzleX, muzzleY,
+                        Math.cos(cannon.angle) * 2 + (Math.random() - 0.5),
+                        Math.sin(cannon.angle) * 2 + (Math.random() - 0.5),
+                        '#888888',
+                        30
+                    ));
                 }
             }
 
-            draw() {
-                if (!this.active) return;
+            // Check player interactions
+            [player1, player2].forEach(player => {
+                if (!player.alive || cannon.loadedPlayer === player) return;
 
-                const px = this.owner.x + this.owner.w / 2;
-                const py = this.owner.y + this.owner.h / 2;
+                // Near cannon front (mouth) - can enter with SPACE
+                const muzzleX = cannon.x + Math.cos(cannon.angle) * 30;
+                const muzzleY = cannon.y + Math.sin(cannon.angle) * 30;
+                const dxMuzzle = player.x + player.w / 2 - muzzleX;
+                const dyMuzzle = player.y + player.h / 2 - muzzleY;
+                const distMuzzle = Math.sqrt(dxMuzzle * dxMuzzle + dyMuzzle * dyMuzzle);
 
-                ctx.strokeStyle = '#8B4513';
-                ctx.lineWidth = 2;
+                // Enter cannon from front with SPACE
+                if (distMuzzle < 25 && !cannon.loadedPlayer && !cannon.fired) {
+                    if (keysJustPressed[' ']) {
+                        cannon.loadedPlayer = player;
+                        cannon.loadCooldown = 30;  // Half second cooldown before can fire
+                        player.visible = false;
+                        player.x = cannon.x - player.w / 2;
+                        player.y = cannon.y - player.h / 2;
+                        player.vx = 0;
+                        player.vy = 0;
+                        // Entry particles
+                        for (let i = 0; i < 10; i++) {
+                            particles.push(new Particle(
+                                muzzleX, muzzleY,
+                                (Math.random() - 0.5) * 3,
+                                (Math.random() - 0.5) * 3,
+                                player.color,
+                                20
+                            ));
+                        }
+                    }
+                }
+
+            });
+
+            // Anyone can aim cannon once someone is loaded - no need to be close
+            if (cannon.loadedPlayer) {
+                // Decrement cooldown
+                if (cannon.loadCooldown > 0) {
+                    cannon.loadCooldown--;
+                }
+
+                // U/J to aim up/down
+                if (keys.u || keys.U) cannon.angle -= 0.04;
+                if (keys.j || keys.J) cannon.angle += 0.04;
+
+                // Clamp angle
+                if (cannon.angle < cannon.minAngle) cannon.angle = cannon.minAngle;
+                if (cannon.angle > cannon.maxAngle) cannon.angle = cannon.maxAngle;
+
+                // Press SPACE to fire (after cooldown)
+                if (cannon.loadCooldown === 0 && keysJustPressed[' ']) {
+                    fireCannon();
+                }
+            }
+
+            // Update loaded player position (for collision purposes)
+            if (cannon.loadedPlayer && !cannon.fired) {
+                cannon.loadedPlayer.x = cannon.x - cannon.loadedPlayer.w / 2;
+                cannon.loadedPlayer.y = cannon.y - cannon.loadedPlayer.h / 2;
+            }
+        }
+
+        function fireCannon() {
+            if (!cannon || !cannon.loadedPlayer || cannon.fired) return;
+
+            const player = cannon.loadedPlayer;
+            const speed = 15;  // Fixed powerful speed
+
+            // Position at muzzle
+            const muzzleX = cannon.x + Math.cos(cannon.angle) * 40;
+            const muzzleY = cannon.y + Math.sin(cannon.angle) * 40;
+
+            player.visible = true;
+            player.x = muzzleX - player.w / 2;
+            player.y = muzzleY - player.h / 2;
+
+            // Velocity follows cannon angle
+            player.vx = Math.cos(cannon.angle) * speed;
+            player.vy = Math.sin(cannon.angle) * speed;
+            player.isCannonball = true;
+
+            // Scream when fired!
+            playerSay(player, 'cannon_fired', 1.0);
+
+            console.log('Fired! angle:', cannon.angle, 'vx:', player.vx, 'vy:', player.vy);
+
+            cannon.fired = true;
+            cannon.recoilTimer = 15;
+            cannon.smokeTimer = 30;
+
+            // Fire particles!
+            for (let i = 0; i < 25; i++) {
+                const muzzleX = cannon.x + Math.cos(cannon.angle) * 35;
+                const muzzleY = cannon.y + Math.sin(cannon.angle) * 35;
+                particles.push(new Particle(
+                    muzzleX, muzzleY,
+                    Math.cos(cannon.angle) * (3 + Math.random() * 4) + (Math.random() - 0.5) * 3,
+                    Math.sin(cannon.angle) * (3 + Math.random() * 4) + (Math.random() - 0.5) * 3,
+                    ['#ffaa00', '#ff6600', '#ffff00', '#ffffff'][Math.floor(Math.random() * 4)],
+                    25
+                ));
+            }
+
+            cannon.loadedPlayer = null;
+        }
+
+        function drawCannon() {
+            if (!cannon) return;
+
+            const recoilOffset = cannon.recoilTimer > 0 ? -3 : 0;
+
+            ctx.save();
+            ctx.translate(cannon.x, cannon.y);
+            ctx.rotate(cannon.angle);
+
+            // Cannon barrel
+            ctx.fillStyle = '#444444';
+            ctx.fillRect(recoilOffset, -10, 40, 20);
+
+            // Barrel highlight
+            ctx.fillStyle = '#555555';
+            ctx.fillRect(recoilOffset + 2, -8, 36, 4);
+
+            // Barrel rings
+            ctx.fillStyle = '#333333';
+            ctx.fillRect(recoilOffset + 8, -11, 4, 22);
+            ctx.fillRect(recoilOffset + 20, -11, 4, 22);
+            ctx.fillRect(recoilOffset + 32, -12, 6, 24);
+
+            // Muzzle opening
+            ctx.fillStyle = '#222222';
+            ctx.fillRect(recoilOffset + 36, -8, 4, 16);
+
+            ctx.restore();
+
+            // Cannon base/wheel
+            ctx.fillStyle = '#5a3a1a';
+            ctx.beginPath();
+            ctx.arc(cannon.x, cannon.y + 5, 15, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#3a2a0a';
+            ctx.beginPath();
+            ctx.arc(cannon.x, cannon.y + 5, 8, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#6a4a2a';
+            ctx.beginPath();
+            ctx.arc(cannon.x, cannon.y + 5, 4, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Draw loaded player peeking out (scared!)
+            if (cannon.loadedPlayer && !cannon.fired) {
+                const peekX = cannon.x + Math.cos(cannon.angle) * 25;
+                const peekY = cannon.y + Math.sin(cannon.angle) * 25;
+
+                // Scared face
+                ctx.fillStyle = cannon.loadedPlayer.color;
                 ctx.beginPath();
-                ctx.moveTo(px, py);
+                ctx.arc(peekX, peekY, 6, 0, Math.PI * 2);
+                ctx.fill();
 
-                if (this.shooting) {
-                    ctx.lineTo(this.tipX, this.tipY);
-                } else if (this.attached) {
-                    ctx.lineTo(this.anchorX, this.anchorY);
+                // Eyes (wide open, scared!)
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(peekX - 2, peekY - 1, 2.5, 0, Math.PI * 2);
+                ctx.arc(peekX + 2, peekY - 1, 2.5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#000000';
+                ctx.beginPath();
+                ctx.arc(peekX - 2, peekY - 1, 1.2, 0, Math.PI * 2);
+                ctx.arc(peekX + 2, peekY - 1, 1.2, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Scared mouth (wobbly O)
+                ctx.fillStyle = '#000000';
+                ctx.beginPath();
+                const wobble = Math.sin(Date.now() / 80) * 0.5;
+                ctx.ellipse(peekX, peekY + 3, 2 + wobble, 1.5, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Sweat drops
+                if (Math.sin(Date.now() / 200) > 0.3) {
+                    ctx.fillStyle = '#88ccff';
+                    ctx.beginPath();
+                    ctx.arc(peekX + 5, peekY - 3, 1, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            // Aim indicator
+            if (cannon.loadedPlayer) {
+                ctx.strokeStyle = 'rgba(255, 255, 0, 0.5)';
+                ctx.setLineDash([3, 3]);
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(cannon.x + Math.cos(cannon.angle) * 40, cannon.y + Math.sin(cannon.angle) * 40);
+                ctx.lineTo(cannon.x + Math.cos(cannon.angle) * 100, cannon.y + Math.sin(cannon.angle) * 100);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // Debug: show angle
+                ctx.fillStyle = '#ff0';
+                ctx.font = '5px "Press Start 2P"';
+                ctx.fillText('Angle: ' + Math.round(cannon.angle * 180 / Math.PI) + '°', cannon.x, cannon.y - 25);
+            }
+
+        }
+
+        // Breakable wall system
+        let wall = null;
+
+        function initWall() {
+            const level = levels[currentLevel];
+            if (level.wall) {
+                wall = {
+                    x: level.wall.x,
+                    y: level.wall.y,
+                    w: level.wall.w,
+                    h: level.wall.h,
+                    health: level.wall.health,
+                    maxHealth: level.wall.health,
+                    broken: false,
+                    breakTimer: 0,
+                    bricks: [],
+                };
+                // Generate brick pattern
+                const brickW = 7;
+                const brickH = 5;
+                for (let by = 0; by < wall.h; by += brickH) {
+                    const offset = (Math.floor(by / brickH) % 2) * (brickW / 2);
+                    for (let bx = -offset; bx < wall.w; bx += brickW) {
+                        if (bx + brickW > 0 && bx < wall.w) {
+                            wall.bricks.push({
+                                x: Math.max(0, bx),
+                                y: by,
+                                w: Math.min(brickW, wall.w - Math.max(0, bx)),
+                                h: brickH,
+                                vx: 0,
+                                vy: 0,
+                                falling: false,
+                            });
+                        }
+                    }
+                }
+            } else {
+                wall = null;
+            }
+        }
+
+        function updateWall() {
+            if (!wall || wall.broken) {
+                // Update falling bricks
+                if (wall && wall.bricks) {
+                    wall.bricks.forEach(brick => {
+                        if (brick.falling) {
+                            brick.vy += GRAVITY;
+                            brick.x += brick.vx;
+                            brick.y += brick.vy;
+                            brick.vx *= 0.98;
+                        }
+                    });
+                    // Remove off-screen bricks
+                    wall.bricks = wall.bricks.filter(b => !b.falling || b.y < GAME_HEIGHT + 50);
+                }
+                return;
+            }
+
+            // Check collision with cannonball player
+            [player1, player2].forEach(player => {
+                if (!player.alive || !player.isCannonball) return;
+
+                if (player.x + player.w > wall.x && player.x < wall.x + wall.w &&
+                    player.y + player.h > wall.y && player.y < wall.y + wall.h) {
+
+                    // HIT THE WALL!
+                    wall.health--;
+                    player.isCannonball = false;
+                    player.vx *= 0.3;
+                    player.vy = -3;
+
+                    // Impact particles
+                    for (let i = 0; i < 30; i++) {
+                        particles.push(new Particle(
+                            player.x + player.w / 2,
+                            player.y + player.h / 2,
+                            (Math.random() - 0.5) * 6,
+                            (Math.random() - 0.5) * 6,
+                            ['#aa6644', '#886644', '#664422', '#ffaa44'][Math.floor(Math.random() * 4)],
+                            30
+                        ));
+                    }
+
+                    if (wall.health <= 0) {
+                        // WALL DESTROYED!
+                        wall.broken = true;
+                        wall.breakTimer = 60;
+
+                        // Make all bricks fall!
+                        wall.bricks.forEach(brick => {
+                            brick.falling = true;
+                            brick.vx = (Math.random() - 0.3) * 4;
+                            brick.vy = -Math.random() * 5;
+                        });
+
+                        // Big explosion!
+                        for (let i = 0; i < 50; i++) {
+                            particles.push(new Particle(
+                                wall.x + wall.w / 2,
+                                wall.y + wall.h / 2,
+                                (Math.random() - 0.5) * 8,
+                                (Math.random() - 0.5) * 8 - 2,
+                                ['#aa6644', '#886644', '#ffaa44', '#ffffff'][Math.floor(Math.random() * 4)],
+                                40
+                            ));
+                        }
+                    }
+                }
+            });
+        }
+
+        function drawWall() {
+            if (!wall) return;
+
+            if (!wall.broken) {
+                // Draw intact wall with brick pattern
+                wall.bricks.forEach(brick => {
+                    ctx.fillStyle = '#aa6644';
+                    ctx.fillRect(wall.x + brick.x, wall.y + brick.y, brick.w - 1, brick.h - 1);
+                    // Highlight
+                    ctx.fillStyle = '#cc8866';
+                    ctx.fillRect(wall.x + brick.x, wall.y + brick.y, brick.w - 1, 1);
+                    // Shadow
+                    ctx.fillStyle = '#885533';
+                    ctx.fillRect(wall.x + brick.x, wall.y + brick.y + brick.h - 2, brick.w - 1, 1);
+                });
+
+                // Cracks if damaged
+                if (wall.health < wall.maxHealth) {
+                    ctx.strokeStyle = '#442211';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(wall.x + wall.w / 2, wall.y);
+                    ctx.lineTo(wall.x + wall.w / 3, wall.y + wall.h / 2);
+                    ctx.lineTo(wall.x + wall.w / 2, wall.y + wall.h);
+                    ctx.stroke();
+                }
+            } else {
+                // Draw falling bricks
+                wall.bricks.forEach(brick => {
+                    if (brick.falling && brick.y < GAME_HEIGHT) {
+                        ctx.fillStyle = '#aa6644';
+                        ctx.fillRect(brick.x + wall.x, brick.y + wall.y, brick.w - 1, brick.h - 1);
+                    }
+                });
+            }
+        }
+
+        // Turret system
+        let turret = null;
+        let turretProjectiles = [];
+
+        function initTurret() {
+            const level = levels[currentLevel];
+            if (level.turret) {
+                turret = {
+                    x: level.turret.x,
+                    y: level.turret.y,
+                    hanging: level.turret.hanging || false,
+                    angle: Math.PI / 2,  // Pointing down for hanging turret
+                    fireTimer: 0,
+                    fireCooldown: 192,   // ~3.2 seconds between shots
+                    chargeTimer: 0,
+                };
+                turretProjectiles = [];
+            } else {
+                turret = null;
+                turretProjectiles = [];
+            }
+        }
+
+        function updateTurret() {
+            if (!turret) return;
+
+            // Aim at treadmill area
+            const targetX = treadmill ? treadmill.x + treadmill.w / 2 : 80;
+            const targetY = treadmill ? treadmill.y : 195;
+
+            const dx = targetX - turret.x;
+            const dy = targetY - turret.y;
+            const targetAngle = Math.atan2(dy, dx);
+
+            // Slowly rotate toward target
+            const angleDiff = targetAngle - turret.angle;
+            turret.angle += angleDiff * 0.006;  // 20% faster rotation
+
+            // Fire timer
+            turret.fireTimer++;
+            if (turret.fireTimer >= turret.fireCooldown) {
+                turret.fireTimer = 0;
+                turret.chargeTimer = 45;  // Longer charge-up
+            }
+
+            // Fire after charge
+            if (turret.chargeTimer > 0) {
+                turret.chargeTimer--;
+                if (turret.chargeTimer === 0) {
+                    // Fire projectile - slow but 20% faster
+                    const speed = 0.72;
+                    turretProjectiles.push({
+                        x: turret.x + Math.cos(turret.angle) * 15,
+                        y: turret.y + Math.sin(turret.angle) * 15,
+                        vx: Math.cos(turret.angle) * speed,
+                        vy: Math.sin(turret.angle) * speed,
+                        life: 400,  // Long life since slow
+                    });
+
+                    // Muzzle flash particles
+                    for (let i = 0; i < 8; i++) {
+                        particles.push(new Particle(
+                            turret.x + Math.cos(turret.angle) * 15,
+                            turret.y + Math.sin(turret.angle) * 15,
+                            Math.cos(turret.angle) * 2 + (Math.random() - 0.5) * 2,
+                            Math.sin(turret.angle) * 2 + (Math.random() - 0.5) * 2,
+                            ['#ff4400', '#ffaa00', '#ffffff'][Math.floor(Math.random() * 3)],
+                            15
+                        ));
+                    }
+                }
+            }
+
+            // Update projectiles
+            turretProjectiles = turretProjectiles.filter(proj => {
+                proj.x += proj.vx;
+                proj.y += proj.vy;
+                proj.life--;
+
+                // Check collision with players
+                [player1, player2].forEach(player => {
+                    if (!player.alive) return;
+                    if (proj.x > player.x && proj.x < player.x + player.w &&
+                        proj.y > player.y && proj.y < player.y + player.h) {
+                        player.die();
+                        proj.life = 0;
+                        // Explosion particles
+                        for (let i = 0; i < 15; i++) {
+                            particles.push(new Particle(
+                                proj.x, proj.y,
+                                (Math.random() - 0.5) * 4,
+                                (Math.random() - 0.5) * 4,
+                                '#ff4400',
+                                20
+                            ));
+                        }
+                    }
+                });
+
+                // Check collision with platforms
+                const level = levels[currentLevel];
+                for (const p of level.platforms) {
+                    if (proj.x > p.x && proj.x < p.x + p.w &&
+                        proj.y > p.y && proj.y < p.y + p.h) {
+                        // Hit platform - small explosion
+                        for (let i = 0; i < 5; i++) {
+                            particles.push(new Particle(
+                                proj.x, proj.y,
+                                (Math.random() - 0.5) * 2,
+                                (Math.random() - 0.5) * 2,
+                                '#888888',
+                                15
+                            ));
+                        }
+                        return false;
+                    }
+                }
+
+                return proj.life > 0 && proj.x < GAME_WIDTH && proj.y < GAME_HEIGHT;
+            });
+        }
+
+        function drawTurret() {
+            if (!turret) return;
+
+            const charging = turret.chargeTimer > 0;
+
+            if (turret.hanging) {
+                // Cute hanging turret - mounted to ceiling
+                // Mount bracket (thin wire)
+                ctx.fillStyle = '#666666';
+                ctx.fillRect(turret.x - 2, 0, 4, turret.y - 12);
+
+                // Round cute body
+                ctx.fillStyle = '#ee8899';  // Pink body!
+                ctx.beginPath();
+                ctx.arc(turret.x, turret.y, 14, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Body highlight
+                ctx.fillStyle = '#ffaabb';
+                ctx.beginPath();
+                ctx.arc(turret.x - 4, turret.y - 4, 5, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Turret barrel (cute cannon)
+                ctx.save();
+                ctx.translate(turret.x, turret.y);
+                ctx.rotate(turret.angle);
+
+                // Barrel - glows when charging
+                ctx.fillStyle = charging ? '#ff6644' : '#aa6677';
+                ctx.fillRect(8, -3, 14, 6);
+
+                // Barrel tip (rounded)
+                ctx.fillStyle = charging ? '#ffaa44' : '#886677';
+                ctx.beginPath();
+                ctx.arc(22, 0, 4, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.restore();
+
+                // Cute eyes (looking in aim direction)
+                const eyeOffsetX = Math.cos(turret.angle) * 2;
+                const eyeOffsetY = Math.sin(turret.angle) * 2;
+
+                // White of eyes
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(turret.x - 5, turret.y - 2, 4, 0, Math.PI * 2);
+                ctx.arc(turret.x + 5, turret.y - 2, 4, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Pupils (follow aim direction)
+                ctx.fillStyle = charging ? '#ff0000' : '#333333';
+                ctx.beginPath();
+                ctx.arc(turret.x - 5 + eyeOffsetX, turret.y - 2 + eyeOffsetY, 2, 0, Math.PI * 2);
+                ctx.arc(turret.x + 5 + eyeOffsetX, turret.y - 2 + eyeOffsetY, 2, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Angry eyebrows when charging
+                if (charging) {
+                    ctx.strokeStyle = '#663344';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(turret.x - 8, turret.y - 8);
+                    ctx.lineTo(turret.x - 3, turret.y - 6);
+                    ctx.moveTo(turret.x + 8, turret.y - 8);
+                    ctx.lineTo(turret.x + 3, turret.y - 6);
+                    ctx.stroke();
+                }
+
+                // Blush marks
+                ctx.fillStyle = 'rgba(255, 100, 100, 0.4)';
+                ctx.beginPath();
+                ctx.ellipse(turret.x - 9, turret.y + 3, 3, 2, 0, 0, Math.PI * 2);
+                ctx.ellipse(turret.x + 9, turret.y + 3, 3, 2, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Little antenna
+                ctx.fillStyle = '#666666';
+                ctx.fillRect(turret.x - 1, turret.y - 16, 2, 5);
+                ctx.fillStyle = charging ? '#ff0000' : '#ffff00';
+                ctx.beginPath();
+                ctx.arc(turret.x, turret.y - 17, 3, 0, Math.PI * 2);
+                ctx.fill();
+            } else {
+                // Original standing turret
+                ctx.fillStyle = '#555555';
+                ctx.fillRect(turret.x - 8, turret.y - 5, 16, 12);
+
+                ctx.save();
+                ctx.translate(turret.x, turret.y);
+                ctx.rotate(turret.angle);
+
+                ctx.fillStyle = charging ? '#ff6644' : '#666666';
+                ctx.fillRect(0, -4, 18, 8);
+
+                ctx.fillStyle = charging ? '#ffaa44' : '#444444';
+                ctx.fillRect(14, -5, 6, 10);
+
+                ctx.restore();
+
+                ctx.fillStyle = '#777777';
+                ctx.beginPath();
+                ctx.arc(turret.x, turret.y - 2, 8, Math.PI, 0);
+                ctx.fill();
+
+                ctx.fillStyle = charging ? '#ff0000' : '#aa0000';
+                ctx.beginPath();
+                ctx.arc(turret.x, turret.y - 4, 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Draw projectiles
+            turretProjectiles.forEach(proj => {
+                // Glowing energy ball
+                const pulse = Math.sin(Date.now() / 50) * 0.3 + 0.7;
+                ctx.fillStyle = `rgba(255, 100, 0, ${pulse})`;
+                ctx.beginPath();
+                ctx.arc(proj.x, proj.y, 6, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = '#ffff00';
+                ctx.beginPath();
+                ctx.arc(proj.x, proj.y, 3, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Trail
+                ctx.fillStyle = 'rgba(255, 150, 0, 0.5)';
+                ctx.beginPath();
+                ctx.arc(proj.x - proj.vx * 2, proj.y - proj.vy * 2, 4, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        // Treadmill & Elevator system
+        let treadmill = null;
+        let elevator = null;
+        let powerLevel = 0;  // 0-100, generated by treadmill
+        let cableProgress = 0;  // 0-100, how far electricity has traveled along cable
+
+        function initTreadmill() {
+            const level = levels[currentLevel];
+            if (level.treadmill) {
+                treadmill = {
+                    x: level.treadmill.x,
+                    y: level.treadmill.y,
+                    w: level.treadmill.w,
+                    h: level.treadmill.h,
+                    beltOffset: 0,      // For animation
+                    pushForce: -1.5,    // Pushes player left
+                    generating: false,
+                };
+            } else {
+                treadmill = null;
+            }
+
+            if (level.elevator) {
+                elevator = {
+                    x: level.elevator.x,
+                    y: level.elevator.maxY,  // Start at bottom
+                    w: level.elevator.w,
+                    h: level.elevator.h,
+                    minY: level.elevator.minY,
+                    maxY: level.elevator.maxY,
+                    vy: 0,
+                };
+            } else {
+                elevator = null;
+            }
+
+            powerLevel = 0;
+            cableProgress = 0;
+        }
+
+        function updateTreadmill() {
+            if (!treadmill) return;
+
+            const BELT_SPEED = 0.8;  // How fast the belt pushes left (slightly slower than Blue's max speed)
+            treadmill.generating = false;
+
+            // Check if player is on treadmill (standing on ground, within X bounds)
+            [player1, player2].forEach(player => {
+                if (!player.alive) return;
+
+                const onTreadmill =
+                    player.x + player.w > treadmill.x &&
+                    player.x < treadmill.x + treadmill.w &&
+                    player.grounded;
+
+                if (onTreadmill) {
+                    // Check if player is actively running RIGHT (against the belt)
+                    const runningRight = keys[player.controls.right];
+
+                    if (runningRight) {
+                        // Running against belt = stay in place, generate power!
+                        player.vx = 0;
+                        treadmill.generating = true;
+                        powerLevel += 1.5;
+                        if (powerLevel > 100) powerLevel = 100;
+
+                        // Say treadmill running sounds
+                        playerSay(player, 'treadmill_run', 0.01);
+
+                        // Sparks!
+                        if (Math.random() < 0.3) {
+                            particles.push(new Particle(
+                                treadmill.x + treadmill.w + 10,
+                                treadmill.y - 5,
+                                (Math.random() - 0.5) * 2,
+                                -Math.random() * 2,
+                                '#ffff00',
+                                15
+                            ));
+                        }
+                    } else {
+                        // Not running = belt pushes player left
+                        player.vx = -BELT_SPEED;
+                        // Say pushed sounds
+                        playerSay(player, 'treadmill_pushed', 0.02);
+                    }
+                }
+            });
+
+            // Power decays slowly
+            if (!treadmill.generating) {
+                powerLevel -= 0.5;
+                if (powerLevel < 0) powerLevel = 0;
+            }
+
+            // Cable progress - electricity travels along cable when power is generated
+            if (powerLevel > 30) {
+                // Power is being generated, electricity travels forward slowly
+                cableProgress += 0.35;  // Takes ~5 seconds to reach full
+                if (cableProgress > 100) cableProgress = 100;
+            } else {
+                // Power lost, electricity retreats slowly
+                cableProgress -= 0.5;
+                if (cableProgress < 0) cableProgress = 0;
+            }
+
+            // Animate belt (always moving)
+            treadmill.beltOffset += BELT_SPEED;
+            if (treadmill.beltOffset > 8) treadmill.beltOffset -= 8;
+        }
+
+        function updateElevator() {
+            if (!elevator) return;
+
+            // Elevator moves up when electricity has reached it (cableProgress = 100)
+            const powered = cableProgress >= 100;
+
+            if (powered && elevator.y > elevator.minY) {
+                elevator.vy = -1.5;  // Move up
+            } else if (!powered && elevator.y < elevator.maxY) {
+                elevator.vy = 0.8;   // Fall down slowly
+            } else {
+                elevator.vy = 0;
+            }
+
+            elevator.y += elevator.vy;
+
+            // Clamp position
+            if (elevator.y < elevator.minY) elevator.y = elevator.minY;
+            if (elevator.y > elevator.maxY) elevator.y = elevator.maxY;
+
+            // Check if players are on elevator - move them with it
+            [player1, player2].forEach(player => {
+                if (!player.alive) return;
+
+                const onElevator =
+                    player.x + player.w > elevator.x &&
+                    player.x < elevator.x + elevator.w &&
+                    player.y + player.h >= elevator.y - 5 &&
+                    player.y + player.h <= elevator.y + 10 &&
+                    player.vy >= 0;
+
+                if (onElevator) {
+                    player.y = elevator.y - player.h;
+                    player.grounded = true;
+                    player.vy = 0;
+                }
+            });
+        }
+
+        function drawTreadmill() {
+            if (!treadmill) return;
+
+            // Treadmill base
+            ctx.fillStyle = '#444444';
+            ctx.fillRect(treadmill.x - 5, treadmill.y, treadmill.w + 10, treadmill.h + 5);
+
+            // Belt surface
+            ctx.fillStyle = '#222222';
+            ctx.fillRect(treadmill.x, treadmill.y, treadmill.w, treadmill.h);
+
+            // Belt lines (animated)
+            ctx.strokeStyle = '#333333';
+            ctx.lineWidth = 1;
+            for (let i = -treadmill.beltOffset; i < treadmill.w; i += 8) {
+                if (i >= 0) {
+                    ctx.beginPath();
+                    ctx.moveTo(treadmill.x + i, treadmill.y);
+                    ctx.lineTo(treadmill.x + i, treadmill.y + treadmill.h);
+                    ctx.stroke();
+                }
+            }
+
+            // Side rails
+            ctx.fillStyle = '#666666';
+            ctx.fillRect(treadmill.x - 3, treadmill.y - 3, 3, treadmill.h + 6);
+            ctx.fillRect(treadmill.x + treadmill.w, treadmill.y - 3, 3, treadmill.h + 6);
+
+            // Generator box on the right
+            ctx.fillStyle = '#555555';
+            ctx.fillRect(treadmill.x + treadmill.w + 5, treadmill.y - 10, 20, 25);
+
+            // Generator light (pulses when generating)
+            const lightColor = treadmill.generating ?
+                `rgb(${128 + Math.sin(Date.now() / 50) * 127}, 255, 0)` : '#333333';
+            ctx.fillStyle = lightColor;
+            ctx.beginPath();
+            ctx.arc(treadmill.x + treadmill.w + 15, treadmill.y - 2, 4, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Power meter
+            ctx.fillStyle = '#333333';
+            ctx.fillRect(treadmill.x + treadmill.w + 8, treadmill.y + 5, 14, 8);
+            const meterColor = powerLevel > 30 ? '#00ff00' : '#ff0000';
+            ctx.fillStyle = meterColor;
+            ctx.fillRect(treadmill.x + treadmill.w + 9, treadmill.y + 6, (powerLevel / 100) * 12, 6);
+        }
+
+        function drawElevator() {
+            if (!elevator) return;
+
+            // Elevator shaft (background)
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(elevator.x - 5, elevator.minY - 10, elevator.w + 10, elevator.maxY - elevator.minY + 20);
+
+            // Rails
+            ctx.fillStyle = '#444444';
+            ctx.fillRect(elevator.x - 3, elevator.minY - 5, 2, elevator.maxY - elevator.minY + 15);
+            ctx.fillRect(elevator.x + elevator.w + 1, elevator.minY - 5, 2, elevator.maxY - elevator.minY + 15);
+
+            // Elevator platform - glows when electricity reached it
+            const elevatorPowered = cableProgress >= 100;
+            ctx.fillStyle = elevatorPowered ? '#668866' : '#666666';
+            ctx.fillRect(elevator.x, elevator.y, elevator.w, elevator.h);
+
+            // Platform top
+            ctx.fillStyle = elevatorPowered ? '#88aa88' : '#888888';
+            ctx.fillRect(elevator.x, elevator.y, elevator.w, 2);
+
+            // Large power cable from generator to elevator
+            if (treadmill) {
+                // Define cable path points
+                const cablePoints = [
+                    { x: treadmill.x + treadmill.w + 25, y: treadmill.y },
+                    { x: treadmill.x + treadmill.w + 25, y: treadmill.y - 30 },
+                    { x: 160, y: treadmill.y - 30 },
+                    { x: 160, y: 35 },
+                    { x: elevator.x + elevator.w / 2, y: 35 },
+                    { x: elevator.x + elevator.w / 2, y: elevator.minY - 5 },
+                ];
+
+                // Calculate total cable length
+                let totalLength = 0;
+                for (let i = 1; i < cablePoints.length; i++) {
+                    const dx = cablePoints[i].x - cablePoints[i-1].x;
+                    const dy = cablePoints[i].y - cablePoints[i-1].y;
+                    totalLength += Math.sqrt(dx * dx + dy * dy);
+                }
+
+                // Draw cable background (thick pipe)
+                ctx.strokeStyle = '#333333';
+                ctx.lineWidth = 8;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.beginPath();
+                ctx.moveTo(cablePoints[0].x, cablePoints[0].y);
+                for (let i = 1; i < cablePoints.length; i++) {
+                    ctx.lineTo(cablePoints[i].x, cablePoints[i].y);
                 }
                 ctx.stroke();
 
-                // Rope end
-                if (this.shooting) {
-                    ctx.fillStyle = '#654321';
+                // Draw cable inner (dark)
+                ctx.strokeStyle = '#222222';
+                ctx.lineWidth = 5;
+                ctx.beginPath();
+                ctx.moveTo(cablePoints[0].x, cablePoints[0].y);
+                for (let i = 1; i < cablePoints.length; i++) {
+                    ctx.lineTo(cablePoints[i].x, cablePoints[i].y);
+                }
+                ctx.stroke();
+
+                // Draw electricity traveling along cable
+                if (cableProgress > 0) {
+                    const electricityLength = (cableProgress / 100) * totalLength;
+                    let drawnLength = 0;
+
+                    ctx.strokeStyle = '#ffff00';
+                    ctx.lineWidth = 3;
+                    ctx.shadowColor = '#ffff00';
+                    ctx.shadowBlur = 5;
                     ctx.beginPath();
-                    ctx.arc(this.tipX, this.tipY, 3, 0, Math.PI * 2);
-                    ctx.fill();
+                    ctx.moveTo(cablePoints[0].x, cablePoints[0].y);
+
+                    for (let i = 1; i < cablePoints.length && drawnLength < electricityLength; i++) {
+                        const dx = cablePoints[i].x - cablePoints[i-1].x;
+                        const dy = cablePoints[i].y - cablePoints[i-1].y;
+                        const segmentLength = Math.sqrt(dx * dx + dy * dy);
+
+                        if (drawnLength + segmentLength <= electricityLength) {
+                            ctx.lineTo(cablePoints[i].x, cablePoints[i].y);
+                            drawnLength += segmentLength;
+                        } else {
+                            // Partial segment
+                            const remaining = electricityLength - drawnLength;
+                            const ratio = remaining / segmentLength;
+                            const endX = cablePoints[i-1].x + dx * ratio;
+                            const endY = cablePoints[i-1].y + dy * ratio;
+                            ctx.lineTo(endX, endY);
+
+                            // Spark at the tip
+                            if (Math.random() < 0.3) {
+                                particles.push(new Particle(
+                                    endX, endY,
+                                    (Math.random() - 0.5) * 3,
+                                    (Math.random() - 0.5) * 3,
+                                    '#ffff00',
+                                    12
+                                ));
+                            }
+                            break;
+                        }
+                    }
+                    ctx.stroke();
+                    ctx.shadowBlur = 0;
+
+                    // Pulsing glow effect on the electricity
+                    const pulse = Math.sin(Date.now() / 100) * 0.3 + 0.7;
+                    ctx.strokeStyle = `rgba(255, 255, 150, ${pulse * 0.5})`;
+                    ctx.lineWidth = 6;
+                    ctx.beginPath();
+                    ctx.moveTo(cablePoints[0].x, cablePoints[0].y);
+                    drawnLength = 0;
+                    for (let i = 1; i < cablePoints.length && drawnLength < electricityLength; i++) {
+                        const dx = cablePoints[i].x - cablePoints[i-1].x;
+                        const dy = cablePoints[i].y - cablePoints[i-1].y;
+                        const segmentLength = Math.sqrt(dx * dx + dy * dy);
+                        if (drawnLength + segmentLength <= electricityLength) {
+                            ctx.lineTo(cablePoints[i].x, cablePoints[i].y);
+                            drawnLength += segmentLength;
+                        } else {
+                            const remaining = electricityLength - drawnLength;
+                            const ratio = remaining / segmentLength;
+                            ctx.lineTo(cablePoints[i-1].x + dx * ratio, cablePoints[i-1].y + dy * ratio);
+                            break;
+                        }
+                    }
+                    ctx.stroke();
+                }
+
+                // Cable supports/brackets
+                ctx.fillStyle = '#555555';
+                ctx.fillRect(158, treadmill.y - 35, 8, 10);
+                ctx.fillRect(158, 30, 8, 10);
+                ctx.fillRect(elevator.x + elevator.w / 2 - 4, 30, 8, 10);
+            }
+        }
+
+        // Tether system
+        let tether = {
+            active: false,
+            length: 0,
+        };
+
+        function updateTether() {
+            if (!levels[currentLevel].hasTether) {
+                tether.active = false;
+                return;
+            }
+
+            tether.active = true;
+
+            if (!player1.alive || !player2.alive) return;
+
+            const p1x = player1.x + player1.w / 2;
+            const p1y = player1.y + player1.h / 2;
+            const p2x = player2.x + player2.w / 2;
+            const p2y = player2.y + player2.h / 2;
+
+            const dx = p2x - p1x;
+            const dy = p2y - p1y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            tether.length = dist;
+
+            // If tether is stretched beyond max, pull players together
+            if (dist > TETHER_MAX_LENGTH) {
+                const excess = dist - TETHER_MAX_LENGTH;
+                const nx = dx / dist;
+                const ny = dy / dist;
+                const pullForce = excess * TETHER_STIFFNESS;
+
+                // Determine who is anchored (grounded and still)
+                const p1Anchored = player1.grounded;
+                const p2Anchored = player2.grounded;
+
+                if (p1Anchored && !p2Anchored) {
+                    // P1 is anchor, pull P2 toward P1
+                    player2.vx -= nx * pullForce * 2;
+                    player2.vy -= ny * pullForce * 2;
+                    // P1 says "frend!" (dragging), P2 says dragged sounds
+                    playerSay(player1, 'dragging_friend', 0.02);
+                    playerSay(player2, 'dragged', 0.03);
+                } else if (p2Anchored && !p1Anchored) {
+                    // P2 is anchor, pull P1 toward P2
+                    player1.vx += nx * pullForce * 2;
+                    player1.vy += ny * pullForce * 2;
+                    // P2 says "frend!" (dragging), P1 says dragged sounds
+                    playerSay(player2, 'dragging_friend', 0.02);
+                    playerSay(player1, 'dragged', 0.03);
+                } else {
+                    // Both airborne or both grounded - pull equally
+                    player1.vx += nx * pullForce;
+                    player1.vy += ny * pullForce;
+                    player2.vx -= nx * pullForce;
+                    player2.vy -= ny * pullForce;
+                }
+
+                // Hard constraint - enforce max length
+                if (dist > TETHER_MAX_LENGTH + 5) {
+                    const correction = (dist - TETHER_MAX_LENGTH) * 0.5;
+                    if (p1Anchored && !p2Anchored) {
+                        player2.x -= nx * correction;
+                        player2.y -= ny * correction;
+                    } else if (p2Anchored && !p1Anchored) {
+                        player1.x += nx * correction;
+                        player1.y += ny * correction;
+                    } else {
+                        player1.x += nx * correction * 0.5;
+                        player1.y += ny * correction * 0.5;
+                        player2.x -= nx * correction * 0.5;
+                        player2.y -= ny * correction * 0.5;
+                    }
                 }
             }
         }
 
+        function drawTether() {
+            if (!tether.active || !player1.alive || !player2.alive) return;
+
+            const p1x = player1.x + player1.w / 2;
+            const p1y = player1.y + player1.h / 2;
+            const p2x = player2.x + player2.w / 2;
+            const p2y = player2.y + player2.h / 2;
+
+            // Tether color based on stretch
+            const stretchRatio = tether.length / TETHER_MAX_LENGTH;
+            let color;
+            if (stretchRatio < 0.7) {
+                color = '#44aa44'; // Green - slack
+            } else if (stretchRatio < 0.95) {
+                color = '#aaaa44'; // Yellow - getting tight
+            } else {
+                color = '#aa4444'; // Red - max stretch
+            }
+
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.setLineDash([3, 3]);
+            ctx.beginPath();
+            ctx.moveTo(p1x, p1y);
+            ctx.lineTo(p2x, p2y);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Draw connection points
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(p1x, p1y, 3, 0, Math.PI * 2);
+            ctx.arc(p2x, p2y, 3, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
         // Player class
         class Player {
-            constructor(x, y, color, controls) {
+            constructor(x, y, color, controls, jumpForce, moveSpeed) {
                 this.startX = x;
                 this.startY = y;
                 this.x = x;
@@ -376,15 +1617,22 @@
                 this.vy = 0;
                 this.color = color;
                 this.controls = controls;
+                this.jumpForce = jumpForce;
+                this.moveSpeed = moveSpeed;
                 this.grounded = false;
                 this.alive = true;
+                this.visible = true;
                 this.facingRight = true;
                 this.walkFrame = 0;
                 this.walkTimer = 0;
                 this.onPlayer = null;
                 this.carrying = null;
-                this.rope = new Rope(this);
                 this.respawnTimer = 0;
+                this.isCannonball = false;
+                this.lastSpeechTime = 0;
+                this.idleTimer = 0;
+                this.wasGrounded = false;
+                this.prevVy = 0;
             }
 
             reset(startX, startY) {
@@ -396,56 +1644,25 @@
                 this.vy = 0;
                 this.grounded = false;
                 this.alive = true;
+                this.visible = true;
                 this.onPlayer = null;
                 this.carrying = null;
-                this.rope.active = false;
-                this.rope.attached = false;
-                this.rope.shooting = false;
                 this.respawnTimer = 0;
+                this.isCannonball = false;
+                this.lastSpeechTime = 0;
+                this.idleTimer = 0;
+                this.wasGrounded = false;
+                this.prevVy = 0;
             }
 
             update(other) {
-                // Handle respawn
+                // Dead players stay dead until R or both die
                 if (!this.alive) {
-                    this.respawnTimer--;
-                    if (this.respawnTimer <= 0 && other && other.alive) {
-                        // Respawn near the other player
-                        this.alive = true;
-                        this.x = other.x + (Math.random() > 0.5 ? 20 : -20);
-                        this.y = other.y - 30;
-                        this.vx = 0;
-                        this.vy = 0;
-                        // Respawn particles
-                        for (let i = 0; i < 20; i++) {
-                            particles.push(new Particle(
-                                this.x + this.w / 2,
-                                this.y + this.h / 2,
-                                (Math.random() - 0.5) * 3,
-                                (Math.random() - 0.5) * 3,
-                                '#ffffff',
-                                30
-                            ));
-                        }
-                    }
                     return;
                 }
 
-                // Rope controls
-                if (keysJustPressed[this.controls.rope]) {
-                    if (this.rope.active) {
-                        this.rope.release();
-                    } else {
-                        this.rope.shootToNearest();
-                    }
-                }
-
-                // Update rope
-                this.rope.update();
-
-                // If attached to rope, skip normal movement
-                if (this.rope.attached) {
-                    this.checkHazards();
-                    this.checkExit();
+                // Skip update if loaded in cannon
+                if (!this.visible) {
                     return;
                 }
 
@@ -466,27 +1683,29 @@
                     this.walkFrame = 0;
                 }
 
-                // Apply friction
-                this.vx *= FRICTION;
-
-                // Cap horizontal speed
-                if (Math.abs(this.vx) > MOVE_SPEED) {
-                    this.vx = Math.sign(this.vx) * MOVE_SPEED;
+                // Don't apply friction or speed limit when player is a cannonball
+                if (!this.isCannonball) {
+                    this.vx *= FRICTION;
+                    if (Math.abs(this.vx) > this.moveSpeed) {
+                        this.vx = Math.sign(this.vx) * this.moveSpeed;
+                    }
+                    if (Math.abs(this.vx) < 0.1) this.vx = 0;
                 }
-                if (Math.abs(this.vx) < 0.1) this.vx = 0;
 
-                // Jump
+                // Jump with player-specific force
                 if (keys[this.controls.jump] && this.grounded) {
-                    this.vy = JUMP_FORCE;
+                    this.vy = this.jumpForce;
                     this.grounded = false;
 
-                    // If carrying someone, give them extra upward velocity (big boost!)
+                    // Say something on jump (20% chance)
+                    playerSay(this, 'jump', 0.2);
+
+                    // Boost carried player
                     if (this.carrying && this.carrying.alive) {
-                        this.carrying.vy = JUMP_FORCE * 1.2;
+                        this.carrying.vy = this.jumpForce * 1.2;
                         this.carrying.grounded = false;
                     }
 
-                    // Jump particles
                     for (let i = 0; i < 5; i++) {
                         particles.push(new Particle(
                             this.x + this.w / 2,
@@ -499,18 +1718,18 @@
                     }
                 }
 
-                // Gravity
+                // Store previous vy for landing detection
+                this.prevVy = this.vy;
+
                 this.vy += GRAVITY;
                 if (this.vy > MAX_FALL_SPEED) this.vy = MAX_FALL_SPEED;
 
-                // Clear standing relationship before collision check
                 this.onPlayer = null;
                 if (this.carrying) {
                     this.carrying.onPlayer = null;
                     this.carrying = null;
                 }
 
-                // Move and collide
                 this.x += this.vx;
                 this.collideX();
 
@@ -518,16 +1737,32 @@
                 this.y += this.vy;
                 this.collideY();
 
-                // Player-to-player collision
-                if (other && other.alive && !other.rope.attached) {
+                if (other && other.alive) {
                     this.collideWithPlayer(other);
                 }
 
-                // Check hazards
                 this.checkHazards();
-
-                // Check exit
                 this.checkExit();
+
+                // Landing detection
+                if (this.grounded && !this.wasGrounded && this.prevVy > 0) {
+                    if (this.prevVy > 3) {
+                        playerSay(this, 'land_hard', 0.5);
+                    } else if (this.prevVy > 1) {
+                        playerSay(this, 'land_soft', 0.3);
+                    }
+                }
+                this.wasGrounded = this.grounded;
+
+                // Idle detection
+                if (this.grounded && Math.abs(this.vx) < 0.1) {
+                    this.idleTimer++;
+                    if (this.idleTimer > 300) {  // 5 seconds idle
+                        playerSay(this, 'idle', 0.02);  // Low chance per frame
+                    }
+                } else {
+                    this.idleTimer = 0;
+                }
             }
 
             collideX() {
@@ -543,7 +1778,6 @@
                         this.vx = 0;
                     }
                 }
-                // World bounds
                 if (this.x < 0) this.x = 0;
                 if (this.x + this.w > GAME_WIDTH) this.x = GAME_WIDTH - this.w;
             }
@@ -562,41 +1796,37 @@
                         this.vy = 0;
                     }
                 }
-                // Fall off bottom = death
                 if (this.y > GAME_HEIGHT + 20) {
                     this.die();
                 }
             }
 
             collideWithPlayer(other) {
-                // Check overlap
                 if (this.x < other.x + other.w && this.x + this.w > other.x &&
                     this.y < other.y + other.h && this.y + this.h > other.y) {
 
-                    // Determine collision direction
                     const overlapX = Math.min(this.x + this.w, other.x + other.w) - Math.max(this.x, other.x);
                     const overlapY = Math.min(this.y + this.h, other.y + other.h) - Math.max(this.y, other.y);
 
                     if (overlapY < overlapX) {
-                        // Vertical collision
                         if (this.y < other.y) {
-                            // This player is on top of other
                             this.y = other.y - this.h;
                             if (this.vy > 0) {
                                 this.vy = 0;
                                 this.grounded = true;
                                 this.onPlayer = other;
                                 other.carrying = this;
+                                // Co-op speech!
+                                playerSay(this, 'on_partner', 0.15);
+                                playerSay(other, 'being_stood_on', 0.15);
                             }
                         } else {
-                            // This player is below other
                             this.y = other.y + other.h;
                             if (this.vy < 0) {
                                 this.vy = 0;
                             }
                         }
                     } else {
-                        // Horizontal collision - push apart
                         if (this.x < other.x) {
                             this.x = other.x - this.w;
                             other.x = this.x + this.w;
@@ -604,7 +1834,6 @@
                             this.x = other.x + other.w;
                             other.x = this.x - other.w;
                         }
-                        // Share velocity
                         const avgVx = (this.vx + other.vx) * 0.5;
                         this.vx = avgVx;
                         other.vx = avgVx;
@@ -627,9 +1856,17 @@
                 const e = level.exit;
                 const cx = this.x + this.w / 2;
                 const cy = this.y + this.h / 2;
+
+                // Near exit detection (within 30 pixels)
+                const distToExit = Math.sqrt(Math.pow(cx - (e.x + e.w/2), 2) + Math.pow(cy - (e.y + e.h/2), 2));
+                if (distToExit < 40 && distToExit > 15) {
+                    playerSay(this, 'near_exit', 0.01);
+                }
+
                 if (cx > e.x && cx < e.x + e.w && cy > e.y && cy < e.y + e.h) {
+                    // Victory speech!
+                    playerSay(this, 'victory', 1.0);
                     gameState = 'win';
-                    // Win particles
                     for (let i = 0; i < 50; i++) {
                         const angle = (i / 50) * Math.PI * 2;
                         particles.push(new Particle(
@@ -647,10 +1884,8 @@
             die() {
                 if (!this.alive) return;
                 this.alive = false;
-                this.rope.release();
-                this.respawnTimer = 90; // Respawn after 1.5 seconds
+                this.respawnTimer = 60; // 1 second respawn
 
-                // EXPLOSION OF PARTICLES!
                 const colors = this.color === '#4a9eff'
                     ? ['#4a9eff', '#2a7edf', '#0a5ebf', '#ffffff', '#88ccff']
                     : ['#ff4a4a', '#df2a2a', '#bf0a0a', '#ffffff', '#ff8888'];
@@ -668,7 +1903,6 @@
                     ));
                 }
 
-                // Body chunks (larger particles)
                 for (let i = 0; i < 12; i++) {
                     const angle = Math.random() * Math.PI * 2;
                     const speed = 2 + Math.random() * 3;
@@ -679,35 +1913,28 @@
                         Math.sin(angle) * speed - 3,
                         colors[0],
                         60 + Math.random() * 30,
-                        true // large
+                        true
                     ));
                 }
             }
 
             draw() {
-                if (!this.alive) return;
-
-                // Draw rope first (behind player)
-                this.rope.draw();
+                if (!this.alive || !this.visible) return;
 
                 ctx.save();
                 const px = Math.floor(this.x);
                 const py = Math.floor(this.y);
 
-                // Shadow
                 ctx.fillStyle = 'rgba(0,0,0,0.3)';
                 ctx.fillRect(px + 1, py + this.h - 2, this.w - 2, 3);
 
-                // Body
                 ctx.fillStyle = this.color;
                 ctx.fillRect(px + 2, py + 8, 10, 10);
 
-                // Head
                 const darker = this.color === '#4a9eff' ? '#2a6edf' : '#df2a2a';
                 ctx.fillStyle = this.color;
                 ctx.fillRect(px + 3, py, 8, 9);
 
-                // Eyes
                 ctx.fillStyle = '#ffffff';
                 if (this.facingRight) {
                     ctx.fillRect(px + 7, py + 3, 3, 3);
@@ -719,7 +1946,6 @@
                     ctx.fillRect(px + 4, py + 4, 2, 2);
                 }
 
-                // Legs
                 ctx.fillStyle = darker;
                 if (this.walkFrame === 0 || !this.grounded) {
                     ctx.fillRect(px + 3, py + 17, 3, 4);
@@ -729,7 +1955,6 @@
                     ctx.fillRect(px + 9, py + 17, 3, 4);
                 }
 
-                // Arms
                 ctx.fillStyle = this.color;
                 if (this.walkFrame === 0) {
                     ctx.fillRect(px, py + 9, 2, 5);
@@ -739,17 +1964,22 @@
                     ctx.fillRect(px + 12, py + 10, 2, 5);
                 }
 
-                // Rope indicator if on rope
-                if (this.rope.attached) {
-                    ctx.fillStyle = '#8B4513';
-                    ctx.fillRect(px + 5, py - 3, 4, 3);
+                // Jump type indicator
+                ctx.fillStyle = '#fff';
+                ctx.font = '4px "Press Start 2P"';
+                ctx.textAlign = 'center';
+                if (this.color === '#4a9eff') {
+                    // Up arrow for high jump
+                    ctx.fillText('^', px + this.w / 2, py - 2);
+                } else {
+                    // Right arrow for long jump
+                    ctx.fillText('>', px + this.w / 2, py - 2);
                 }
 
                 ctx.restore();
             }
         }
 
-        // Particle class
         class Particle {
             constructor(x, y, vx, vy, color, life, large = false) {
                 this.x = x;
@@ -765,11 +1995,10 @@
             update() {
                 this.x += this.vx;
                 this.y += this.vy;
-                this.vy += 0.15; // gravity
+                this.vy += 0.15;
                 this.vx *= 0.98;
                 this.life--;
 
-                // Bounce off floor
                 if (this.y > GAME_HEIGHT - 5) {
                     this.y = GAME_HEIGHT - 5;
                     this.vy = -this.vy * 0.5;
@@ -795,7 +2024,109 @@
             }
         }
 
-        // Create players
+        // Speech bubble system
+        let speechBubbles = [];
+        const SPEECH_COOLDOWN = 180;  // 3 seconds at 60fps
+
+        // Player-specific phrases
+        const PLAYER_PHRASES = {
+            blue: {
+                jump: ["hup!", "bwip!", "wee!"],
+                land_soft: ["pomf!", "plop!"],
+                land_hard: ["oof!", "bwomf!"],
+                running: ["nyoom!", "zoop!"],
+                sliding: ["skrrt!", "fwip!"],
+                treadmill_run: ["hff!", "pff!", "hnng!"],
+                treadmill_pushed: ["woob!", "weh!"],
+                dragged: ["waaab!", "nyeh!"],
+                dangling: ["eeek!", "bwaaah!"],
+                dragging_friend: ["frend!"],
+                cannon_fired: ["BWAAAA!", "YEEEE!"],
+                seesaw_wait: ["hmm~", "dum dee~"],
+                idle: ["zzz", "buh?", "la la~"],
+                near_exit: ["ooh!", "yay~"],
+                victory: ["wehee!", "yip yip!"],
+                on_partner: ["hehe!", "comf!"],
+                being_stood_on: ["hevy!", "mrph!"],
+            },
+            red: {
+                jump: ["yip!", "hah!", "boing!"],
+                land_soft: ["pomf!", "plop!"],
+                land_hard: ["oof!", "bwomf!"],
+                running: ["nyoom!", "zoop!"],
+                sliding: ["skrrt!", "fwip!"],
+                treadmill_run: ["hff!", "pff!", "hnng!"],
+                treadmill_pushed: ["woob!", "weh!"],
+                dragged: ["waaab!", "nyeh!"],
+                dangling: ["eeek!", "bwaaah!"],
+                dragging_friend: ["frend!"],
+                cannon_fired: ["BWAAAA!", "YEEEE!"],
+                seesaw_wait: ["hmm~", "dum dee~"],
+                idle: ["zzz", "buh?", "la la~"],
+                near_exit: ["ooh!", "yay~"],
+                victory: ["wehee!", "yip yip!"],
+                on_partner: ["hehe!", "comf!"],
+                being_stood_on: ["hevy!", "mrph!"],
+            }
+        };
+
+        function playerSay(player, category, probability = 1.0) {
+            if (!player || !player.alive) return;
+
+            // Check cooldown
+            const now = Date.now();
+            if (now - player.lastSpeechTime < SPEECH_COOLDOWN * (1000/60)) return;
+
+            // Check probability
+            if (Math.random() > probability) return;
+
+            // Get phrases for this player
+            const phrases = player.color === '#4a9eff'
+                ? PLAYER_PHRASES.blue[category]
+                : PLAYER_PHRASES.red[category];
+
+            if (!phrases || phrases.length === 0) return;
+
+            // Pick random phrase
+            const phrase = phrases[Math.floor(Math.random() * phrases.length)];
+
+            // Create speech bubble
+            speechBubbles.push({
+                player: player,
+                text: phrase,
+                life: 60,  // 1 second
+                maxLife: 60,
+                offsetY: -5,  // Float above head
+            });
+
+            player.lastSpeechTime = now;
+        }
+
+        function updateSpeechBubbles() {
+            speechBubbles = speechBubbles.filter(bubble => {
+                bubble.life--;
+                bubble.offsetY -= 0.3;  // Float upward slowly
+                return bubble.life > 0;
+            });
+        }
+
+        function drawSpeechBubbles() {
+            speechBubbles.forEach(bubble => {
+                if (!bubble.player.alive || !bubble.player.visible) return;
+
+                const alpha = Math.min(1, bubble.life / 20);  // Fade out in last 20 frames
+                const x = bubble.player.x + bubble.player.w / 2;
+                const y = bubble.player.y + bubble.offsetY;
+
+                ctx.globalAlpha = alpha;
+                ctx.fillStyle = bubble.player.color;
+                ctx.font = '5px "Press Start 2P"';
+                ctx.textAlign = 'center';
+                ctx.fillText(bubble.text, x, y);
+                ctx.globalAlpha = 1;
+            });
+        }
+
         let player1, player2;
 
         function initLevel(levelIndex) {
@@ -805,19 +2136,45 @@
                 level.player1Start.x,
                 level.player1Start.y,
                 '#4a9eff',
-                { left: 'a', right: 'd', jump: 'w', rope: 'q' }
+                { left: 'a', right: 'd', jump: 'w' },
+                BLUE_JUMP_FORCE,
+                BLUE_MOVE_SPEED
             );
             player2 = new Player(
                 level.player2Start.x,
                 level.player2Start.y,
                 '#ff4a4a',
-                { left: 'ArrowLeft', right: 'ArrowRight', jump: 'ArrowUp', rope: '/' }
+                { left: 'ArrowLeft', right: 'ArrowRight', jump: 'ArrowUp' },
+                RED_JUMP_FORCE,
+                RED_MOVE_SPEED
             );
             particles = [];
+            speechBubbles = [];
             gameState = 'playing';
+            initRock();
+            initSeesaw();
+            initCannon();
+            initWall();
+            initTreadmill();
+            initTurret();
+            updateControlsHint();
         }
 
-        // Input
+        function updateControlsHint() {
+            const controlsDiv = document.getElementById('controls');
+            const level = levels[currentLevel];
+            let hint = '<span class="blue">BLUE: WASD</span> | <span class="red">RED: ARROWS</span> | R: Restart';
+
+            if (level.cannon) {
+                hint += ' | CANNON: SPACE enter, U/J aim, SPACE fire';
+            }
+            if (level.treadmill) {
+                hint += ' | TREADMILL: Hold D to run';
+            }
+
+            controlsDiv.innerHTML = hint;
+        }
+
         document.addEventListener('keydown', (e) => {
             if (!keys[e.key]) {
                 keysJustPressed[e.key] = true;
@@ -860,7 +2217,6 @@
                 }
             }
 
-            // Prevent scrolling
             if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
                 e.preventDefault();
             }
@@ -878,7 +2234,6 @@
             }
         }
 
-        // Render functions
         function drawPlatform(p) {
             ctx.fillStyle = '#3a3a3a';
             ctx.fillRect(p.x, p.y, p.w, p.h);
@@ -889,12 +2244,6 @@
             ctx.fillStyle = '#2a2a2a';
             ctx.fillRect(p.x + p.w - 3, p.y, 3, p.h);
             ctx.fillRect(p.x, p.y + p.h - 3, p.w, 3);
-            ctx.fillStyle = '#333';
-            for (let gx = p.x + 8; gx < p.x + p.w - 4; gx += 8) {
-                for (let gy = p.y + 8; gy < p.y + p.h - 4; gy += 8) {
-                    ctx.fillRect(gx, gy, 2, 2);
-                }
-            }
         }
 
         function drawHazard(h) {
@@ -909,43 +2258,7 @@
                     ctx.closePath();
                     ctx.fill();
                 }
-            } else if (h.type === 'laser') {
-                const pulse = Math.sin(Date.now() / 100) * 0.3 + 0.7;
-                ctx.fillStyle = `rgba(255, 0, 0, ${pulse})`;
-                ctx.fillRect(h.x, h.y, h.w, h.h);
-                ctx.fillStyle = '#ff8888';
-                ctx.fillRect(h.x + 2, h.y, h.w - 4, h.h);
-                ctx.fillStyle = '#ffffff';
-                ctx.fillRect(h.x + 3, h.y, h.w - 6, h.h);
-                ctx.fillStyle = '#444';
-                ctx.fillRect(h.x - 2, h.y - 5, h.w + 4, 8);
-                ctx.fillRect(h.x - 2, h.y + h.h - 3, h.w + 4, 8);
-                ctx.fillStyle = '#ff0000';
-                ctx.fillRect(h.x, h.y - 3, h.w, 4);
-                ctx.fillRect(h.x, h.y + h.h - 1, h.w, 4);
             }
-        }
-
-        function drawAnchor(a) {
-            // Glow
-            const pulse = Math.sin(Date.now() / 300) * 0.3 + 0.7;
-            ctx.fillStyle = `rgba(139, 69, 19, ${pulse * 0.3})`;
-            ctx.beginPath();
-            ctx.arc(a.x, a.y, 12, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Ring
-            ctx.strokeStyle = '#8B4513';
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.arc(a.x, a.y, 8, 0, Math.PI * 2);
-            ctx.stroke();
-
-            // Center
-            ctx.fillStyle = '#654321';
-            ctx.beginPath();
-            ctx.arc(a.x, a.y, 4, 0, Math.PI * 2);
-            ctx.fill();
         }
 
         function drawExit(e) {
@@ -956,18 +2269,6 @@
             const pulse = Math.sin(Date.now() / 200) * 0.3 + 0.5;
             ctx.fillStyle = `rgba(100, 255, 100, ${pulse})`;
             ctx.fillRect(e.x - 5, e.y - 5, e.w + 10, e.h + 10);
-            ctx.fillStyle = '#ffffff';
-            const arrowY = e.y + e.h / 2 - 4 + Math.sin(Date.now() / 300) * 2;
-            ctx.beginPath();
-            ctx.moveTo(e.x + 4, arrowY);
-            ctx.lineTo(e.x + e.w / 2, arrowY - 5);
-            ctx.lineTo(e.x + e.w / 2, arrowY - 2);
-            ctx.lineTo(e.x + e.w - 4, arrowY - 2);
-            ctx.lineTo(e.x + e.w - 4, arrowY + 5);
-            ctx.lineTo(e.x + e.w / 2, arrowY + 5);
-            ctx.lineTo(e.x + e.w / 2, arrowY + 8);
-            ctx.closePath();
-            ctx.fill();
             ctx.fillStyle = '#ffffff';
             ctx.font = '4px "Press Start 2P"';
             ctx.textAlign = 'center';
@@ -1003,42 +2304,48 @@
             ctx.textAlign = 'left';
             ctx.fillText(`LVL ${currentLevel + 1}: ${level.name}`, 5, 12);
 
-            // Hint
             ctx.fillStyle = '#444';
             ctx.font = '4px "Press Start 2P"';
             ctx.fillText(level.hint, 5, 22);
 
-            // Player status
             ctx.fillStyle = player1.alive ? '#4a9eff' : '#333';
             ctx.fillRect(GAME_WIDTH - 30, 5, 8, 8);
             ctx.fillStyle = player2.alive ? '#ff4a4a' : '#333';
             ctx.fillRect(GAME_WIDTH - 18, 5, 8, 8);
+
+            // Tether indicator
+            if (level.hasTether) {
+                ctx.fillStyle = '#44aa44';
+                ctx.font = '4px "Press Start 2P"';
+                ctx.textAlign = 'right';
+                ctx.fillText('TETHERED', GAME_WIDTH - 5, 22);
+            }
         }
 
         function drawMenu() {
             drawBackground();
 
-            // Title
             ctx.fillStyle = '#fff';
             ctx.font = '16px "Press Start 2P"';
             ctx.textAlign = 'center';
             ctx.fillText('DUO ESCAPE', GAME_WIDTH / 2, 40);
 
-            ctx.fillStyle = '#888';
-            ctx.font = '6px "Press Start 2P"';
-            ctx.fillText('Two players, one goal', GAME_WIDTH / 2, 55);
+            ctx.fillStyle = '#4a9eff';
+            ctx.font = '5px "Press Start 2P"';
+            ctx.fillText('BLUE: High Jump ^', GAME_WIDTH / 2 - 50, 58);
+            ctx.fillStyle = '#ff4a4a';
+            ctx.fillText('RED: Long Jump >', GAME_WIDTH / 2 + 50, 58);
 
-            // Level list
             ctx.font = '8px "Press Start 2P"';
-            const startY = 80;
-            const lineHeight = 20;
+            const startY = 85;
+            const lineHeight = 25;
 
             for (let i = 0; i < levels.length; i++) {
                 const y = startY + i * lineHeight;
 
                 if (i === selectedLevel) {
                     ctx.fillStyle = '#333';
-                    ctx.fillRect(40, y - 10, GAME_WIDTH - 80, 16);
+                    ctx.fillRect(40, y - 10, GAME_WIDTH - 80, 20);
                     ctx.fillStyle = '#ffff00';
                     ctx.fillText('>', 50, y);
                 } else {
@@ -1047,9 +2354,16 @@
 
                 ctx.textAlign = 'left';
                 ctx.fillText(`${i + 1}. ${levels[i].name}`, 65, y);
+
+                // Show if tethered
+                if (levels[i].hasTether) {
+                    ctx.fillStyle = '#44aa44';
+                    ctx.font = '5px "Press Start 2P"';
+                    ctx.fillText('(tethered)', 65, y + 10);
+                    ctx.font = '8px "Press Start 2P"';
+                }
             }
 
-            // Instructions
             ctx.fillStyle = '#555';
             ctx.font = '5px "Press Start 2P"';
             ctx.textAlign = 'center';
@@ -1067,7 +2381,6 @@
             ctx.fillStyle = '#888';
             ctx.font = '6px "Press Start 2P"';
             ctx.fillText('Press SPACE to retry', GAME_WIDTH / 2, GAME_HEIGHT / 2 + 15);
-            ctx.fillText('Press ESC for menu', GAME_WIDTH / 2, GAME_HEIGHT / 2 + 28);
         }
 
         function drawWinScreen() {
@@ -1085,29 +2398,29 @@
                 ctx.fillStyle = '#ffff00';
                 ctx.fillText('ALL LEVELS COMPLETE!', GAME_WIDTH / 2, GAME_HEIGHT / 2 + 15);
             }
-            ctx.fillStyle = '#888';
-            ctx.fillText('Press ESC for menu', GAME_WIDTH / 2, GAME_HEIGHT / 2 + 28);
         }
 
-        // Game loop
         function update() {
-            // Clear just-pressed keys at end of frame
-
             if (gameState === 'playing') {
                 player1.update(player2);
                 player2.update(player1);
+                updateTether();
+                updateRock();
+                updateSeesaw();
+                updateCannon();
+                updateWall();
+                updateTreadmill();
+                updateElevator();
+                updateTurret();
 
-                // Check if both dead = game over
                 if (!player1.alive && !player2.alive) {
                     gameState = 'dead';
-                    deathTimer = 60;
                 }
             }
 
-            // Update particles
             particles = particles.filter(p => p.update());
+            updateSpeechBubbles();
 
-            // Clear just pressed
             for (const key in keysJustPressed) {
                 keysJustPressed[key] = false;
             }
@@ -1124,19 +2437,25 @@
                 drawBackground();
                 drawExit(level.exit);
 
-                // Draw anchors
-                for (const a of level.anchors) {
-                    drawAnchor(a);
-                }
-
                 for (const p of level.platforms) {
                     drawPlatform(p);
                 }
                 for (const h of level.hazards) {
                     drawHazard(h);
                 }
+
+                drawSeesaw();
+                drawRock();
+                drawCannon();
+                drawWall();
+                drawTreadmill();
+                drawElevator();
+                drawTurret();
+                drawTether();
                 player1.draw();
                 player2.draw();
+                drawSpeechBubbles();
+
                 for (const p of particles) {
                     p.draw();
                 }
