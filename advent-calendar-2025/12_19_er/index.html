@@ -6725,25 +6725,9 @@
                 // Freeze player
                 game.player.speed = 0;
 
-                // First stab
+                // Stab sound
                 playAudioFile('knife-stab', { volume: 0.8 });
                 game.revengeAnimation.stabs = 1;
-
-                // Second stab
-                setTimeout(() => {
-                    if (game.revengeAnimation) {
-                        playAudioFile('knife-stab', { volume: 0.7 });
-                        game.revengeAnimation.stabs = 2;
-                    }
-                }, 600);
-
-                // Third stab
-                setTimeout(() => {
-                    if (game.revengeAnimation) {
-                        playAudioFile('knife-stab', { volume: 0.9 });
-                        game.revengeAnimation.stabs = 3;
-                    }
-                }, 1200);
 
                 // Fade to black after stabbing
                 setTimeout(() => {
