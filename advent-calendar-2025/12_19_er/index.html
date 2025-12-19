@@ -5038,34 +5038,6 @@
                 return;
             }
 
-            if (obj.action === 'bloodyKeys') {
-                game.keysGame.keysOwned = true;
-                playAudioFile('keys-jingle', { volume: 0.5 });
-                showDialogue('"Llaves... con sangre. Tengo que llegar a la puerta."');
-                // Remove from objects
-                const idx = objectsByScreen.neighbor.findIndex(o => o.id === 'bloodyKeys');
-                if (idx > -1) objectsByScreen.neighbor.splice(idx, 1);
-
-                // Stop shower sound
-                if (game.hiding.showerSound) {
-                    try {
-                        game.hiding.showerSound.source.stop();
-                    } catch (e) {}
-                    game.hiding.showerSound = null;
-                }
-
-                // Shower curtain sound - neighbor is about to come out!
-                setTimeout(() => {
-                    playAudioFile('shower-curtain', { volume: 0.7 });
-                }, 500);
-
-                // Trigger killer emergence after a moment
-                setTimeout(() => {
-                    triggerKillerEmergence();
-                }, 1200);
-                return;
-            }
-
             if (obj.action === 'tv') {
                 game.tv.on = !game.tv.on;
                 playAudioFile('tv-static', { volume: 0.3 });
@@ -5621,29 +5593,11 @@
                 // Exited too early - DISCOVERED (Ending D)
                 triggerEnding('D');
             } else {
-                // Safe exit - keys are on the table now
+                // Safe exit - keys are on the table downstairs
                 game.keysGame.keysOwned = false;
                 game.flags.exitedHidingSafely = true;
                 showDialogue('"Se fue al baño... hay llaves en la mesa."');
-
-                // Add bloody keys to the coffee table
-                addBloodyKeys();
             }
-        }
-
-        function addBloodyKeys() {
-            // Add keys object to neighbor screen
-            const keysObj = {
-                id: 'bloodyKeys',
-                x: 8,
-                y: 3.3,
-                w: 1,
-                h: 0.6,
-                type: 'interactable',
-                sprite: 'bloodyKeys',
-                action: 'bloodyKeys'
-            };
-            objectsByScreen.neighbor.push(keysObj);
         }
 
         // ============ ENDINGS ============
