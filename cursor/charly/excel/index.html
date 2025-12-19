@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excel Review Model - File Analyzer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+        }
+        
+        .upload-section {
+            padding: 40px;
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .upload-box {
+            border: 3px dashed #4CAF50;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            background-color: white;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .upload-box:hover {
+            border-color: #45a049;
+            background-color: #f0f8f0;
+        }
+        
+        .upload-box.dragover {
+            border-color: #45a049;
+            background-color: #e8f5e9;
+            transform: scale(1.02);
+        }
+        
+        .upload-icon {
+            font-size: 4em;
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+        
+        .upload-text {
+            font-size: 1.2em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .upload-hint {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 10px;
+        }
+        
+        input[type="file"] {
+            display: none;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            font-weight: 500;
+        }
+        
+        .btn:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+        
+        .btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        
+        .loading.active {
+            display: block;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4CAF50;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .results-section {
+            display: none;
+            padding: 40px;
+        }
+        
+        .results-section.active {
+            display: block;
+        }
+        
+        .summary {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .summary p {
+            margin: 8px 0;
+            color: #555;
+            font-size: 1em;
+        }
+        
+        .summary strong {
+            color: #333;
+        }
+        
+        .table-wrapper {
+            overflow-x: auto;
+            margin-top: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1600px;
+            background-color: white;
+        }
+        
+        th {
+            background-color: #4CAF50;
+            color: white;
+            padding: 14px 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.95em;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 0.9em;
+        }
+        
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #fafafa;
+        }
+        
+        .cells {
+            text-align: right;
+            font-weight: 500;
+        }
+        
+        .methods-count {
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .methods-list {
+            color: #555;
+            font-size: 0.85em;
+            max-width: 300px;
+            word-wrap: break-word;
+        }
+        
+        .timestamp {
+            color: #888;
+            font-size: 0.9em;
+            margin-top: 30px;
+            text-align: right;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .error-message {
+            display: none;
+            background-color: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+            border-left: 4px solid #c62828;
+        }
+        
+        .error-message.active {
+            display: block;
+        }
+        
+        .file-info {
+            background-color: #e3f2fd;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196f3;
+        }
+        
+        .file-info strong {
+            color: #1976d2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Excel Review Model</h1>
+            <p>Analyze your Excel files and generate comprehensive reports</p>
+        </div>
+        
+        <div class="upload-section">
+            <div class="upload-box" id="uploadBox">
+                <div class="upload-icon">📁</div>
+                <div class="upload-text">Click to upload or drag & drop Excel file</div>
+                <div class="upload-hint">Supports .xlsx, .xls, .xlsm files</div>
+                <input type="file" id="fileInput" accept=".xlsx,.xls,.xlsm" />
+                <button class="btn" id="analyzeBtn" disabled>Analyze File</button>
+            </div>
+            
+            <div class="file-info" id="fileInfo" style="display: none;">
+                <strong>Selected file:</strong> <span id="fileName"></span>
+            </div>
+            
+            <div class="error-message" id="errorMessage"></div>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Analyzing Excel file... Please wait.</p>
+            </div>
+        </div>
+        
+        <div class="results-section" id="resultsSection">
+            <h2 style="color: #333; margin-bottom: 20px; border-bottom: 2px solid #4CAF50; padding-bottom: 10px;">
+                Analysis Results
+            </h2>
+            <div id="resultsContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // Valuation method keywords (same as Python script)
+        const VALUATION_METHODS = {
+            'DCF (Discounted Cash Flow)': [
+                'DCF', 'DISCOUNTED CASH FLOW', 'WACC', 'TERMINAL VALUE',
+                'FREE CASH FLOW', 'FCF', 'ENTERPRISE VALUE', 'EQUITY VALUE',
+                'DISCOUNT RATE', 'NPV'
+            ],
+            'Comparable Company Analysis': [
+                'COMPARABLE', 'TRADING MULTIPLE', 'PEER', 'VALUATION MULTIPLE',
+                'EV/EBITDA', 'P/E', 'PRICE TO EARNINGS', 'MULTIPLES'
+            ],
+            'Precedent Transactions': [
+                'PRECEDENT TRANSACTION', 'TRANSACTION MULTIPLE', 'DEAL COMP',
+                'M&A MULTIPLE', 'ACQUISITION MULTIPLE'
+            ],
+            'Asset-Based Valuation': [
+                'ASSET-BASED', 'BOOK VALUE', 'LIQUIDATION VALUE',
+                'NAV', 'NET ASSET VALUE'
+            ],
+            'LBO Model': [
+                'LBO', 'LEVERAGED BUYOUT', 'SPONSOR RETURN', 'DEBT CAPACITY'
+            ],
+            'Sum of the Parts': [
+                'SUM OF THE PARTS', 'SOTP', 'SEGMENT VALUATION', 'BREAKUP VALUE'
+            ],
+            'Dividend Discount Model': [
+                'DDM', 'DIVIDEND DISCOUNT', 'GORDON GROWTH', 'DIVIDEND MODEL'
+            ]
+        };
+
+        const errorPatterns = ['#N/A', '#VALUE!', '#REF!', '#DIV/0!', '#NUM!', '#NAME?', '#NULL!'];
+
+        // DOM elements
+        const fileInput = document.getElementById('fileInput');
+        const uploadBox = document.getElementById('uploadBox');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const loading = document.getElementById('loading');
+        const resultsSection = document.getElementById('resultsSection');
+        const resultsContent = document.getElementById('resultsContent');
+        const errorMessage = document.getElementById('errorMessage');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+
+        // File input handling
+        uploadBox.addEventListener('click', () => fileInput.click());
+        
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                const file = e.target.files[0];
+                fileName.textContent = file.name;
+                fileInfo.style.display = 'block';
+                analyzeBtn.disabled = false;
+                hideError();
+            }
+        });
+
+        // Drag and drop
+        uploadBox.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadBox.classList.add('dragover');
+        });
+
+        uploadBox.addEventListener('dragleave', () => {
+            uploadBox.classList.remove('dragover');
+        });
+
+        uploadBox.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadBox.classList.remove('dragover');
+            
+            if (e.dataTransfer.files.length > 0) {
+                const file = e.dataTransfer.files[0];
+                if (file.name.match(/\.(xlsx|xls|xlsm)$/i)) {
+                    fileInput.files = e.dataTransfer.files;
+                    fileName.textContent = file.name;
+                    fileInfo.style.display = 'block';
+                    analyzeBtn.disabled = false;
+                    hideError();
+                } else {
+                    showError('Please upload a valid Excel file (.xlsx, .xls, .xlsm)');
+                }
+            }
+        });
+
+        // Analyze button
+        analyzeBtn.addEventListener('click', () => {
+            if (fileInput.files.length > 0) {
+                analyzeFile(fileInput.files[0]);
+            }
+        });
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.add('active');
+        }
+
+        function hideError() {
+            errorMessage.classList.remove('active');
+        }
+
+        function analyzeFile(file) {
+            hideError();
+            loading.classList.add('active');
+            resultsSection.classList.remove('active');
+            analyzeBtn.disabled = true;
+
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    // Read with formulas to detect formulas, and also get calculated values
+                    const workbook = XLSX.read(data, { 
+                        type: 'array', 
+                        cellFormula: true,
+                        cellDates: true,
+                        cellStyles: false
+                    });
+                    
+                    // Analyze the file
+                    const result = analyzeWorkbook(workbook, file.name);
+                    
+                    // Generate HTML report
+                    const htmlReport = generateHTMLReport([result]);
+                    
+                    // Display results
+                    resultsContent.innerHTML = htmlReport;
+                    resultsSection.classList.add('active');
+                    loading.classList.remove('active');
+                    analyzeBtn.disabled = false;
+                    
+                    // Scroll to results
+                    resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                } catch (error) {
+                    console.error('Error analyzing file:', error);
+                    showError('Error analyzing file: ' + error.message + '. Please make sure the file is a valid Excel file.');
+                    loading.classList.remove('active');
+                    analyzeBtn.disabled = false;
+                }
+            };
+            
+            reader.onerror = function() {
+                showError('Error reading file. Please try again.');
+                loading.classList.remove('active');
+                analyzeBtn.disabled = false;
+            };
+            
+            reader.readAsArrayBuffer(file);
+        }
+
+        function analyzeWorkbook(workbook, fileName) {
+            let totalCells = 0;
+            let errorCells = 0;
+            let formulaCells = 0;
+            const errorLocations = [];
+            const sheetNames = workbook.SheetNames;
+            let hiddenTabsCount = 0;
+            
+            // Get author info (if available)
+            const props = workbook.Props || {};
+            const oldAuthor = props.Creator || props.LastModifiedBy || '';
+            
+            // Analyze each sheet
+            sheetNames.forEach(sheetName => {
+                const sheet = workbook.Sheets[sheetName];
+                if (!sheet['!ref']) return; // Skip empty sheets
+                
+                const range = XLSX.utils.decode_range(sheet['!ref']);
+                
+                // Analyze cells
+                for (let R = range.s.r; R <= range.e.r; R++) {
+                    for (let C = range.s.c; C <= range.e.c; C++) {
+                        const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+                        const cell = sheet[cellAddress];
+                        
+                        if (cell) {
+                            // Check for formulas
+                            if (cell.f) {
+                                formulaCells++;
+                            }
+                            
+                            // Check if cell has content
+                            const cellValue = cell.v;
+                            const cellType = cell.t; // cell type: 'n' (number), 's' (string), 'b' (boolean), 'e' (error), 'd' (date)
+                            
+                            // Handle error cells (type 'e')
+                            if (cellType === 'e') {
+                                errorCells++;
+                                errorLocations.push(`${sheetName}!${cellAddress}`);
+                                totalCells++; // Count error cells as content
+                            } else if (cellValue !== null && cellValue !== undefined) {
+                                // Check for empty strings
+                                const cellValueStr = String(cellValue).trim();
+                                if (cellValueStr !== '' && cellValueStr !== 'undefined' && cellValueStr !== 'null') {
+                                    totalCells++;
+                                    
+                                    // Check for error patterns in string values
+                                    if (errorPatterns.includes(cellValueStr)) {
+                                        errorCells++;
+                                        errorLocations.push(`${sheetName}!${cellAddress}`);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            const formulaPercentage = totalCells > 0 ? (formulaCells / totalCells * 100) : 0;
+            
+            // Find valuation methods
+            const methods = findValuationMethods(workbook);
+            
+            return {
+                file: fileName,
+                cells: totalCells,
+                errors: errorCells,
+                formulas: formulaCells,
+                formula_percentage: formulaPercentage,
+                tabs_count: sheetNames.length,
+                tabs: sheetNames,
+                old_author: oldAuthor,
+                methods_count: methods.length,
+                methods: methods,
+                error_locations: errorLocations,
+                hidden_tabs_count: hiddenTabsCount
+            };
+        }
+
+        function findValuationMethods(workbook) {
+            const foundMethods = new Set();
+            const sheetNames = workbook.SheetNames;
+            
+            // Check sheet names
+            const sheetNamesLower = sheetNames.map(name => name.toLowerCase());
+            for (const [methodName, keywords] of Object.entries(VALUATION_METHODS)) {
+                for (const keyword of keywords) {
+                    if (sheetNamesLower.some(name => name.includes(keyword.toLowerCase()))) {
+                        foundMethods.add(methodName);
+                        break;
+                    }
+                }
+            }
+            
+            // Check content in each sheet
+            sheetNames.forEach(sheetName => {
+                const sheet = workbook.Sheets[sheetName];
+                let allText = '';
+                
+                // Get sheet range
+                const range = sheet['!ref'] ? XLSX.utils.decode_range(sheet['!ref']) : null;
+                if (!range) return;
+                
+                // Collect text from first 200 rows
+                const maxRow = Math.min(range.e.r, range.s.r + 199);
+                for (let R = range.s.r; R <= maxRow; R++) {
+                    for (let C = range.s.c; C <= range.e.c; C++) {
+                        const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+                        const cell = sheet[cellAddress];
+                        if (cell && cell.v) {
+                            allText += ' ' + String(cell.v).toUpperCase();
+                        }
+                    }
+                }
+                
+                // Check for each valuation method
+                for (const [methodName, keywords] of Object.entries(VALUATION_METHODS)) {
+                    for (const keyword of keywords) {
+                        if (allText.includes(keyword.toUpperCase())) {
+                            // Additional validation for specific methods
+                            if (methodName === 'DCF (Discounted Cash Flow)') {
+                                if (['DCF', 'DISCOUNTED CASH FLOW', 'WACC', 'TERMINAL VALUE'].some(term => allText.includes(term))) {
+                                    foundMethods.add(methodName);
+                                }
+                            } else if (methodName === 'Comparable Company Analysis') {
+                                if (allText.includes('MULTIPLE') || allText.includes('COMPARABLE')) {
+                                    foundMethods.add(methodName);
+                                }
+                            } else if (methodName === 'Precedent Transactions') {
+                                if (allText.includes('TRANSACTION') && allText.includes('MULTIPLE')) {
+                                    foundMethods.add(methodName);
+                                }
+                            } else if (methodName === 'LBO Model') {
+                                if (allText.includes('LBO') || allText.includes('LEVERAGED BUYOUT')) {
+                                    foundMethods.add(methodName);
+                                }
+                            } else {
+                                foundMethods.add(methodName);
+                            }
+                            break;
+                        }
+                    }
+                }
+            });
+            
+            return Array.from(foundMethods).sort();
+        }
+
+        function generateHTMLReport(results) {
+            const totalFiles = results.length;
+            const totalCells = results.reduce((sum, r) => sum + r.cells, 0);
+            const totalErrors = results.reduce((sum, r) => sum + r.errors, 0);
+            const totalFormulas = results.reduce((sum, r) => sum + r.formulas, 0);
+            const avgFormulaPct = results.length > 0 
+                ? (results.reduce((sum, r) => sum + r.formula_percentage, 0) / results.length) 
+                : 0;
+            
+            let html = `
+                <div class="summary">
+                    <p><strong>Total Files Analyzed:</strong> ${totalFiles}</p>
+                    <p><strong>Total Cells:</strong> ${totalCells.toLocaleString()}</p>
+                    <p><strong>Total Cells with Errors:</strong> ${totalErrors.toLocaleString()}</p>
+                    <p><strong>Total Cells with Formulas:</strong> ${totalFormulas.toLocaleString()}</p>
+                    <p><strong>Average Formula Percentage:</strong> ${avgFormulaPct.toFixed(1)}%</p>
+                </div>
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>File Name</th>
+                                <th style="text-align: right;">Cells</th>
+                                <th style="text-align: right;">Errors</th>
+                                <th style="text-align: right;">Formulas</th>
+                                <th style="text-align: right;">Formula %</th>
+                                <th style="text-align: center;">Tabs</th>
+                                <th>Tab Names</th>
+                                <th>Author</th>
+                                <th style="text-align: center;"># Methods</th>
+                                <th>Valuation Methods</th>
+                                <th>Error Locations</th>
+                                <th>Comments</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            
+            results.forEach(result => {
+                const cells = result.cells.toLocaleString();
+                const errors = result.errors.toLocaleString();
+                const formulas = result.formulas.toLocaleString();
+                const formulaPct = result.formula_percentage.toFixed(1) + '%';
+                const tabsCount = result.tabs_count;
+                const tabsStr = result.tabs.join(', ');
+                const author = result.old_author || 'None';
+                const methodsCount = result.methods_count;
+                const methodsStr = result.methods.length > 0 ? result.methods.join(', ') : 'None';
+                
+                // Error locations (only if errors < 20)
+                let errorLocationsStr;
+                if (result.errors >= 20) {
+                    errorLocationsStr = 'N/A';
+                } else if (result.error_locations && result.error_locations.length > 0) {
+                    errorLocationsStr = result.error_locations.join(', ');
+                } else {
+                    errorLocationsStr = 'None';
+                }
+                
+                // Comments about hidden tabs
+                const hiddenTabsCount = result.hidden_tabs_count || 0;
+                const comments = hiddenTabsCount === 0 ? 'No hidden tabs' : `${hiddenTabsCount} hidden tabs`;
+                
+                // Escape HTML
+                const escapeHtml = (text) => {
+                    return String(text)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;');
+                };
+                
+                html += `
+                    <tr>
+                        <td>${escapeHtml(result.file)}</td>
+                        <td class="cells">${cells}</td>
+                        <td class="cells">${errors}</td>
+                        <td class="cells">${formulas}</td>
+                        <td class="cells">${formulaPct}</td>
+                        <td class="methods-count">${tabsCount}</td>
+                        <td class="methods-list">${escapeHtml(tabsStr)}</td>
+                        <td class="methods-list">${escapeHtml(author)}</td>
+                        <td class="methods-count">${methodsCount}</td>
+                        <td class="methods-list">${escapeHtml(methodsStr)}</td>
+                        <td class="methods-list">${escapeHtml(errorLocationsStr)}</td>
+                        <td class="methods-list">${comments}</td>
+                    </tr>
+                `;
+            });
+            
+            const timestamp = new Date().toLocaleString();
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="timestamp">
+                    Generated on: ${timestamp}
+                </div>
+            `;
+            
+            return html;
+        }
+    </script>
+</body>
+</html>
