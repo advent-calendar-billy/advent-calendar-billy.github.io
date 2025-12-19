@@ -919,6 +919,49 @@
             25% { transform: translateX(-5px); }
             75% { transform: translateX(5px); }
         }
+
+        /* Pong Game Overlay */
+        #pongOverlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 350;
+        }
+
+        #pongCanvas {
+            border: 3px solid #00aa00;
+            background: #000;
+            image-rendering: pixelated;
+        }
+
+        .pong-header {
+            color: #00ff00;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 14px;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px #00ff00;
+        }
+
+        .pong-score {
+            color: #00ff00;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        .pong-controls {
+            color: #007700;
+            font-size: 11px;
+            margin-top: 15px;
+            letter-spacing: 1px;
+        }
     </style>
 </head>
 <body>
@@ -1051,6 +1094,14 @@
             </div>
             <div class="keys-message" id="keysMessage"></div>
         </div>
+
+        <!-- Pong Game Overlay -->
+        <div id="pongOverlay">
+            <div class="pong-header">PONG</div>
+            <canvas id="pongCanvas" width="280" height="200"></canvas>
+            <div class="pong-score" id="pongScore">0 - 0</div>
+            <div class="pong-controls">[W/S] Mover · [ESC] Salir</div>
+        </div>
     </div>
 
     <div id="bottomHud">
@@ -1093,6 +1144,7 @@
             'fridge-hum': 'sounds/fridge-hum.mp3',
             'whistling': 'sounds/whistling.mp3',
             'knife-scrape': 'sounds/knife-scrape.mp3',
+            'knife-stab': 'sounds/knife-stab.mp3',
             'shower': 'sounds/shower.mp3',
             'screw': 'sounds/screw.mp3',
             'tv-static': 'sounds/tv-static.mp3',
@@ -1358,6 +1410,7 @@
         }
 
         // ============ GAME STATE ============
+        const DEBUG_MODE = false; // Set to true to enable debug cheat codes
         const TILE = 32;
 
         const game = {
@@ -1385,6 +1438,8 @@
             gameTime: 0,
             nearbyObject: null,
             pickupAnimation: null,
+            revengeAnimation: null,
+            escapeAnimation: null,
             doorShake: 0,
             lampFlicker: 1,
             pushTimer: 0,
@@ -1425,7 +1480,8 @@
                 pianoUsed: false,
                 letterTaken: false,
                 letterViewing: false,
-                ndKeysOnTable: false
+                ndKeysOnTable: false,
+                condomsTaken: false
             },
             combinationLock: {
                 active: false,
@@ -1436,6 +1492,18 @@
             piano: {
                 focused: false,
                 activeKeys: new Set()
+            },
+            pong: {
+                active: false,
+                playerY: 80,
+                aiY: 80,
+                ballX: 140,
+                ballY: 100,
+                ballVX: 3,
+                ballVY: 2,
+                playerScore: 0,
+                aiScore: 0,
+                lastUpdate: 0
             },
             hiding: {
                 active: false,
@@ -1507,7 +1575,7 @@
             player: '#e0c0a0',
             playerShirt: '#4a6a8a',
             playerPants: '#3a3a4a',
-            playerHair: '#3a2a1a'
+            playerHair: '#1a1a1a'
         };
 
         // ============ ROOM DEFINITIONS ============
@@ -1639,19 +1707,20 @@
                 { id: 'cabinet', x: 2.7, y: 1.5, w: 1.1, h: 1.1, type: 'interactable', sprite: 'cabinet', action: 'cabinet', needsItem: 'Llave pequeña' },
 
                 // Office (4-12, 0-5)
-                { id: 'desk', x: 8, y: 0.5, w: 2.8, h: 1.5, type: 'furniture', sprite: 'desk' },
+                { id: 'desk', x: 8, y: 0.5, w: 2.8, h: 1.5, type: 'interactable', sprite: 'desk', action: 'computer' },
                 { id: 'chair', x: 8.8, y: 2.5, w: 1, h: 1, type: 'furniture', sprite: 'chair', pushable: true },
                 { id: 'bookshelf', x: 4.5, y: 0.3, w: 1.5, h: 3, type: 'furniture', sprite: 'bookshelf' },
                 { id: 'officePlant', x: 10.8, y: 0.4, w: 0.8, h: 1.2, type: 'furniture', sprite: 'tallPlant', pushable: true },
                 { id: 'officeRug', x: 7, y: 2.8, w: 2.5, h: 1.5, type: 'decor', sprite: 'rug' },
 
                 // Bedroom (4-12, 5-10) - wardrobe spans whole bottom wall
-                { id: 'queenBed', x: 8.5, y: 5.5, w: 3, h: 3, type: 'furniture', sprite: 'queenBed' },
+                { id: 'queenBed', x: 8.8, y: 5.5, w: 2.7, h: 2.5, type: 'furniture', sprite: 'queenBed' },
                 { id: 'nightstand', x: 11.2, y: 6.2, w: 0.6, h: 0.6, type: 'interactable', sprite: 'nightstand', action: 'nightstand' },
                 { id: 'bedroomLamp', x: 11.25, y: 5.8, w: 0.5, h: 0.4, type: 'decor', sprite: 'lamp' },
-                { id: 'wardrobe', x: 4.5, y: 8.8, w: 7, h: 1.2, type: 'interactable', sprite: 'longWardrobe', action: 'wardrobe' },
+                { id: 'wardrobe', x: 4.5, y: 9.2, w: 7, h: 0.8, type: 'interactable', sprite: 'longWardrobe', action: 'wardrobe' },
                 { id: 'plant', x: 5, y: 5.8, w: 1, h: 1, type: 'interactable', sprite: 'plant', action: 'plant', item: 'Llave pequeña', pushable: true },
                 { id: 'bedroomRug', x: 6, y: 6, w: 4, h: 2.5, type: 'decor', sprite: 'largeCarpet' },
+                { id: 'condoms', x: 10.5, y: 8.5, w: 0.4, h: 0.3, type: 'item', sprite: 'condomBox', item: 'Forros' },
 
                 // Tools area (0-12, 10-16) - fully open to hallway
                 { id: 'workbench', x: 5, y: 10.5, w: 3.5, h: 1.3, type: 'furniture', sprite: 'workbench' },
@@ -1721,10 +1790,9 @@
                 { id: 'pianoStool', x: 6, y: 2.5, w: 1, h: 0.8, type: 'furniture', sprite: 'stool', pushable: true },
                 { id: 'upstairsTV', x: 9.5, y: 0.5, w: 2, h: 1.5, type: 'interactable', sprite: 'tvLarge', action: 'tv' },
                 { id: 'tvStand', x: 9.3, y: 2, w: 2.4, h: 0.8, type: 'furniture', sprite: 'tvStand' },
-                { id: 'sofa', x: 5, y: 3, w: 5, h: 3, type: 'furniture', sprite: 'lShapedSofa' },
-                { id: 'coffeeTable2', x: 7.5, y: 5.5, w: 2, h: 1, type: 'furniture', sprite: 'coffeeTable', pushable: true },
-                { id: 'livingRug', x: 5, y: 3, w: 5.5, h: 4.5, type: 'decor', sprite: 'grayRug' },
-                { id: 'floorLamp', x: 10.5, y: 3.5, w: 0.6, h: 1.5, type: 'furniture', sprite: 'floorLamp' },
+                { id: 'livingRug', x: 6.5, y: 3.5, w: 5, h: 4, type: 'decor', sprite: 'grayRug' },
+                { id: 'sofa', x: 7, y: 4, w: 4.5, h: 2.8, type: 'furniture', sprite: 'lShapedSofa' },
+                { id: 'coffeeTable2', x: 5, y: 5, w: 1.8, h: 1, type: 'furniture', sprite: 'coffeeTable' },
 
                 // Kitchen area (right lower)
                 { id: 'kitchenIsland', x: 6, y: 9, w: 3.5, h: 2, type: 'furniture', sprite: 'kitchenIsland' },
@@ -1740,13 +1808,13 @@
                 // ============ HALLWAY - ESCAPE ROUTE ============
                 { id: 'ndEscapeDoor', x: -0.3, y: 3, w: 0.6, h: 2, type: 'interactable', sprite: 'lockedDoor', action: 'escapeDoor' },
                 { id: 'ndKeyHook', x: 0.4, y: 1, w: 0.6, h: 0.8, type: 'interactable', sprite: 'emptyKeyHook', action: 'keyHook' },
-                { id: 'ndBathroomDoor', x: 3.5, y: 6, w: 2, h: 2.5, type: 'interactable', sprite: 'bathroomDoor', action: 'bathroomDoor' },
+                { id: 'ndBathroomDoor', x: 11, y: 4, w: 1, h: 2.5, type: 'interactable', sprite: 'bathroomDoor', action: 'bathroomDoor' },
                 { id: 'ndCoatRack', x: 1.5, y: 0.5, w: 0.8, h: 1.3, type: 'furniture', sprite: 'coatRack' },
                 { id: 'ndShoeRack', x: 6, y: 0.5, w: 1.3, h: 0.7, type: 'furniture', sprite: 'shoeRack' },
-                { id: 'ndTable', x: 8, y: 2, w: 2, h: 1.5, type: 'interactable', sprite: 'smallTable', action: 'ndTable' },
-                { id: 'ndChairs', x: 7.5, y: 2, w: 2, h: 1.5, type: 'furniture', sprite: 'chairs' },
-                { id: 'ndRug', x: 4, y: 4, w: 4, h: 2.5, type: 'decor', sprite: 'darkRug' },
-                { id: 'ndPainting', x: 9, y: 1, w: 2, h: 2.5, type: 'decor', sprite: 'creepyPainting' },
+                { id: 'ndTable', x: 5, y: 3, w: 2, h: 1.5, type: 'interactable', sprite: 'smallTable', action: 'ndTable' },
+                { id: 'ndBookshelf', x: 8, y: 2, w: 1.5, h: 2.5, type: 'furniture', sprite: 'bookshelf', pushable: true },
+                { id: 'ndRug', x: 3, y: 4, w: 4, h: 2.5, type: 'decor', sprite: 'darkRug' },
+                { id: 'ndPainting', x: 9.5, y: 0.5, w: 2, h: 2.5, type: 'decor', sprite: 'creepyPainting' },
 
                 // ============ STAIRS UP ============
                 { id: 'ndStairsUp', x: 0.5, y: 10, w: 2.5, h: 3.5, type: 'interactable', sprite: 'stairs', action: 'neighborStairsUp' },
@@ -1824,6 +1892,15 @@
                 return;
             }
 
+            // Pong game controls
+            if (game.pong.active) {
+                if (e.key === 'Escape') {
+                    closePong();
+                    e.preventDefault();
+                }
+                return;
+            }
+
             // TV focus mode controls
             if (game.tv.focused) {
                 if (e.key.toLowerCase() === 'a' || e.key === 'ArrowLeft') {
@@ -1855,39 +1932,65 @@
             if (e.key.toLowerCase() === 'z') {
                 tryFocusTV();
                 tryFocusPiano();
+                tryFocusComputer();
                 tryHide();
             }
 
-            // DEBUG: Number keys trigger endings for testing
-            if (e.key === '7') {
-                console.log('DEBUG: Triggering Ending A (Escape)');
-                triggerEnding('A');
-            }
-            if (e.key === '8') {
-                console.log('DEBUG: Triggering Ending B (Revenge)');
-                triggerEnding('B');
-            }
-            if (e.key === '9') {
-                console.log('DEBUG: Triggering Ending C (Caught)');
-                triggerEnding('C');
-            }
-            if (e.key === '0') {
-                console.log('DEBUG: Triggering Ending D (Discovered)');
-                triggerEnding('D');
-            }
+            // DEBUG: Number keys trigger endings for testing (only in debug mode)
+            if (DEBUG_MODE) {
+                if (e.key === '7') {
+                    console.log('DEBUG: Triggering Ending A (Escape)');
+                    triggerEnding('A');
+                }
+                if (e.key === '8') {
+                    console.log('DEBUG: Triggering Ending B (Revenge)');
+                    triggerEnding('B');
+                }
+                if (e.key === '9') {
+                    console.log('DEBUG: Triggering Ending C (Caught)');
+                    triggerEnding('C');
+                }
+                if (e.key === '0') {
+                    console.log('DEBUG: Triggering Ending D (Discovered)');
+                    triggerEnding('D');
+                }
 
-            // Debug shortcuts for screen transitions
-            if (e.key === '1') {
-                transitionToScreen('home');
-            }
-            if (e.key === '2') {
-                transitionToScreen('upstairs');
-            }
-            if (e.key === '3') {
-                transitionToScreen('neighbor');
-            }
-            if (e.key === '4') {
-                transitionToScreen('neighborDown');
+                // Debug shortcuts for screen transitions
+                if (e.key === '1') {
+                    transitionToScreen('home');
+                }
+                if (e.key === '2') {
+                    transitionToScreen('upstairs');
+                }
+                if (e.key === '3') {
+                    transitionToScreen('neighbor');
+                }
+                if (e.key === '4') {
+                    transitionToScreen('neighborDown');
+                }
+
+                // DEBUG: 6 = Go to neighborDown
+                if (e.key === '6') {
+                    console.log('DEBUG: Going to neighborDown');
+                    transitionToScreen('neighborDown');
+                    game.flags.ndKeysOnTable = true; // Keys on table
+                }
+
+                // DEBUG: 5 = Go to neighborDown + killer in shower + keys on table
+                if (e.key === '5') {
+                    console.log('DEBUG: Going to neighborDown with killer showering');
+                    transitionToScreen('neighborDown');
+                    game.flags.exitedHidingSafely = true;
+                    game.flags.ndKeysOnTable = true;
+                    // Start shower sound
+                    game.hiding.showerSound = playAudioFile('shower', { volume: 0.4, loop: true });
+                }
+
+                // DEBUG: p = trigger phone animation (test)
+                if (e.key === 'p' || e.key === 'P') {
+                    console.log('DEBUG: Triggering phone animation');
+                    startPhoneSilentAnimation(null);
+                }
             }
         });
 
@@ -2362,6 +2465,34 @@
                     }
                     break;
 
+                case 'condomBox':
+                    // Small box of condoms - recognizable design
+                    if (!game.flags.condomsTaken) {
+                        // Box base (blue)
+                        ctx.fillStyle = '#2255aa';
+                        ctx.fillRect(px, py, pw, ph);
+                        // Gold/yellow band across middle
+                        ctx.fillStyle = '#ddaa33';
+                        ctx.fillRect(px, py + ph * 0.35, pw, ph * 0.3);
+                        // Darker edge
+                        ctx.fillStyle = '#1a4488';
+                        ctx.fillRect(px, py, pw, 2);
+                        ctx.fillRect(px, py + ph - 2, pw, 2);
+                        // Small heart icon
+                        ctx.fillStyle = '#ff6688';
+                        const hx = px + pw/2, hy = py + ph * 0.5;
+                        ctx.beginPath();
+                        ctx.arc(hx - 2, hy - 1, 2, 0, Math.PI * 2);
+                        ctx.arc(hx + 2, hy - 1, 2, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.beginPath();
+                        ctx.moveTo(hx - 4, hy);
+                        ctx.lineTo(hx, hy + 4);
+                        ctx.lineTo(hx + 4, hy);
+                        ctx.fill();
+                    }
+                    break;
+
                 case 'toolbox':
                     ctx.fillStyle = '#c44';
                     ctx.fillRect(px, py, pw, ph);
@@ -2684,29 +2815,63 @@
                 // ===== 2ND FLOOR SPRITES =====
 
                 case 'hugeWindow':
-                    // Window frame
+                    // Window frame (outer)
                     ctx.fillStyle = '#3a3a4a';
                     ctx.fillRect(px, py, pw, ph);
-                    // Glass panes (showing sky)
+
+                    // Glass pane dimensions
+                    const paneW = pw/2 - 10;
+                    const paneH = ph/2 - 10;
+                    const leftPaneX = px + 6;
+                    const rightPaneX = px + pw/2 + 4;
+                    const topPaneY = py + 6;
+                    const bottomPaneY = py + ph/2 + 4;
+
+                    // Sky gradient
                     const skyGradient = ctx.createLinearGradient(px, py, px, py + ph);
                     skyGradient.addColorStop(0, '#4a6a9a');
                     skyGradient.addColorStop(0.5, '#6a8aba');
                     skyGradient.addColorStop(1, '#8aaaca');
-                    ctx.fillStyle = skyGradient;
-                    ctx.fillRect(px + 6, py + 6, pw/2 - 10, ph - 12);
-                    ctx.fillRect(px + pw/2 + 4, py + 6, pw/2 - 10, ph - 12);
-                    // Window dividers
+
+                    // Draw all 4 glass panes with clipped clouds
+                    const panes = [
+                        { x: leftPaneX, y: topPaneY, w: paneW, h: paneH },
+                        { x: rightPaneX, y: topPaneY, w: paneW, h: paneH },
+                        { x: leftPaneX, y: bottomPaneY, w: paneW, h: paneH - 4 },
+                        { x: rightPaneX, y: bottomPaneY, w: paneW, h: paneH - 4 }
+                    ];
+
+                    const cloudX = (game.gameTime / 50) % (pw + 60) - 30;
+
+                    for (const pane of panes) {
+                        ctx.save();
+                        ctx.beginPath();
+                        ctx.rect(pane.x, pane.y, pane.w, pane.h);
+                        ctx.clip();
+
+                        // Sky
+                        ctx.fillStyle = skyGradient;
+                        ctx.fillRect(pane.x, pane.y, pane.w, pane.h);
+
+                        // Clouds (clipped to this pane)
+                        ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                        ctx.beginPath();
+                        ctx.arc(px + cloudX, py + 25, 10, 0, Math.PI * 2);
+                        ctx.arc(px + cloudX + 12, py + 22, 13, 0, Math.PI * 2);
+                        ctx.arc(px + cloudX + 26, py + 25, 10, 0, Math.PI * 2);
+                        ctx.fill();
+
+                        ctx.restore();
+                    }
+
+                    // Window dividers (on top of everything)
                     ctx.fillStyle = '#4a4a5a';
                     ctx.fillRect(px + pw/2 - 3, py, 6, ph);
                     ctx.fillRect(px, py + ph/2 - 3, pw, 6);
-                    // Clouds in window
-                    ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-                    const cloudX = (game.gameTime / 50) % (pw + 40) - 20;
-                    ctx.beginPath();
-                    ctx.arc(px + cloudX, py + 30, 12, 0, Math.PI * 2);
-                    ctx.arc(px + cloudX + 15, py + 28, 15, 0, Math.PI * 2);
-                    ctx.arc(px + cloudX + 30, py + 30, 12, 0, Math.PI * 2);
-                    ctx.fill();
+                    // Frame border
+                    ctx.strokeStyle = '#2a2a3a';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(px + 1, py + 1, pw - 2, ph - 2);
                     break;
 
                 case 'balconyDoor':
@@ -2933,15 +3098,20 @@
                     ctx.fillRect(px, py, pw, ph);
                     ctx.fillStyle = '#5a5a5e';
                     ctx.fillRect(px + 6, py + 6, pw - 12, ph - 12);
-                    // Subtle pattern - diagonal lines
+                    // Subtle pattern - diagonal lines (clipped to rug bounds)
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.rect(px, py, pw, ph);
+                    ctx.clip();
                     ctx.strokeStyle = '#48484c';
                     ctx.lineWidth = 1;
-                    for (let i = -ph; i < pw; i += 12) {
+                    for (let i = -ph; i < pw + ph; i += 12) {
                         ctx.beginPath();
                         ctx.moveTo(px + i, py + ph);
                         ctx.lineTo(px + i + ph, py);
                         ctx.stroke();
                     }
+                    ctx.restore();
                     // Border
                     ctx.strokeStyle = '#3a3a3e';
                     ctx.lineWidth = 3;
@@ -2949,7 +3119,7 @@
                     break;
 
                 case 'longWardrobe':
-                    // Full-wall wardrobe with sliding black doors
+                    // Full-wall wardrobe with single sliding black door
                     // Main body (wood frame)
                     ctx.fillStyle = '#5a4a3a';
                     ctx.fillRect(px, py, pw, ph);
@@ -2960,25 +3130,17 @@
                     ctx.fillRect(px, py, 4, ph);
                     ctx.fillRect(px + pw - 4, py, 4, ph);
 
-                    // Three sliding black door panels
-                    const doorWidth = (pw - 14) / 3;
-                    for (let i = 0; i < 3; i++) {
-                        // Black door panel
-                        ctx.fillStyle = '#1a1a1a';
-                        ctx.fillRect(px + 6 + i * (doorWidth + 1), py + 4, doorWidth, ph - 10);
-                        // Subtle reflection
-                        ctx.fillStyle = 'rgba(255,255,255,0.04)';
-                        ctx.fillRect(px + 8 + i * (doorWidth + 1), py + 6, doorWidth - 4, 3);
-                        // Handle (silver bar)
-                        ctx.fillStyle = '#888';
-                        ctx.fillRect(px + 6 + i * (doorWidth + 1) + doorWidth/2 - 12, py + 7, 24, 3);
-                        ctx.fillStyle = '#aaa';
-                        ctx.fillRect(px + 6 + i * (doorWidth + 1) + doorWidth/2 - 10, py + 8, 20, 1);
-                    }
-                    // Panel dividers
-                    ctx.fillStyle = '#4a3a2a';
-                    ctx.fillRect(px + 6 + doorWidth, py + 4, 2, ph - 10);
-                    ctx.fillRect(px + 8 + doorWidth * 2, py + 4, 2, ph - 10);
+                    // Single large black sliding door panel
+                    ctx.fillStyle = '#1a1a1a';
+                    ctx.fillRect(px + 6, py + 4, pw - 12, ph - 10);
+                    // Subtle reflection at top
+                    ctx.fillStyle = 'rgba(255,255,255,0.04)';
+                    ctx.fillRect(px + 8, py + 6, pw - 16, 3);
+                    // Handle (silver bar in center)
+                    ctx.fillStyle = '#888';
+                    ctx.fillRect(px + pw/2 - 20, py + 7, 40, 3);
+                    ctx.fillStyle = '#aaa';
+                    ctx.fillRect(px + pw/2 - 18, py + 8, 36, 1);
                     break;
 
                 case 'largeCarpet':
@@ -3711,20 +3873,20 @@
             if (phoneAnim) {
                 const progress = phoneAnim.timer / phoneAnim.duration;
                 if (phoneAnim.phase === 'taking_out') {
-                    // Arm moves from pocket (low) to in front of face
+                    // Arm moves from pocket (low) to in front of face - MORE dramatic
                     rightArmRaised = true;
-                    phoneY = py - 2 - progress * 12; // moves up
-                    phoneVisible = progress > 0.3;
+                    phoneY = py + 8 - progress * 26; // starts lower, moves up more
+                    phoneVisible = progress > 0.2; // show phone sooner
                 } else if (phoneAnim.phase === 'looking') {
                     // Arm stays raised, looking at phone
                     rightArmRaised = true;
-                    phoneY = py - 14;
+                    phoneY = py - 18; // higher position
                     phoneVisible = true;
                 } else if (phoneAnim.phase === 'putting_back') {
                     // Arm moves back down
                     rightArmRaised = true;
-                    phoneY = py - 14 + progress * 12; // moves down
-                    phoneVisible = progress < 0.7;
+                    phoneY = py - 18 + progress * 26; // bigger motion back down
+                    phoneVisible = progress < 0.8; // hide phone later
                 }
             }
 
@@ -3757,17 +3919,17 @@
             } else if (rightArmRaised) {
                 // Left arm normal
                 ctx.fillRect(p.x - 9, py - 6, 3, 10);
-                // Right arm raised and bent toward body
+                // Right arm raised and bent toward body - MORE dramatic motion
                 const armProgress = phoneAnim ? phoneAnim.timer / phoneAnim.duration : 0;
                 let armY = py - 6;
                 if (phoneAnim.phase === 'taking_out') {
-                    armY = py - 6 - armProgress * 8;
+                    armY = py + 4 - armProgress * 18; // starts lower, moves up more
                 } else if (phoneAnim.phase === 'looking') {
                     armY = py - 14;
                 } else if (phoneAnim.phase === 'putting_back') {
-                    armY = py - 14 + armProgress * 8;
+                    armY = py - 14 + armProgress * 18; // moves back down
                 }
-                ctx.fillRect(p.x + 2, armY, 3, 8);
+                ctx.fillRect(p.x + 2, armY, 4, 10); // slightly larger arm
             } else {
                 ctx.fillRect(p.x - 9, py - 6, 3, 10);
                 ctx.fillRect(p.x + 6, py - 6, 3, 10);
@@ -3777,32 +3939,41 @@
             ctx.fillStyle = COLORS.player;
             ctx.fillRect(p.x - 9, py + 2, 3, 3);
             if (rightArmRaised && phoneAnim) {
-                // Right hand near phone
+                // Right hand near phone - MORE dramatic motion
                 let handY = py + 2;
                 if (phoneAnim.phase === 'taking_out') {
-                    handY = py + 2 - (phoneAnim.timer / phoneAnim.duration) * 10;
+                    handY = py + 10 - (phoneAnim.timer / phoneAnim.duration) * 18; // starts lower
                 } else if (phoneAnim.phase === 'looking') {
                     handY = py - 8;
                 } else if (phoneAnim.phase === 'putting_back') {
-                    handY = py - 8 + (phoneAnim.timer / phoneAnim.duration) * 10;
+                    handY = py - 8 + (phoneAnim.timer / phoneAnim.duration) * 18; // moves back down
                 }
-                ctx.fillRect(p.x + 2, handY, 3, 3);
+                ctx.fillRect(p.x + 3, handY, 4, 4); // slightly larger hand
             } else {
                 ctx.fillRect(p.x + 6, py + 2, 3, 3);
             }
 
-            // Draw phone if visible
+            // Draw phone if visible - LARGER and more visible
             if (phoneVisible) {
-                // Phone body (dark)
+                // Phone body (dark) - bigger phone
                 ctx.fillStyle = '#1a1a1a';
-                ctx.fillRect(p.x, phoneY, 5, 8);
-                // Phone screen (lit up)
-                ctx.fillStyle = '#4488aa';
-                ctx.fillRect(p.x + 1, phoneY + 1, 3, 5);
-                // Silent icon or notification
+                ctx.fillRect(p.x - 1, phoneY, 8, 12);
+                // Phone border
+                ctx.fillStyle = '#333';
+                ctx.fillRect(p.x - 1, phoneY, 8, 1);
+                ctx.fillRect(p.x - 1, phoneY + 11, 8, 1);
+                // Phone screen (bright glow)
+                ctx.fillStyle = '#55aadd';
+                ctx.fillRect(p.x, phoneY + 1, 6, 9);
+                // Screen content - notification or silent icon
                 if (phoneAnim && phoneAnim.phase === 'looking') {
+                    // Vibrating/notification icon turning off
                     ctx.fillStyle = '#ff6666';
-                    ctx.fillRect(p.x + 2, phoneY + 2, 1, 1);
+                    ctx.fillRect(p.x + 2, phoneY + 3, 2, 2);
+                    ctx.fillRect(p.x + 1, phoneY + 5, 4, 1);
+                    // Screen glow effect
+                    ctx.fillStyle = 'rgba(85, 170, 221, 0.3)';
+                    ctx.fillRect(p.x - 4, phoneY - 2, 14, 16);
                 }
             }
 
@@ -4087,15 +4258,17 @@
             game.phone.animationCallback = callback;
             game.player.speed = 0; // Freeze player during animation
 
-            // Start the character phone animation
+            // Start the character phone animation - SLOW so it's visible
             game.player.phoneAnimation = {
                 phase: 'taking_out',
                 timer: 0,
-                duration: 500 // ms per phase
+                duration: 1200 // ms per phase - slower animation
             };
 
-            // Show a subtle dialogue
-            showDialogue('"Mejor en silencio..."', 1500);
+            // Show dialogue after a delay so player sees the animation first
+            setTimeout(() => {
+                showDialogue('"Mejor en silencio..."', 2000);
+            }, 800);
         }
 
         function updatePhoneAnimation(deltaTime) {
@@ -4109,11 +4282,11 @@
                 if (anim.phase === 'taking_out') {
                     anim.phase = 'looking';
                     anim.timer = 0;
-                    anim.duration = 800; // Look at phone longer
+                    anim.duration = 2000; // Look at phone much longer
                 } else if (anim.phase === 'looking') {
                     anim.phase = 'putting_back';
                     anim.timer = 0;
-                    anim.duration = 500;
+                    anim.duration = 1200; // Slower putting back
                 } else if (anim.phase === 'putting_back') {
                     // Animation complete
                     game.player.phoneAnimation = null;
@@ -4399,6 +4572,7 @@
                     if (obj.id === 'screwdriver' && game.flags.screwdriverTaken) continue;
                     if (obj.id === 'hallwayNote' && game.flags.noteTaken) continue;
                     if (obj.id === 'nHiddenNote' && game.flags.neighborNoteTaken) continue;
+                    if (obj.id === 'condoms' && game.flags.condomsTaken) continue;
                     if (isItemHidden(obj)) continue;
                 }
 
@@ -4444,6 +4618,19 @@
                     game.flags.neighborNoteTaken = true;
                     addToInventory(obj.item);
                     showDialogue('"¿Qué hacía esto debajo de la mesa?"');
+                    return;
+                }
+                if (obj.id === 'condoms' && !game.flags.condomsTaken) {
+                    game.flags.condomsTaken = true;
+                    addToInventory(obj.item);
+                    showDialogue('"..."');
+                    // Billy's coincidental message
+                    setTimeout(() => {
+                        showTelegram('¿Cojemos más tarde?', null);
+                        setTimeout(() => {
+                            document.getElementById('telegramResponse').textContent = '→ "Puede ser"';
+                        }, 1500);
+                    }, 2000);
                     return;
                 }
             }
@@ -4559,7 +4746,7 @@
                 if (game.flags.toolboxOpened) {
                     if (!game.flags.documentRead) {
                         game.flags.documentRead = true;
-                        showDialogue('"Plano de mantenimiento... acceso de emergencia entre 4A y 4B por panel de heladera. Usar Phillips."');
+                        showDialogue('"Plano de mantenimiento... acceso de emergencia entre departamentos por panel de heladera. Usar Phillips."');
                     } else {
                         showDialogue('"El plano del edificio..."');
                     }
@@ -4584,6 +4771,11 @@
                 return;
             }
 
+            if (obj.action === 'computer') {
+                showDialogue('"Mi compu... [Z] para jugar"');
+                return;
+            }
+
             if (obj.action === 'piano') {
                 showDialogue('"Mi piano... [Z] para tocar"');
                 return;
@@ -4591,16 +4783,9 @@
 
             if (obj.action === 'fridge') {
                 if (game.flags.fridgeOpened) {
-                    // First time entering neighbor's apartment - show phone silent animation
-                    if (!game.phone.silentMode && !game.phone.animation) {
-                        playAudioFile('fridge-hum', { volume: 0.3 });
-                        startPhoneSilentAnimation(() => {
-                            transitionToScreen('neighbor');
-                        });
-                        return;
-                    }
-                    // Already in silent mode - just transition
+                    playAudioFile('fridge-hum', { volume: 0.3 });
                     transitionToScreen('neighbor');
+                    // Phone animation will trigger after arriving at neighbor screen
                     return;
                 }
 
@@ -4668,7 +4853,10 @@
             }
 
             if (obj.action === 'bathroomDoor') {
-                if (game.hiding.active || game.flags.exitedHidingSafely) {
+                if (game.killer.active) {
+                    // Killer has emerged - bathroom is empty now
+                    showDialogue('"Vacío... hay sangre en la bañera."');
+                } else if (game.hiding.active || game.flags.exitedHidingSafely) {
                     showDialogue('"Está ocupado... se escucha la ducha."');
                 } else {
                     showDialogue('"Un baño."');
@@ -5054,6 +5242,154 @@
             });
         }
 
+        // ============ PONG GAME ============
+
+        const pongCanvas = document.getElementById('pongCanvas');
+        const pongCtx = pongCanvas.getContext('2d');
+        const PONG_WIDTH = 280;
+        const PONG_HEIGHT = 200;
+        const PADDLE_HEIGHT = 40;
+        const PADDLE_WIDTH = 8;
+        const BALL_SIZE = 6;
+
+        function tryFocusComputer() {
+            const obj = getNearbyObject();
+            if (!obj || obj.action !== 'computer') return;
+            startPong();
+        }
+
+        function startPong() {
+            game.pong.active = true;
+            game.pong.playerY = PONG_HEIGHT / 2 - PADDLE_HEIGHT / 2;
+            game.pong.aiY = PONG_HEIGHT / 2 - PADDLE_HEIGHT / 2;
+            game.pong.ballX = PONG_WIDTH / 2;
+            game.pong.ballY = PONG_HEIGHT / 2;
+            game.pong.ballVX = (Math.random() > 0.5 ? 1 : -1) * 3;
+            game.pong.ballVY = (Math.random() - 0.5) * 4;
+            game.pong.playerScore = 0;
+            game.pong.aiScore = 0;
+            game.pong.lastUpdate = Date.now();
+            document.getElementById('pongOverlay').style.display = 'flex';
+            document.getElementById('pongScore').textContent = '0 - 0';
+            requestAnimationFrame(updatePong);
+        }
+
+        function closePong() {
+            game.pong.active = false;
+            document.getElementById('pongOverlay').style.display = 'none';
+        }
+
+        function updatePong() {
+            if (!game.pong.active) return;
+
+            const now = Date.now();
+            const dt = Math.min((now - game.pong.lastUpdate) / 16, 2); // Cap delta
+            game.pong.lastUpdate = now;
+
+            // Player movement
+            if (keys['w'] || keys['arrowup']) {
+                game.pong.playerY -= 5 * dt;
+            }
+            if (keys['s'] || keys['arrowdown']) {
+                game.pong.playerY += 5 * dt;
+            }
+            game.pong.playerY = Math.max(0, Math.min(PONG_HEIGHT - PADDLE_HEIGHT, game.pong.playerY));
+
+            // AI movement (follows ball with some lag)
+            const aiCenter = game.pong.aiY + PADDLE_HEIGHT / 2;
+            const targetY = game.pong.ballY;
+            if (aiCenter < targetY - 10) {
+                game.pong.aiY += 3 * dt;
+            } else if (aiCenter > targetY + 10) {
+                game.pong.aiY -= 3 * dt;
+            }
+            game.pong.aiY = Math.max(0, Math.min(PONG_HEIGHT - PADDLE_HEIGHT, game.pong.aiY));
+
+            // Ball movement
+            game.pong.ballX += game.pong.ballVX * dt;
+            game.pong.ballY += game.pong.ballVY * dt;
+
+            // Top/bottom bounce
+            if (game.pong.ballY <= 0 || game.pong.ballY >= PONG_HEIGHT - BALL_SIZE) {
+                game.pong.ballVY *= -1;
+                game.pong.ballY = Math.max(0, Math.min(PONG_HEIGHT - BALL_SIZE, game.pong.ballY));
+            }
+
+            // Paddle collision - player (left)
+            if (game.pong.ballX <= 20 + PADDLE_WIDTH &&
+                game.pong.ballY + BALL_SIZE >= game.pong.playerY &&
+                game.pong.ballY <= game.pong.playerY + PADDLE_HEIGHT &&
+                game.pong.ballVX < 0) {
+                game.pong.ballVX = Math.abs(game.pong.ballVX) * 1.05; // Speed up slightly
+                game.pong.ballVY += (game.pong.ballY - (game.pong.playerY + PADDLE_HEIGHT/2)) * 0.1;
+                playTone(440, 0.05, 'square', 0.1);
+            }
+
+            // Paddle collision - AI (right)
+            if (game.pong.ballX >= PONG_WIDTH - 20 - PADDLE_WIDTH - BALL_SIZE &&
+                game.pong.ballY + BALL_SIZE >= game.pong.aiY &&
+                game.pong.ballY <= game.pong.aiY + PADDLE_HEIGHT &&
+                game.pong.ballVX > 0) {
+                game.pong.ballVX = -Math.abs(game.pong.ballVX) * 1.05;
+                game.pong.ballVY += (game.pong.ballY - (game.pong.aiY + PADDLE_HEIGHT/2)) * 0.1;
+                playTone(440, 0.05, 'square', 0.1);
+            }
+
+            // Score
+            if (game.pong.ballX < 0) {
+                game.pong.aiScore++;
+                resetPongBall(-1);
+            } else if (game.pong.ballX > PONG_WIDTH) {
+                game.pong.playerScore++;
+                resetPongBall(1);
+            }
+
+            document.getElementById('pongScore').textContent =
+                `${game.pong.playerScore} - ${game.pong.aiScore}`;
+
+            // Draw
+            drawPong();
+
+            requestAnimationFrame(updatePong);
+        }
+
+        function resetPongBall(direction) {
+            game.pong.ballX = PONG_WIDTH / 2;
+            game.pong.ballY = PONG_HEIGHT / 2;
+            game.pong.ballVX = direction * 3;
+            game.pong.ballVY = (Math.random() - 0.5) * 4;
+            playTone(220, 0.1, 'sine', 0.1);
+        }
+
+        function drawPong() {
+            // Clear
+            pongCtx.fillStyle = '#000';
+            pongCtx.fillRect(0, 0, PONG_WIDTH, PONG_HEIGHT);
+
+            // Center line
+            pongCtx.strokeStyle = '#003300';
+            pongCtx.setLineDash([5, 5]);
+            pongCtx.beginPath();
+            pongCtx.moveTo(PONG_WIDTH / 2, 0);
+            pongCtx.lineTo(PONG_WIDTH / 2, PONG_HEIGHT);
+            pongCtx.stroke();
+            pongCtx.setLineDash([]);
+
+            // Paddles
+            pongCtx.fillStyle = '#00ff00';
+            pongCtx.fillRect(12, game.pong.playerY, PADDLE_WIDTH, PADDLE_HEIGHT);
+            pongCtx.fillRect(PONG_WIDTH - 12 - PADDLE_WIDTH, game.pong.aiY, PADDLE_WIDTH, PADDLE_HEIGHT);
+
+            // Ball
+            pongCtx.fillRect(game.pong.ballX, game.pong.ballY, BALL_SIZE, BALL_SIZE);
+
+            // Scanlines effect
+            pongCtx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            for (let y = 0; y < PONG_HEIGHT; y += 4) {
+                pongCtx.fillRect(0, y, PONG_WIDTH, 2);
+            }
+        }
+
         // ============ HIDING SYSTEM ============
 
         // Audio cue timings (in ms from start of sequence)
@@ -5153,11 +5489,13 @@
 
             switch (soundType) {
                 case 'keyInLock':
-                    // Removed synthetic sound - using real sounds instead
+                    // Keys jingling as killer unlocks door
+                    playAudioFile('keys-jingle', { volume: 0.5 });
                     break;
 
                 case 'doorCreak':
-                    // Removed synthetic sound - no replacement needed (silence is creepier)
+                    // Door opening - use a subtle footstep as door sound
+                    playAudioFile('footsteps', { volume: 0.3 });
                     break;
 
                 case 'footsteps':
@@ -5181,7 +5519,8 @@
                     break;
 
                 case 'bathroomDoor':
-                    // Removed synthetic sound - using real sounds instead
+                    // Bathroom door closing - subtle sound
+                    playAudioFile('footsteps', { volume: 0.25 });
                     break;
 
                 case 'waterRunning':
@@ -5439,6 +5778,7 @@
         }
 
         // ============ BASEMENT SCENE (Bad Endings) ============
+        // Top-down pixel art view: Fede tied to table, killer approaching
         let basementAnimationId = null;
 
         function startBasementScene(endingCode) {
@@ -5453,113 +5793,257 @@
             // Basement scene state
             const basement = {
                 startTime: Date.now(),
-                killerY: 600, // Start below screen
-                knifeAngle: 0,
-                breathOffset: 0,
-                phase: 'approach' // approach, closeup, fade
+                killerY: -60, // Start above screen
+                phase: 'dark', // dark, lighton, approach, standing, fade
+                lightOn: false
             };
 
-            // Lightswitch sound as dungeon "lights up"
-            playAudioFile('lightswitch', { volume: 0.6 });
-
-            // Play creepy ambient after lightswitch
+            // Start in darkness, then light turns on
             setTimeout(() => {
-                playTone(55, 8, 'sawtooth', 0.08);
-                setTimeout(() => playTone(40, 6, 'sine', 0.05), 500);
-            }, 300);
+                playAudioFile('lightswitch', { volume: 0.6 });
+                basement.lightOn = true;
+                basement.phase = 'approach';
+                basement.startTime = Date.now(); // Reset timer for approach
+            }, 800);
 
             function drawBasementFrame() {
                 const elapsed = Date.now() - basement.startTime;
-                bCtx.fillStyle = '#0a0505';
-                bCtx.fillRect(0, 0, 384, 512);
 
-                // Red ambient light from above
-                const gradient = bCtx.createRadialGradient(192, 50, 10, 192, 200, 300);
-                gradient.addColorStop(0, 'rgba(80, 20, 15, 0.4)');
-                gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
-                bCtx.fillStyle = gradient;
-                bCtx.fillRect(0, 0, 384, 512);
-
-                // Flickering red light
-                const flicker = 0.7 + Math.sin(elapsed / 100) * 0.15 + Math.random() * 0.15;
-                bCtx.fillStyle = `rgba(60, 15, 10, ${flicker * 0.3})`;
-                bCtx.fillRect(0, 0, 384, 200);
-
-                // Chains on walls (sides)
-                bCtx.strokeStyle = '#3a3535';
-                bCtx.lineWidth = 3;
-                for (let side = 0; side < 2; side++) {
-                    const sx = side === 0 ? 30 : 354;
-                    for (let i = 0; i < 5; i++) {
-                        const sway = Math.sin(elapsed / 500 + i) * 2;
-                        bCtx.beginPath();
-                        bCtx.moveTo(sx + sway, 20 + i * 50);
-                        bCtx.lineTo(sx + sway + 3, 40 + i * 50);
-                        bCtx.lineTo(sx + sway - 3, 60 + i * 50);
-                        bCtx.stroke();
-                    }
+                // Complete darkness before light turns on
+                if (!basement.lightOn) {
+                    bCtx.fillStyle = '#000';
+                    bCtx.fillRect(0, 0, 384, 512);
+                    requestAnimationFrame(drawBasementFrame);
+                    return;
                 }
 
-                // Tools on wall (background)
-                bCtx.fillStyle = '#2a2020';
-                // Meat hooks
+                // Light flicker intensity - increases as killer approaches
+                const approachProgress = Math.min(1, basement.killerY / 80);
+                const baseFlicker = 0.8 - approachProgress * 0.4; // Gets dimmer
+                const flickerSpeed = 150 - approachProgress * 100; // Flickers faster
+                const flicker = baseFlicker + Math.sin(elapsed / flickerSpeed) * 0.15 + Math.random() * 0.1;
+
+                // Dark concrete floor
+                bCtx.fillStyle = '#1a1815';
+                bCtx.fillRect(0, 0, 384, 512);
+
+                // Floor texture - concrete cracks
+                bCtx.strokeStyle = '#151210';
+                bCtx.lineWidth = 1;
+                for (let i = 0; i < 8; i++) {
+                    bCtx.beginPath();
+                    bCtx.moveTo(i * 50 + 20, 0);
+                    bCtx.lineTo(i * 50 + 30, 512);
+                    bCtx.stroke();
+                }
+                for (let i = 0; i < 12; i++) {
+                    bCtx.beginPath();
+                    bCtx.moveTo(0, i * 45 + 10);
+                    bCtx.lineTo(384, i * 45 + 20);
+                    bCtx.stroke();
+                }
+
+                // Flickering light from above - gets more red as killer approaches
+                const redAmount = 60 + approachProgress * 40;
+                const lightGradient = bCtx.createRadialGradient(192, 256, 20, 192, 256, 280);
+                lightGradient.addColorStop(0, `rgba(${redAmount}, 25, 20, ${flicker * 0.5})`);
+                lightGradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                bCtx.fillStyle = lightGradient;
+                bCtx.fillRect(0, 0, 384, 512);
+
+                // Tools on walls (top)
+                bCtx.fillStyle = '#2a2520';
+                // Hooks
+                for (let i = 0; i < 4; i++) {
+                    bCtx.fillRect(60 + i * 80, 15, 6, 20);
+                    bCtx.beginPath();
+                    bCtx.arc(63 + i * 80, 35, 8, 0, Math.PI);
+                    bCtx.stroke();
+                }
+                // Saw
+                bCtx.fillRect(320, 20, 40, 8);
+                bCtx.fillStyle = '#4a4540';
+                for (let i = 0; i < 8; i++) {
+                    bCtx.fillRect(322 + i * 5, 28, 3, 5);
+                }
+
+                // Blood stains on floor
+                bCtx.fillStyle = 'rgba(60, 15, 15, 0.5)';
                 bCtx.beginPath();
-                bCtx.arc(80, 80, 15, 0.3, Math.PI - 0.3);
+                bCtx.ellipse(100, 400, 30, 20, 0.3, 0, Math.PI * 2);
+                bCtx.fill();
+                bCtx.beginPath();
+                bCtx.ellipse(300, 150, 25, 35, -0.2, 0, Math.PI * 2);
+                bCtx.fill();
+
+                // ============ METAL TABLE (center) ============
+                const tableX = 120, tableY = 200, tableW = 144, tableH = 200;
+
+                // Table shadow
+                bCtx.fillStyle = 'rgba(0,0,0,0.4)';
+                bCtx.fillRect(tableX + 8, tableY + 8, tableW, tableH);
+
+                // Table surface
+                bCtx.fillStyle = '#5a5855';
+                bCtx.fillRect(tableX, tableY, tableW, tableH);
+                bCtx.fillStyle = '#4a4845';
+                bCtx.fillRect(tableX + 4, tableY + 4, tableW - 8, tableH - 8);
+
+                // Table legs (visible at corners)
+                bCtx.fillStyle = '#3a3835';
+                bCtx.fillRect(tableX - 4, tableY - 4, 12, 12);
+                bCtx.fillRect(tableX + tableW - 8, tableY - 4, 12, 12);
+                bCtx.fillRect(tableX - 4, tableY + tableH - 8, 12, 12);
+                bCtx.fillRect(tableX + tableW - 8, tableY + tableH - 8, 12, 12);
+
+                // ============ FEDE TIED TO TABLE (top-down) ============
+                const fedeX = tableX + tableW/2;
+                const fedeY = tableY + tableH/2;
+                const breathe = Math.sin(elapsed / 600) * 2;
+
+                // Body (shirt)
+                bCtx.fillStyle = COLORS.playerShirt;
+                bCtx.fillRect(fedeX - 15, fedeY - 30 + breathe, 30, 50);
+
+                // Head (top-down, we see hair mostly)
+                bCtx.fillStyle = COLORS.playerHair;
+                bCtx.beginPath();
+                bCtx.ellipse(fedeX, fedeY - 45 + breathe, 14, 12, 0, 0, Math.PI * 2);
+                bCtx.fill();
+                // Face edge
+                bCtx.fillStyle = COLORS.player;
+                bCtx.beginPath();
+                bCtx.ellipse(fedeX, fedeY - 42 + breathe, 10, 8, 0, 0.3, Math.PI - 0.3);
+                bCtx.fill();
+
+                // Arms (spread out, tied)
+                bCtx.fillStyle = COLORS.playerShirt;
+                bCtx.fillRect(fedeX - 50, fedeY - 15 + breathe, 35, 12);
+                bCtx.fillRect(fedeX + 15, fedeY - 15 + breathe, 35, 12);
+                // Hands
+                bCtx.fillStyle = COLORS.player;
+                bCtx.fillRect(fedeX - 55, fedeY - 13 + breathe, 8, 8);
+                bCtx.fillRect(fedeX + 47, fedeY - 13 + breathe, 8, 8);
+
+                // Legs
+                bCtx.fillStyle = COLORS.playerPants;
+                bCtx.fillRect(fedeX - 12, fedeY + 20 + breathe, 10, 45);
+                bCtx.fillRect(fedeX + 2, fedeY + 20 + breathe, 10, 45);
+                // Feet
+                bCtx.fillStyle = '#2a2a2a';
+                bCtx.fillRect(fedeX - 14, fedeY + 62 + breathe, 12, 8);
+                bCtx.fillRect(fedeX + 2, fedeY + 62 + breathe, 12, 8);
+
+                // ============ ROPES ============
+                bCtx.strokeStyle = '#8a7a5a';
+                bCtx.lineWidth = 4;
+                // Chest rope
+                bCtx.beginPath();
+                bCtx.moveTo(tableX + 10, fedeY - 5 + breathe);
+                bCtx.lineTo(tableX + tableW - 10, fedeY - 5 + breathe);
+                bCtx.stroke();
+                // Wrist ropes
+                bCtx.beginPath();
+                bCtx.moveTo(fedeX - 55, fedeY - 9 + breathe);
+                bCtx.lineTo(fedeX - 55, fedeY - 17 + breathe);
+                bCtx.lineTo(tableX, fedeY - 17 + breathe);
                 bCtx.stroke();
                 bCtx.beginPath();
-                bCtx.arc(304, 90, 12, 0.3, Math.PI - 0.3);
+                bCtx.moveTo(fedeX + 55, fedeY - 9 + breathe);
+                bCtx.lineTo(fedeX + 55, fedeY - 17 + breathe);
+                bCtx.lineTo(tableX + tableW, fedeY - 17 + breathe);
                 bCtx.stroke();
-                // Saw silhouette
-                bCtx.fillRect(120, 60, 40, 6);
-                bCtx.fillRect(240, 70, 50, 5);
+                // Ankle rope
+                bCtx.beginPath();
+                bCtx.moveTo(tableX + 20, fedeY + 55 + breathe);
+                bCtx.lineTo(tableX + tableW - 20, fedeY + 55 + breathe);
+                bCtx.stroke();
 
-                // Player's body (first person - you see your own torso/legs strapped)
-                // Straps across view
-                basement.breathOffset = Math.sin(elapsed / 800) * 3;
-
-                // Your legs (at bottom of screen, strapped)
-                bCtx.fillStyle = '#3a4555'; // Pants
-                bCtx.fillRect(120, 420 + basement.breathOffset, 60, 100);
-                bCtx.fillRect(204, 420 + basement.breathOffset, 60, 100);
-
-                // Leather straps
-                bCtx.fillStyle = '#4a3a2a';
-                bCtx.fillRect(80, 380, 224, 15);
-                bCtx.fillRect(80, 460, 224, 15);
-                // Buckles
-                bCtx.fillStyle = '#666';
-                bCtx.fillRect(70, 382, 12, 11);
-                bCtx.fillRect(302, 382, 12, 11);
-                bCtx.fillRect(70, 462, 12, 11);
-                bCtx.fillRect(302, 462, 12, 11);
-
-                // Metal table edge visible at sides
-                bCtx.fillStyle = '#4a4a4a';
-                bCtx.fillRect(0, 350, 60, 170);
-                bCtx.fillRect(324, 350, 60, 170);
-
-                // KILLER APPROACHING
+                // ============ KILLER APPROACHING (top-down) ============
                 if (basement.phase === 'approach') {
-                    // Killer moves closer over time
-                    basement.killerY = 600 - (elapsed / 15); // Slowly rises into view
-                    if (basement.killerY < 180) {
-                        basement.phase = 'closeup';
-                        basement.closeupStart = Date.now();
-                        // Terrifying sound
-                        playTone(100, 0.5, 'square', 0.2);
+                    basement.killerY = -60 + (elapsed / 12);
+                    if (basement.killerY > 80) {
+                        basement.phase = 'standing';
+                        basement.standStart = Date.now();
+                        playAudioFile('knife-scrape', { volume: 0.5 });
                     }
                 }
 
-                if (basement.phase === 'approach' && basement.killerY < 500) {
-                    drawKillerApproaching(bCtx, basement, elapsed);
+                const killerY = basement.phase === 'approach' ? basement.killerY : 80;
+                const killerX = 192;
+
+                if (killerY > -60) {
+                    // Killer shadow
+                    bCtx.fillStyle = 'rgba(0,0,0,0.3)';
+                    bCtx.beginPath();
+                    bCtx.ellipse(killerX + 4, killerY + 50, 20, 8, 0, 0, Math.PI * 2);
+                    bCtx.fill();
+
+                    // Body (dark clothes)
+                    bCtx.fillStyle = '#1a1a1a';
+                    bCtx.fillRect(killerX - 15, killerY, 30, 45);
+
+                    // Head (top-down, blond hair)
+                    bCtx.fillStyle = '#d4b896';
+                    bCtx.beginPath();
+                    bCtx.ellipse(killerX, killerY - 8, 14, 12, 0, 0, Math.PI * 2);
+                    bCtx.fill();
+
+                    // Arms
+                    bCtx.fillStyle = '#1a1a1a';
+                    bCtx.fillRect(killerX - 25, killerY + 5, 12, 30);
+                    bCtx.fillRect(killerX + 13, killerY + 5, 12, 30);
+                    // Hands
+                    bCtx.fillStyle = '#e0c0a0';
+                    bCtx.fillRect(killerX - 24, killerY + 32, 10, 10);
+                    bCtx.fillRect(killerX + 14, killerY + 32, 10, 10);
+
+                    // Legs
+                    bCtx.fillStyle = '#1a1a1a';
+                    bCtx.fillRect(killerX - 10, killerY + 42, 8, 20);
+                    bCtx.fillRect(killerX + 2, killerY + 42, 8, 20);
+
+                    // KNIFE in right hand - cleaner design
+                    const knifeWobble = Math.sin(elapsed / 200) * 2;
+                    const kx = killerX + 22 + knifeWobble;
+                    const ky = killerY + 35;
+
+                    // Handle (dark wood)
+                    bCtx.fillStyle = '#3a2a1a';
+                    bCtx.fillRect(kx - 3, ky, 6, 14);
+                    // Handle rivets
+                    bCtx.fillStyle = '#666';
+                    bCtx.fillRect(kx - 1, ky + 3, 2, 2);
+                    bCtx.fillRect(kx - 1, ky + 8, 2, 2);
+
+                    // Blade (metallic)
+                    bCtx.fillStyle = '#c0c0c0';
+                    bCtx.fillRect(kx - 2, ky + 14, 4, 25);
+                    // Blade edge highlight
+                    bCtx.fillStyle = '#e0e0e0';
+                    bCtx.fillRect(kx + 1, ky + 14, 1, 25);
+                    // Blade tip
+                    bCtx.beginPath();
+                    bCtx.moveTo(kx - 2, ky + 39);
+                    bCtx.lineTo(kx, ky + 45);
+                    bCtx.lineTo(kx + 2, ky + 39);
+                    bCtx.closePath();
+                    bCtx.fill();
+
+                    // Blood dripping
+                    bCtx.fillStyle = '#8a2020';
+                    bCtx.fillRect(kx - 1, ky + 28, 2, 12);
+                    bCtx.beginPath();
+                    bCtx.arc(kx, ky + 42, 2, 0, Math.PI * 2);
+                    bCtx.fill();
                 }
 
-                if (basement.phase === 'closeup') {
-                    const closeupElapsed = Date.now() - basement.closeupStart;
-                    drawKillerCloseup(bCtx, basement, closeupElapsed);
+                // ============ PHASE TRANSITIONS ============
+                if (basement.phase === 'standing') {
+                    const standElapsed = Date.now() - basement.standStart;
 
-                    // After closeup, fade to black
-                    if (closeupElapsed > 4000) {
+                    // Killer slowly moves closer
+                    if (standElapsed > 3000) {
                         basement.phase = 'fade';
                         basement.fadeStart = Date.now();
                     }
@@ -5577,164 +6061,14 @@
                     }
                 }
 
-                basementAnimationId = requestAnimationFrame(drawBasementFrame);
-            }
-
-            function drawKillerApproaching(ctx, state, elapsed) {
-                const scale = Math.max(0.3, (500 - state.killerY) / 300);
-                const centerX = 192;
-                const y = state.killerY;
-
-                // Killer silhouette approaching
-                ctx.save();
-                ctx.translate(centerX, y);
-                ctx.scale(scale, scale);
-
-                // Body
-                ctx.fillStyle = '#1a1a1a';
-                ctx.fillRect(-30, -80, 60, 100);
-
-                // Head
-                ctx.fillStyle = '#e0c0a0';
-                ctx.beginPath();
-                ctx.ellipse(0, -100, 25, 30, 0, 0, Math.PI * 2);
-                ctx.fill();
-
-                // Blond hair
-                ctx.fillStyle = '#d4b896';
-                ctx.beginPath();
-                ctx.ellipse(0, -115, 25, 20, 0, Math.PI, Math.PI * 2);
-                ctx.fill();
-
-                // Smile (getting wider as approaches)
-                ctx.strokeStyle = '#8a3030';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.arc(0, -90, 12, 0.2, Math.PI - 0.2);
-                ctx.stroke();
-
-                // Eyes (dark, soulless)
-                ctx.fillStyle = '#111';
-                ctx.beginPath();
-                ctx.arc(-8, -105, 4, 0, Math.PI * 2);
-                ctx.arc(8, -105, 4, 0, Math.PI * 2);
-                ctx.fill();
-
-                // Arm with knife
-                ctx.fillStyle = '#e0c0a0';
-                ctx.fillRect(25, -60, 15, 50);
-
-                // KNIFE
-                ctx.fillStyle = '#666';
-                ctx.fillRect(30, -10, 8, 25); // Handle
-                ctx.fillStyle = '#aaa';
-                ctx.beginPath();
-                ctx.moveTo(34, 15);
-                ctx.lineTo(28, 60);
-                ctx.lineTo(40, 60);
-                ctx.closePath();
-                ctx.fill();
-                // Blood on blade
-                ctx.fillStyle = 'rgba(120, 30, 30, 0.7)';
-                ctx.fillRect(30, 30, 8, 20);
-
-                ctx.restore();
-            }
-
-            function drawKillerCloseup(ctx, state, elapsed) {
-                // Extreme closeup - just face and knife moving toward camera/crotch
-                const breathe = Math.sin(elapsed / 400) * 5;
-
-                // Dark vignette
-                const vignette = ctx.createRadialGradient(192, 256, 50, 192, 256, 250);
+                // Vignette effect
+                const vignette = bCtx.createRadialGradient(192, 256, 100, 192, 256, 280);
                 vignette.addColorStop(0, 'rgba(0,0,0,0)');
-                vignette.addColorStop(1, 'rgba(0,0,0,0.7)');
-                ctx.fillStyle = vignette;
-                ctx.fillRect(0, 0, 384, 512);
+                vignette.addColorStop(1, 'rgba(0,0,0,0.6)');
+                bCtx.fillStyle = vignette;
+                bCtx.fillRect(0, 0, 384, 512);
 
-                // Giant face filling upper screen
-                ctx.fillStyle = '#e0c0a0';
-                ctx.beginPath();
-                ctx.ellipse(192, 120 + breathe, 150, 180, 0, 0, Math.PI * 2);
-                ctx.fill();
-
-                // Blond hair
-                ctx.fillStyle = '#d4b896';
-                ctx.beginPath();
-                ctx.ellipse(192, 40, 140, 80, 0, Math.PI, Math.PI * 2);
-                ctx.fill();
-                ctx.fillRect(52, 40, 30, 100);
-                ctx.fillRect(302, 40, 30, 100);
-
-                // Eyes - soulless black with small glint
-                ctx.fillStyle = '#0a0a0a';
-                ctx.beginPath();
-                ctx.ellipse(145, 100 + breathe, 20, 25, 0, 0, Math.PI * 2);
-                ctx.ellipse(239, 100 + breathe, 20, 25, 0, 0, Math.PI * 2);
-                ctx.fill();
-                // Tiny reflection
-                ctx.fillStyle = '#444';
-                ctx.beginPath();
-                ctx.arc(150, 95 + breathe, 4, 0, Math.PI * 2);
-                ctx.arc(244, 95 + breathe, 4, 0, Math.PI * 2);
-                ctx.fill();
-
-                // Smile - wide, unsettling
-                ctx.fillStyle = '#1a0505';
-                ctx.beginPath();
-                ctx.ellipse(192, 200 + breathe, 60, 30, 0, 0, Math.PI);
-                ctx.fill();
-                // Teeth
-                ctx.fillStyle = '#e8e8e0';
-                for (let i = 0; i < 8; i++) {
-                    ctx.fillRect(145 + i * 12, 195 + breathe, 10, 15);
-                }
-
-                // KNIFE moving toward bottom of screen (implied toward crotch)
-                const knifeY = 280 + (elapsed / 20); // Slowly moves down
-                const knifeX = 250 + Math.sin(elapsed / 200) * 10;
-
-                // Killer's hand
-                ctx.fillStyle = '#e0c0a0';
-                ctx.fillRect(knifeX - 30, knifeY - 40, 40, 60);
-
-                // Knife handle
-                ctx.fillStyle = '#3a2a1a';
-                ctx.fillRect(knifeX - 8, knifeY - 20, 20, 50);
-
-                // Knife blade - large, menacing
-                ctx.fillStyle = '#b0b0b0';
-                ctx.beginPath();
-                ctx.moveTo(knifeX + 2, knifeY + 30);
-                ctx.lineTo(knifeX - 15, knifeY + 150);
-                ctx.lineTo(knifeX + 19, knifeY + 150);
-                ctx.closePath();
-                ctx.fill();
-
-                // Blood dripping from blade
-                ctx.fillStyle = '#8a2020';
-                for (let i = 0; i < 3; i++) {
-                    const dripY = knifeY + 80 + i * 25 + (elapsed / 50) % 30;
-                    ctx.beginPath();
-                    ctx.ellipse(knifeX + 2 + i * 4, dripY, 4, 8, 0, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-
-                // Player's restrained legs visible at bottom
-                ctx.fillStyle = '#3a4555';
-                ctx.fillRect(100, 420 + breathe, 70, 100);
-                ctx.fillRect(214, 420 + breathe, 70, 100);
-                // Straps
-                ctx.fillStyle = '#4a3a2a';
-                ctx.fillRect(60, 450, 264, 20);
-
-                // Text appears
-                if (elapsed > 2000) {
-                    ctx.fillStyle = `rgba(100, 40, 40, ${Math.min(1, (elapsed - 2000) / 1000)})`;
-                    ctx.font = '14px "Press Start 2P"';
-                    ctx.textAlign = 'center';
-                    ctx.fillText('...', 192, 510);
-                }
+                basementAnimationId = requestAnimationFrame(drawBasementFrame);
             }
 
             drawBasementFrame();
@@ -5771,17 +6105,17 @@
             const textEl = document.getElementById('endingText');
             const subtitleEl = document.getElementById('endingSubtitle');
 
-            textEl.textContent = ending.title;
-            subtitleEl.textContent = ending.subtitle;
-
             overlay.style.display = 'flex';
 
-            // Play ending sound
+            // For good endings (A/B), just show black screen with messages
+            // For bad endings (C/D), show the title text
             if (endingCode === 'A' || endingCode === 'B') {
-                // Relief/tense sound
-                playTone(220, 2, 'sine', 0.1);
+                textEl.textContent = '';
+                subtitleEl.textContent = '';
             } else {
-                // Horror sound
+                textEl.textContent = ending.title;
+                subtitleEl.textContent = ending.subtitle;
+                // Horror sound for bad endings
                 playTone(80, 3, 'sawtooth', 0.15);
             }
 
@@ -5793,15 +6127,15 @@
                     setTimeout(() => {
                         document.getElementById('telegramResponse').textContent = '→ "Ahora te llamo"';
                     }, 1000);
-                }, 2000);
+                }, 1500);
             } else if (endingCode === 'B') {
                 // Fede texts Billy after killing the killer
                 setTimeout(() => {
-                    showTelegram('¿¿FEDE??', null);
+                    showTelegram('¿Qué pasó?', null);
                     setTimeout(() => {
                         document.getElementById('telegramResponse').textContent = '→ "Te cuento después"';
-                    }, 1000);
-                }, 2000);
+                    }, 1500);
+                }, 1500);
             } else {
                 // Endings C and D - Billy keeps messaging into the void
                 setTimeout(() => showTelegram('Fede contestame', null), 2000);
@@ -5815,30 +6149,38 @@
         function triggerKillerEmergence() {
             if (game.ending) return;
 
-            // Play bathroom door sound
-            playHidingSound('bathroomDoor');
-
             game.killer.active = true;
             game.killer.visible = true;
             game.killer.phase = 'emerging';
 
-            // Killer starts at bathroom door (x=1.5, y=8 in tiles -> pixels)
-            game.killer.x = 1.5 * TILE;
-            game.killer.y = 8 * TILE;
+            // Killer starts at bathroom door position based on current screen
+            if (game.currentScreen === 'neighborDown') {
+                // Bathroom door is at right wall (x=11, y=4)
+                game.killer.x = 11 * TILE;
+                game.killer.y = 5 * TILE;
+                game.killer.screen = 'neighborDown';
+            } else {
+                // neighbor screen - bathroom at bottom left (x=1.5, y=8)
+                game.killer.x = 1.5 * TILE;
+                game.killer.y = 8 * TILE;
+                game.killer.screen = 'neighbor';
+            }
 
             // Jump scare sound when killer appears
+            playAudioFile('jumpscare', { volume: 0.7 });
+
+            // Knife scrape on wood right after
             setTimeout(() => {
-                playAudioFile('jumpscare', { volume: 0.6 });
-            }, 500);
+                playAudioFile('knife-scrape', { volume: 0.5 });
+            }, 300);
 
             showDialogue('"..."');
 
-            // After a pause, start chasing - play knife scrape
+            // After a pause, start chasing
             setTimeout(() => {
                 if (!game.killer.active) return;
                 game.killer.phase = 'chasing';
-                playAudioFile('knife-scrape', { volume: 0.4 });
-            }, 2000);
+            }, 1500);
         }
 
         function updateKiller(deltaTime) {
@@ -5875,7 +6217,7 @@
             }
 
             if (game.killer.phase === 'chasing') {
-                // Move slowly toward player
+                // Move toward player with pathfinding around obstacles
                 const dx = game.player.x - game.killer.x;
                 const dy = game.player.y - game.killer.y;
                 const dist = Math.sqrt(dx * dx + dy * dy);
@@ -5887,12 +6229,117 @@
                 }
 
                 if (dist > 5) {
-                    // Very slow movement
                     const speed = 0.5;
-                    game.killer.x += (dx / dist) * speed;
-                    game.killer.y += (dy / dist) * speed;
+                    const moveX = (dx / dist) * speed;
+                    const moveY = (dy / dist) * speed;
+
+                    // Try direct movement first
+                    const newX = game.killer.x + moveX;
+                    const newY = game.killer.y + moveY;
+
+                    // Check collisions separately for X and Y
+                    const blockedX = checkKillerCollision(newX, game.killer.y);
+                    const blockedY = checkKillerCollision(game.killer.x, newY);
+
+                    if (!blockedX) {
+                        game.killer.x = newX;
+                    }
+                    if (!blockedY) {
+                        game.killer.y = newY;
+                    }
+
+                    // If both blocked, try sliding along walls
+                    if (blockedX && blockedY) {
+                        // Try perpendicular movement to get unstuck
+                        if (Math.abs(dx) > Math.abs(dy)) {
+                            // Want to move X, try sliding Y
+                            if (!checkKillerCollision(game.killer.x, game.killer.y - speed)) {
+                                game.killer.y -= speed;
+                            } else if (!checkKillerCollision(game.killer.x, game.killer.y + speed)) {
+                                game.killer.y += speed;
+                            }
+                        } else {
+                            // Want to move Y, try sliding X
+                            if (!checkKillerCollision(game.killer.x - speed, game.killer.y)) {
+                                game.killer.x -= speed;
+                            } else if (!checkKillerCollision(game.killer.x + speed, game.killer.y)) {
+                                game.killer.x += speed;
+                            }
+                        }
+                    }
                 }
             }
+        }
+
+        // Check if killer collides with furniture at given position
+        function checkKillerCollision(newX, newY) {
+            const killerHalfWidth = 12;
+            const killerHalfHeight = 14;
+            const killerScreen = game.killer.screen || game.currentScreen;
+            const screen = screens[killerScreen];
+            if (!screen) return false;
+
+            // Outer walls
+            if (newX - killerHalfWidth < TILE * 0.5) return true;
+            if (newX + killerHalfWidth > canvas.width - TILE * 0.5) return true;
+            if (newY - killerHalfHeight < TILE * 0.5) return true;
+            if (newY + killerHalfHeight > canvas.height - TILE * 0.5) return true;
+
+            // Only these specific actions are passable (doors and stairs only)
+            const passableActions = ['stairs', 'stairsDown', 'neighborStairsDown', 'neighborStairsUp',
+                                     'frontDoor', 'neighborDoor', 'homeDoor', 'escapeDoor', 'bathroomDoor',
+                                     'keyHook', 'balconyDoor'];
+
+            const screenObjects = objectsByScreen[killerScreen] || [];
+            for (const obj of screenObjects) {
+                // Skip items and decor only
+                if (obj.type === 'item' || obj.type === 'decor') continue;
+                // Skip ONLY doors and stairs
+                if (obj.action && passableActions.includes(obj.action)) continue;
+
+                const ox = obj.x * TILE;
+                const oy = obj.y * TILE;
+                const ow = obj.w * TILE;
+                const oh = obj.h * TILE;
+
+                if (newX + killerHalfWidth > ox && newX - killerHalfWidth < ox + ow &&
+                    newY + killerHalfHeight > oy && newY - killerHalfHeight < oy + oh) {
+                    return true;
+                }
+            }
+
+            // Inner walls (with doorway consideration)
+            for (const wall of screen.walls) {
+                const wx = wall.x * TILE;
+                const wy = wall.y * TILE;
+                const ww = wall.w * TILE;
+                const wh = wall.h * TILE;
+
+                // Check if in doorway
+                let inDoorway = false;
+                for (const dw of screen.doorways) {
+                    if (dw.vertical) {
+                        if (newY > dw.y * TILE - 10 && newY < (dw.y + dw.h) * TILE + 10) {
+                            inDoorway = true;
+                            break;
+                        }
+                    } else {
+                        if (newX > dw.x * TILE - 10 && newX < (dw.x + dw.w) * TILE + 10) {
+                            inDoorway = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!inDoorway) {
+                    if (newX + killerHalfWidth > wx && newX - killerHalfWidth < wx + ww &&
+                        newY + killerHalfHeight > wy && newY - killerHalfHeight < wy + wh) {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         function drawKiller() {
@@ -6058,10 +6505,11 @@
             const knifeX = game.killer.x / TILE;
             const knifeY = (game.killer.y + 30) / TILE;
 
-            // Store knife position in game state
+            // Store knife position in game state - including which screen!
             game.flags.knifeOnFloor = true;
             game.flags.knifeX = knifeX;
             game.flags.knifeY = knifeY;
+            game.flags.knifeScreen = game.currentScreen;
 
             setTimeout(() => {
                 showDialogue('"El cuchillo..."');
@@ -6069,7 +6517,8 @@
         }
 
         function drawKnifeOnFloor() {
-            if (!game.flags.knifeOnFloor || game.currentScreen !== 'neighbor') return;
+            if (!game.flags.knifeOnFloor) return;
+            if (game.currentScreen !== game.flags.knifeScreen) return;
             if (game.inventory.includes('Cuchillo')) return;
 
             const kx = game.flags.knifeX * TILE;
@@ -6116,7 +6565,8 @@
         }
 
         function tryPickUpKnife() {
-            if (!game.flags.knifeOnFloor || game.currentScreen !== 'neighbor') return false;
+            if (!game.flags.knifeOnFloor) return false;
+            if (game.currentScreen !== game.flags.knifeScreen) return false;
             if (game.inventory.includes('Cuchillo')) return false;
 
             const kx = game.flags.knifeX * TILE;
@@ -6129,8 +6579,9 @@
 
             if (dist < 50) {
                 game.inventory.push('Cuchillo');
+                game.equipped = 'Cuchillo'; // Auto-equip the knife
                 game.flags.knifeOnFloor = false;
-                showDialogue('"Lo agarro..."');
+                showDialogue('"Lo agarro..." [Ya está equipado]');
                 playSound('pickup');
                 return true;
             }
@@ -6140,7 +6591,7 @@
         function tryUseKnifeOnKiller() {
             if (!game.killer.stunned) return false;
             if (game.equipped !== 'Cuchillo') return false;
-            if (game.currentScreen !== 'neighbor') return false;
+            if (game.currentScreen !== game.killer.screen) return false;
 
             const dist = Math.sqrt(
                 Math.pow(game.player.x - game.killer.x, 2) +
@@ -6148,23 +6599,48 @@
             );
 
             if (dist < 60) {
-                // Revenge ending
+                // Revenge ending - start stabbing animation
                 game.inventory = game.inventory.filter(i => i !== 'Cuchillo');
                 game.equipped = null;
+                game.revengeAnimation = { phase: 'stabbing', timer: 0, stabs: 0 };
 
-                // Sound effect
-                playTone(100, 0.5, 'sawtooth', 0.2);
-                setTimeout(() => playTone(80, 0.8, 'sawtooth', 0.15), 300);
+                // Freeze player
+                game.player.speed = 0;
 
-                // Hide killer
-                game.killer.visible = false;
-                game.killer.active = false;
+                // First stab
+                playAudioFile('knife-stab', { volume: 0.8 });
+                game.revengeAnimation.stabs = 1;
 
-                showDialogue('"..."');
-
+                // Second stab
                 setTimeout(() => {
+                    if (game.revengeAnimation) {
+                        playAudioFile('knife-stab', { volume: 0.7 });
+                        game.revengeAnimation.stabs = 2;
+                    }
+                }, 600);
+
+                // Third stab
+                setTimeout(() => {
+                    if (game.revengeAnimation) {
+                        playAudioFile('knife-stab', { volume: 0.9 });
+                        game.revengeAnimation.stabs = 3;
+                    }
+                }, 1200);
+
+                // Fade to black after stabbing
+                setTimeout(() => {
+                    game.revengeAnimation.phase = 'fadeout';
+                    game.revengeAnimation.timer = 0; // Reset timer for fade
+                    game.killer.visible = false;
+                    game.killer.active = false;
+                }, 1800);
+
+                // Complete fade and trigger ending
+                setTimeout(() => {
+                    game.revengeAnimation = null;
                     triggerEnding('B');
-                }, 2000);
+                }, 3000);
+
                 return true;
             }
             return false;
@@ -6335,8 +6811,15 @@
                 setTimeout(() => {
                     document.getElementById('keysOverlay').style.display = 'none';
                     game.keysGame.active = false;
-                    triggerEnding('A');
+                    // Start fade to black
+                    game.escapeAnimation = { timer: 0 };
                 }, 1000);
+
+                // Fade completes, trigger ending
+                setTimeout(() => {
+                    game.escapeAnimation = null;
+                    triggerEnding('A');
+                }, 2500);
             } else {
                 // Wrong key
                 const message = KEY_MESSAGES[keyIndex] || '"No..."';
@@ -6789,6 +7272,13 @@
                 if (targetScreen === 'neighbor' && !game.flags.visitedNeighbor) {
                     game.flags.visitedNeighbor = true;
                     game.flags.enteredNeighbor = true;
+
+                    // First time entering killer's apartment - trigger phone animation after a beat
+                    if (!game.phone.silentMode) {
+                        setTimeout(() => {
+                            startPhoneSilentAnimation(null);
+                        }, 800); // Small delay to let player see the room first
+                    }
                 }
 
                 // Manage clock-tick ambient - only in Fede's apartment
@@ -7217,6 +7707,7 @@
                 if (obj.id === 'screwdriver' && game.flags.screwdriverTaken) continue;
                 if (obj.id === 'hallwayNote' && game.flags.noteTaken) continue;
                 if (obj.id === 'nHiddenNote' && game.flags.neighborNoteTaken) continue;
+                if (obj.id === 'condoms' && game.flags.condomsTaken) continue;
                 if (isItemHidden(obj)) continue;
 
                 // Glow effect for nearby interactables and pushables
@@ -7251,6 +7742,39 @@
                 ctx.font = '14px VT323';
                 ctx.textAlign = 'center';
                 ctx.fillText(`+${game.pickupAnimation.item}`, game.player.x, game.player.y - 30 + yOffset);
+                ctx.restore();
+            }
+
+            // Revenge stabbing animation
+            if (game.revengeAnimation) {
+                if (game.revengeAnimation.phase === 'stabbing') {
+                    // Red flash on each stab
+                    const flashIntensity = Math.max(0, 1 - (game.revengeAnimation.timer % 600) / 200);
+                    if (flashIntensity > 0) {
+                        ctx.save();
+                        ctx.fillStyle = `rgba(120, 0, 0, ${flashIntensity * 0.4})`;
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        ctx.restore();
+                    }
+                    game.revengeAnimation.timer += 16;
+                } else if (game.revengeAnimation.phase === 'fadeout') {
+                    // Fade to black
+                    game.revengeAnimation.timer += 16;
+                    const fadeProgress = Math.min(1, game.revengeAnimation.timer / 1200);
+                    ctx.save();
+                    ctx.fillStyle = `rgba(0, 0, 0, ${fadeProgress})`;
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.restore();
+                }
+            }
+
+            // Escape fade to black animation
+            if (game.escapeAnimation) {
+                game.escapeAnimation.timer += 16;
+                const fadeProgress = Math.min(1, game.escapeAnimation.timer / 1500);
+                ctx.save();
+                ctx.fillStyle = `rgba(0, 0, 0, ${fadeProgress})`;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
                 ctx.restore();
             }
 
