@@ -27,6 +27,17 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            position: relative;
+        }
+
+        #versionNumber {
+            position: absolute;
+            bottom: 4px;
+            right: 8px;
+            font-size: 10px;
+            color: #444;
+            font-family: 'VT323', monospace;
+            pointer-events: none;
         }
 
         #gameContainer {
@@ -1116,6 +1127,7 @@
             <canvas id="minimapCanvas" width="80" height="100"></canvas>
         </div>
     </div>
+    <div id="versionNumber">v1.0</div>
     </div>
 
     <script>
@@ -1871,8 +1883,8 @@
                 return;
             }
 
-            // Letter viewing mode
-            if (game.flags.letterViewing) {
+            // Letter/Note viewing mode
+            if (game.flags.letterViewing || game.flags.noteViewing) {
                 if (e.key === 'Escape' || e.key.toLowerCase() === 'e' || e.key === ' ') {
                     closeLetter();
                     e.preventDefault();
@@ -4219,6 +4231,17 @@
                 // Blood
                 iconCtx.fillStyle = 'rgba(100, 20, 20, 0.7)';
                 iconCtx.fillRect(14, 10, 6, 4);
+            } else if (game.equipped === 'Forros') {
+                // Condom box mini icon
+                iconCtx.fillStyle = '#2255aa';
+                iconCtx.fillRect(4, 5, 16, 14);
+                iconCtx.fillStyle = '#ddaa33';
+                iconCtx.fillRect(4, 10, 16, 4);
+                iconCtx.fillStyle = '#ff6688';
+                iconCtx.beginPath();
+                iconCtx.arc(10, 12, 2, 0, Math.PI * 2);
+                iconCtx.arc(14, 12, 2, 0, Math.PI * 2);
+                iconCtx.fill();
             }
         }
 
@@ -4498,6 +4521,29 @@
                             itemCtx.lineTo(36, 32 + l * 4);
                             itemCtx.stroke();
                         }
+                    } else if (item === 'Forros') {
+                        // Condom box - blue with gold band and heart
+                        itemCtx.fillStyle = '#2255aa';
+                        itemCtx.fillRect(8, 10, 32, 28);
+                        // Gold band
+                        itemCtx.fillStyle = '#ddaa33';
+                        itemCtx.fillRect(8, 20, 32, 8);
+                        // Darker edges
+                        itemCtx.fillStyle = '#1a4488';
+                        itemCtx.fillRect(8, 10, 32, 2);
+                        itemCtx.fillRect(8, 36, 32, 2);
+                        // Heart icon
+                        itemCtx.fillStyle = '#ff6688';
+                        const hx2 = 24, hy2 = 24;
+                        itemCtx.beginPath();
+                        itemCtx.arc(hx2 - 3, hy2 - 1, 4, 0, Math.PI * 2);
+                        itemCtx.arc(hx2 + 3, hy2 - 1, 4, 0, Math.PI * 2);
+                        itemCtx.fill();
+                        itemCtx.beginPath();
+                        itemCtx.moveTo(hx2 - 7, hy2);
+                        itemCtx.lineTo(hx2, hy2 + 7);
+                        itemCtx.lineTo(hx2 + 7, hy2);
+                        itemCtx.fill();
                     }
 
                     slot.appendChild(itemCanvas);
@@ -4515,6 +4561,11 @@
                         // Special handling for letter - view it
                         if (item === 'Carta de Billy') {
                             showLetter();
+                            return;
+                        }
+                        // Special handling for note - view it
+                        if (item === 'Nota') {
+                            showNote();
                             return;
                         }
                         game.equipped = item;
@@ -4783,7 +4834,6 @@
 
             if (obj.action === 'fridge') {
                 if (game.flags.fridgeOpened) {
-                    playAudioFile('fridge-hum', { volume: 0.3 });
                     transitionToScreen('neighbor');
                     // Phone animation will trigger after arriving at neighbor screen
                     return;
@@ -5616,7 +5666,75 @@
 
         function closeLetter() {
             game.flags.letterViewing = false;
+            game.flags.noteViewing = false;
             document.getElementById('letterOverlay').style.display = 'none';
+        }
+
+        function showNote() {
+            game.flags.noteViewing = true;
+            const overlay = document.getElementById('letterOverlay');
+            const letterCanvas = document.getElementById('letterCanvas');
+            const ctx = letterCanvas.getContext('2d');
+
+            overlay.style.display = 'flex';
+
+            // Draw the note
+            drawNote(ctx);
+        }
+
+        function drawNote(ctx) {
+            const w = 280, h = 360;
+
+            // Crumpled paper background
+            ctx.fillStyle = '#f8f4e8';
+            ctx.fillRect(0, 0, w, h);
+
+            // Paper creases/fold lines
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.08)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, h/2);
+            ctx.lineTo(w, h/2);
+            ctx.moveTo(w/2, 0);
+            ctx.lineTo(w/2, h);
+            ctx.stroke();
+
+            // Torn edge effect at top
+            ctx.fillStyle = '#e8e4d8';
+            for (let x = 0; x < w; x += 8) {
+                const tearHeight = 3 + Math.random() * 5;
+                ctx.fillRect(x, 0, 8, tearHeight);
+            }
+
+            // The code: 1987
+            ctx.fillStyle = '#2a2a4a';
+            ctx.font = 'bold 72px VT323';
+            ctx.textAlign = 'center';
+            ctx.fillText('1987', w/2, h/2 - 20);
+
+            // Underline
+            ctx.strokeStyle = '#2a2a4a';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(60, h/2);
+            ctx.lineTo(w - 60, h/2);
+            ctx.stroke();
+
+            // Small text below
+            ctx.font = '18px VT323';
+            ctx.fillStyle = '#4a4a6a';
+            ctx.fillText('¿Código de algo?', w/2, h/2 + 40);
+
+            // Doodle in corner - question mark
+            ctx.font = '32px VT323';
+            ctx.fillStyle = '#888';
+            ctx.fillText('?', w - 40, h - 30);
+
+            // Old stain
+            ctx.beginPath();
+            ctx.arc(60, 80, 20, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(100, 80, 60, 0.1)';
+            ctx.fill();
         }
 
         function drawLoveLetter(ctx) {
@@ -7731,6 +7849,52 @@
 
             // Draw knife on floor if dropped
             drawKnifeOnFloor();
+
+            // Flashlight effect when equipped
+            if (game.equipped === 'Linterna') {
+                const p = game.player;
+                ctx.save();
+
+                // Create light cone based on player direction
+                let angle = 0;
+                if (p.direction === 'up') angle = -Math.PI / 2;
+                else if (p.direction === 'down') angle = Math.PI / 2;
+                else if (p.direction === 'left') angle = Math.PI;
+                else if (p.direction === 'right') angle = 0;
+
+                // Light cone gradient
+                const coneLength = 120;
+                const coneWidth = 60;
+                const lightX = p.x + Math.cos(angle) * 20;
+                const lightY = p.y + Math.sin(angle) * 20;
+                const endX = p.x + Math.cos(angle) * coneLength;
+                const endY = p.y + Math.sin(angle) * coneLength;
+
+                // Create cone shape with gradient
+                const gradient = ctx.createRadialGradient(lightX, lightY, 5, endX, endY, coneWidth);
+                gradient.addColorStop(0, 'rgba(255, 250, 220, 0.4)');
+                gradient.addColorStop(0.5, 'rgba(255, 245, 200, 0.2)');
+                gradient.addColorStop(1, 'rgba(255, 240, 180, 0)');
+
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.moveTo(lightX, lightY);
+                ctx.lineTo(endX + Math.cos(angle + 0.5) * coneWidth, endY + Math.sin(angle + 0.5) * coneWidth);
+                ctx.lineTo(endX + Math.cos(angle - 0.5) * coneWidth, endY + Math.sin(angle - 0.5) * coneWidth);
+                ctx.closePath();
+                ctx.fill();
+
+                // Bright spot at source
+                const spotGradient = ctx.createRadialGradient(lightX, lightY, 0, lightX, lightY, 15);
+                spotGradient.addColorStop(0, 'rgba(255, 255, 240, 0.6)');
+                spotGradient.addColorStop(1, 'rgba(255, 255, 220, 0)');
+                ctx.fillStyle = spotGradient;
+                ctx.beginPath();
+                ctx.arc(lightX, lightY, 15, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.restore();
+            }
 
             // Pickup animation
             if (game.pickupAnimation) {
