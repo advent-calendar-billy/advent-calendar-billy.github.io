@@ -1,0 +1,641 @@
+/**
+ * Tournament UI Styles
+ *
+ * Styles for all tournament-related screens:
+ * - Title screen
+ * - Ladder view
+ * - VS screen
+ * - Round announcer
+ * - Victory/Game Over screens
+ */
+
+/* ============================================
+   Base Overlay
+   ============================================ */
+
+.tournament-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.tournament-overlay .screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto;
+    transition: opacity 0.3s ease;
+}
+
+.tournament-overlay .screen.hidden {
+    display: none;
+}
+
+.tournament-overlay .screen.animate-in {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* ============================================
+   Title Screen
+   ============================================ */
+
+.title-screen {
+    background: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+}
+
+.title-content {
+    text-align: center;
+}
+
+.game-title {
+    font-family: 'Impact', 'Arial Black', sans-serif;
+    font-size: 72px;
+    color: #fff;
+    text-shadow:
+        0 0 10px #ff6b35,
+        0 0 20px #ff6b35,
+        4px 4px 0 #000,
+        -2px -2px 0 #ff6b35;
+    margin: 0 0 10px 0;
+    letter-spacing: 4px;
+    animation: titlePulse 2s ease-in-out infinite;
+}
+
+@keyframes titlePulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+}
+
+.game-subtitle {
+    font-family: 'Georgia', serif;
+    font-size: 24px;
+    color: #ffd700;
+    text-shadow: 2px 2px 0 #000;
+    margin: 0 0 40px 0;
+    letter-spacing: 8px;
+    text-transform: uppercase;
+}
+
+.fight-button {
+    font-family: 'Impact', 'Arial Black', sans-serif;
+    font-size: 36px;
+    padding: 15px 60px;
+    background: linear-gradient(180deg, #ff6b35 0%, #c0392b 100%);
+    color: white;
+    border: 4px solid #fff;
+    border-radius: 8px;
+    cursor: pointer;
+    text-shadow: 2px 2px 0 #000;
+    box-shadow: 0 6px 0 #7f1f1f, 0 8px 20px rgba(0,0,0,0.5);
+    transition: all 0.1s ease;
+}
+
+.fight-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 0 #7f1f1f, 0 10px 25px rgba(0,0,0,0.5);
+}
+
+.fight-button:active {
+    transform: translateY(4px);
+    box-shadow: 0 2px 0 #7f1f1f, 0 4px 10px rgba(0,0,0,0.5);
+}
+
+.controls-hint {
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    color: #888;
+    margin-top: 30px;
+}
+
+/* ============================================
+   Ladder View
+   ============================================ */
+
+.ladder-view {
+    background: linear-gradient(180deg, #2c3e50 0%, #1a252f 100%);
+    padding: 40px;
+}
+
+.ladder-view h2 {
+    font-family: 'Impact', 'Arial Black', sans-serif;
+    font-size: 36px;
+    color: #ffd700;
+    text-shadow: 2px 2px 0 #000;
+    margin-bottom: 30px;
+}
+
+.ladder-opponents {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 60vh;
+    overflow-y: auto;
+    padding: 10px;
+    width: 100%;
+    max-width: 500px;
+}
+
+.ladder-opponent {
+    display: flex;
+    align-items: center;
+    background: linear-gradient(90deg, #34495e 0%, #2c3e50 100%);
+    border: 2px solid #3498db;
+    border-radius: 8px;
+    padding: 12px 20px;
+    transition: all 0.2s ease;
+}
+
+.ladder-opponent.current {
+    background: linear-gradient(90deg, #27ae60 0%, #1e8449 100%);
+    border-color: #2ecc71;
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(46, 204, 113, 0.5);
+}
+
+.ladder-opponent.defeated {
+    background: linear-gradient(90deg, #7f8c8d 0%, #95a5a6 100%);
+    border-color: #bdc3c7;
+    opacity: 0.7;
+}
+
+.ladder-opponent.locked {
+    background: linear-gradient(90deg, #1a1a1a 0%, #333 100%);
+    border-color: #555;
+}
+
+.opponent-rank {
+    font-family: 'Impact', sans-serif;
+    font-size: 24px;
+    color: #fff;
+    width: 40px;
+    text-align: center;
+}
+
+.opponent-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    margin-left: 15px;
+}
+
+.opponent-name {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 18px;
+    color: #fff;
+    text-shadow: 1px 1px 0 #000;
+}
+
+.opponent-title {
+    font-family: 'Georgia', serif;
+    font-size: 12px;
+    color: #bdc3c7;
+    font-style: italic;
+}
+
+.opponent-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.status-icon {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.defeated-icon {
+    color: #e74c3c;
+}
+
+.current-icon {
+    color: #2ecc71;
+    animation: blink 0.5s ease-in-out infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+.boss-crown {
+    font-family: 'Impact', sans-serif;
+    font-size: 10px;
+    background: linear-gradient(180deg, #ffd700 0%, #ff6b35 100%);
+    color: #000;
+    padding: 2px 8px;
+    border-radius: 4px;
+    letter-spacing: 1px;
+}
+
+.continue-button {
+    font-family: 'Impact', 'Arial Black', sans-serif;
+    font-size: 24px;
+    padding: 12px 40px;
+    background: linear-gradient(180deg, #3498db 0%, #2980b9 100%);
+    color: white;
+    border: 3px solid #fff;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 30px;
+    text-shadow: 1px 1px 0 #000;
+    transition: all 0.1s ease;
+}
+
+.continue-button:hover {
+    transform: scale(1.05);
+}
+
+/* ============================================
+   VS Screen
+   ============================================ */
+
+.vs-screen {
+    background: radial-gradient(circle at center, #2c3e50 0%, #000 100%);
+    flex-direction: row;
+    overflow: hidden;
+}
+
+.vs-fighter {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+}
+
+.vs-fighter.left {
+    animation: slideInLeft 0.5s ease-out;
+}
+
+.vs-fighter.right {
+    animation: slideInRight 0.5s ease-out;
+}
+
+@keyframes slideInLeft {
+    from { transform: translateX(-100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideInRight {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+.fighter-portrait {
+    width: 150px;
+    height: 200px;
+    border: 4px solid #fff;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 0 30px rgba(255,255,255,0.3);
+}
+
+.fighter-portrait.fede {
+    background: linear-gradient(180deg, #4a90d9 0%, #2c5282 100%);
+}
+
+.fighter-name {
+    font-family: 'Impact', 'Arial Black', sans-serif;
+    font-size: 36px;
+    color: #fff;
+    text-shadow: 2px 2px 0 #000;
+}
+
+.fighter-title {
+    font-family: 'Georgia', serif;
+    font-size: 16px;
+    color: #ffd700;
+    font-style: italic;
+}
+
+.vs-text {
+    font-family: 'Impact', sans-serif;
+    font-size: 80px;
+    color: #ff6b35;
+    text-shadow:
+        0 0 20px #ff6b35,
+        4px 4px 0 #000;
+    animation: vsPulse 0.3s ease-in-out infinite;
+}
+
+@keyframes vsPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.match-info {
+    position: absolute;
+    bottom: 40px;
+    font-family: 'Arial', sans-serif;
+    font-size: 18px;
+    color: #888;
+}
+
+/* ============================================
+   Round Announcer
+   ============================================ */
+
+.round-announcer {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.round-text {
+    font-family: 'Impact', 'Arial Black', sans-serif;
+    font-size: 72px;
+    color: #fff;
+    text-shadow: 0 0 20px #fff, 4px 4px 0 #000;
+    opacity: 0;
+}
+
+.round-text.animate-round {
+    animation: roundAnnounce 2s ease-out forwards;
+}
+
+@keyframes roundAnnounce {
+    0% { opacity: 0; transform: scale(2); }
+    20% { opacity: 1; transform: scale(1); }
+    80% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; }
+}
+
+.fight-text {
+    font-family: 'Impact', 'Arial Black', sans-serif;
+    font-size: 96px;
+    color: #ff6b35;
+    text-shadow:
+        0 0 30px #ff6b35,
+        0 0 60px #ff6b35,
+        4px 4px 0 #000;
+    opacity: 0;
+    position: absolute;
+}
+
+.fight-text.animate-fight {
+    animation: fightFlash 0.5s ease-out forwards;
+}
+
+@keyframes fightFlash {
+    0% { opacity: 0; transform: scale(3); }
+    50% { opacity: 1; transform: scale(1.2); }
+    100% { opacity: 0; transform: scale(1); }
+}
+
+/* ============================================
+   Round End Screen
+   ============================================ */
+
+.round-end-screen {
+    background: rgba(0, 0, 0, 0.85);
+}
+
+.round-result {
+    font-family: 'Impact', 'Arial Black', sans-serif;
+    font-size: 64px;
+    text-shadow: 4px 4px 0 #000;
+    animation: resultBounce 0.5s ease-out;
+}
+
+.round-result.win {
+    color: #2ecc71;
+    text-shadow: 0 0 20px #2ecc71, 4px 4px 0 #000;
+}
+
+.round-result.lose {
+    color: #e74c3c;
+    text-shadow: 0 0 20px #e74c3c, 4px 4px 0 #000;
+}
+
+@keyframes resultBounce {
+    0% { transform: scale(0); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.round-score {
+    font-family: 'Impact', sans-serif;
+    font-size: 48px;
+    color: #fff;
+    margin-top: 20px;
+}
+
+/* ============================================
+   Match End Screen
+   ============================================ */
+
+.match-end-screen {
+    background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(39,174,96,0.3) 100%);
+}
+
+.match-result {
+    font-family: 'Impact', 'Arial Black', sans-serif;
+    font-size: 72px;
+    animation: victoryGlow 1s ease-in-out infinite;
+}
+
+.match-result.victory {
+    color: #ffd700;
+    text-shadow:
+        0 0 20px #ffd700,
+        0 0 40px #ff6b35,
+        4px 4px 0 #000;
+}
+
+.match-result.defeat {
+    color: #e74c3c;
+    text-shadow: 0 0 20px #e74c3c, 4px 4px 0 #000;
+}
+
+@keyframes victoryGlow {
+    0%, 100% { filter: brightness(1); }
+    50% { filter: brightness(1.3); }
+}
+
+.match-message {
+    font-family: 'Georgia', serif;
+    font-size: 24px;
+    color: #fff;
+    margin: 20px 0 40px 0;
+}
+
+/* ============================================
+   Victory Screen
+   ============================================ */
+
+.victory-screen {
+    background: radial-gradient(circle at center, #ffd700 0%, #ff6b35 30%, #000 100%);
+}
+
+.victory-content {
+    text-align: center;
+    animation: championEntrance 1s ease-out;
+}
+
+@keyframes championEntrance {
+    0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+.victory-title {
+    font-family: 'Impact', 'Arial Black', sans-serif;
+    font-size: 96px;
+    color: #fff;
+    text-shadow:
+        0 0 30px #fff,
+        0 0 60px #ffd700,
+        6px 6px 0 #000;
+    margin: 0 0 20px 0;
+    animation: championPulse 0.5s ease-in-out infinite;
+}
+
+@keyframes championPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.victory-message {
+    font-family: 'Georgia', serif;
+    font-size: 24px;
+    color: #fff;
+    margin: 0 0 30px 0;
+}
+
+.victory-stats {
+    background: rgba(0, 0, 0, 0.6);
+    padding: 20px 40px;
+    border-radius: 10px;
+    margin-bottom: 40px;
+}
+
+.victory-stats .stat {
+    font-family: 'Courier New', monospace;
+    font-size: 18px;
+    color: #fff;
+    margin: 10px 0;
+}
+
+.victory-stats .stat span {
+    color: #ffd700;
+    font-weight: bold;
+}
+
+/* ============================================
+   Game Over Screen
+   ============================================ */
+
+.game-over-screen {
+    background: linear-gradient(180deg, #000 0%, #2c0000 100%);
+}
+
+.game-over-content {
+    text-align: center;
+}
+
+.game-over-title {
+    font-family: 'Impact', 'Arial Black', sans-serif;
+    font-size: 72px;
+    color: #e74c3c;
+    text-shadow:
+        0 0 20px #e74c3c,
+        4px 4px 0 #000;
+    margin: 0 0 20px 0;
+    animation: gameOverShake 0.5s ease-in-out;
+}
+
+@keyframes gameOverShake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-10px); }
+    40% { transform: translateX(10px); }
+    60% { transform: translateX(-5px); }
+    80% { transform: translateX(5px); }
+}
+
+.game-over-message {
+    font-family: 'Georgia', serif;
+    font-size: 24px;
+    color: #bdc3c7;
+    margin: 0 0 30px 0;
+}
+
+.game-over-progress {
+    margin-bottom: 40px;
+}
+
+.progress-text {
+    font-family: 'Courier New', monospace;
+    font-size: 16px;
+    color: #888;
+    margin-bottom: 10px;
+}
+
+.progress-bar {
+    width: 300px;
+    height: 20px;
+    background: #333;
+    border: 2px solid #555;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 0 auto;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #e74c3c 0%, #c0392b 100%);
+    transition: width 0.5s ease;
+}
+
+/* ============================================
+   Screen Flash Effect
+   ============================================ */
+
+.screen-flash {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    animation: flash 0.2s ease-out;
+    z-index: 2000;
+}
+
+@keyframes flash {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* ============================================
+   Screen Shake Effect
+   ============================================ */
+
+.screen-shake {
+    animation: shake var(--shake-duration, 0.3s) ease-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translate(0, 0); }
+    10% { transform: translate(calc(-1 * var(--shake-intensity, 10px)), calc(var(--shake-intensity, 10px) / 2)); }
+    20% { transform: translate(var(--shake-intensity, 10px), calc(-1 * var(--shake-intensity, 10px) / 2)); }
+    30% { transform: translate(calc(-1 * var(--shake-intensity, 10px) / 2), var(--shake-intensity, 10px)); }
+    40% { transform: translate(calc(var(--shake-intensity, 10px) / 2), calc(-1 * var(--shake-intensity, 10px))); }
+    50% { transform: translate(calc(-1 * var(--shake-intensity, 10px)), calc(var(--shake-intensity, 10px) / 2)); }
+    60% { transform: translate(var(--shake-intensity, 10px), calc(-1 * var(--shake-intensity, 10px) / 2)); }
+    70% { transform: translate(calc(-1 * var(--shake-intensity, 10px) / 2), var(--shake-intensity, 10px)); }
+    80% { transform: translate(calc(var(--shake-intensity, 10px) / 2), calc(-1 * var(--shake-intensity, 10px))); }
+    90% { transform: translate(calc(-1 * var(--shake-intensity, 10px) / 3), 0); }
+}

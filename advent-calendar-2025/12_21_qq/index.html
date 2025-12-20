@@ -11,6 +11,9 @@
     <link rel="stylesheet" href="styles/ui.css">
     <link rel="stylesheet" href="styles/animations.css">
 
+    <!-- Tournament Styles -->
+    <link rel="stylesheet" href="styles/tournament.css">
+
     <!-- Character Styles -->
     <link rel="stylesheet" href="styles/characters/fede.css">
     <link rel="stylesheet" href="styles/characters/billy.css">
@@ -173,6 +176,10 @@
 
     <!-- AI System -->
     <script src="systems/ai-controller.js"></script>
+
+    <!-- Tournament System -->
+    <script src="systems/tournament.js"></script>
+    <script src="ui/tournament-ui.js"></script>
 
     <!-- Main Game Initialization -->
     <script>
@@ -427,30 +434,194 @@
             }
         }
 
-        // Start game from title screen
+        // Character class map for dynamic opponent creation
+        const CHARACTER_CLASSES = {
+            fede: FedeCharacter,
+            billy: BillyCharacter,
+            jonas: JonasCharacter,
+            vicky: VickyCharacter,
+            lucas: LucasCharacter,
+            jonasl: JonasLCharacter,
+            timo: TimoCharacter,
+            pancho: PanchoCharacter,
+            madonna: MadonnaCharacter,
+            frank: FrankCharacter,
+            charly: CharlyCharacter,
+            audrey: AudreyCharacter,
+            pato: PatoCharacter
+        };
+
+        // Load opponent character by ID
+        function loadOpponent(opponentData) {
+            const CharClass = CHARACTER_CLASSES[opponentData.id];
+            if (!CharClass) {
+                console.error('[Main] Unknown opponent:', opponentData.id);
+                return null;
+            }
+
+            opponentCharacter = new CharClass();
+            opponentCharacter.init(GameEngine, CombatSystem, elements.arena, elements.opponentFighter);
+            opponentCharacter.x = GameEngine.state.opponentX;
+            opponentCharacter.facingRight = false;
+            opponentCharacter.isPlayer = false;
+
+            // Override opponent's getTargetX to return player position
+            opponentCharacter.getTargetX = function() {
+                return GameEngine.state.playerX;
+            };
+
+            // Update opponent fighter element class
+            elements.opponentFighter.className = `fighter ${opponentData.id} idle facing-left`;
+
+            // Update HUD
+            elements.opponentName.textContent = opponentData.name;
+
+            // Update GameEngine max health
+            GameEngine.state.opponentMaxHealth = opponentData.hp || 100;
+            GameEngine.state.opponentHealth = GameEngine.state.opponentMaxHealth;
+
+            // Re-initialize AI with new opponent and difficulty based on ladder position
+            AIController.init(opponentCharacter, GameEngine, CombatSystem);
+            AIController.config.attackChance = opponentData.attackChance || 0.1;
+            AIController.config.specialChance = opponentData.specialChance || 0.05;
+
+            console.log('[Main] Loaded opponent:', opponentData.name, 'HP:', opponentData.hp);
+
+            return opponentCharacter;
+        }
+
+        // Start tournament from title screen
         function startGame() {
+            elements.titleScreen.classList.add('hidden');
+
+            // Initialize tournament
+            TournamentSystem.init();
+            TournamentUI.init(document.querySelector('.game-container'));
+
+            // Show ladder view first
+            TournamentUI.showLadder(TournamentSystem.getLadderStatus(), () => {
+                startMatch();
+            });
+        }
+
+        // Start a match against current opponent
+        async function startMatch() {
+            const opponent = TournamentSystem.startMatch();
+
+            // Load the opponent character
+            loadOpponent(opponent);
+
+            // Show VS screen
+            await TournamentUI.showVS(opponent, TournamentSystem.state.currentOpponentIndex + 1);
+
+            // Show arena
+            elements.arenaWrapper.classList.remove('hidden');
+            TournamentUI.hideAll();
+
+            // Start round
+            await startRound();
+        }
+
+        // Start a round
+        async function startRound() {
+            const roundInfo = TournamentSystem.startRound();
+
+            // Announce round
+            await TournamentUI.announceRound(roundInfo.roundNumber);
+
+            // Reset positions and health for round
+            GameEngine.resetRound();
+            updateFighterPositions();
+
+            // Update health bars
+            updateHealthBar('player', GameEngine.state.playerHealth, GameEngine.state.playerMaxHealth);
+            updateHealthBar('opponent', GameEngine.state.opponentHealth, GameEngine.state.opponentMaxHealth);
+
+            // Start fighting
+            GameEngine.setState(GameEngine.STATES.FIGHTING);
+            GameEngine.start();
+            AIController.start();
+
+            console.log('[Main] Round', roundInfo.roundNumber, 'started!');
+        }
+
+        // Handle round end (called from GameEngine callback)
+        async function onRoundComplete(playerWon) {
+            // Stop gameplay
+            GameEngine.stop();
+            AIController.stop();
+
+            // Show round result
+            await TournamentUI.showRoundEnd(playerWon,
+                TournamentSystem.state.playerRoundWins + (playerWon ? 1 : 0),
+                TournamentSystem.state.opponentRoundWins + (playerWon ? 0 : 1)
+            );
+
+            // Update tournament state
+            const result = TournamentSystem.endRound(playerWon);
+
+            if (result.matchEnded) {
+                await onMatchComplete(result);
+            } else {
+                // Continue to next round
+                await startRound();
+            }
+        }
+
+        // Handle match end
+        async function onMatchComplete(result) {
+            if (result.victory) {
+                // Tournament won!
+                TournamentUI.showVictory(result.stats, () => {
+                    TournamentSystem.reset();
+                    quitToMenu();
+                });
+            } else if (result.gameOver) {
+                // Game over
+                TournamentUI.showGameOver(
+                    result.defeatedBy,
+                    result.progress,
+                    result.totalOpponents,
+                    () => {
+                        TournamentSystem.reset();
+                        quitToMenu();
+                    }
+                );
+            } else {
+                // Advance to next opponent
+                const opponent = TournamentSystem.getCurrentOpponent();
+                TournamentUI.showMatchEnd(true, result.defeatedOpponent, result.nextOpponent, () => {
+                    // Hide arena, show ladder
+                    elements.arenaWrapper.classList.add('hidden');
+                    TournamentUI.showLadder(TournamentSystem.getLadderStatus(), () => {
+                        startMatch();
+                    });
+                });
+            }
+        }
+
+        // Update handleRoundEnd to use tournament system
+        function handleRoundEnd(playerWon, playerWins, opponentWins) {
+            // Use async handler
+            onRoundComplete(playerWon);
+        }
+
+        // Practice mode - single fight without tournament
+        function startPractice() {
             elements.titleScreen.classList.add('hidden');
             elements.arenaWrapper.classList.remove('hidden');
 
-            // Start with Billy as opponent
-            elements.opponentName.textContent = 'BILLY';
+            // Start with Timo for practice (easiest)
+            loadOpponent(TournamentSystem.LADDER[0]);
 
             // Show FIGHT announcement
-            showAnnouncement('ROUND 1', 'FIGHT!');
+            showAnnouncement('PRACTICE MODE', 'FIGHT!');
 
             setTimeout(() => {
                 hideAnnouncement();
-                GameEngine.startFight('billy', { hp: 100 });
-
-                // Start AI controller
+                GameEngine.startFight('timo', { hp: 60 });
                 AIController.start();
-                console.log('[Main] AI started for Billy');
             }, 1500);
-        }
-
-        // Practice mode (same as start for now)
-        function startPractice() {
-            startGame();
         }
 
         // Pause handling
