@@ -9541,9 +9541,9 @@
                 if (originalLegs) originalLegs.style.visibility = 'hidden';
                 if (originalFeet) originalFeet.style.visibility = 'hidden';
 
-                // Drop body down
-                fighter.style.transition = 'transform 0.2s ease-out';
-                fighter.style.transform = 'translateY(50px)';
+                // Drop body down - slower and less distance
+                fighter.style.transition = 'transform 0.5s ease-out';
+                fighter.style.transform = 'translateY(25px)';
 
                 // Show text
                 const splitText = document.createElement('div');
@@ -9575,7 +9575,7 @@
                     transform: translateX(-50%);
                 `;
 
-                // Left leg (extends left)
+                // Left leg (extends left) - slower animation
                 const leftLeg = document.createElement('div');
                 leftLeg.style.cssText = `
                     width: 10px;
@@ -9583,10 +9583,10 @@
                     background: #2c3e50;
                     border: 2px solid #333;
                     border-radius: 4px;
-                    animation: splitLegExtendLeft 0.25s ease-out forwards;
+                    animation: splitLegExtendLeft 0.5s ease-out forwards;
                 `;
 
-                // Right leg (extends right)
+                // Right leg (extends right) - slower animation
                 const rightLeg = document.createElement('div');
                 rightLeg.style.cssText = `
                     width: 10px;
@@ -9594,7 +9594,7 @@
                     background: #2c3e50;
                     border: 2px solid #333;
                     border-radius: 4px;
-                    animation: splitLegExtendRight 0.25s ease-out forwards;
+                    animation: splitLegExtendRight 0.5s ease-out forwards;
                 `;
 
                 // Left shoe
@@ -9642,7 +9642,7 @@
                     document.head.appendChild(style);
                 }
 
-                // Shockwave effect
+                // Shockwave effect - delayed to match slower animation
                 setTimeout(() => {
                     const wave = document.createElement('div');
                     wave.style.cssText = `
@@ -9653,10 +9653,10 @@
                         height: 25px;
                         background: radial-gradient(ellipse, rgba(231,76,60,0.6) 0%, rgba(231,76,60,0.2) 50%, transparent 70%);
                         z-index: 50;
-                        animation: shockwaveExpand 0.3s ease-out forwards;
+                        animation: shockwaveExpand 0.4s ease-out forwards;
                     `;
                     arena.appendChild(wave);
-                    setTimeout(() => wave.remove(), 300);
+                    setTimeout(() => wave.remove(), 400);
 
                     // Check hit in both directions (legs extend both ways)
                     const legReach = 110;
@@ -9671,9 +9671,9 @@
                             setTimeout(() => opponent.classList.remove('hit'), 300);
                         }
                     }
-                }, 200);
+                }, 450);
 
-                // Cleanup
+                // Cleanup - longer to match slower animation
                 setTimeout(() => {
                     legContainer.remove();
                     fighter.style.transform = '';
@@ -9681,7 +9681,7 @@
                     if (originalLegs) originalLegs.style.visibility = '';
                     if (originalFeet) originalFeet.style.visibility = '';
                     game.isAttacking = false;
-                }, 700);
+                }, 1000);
 
             } else if (special.name === 'Salmon Sashimi') {
                 // Throw 5 salmon sashimi - direction based on opponent position
