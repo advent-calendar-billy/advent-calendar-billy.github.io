@@ -5574,8 +5574,13 @@
                 if (inRange) setTimeout(() => dealDamage(10, 'STILETTO!'), 200);
 
             } else if (char === 'fede') {
-                // Fede: Passport Throw - spinning passport projectile (height adjusted for jumping)
+                // Fede: Passport Throw - spinning passport projectile toward opponent
                 const passportBaseHeight = 105 + fighterHeightOffset;
+                const opponentX = game.dummyX;
+                const throwingRight = opponentX > fighterX;
+                const throwDirection = throwingRight ? 1 : -1;
+                const startX = throwingRight ? fighterX + 40 : fighterX - 10;
+
                 const passport = document.createElement('div');
                 passport.innerHTML = `
                     <div style="width: 24px; height: 32px; background: linear-gradient(180deg, #1a3a5c 0%, #0d2840 100%); border-radius: 2px; position: relative; border: 2px solid #0a1f33; box-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
@@ -5583,22 +5588,24 @@
                         <div style="position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%); width: 16px; height: 5px; background: #ffd700; border-radius: 1px;"></div>
                     </div>
                 `;
-                let passportX = fighterX + 40;
+                let passportX = startX;
                 let passportY = passportBaseHeight;
                 let rotation = 0;
+                let hasHit = false;
                 passport.style.cssText = `position: absolute; left: ${passportX}px; bottom: ${passportY}px; z-index: 150;`;
                 arena.appendChild(passport);
 
                 const fly = setInterval(() => {
-                    passportX += 12;
+                    passportX += 12 * throwDirection;
                     passportY -= 0.5; // Slight arc down
-                    rotation += 25;
+                    rotation += 25 * throwDirection;
                     passport.style.left = passportX + 'px';
                     passport.style.bottom = passportY + 'px';
                     passport.style.transform = `rotate(${rotation}deg)`;
 
                     // Check for hit
-                    if (Math.abs(passportX - game.dummyX) < 40) {
+                    if (!hasHit && Math.abs(passportX - opponentX) < 40) {
+                        hasHit = true;
                         clearInterval(fly);
                         dealDamage(10, 'STAMPED!');
                         passport.style.transition = 'transform 0.1s, opacity 0.2s';
@@ -5607,7 +5614,8 @@
                         setTimeout(() => passport.remove(), 200);
                     }
 
-                    if (passportX > 900) {
+                    // Remove if off screen (either direction)
+                    if (passportX > 900 || passportX < -50) {
                         clearInterval(fly);
                         passport.remove();
                     }
