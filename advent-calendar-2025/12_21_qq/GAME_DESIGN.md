@@ -510,28 +510,93 @@ Before marking any attack as complete:
 
 ---
 
-## 10. Reference: POC Attack Examples
+## 10. Fighting Game Mechanics Checklist
 
-The `POC_game_with_good_attacks/index.html` contains the detailed, correct implementations of special attacks. Key examples to preserve:
+**These are MANDATORY requirements for a proper Tekken-style fighting game.**
 
-### Jonas L - Hot Coffee (lines 7748-8086)
-- Canvas-based particle system
-- 800 individual coffee particles with physics
-- Steam particle effects
-- Per-particle hit detection
-- Mug wind-up and drop animation
+### Directional Mechanics
+- [ ] **Auto-facing**: Characters always face their opponent
+- [ ] **Attacks work from either side**: Whether player is left or right of opponent, attacks function correctly
+- [ ] **Projectiles auto-target**: Thrown objects/projectiles automatically travel TOWARD the opponent
+- [ ] **Mirrored animations**: Punch/kick animations mirror correctly when facing left vs right
+- [ ] **No hardcoded directions**: Never assume player is on left, opponent on right
 
-### Billy - WHITEBOARD SLAM (search in POC)
-- Triangle geometry attack
-- Mathematical symbols flying out
-- Q.E.D. finale
+### Movement
+- [ ] **Smooth walking**: Left/right arrow keys move character fluidly
+- [ ] **Cannot walk through opponent**: Collision detection prevents overlapping
+- [ ] **Arena boundaries**: Characters cannot walk off-screen
+- [ ] **Jump arc**: C key triggers proper jump with gravity
+- [ ] **No movement during attack**: Locked in place while attack animation plays
 
-### Pato - TO THE MOON! (search in POC)
-- Bitcoin rocket launch
-- Moon impact
-- Crypto chart animation
+### Combat Feel
+- [ ] **Hitstun**: Brief stagger animation when hit
+- [ ] **Knockback**: Getting hit pushes character back slightly
+- [ ] **Block (optional)**: Hold back to reduce damage
+- [ ] **Invincibility frames**: Brief i-frames after getting hit
+- [ ] **Attack priority**: Some attacks beat others (anti-air, etc.)
 
-These are the GOLD STANDARD implementations. NPC versions MUST match player versions in visual quality.
+### Visual Feedback
+- [ ] **Hit sparks**: Visual effect on impact
+- [ ] **Damage numbers** (optional): Show damage dealt
+- [ ] **Screen shake**: On heavy hits/ultimates
+- [ ] **Flash on hit**: Character briefly flashes white when damaged
+- [ ] **Combo counter** (optional): Track consecutive hits
+
+### Round/Match Flow
+- [ ] **Round timer** (optional): 99 seconds per round
+- [ ] **Health depletion = KO**: Round ends when health reaches 0
+- [ ] **Round announcer**: "ROUND 1... FIGHT!"
+- [ ] **Victory pose**: Winner does animation after KO
+- [ ] **Best of 3**: First to 2 round wins takes the match
+
+### Testing Checklist Per Attack
+For EVERY attack (punch, kick, special, ultimate):
+- [ ] Works when player is LEFT of opponent
+- [ ] Works when player is RIGHT of opponent
+- [ ] Projectile travels toward opponent regardless of side
+- [ ] Hit detection uses opponent's CURRENT position (not spawn position)
+- [ ] Animation doesn't break when mirrored
+- [ ] Particle effects spawn in correct direction
+
+---
+
+## 11. POC Attack Preservation Rules
+
+### DO NOT RE-IMPLEMENT
+
+The attacks in `POC_game_with_good_attacks/index.html` were carefully crafted and refined.
+
+**Rules:**
+1. **Extract, don't rewrite**: Copy attack code from POC into modular files
+2. **Preserve complexity**: 800-particle coffee throw stays 800 particles
+3. **Fix only if broken**: If animation debugging reveals issues, fix them
+4. **Never simplify**: Do NOT replace canvas particles with emoji projectiles
+5. **Same code for player and NPC**: NPCs use identical attack implementations
+
+### What CAN be changed:
+- Refactoring for modularity (extracting into separate files)
+- Fixing directional bugs (attacks only working from one side)
+- Adding missing hit detection if it was auto-damage
+- Performance optimizations that don't reduce visual quality
+
+### What CANNOT be changed:
+- Reducing particle counts
+- Replacing detailed effects with simpler versions
+- Removing animation phases (wind-up, impact, recovery)
+- Changing the fundamental visual style of an attack
+
+### Reference: Key POC Attacks to Preserve
+
+| Character | Attack | Location (approx lines) | Key Features |
+|-----------|--------|-------------------------|--------------|
+| Jonas L | Hot Coffee | 7748-8086 | 800 particles, steam, mug physics |
+| Jonas L | Bass Solo! | search "BASS SOLO" | Sound wave visuals, bass swing |
+| Billy | Whiteboard Slam | search "WHITEBOARD" | Triangle geometry, Q.E.D. |
+| Pato | TO THE MOON! | search "TO THE MOON" | Bitcoin rocket, moon impact |
+| Pancho | Freeze Breath | search "FREEZE BREATH" | Ice particles, freeze effect |
+| Frank | Floor Show! | search "FLOOR SHOW" | Rocky Horror spectacle |
+| Vicky | Silk Drop Miracle! | search "SILK DROP" | Aerial silk animation |
+| Audrey | Mean Green Mother! | search "MEAN GREEN" | Vine attacks, plant horror |
 
 ---
 
