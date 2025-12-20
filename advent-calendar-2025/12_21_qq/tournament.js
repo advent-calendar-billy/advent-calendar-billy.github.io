@@ -10,9 +10,11 @@ const Tournament = {
             name: 'TIMO',
             title: 'The Baby',
             difficulty: 1,
-            hp: 80,
-            attackChance: 0.02,  // Very low - babies can't fight well
-            moveSpeed: 0.8,
+            hp: 60,
+            attackChance: 0.03,
+            moveSpeed: 0.6,
+            specialChance: 0.02,  // Even Timo has specials (crying, flag waving)
+            noDamage: true,  // Timo does 0 damage - he's just a baby!
             description: 'A crying baby with a flag. How hard can it be?'
         },
         {
@@ -21,8 +23,9 @@ const Tournament = {
             title: 'Material Girl',
             difficulty: 2,
             hp: 100,
-            attackChance: 0.04,
+            attackChance: 0.05,
             moveSpeed: 1.0,
+            specialChance: 0.04,  // Throws kisses, vogue poses
             description: 'The Queen of Pop is ready to vogue!'
         },
         {
@@ -30,9 +33,10 @@ const Tournament = {
             name: 'JONAS M',
             title: 'The Coach',
             difficulty: 3,
-            hp: 110,
-            attackChance: 0.05,
+            hp: 115,
+            attackChance: 0.06,
             moveSpeed: 1.1,
+            specialChance: 0.05,  // Corporate jargon attacks
             description: 'Synergy! Paradigm shift! Circle back!'
         },
         {
@@ -40,9 +44,10 @@ const Tournament = {
             name: 'LUCAS',
             title: 'Soccer Star',
             difficulty: 4,
-            hp: 120,
-            attackChance: 0.06,
-            moveSpeed: 1.3,
+            hp: 130,
+            attackChance: 0.07,
+            moveSpeed: 1.4,
+            specialChance: 0.05,  // Soccer ball kicks
             description: 'Cat lover and bicycle kick master.'
         },
         {
@@ -50,9 +55,10 @@ const Tournament = {
             name: 'VICKY',
             title: 'Christmas Bride',
             difficulty: 5,
-            hp: 130,
-            attackChance: 0.07,
+            hp: 145,
+            attackChance: 0.08,
             moveSpeed: 1.2,
+            specialChance: 0.06,  // Aerial silk attacks
             description: 'The aerial silk queen with holiday spirit!'
         },
         {
@@ -60,9 +66,10 @@ const Tournament = {
             name: 'JONAS L',
             title: 'The Bassist',
             difficulty: 6,
-            hp: 140,
-            attackChance: 0.08,
-            moveSpeed: 1.2,
+            hp: 160,
+            attackChance: 0.09,
+            moveSpeed: 1.3,
+            specialChance: 0.06,  // Bass slaps, coffee throws
             description: 'Coffee-powered bass-slapping machine.'
         },
         {
@@ -236,15 +243,18 @@ const Tournament = {
 
     // Calculate opponent stats based on difficulty
     getOpponentStats(opponent) {
+        // Timo does 0 damage - he's just a baby!
+        const noDamage = opponent.noDamage === true;
         return {
             hp: opponent.hp,
             attackChance: opponent.attackChance,
             moveSpeed: opponent.moveSpeed,
             specialChance: opponent.specialChance || 0,
+            noDamage: noDamage,
             damage: {
-                punch: 5 + Math.floor(opponent.difficulty * 0.5),
-                kick: 8 + Math.floor(opponent.difficulty * 0.7),
-                special: 15 + Math.floor(opponent.difficulty * 2)
+                punch: noDamage ? 0 : 5 + Math.floor(opponent.difficulty * 0.8),
+                kick: noDamage ? 0 : 8 + Math.floor(opponent.difficulty * 1.2),
+                special: noDamage ? 0 : 15 + Math.floor(opponent.difficulty * 2.5)
             }
         };
     }

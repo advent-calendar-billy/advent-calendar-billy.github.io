@@ -5574,52 +5574,75 @@
                 if (inRange) setTimeout(() => dealDamage(10, 'STILETTO!'), 200);
 
             } else if (char === 'fede') {
-                // Fede: Passport Throw - spinning passport projectile toward opponent
-                const passportBaseHeight = 105 + fighterHeightOffset;
-                const opponentX = game.dummyX;
-                const throwingRight = opponentX > fighterX;
-                const throwDirection = throwingRight ? 1 : -1;
-                const startX = throwingRight ? fighterX + 40 : fighterX - 10;
+                // Fede: Traveler's Kick - a swift kick with hiking boot
+                const leg = fighter.querySelector('.leg.right') || fighter.querySelector('.legs');
+                const foot = fighter.querySelector('.foot.right') || fighter.querySelector('.feet');
 
-                const passport = document.createElement('div');
-                passport.innerHTML = `
-                    <div style="width: 24px; height: 32px; background: linear-gradient(180deg, #1a3a5c 0%, #0d2840 100%); border-radius: 2px; position: relative; border: 2px solid #0a1f33; box-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
-                        <div style="position: absolute; top: 4px; left: 50%; transform: translateX(-50%); width: 14px; height: 14px; border: 2px solid #ffd700; border-radius: 50%;"></div>
-                        <div style="position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%); width: 16px; height: 5px; background: #ffd700; border-radius: 1px;"></div>
-                    </div>
+                // Create extended kicking leg
+                const kickLeg = document.createElement('div');
+                kickLeg.style.cssText = `
+                    position: absolute;
+                    left: ${fighterX + 35}px;
+                    bottom: 85px;
+                    width: 45px;
+                    height: 14px;
+                    background: #2c3e50;
+                    border: 2px solid #333;
+                    border-radius: 4px;
+                    transform-origin: left center;
+                    transform: rotate(-10deg);
+                    z-index: 150;
                 `;
-                let passportX = startX;
-                let passportY = passportBaseHeight;
-                let rotation = 0;
-                let hasHit = false;
-                passport.style.cssText = `position: absolute; left: ${passportX}px; bottom: ${passportY}px; z-index: 150;`;
-                arena.appendChild(passport);
+                arena.appendChild(kickLeg);
 
-                const fly = setInterval(() => {
-                    passportX += 12 * throwDirection;
-                    passportY -= 0.5; // Slight arc down
-                    rotation += 25 * throwDirection;
-                    passport.style.left = passportX + 'px';
-                    passport.style.bottom = passportY + 'px';
-                    passport.style.transform = `rotate(${rotation}deg)`;
+                // Hiking boot at end
+                const boot = document.createElement('div');
+                boot.style.cssText = `
+                    position: absolute;
+                    left: ${fighterX + 78}px;
+                    bottom: 80px;
+                    width: 22px;
+                    height: 16px;
+                    background: linear-gradient(180deg, #8B4513, #654321);
+                    border: 2px solid #3d2314;
+                    border-radius: 4px 8px 8px 4px;
+                    z-index: 151;
+                    box-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+                `;
+                arena.appendChild(boot);
 
-                    // Check for hit
-                    if (!hasHit && Math.abs(passportX - opponentX) < 40) {
-                        hasHit = true;
-                        clearInterval(fly);
-                        dealDamage(10, 'STAMPED!');
-                        passport.style.transition = 'transform 0.1s, opacity 0.2s';
-                        passport.style.transform = `rotate(${rotation}deg) scale(1.3)`;
-                        passport.style.opacity = '0';
-                        setTimeout(() => passport.remove(), 200);
-                    }
+                // Swoosh effect
+                const swoosh = document.createElement('div');
+                swoosh.style.cssText = `
+                    position: absolute;
+                    left: ${fighterX + 50}px;
+                    bottom: 75px;
+                    width: 40px;
+                    height: 25px;
+                    background: radial-gradient(ellipse at left, rgba(100,100,100,0.5) 0%, transparent 70%);
+                    z-index: 149;
+                `;
+                arena.appendChild(swoosh);
 
-                    // Remove if off screen (either direction)
-                    if (passportX > 900 || passportX < -50) {
-                        clearInterval(fly);
-                        passport.remove();
+                // Animate kick
+                let frame = 0;
+                const kickAnim = setInterval(() => {
+                    frame++;
+                    const progress = frame / 8;
+                    const kickAngle = Math.sin(progress * Math.PI) * 25;
+                    kickLeg.style.transform = `rotate(${-10 - kickAngle}deg)`;
+                    boot.style.left = (fighterX + 78 + Math.sin(progress * Math.PI) * 15) + 'px';
+                    boot.style.bottom = (80 + Math.sin(progress * Math.PI) * 10) + 'px';
+
+                    if (frame >= 8) {
+                        clearInterval(kickAnim);
+                        kickLeg.remove();
+                        boot.remove();
+                        swoosh.remove();
                     }
                 }, 25);
+
+                if (inRange) setTimeout(() => dealDamage(10, 'KICKED!'), 100);
 
             } else if (char === 'pancho') {
                 // Pancho: Flying Kick - superhero flying kick with cape
