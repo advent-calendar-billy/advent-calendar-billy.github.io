@@ -99,8 +99,10 @@ const OpponentAI = {
                 this.state.currentAction = 'idle';
             }
         } else {
-            // Long range - always approach
-            if (rand < 0.85) {
+            // Long range - approach but also attack sometimes
+            if (rand < 0.20) {
+                this.state.currentAction = 'attack';  // Attack even from far away
+            } else if (rand < 0.85) {
                 this.state.currentAction = 'approach';
             } else {
                 this.state.currentAction = 'idle';
@@ -113,7 +115,7 @@ const OpponentAI = {
         const arena = document.getElementById('arena');
         const maxX = arena ? arena.offsetWidth - 100 : 800;
         const minX = 50;
-        const speed = this.state.stats.moveSpeed * 2;
+        const speed = this.state.stats.moveSpeed * 4;  // Faster movement
 
         switch (this.state.currentAction) {
             case 'approach':
@@ -136,11 +138,9 @@ const OpponentAI = {
                 break;
 
             case 'attack':
-                if (distance < 120 && !this.state.isAttacking) {
+                // Attack regardless of distance - let hit detection handle whether it connects
+                if (!this.state.isAttacking) {
                     this.performAttack(gameState);
-                } else if (distance >= 120) {
-                    // Too far, approach instead
-                    this.state.currentAction = 'approach';
                 }
                 break;
 

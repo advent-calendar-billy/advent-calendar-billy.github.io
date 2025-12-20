@@ -1234,21 +1234,17 @@
             background: #2c3e50;
             transform-origin: top center;
             transition: transform 0.15s, height 0.15s;
+            position: relative;
         }
 
-        .fede .feet {
-            display: flex;
-            gap: 4px;
-            margin-top: -2px;
-            z-index: 3;
-            transition: gap 0.15s;
-        }
-
-        .fede .foot {
-            width: 12px;
-            height: 5px;
+        .fede .leg .shoe {
+            position: absolute;
+            bottom: -7px;
+            left: -3px;
+            width: 14px;
+            height: 7px;
             border: 2px solid var(--ink);
-            border-radius: 3px 5px 3px 3px;
+            border-radius: 3px 6px 4px 4px;
             background: #1a1a1a;
         }
 
@@ -3146,10 +3142,20 @@
             animation: jump 0.5s ease-out;
         }
 
+        .fighter.jumping.facing-left {
+            animation: jump-left 0.5s ease-out;
+        }
+
         @keyframes jump {
             0% { transform: translateY(0); }
             50% { transform: translateY(-100px); }
             100% { transform: translateY(0); }
+        }
+
+        @keyframes jump-left {
+            0% { transform: translateY(0) scaleX(-1); }
+            50% { transform: translateY(-100px) scaleX(-1); }
+            100% { transform: translateY(0) scaleX(-1); }
         }
 
         .fighter.punching .arm.right {
@@ -3552,8 +3558,10 @@
                             <div class="arm left"></div>
                             <div class="arm right"></div>
                         </div>
-                        <div class="legs"><div class="leg left"></div><div class="leg right"></div></div>
-                        <div class="feet"><div class="foot"></div><div class="foot"></div></div>
+                        <div class="legs">
+                            <div class="leg left"><div class="shoe"></div></div>
+                            <div class="leg right"><div class="shoe"></div></div>
+                        </div>
                     </div>
                 </div>
                 <h3>FEDE</h3>
@@ -4072,10 +4080,9 @@
                         <div class="arm right"></div>
                     </div>
                     <div class="legs">
-                        <div class="leg left"></div>
-                        <div class="leg right"></div>
+                        <div class="leg left"><div class="shoe"></div></div>
+                        <div class="leg right"><div class="shoe"></div></div>
                     </div>
-                    <div class="feet"><div class="foot"></div><div class="foot"></div></div>
                 </div>
             `,
             timo: `
@@ -4357,6 +4364,19 @@
 
             if (input && game.selectedCharacter) {
                 handleInput(input);
+            }
+
+            // Cheat: Press 6 to skip current boss and go to next one
+            if (e.key === '6' && game.selectedCharacter) {
+                // Check if in tournament mode
+                if (typeof Tournament !== 'undefined' && Tournament.state && typeof window.skipToNextBoss === 'function') {
+                    window.skipToNextBoss();
+                } else {
+                    // Practice mode - just win
+                    game.dummyHealth = 0;
+                    updateUI();
+                    showResult('YOU WIN!');
+                }
             }
         });
 
@@ -4753,14 +4773,15 @@
 
             } else if (char === 'fede') {
                 // Fede: Hollow Knight Plushie - swings cute plushie toward opponent
+                // Don't touch fighter.style.transform to preserve jump animation
                 const opponent = document.getElementById('opponent-fighter') || document.getElementById('npc-dummy');
                 const opponentX = opponent ? (parseFloat(opponent.style.left) || game.dummyX) : game.dummyX;
                 const punchingRight = opponentX > fighterX;
 
-                // Face opponent
-                const originalFighterTransform = fighter.style.transform || '';
-                if (!punchingRight) {
-                    fighter.style.transform = 'scaleX(-1)';
+                // Face opponent using class (doesn't override jump transform)
+                const wasFlipped = fighter.classList.contains('facing-left');
+                if (!punchingRight && !wasFlipped) {
+                    fighter.classList.add('facing-left');
                 }
 
                 const rightArm = fighter.querySelector('.arm.right');
@@ -4845,8 +4866,10 @@
                                     setTimeout(() => {
                                         hand.remove();
                                         rightArm.style.transition = '';
-                                        // Restore fighter facing
-                                        fighter.style.transform = originalFighterTransform;
+                                        // Remove facing class if we added it
+                                        if (!punchingRight && !wasFlipped) {
+                                            fighter.classList.remove('facing-left');
+                                        }
                                     }, 150);
                                 }
                             }, 100);
@@ -5586,25 +5609,37 @@
                 if (inRange) setTimeout(() => dealDamage(10, 'STILETTO!'), 200);
 
             } else if (char === 'fede') {
-                // Fede: Traveler's Kick - always kick toward opponent
-                // Simple, clean animation - just tilt the character
+                // Fede: Traveler's Kick - animate leg to kick toward opponent
+                // Don't touch fighter.style.transform to preserve jump animation
                 const opponent = document.getElementById('opponent-fighter') || document.getElementById('npc-dummy');
                 const opponentX = opponent ? (parseFloat(opponent.style.left) || game.dummyX) : game.dummyX;
                 const kickingRight = opponentX > fighterX;
 
-                // Lunge toward opponent with kick motion
-                fighter.style.transition = 'transform 0.15s ease-out';
-                fighter.style.transformOrigin = 'center bottom';
-                if (kickingRight) {
-                    fighter.style.transform = 'rotate(-15deg) translateX(15px)';
-                } else {
-                    fighter.style.transform = 'rotate(15deg) translateX(-15px) scaleX(-1)';
+                // Get the kicking leg (shoe is now inside the leg, moves with it)
+                const legs = fighter.querySelector('.legs');
+                const kickLeg = kickingRight
+                    ? fighter.querySelector('.leg.right') || (legs ? legs.children[1] : null)
+                    : fighter.querySelector('.leg.left') || (legs ? legs.children[0] : null);
+
+                // Flip character to face opponent if needed (without overriding jump transform)
+                if (!kickingRight && !fighter.classList.contains('facing-left')) {
+                    fighter.classList.add('facing-left');
+                    setTimeout(() => fighter.classList.remove('facing-left'), 250);
+                }
+
+                // Animate the kicking leg (shoe moves with it automatically)
+                if (kickLeg) {
+                    kickLeg.style.transition = 'transform 0.12s ease-out';
+                    kickLeg.style.transformOrigin = 'top center';
+                    kickLeg.style.transform = 'rotate(70deg)';
                 }
 
                 // Return to normal after kick
                 setTimeout(() => {
-                    fighter.style.transform = '';
-                    fighter.style.transformOrigin = '';
+                    if (kickLeg) {
+                        kickLeg.style.transform = '';
+                        kickLeg.style.transformOrigin = '';
+                    }
                 }, 200);
 
                 if (inRange) setTimeout(() => dealDamage(10, 'KICKED!'), 100);
@@ -9515,12 +9550,13 @@
             const arena = document.getElementById('arena');
             // Support both tournament opponent and practice dummy
             const opponent = document.getElementById('opponent-fighter') || document.getElementById('npc-dummy');
+            const fighterX = parseFloat(fighter.style.left) || game.playerX;
+            // Get actual opponent position from DOM element, fallback to game.dummyX
+            const opponentX = opponent ? (parseFloat(opponent.style.left) || game.dummyX) : game.dummyX;
+            const facingRight = opponentX > fighterX;
             const opponentRect = opponent ? opponent.getBoundingClientRect() : { left: 650 };
             const arenaRect = arena.getBoundingClientRect();
             const targetX = opponentRect.left - arenaRect.left;
-            const fighterX = parseFloat(fighter.style.left) || game.playerX;
-            const opponentX = game.dummyX;
-            const facingRight = opponentX > fighterX;
 
             if (special.name === 'The Split') {
                 // Hide original legs and feet during split
@@ -9733,6 +9769,9 @@
                 const throwDirection = facingRight ? 1 : -1;
                 const startX = facingRight ? fighterX + 40 : fighterX - 10;
 
+                // Get actual opponent position from DOM element for accurate hit detection
+                const actualOpponentX = opponent ? (parseFloat(opponent.style.left) || game.dummyX) : game.dummyX;
+
                 const countryEl = document.createElement('div');
                 countryEl.style.cssText = `
                     position: absolute;
@@ -9771,8 +9810,9 @@
                     countryEl.style.bottom = (120 + arc) + 'px';
                     countryEl.style.transform = `rotate(${frame * 8 * throwDirection}deg) scale(${1 + frame * 0.01})`;
 
-                    // Hit detection - check if country reached opponent
-                    if (!hasHit && Math.abs(countryX - opponentX) < 50) {
+                    // Hit detection - check if country reached opponent (use actual position)
+                    const currentOpponentX = opponent ? (parseFloat(opponent.style.left) || actualOpponentX) : actualOpponentX;
+                    if (!hasHit && Math.abs(countryX - currentOpponentX) < 50) {
                         hasHit = true;
                         clearInterval(fly);
                         dealDamage(special.damage, 'BONK!');
@@ -9798,6 +9838,9 @@
 
             } else if (special.name === 'WORLD TOUR!') {
                 // Ultimate: Throw all countries!
+                const throwDir = facingRight ? 1 : -1;
+                const actualOpponentX = opponent ? (parseFloat(opponent.style.left) || game.dummyX) : game.dummyX;
+
                 const nameText = document.createElement('div');
                 nameText.textContent = 'WORLD TOUR!';
                 nameText.style.cssText = `
@@ -9818,7 +9861,7 @@
                 countries.forEach((country, i) => {
                     setTimeout(() => {
                         const countryEl = document.createElement('div');
-                        let countryX = fighterX + 40;
+                        let countryX = facingRight ? fighterX + 40 : fighterX - 10;
                         countryEl.style.cssText = `
                             position: absolute;
                             left: ${countryX}px;
@@ -9829,21 +9872,23 @@
                         arena.appendChild(countryEl);
 
                         let hit = false;
+                        const startX = countryX;
                         const fly = setInterval(() => {
-                            countryX += 12;
-                            const arc = Math.sin((countryX - fighterX) / 200 * Math.PI) * (15 + (i % 3) * 12);
+                            countryX += 12 * throwDir;
+                            const arc = Math.sin(Math.abs(countryX - startX) / 200 * Math.PI) * (15 + (i % 3) * 12);
                             countryEl.style.left = countryX + 'px';
                             countryEl.style.bottom = (80 + (i % 4) * 20 + arc) + 'px';
-                            countryEl.style.transform = `rotate(${(countryX - fighterX) * 3}deg)`;
+                            countryEl.style.transform = `rotate(${(countryX - startX) * 3 * throwDir}deg)`;
 
                             // Check if country hit enemy's CURRENT position
-                            if (!hit && Math.abs(countryX - game.dummyX) < 40) {
+                            const currentOpponentX = opponent ? (parseFloat(opponent.style.left) || actualOpponentX) : actualOpponentX;
+                            if (!hit && Math.abs(countryX - currentOpponentX) < 40) {
                                 hit = true;
                                 totalHits++;
                                 dealDamage(5, '');
                             }
 
-                            if (countryX > 850) {
+                            if (countryX > 850 || countryX < -50) {
                                 clearInterval(fly);
                                 countryEl.style.opacity = '0';
                                 countryEl.style.transition = 'opacity 0.15s';

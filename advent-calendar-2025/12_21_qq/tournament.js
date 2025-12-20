@@ -11,9 +11,9 @@ const Tournament = {
             title: 'The Baby',
             difficulty: 1,
             hp: 60,
-            attackChance: 0.03,
+            attackChance: 0.08,  // Increased so he actually attacks
             moveSpeed: 0.6,
-            specialChance: 0.02,  // Even Timo has specials (crying, flag waving)
+            specialChance: 0.25,  // High special chance - makes him wave flags and cry often!
             noDamage: true,  // Timo does 0 damage - he's just a baby!
             description: 'A crying baby with a flag. How hard can it be?'
         },
@@ -23,9 +23,9 @@ const Tournament = {
             title: 'Material Girl',
             difficulty: 2,
             hp: 100,
-            attackChance: 0.05,
+            attackChance: 0.10,  // Increased for more action
             moveSpeed: 1.0,
-            specialChance: 0.04,  // Throws kisses, vogue poses
+            specialChance: 0.20,  // Higher chance - more vogue poses, kisses, mic drops!
             description: 'The Queen of Pop is ready to vogue!'
         },
         {
@@ -34,9 +34,9 @@ const Tournament = {
             title: 'The Coach',
             difficulty: 3,
             hp: 115,
-            attackChance: 0.06,
+            attackChance: 0.10,
             moveSpeed: 1.1,
-            specialChance: 0.05,  // Corporate jargon attacks
+            specialChance: 0.18,  // Corporate jargon attacks - post-its fly!
             description: 'Synergy! Paradigm shift! Circle back!'
         },
         {
@@ -45,9 +45,9 @@ const Tournament = {
             title: 'Soccer Star',
             difficulty: 4,
             hp: 130,
-            attackChance: 0.07,
+            attackChance: 0.10,
             moveSpeed: 1.4,
-            specialChance: 0.05,  // Soccer ball kicks
+            specialChance: 0.18,  // Soccer ball kicks
             description: 'Cat lover and bicycle kick master.'
         },
         {
@@ -56,9 +56,9 @@ const Tournament = {
             title: 'Christmas Bride',
             difficulty: 5,
             hp: 145,
-            attackChance: 0.08,
+            attackChance: 0.10,
             moveSpeed: 1.2,
-            specialChance: 0.06,  // Aerial silk attacks
+            specialChance: 0.18,  // Aerial silk attacks
             description: 'The aerial silk queen with holiday spirit!'
         },
         {
@@ -67,9 +67,9 @@ const Tournament = {
             title: 'The Bassist',
             difficulty: 6,
             hp: 160,
-            attackChance: 0.09,
+            attackChance: 0.12,
             moveSpeed: 1.3,
-            specialChance: 0.06,  // Bass slaps, coffee throws
+            specialChance: 0.18,  // Bass slaps, coffee throws
             description: 'Coffee-powered bass-slapping machine.'
         },
         {
@@ -78,9 +78,9 @@ const Tournament = {
             title: 'Sweet Transvestite',
             difficulty: 7,
             hp: 150,
-            attackChance: 0.10,
+            attackChance: 0.12,
             moveSpeed: 1.4,
-            specialChance: 0.03,  // Frank starts using special moves
+            specialChance: 0.18,  // Time Warp and lipstick!
             description: 'Dr. Frank-N-Furter from the Rocky Horror Picture Show!'
         },
         {
@@ -89,9 +89,9 @@ const Tournament = {
             title: 'The Biker',
             difficulty: 8,
             hp: 160,
-            attackChance: 0.12,
+            attackChance: 0.14,
             moveSpeed: 1.5,
-            specialChance: 0.04,
+            specialChance: 0.18,  // Motorcycle and Excel attacks!
             description: 'Excel spreadsheets by day, highway rider by night.'
         },
         {
@@ -102,7 +102,7 @@ const Tournament = {
             hp: 170,
             attackChance: 0.14,
             moveSpeed: 1.3,
-            specialChance: 0.05,
+            specialChance: 0.20,  // Vine whips and Feed Me!
             description: 'Feed me, Seymour! A man-eating plant from outer space.'
         },
         {
@@ -113,7 +113,7 @@ const Tournament = {
             hp: 180,
             attackChance: 0.16,
             moveSpeed: 1.6,
-            specialChance: 0.06,
+            specialChance: 0.20,  // Heat vision and freeze breath!
             description: 'Faster than a speeding bullet, can fly!'
         },
         {
@@ -124,7 +124,7 @@ const Tournament = {
             hp: 200,
             attackChance: 0.18,
             moveSpeed: 1.5,
-            specialChance: 0.07,
+            specialChance: 0.22,  // Bitcoin and camera attacks!
             description: 'Bitcoin maximalist, filmmaker, and coder. TO THE MOON!'
         },
         {
@@ -135,7 +135,7 @@ const Tournament = {
             hp: 250,
             attackChance: 0.22,
             moveSpeed: 1.8,
-            specialChance: 0.10,  // Billy uses specials most often!
+            specialChance: 0.25,  // Billy uses specials most often! Q.E.D.!
             description: 'The Mathematical Mastermind. Q.E.D.!',
             isFinalBoss: true
         }
