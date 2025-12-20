@@ -113,18 +113,23 @@ async function testHitDetection(browser) {
     );
 
     // Test 3: Kick has longer range than punch
+    // Kick range is 80px, so at distance 75px it should hit
     await page.evaluate(() => {
-        game.playerX = 570;  // Medium distance
+        game.playerX = 575;  // Distance of 75px from dummy at 650
+        game.dummyX = 650;
+        game.dummyTargetX = 650;
         game.dummyHealth = 1000;
         const fighter = document.getElementById('player-fighter');
-        if (fighter) fighter.style.left = '570px';
+        const dummy = document.getElementById('npc-dummy');
+        if (fighter) fighter.style.left = '575px';
+        if (dummy) dummy.style.left = '650px';
     });
-    await new Promise(r => setTimeout(r, 200));
+    await new Promise(r => setTimeout(r, 300));
 
     const beforeKick = await page.evaluate(() => game.dummyHealth);
 
     await page.keyboard.press('x');  // Kick
-    await new Promise(r => setTimeout(r, 500));
+    await new Promise(r => setTimeout(r, 600));
 
     const afterKick = await page.evaluate(() => game.dummyHealth);
 
@@ -158,6 +163,7 @@ async function testDirectionalMechanics(browser) {
     const facingWhenLeft = await page.evaluate(() => {
         game.playerX = 100;
         game.dummyX = 650;
+        game.dummyTargetX = 650;
         const fighter = document.getElementById('player-fighter');
         if (fighter) fighter.style.left = '100px';
 
@@ -185,6 +191,7 @@ async function testDirectionalMechanics(browser) {
     await page.evaluate(() => {
         game.playerX = 700;
         game.dummyX = 150;
+        game.dummyTargetX = 150;
         const fighter = document.getElementById('player-fighter');
         const dummy = document.getElementById('npc-dummy');
         if (fighter) fighter.style.left = '700px';
@@ -210,13 +217,14 @@ async function testDirectionalMechanics(browser) {
     await page.evaluate(() => {
         game.playerX = 550;
         game.dummyX = 650;
+        game.dummyTargetX = 650;  // Prevent dummy from moving
         game.dummyHealth = 1000;
         const fighter = document.getElementById('player-fighter');
         const dummy = document.getElementById('npc-dummy');
         if (fighter) fighter.style.left = '550px';
         if (dummy) dummy.style.left = '650px';
     });
-    await new Promise(r => setTimeout(r, 200));
+    await new Promise(r => setTimeout(r, 300));
 
     const beforeLeftAttack = await page.evaluate(() => game.dummyHealth);
     await page.keyboard.press('z');
@@ -233,13 +241,14 @@ async function testDirectionalMechanics(browser) {
     await page.evaluate(() => {
         game.playerX = 750;
         game.dummyX = 650;
+        game.dummyTargetX = 650;  // Prevent dummy from moving
         game.dummyHealth = 1000;
         const fighter = document.getElementById('player-fighter');
         const dummy = document.getElementById('npc-dummy');
         if (fighter) fighter.style.left = '750px';
         if (dummy) dummy.style.left = '650px';
     });
-    await new Promise(r => setTimeout(r, 200));
+    await new Promise(r => setTimeout(r, 300));
 
     const beforeRightAttack = await page.evaluate(() => game.dummyHealth);
     await page.keyboard.press('z');
@@ -289,8 +298,12 @@ async function testProjectileDirection(browser) {
     await page.evaluate(() => {
         game.playerX = 150;
         game.dummyX = 650;
+        game.dummyTargetX = 650;
+        game.dummyHealth = 1000;
         const fighter = document.getElementById('player-fighter');
+        const dummy = document.getElementById('npc-dummy');
         if (fighter) fighter.style.left = '150px';
+        if (dummy) dummy.style.left = '650px';
     });
     await new Promise(r => setTimeout(r, 300));
 
@@ -323,6 +336,7 @@ async function testProjectileDirection(browser) {
     await page.evaluate(() => {
         game.playerX = 750;
         game.dummyX = 150;
+        game.dummyTargetX = 150;
         game.dummyHealth = 1000;
         game.playerEnergy = 50;
         const fighter = document.getElementById('player-fighter');
