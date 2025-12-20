@@ -545,24 +545,85 @@
             console.log('[Main] Round', roundInfo.roundNumber, 'started!');
         }
 
+        // Update round indicator dots
+        function updateRoundIndicators() {
+            // Player round indicators
+            const playerDot1 = document.getElementById('player-round-1');
+            const playerDot2 = document.getElementById('player-round-2');
+            const opponentDot1 = document.getElementById('opponent-round-1');
+            const opponentDot2 = document.getElementById('opponent-round-2');
+
+            // Reset all
+            [playerDot1, playerDot2, opponentDot1, opponentDot2].forEach(dot => {
+                if (dot) dot.className = 'round-dot';
+            });
+
+            // Show player wins
+            if (TournamentSystem.state.playerRoundWins >= 1 && playerDot1) {
+                playerDot1.classList.add('won');
+            }
+            if (TournamentSystem.state.playerRoundWins >= 2 && playerDot2) {
+                playerDot2.classList.add('won');
+            }
+
+            // Show opponent wins
+            if (TournamentSystem.state.opponentRoundWins >= 1 && opponentDot1) {
+                opponentDot1.classList.add('won');
+            }
+            if (TournamentSystem.state.opponentRoundWins >= 2 && opponentDot2) {
+                opponentDot2.classList.add('won');
+            }
+        }
+
+        // Show victory/KO pose
+        function showRoundEndPose(playerWon) {
+            if (playerWon) {
+                // Player wins - show victory pose, opponent KO
+                elements.playerFighter.classList.add('victory');
+                elements.opponentFighter.classList.add('ko');
+            } else {
+                // Opponent wins - show opponent victory, player KO
+                elements.opponentFighter.classList.add('victory');
+                elements.playerFighter.classList.add('ko');
+            }
+        }
+
+        // Reset poses for new round
+        function resetPoses() {
+            elements.playerFighter.classList.remove('victory', 'ko');
+            elements.opponentFighter.classList.remove('victory', 'ko');
+        }
+
         // Handle round end (called from GameEngine callback)
         async function onRoundComplete(playerWon) {
             // Stop gameplay
             GameEngine.stop();
             AIController.stop();
 
+            // Show victory/KO poses
+            showRoundEndPose(playerWon);
+
+            // Update round indicators before showing result
+            // (add 1 because endRound hasn't been called yet)
+            const tempPlayerWins = TournamentSystem.state.playerRoundWins + (playerWon ? 1 : 0);
+            const tempOpponentWins = TournamentSystem.state.opponentRoundWins + (playerWon ? 0 : 1);
+
             // Show round result
-            await TournamentUI.showRoundEnd(playerWon,
-                TournamentSystem.state.playerRoundWins + (playerWon ? 1 : 0),
-                TournamentSystem.state.opponentRoundWins + (playerWon ? 0 : 1)
-            );
+            await TournamentUI.showRoundEnd(playerWon, tempPlayerWins, tempOpponentWins);
 
             // Update tournament state
             const result = TournamentSystem.endRound(playerWon);
 
+            // Update indicators after state change
+            updateRoundIndicators();
+
             if (result.matchEnded) {
+                // Reset poses before transitioning
+                resetPoses();
                 await onMatchComplete(result);
             } else {
+                // Reset poses for next round
+                resetPoses();
                 // Continue to next round
                 await startRound();
             }
@@ -668,10 +729,16 @@
         // Continuous movement with game loop
         function movementLoop() {
             if (GameEngine.state.currentState === GameEngine.STATES.FIGHTING && GameEngine.isRunning) {
-                const direction = InputHandler.getMovementDirection();
-                if (direction !== 0) {
-                    GameEngine.movePlayer(direction * 3);
-                    updateFighterPositions();
+                // Update blocking state
+                InputHandler.updateBlockState(GameEngine.state.playerFacingRight, CombatSystem);
+
+                // Only move if not blocking
+                if (!InputHandler.isBlocking) {
+                    const direction = InputHandler.getMovementDirection();
+                    if (direction !== 0) {
+                        GameEngine.movePlayer(direction * 3);
+                        updateFighterPositions();
+                    }
                 }
             }
             requestAnimationFrame(movementLoop);

@@ -43,12 +43,16 @@ const InputHandler = {
         onJump: null,
         onSpecial: null,
         onUltimate: null,
-        onMove: null
+        onMove: null,
+        onBlock: null
     },
 
     // Movement state
     isMovingLeft: false,
     isMovingRight: false,
+
+    // Blocking state (holding back)
+    isBlocking: false,
 
     // Attack lockout (prevent spam)
     isAttacking: false,
@@ -275,6 +279,40 @@ const InputHandler = {
         if (this.isMovingLeft && !this.isMovingRight) return -1;
         if (this.isMovingRight && !this.isMovingLeft) return 1;
         return 0;
+    },
+
+    /**
+     * Check if player is blocking (holding back)
+     * @param {boolean} facingRight - Whether player is facing right
+     * @returns {boolean} True if player is holding back (blocking)
+     */
+    isHoldingBack(facingRight) {
+        // Block by holding the direction AWAY from opponent
+        if (facingRight) {
+            return this.isMovingLeft && !this.isMovingRight;
+        } else {
+            return this.isMovingRight && !this.isMovingLeft;
+        }
+    },
+
+    /**
+     * Update blocking state based on facing direction
+     * Call this each frame from the game loop
+     * @param {boolean} facingRight - Whether player is facing right
+     * @param {function} combatSystem - Reference to CombatSystem for setting block state
+     */
+    updateBlockState(facingRight, combatSystem) {
+        const wasBlocking = this.isBlocking;
+        this.isBlocking = this.isHoldingBack(facingRight) && !this.isAttacking;
+
+        // Notify combat system of blocking state change
+        if (combatSystem && this.isBlocking !== wasBlocking) {
+            combatSystem.setBlocking('player', this.isBlocking);
+
+            if (this.callbacks.onBlock) {
+                this.callbacks.onBlock(this.isBlocking);
+            }
+        }
     },
 
     // Check if a key is currently held

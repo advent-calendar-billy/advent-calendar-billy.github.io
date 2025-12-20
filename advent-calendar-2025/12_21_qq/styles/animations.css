@@ -365,3 +365,125 @@
         transform: rotate(360deg);
     }
 }
+
+/* ========================
+   Combat State Animations
+   ======================== */
+
+/* Hitstun - character shakes when hit */
+@keyframes hitstunShake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    20% {
+        transform: translateX(-5px) rotate(-2deg);
+    }
+    40% {
+        transform: translateX(5px) rotate(2deg);
+    }
+    60% {
+        transform: translateX(-3px) rotate(-1deg);
+    }
+    80% {
+        transform: translateX(3px) rotate(1deg);
+    }
+}
+
+.fighter.stunned {
+    animation: hitstunShake 0.2s ease-out;
+}
+
+/* Hit flash - character flashes white briefly */
+@keyframes hitFlashAnim {
+    0% {
+        filter: brightness(3) saturate(0);
+    }
+    100% {
+        filter: brightness(1) saturate(1);
+    }
+}
+
+.fighter.hit-flash {
+    animation: hitFlashAnim 0.1s ease-out;
+}
+
+/* Invincibility - character blinks */
+@keyframes invincibleBlink {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.3;
+    }
+}
+
+.fighter.invincible {
+    animation: invincibleBlink 0.1s ease-in-out infinite;
+}
+
+/* Blocking - character braces */
+@keyframes blockBrace {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(0.95) translateX(-5px);
+    }
+    100% {
+        transform: scale(0.98);
+    }
+}
+
+.fighter.blocking {
+    animation: blockBrace 0.2s ease-out forwards;
+    filter: brightness(0.9);
+}
+
+.fighter.blocking::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -10px;
+    width: 20px;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(100, 150, 255, 0.3), transparent);
+    pointer-events: none;
+}
+
+/* Victory pose */
+@keyframes victoryPose {
+    0% {
+        transform: scale(1);
+    }
+    30% {
+        transform: scale(1.1) translateY(-10px);
+    }
+    50% {
+        transform: scale(1.05) translateY(-5px);
+    }
+    100% {
+        transform: scale(1.05);
+    }
+}
+
+.fighter.victory {
+    animation: victoryPose 0.5s ease-out forwards;
+}
+
+/* KO fall */
+@keyframes koFall {
+    0% {
+        transform: rotate(0deg);
+    }
+    30% {
+        transform: rotate(-10deg);
+    }
+    100% {
+        transform: rotate(-90deg) translateY(30px);
+        opacity: 0.7;
+    }
+}
+
+.fighter.ko {
+    animation: koFall 0.5s ease-in forwards;
+}

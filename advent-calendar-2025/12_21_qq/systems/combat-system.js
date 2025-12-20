@@ -27,16 +27,48 @@ const CombatSystem = {
         special: 20
     },
 
+    // Knockback amounts
+    KNOCKBACK: {
+        punch: 15,
+        kick: 25,
+        special: 35,
+        ultimate: 50
+    },
+
+    // Hitstun durations (ms)
+    HITSTUN: {
+        punch: 200,
+        kick: 300,
+        special: 400,
+        ultimate: 600
+    },
+
+    // Combat state
+    state: {
+        playerInvincible: false,
+        opponentInvincible: false,
+        playerStunned: false,
+        opponentStunned: false,
+        playerBlocking: false,
+        opponentBlocking: false
+    },
+
     // Reference to game engine
     gameEngine: null,
 
     // Reference to arena element
     arena: null,
 
+    // Fighter elements for visual effects
+    playerElement: null,
+    opponentElement: null,
+
     // Initialize combat system
     init(gameEngine, arenaElement) {
         this.gameEngine = gameEngine;
         this.arena = arenaElement;
+        this.playerElement = arenaElement?.querySelector('#player-fighter');
+        this.opponentElement = arenaElement?.querySelector('#opponent-fighter');
         console.log('[CombatSystem] Initialized');
         return this;
     },
@@ -60,10 +92,24 @@ const CombatSystem = {
      * @returns {object} Result with hit status and damage
      */
     executePunch(attackerX, targetX, isPlayer = true) {
+        const target = isPlayer ? 'opponent' : 'player';
+
+        // Check if target is invincible
+        if (this.isInvincible(target)) {
+            return { hit: false, damage: 0, blocked: false };
+        }
+
         const inRange = this.isInRange(attackerX, targetX, this.RANGES.punch);
 
         if (inRange) {
-            const damage = this.DAMAGE.punch;
+            let damage = this.DAMAGE.punch;
+
+            // Check for block (reduces damage by 75%)
+            if (this.isBlocking(target)) {
+                damage = Math.floor(damage * 0.25);
+                this.showHitEffect(targetX, 'BLOCK!', '#4488ff');
+                return { hit: true, damage: damage, blocked: true };
+            }
 
             if (isPlayer) {
                 this.gameEngine.damageOpponent(damage);
@@ -72,11 +118,17 @@ const CombatSystem = {
                 this.gameEngine.damagePlayer(damage);
             }
 
+            // Apply combat effects
+            const knockbackDir = attackerX < targetX ? 1 : -1;
+            this.applyKnockback(target, knockbackDir, this.KNOCKBACK.punch);
+            this.applyHitstun(target, this.HITSTUN.punch);
+            this.flashCharacter(target);
+
             this.showHitEffect(targetX, 'HIT!');
-            return { hit: true, damage: damage };
+            return { hit: true, damage: damage, blocked: false };
         }
 
-        return { hit: false, damage: 0 };
+        return { hit: false, damage: 0, blocked: false };
     },
 
     /**
@@ -87,10 +139,24 @@ const CombatSystem = {
      * @returns {object} Result with hit status and damage
      */
     executeKick(attackerX, targetX, isPlayer = true) {
+        const target = isPlayer ? 'opponent' : 'player';
+
+        // Check if target is invincible
+        if (this.isInvincible(target)) {
+            return { hit: false, damage: 0, blocked: false };
+        }
+
         const inRange = this.isInRange(attackerX, targetX, this.RANGES.kick);
 
         if (inRange) {
-            const damage = this.DAMAGE.kick;
+            let damage = this.DAMAGE.kick;
+
+            // Check for block (reduces damage by 75%)
+            if (this.isBlocking(target)) {
+                damage = Math.floor(damage * 0.25);
+                this.showHitEffect(targetX, 'BLOCK!', '#4488ff');
+                return { hit: true, damage: damage, blocked: true };
+            }
 
             if (isPlayer) {
                 this.gameEngine.damageOpponent(damage);
@@ -99,11 +165,18 @@ const CombatSystem = {
                 this.gameEngine.damagePlayer(damage);
             }
 
+            // Apply combat effects - kicks have more knockback
+            const knockbackDir = attackerX < targetX ? 1 : -1;
+            this.applyKnockback(target, knockbackDir, this.KNOCKBACK.kick);
+            this.applyHitstun(target, this.HITSTUN.kick);
+            this.flashCharacter(target);
+            this.screenShake(3, 100); // Light screen shake on kicks
+
             this.showHitEffect(targetX, 'POW!');
-            return { hit: true, damage: damage };
+            return { hit: true, damage: damage, blocked: false };
         }
 
-        return { hit: false, damage: 0 };
+        return { hit: false, damage: 0, blocked: false };
     },
 
     /**
@@ -113,24 +186,51 @@ const CombatSystem = {
      * @param {number} damage - Damage amount
      * @param {string} hitText - Text to show on hit
      * @param {boolean} isPlayer - True if player is attacking
+     * @param {boolean} isUltimate - True if this is an ultimate move
      * @returns {object} Result with hit status and damage
      */
-    executeSpecial(attackerX, targetX, damage, hitText = 'SPECIAL!', isPlayer = true) {
+    executeSpecial(attackerX, targetX, damage, hitText = 'SPECIAL!', isPlayer = true, isUltimate = false) {
+        const target = isPlayer ? 'opponent' : 'player';
+
+        // Check if target is invincible
+        if (this.isInvincible(target)) {
+            return { hit: false, damage: 0, blocked: false };
+        }
+
         const inRange = this.isInRange(attackerX, targetX, this.RANGES.special);
 
         if (inRange) {
+            // Specials can't be blocked (or do reduced block damage)
+            const blocking = this.isBlocking(target);
+            let actualDamage = blocking ? Math.floor(damage * 0.5) : damage;
+
             if (isPlayer) {
-                this.gameEngine.damageOpponent(damage);
+                this.gameEngine.damageOpponent(actualDamage);
                 this.gameEngine.addPlayerEnergy(15);
             } else {
-                this.gameEngine.damagePlayer(damage);
+                this.gameEngine.damagePlayer(actualDamage);
             }
 
-            this.showHitEffect(targetX, hitText, '#ff6600');
-            return { hit: true, damage: damage };
+            // Apply combat effects - specials have big knockback
+            const knockbackDir = attackerX < targetX ? 1 : -1;
+            const knockback = isUltimate ? this.KNOCKBACK.ultimate : this.KNOCKBACK.special;
+            const hitstun = isUltimate ? this.HITSTUN.ultimate : this.HITSTUN.special;
+
+            this.applyKnockback(target, knockbackDir, knockback);
+            this.applyHitstun(target, hitstun);
+            this.flashCharacter(target);
+            this.screenShake(isUltimate ? 8 : 5, isUltimate ? 300 : 200);
+
+            if (blocking) {
+                this.showHitEffect(targetX, 'GUARD!', '#4488ff');
+            } else {
+                this.showHitEffect(targetX, hitText, '#ff6600');
+            }
+
+            return { hit: true, damage: actualDamage, blocked: blocking };
         }
 
-        return { hit: false, damage: 0 };
+        return { hit: false, damage: 0, blocked: false };
     },
 
     /**
@@ -289,6 +389,159 @@ const CombatSystem = {
         setTimeout(() => {
             flash.remove();
         }, duration);
+    },
+
+    // ==========================================
+    // Combat State Methods
+    // ==========================================
+
+    /**
+     * Check if target is currently invincible
+     * @param {string} target - 'player' or 'opponent'
+     */
+    isInvincible(target) {
+        return target === 'player' ? this.state.playerInvincible : this.state.opponentInvincible;
+    },
+
+    /**
+     * Check if target is currently blocking
+     * @param {string} target - 'player' or 'opponent'
+     */
+    isBlocking(target) {
+        return target === 'player' ? this.state.playerBlocking : this.state.opponentBlocking;
+    },
+
+    /**
+     * Check if target is currently stunned
+     * @param {string} target - 'player' or 'opponent'
+     */
+    isStunned(target) {
+        return target === 'player' ? this.state.playerStunned : this.state.opponentStunned;
+    },
+
+    /**
+     * Set blocking state for a target
+     * @param {string} target - 'player' or 'opponent'
+     * @param {boolean} blocking - Whether blocking
+     */
+    setBlocking(target, blocking) {
+        if (target === 'player') {
+            this.state.playerBlocking = blocking;
+        } else {
+            this.state.opponentBlocking = blocking;
+        }
+
+        // Update visual
+        const element = target === 'player' ? this.playerElement : this.opponentElement;
+        if (element) {
+            if (blocking) {
+                element.classList.add('blocking');
+            } else {
+                element.classList.remove('blocking');
+            }
+        }
+    },
+
+    /**
+     * Apply hitstun to target (brief stagger, can't act)
+     * @param {string} target - 'player' or 'opponent'
+     * @param {number} duration - Hitstun duration in ms
+     */
+    applyHitstun(target, duration) {
+        if (target === 'player') {
+            this.state.playerStunned = true;
+        } else {
+            this.state.opponentStunned = true;
+        }
+
+        // Visual: add stunned class for animation
+        const element = target === 'player' ? this.playerElement : this.opponentElement;
+        if (element) {
+            element.classList.add('stunned');
+        }
+
+        // Remove stun after duration and grant brief invincibility
+        setTimeout(() => {
+            if (target === 'player') {
+                this.state.playerStunned = false;
+            } else {
+                this.state.opponentStunned = false;
+            }
+
+            if (element) {
+                element.classList.remove('stunned');
+            }
+
+            // Grant brief invincibility after hitstun
+            this.grantInvincibility(target, 200);
+        }, duration);
+    },
+
+    /**
+     * Grant temporary invincibility
+     * @param {string} target - 'player' or 'opponent'
+     * @param {number} duration - Invincibility duration in ms
+     */
+    grantInvincibility(target, duration) {
+        if (target === 'player') {
+            this.state.playerInvincible = true;
+        } else {
+            this.state.opponentInvincible = true;
+        }
+
+        // Visual: add invincible class (blinking effect)
+        const element = target === 'player' ? this.playerElement : this.opponentElement;
+        if (element) {
+            element.classList.add('invincible');
+        }
+
+        setTimeout(() => {
+            if (target === 'player') {
+                this.state.playerInvincible = false;
+            } else {
+                this.state.opponentInvincible = false;
+            }
+
+            if (element) {
+                element.classList.remove('invincible');
+            }
+        }, duration);
+    },
+
+    /**
+     * Flash character white when hit
+     * @param {string} target - 'player' or 'opponent'
+     */
+    flashCharacter(target) {
+        const element = target === 'player' ? this.playerElement : this.opponentElement;
+        if (!element) return;
+
+        element.classList.add('hit-flash');
+
+        setTimeout(() => {
+            element.classList.remove('hit-flash');
+        }, 100);
+    },
+
+    /**
+     * Reset combat state (for new round)
+     */
+    resetState() {
+        this.state = {
+            playerInvincible: false,
+            opponentInvincible: false,
+            playerStunned: false,
+            opponentStunned: false,
+            playerBlocking: false,
+            opponentBlocking: false
+        };
+
+        // Remove all combat classes
+        [this.playerElement, this.opponentElement].forEach(el => {
+            if (el) {
+                el.classList.remove('stunned', 'invincible', 'blocking', 'hit-flash');
+            }
+        });
     }
 };
 

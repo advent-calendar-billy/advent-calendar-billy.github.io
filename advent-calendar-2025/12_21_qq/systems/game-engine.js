@@ -281,16 +281,47 @@ const GameEngine = {
         return false;
     },
 
-    // Position handling with boundary checks
+    // Character collision width (can't overlap)
+    COLLISION_WIDTH: 50,
+
+    // Position handling with boundary and collision checks
     movePlayer(dx) {
-        const newX = this.state.playerX + dx;
-        this.state.playerX = Math.max(this.state.arenaMinX, Math.min(this.state.arenaMaxX, newX));
+        let newX = this.state.playerX + dx;
+
+        // Boundary check
+        newX = Math.max(this.state.arenaMinX, Math.min(this.state.arenaMaxX, newX));
+
+        // Collision check - can't walk through opponent
+        const collisionDist = this.COLLISION_WIDTH;
+        if (dx > 0 && newX > this.state.opponentX - collisionDist && this.state.playerX < this.state.opponentX) {
+            // Moving right, would collide
+            newX = this.state.opponentX - collisionDist;
+        } else if (dx < 0 && newX < this.state.opponentX + collisionDist && this.state.playerX > this.state.opponentX) {
+            // Moving left, would collide
+            newX = this.state.opponentX + collisionDist;
+        }
+
+        this.state.playerX = newX;
         return this.state.playerX;
     },
 
     moveOpponent(dx) {
-        const newX = this.state.opponentX + dx;
-        this.state.opponentX = Math.max(this.state.arenaMinX, Math.min(this.state.arenaMaxX, newX));
+        let newX = this.state.opponentX + dx;
+
+        // Boundary check
+        newX = Math.max(this.state.arenaMinX, Math.min(this.state.arenaMaxX, newX));
+
+        // Collision check - can't walk through player
+        const collisionDist = this.COLLISION_WIDTH;
+        if (dx > 0 && newX > this.state.playerX - collisionDist && this.state.opponentX < this.state.playerX) {
+            // Moving right, would collide
+            newX = this.state.playerX - collisionDist;
+        } else if (dx < 0 && newX < this.state.playerX + collisionDist && this.state.opponentX > this.state.playerX) {
+            // Moving left, would collide
+            newX = this.state.playerX + collisionDist;
+        }
+
+        this.state.opponentX = newX;
         return this.state.opponentX;
     },
 
