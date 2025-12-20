@@ -5574,73 +5574,84 @@
                 if (inRange) setTimeout(() => dealDamage(10, 'STILETTO!'), 200);
 
             } else if (char === 'fede') {
-                // Fede: Traveler's Kick - a swift kick with hiking boot
-                const leg = fighter.querySelector('.leg.right') || fighter.querySelector('.legs');
-                const foot = fighter.querySelector('.foot.right') || fighter.querySelector('.feet');
+                // Fede: Traveler's Kick - tilt character and show impact effects
+                // Following best practice: DON'T create floating body parts
 
-                // Create extended kicking leg
-                const kickLeg = document.createElement('div');
-                kickLeg.style.cssText = `
-                    position: absolute;
-                    left: ${fighterX + 35}px;
-                    bottom: 85px;
-                    width: 45px;
-                    height: 14px;
-                    background: #2c3e50;
-                    border: 2px solid #333;
-                    border-radius: 4px;
-                    transform-origin: left center;
-                    transform: rotate(-10deg);
-                    z-index: 150;
-                `;
-                arena.appendChild(kickLeg);
+                // Strong lunge forward with kick motion
+                fighter.style.transition = 'transform 0.12s ease-out';
+                fighter.style.transform = 'rotate(-25deg) translateX(25px) translateY(-5px)';
 
-                // Hiking boot at end
-                const boot = document.createElement('div');
-                boot.style.cssText = `
-                    position: absolute;
-                    left: ${fighterX + 78}px;
-                    bottom: 80px;
-                    width: 22px;
-                    height: 16px;
-                    background: linear-gradient(180deg, #8B4513, #654321);
-                    border: 2px solid #3d2314;
-                    border-radius: 4px 8px 8px 4px;
-                    z-index: 151;
-                    box-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-                `;
-                arena.appendChild(boot);
-
-                // Swoosh effect
+                // Create prominent swoosh arc effect
                 const swoosh = document.createElement('div');
                 swoosh.style.cssText = `
                     position: absolute;
-                    left: ${fighterX + 50}px;
-                    bottom: 75px;
-                    width: 40px;
-                    height: 25px;
-                    background: radial-gradient(ellipse at left, rgba(100,100,100,0.5) 0%, transparent 70%);
-                    z-index: 149;
+                    left: ${fighterX + 35}px;
+                    bottom: 85px;
+                    width: 55px;
+                    height: 40px;
+                    border: 5px solid #8B4513;
+                    border-left: none;
+                    border-radius: 0 60% 60% 0;
+                    z-index: 160;
+                    box-shadow: 2px 2px 8px rgba(139, 69, 19, 0.5);
                 `;
                 arena.appendChild(swoosh);
 
-                // Animate kick
-                let frame = 0;
-                const kickAnim = setInterval(() => {
-                    frame++;
-                    const progress = frame / 8;
-                    const kickAngle = Math.sin(progress * Math.PI) * 25;
-                    kickLeg.style.transform = `rotate(${-10 - kickAngle}deg)`;
-                    boot.style.left = (fighterX + 78 + Math.sin(progress * Math.PI) * 15) + 'px';
-                    boot.style.bottom = (80 + Math.sin(progress * Math.PI) * 10) + 'px';
+                // Bold motion lines
+                for (let i = 0; i < 4; i++) {
+                    const line = document.createElement('div');
+                    line.style.cssText = `
+                        position: absolute;
+                        left: ${fighterX + 20}px;
+                        bottom: ${78 + i * 14}px;
+                        width: 30px;
+                        height: 4px;
+                        background: linear-gradient(90deg, #8B4513, rgba(139, 69, 19, 0.3), transparent);
+                        border-radius: 2px;
+                        z-index: 155;
+                    `;
+                    arena.appendChild(line);
+                    setTimeout(() => line.remove(), 200);
+                }
 
-                    if (frame >= 8) {
-                        clearInterval(kickAnim);
-                        kickLeg.remove();
-                        boot.remove();
-                        swoosh.remove();
-                    }
-                }, 25);
+                // Impact burst effect
+                const burst = document.createElement('div');
+                burst.style.cssText = `
+                    position: absolute;
+                    left: ${fighterX + 50}px;
+                    bottom: 95px;
+                    width: 30px;
+                    height: 30px;
+                    background: radial-gradient(circle, rgba(255, 200, 100, 0.8) 0%, rgba(255, 150, 50, 0.4) 40%, transparent 70%);
+                    border-radius: 50%;
+                    z-index: 165;
+                `;
+                arena.appendChild(burst);
+
+                // Dust cloud at feet
+                const dust = document.createElement('div');
+                dust.style.cssText = `
+                    position: absolute;
+                    left: ${fighterX + 25}px;
+                    bottom: 68px;
+                    width: 40px;
+                    height: 20px;
+                    background: radial-gradient(ellipse, rgba(160, 140, 120, 0.7) 0%, rgba(140, 120, 100, 0.3) 50%, transparent 80%);
+                    z-index: 50;
+                `;
+                arena.appendChild(dust);
+
+                // Return to normal after kick
+                setTimeout(() => {
+                    fighter.style.transform = '';
+                }, 180);
+
+                // Cleanup effects
+                setTimeout(() => {
+                    swoosh.remove();
+                    burst.remove();
+                    dust.remove();
+                }, 250);
 
                 if (inRange) setTimeout(() => dealDamage(10, 'KICKED!'), 100);
 
