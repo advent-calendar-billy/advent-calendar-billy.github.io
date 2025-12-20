@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Finger+Paint&family=Patrick+Hand&family=Permanent+Marker&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="tournament-ui.css">
     <style>
         * {
             margin: 0;
@@ -3672,6 +3673,31 @@
         </div>
     </div>
 
+    <!-- TOURNAMENT LADDER SCREEN -->
+    <div id="tournament-ladder" style="display: none;">
+        <!-- Populated by tournament-integration.js -->
+    </div>
+
+    <!-- PRE-FIGHT VS SCREEN -->
+    <div id="pre-fight-screen">
+        <!-- Populated by tournament-integration.js -->
+    </div>
+
+    <!-- ROUND RESULT OVERLAY -->
+    <div class="round-result-overlay" id="round-result-overlay">
+        <!-- Populated by tournament-integration.js -->
+    </div>
+
+    <!-- GAME OVER SCREEN -->
+    <div id="game-over-screen">
+        <!-- Populated by tournament-integration.js -->
+    </div>
+
+    <!-- VICTORY SCREEN -->
+    <div id="victory-screen">
+        <!-- Populated by tournament-integration.js -->
+    </div>
+
     <!-- GAME ARENA -->
     <div id="game-arena">
         <div class="game-header">
@@ -3689,7 +3715,7 @@
             <div class="game-title">VS</div>
             <div class="player-info right">
                 <div>
-                    <div class="player-name">DUMMY</div>
+                    <div class="player-name" id="opponent-name">OPPONENT</div>
                     <div class="health-bar">
                         <div class="health-fill" id="dummy-health"></div>
                     </div>
@@ -3704,7 +3730,10 @@
             <!-- Player fighter gets inserted here -->
             <div id="player-fighter-container"></div>
 
-            <!-- NPC Dummy -->
+            <!-- Opponent Fighter Container (for tournament mode) -->
+            <div id="opponent-fighter-container"></div>
+
+            <!-- NPC Dummy (fallback for non-tournament mode) -->
             <div class="npc-dummy" id="npc-dummy" style="left: 650px;">
                 <div class="dummy-head"></div>
                 <div class="dummy-body">
@@ -3715,6 +3744,9 @@
                     <div class="dummy-leg"></div>
                 </div>
             </div>
+
+            <!-- Round Indicator -->
+            <div class="round-counter" id="round-indicator"></div>
 
             <div class="move-list" id="move-list"></div>
         </div>
@@ -4151,6 +4183,11 @@
             `
         };
 
+        // Export to window for tournament integration
+        window.game = game;
+        window.moveLists = moveLists;
+        window.characterTemplates = characterTemplates;
+
         function selectCharacter(char) {
             game.selectedCharacter = char;
             game.bassDamage = 0;  // Reset bass damage for Jonas L
@@ -4283,6 +4320,7 @@
             }
             loop();
         }
+        window.startGameLoop = startGameLoop;
 
         // Input handling
         document.addEventListener('keydown', (e) => {
@@ -6034,6 +6072,7 @@
                 showResult('YOU WIN!');
             }
         }
+        window.dealDamage = dealDamage;
 
         function showImpact(text, damage) {
             const dummy = document.getElementById('npc-dummy');
@@ -11823,5 +11862,12 @@
             updateUI();
         }
     </script>
+
+    <!-- Tournament Mode Scripts -->
+    <script src="tournament.js"></script>
+    <script src="backgrounds.js"></script>
+    <script src="opponent-ai.js"></script>
+    <script src="game-controller.js"></script>
+    <script src="tournament-integration.js"></script>
 </body>
 </html>

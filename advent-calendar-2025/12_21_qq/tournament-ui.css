@@ -1,0 +1,424 @@
+/* Tournament Mode UI Styles */
+
+/* ==================== TOURNAMENT LADDER SCREEN ==================== */
+#tournament-ladder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+    background: var(--paper);
+}
+
+.ladder-container {
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+}
+
+.ladder-title {
+    font-family: 'Finger Paint', cursive;
+    font-size: clamp(2rem, 5vw, 3rem);
+    color: var(--ink);
+    text-shadow: 3px 3px 0 var(--paper), 4px 4px 0 var(--ink);
+    margin-bottom: 5px;
+}
+
+.ladder-subtitle {
+    font-size: 1rem;
+    color: var(--pencil);
+    margin-bottom: 20px;
+}
+
+.ladder-player-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    padding: 10px 20px;
+    border: 3px solid #4a90d9;
+    border-radius: 10px;
+    background: rgba(74, 144, 217, 0.1);
+}
+
+.ladder-player-info .player-name {
+    font-family: 'Finger Paint', cursive;
+    font-size: 1.4rem;
+    color: #4a90d9;
+}
+
+.ladder-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 25px;
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.ladder-opponent {
+    display: flex;
+    flex-direction: column;
+    padding: 12px 15px;
+    border: 3px solid var(--ink);
+    border-radius: 8px;
+    background: var(--paper);
+    transition: all 0.2s;
+    text-align: left;
+}
+
+.ladder-opponent .opponent-status {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 2px;
+}
+
+.ladder-opponent .opponent-name {
+    font-family: 'Finger Paint', cursive;
+    font-size: 1.1rem;
+}
+
+.ladder-opponent .opponent-title {
+    font-size: 0.75rem;
+    color: var(--pencil);
+}
+
+.ladder-opponent .opponent-desc {
+    font-size: 0.7rem;
+    color: var(--pencil);
+    margin-top: 5px;
+    font-style: italic;
+}
+
+/* Ladder opponent states */
+.ladder-opponent.defeated {
+    opacity: 0.5;
+    background: #e8e8e8;
+    border-style: dashed;
+}
+
+.ladder-opponent.defeated .opponent-status {
+    color: var(--green);
+}
+
+.ladder-opponent.current {
+    border-color: var(--red);
+    box-shadow: 0 0 15px rgba(231, 76, 60, 0.3);
+    animation: currentPulse 1.5s infinite;
+}
+
+.ladder-opponent.current .opponent-status {
+    color: var(--red);
+    font-weight: bold;
+}
+
+.ladder-opponent.revealed {
+    opacity: 0.8;
+}
+
+.ladder-opponent.mystery {
+    opacity: 0.6;
+    background: repeating-linear-gradient(
+        45deg,
+        var(--paper),
+        var(--paper) 10px,
+        rgba(0,0,0,0.03) 10px,
+        rgba(0,0,0,0.03) 20px
+    );
+}
+
+.ladder-opponent.mystery .opponent-name {
+    color: var(--pencil);
+}
+
+.ladder-opponent.final-boss {
+    border-color: var(--blue);
+    background: linear-gradient(135deg, rgba(52, 152, 219, 0.1) 0%, var(--paper) 100%);
+}
+
+.ladder-opponent.final-boss.current {
+    border-color: var(--blue);
+    box-shadow: 0 0 20px rgba(52, 152, 219, 0.5);
+}
+
+.ladder-opponent.final-boss .opponent-name {
+    color: var(--blue);
+}
+
+@keyframes currentPulse {
+    0%, 100% { box-shadow: 0 0 10px rgba(231, 76, 60, 0.3); }
+    50% { box-shadow: 0 0 20px rgba(231, 76, 60, 0.6); }
+}
+
+.fight-btn, .continue-btn {
+    font-family: 'Finger Paint', cursive;
+    font-size: 1.5rem;
+    padding: 15px 50px;
+    border: 4px solid var(--ink);
+    border-radius: 12px;
+    background: var(--red);
+    color: var(--paper);
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 4px 4px 0 var(--ink);
+}
+
+.fight-btn:hover, .continue-btn:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 var(--ink);
+}
+
+.fight-btn:active, .continue-btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 var(--ink);
+}
+
+/* ==================== PRE-FIGHT VS SCREEN ==================== */
+#pre-fight-screen {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.9);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 500;
+}
+
+#pre-fight-screen.show {
+    display: flex;
+}
+
+.vs-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+}
+
+.fighter-intro {
+    text-align: center;
+    animation: slideIn 0.5s ease-out;
+}
+
+.fighter-intro.player {
+    animation-name: slideInLeft;
+}
+
+.fighter-intro.opponent {
+    animation-name: slideInRight;
+}
+
+@keyframes slideInLeft {
+    from { transform: translateX(-100px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideInRight {
+    from { transform: translateX(100px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+.fighter-intro .fighter-name {
+    display: block;
+    font-family: 'Finger Paint', cursive;
+    font-size: 2.5rem;
+    color: var(--paper);
+    text-shadow: 3px 3px 0 var(--ink);
+}
+
+.fighter-intro .fighter-title {
+    display: block;
+    font-size: 1rem;
+    color: var(--pencil);
+    margin-top: 5px;
+}
+
+.fighter-intro.player .fighter-name { color: #4a90d9; }
+.fighter-intro.opponent .fighter-name { color: var(--red); }
+
+.vs-text {
+    font-family: 'Finger Paint', cursive;
+    font-size: 4rem;
+    color: var(--yellow);
+    text-shadow: 4px 4px 0 var(--ink);
+    animation: vsPulse 0.8s ease-in-out infinite;
+}
+
+@keyframes vsPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.match-info {
+    position: absolute;
+    bottom: 50px;
+    font-family: 'Patrick Hand', cursive;
+    font-size: 1.2rem;
+    color: var(--paper);
+}
+
+/* ==================== ROUND/MATCH RESULTS ==================== */
+.round-result-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    z-index: 600;
+}
+
+.round-result-overlay.show {
+    display: flex;
+}
+
+.round-result-text {
+    font-family: 'Finger Paint', cursive;
+    font-size: 3rem;
+    margin-bottom: 20px;
+    animation: resultPop 0.5s ease-out;
+}
+
+.round-result-text.win { color: var(--green); }
+.round-result-text.lose { color: var(--red); }
+
+@keyframes resultPop {
+    0% { transform: scale(0); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.score-display {
+    font-family: 'Patrick Hand', cursive;
+    font-size: 1.8rem;
+    color: var(--paper);
+    margin-bottom: 30px;
+}
+
+.round-indicator {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.round-dot {
+    width: 20px;
+    height: 20px;
+    border: 3px solid var(--paper);
+    border-radius: 50%;
+    background: transparent;
+}
+
+.round-dot.player-win { background: #4a90d9; border-color: #4a90d9; }
+.round-dot.opponent-win { background: var(--red); border-color: var(--red); }
+
+/* ==================== GAME OVER / VICTORY SCREENS ==================== */
+#game-over-screen, #victory-screen {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.9);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    z-index: 700;
+}
+
+#game-over-screen.show, #victory-screen.show {
+    display: flex;
+}
+
+.game-over-text {
+    font-family: 'Finger Paint', cursive;
+    font-size: 4rem;
+    color: var(--red);
+    text-shadow: 4px 4px 0 var(--ink);
+    margin-bottom: 20px;
+}
+
+.defeated-by {
+    font-size: 1.2rem;
+    color: var(--paper);
+    margin-bottom: 10px;
+}
+
+.progress-text {
+    font-size: 1rem;
+    color: var(--pencil);
+    margin-bottom: 30px;
+}
+
+.champion-text {
+    font-family: 'Finger Paint', cursive;
+    font-size: 4rem;
+    color: var(--yellow);
+    text-shadow: 4px 4px 0 var(--ink);
+    margin-bottom: 20px;
+    animation: championGlow 1s ease-in-out infinite;
+}
+
+@keyframes championGlow {
+    0%, 100% { text-shadow: 4px 4px 0 var(--ink), 0 0 20px var(--yellow); }
+    50% { text-shadow: 4px 4px 0 var(--ink), 0 0 40px var(--yellow); }
+}
+
+.trophy {
+    font-size: 6rem;
+    margin: 20px 0;
+    animation: trophyBounce 1s ease-in-out infinite;
+}
+
+@keyframes trophyBounce {
+    0%, 100% { transform: translateY(0) rotate(-5deg); }
+    50% { transform: translateY(-20px) rotate(5deg); }
+}
+
+.victory-message {
+    text-align: center;
+    color: var(--paper);
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+}
+
+.congrats-text {
+    font-family: 'Finger Paint', cursive;
+    font-size: 1.5rem;
+    color: var(--green);
+    margin-bottom: 30px;
+}
+
+/* ==================== DYNAMIC OPPONENT NAME ==================== */
+#opponent-name {
+    transition: color 0.3s;
+}
+
+#opponent-health-container .health-fill {
+    transition: width 0.3s, background 0.3s;
+}
+
+/* ==================== ROUND COUNTER ==================== */
+.round-counter {
+    position: absolute;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    z-index: 50;
+}
+
+.round-counter .round-pip {
+    width: 12px;
+    height: 12px;
+    border: 2px solid var(--ink);
+    border-radius: 50%;
+    background: var(--paper);
+}
+
+.round-counter .round-pip.player { background: #4a90d9; }
+.round-counter .round-pip.opponent { background: var(--red); }
