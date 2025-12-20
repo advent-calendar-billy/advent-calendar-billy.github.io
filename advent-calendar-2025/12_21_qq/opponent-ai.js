@@ -180,12 +180,11 @@ const OpponentAI = {
         let attackDuration = 300;
         let isSpecial = false;
 
-        // Check for special move (only high difficulty opponents)
-        if (this.state.stats.specialChance && Math.random() < this.state.stats.specialChance && this.state.energy >= 50) {
+        // Check for special move (opponents with specialChance can use them)
+        if (this.state.stats.specialChance && Math.random() < this.state.stats.specialChance) {
             damage = this.state.stats.damage.special;
             attackName = 'special';
             attackDuration = 600;
-            this.state.energy = 0;
             isSpecial = true;
         } else if (attackType < 0.6) {
             // Punch (more common)

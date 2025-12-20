@@ -73,6 +73,7 @@ const Tournament = {
             hp: 150,
             attackChance: 0.10,
             moveSpeed: 1.4,
+            specialChance: 0.03,  // Frank starts using special moves
             description: 'Dr. Frank-N-Furter from the Rocky Horror Picture Show!'
         },
         {
@@ -83,6 +84,7 @@ const Tournament = {
             hp: 160,
             attackChance: 0.12,
             moveSpeed: 1.5,
+            specialChance: 0.04,
             description: 'Excel spreadsheets by day, highway rider by night.'
         },
         {
@@ -93,6 +95,7 @@ const Tournament = {
             hp: 170,
             attackChance: 0.14,
             moveSpeed: 1.3,
+            specialChance: 0.05,
             description: 'Feed me, Seymour! A man-eating plant from outer space.'
         },
         {
@@ -103,6 +106,7 @@ const Tournament = {
             hp: 180,
             attackChance: 0.16,
             moveSpeed: 1.6,
+            specialChance: 0.06,
             description: 'Faster than a speeding bullet, can fly!'
         },
         {
@@ -113,6 +117,7 @@ const Tournament = {
             hp: 200,
             attackChance: 0.18,
             moveSpeed: 1.5,
+            specialChance: 0.07,
             description: 'Bitcoin maximalist, filmmaker, and coder. TO THE MOON!'
         },
         {
@@ -123,7 +128,7 @@ const Tournament = {
             hp: 250,
             attackChance: 0.22,
             moveSpeed: 1.8,
-            specialChance: 0.08,  // Billy can use special moves!
+            specialChance: 0.10,  // Billy uses specials most often!
             description: 'The Mathematical Mastermind. Q.E.D.!',
             isFinalBoss: true
         }

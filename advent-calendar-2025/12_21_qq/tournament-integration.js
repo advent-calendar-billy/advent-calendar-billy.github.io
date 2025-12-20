@@ -377,6 +377,11 @@
             `;
             arena.appendChild(attackLabel);
             setTimeout(() => attackLabel.remove(), 400);
+
+            // For special attacks, launch a projectile toward the player
+            if (attackData.isSpecial) {
+                launchOpponentProjectile(attackData, arena, facingLeft);
+            }
         }
 
         // Hit detection - slightly larger range for attacks to connect
@@ -419,6 +424,129 @@
                 endRound(false);
             }
         }
+    }
+
+    // Launch a projectile from opponent toward player
+    function launchOpponentProjectile(attackData, arena, facingLeft) {
+        const projectile = document.createElement('div');
+        const startX = attackData.x + (facingLeft ? -20 : 60);
+        const targetX = attackData.playerX;
+        const direction = facingLeft ? -1 : 1;
+
+        // Get character-specific projectile style
+        const charId = attackData.characterId || 'default';
+        const projectileStyles = {
+            billy: { emoji: '📐', color: '#3498db', trail: '✨' },
+            pato: { emoji: '₿', color: '#f7931a', trail: '💰' },
+            jonas: { emoji: '📊', color: '#27ae60', trail: '📈' },
+            madonna: { emoji: '💋', color: '#e91e8c', trail: '💕' },
+            frank: { emoji: '🔬', color: '#9b59b6', trail: '⚡' },
+            vicky: { emoji: '🎀', color: '#c41e3a', trail: '✨' },
+            charly: { emoji: '📈', color: '#c0392b', trail: '💼' },
+            audrey: { emoji: '🌿', color: '#228b22', trail: '🌱' },
+            pancho: { emoji: '💪', color: '#2563eb', trail: '⭐' },
+            jonasl: { emoji: '☕', color: '#8b4513', trail: '🎸' },
+            lucas: { emoji: '⚽', color: '#9b59b6', trail: '🐱' },
+            timo: { emoji: '🏳️', color: '#888', trail: '👶' },
+            default: { emoji: '💥', color: '#e74c3c', trail: '✦' }
+        };
+
+        const style = projectileStyles[charId] || projectileStyles.default;
+
+        projectile.textContent = style.emoji;
+        projectile.style.cssText = `
+            position: absolute;
+            left: ${startX}px;
+            bottom: 120px;
+            font-size: 28px;
+            z-index: 160;
+            filter: drop-shadow(0 0 8px ${style.color});
+            transition: none;
+            pointer-events: none;
+        `;
+        arena.appendChild(projectile);
+
+        let currentX = startX;
+        const speed = 8;
+        const damage = attackData.damage;
+        let hasHit = false;
+
+        const flyInterval = setInterval(() => {
+            // Move toward player
+            currentX += direction * -speed; // Negative because we're moving toward player
+            projectile.style.left = currentX + 'px';
+
+            // Add slight wobble
+            projectile.style.bottom = (120 + Math.sin(currentX * 0.1) * 5) + 'px';
+
+            // Add trail effect
+            if (Math.random() > 0.6) {
+                const trail = document.createElement('div');
+                trail.textContent = style.trail;
+                trail.style.cssText = `
+                    position: absolute;
+                    left: ${currentX + (facingLeft ? 20 : -20)}px;
+                    bottom: ${120 + Math.sin(currentX * 0.1) * 5}px;
+                    font-size: 14px;
+                    opacity: 0.7;
+                    z-index: 155;
+                    pointer-events: none;
+                `;
+                arena.appendChild(trail);
+                setTimeout(() => trail.remove(), 200);
+            }
+
+            // Check hit with player
+            const playerX = game.playerX || 100;
+            const distance = Math.abs(currentX - playerX);
+
+            if (distance < 50 && !hasHit) {
+                hasHit = true;
+                clearInterval(flyInterval);
+
+                // Deal damage
+                game.playerHealth = Math.max(0, game.playerHealth - damage);
+                updateTournamentUI();
+
+                // Show impact
+                const impact = document.createElement('div');
+                impact.textContent = 'SPECIAL HIT!';
+                impact.style.cssText = `
+                    position: absolute;
+                    left: ${currentX}px;
+                    bottom: 150px;
+                    font-family: 'Finger Paint', cursive;
+                    font-size: 22px;
+                    color: ${style.color};
+                    text-shadow: 2px 2px 0 #000;
+                    z-index: 200;
+                    animation: hitTextPop 0.5s ease-out forwards;
+                `;
+                arena.appendChild(impact);
+                setTimeout(() => impact.remove(), 500);
+
+                // Hit effect on player
+                const fighter = document.getElementById('player-fighter');
+                if (fighter) {
+                    fighter.classList.add('hit');
+                    setTimeout(() => fighter.classList.remove('hit'), 300);
+                }
+
+                showDamageNumber(playerX + 25, 100, damage);
+
+                projectile.remove();
+
+                if (game.playerHealth <= 0) {
+                    endRound(false);
+                }
+            }
+
+            // Remove if off screen
+            if (currentX < -50 || currentX > 900) {
+                clearInterval(flyInterval);
+                projectile.remove();
+            }
+        }, 25);
     }
 
     // Override the dealDamage function to track tournament
