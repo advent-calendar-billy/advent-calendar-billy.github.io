@@ -163,7 +163,7 @@ const OpponentAI = {
         if (this.state.isAttacking) return;
 
         const now = Date.now();
-        if (now - this.state.lastAttackTime < 500) return; // Attack cooldown
+        if (now - this.state.lastAttackTime < 600) return; // Attack cooldown
 
         this.state.isAttacking = true;
         this.state.lastAttackTime = now;
@@ -173,31 +173,37 @@ const OpponentAI = {
         let damage = 0;
         let attackName = '';
         let attackDuration = 300;
+        let isSpecial = false;
 
         // Check for special move (only high difficulty opponents)
         if (this.state.stats.specialChance && Math.random() < this.state.stats.specialChance && this.state.energy >= 50) {
             damage = this.state.stats.damage.special;
-            attackName = 'SPECIAL!';
+            attackName = 'special';
             attackDuration = 600;
             this.state.energy = 0;
+            isSpecial = true;
         } else if (attackType < 0.6) {
             // Punch (more common)
             damage = this.state.stats.damage.punch;
             attackName = 'punch';
-            attackDuration = 250;
+            attackDuration = 300;
         } else {
             // Kick
             damage = this.state.stats.damage.kick;
             attackName = 'kick';
-            attackDuration = 350;
+            attackDuration = 400;
         }
 
-        // Callback for game to handle the attack
-        if (this.onAttack && distance < 85) {
+        // Always trigger the attack callback for animation, even if out of range
+        // Hit detection is handled in the callback
+        if (this.onAttack) {
             this.onAttack({
                 type: attackName,
                 damage: damage,
-                x: this.state.x
+                x: this.state.x,
+                playerX: gameState.playerX,
+                isSpecial: isSpecial,
+                characterId: this.state.character ? this.state.character.id : null
             });
         }
 

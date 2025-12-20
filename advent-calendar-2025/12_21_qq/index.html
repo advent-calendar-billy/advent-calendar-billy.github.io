@@ -1273,74 +1273,93 @@
             transform-origin: top center;
         }
 
-        /* Fede split animation - dramatic extending legs */
+        /* Fede split animation - dramatic extending legs at ground level */
         .fede.split {
-            transform: translateY(45px);
-            animation: splitDrop 0.2s ease-out;
+            animation: splitDrop 0.25s ease-out forwards;
         }
 
         @keyframes splitDrop {
             0% { transform: translateY(0); }
-            100% { transform: translateY(45px); }
+            100% { transform: translateY(55px); }
+        }
+
+        .fede.split .body {
+            /* Body drops down during split */
         }
 
         .fede.split .legs {
-            position: relative;
-            gap: 0;
+            position: absolute;
+            bottom: -55px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
             flex-direction: row;
+            gap: 0;
+            align-items: center;
             justify-content: center;
+            width: auto;
+            z-index: 3;
         }
 
         .fede.split .leg.left {
-            position: absolute;
-            left: -80px;
-            top: 0;
-            transform: rotate(-90deg);
-            transform-origin: right center;
+            position: relative;
+            width: 90px;
             height: 14px;
-            width: 80px;
+            background: #2c3e50;
+            border: 2px solid var(--ink);
+            border-radius: 4px 8px 8px 4px;
+            transform-origin: right center;
             animation: legExtendLeft 0.2s ease-out forwards;
+            margin-right: -5px;
         }
 
         .fede.split .leg.right {
-            position: absolute;
-            right: -80px;
-            top: 0;
-            transform: rotate(90deg);
-            transform-origin: left center;
+            position: relative;
+            width: 90px;
             height: 14px;
-            width: 80px;
+            background: #2c3e50;
+            border: 2px solid var(--ink);
+            border-radius: 8px 4px 4px 8px;
+            transform-origin: left center;
             animation: legExtendRight 0.2s ease-out forwards;
+            margin-left: -5px;
         }
 
         @keyframes legExtendLeft {
-            0% { width: 30px; left: -30px; }
-            100% { width: 80px; left: -80px; }
+            0% { width: 20px; }
+            100% { width: 90px; }
         }
 
         @keyframes legExtendRight {
-            0% { width: 30px; right: -30px; }
-            100% { width: 80px; right: -80px; }
+            0% { width: 20px; }
+            100% { width: 90px; }
         }
 
-        .fede.split .leg::after {
+        /* Shoes at the end of each leg */
+        .fede.split .leg.left::after {
             content: '';
             position: absolute;
-            width: 16px;
-            height: 10px;
+            left: -2px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 12px;
             background: #333;
             border: 2px solid var(--ink);
-            border-radius: 3px;
-        }
-
-        .fede.split .leg.left::after {
-            left: -8px;
-            top: 2px;
+            border-radius: 6px 2px 2px 6px;
         }
 
         .fede.split .leg.right::after {
-            right: -8px;
-            top: 2px;
+            content: '';
+            position: absolute;
+            right: -2px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 12px;
+            background: #333;
+            border: 2px solid var(--ink);
+            border-radius: 2px 6px 6px 2px;
         }
 
         .fede.split .feet {
@@ -9498,15 +9517,25 @@
 
         function executeFedeSpecial(special, fighter) {
             const arena = document.getElementById('arena');
-            const dummy = document.getElementById('npc-dummy');
-            const dummyRect = dummy.getBoundingClientRect();
+            // Support both tournament opponent and practice dummy
+            const opponent = document.getElementById('opponent-fighter') || document.getElementById('npc-dummy');
+            const opponentRect = opponent ? opponent.getBoundingClientRect() : { left: 650 };
             const arenaRect = arena.getBoundingClientRect();
-            const targetX = dummyRect.left - arenaRect.left;
+            const targetX = opponentRect.left - arenaRect.left;
             const fighterX = parseFloat(fighter.style.left) || game.playerX;
+            const opponentX = game.dummyX;
+            const facingRight = opponentX > fighterX;
 
             if (special.name === 'The Split') {
-                // Drop into a split with extending legs
-                fighter.classList.add('split');
+                // Hide original legs and feet during split
+                const originalLegs = fighter.querySelector('.legs');
+                const originalFeet = fighter.querySelector('.feet');
+                if (originalLegs) originalLegs.style.visibility = 'hidden';
+                if (originalFeet) originalFeet.style.visibility = 'hidden';
+
+                // Drop body down
+                fighter.style.transition = 'transform 0.2s ease-out';
+                fighter.style.transform = 'translateY(50px)';
 
                 // Show text
                 const splitText = document.createElement('div');
@@ -9515,7 +9544,7 @@
                     position: absolute;
                     left: ${fighterX}px;
                     bottom: 180px;
-                    font-family: 'Bangers', cursive;
+                    font-family: 'Finger Paint', cursive;
                     font-size: 28px;
                     color: #e74c3c;
                     text-shadow: 2px 2px 0 #000, 0 0 10px rgba(231,76,60,0.5);
@@ -9525,87 +9554,172 @@
                 arena.appendChild(splitText);
                 setTimeout(() => splitText.remove(), 800);
 
-                // Create extending leg visuals that reach toward NPC
-                const legReach = 100; // How far the legs extend
-                const leftLegEnd = fighterX - legReach;
-                const rightLegEnd = fighterX + 50 + legReach;
+                // Create visual horizontal legs at ground level
+                const legContainer = document.createElement('div');
+                legContainer.className = 'split-legs-visual';
+                legContainer.style.cssText = `
+                    position: absolute;
+                    left: ${fighterX + 25}px;
+                    bottom: 68px;
+                    display: flex;
+                    align-items: center;
+                    z-index: 100;
+                    transform: translateX(-50%);
+                `;
 
-                // Right leg kick effect (toward NPC)
+                // Left leg (extends left)
+                const leftLeg = document.createElement('div');
+                leftLeg.style.cssText = `
+                    width: 10px;
+                    height: 14px;
+                    background: #2c3e50;
+                    border: 2px solid #333;
+                    border-radius: 4px;
+                    animation: splitLegExtendLeft 0.25s ease-out forwards;
+                `;
+
+                // Right leg (extends right)
+                const rightLeg = document.createElement('div');
+                rightLeg.style.cssText = `
+                    width: 10px;
+                    height: 14px;
+                    background: #2c3e50;
+                    border: 2px solid #333;
+                    border-radius: 4px;
+                    animation: splitLegExtendRight 0.25s ease-out forwards;
+                `;
+
+                // Left shoe
+                const leftShoe = document.createElement('div');
+                leftShoe.style.cssText = `
+                    width: 18px;
+                    height: 12px;
+                    background: #333;
+                    border: 2px solid #222;
+                    border-radius: 6px 3px 3px 6px;
+                    margin-right: -2px;
+                `;
+
+                // Right shoe
+                const rightShoe = document.createElement('div');
+                rightShoe.style.cssText = `
+                    width: 18px;
+                    height: 12px;
+                    background: #333;
+                    border: 2px solid #222;
+                    border-radius: 3px 6px 6px 3px;
+                    margin-left: -2px;
+                `;
+
+                legContainer.appendChild(leftShoe);
+                legContainer.appendChild(leftLeg);
+                legContainer.appendChild(rightLeg);
+                legContainer.appendChild(rightShoe);
+                arena.appendChild(legContainer);
+
+                // Add animation keyframes dynamically
+                if (!document.getElementById('split-leg-keyframes')) {
+                    const style = document.createElement('style');
+                    style.id = 'split-leg-keyframes';
+                    style.textContent = `
+                        @keyframes splitLegExtendLeft {
+                            0% { width: 10px; }
+                            100% { width: 85px; }
+                        }
+                        @keyframes splitLegExtendRight {
+                            0% { width: 10px; }
+                            100% { width: 85px; }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
+
+                // Shockwave effect
                 setTimeout(() => {
-                    // Shockwave from the split
                     const wave = document.createElement('div');
                     wave.style.cssText = `
                         position: absolute;
                         left: ${fighterX - 80}px;
-                        bottom: 55px;
-                        width: 200px;
-                        height: 20px;
+                        bottom: 60px;
+                        width: 220px;
+                        height: 25px;
                         background: radial-gradient(ellipse, rgba(231,76,60,0.6) 0%, rgba(231,76,60,0.2) 50%, transparent 70%);
                         z-index: 50;
-                        animation: shockwaveExpand 0.3s ease-out;
+                        animation: shockwaveExpand 0.3s ease-out forwards;
                     `;
                     arena.appendChild(wave);
                     setTimeout(() => wave.remove(), 300);
 
-                    // Check if right leg hits the NPC (NPC is to the right)
-                    const npcX = game.dummyX;
-                    if (npcX >= fighterX && npcX <= rightLegEnd + 30) {
-                        dealDamage(special.damage, 'KICK!');
-                        showImpact('SPLIT KICK!', special.damage);
+                    // Check hit in both directions (legs extend both ways)
+                    const legReach = 110;
+                    const leftLegEnd = fighterX - legReach;
+                    const rightLegEnd = fighterX + 50 + legReach;
 
-                        // Add hit effect on NPC
-                        dummy.classList.add('hit');
-                        setTimeout(() => dummy.classList.remove('hit'), 300);
-                    }
-                    // Check if left leg hits (if NPC is to the left)
-                    else if (npcX <= fighterX && npcX >= leftLegEnd - 30) {
-                        dealDamage(special.damage, 'KICK!');
-                        showImpact('SPLIT KICK!', special.damage);
-                        dummy.classList.add('hit');
-                        setTimeout(() => dummy.classList.remove('hit'), 300);
+                    if ((opponentX >= fighterX && opponentX <= rightLegEnd) ||
+                        (opponentX <= fighterX && opponentX >= leftLegEnd)) {
+                        dealDamage(special.damage, 'SPLIT KICK!');
+                        if (opponent) {
+                            opponent.classList.add('hit');
+                            setTimeout(() => opponent.classList.remove('hit'), 300);
+                        }
                     }
                 }, 200);
 
+                // Cleanup
                 setTimeout(() => {
-                    fighter.classList.remove('split');
-                    fighter.classList.add('idle');
+                    legContainer.remove();
+                    fighter.style.transform = '';
+                    fighter.style.transition = '';
+                    if (originalLegs) originalLegs.style.visibility = '';
+                    if (originalFeet) originalFeet.style.visibility = '';
                     game.isAttacking = false;
                 }, 700);
 
             } else if (special.name === 'Salmon Sashimi') {
-                // Throw 5 salmon sashimi
+                // Throw 5 salmon sashimi - direction based on opponent position
+                const throwDirection = facingRight ? 1 : -1;
+                const startX = facingRight ? fighterX + 40 : fighterX - 10;
+
                 for (let i = 0; i < 5; i++) {
                     setTimeout(() => {
                         const sashimi = document.createElement('div');
                         sashimi.style.cssText = `
                             position: absolute;
-                            left: ${fighterX + 40}px;
+                            left: ${startX}px;
                             bottom: ${100 + (i - 2) * 15}px;
                             width: 32px;
                             height: 14px;
                             background: linear-gradient(170deg, #ff8c7a 0%, #fa8072 20%, #ffb4a8 22%, #fa8072 24%, #ff8c7a 40%, #ffb4a8 42%, #fa8072 44%, #e76f5a 60%, #ffb4a8 62%, #fa8072 64%, #ff8c7a 80%, #ffb4a8 82%, #e76f5a 100%);
                             border: 2px solid #d85a4a;
-                            border-radius: 4px 12px 12px 4px;
+                            border-radius: ${facingRight ? '4px 12px 12px 4px' : '12px 4px 4px 12px'};
                             z-index: 100;
+                            transform: ${facingRight ? '' : 'scaleX(-1)'};
                         `;
                         arena.appendChild(sashimi);
 
-                        let progress = 0;
-                        const startX = fighterX + 40;
-                        const fly = setInterval(() => {
-                            progress += 0.08;
-                            const x = startX + (targetX - startX) * progress;
-                            const wobble = Math.sin(progress * Math.PI * 4) * 5;
-                            sashimi.style.left = x + 'px';
-                            sashimi.style.bottom = (100 + (i - 2) * 15 + wobble) + 'px';
-                            sashimi.style.transform = `rotate(${progress * 180}deg)`;
+                        let sashimiX = startX;
+                        const speed = 12 * throwDirection;
+                        let hasHit = false;
 
-                            if (progress >= 1) {
-                                clearInterval(fly);
+                        const fly = setInterval(() => {
+                            sashimiX += speed;
+                            const wobble = Math.sin((sashimiX - startX) * 0.05) * 5;
+                            sashimi.style.left = sashimiX + 'px';
+                            sashimi.style.bottom = (100 + (i - 2) * 15 + wobble) + 'px';
+                            sashimi.style.transform = `rotate(${(sashimiX - startX) * 2 * throwDirection}deg)`;
+
+                            // Hit detection - check if sashimi reached opponent
+                            if (!hasHit && Math.abs(sashimiX - opponentX) < 50) {
+                                hasHit = true;
                                 dealDamage(4, 'OISHI!');
                                 if (i === 2) {
                                     showImpact('OISHI!', special.damage);
                                 }
+                            }
+
+                            // Remove when off screen
+                            if (sashimiX > 900 || sashimiX < -50) {
+                                clearInterval(fly);
                                 sashimi.remove();
                             }
                         }, 20);
@@ -9618,13 +9732,15 @@
                 }, 700);
 
             } else if (special.name === 'Country Throw') {
-                // Throw a random country
+                // Throw a random country - direction based on opponent position
                 const country = countries[Math.floor(Math.random() * countries.length)];
+                const throwDirection = facingRight ? 1 : -1;
+                const startX = facingRight ? fighterX + 40 : fighterX - 10;
 
                 const countryEl = document.createElement('div');
                 countryEl.style.cssText = `
                     position: absolute;
-                    left: ${fighterX + 40}px;
+                    left: ${startX}px;
                     bottom: 120px;
                     z-index: 100;
                 `;
@@ -9636,7 +9752,7 @@
                 nameText.textContent = country.name + '!';
                 nameText.style.cssText = `
                     position: absolute;
-                    left: ${fighterX + 60}px;
+                    left: ${facingRight ? fighterX + 60 : fighterX - 60}px;
                     bottom: 170px;
                     font-family: 'Permanent Marker', cursive;
                     font-size: 1rem;
@@ -9646,17 +9762,22 @@
                 arena.appendChild(nameText);
                 setTimeout(() => nameText.remove(), 800);
 
-                let progress = 0;
-                const startX = fighterX + 40;
-                const fly = setInterval(() => {
-                    progress += 0.05;
-                    const x = startX + (targetX - startX) * progress;
-                    const arc = Math.sin(progress * Math.PI) * 40;
-                    countryEl.style.left = x + 'px';
-                    countryEl.style.bottom = (120 + arc) + 'px';
-                    countryEl.style.transform = `rotate(${progress * 360}deg) scale(${1 + progress * 0.3})`;
+                let countryX = startX;
+                const speed = 8 * throwDirection;
+                let hasHit = false;
+                let frame = 0;
 
-                    if (progress >= 1) {
+                const fly = setInterval(() => {
+                    frame++;
+                    countryX += speed;
+                    const arc = Math.sin(frame * 0.08) * 40;
+                    countryEl.style.left = countryX + 'px';
+                    countryEl.style.bottom = (120 + arc) + 'px';
+                    countryEl.style.transform = `rotate(${frame * 8 * throwDirection}deg) scale(${1 + frame * 0.01})`;
+
+                    // Hit detection - check if country reached opponent
+                    if (!hasHit && Math.abs(countryX - opponentX) < 50) {
+                        hasHit = true;
                         clearInterval(fly);
                         dealDamage(special.damage, 'BONK!');
                         showImpact('BONK!', special.damage);
@@ -9666,6 +9787,14 @@
                         countryEl.style.transition = 'all 0.2s';
                         setTimeout(() => countryEl.remove(), 200);
 
+                        fighter.classList.add('idle');
+                        game.isAttacking = false;
+                    }
+
+                    // Remove if off screen without hitting
+                    if (countryX > 900 || countryX < -50) {
+                        clearInterval(fly);
+                        countryEl.remove();
                         fighter.classList.add('idle');
                         game.isAttacking = false;
                     }

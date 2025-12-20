@@ -304,10 +304,44 @@
     function handleOpponentAttack(attackData) {
         if (!tournamentGame.active) return;
 
-        const playerX = game.playerX;
-        const distance = Math.abs(attackData.x - playerX);
+        const opponentFighter = document.getElementById('opponent-fighter');
+        const arena = document.getElementById('arena');
+
+        // Show attack animation on opponent
+        if (opponentFighter) {
+            // Add attack class for animation
+            if (attackData.type === 'punch') {
+                opponentFighter.classList.add('punching');
+                setTimeout(() => opponentFighter.classList.remove('punching'), 250);
+            } else if (attackData.type === 'kick') {
+                opponentFighter.classList.add('kicking');
+                setTimeout(() => opponentFighter.classList.remove('kicking'), 350);
+            } else if (attackData.type === 'special') {
+                opponentFighter.classList.add('special-attack');
+                setTimeout(() => opponentFighter.classList.remove('special-attack'), 500);
+            }
+
+            // Show attack swoosh effect
+            const swoosh = document.createElement('div');
+            const facingLeft = attackData.x > attackData.playerX;
+            swoosh.style.cssText = `
+                position: absolute;
+                left: ${facingLeft ? attackData.x - 60 : attackData.x + 40}px;
+                bottom: 100px;
+                width: 50px;
+                height: 30px;
+                background: radial-gradient(ellipse at ${facingLeft ? 'right' : 'left'}, rgba(255,100,100,0.6) 0%, transparent 70%);
+                border-radius: 50%;
+                z-index: 150;
+                animation: attackSwoosh 0.2s ease-out forwards;
+                transform: ${facingLeft ? 'scaleX(-1)' : ''};
+            `;
+            arena.appendChild(swoosh);
+            setTimeout(() => swoosh.remove(), 200);
+        }
 
         // Hit detection
+        const distance = Math.abs(attackData.x - attackData.playerX);
         if (distance < 85) {
             game.playerHealth = Math.max(0, game.playerHealth - attackData.damage);
             updateTournamentUI();
@@ -319,8 +353,27 @@
                 setTimeout(() => fighter.classList.remove('hit'), 300);
             }
 
-            // Show damage number
-            showDamageNumber(playerX + 25, 100, attackData.damage);
+            // Show damage number on player
+            showDamageNumber(attackData.playerX + 25, 100, attackData.damage);
+
+            // Show hit text
+            const hitText = attackData.type === 'special' ? 'SPECIAL!' : (attackData.type === 'kick' ? 'KICK!' : 'POW!');
+            const hit = document.createElement('div');
+            hit.className = 'hit-text impact-effect';
+            hit.textContent = hitText;
+            hit.style.cssText = `
+                position: absolute;
+                left: ${attackData.playerX + 25}px;
+                bottom: 150px;
+                font-family: 'Finger Paint', cursive;
+                font-size: 20px;
+                color: #e74c3c;
+                text-shadow: 2px 2px 0 #000;
+                z-index: 200;
+                animation: hitTextPop 0.3s ease-out forwards;
+            `;
+            arena.appendChild(hit);
+            setTimeout(() => hit.remove(), 300);
 
             // Check if player lost
             if (game.playerHealth <= 0) {
