@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Charly - Character Preview</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Finger+Paint&family=Patrick+Hand&family=Permanent+Marker&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --paper: #f5f0e1;
+            --ink: #333;
+            --pencil: #666;
+            --bike-red: #c0392b;
+            --bike-dark: #922b21;
+            --chrome: #bdc3c7;
+            --chrome-dark: #7f8c8d;
+            --hair: #1a1a1a;
+            --jacket: #2c3e50;
+            --gold: #ffd700;
+        }
+
+        body {
+            background: var(--paper);
+            background-image:
+                linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+            background-size: 25px 25px;
+            font-family: 'Patrick Hand', cursive;
+            color: var(--ink);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px;
+        }
+
+        h1 {
+            font-family: 'Finger Paint', cursive;
+            font-size: 3rem;
+            color: var(--bike-dark);
+            text-shadow: 3px 3px 0 var(--paper), 4px 4px 0 var(--ink);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--pencil);
+            margin-bottom: 40px;
+            font-style: italic;
+        }
+
+        .character-showcase {
+            display: flex;
+            gap: 40px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        /* ==================== DEMO ARENA ==================== */
+        .demo-arena {
+            background: var(--paper);
+            border: 4px solid var(--ink);
+            border-radius: 12px;
+            box-shadow: 6px 6px 0 var(--bike-dark);
+            position: relative;
+            width: 500px;
+            height: 350px;
+            overflow: hidden;
+        }
+
+        .demo-arena h2 {
+            font-family: 'Finger Paint', cursive;
+            color: var(--bike-dark);
+            text-align: center;
+            padding: 10px;
+            border-bottom: 2px solid var(--ink);
+            background: rgba(255,255,255,0.5);
+        }
+
+        .arena-floor {
+            position: absolute;
+            bottom: 60px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--ink);
+        }
+
+        .demo-buttons {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .demo-btn {
+            padding: 6px 12px;
+            border: 2px solid var(--ink);
+            border-radius: 6px;
+            background: var(--paper);
+            font-family: 'Patrick Hand', cursive;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+
+        .demo-btn:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 3px 3px 0 var(--ink);
+        }
+
+        .demo-btn.wheelie { border-color: var(--bike-red); color: var(--bike-dark); }
+        .demo-btn.burnout { border-color: #e67e22; color: #d35400; }
+        .demo-btn.rev { border-color: #8e44ad; color: #8e44ad; }
+        .demo-btn.excel { border-color: #27ae60; color: #27ae60; }
+        .demo-btn.ultimate { border-color: var(--gold); color: #b8860b; background: rgba(255,215,0,0.1); }
+
+        /* ==================== CHARLY CHARACTER ON MOTORBIKE ==================== */
+        .fighter {
+            position: absolute;
+            bottom: 63px;
+            left: 60px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transform-origin: bottom center;
+        }
+
+        .charly-rider {
+            position: relative;
+            width: 100px;
+            height: 85px;
+        }
+
+        /* The motorbike */
+        .motorbike {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100px;
+            height: 50px;
+        }
+
+        /* Back wheel */
+        .wheel.back {
+            position: absolute;
+            bottom: 0;
+            left: 5px;
+            width: 28px;
+            height: 28px;
+            border: 3px solid var(--ink);
+            border-radius: 50%;
+            background: var(--ink);
+        }
+
+        .wheel.back::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 10px;
+            height: 10px;
+            border: 2px solid var(--chrome);
+            border-radius: 50%;
+            background: var(--chrome-dark);
+        }
+
+        /* Front wheel */
+        .wheel.front {
+            position: absolute;
+            bottom: 0;
+            right: 5px;
+            width: 28px;
+            height: 28px;
+            border: 3px solid var(--ink);
+            border-radius: 50%;
+            background: var(--ink);
+        }
+
+        .wheel.front::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 10px;
+            height: 10px;
+            border: 2px solid var(--chrome);
+            border-radius: 50%;
+            background: var(--chrome-dark);
+        }
+
+        /* Bike body/frame */
+        .bike-body {
+            position: absolute;
+            bottom: 12px;
+            left: 18px;
+            width: 60px;
+            height: 20px;
+            background: var(--bike-red);
+            border: 2px solid var(--ink);
+            border-radius: 5px 15px 5px 5px;
+            z-index: 2;
+        }
+
+        /* Gas tank */
+        .gas-tank {
+            position: absolute;
+            bottom: 28px;
+            left: 28px;
+            width: 25px;
+            height: 14px;
+            background: var(--bike-red);
+            border: 2px solid var(--ink);
+            border-radius: 8px 8px 3px 3px;
+            z-index: 3;
+        }
+
+        /* Seat */
+        .seat {
+            position: absolute;
+            bottom: 30px;
+            left: 15px;
+            width: 22px;
+            height: 8px;
+            background: var(--ink);
+            border: 2px solid var(--ink);
+            border-radius: 3px 5px 0 0;
+            z-index: 4;
+        }
+
+        /* Handlebars */
+        .handlebars {
+            position: absolute;
+            bottom: 35px;
+            right: 15px;
+            width: 8px;
+            height: 20px;
+            border: 2px solid var(--chrome);
+            border-radius: 2px;
+            background: var(--chrome-dark);
+            transform: rotate(-15deg);
+            z-index: 5;
+        }
+
+        .handlebars::before {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: -6px;
+            width: 20px;
+            height: 4px;
+            background: var(--chrome);
+            border: 2px solid var(--ink);
+            border-radius: 2px;
+        }
+
+        /* Front fork */
+        .front-fork {
+            position: absolute;
+            bottom: 10px;
+            right: 14px;
+            width: 4px;
+            height: 28px;
+            background: var(--chrome);
+            border: 1px solid var(--ink);
+            transform: rotate(-15deg);
+            transform-origin: bottom center;
+            z-index: 1;
+        }
+
+        /* Exhaust pipes */
+        .exhaust {
+            position: absolute;
+            bottom: 10px;
+            left: 5px;
+            width: 20px;
+            height: 6px;
+            background: var(--chrome);
+            border: 2px solid var(--ink);
+            border-radius: 3px;
+            z-index: 1;
+        }
+
+        .exhaust::after {
+            content: '';
+            position: absolute;
+            left: -5px;
+            top: 0;
+            width: 8px;
+            height: 6px;
+            background: var(--chrome-dark);
+            border: 2px solid var(--ink);
+            border-radius: 50%;
+        }
+
+        /* Headlight */
+        .headlight {
+            position: absolute;
+            bottom: 25px;
+            right: 5px;
+            width: 10px;
+            height: 10px;
+            background: #f1c40f;
+            border: 2px solid var(--ink);
+            border-radius: 50%;
+            z-index: 3;
+        }
+
+        /* Charly sitting on the bike */
+        .charly-body {
+            position: absolute;
+            bottom: 35px;
+            left: 25px;
+            z-index: 10;
+        }
+
+        .charly-body .head {
+            width: 26px;
+            height: 28px;
+            border: 2px solid var(--ink);
+            border-radius: 50%;
+            background: var(--paper);
+            position: relative;
+            z-index: 10;
+            margin-left: 5px;
+        }
+
+        /* Black messy hair */
+        .charly-body .hair {
+            position: absolute;
+            top: -4px;
+            left: 0px;
+            width: 26px;
+            height: 16px;
+            border: 2px solid var(--ink);
+            border-bottom: none;
+            border-radius: 50% 50% 0 0;
+            background: var(--hair);
+            z-index: 15;
+        }
+
+        /* Hair spikes */
+        .charly-body .hair::before {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: 3px;
+            width: 6px;
+            height: 6px;
+            background: var(--hair);
+            border: 2px solid var(--ink);
+            border-bottom: none;
+            border-radius: 50% 50% 0 0;
+            transform: rotate(-15deg);
+        }
+
+        .charly-body .hair::after {
+            content: '';
+            position: absolute;
+            top: -4px;
+            right: 4px;
+            width: 7px;
+            height: 7px;
+            background: var(--hair);
+            border: 2px solid var(--ink);
+            border-bottom: none;
+            border-radius: 50% 50% 0 0;
+            transform: rotate(10deg);
+        }
+
+        /* Eyes */
+        .charly-body .eyes {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 5px;
+            z-index: 16;
+        }
+
+        .charly-body .eye {
+            width: 4px;
+            height: 4px;
+            background: var(--ink);
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .charly-body .eye::before {
+            content: '';
+            position: absolute;
+            top: 1px;
+            left: 1px;
+            width: 1px;
+            height: 1px;
+            background: white;
+            border-radius: 50%;
+        }
+
+        /* Little beard */
+        .charly-body .beard {
+            position: absolute;
+            bottom: 2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 14px;
+            height: 8px;
+            background: var(--hair);
+            border: 1px solid var(--ink);
+            border-radius: 0 0 40% 40%;
+            z-index: 16;
+        }
+
+        /* Small mouth line visible in beard */
+        .charly-body .mouth {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 6px;
+            height: 2px;
+            border-bottom: 2px solid var(--ink);
+            z-index: 17;
+        }
+
+        /* Leather jacket torso - leaning forward */
+        .charly-body .torso {
+            width: 24px;
+            height: 22px;
+            border: 2px solid var(--ink);
+            border-radius: 3px;
+            background: var(--jacket);
+            margin-top: -3px;
+            position: relative;
+            z-index: 8;
+            transform: rotate(25deg);
+            margin-left: 8px;
+        }
+
+        /* Jacket collar */
+        .charly-body .torso::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 3px;
+            width: 6px;
+            height: 6px;
+            background: var(--jacket);
+            border: 2px solid var(--ink);
+            border-bottom: none;
+            transform: rotate(-20deg);
+        }
+
+        .charly-body .torso::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 3px;
+            width: 6px;
+            height: 6px;
+            background: var(--jacket);
+            border: 2px solid var(--ink);
+            border-bottom: none;
+            transform: rotate(20deg);
+        }
+
+        /* Arms reaching to handlebars */
+        .charly-body .arm {
+            position: absolute;
+            width: 6px;
+            height: 18px;
+            border: 2px solid var(--ink);
+            border-radius: 3px;
+            background: var(--jacket);
+            z-index: 7;
+        }
+
+        .charly-body .arm.left {
+            top: 28px;
+            left: 30px;
+            transform: rotate(50deg);
+        }
+
+        .charly-body .arm.right {
+            top: 26px;
+            left: 38px;
+            transform: rotate(60deg);
+        }
+
+        /* Legs on bike */
+        .charly-body .leg {
+            position: absolute;
+            width: 8px;
+            height: 20px;
+            border: 2px solid var(--ink);
+            border-radius: 3px;
+            background: #1a252f;
+            z-index: 6;
+        }
+
+        .charly-body .leg.left {
+            top: 42px;
+            left: 8px;
+            transform: rotate(-30deg);
+        }
+
+        .charly-body .leg.right {
+            top: 42px;
+            left: 20px;
+            transform: rotate(15deg);
+        }
+
+        /* Boots */
+        .charly-body .boot {
+            position: absolute;
+            width: 12px;
+            height: 6px;
+            background: var(--ink);
+            border: 2px solid var(--ink);
+            border-radius: 2px 4px 2px 2px;
+            z-index: 5;
+        }
+
+        .charly-body .boot.left {
+            top: 58px;
+            left: 0px;
+        }
+
+        .charly-body .boot.right {
+            top: 55px;
+            left: 28px;
+            transform: rotate(15deg);
+        }
+
+        /* ==================== ANIMATIONS ==================== */
+
+        /* Wheelie */
+        .charly-rider.wheelie {
+            transform: rotate(-25deg);
+            transform-origin: bottom left;
+            transition: transform 0.2s ease-out;
+        }
+
+        /* Burnout - bike shakes */
+        .charly-rider.burnout {
+            animation: bikeShake 0.1s infinite;
+        }
+
+        @keyframes bikeShake {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(2px); }
+        }
+
+        /* Rev - slight vibration */
+        .charly-rider.rev {
+            animation: bikeVibrate 0.05s infinite;
+        }
+
+        @keyframes bikeVibrate {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-1px); }
+        }
+
+        /* ==================== DUMMY TARGET ==================== */
+        .dummy {
+            position: absolute;
+            bottom: 68px;
+            right: 80px;
+            width: 40px;
+            height: 80px;
+            border: 3px solid var(--ink);
+            border-radius: 8px;
+            background: #ddd;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dummy::before {
+            content: 'TARGET';
+            font-size: 0.5rem;
+            color: var(--ink);
+        }
+
+        .dummy.hit {
+            animation: shake 0.3s;
+            background: #ffcccc;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* ==================== EFFECTS ==================== */
+        .smoke {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: rgba(100, 100, 100, 0.6);
+            border-radius: 50%;
+            z-index: 50;
+        }
+
+        .tire-mark {
+            position: absolute;
+            height: 4px;
+            background: #333;
+            border-radius: 2px;
+            z-index: 1;
+        }
+
+        /* Excel file projectile */
+        .excel-file {
+            width: 28px;
+            height: 34px;
+            background: white;
+            border: 2px solid var(--ink);
+            border-radius: 2px;
+            position: absolute;
+            z-index: 100;
+            box-shadow: 2px 2px 0 rgba(0,0,0,0.2);
+        }
+
+        .excel-file::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 0;
+            height: 0;
+            border-left: 8px solid #27ae60;
+            border-bottom: 8px solid transparent;
+        }
+
+        .excel-file::after {
+            content: 'XLS';
+            position: absolute;
+            bottom: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Arial', sans-serif;
+            font-size: 8px;
+            font-weight: bold;
+            color: #27ae60;
+        }
+
+        .excel-header {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            right: 10px;
+            height: 6px;
+            background: #27ae60;
+        }
+
+        .excel-grid {
+            position: absolute;
+            top: 10px;
+            left: 3px;
+            right: 3px;
+            bottom: 14px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 1px;
+            background: #ddd;
+        }
+
+        .excel-cell {
+            background: white;
+        }
+
+        .impact-text {
+            position: absolute;
+            font-family: 'Permanent Marker', cursive;
+            font-size: 1.5rem;
+            text-shadow: 2px 2px 0 var(--paper);
+            pointer-events: none;
+            z-index: 200;
+        }
+
+        /* ==================== MOVE LIST ==================== */
+        .moves-panel {
+            background: var(--paper);
+            border: 4px solid var(--ink);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 6px 6px 0 var(--bike-red);
+            max-width: 350px;
+        }
+
+        .moves-panel h2 {
+            font-family: 'Finger Paint', cursive;
+            color: var(--bike-dark);
+            margin-bottom: 12px;
+            border-bottom: 2px solid var(--ink);
+            padding-bottom: 8px;
+            font-size: 1.3rem;
+        }
+
+        .move {
+            margin: 10px 0;
+            padding: 8px;
+            border-left: 3px solid var(--bike-red);
+            background: rgba(255,255,255,0.5);
+            font-size: 0.9rem;
+        }
+
+        .move.excel-move {
+            border-left-color: #27ae60;
+        }
+
+        .move.rev-move {
+            border-left-color: #8e44ad;
+        }
+
+        .move-name {
+            font-family: 'Permanent Marker', cursive;
+            color: var(--ink);
+            display: block;
+            margin-bottom: 3px;
+            font-size: 0.95rem;
+        }
+
+        .move.excel-move .move-name {
+            color: #27ae60;
+        }
+
+        .move.rev-move .move-name {
+            color: #8e44ad;
+        }
+
+        .move-combo {
+            font-family: monospace;
+            background: var(--ink);
+            color: var(--paper);
+            padding: 2px 6px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-right: 8px;
+            font-size: 0.8rem;
+        }
+
+        .move-desc {
+            font-size: 0.8rem;
+            color: var(--pencil);
+            margin-top: 4px;
+        }
+
+        .energy-cost {
+            display: inline-block;
+            background: var(--gold);
+            color: var(--ink);
+            padding: 1px 6px;
+            border-radius: 3px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+
+        .ultimate {
+            border-left-color: var(--gold);
+            background: linear-gradient(90deg, rgba(255,215,0,0.1), transparent);
+        }
+
+        .ultimate .move-name {
+            color: #b8860b;
+        }
+
+        .section-label {
+            font-family: 'Finger Paint', cursive;
+            font-size: 0.8rem;
+            color: var(--pencil);
+            margin-top: 15px;
+            margin-bottom: 5px;
+            padding-left: 5px;
+            border-bottom: 1px dashed var(--pencil);
+            padding-bottom: 3px;
+        }
+
+        /* Bio section */
+        .bio {
+            max-width: 500px;
+            text-align: center;
+            margin-top: 30px;
+            padding: 15px;
+            border: 3px solid var(--ink);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.5);
+        }
+
+        .bio-quote {
+            font-style: italic;
+            font-size: 1rem;
+            color: var(--pencil);
+        }
+    </style>
+</head>
+<body>
+    <h1>CHARLY</h1>
+    <p class="subtitle">The Road Warrior</p>
+
+    <div class="character-showcase">
+        <!-- Demo Arena -->
+        <div class="demo-arena" id="arena">
+            <h2>Move Preview</h2>
+            <div class="arena-floor"></div>
+
+            <div class="fighter" id="charly">
+                <div class="charly-rider" id="rider">
+                    <!-- The Motorbike -->
+                    <div class="motorbike">
+                        <div class="wheel back"></div>
+                        <div class="wheel front"></div>
+                        <div class="bike-body"></div>
+                        <div class="gas-tank"></div>
+                        <div class="seat"></div>
+                        <div class="handlebars"></div>
+                        <div class="front-fork"></div>
+                        <div class="exhaust"></div>
+                        <div class="headlight"></div>
+                    </div>
+
+                    <!-- Charly on the bike -->
+                    <div class="charly-body">
+                        <div class="head">
+                            <div class="hair"></div>
+                            <div class="eyes">
+                                <div class="eye"></div>
+                                <div class="eye"></div>
+                            </div>
+                            <div class="mouth"></div>
+                            <div class="beard"></div>
+                        </div>
+                        <div class="torso"></div>
+                        <div class="arm left"></div>
+                        <div class="arm right"></div>
+                        <div class="leg left"></div>
+                        <div class="leg right"></div>
+                        <div class="boot left"></div>
+                        <div class="boot right"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dummy" id="dummy"></div>
+
+            <div class="demo-buttons">
+                <button class="demo-btn wheelie" onclick="playWheelie()">Wheelie Strike</button>
+                <button class="demo-btn excel" onclick="playExcelThrow()">Excel Throw</button>
+                <button class="demo-btn rev" onclick="playRevBomb()">Rev Bomb</button>
+                <button class="demo-btn ultimate" onclick="playHighwayToHell()">HIGHWAY TO HELL!</button>
+            </div>
+        </div>
+
+        <!-- Move List -->
+        <div class="moves-panel">
+            <h2>Special Moves</h2>
+
+            <div class="section-label">Signature Moves</div>
+
+            <div class="move">
+                <span class="move-name">Wheelie Strike</span>
+                <span class="move-combo">↑ ↑ X</span>
+                <span>28 dmg</span>
+                <p class="move-desc">Pops a wheelie and slams the front wheel down on the opponent.</p>
+            </div>
+
+            <div class="move excel-move">
+                <span class="move-name">Excel Throw</span>
+                <span class="move-combo">→ → Z</span>
+                <span>22 dmg</span>
+                <p class="move-desc">Hurls a deadly spreadsheet at the opponent. Numbers don't lie - and neither does this damage.</p>
+            </div>
+
+            <div class="move rev-move">
+                <span class="move-name">Rev Bomb</span>
+                <span class="move-combo">→ ↓ Z</span>
+                <span>20 dmg</span>
+                <p class="move-desc">Revs the engine to an ear-splitting crescendo, creating a shockwave.</p>
+            </div>
+
+            <div class="section-label">Ultimate</div>
+
+            <div class="move ultimate">
+                <span class="move-name">HIGHWAY TO HELL!</span>
+                <span class="move-combo">↓ → ↓ → Z</span>
+                <span>65 dmg</span>
+                <span class="energy-cost">100 ENERGY</span>
+                <p class="move-desc">Full throttle charge across the arena, engulfed in flames!</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bio">
+        <p class="bio-quote">"Life is too short for four wheels."</p>
+    </div>
+
+    <script>
+        const arena = document.getElementById('arena');
+        const charly = document.getElementById('charly');
+        const rider = document.getElementById('rider');
+        const dummy = document.getElementById('dummy');
+        let isAnimating = false;
+
+        function showImpact(text, x, y, color = '#c0392b') {
+            const impact = document.createElement('div');
+            impact.className = 'impact-text';
+            impact.textContent = text;
+            impact.style.left = x + 'px';
+            impact.style.top = y + 'px';
+            impact.style.color = color;
+            arena.appendChild(impact);
+
+            let opacity = 1;
+            let offsetY = 0;
+            const fade = setInterval(() => {
+                opacity -= 0.05;
+                offsetY -= 2;
+                impact.style.opacity = opacity;
+                impact.style.top = (y + offsetY) + 'px';
+                if (opacity <= 0) {
+                    clearInterval(fade);
+                    impact.remove();
+                }
+            }, 30);
+        }
+
+        function hitDummy() {
+            dummy.classList.add('hit');
+            setTimeout(() => dummy.classList.remove('hit'), 300);
+        }
+
+        function createSmoke(x, y) {
+            const smoke = document.createElement('div');
+            smoke.className = 'smoke';
+            smoke.style.left = x + 'px';
+            smoke.style.bottom = y + 'px';
+            arena.appendChild(smoke);
+
+            let size = 15;
+            let opacity = 0.6;
+            let offsetY = 0;
+            const rise = setInterval(() => {
+                size += 2;
+                opacity -= 0.04;
+                offsetY += 3;
+                smoke.style.width = size + 'px';
+                smoke.style.height = size + 'px';
+                smoke.style.opacity = opacity;
+                smoke.style.bottom = (y + offsetY) + 'px';
+                if (opacity <= 0) {
+                    clearInterval(rise);
+                    smoke.remove();
+                }
+            }, 40);
+        }
+
+        function playWheelie() {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            const startX = charly.offsetLeft;
+
+            // Pop wheelie
+            rider.classList.add('wheelie');
+            showImpact('VROOOOM!', startX + 50, 100, 'var(--bike-red)');
+
+            // Move forward
+            let progress = 0;
+            const dummyRect = dummy.getBoundingClientRect();
+            const arenaRect = arena.getBoundingClientRect();
+            const targetX = dummyRect.left - arenaRect.left - 60;
+
+            const charge = setInterval(() => {
+                progress += 0.1;
+                const x = startX + (targetX - startX) * progress;
+                charly.style.left = x + 'px';
+
+                if (progress >= 1) {
+                    clearInterval(charge);
+
+                    // Slam down
+                    rider.classList.remove('wheelie');
+                    hitDummy();
+                    showImpact('SLAM!', targetX + 30, 80, '#e74c3c');
+                    showImpact('-28', targetX + 60, 110, '#ff0000');
+
+                    // Return to start
+                    setTimeout(() => {
+                        charly.style.transition = 'left 0.3s';
+                        charly.style.left = '60px';
+                        setTimeout(() => {
+                            charly.style.transition = '';
+                            isAnimating = false;
+                        }, 300);
+                    }, 200);
+                }
+            }, 30);
+        }
+
+        function createExcelFile() {
+            const excel = document.createElement('div');
+            excel.className = 'excel-file';
+
+            const header = document.createElement('div');
+            header.className = 'excel-header';
+            excel.appendChild(header);
+
+            const grid = document.createElement('div');
+            grid.className = 'excel-grid';
+            for (let i = 0; i < 9; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'excel-cell';
+                grid.appendChild(cell);
+            }
+            excel.appendChild(grid);
+
+            return excel;
+        }
+
+        function playExcelThrow() {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            const startX = charly.offsetLeft + 80;
+            const dummyRect = dummy.getBoundingClientRect();
+            const arenaRect = arena.getBoundingClientRect();
+            const targetX = dummyRect.left - arenaRect.left;
+
+            showImpact('SPREADSHEET!', startX, 80, '#27ae60');
+
+            const excel = createExcelFile();
+            excel.style.left = startX + 'px';
+            excel.style.bottom = '120px';
+            arena.appendChild(excel);
+
+            let progress = 0;
+            let rotation = 0;
+            const fly = setInterval(() => {
+                progress += 0.06;
+                rotation += 25;
+                const x = startX + (targetX - startX) * progress;
+                const arc = Math.sin(progress * Math.PI) * 50;
+                excel.style.left = x + 'px';
+                excel.style.bottom = (120 + arc) + 'px';
+                excel.style.transform = `rotate(${rotation}deg)`;
+
+                if (progress >= 1) {
+                    clearInterval(fly);
+                    hitDummy();
+
+                    showImpact('CALCULATED!', targetX, 90, '#27ae60');
+                    showImpact('-22', targetX + 30, 120, '#ff0000');
+
+                    // Excel explodes into cells
+                    for (let i = 0; i < 6; i++) {
+                        const cell = document.createElement('div');
+                        cell.style.cssText = `
+                            position: absolute;
+                            left: ${targetX + 15}px;
+                            bottom: 120px;
+                            width: 8px;
+                            height: 6px;
+                            background: white;
+                            border: 1px solid #27ae60;
+                            z-index: 100;
+                        `;
+                        cell.textContent = ['#', '$', '%', '!', '?', '='][i];
+                        cell.style.fontSize = '6px';
+                        cell.style.color = '#27ae60';
+                        cell.style.textAlign = 'center';
+                        arena.appendChild(cell);
+
+                        const angle = (i / 6) * Math.PI * 2;
+                        let dist = 0;
+                        let opacity = 1;
+                        const scatter = setInterval(() => {
+                            dist += 5;
+                            opacity -= 0.05;
+                            cell.style.left = (targetX + 15 + Math.cos(angle) * dist) + 'px';
+                            cell.style.bottom = (120 + Math.sin(angle) * dist) + 'px';
+                            cell.style.opacity = opacity;
+                            if (opacity <= 0) {
+                                clearInterval(scatter);
+                                cell.remove();
+                            }
+                        }, 25);
+                    }
+
+                    excel.remove();
+                    isAnimating = false;
+                }
+            }, 25);
+        }
+
+        function playRevBomb() {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            rider.classList.add('rev');
+            const bikeX = charly.offsetLeft;
+
+            // Build up revs
+            showImpact('rev...', bikeX + 60, 80, '#8e44ad');
+
+            setTimeout(() => {
+                showImpact('REV...', bikeX + 60, 70, '#8e44ad');
+            }, 200);
+
+            setTimeout(() => {
+                showImpact('REEEEV!!!', bikeX + 60, 60, '#8e44ad');
+            }, 400);
+
+            setTimeout(() => {
+                rider.classList.remove('rev');
+
+                // Shockwave
+                const wave = document.createElement('div');
+                wave.style.cssText = `
+                    position: absolute;
+                    left: ${bikeX + 50}px;
+                    bottom: 80px;
+                    width: 20px;
+                    height: 20px;
+                    border: 3px solid #8e44ad;
+                    border-radius: 50%;
+                    z-index: 100;
+                `;
+                arena.appendChild(wave);
+
+                let size = 20;
+                let opacity = 1;
+                const expand = setInterval(() => {
+                    size += 15;
+                    opacity -= 0.08;
+                    wave.style.width = size + 'px';
+                    wave.style.height = size + 'px';
+                    wave.style.left = (bikeX + 50 - size/2 + 10) + 'px';
+                    wave.style.bottom = (80 - size/2 + 10) + 'px';
+                    wave.style.opacity = opacity;
+
+                    if (opacity <= 0) {
+                        clearInterval(expand);
+                        wave.remove();
+                    }
+                }, 30);
+
+                hitDummy();
+                showImpact('BOOM!', 280, 100, '#8e44ad');
+                showImpact('-20', 320, 130, '#ff0000');
+
+                isAnimating = false;
+            }, 600);
+        }
+
+        function playHighwayToHell() {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            const startX = 60;
+            const dummyRect = dummy.getBoundingClientRect();
+            const arenaRect = arena.getBoundingClientRect();
+            const targetX = dummyRect.left - arenaRect.left + 50;
+
+            showImpact('HIGHWAY TO HELL!', 150, 50, 'var(--gold)');
+
+            // Create flame trail effect
+            rider.classList.add('rev');
+
+            // Add flames to the bike
+            const flames = document.createElement('div');
+            flames.style.cssText = `
+                position: absolute;
+                left: 0;
+                bottom: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+                z-index: 100;
+            `;
+            rider.appendChild(flames);
+
+            setTimeout(() => {
+                rider.classList.remove('rev');
+
+                let progress = 0;
+                const charge = setInterval(() => {
+                    progress += 0.03;
+                    const x = startX + (targetX - startX) * progress;
+                    charly.style.left = x + 'px';
+
+                    // Fire trail
+                    if (Math.random() > 0.3) {
+                        const fire = document.createElement('div');
+                        fire.style.cssText = `
+                            position: absolute;
+                            left: ${x - 10 + Math.random() * 20}px;
+                            bottom: ${65 + Math.random() * 20}px;
+                            width: ${8 + Math.random() * 10}px;
+                            height: ${15 + Math.random() * 15}px;
+                            background: linear-gradient(to top, #e74c3c, #f39c12, #f1c40f);
+                            border-radius: 50% 50% 20% 20%;
+                            z-index: 50;
+                        `;
+                        arena.appendChild(fire);
+                        setTimeout(() => fire.remove(), 150);
+                    }
+
+                    if (progress >= 1) {
+                        clearInterval(charge);
+
+                        // Big impact
+                        hitDummy();
+                        for (let i = 0; i < 5; i++) {
+                            setTimeout(() => {
+                                showImpact('BURN!', targetX - 20 + Math.random() * 40, 60 + i * 20, '#e74c3c');
+                            }, i * 50);
+                        }
+                        showImpact('-65', targetX + 30, 90, 'var(--gold)');
+
+                        // Explosion effect
+                        for (let i = 0; i < 8; i++) {
+                            const spark = document.createElement('div');
+                            const angle = (i / 8) * Math.PI * 2;
+                            spark.style.cssText = `
+                                position: absolute;
+                                left: ${targetX}px;
+                                bottom: 100px;
+                                width: 8px;
+                                height: 8px;
+                                background: #f1c40f;
+                                border-radius: 50%;
+                                z-index: 150;
+                            `;
+                            arena.appendChild(spark);
+
+                            let dist = 0;
+                            let opacity = 1;
+                            const fly = setInterval(() => {
+                                dist += 8;
+                                opacity -= 0.06;
+                                spark.style.left = (targetX + Math.cos(angle) * dist) + 'px';
+                                spark.style.bottom = (100 + Math.sin(angle) * dist) + 'px';
+                                spark.style.opacity = opacity;
+                                if (opacity <= 0) {
+                                    clearInterval(fly);
+                                    spark.remove();
+                                }
+                            }, 25);
+                        }
+
+                        flames.remove();
+
+                        // Return
+                        setTimeout(() => {
+                            charly.style.transition = 'left 0.5s';
+                            charly.style.left = '60px';
+                            setTimeout(() => {
+                                charly.style.transition = '';
+                                isAnimating = false;
+                            }, 500);
+                        }, 400);
+                    }
+                }, 20);
+            }, 500);
+        }
+    </script>
+</body>
+</html>

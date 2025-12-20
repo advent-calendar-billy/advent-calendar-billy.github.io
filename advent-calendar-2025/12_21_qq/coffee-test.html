@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coffee Particle Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #2a2a2a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            font-family: sans-serif;
+            color: white;
+        }
+        h1 {
+            margin-bottom: 10px;
+        }
+        p {
+            margin-bottom: 20px;
+            color: #aaa;
+        }
+        #arena {
+            width: 800px;
+            height: 400px;
+            background: linear-gradient(to bottom, #1a1a2e 0%, #16213e 100%);
+            border: 2px solid #444;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+        #ground {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 50px;
+            background: linear-gradient(to bottom, #3d3d3d, #2d2d2d);
+        }
+        #mug {
+            position: absolute;
+            left: 100px;
+            bottom: 50px;
+            width: 40px;
+            height: 50px;
+            background: linear-gradient(to right, #fff, #e8e8e8, #fff);
+            border: 3px solid #666;
+            border-radius: 0 0 8px 8px;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        #mug:hover {
+            transform: scale(1.05);
+        }
+        #mug-handle {
+            position: absolute;
+            left: -12px;
+            top: 10px;
+            width: 12px;
+            height: 20px;
+            border: 3px solid #666;
+            border-right: none;
+            border-radius: 10px 0 0 10px;
+        }
+        #mug-coffee {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            right: 5px;
+            height: 35px;
+            background: linear-gradient(to bottom, #2d1810, #1a0f0a);
+            border-radius: 3px;
+            box-shadow: inset 0 2px 4px rgba(255,255,255,0.1);
+        }
+        #target {
+            position: absolute;
+            right: 100px;
+            bottom: 50px;
+            width: 60px;
+            height: 100px;
+            background: linear-gradient(to right, #666, #888, #666);
+            border-radius: 10px 10px 5px 5px;
+        }
+        #target-face {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+        }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 20px;
+        }
+        .controls label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        input[type="range"] {
+            width: 150px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background: #4a3228;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background: #5a4238;
+        }
+        .info {
+            margin-top: 15px;
+            font-size: 12px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <h1>Coffee Particle Simulation</h1>
+    <p>Click the mug or press SPACE to throw coffee</p>
+
+    <div id="arena">
+        <div id="ground"></div>
+        <div id="mug" onclick="throwCoffee()">
+            <div id="mug-handle"></div>
+            <div id="mug-coffee"></div>
+        </div>
+        <div id="target">
+            <div id="target-face">😐</div>
+        </div>
+        <canvas id="particles"></canvas>
+    </div>
+
+    <div class="controls">
+        <label>
+            Particles: <span id="particle-count-display">1000</span>
+            <input type="range" id="particle-count" min="200" max="3000" value="1000">
+        </label>
+        <label>
+            Gravity: <span id="gravity-display">0.3</span>
+            <input type="range" id="gravity" min="0.1" max="1" step="0.05" value="0.3">
+        </label>
+        <label>
+            Spread: <span id="spread-display">30</span>
+            <input type="range" id="spread" min="10" max="60" value="30">
+        </label>
+        <button onclick="throwCoffee()">Throw Coffee (SPACE)</button>
+    </div>
+
+    <div class="info">
+        Each particle is a small circle with physics (velocity, gravity, collision)
+    </div>
+
+    <script>
+        const canvas = document.getElementById('particles');
+        const ctx = canvas.getContext('2d');
+        const arena = document.getElementById('arena');
+        const mugCoffee = document.getElementById('mug-coffee');
+        const targetFace = document.getElementById('target-face');
+
+        canvas.width = arena.offsetWidth;
+        canvas.height = arena.offsetHeight;
+
+        let particles = [];
+        let steamParticles = [];
+        let isAnimating = false;
+
+        // Coffee colors - dark roast
+        const coffeeColors = [
+            '#1a0f0a',  // Very dark
+            '#2d1810',  // Dark brown
+            '#3d261a',  // Medium dark
+            '#4a3228',  // Medium
+            '#3a2218',  // Dark with red
+        ];
+
+        // Steam colors
+        const steamColors = [
+            'rgba(255, 255, 255, 0.6)',
+            'rgba(240, 240, 240, 0.5)',
+            'rgba(220, 220, 220, 0.4)',
+        ];
+
+        class Particle {
+            constructor(x, y, vx, vy, size, color) {
+                this.x = x;
+                this.y = y;
+                this.vx = vx;
+                this.vy = vy;
+                this.size = size;
+                this.color = color;
+                this.life = 1;
+                this.groundY = canvas.height - 50;
+                this.settled = false;
+                this.settleTime = 0;
+            }
+
+            update(gravity) {
+                if (this.settled) {
+                    this.settleTime++;
+                    this.life = Math.max(0, 1 - this.settleTime / 120);
+                    return;
+                }
+
+                // Apply gravity
+                this.vy += gravity;
+
+                // Apply velocity
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Air resistance
+                this.vx *= 0.99;
+                this.vy *= 0.99;
+
+                // Ground collision
+                if (this.y >= this.groundY - this.size) {
+                    this.y = this.groundY - this.size;
+                    this.vy *= -0.3; // Bounce with energy loss
+                    this.vx *= 0.8;  // Friction
+
+                    // Settle if moving slowly
+                    if (Math.abs(this.vy) < 0.5 && Math.abs(this.vx) < 0.5) {
+                        this.settled = true;
+                    }
+                }
+
+                // Wall collision
+                if (this.x < 0) {
+                    this.x = 0;
+                    this.vx *= -0.5;
+                }
+                if (this.x > canvas.width) {
+                    this.x = canvas.width;
+                    this.vx *= -0.5;
+                }
+
+                // Target collision (right side, around x=640-700)
+                const targetLeft = canvas.width - 160;
+                const targetRight = canvas.width - 100;
+                const targetTop = canvas.height - 150;
+
+                if (this.x >= targetLeft && this.x <= targetRight &&
+                    this.y >= targetTop && this.y <= this.groundY) {
+                    // Hit the target!
+                    this.vx *= -0.3;
+                    this.x = targetLeft - this.size;
+                    targetFace.textContent = '😫';
+                    setTimeout(() => targetFace.textContent = '😐', 500);
+                }
+            }
+
+            draw() {
+                if (this.life <= 0) return;
+
+                ctx.globalAlpha = this.life;
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1;
+            }
+        }
+
+        class SteamParticle {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.vx = (Math.random() - 0.5) * 1;
+                this.vy = -0.5 - Math.random() * 1.5;
+                this.size = 1.5 + Math.random() * 2.5;
+                this.life = 1;
+                this.color = steamColors[Math.floor(Math.random() * steamColors.length)];
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vx += (Math.random() - 0.5) * 0.1; // Wobble
+                this.size += 0.08; // Expand slowly
+                this.life -= 0.025;
+            }
+
+            draw() {
+                if (this.life <= 0) return;
+
+                ctx.globalAlpha = this.life * 0.4;
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1;
+            }
+        }
+
+        function throwCoffee() {
+            const particleCount = parseInt(document.getElementById('particle-count').value);
+            const spread = parseInt(document.getElementById('spread').value);
+
+            // Coffee surface position (top of coffee in mug)
+            // Mug is at left: 100px, bottom: 50px, width: 40px, height: 50px
+            // Coffee surface is at top: 5px inside mug
+            const mugLeft = 100;
+            const mugWidth = 40;
+            const coffeeSurfaceY = canvas.height - 50 - 50 + 8; // ground - mug height + coffee top offset
+
+            // Base velocity - throwing to the right
+            const baseVX = 10;
+            const baseVY = -6;
+
+            // Create coffee particles from the coffee surface
+            for (let i = 0; i < particleCount; i++) {
+                const angle = (Math.random() - 0.5) * (spread * Math.PI / 180);
+                const speed = 0.6 + Math.random() * 0.5;
+
+                const vx = (baseVX + (Math.random() - 0.5) * 3) * speed;
+                const vy = (baseVY + (Math.random() - 0.5) * 4) * speed;
+
+                // Much smaller particles - like real liquid droplets
+                const size = 0.8 + Math.random() * 1.5;
+                const color = coffeeColors[Math.floor(Math.random() * coffeeColors.length)];
+
+                // Particles spawn from the coffee surface area
+                const spawnX = mugLeft + 8 + Math.random() * (mugWidth - 16); // Within coffee surface
+                const spawnY = coffeeSurfaceY + Math.random() * 5; // At coffee surface level
+
+                // Staggered release for stream effect
+                const delay = i * 0.3;
+
+                setTimeout(() => {
+                    particles.push(new Particle(
+                        spawnX,
+                        spawnY,
+                        vx * Math.cos(angle) - vy * Math.sin(angle),
+                        vx * Math.sin(angle) + vy * Math.cos(angle),
+                        size,
+                        color
+                    ));
+                }, delay);
+            }
+
+            // Animate mug throw
+            const mug = document.getElementById('mug');
+            mug.style.transform = 'rotate(-30deg) translateX(10px)';
+            mugCoffee.style.height = '5px';
+
+            setTimeout(() => {
+                mug.style.transform = '';
+                mugCoffee.style.height = '35px';
+            }, 300);
+
+            if (!isAnimating) {
+                isAnimating = true;
+                animate();
+            }
+        }
+
+        function animate() {
+            const gravity = parseFloat(document.getElementById('gravity').value);
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Update and draw particles
+            particles = particles.filter(p => p.life > 0);
+
+            for (const p of particles) {
+                p.update(gravity);
+
+                // Generate steam from hot coffee particles
+                if (!p.settled && Math.random() > 0.97) {
+                    steamParticles.push(new SteamParticle(p.x, p.y - 5));
+                }
+
+                p.draw();
+            }
+
+            // Update and draw steam
+            steamParticles = steamParticles.filter(s => s.life > 0);
+            for (const s of steamParticles) {
+                s.update();
+                s.draw();
+            }
+
+            if (particles.length > 0 || steamParticles.length > 0) {
+                requestAnimationFrame(animate);
+            } else {
+                isAnimating = false;
+            }
+        }
+
+        // Keyboard control
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                throwCoffee();
+            }
+        });
+
+        // Update displays
+        document.getElementById('particle-count').addEventListener('input', (e) => {
+            document.getElementById('particle-count-display').textContent = e.target.value;
+        });
+        document.getElementById('gravity').addEventListener('input', (e) => {
+            document.getElementById('gravity-display').textContent = e.target.value;
+        });
+        document.getElementById('spread').addEventListener('input', (e) => {
+            document.getElementById('spread-display').textContent = e.target.value;
+        });
+    </script>
+</body>
+</html>

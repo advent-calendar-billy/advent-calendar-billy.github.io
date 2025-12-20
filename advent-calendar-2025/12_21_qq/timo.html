@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timo - Character Preview</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Finger+Paint&family=Patrick+Hand&family=Permanent+Marker&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --paper: #f5f0e1;
+            --ink: #333;
+            --pencil: #666;
+            --red: #c41e3a;
+            --green: #228b22;
+            --gold: #ffd700;
+            --white: #fffafa;
+            --brown: #5c4033;
+            --afd-blue: #009ee0;
+            --afd-red: #e30613;
+            --drool-blue: #a8d4e6;
+            --grump-gray: #888;
+        }
+
+        body {
+            background: var(--paper);
+            background-image:
+                linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+            background-size: 25px 25px;
+            font-family: 'Patrick Hand', cursive;
+            color: var(--ink);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px;
+        }
+
+        h1 {
+            font-family: 'Finger Paint', cursive;
+            font-size: 3rem;
+            color: var(--grump-gray);
+            text-shadow: 3px 3px 0 var(--paper), 4px 4px 0 var(--afd-blue);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--pencil);
+            margin-bottom: 40px;
+            font-style: italic;
+        }
+
+        .character-showcase {
+            display: flex;
+            gap: 40px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        /* ==================== DEMO ARENA ==================== */
+        .demo-arena {
+            background: var(--paper);
+            border: 4px solid var(--ink);
+            border-radius: 12px;
+            box-shadow: 6px 6px 0 var(--grump-gray);
+            position: relative;
+            width: 500px;
+            height: 350px;
+            overflow: hidden;
+        }
+
+        .demo-arena h2 {
+            font-family: 'Finger Paint', cursive;
+            color: var(--grump-gray);
+            text-align: center;
+            padding: 10px;
+            border-bottom: 2px solid var(--ink);
+            background: rgba(255,255,255,0.5);
+        }
+
+        .arena-floor {
+            position: absolute;
+            bottom: 60px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--ink);
+        }
+
+        .demo-buttons {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .demo-btn {
+            padding: 6px 12px;
+            border: 2px solid var(--ink);
+            border-radius: 6px;
+            background: var(--paper);
+            font-family: 'Patrick Hand', cursive;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+
+        .demo-btn:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 3px 3px 0 var(--ink);
+        }
+
+        .demo-btn.drool { border-color: var(--drool-blue); color: var(--drool-blue); }
+        .demo-btn.complain { border-color: var(--grump-gray); color: var(--grump-gray); }
+        .demo-btn.flag { border-color: var(--afd-blue); color: var(--afd-blue); }
+        .demo-btn.ultimate { border-color: var(--afd-red); color: var(--afd-red); background: rgba(227,6,19,0.1); }
+
+        /* ==================== TIMO CHARACTER ==================== */
+        .fighter {
+            position: absolute;
+            bottom: 68px;
+            left: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transform-origin: bottom center;
+        }
+
+        .timo .head {
+            width: 40px;
+            height: 42px;
+            border: 2px solid var(--ink);
+            border-radius: 50%;
+            background: var(--paper);
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Messy hair */
+        .timo .hair {
+            position: absolute;
+            top: -8px;
+            left: -4px;
+            width: 48px;
+            height: 20px;
+            border: 2px solid var(--ink);
+            border-bottom: none;
+            border-radius: 50% 50% 0 0;
+            background: #4a3728;
+            z-index: 5;
+        }
+
+        /* Messy hair tufts */
+        .timo .hair::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: 10px;
+            width: 8px;
+            height: 10px;
+            background: #4a3728;
+            border: 2px solid var(--ink);
+            border-bottom: none;
+            border-radius: 50% 50% 0 0;
+            transform: rotate(-15deg);
+        }
+
+        .timo .hair::after {
+            content: '';
+            position: absolute;
+            top: -3px;
+            right: 12px;
+            width: 6px;
+            height: 8px;
+            background: #4a3728;
+            border: 2px solid var(--ink);
+            border-bottom: none;
+            border-radius: 50% 50% 0 0;
+            transform: rotate(20deg);
+        }
+
+        /* Grumpy droopy eyes -_- */
+        .timo .eyes {
+            position: absolute;
+            top: 14px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 15;
+        }
+
+        .timo .eye {
+            width: 8px;
+            height: 3px;
+            background: var(--ink);
+            border-radius: 0;
+            position: relative;
+        }
+
+        /* Bags under eyes */
+        .timo .eye::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: -1px;
+            width: 10px;
+            height: 3px;
+            border-bottom: 1px solid var(--pencil);
+            border-radius: 0 0 50% 50%;
+            opacity: 0.5;
+        }
+
+        /* Frowny mouth :( */
+        .timo .mouth {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 10px;
+            height: 5px;
+            border: 2px solid var(--ink);
+            border-bottom: none;
+            border-radius: 50% 50% 0 0;
+            background: transparent;
+            z-index: 15;
+        }
+
+        /* Drool drop (always visible) */
+        .timo .drool-drop {
+            position: absolute;
+            bottom: 2px;
+            left: 18px;
+            width: 4px;
+            height: 8px;
+            background: var(--drool-blue);
+            border: 1px solid var(--ink);
+            border-radius: 50% 50% 50% 50% / 30% 30% 70% 70%;
+            z-index: 16;
+            animation: droolBob 1.5s ease-in-out infinite;
+        }
+
+        @keyframes droolBob {
+            0%, 100% { transform: translateY(0) scaleY(1); }
+            50% { transform: translateY(2px) scaleY(1.1); }
+        }
+
+        /* Slouchy body */
+        .timo .body {
+            width: 36px;
+            height: 32px;
+            border: 2px solid var(--ink);
+            border-radius: 5px 5px 0 0;
+            background: #666;
+            margin-top: -3px;
+            position: relative;
+            z-index: 8;
+        }
+
+        /* Wrinkled shirt detail */
+        .timo .body::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 8px;
+            width: 20px;
+            height: 1px;
+            background: var(--pencil);
+            opacity: 0.4;
+        }
+
+        .timo .arm {
+            position: absolute;
+            width: 8px;
+            height: 24px;
+            border: 2px solid var(--ink);
+            border-radius: 4px;
+            background: var(--paper);
+            top: 3px;
+            transform-origin: top center;
+            z-index: 6;
+        }
+
+        .timo .arm.left {
+            left: -6px;
+            transform: rotate(5deg);
+        }
+        .timo .arm.right {
+            right: -6px;
+            transform: rotate(-5deg);
+        }
+
+        /* Baggy pants */
+        .timo .pants {
+            width: 38px;
+            height: 35px;
+            border: 2px solid var(--ink);
+            border-top: none;
+            background: #444;
+            margin-top: -2px;
+            position: relative;
+            z-index: 4;
+            border-radius: 0 0 5px 5px;
+        }
+
+        /* Pants legs */
+        .timo .pants::before,
+        .timo .pants::after {
+            content: '';
+            position: absolute;
+            bottom: -12px;
+            width: 14px;
+            height: 14px;
+            background: #444;
+            border: 2px solid var(--ink);
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+        }
+
+        .timo .pants::before { left: 3px; }
+        .timo .pants::after { right: 3px; }
+
+        /* Feet */
+        .timo .feet {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            z-index: 3;
+        }
+
+        .timo .foot {
+            width: 12px;
+            height: 5px;
+            border: 2px solid var(--ink);
+            border-radius: 50%;
+            background: #333;
+        }
+
+        /* ==================== FLAG (held in right hand) ==================== */
+        .timo .flag-pole {
+            position: absolute;
+            right: -20px;
+            top: 5px;
+            width: 3px;
+            height: 50px;
+            background: #8b4513;
+            border: 1px solid var(--ink);
+            transform-origin: bottom center;
+            z-index: 7;
+        }
+
+        .timo .flag {
+            position: absolute;
+            top: 0;
+            left: 3px;
+            width: 30px;
+            height: 20px;
+            background: var(--afd-blue);
+            border: 1px solid var(--ink);
+            z-index: 7;
+        }
+
+        /* AFD arrow */
+        .timo .flag::before {
+            content: '';
+            position: absolute;
+            top: 6px;
+            left: 4px;
+            width: 0;
+            height: 0;
+            border-top: 4px solid transparent;
+            border-bottom: 4px solid transparent;
+            border-left: 8px solid var(--afd-red);
+        }
+
+        .timo .flag::after {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 10px;
+            width: 14px;
+            height: 4px;
+            background: var(--afd-red);
+        }
+
+        /* ==================== DUMMY TARGET ==================== */
+        .dummy {
+            position: absolute;
+            bottom: 68px;
+            right: 100px;
+            width: 40px;
+            height: 80px;
+            border: 3px solid var(--ink);
+            border-radius: 8px;
+            background: #ddd;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dummy::before {
+            content: 'TARGET';
+            font-size: 0.5rem;
+            color: var(--ink);
+        }
+
+        /* Dummy never gets hit class - not used! */
+        .dummy.hit {
+            animation: shake 0.3s;
+            background: #ffcccc;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* ==================== ANIMATION STATES ==================== */
+        .timo.drooling .drool-drop {
+            animation: droolHeavy 0.5s ease-in-out;
+        }
+
+        @keyframes droolHeavy {
+            0% { transform: scaleY(1); }
+            50% { transform: scaleY(2); }
+            100% { transform: scaleY(1); }
+        }
+
+        .timo.complaining .mouth {
+            animation: yap 0.15s infinite;
+        }
+
+        @keyframes yap {
+            0%, 100% { height: 5px; }
+            50% { height: 8px; }
+        }
+
+        .timo.waving-flag .flag-pole {
+            animation: waveFlag 0.3s ease-in-out infinite;
+        }
+
+        @keyframes waveFlag {
+            0%, 100% { transform: rotate(-5deg); }
+            50% { transform: rotate(5deg); }
+        }
+
+        /* ==================== PROJECTILES & EFFECTS ==================== */
+        .projectile {
+            position: absolute;
+            z-index: 100;
+        }
+
+        .drool-puddle {
+            width: 20px;
+            height: 8px;
+            background: var(--drool-blue);
+            border: 1px solid #88b4c6;
+            border-radius: 50%;
+            opacity: 0.7;
+        }
+
+        .complaint-bubble {
+            background: white;
+            border: 2px solid var(--ink);
+            border-radius: 12px;
+            padding: 5px 10px;
+            font-size: 0.7rem;
+            white-space: nowrap;
+            box-shadow: 2px 2px 0 var(--pencil);
+        }
+
+        .complaint-bubble::before {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 15px;
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 8px solid var(--ink);
+        }
+
+        .complaint-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 17px;
+            width: 0;
+            height: 0;
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            border-top: 6px solid white;
+        }
+
+        .impact-text {
+            position: absolute;
+            font-family: 'Permanent Marker', cursive;
+            font-size: 1.2rem;
+            color: var(--grump-gray);
+            text-shadow: 2px 2px 0 var(--paper);
+            pointer-events: none;
+            z-index: 200;
+        }
+
+        .miss-text {
+            color: var(--pencil);
+            font-style: italic;
+        }
+
+        /* ==================== MOVE LIST ==================== */
+        .moves-panel {
+            background: var(--paper);
+            border: 4px solid var(--ink);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 6px 6px 0 var(--grump-gray);
+            max-width: 350px;
+        }
+
+        .moves-panel h2 {
+            font-family: 'Finger Paint', cursive;
+            color: var(--grump-gray);
+            margin-bottom: 12px;
+            border-bottom: 2px solid var(--ink);
+            padding-bottom: 8px;
+            font-size: 1.3rem;
+        }
+
+        .move {
+            margin: 10px 0;
+            padding: 8px;
+            border-left: 3px solid var(--grump-gray);
+            background: rgba(255,255,255,0.5);
+            font-size: 0.9rem;
+        }
+
+        .move.drool-move {
+            border-left-color: var(--drool-blue);
+        }
+
+        .move.flag-move {
+            border-left-color: var(--afd-blue);
+        }
+
+        .move-name {
+            font-family: 'Permanent Marker', cursive;
+            color: var(--grump-gray);
+            display: block;
+            margin-bottom: 3px;
+            font-size: 0.95rem;
+        }
+
+        .move.drool-move .move-name {
+            color: var(--drool-blue);
+        }
+
+        .move.flag-move .move-name {
+            color: var(--afd-blue);
+        }
+
+        .move-combo {
+            font-family: monospace;
+            background: var(--ink);
+            color: var(--paper);
+            padding: 2px 6px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-right: 8px;
+            font-size: 0.8rem;
+        }
+
+        .move-desc {
+            font-size: 0.8rem;
+            color: var(--pencil);
+            margin-top: 4px;
+        }
+
+        .damage-zero {
+            display: inline-block;
+            background: var(--pencil);
+            color: var(--paper);
+            padding: 1px 6px;
+            border-radius: 3px;
+            font-size: 0.7rem;
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+
+        .ultimate {
+            border-left-color: var(--afd-red);
+            background: linear-gradient(90deg, rgba(227,6,19,0.05), transparent);
+        }
+
+        .ultimate .move-name {
+            color: var(--afd-red);
+        }
+
+        .section-label {
+            font-family: 'Finger Paint', cursive;
+            font-size: 0.8rem;
+            color: var(--pencil);
+            margin-top: 15px;
+            margin-bottom: 5px;
+            padding-left: 5px;
+            border-bottom: 1px dashed var(--pencil);
+            padding-bottom: 3px;
+        }
+
+        /* Bio section */
+        .bio {
+            max-width: 500px;
+            text-align: center;
+            margin-top: 30px;
+            padding: 15px;
+            border: 3px solid var(--ink);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.5);
+        }
+
+        .bio-quote {
+            font-style: italic;
+            font-size: 1rem;
+            color: var(--pencil);
+        }
+
+        .warning-badge {
+            display: inline-block;
+            background: var(--afd-red);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>TIMO</h1>
+    <p class="subtitle">The Perpetual Complainer</p>
+
+    <div class="character-showcase">
+        <!-- Demo Arena -->
+        <div class="demo-arena" id="arena">
+            <h2>Move Preview</h2>
+            <div class="arena-floor"></div>
+
+            <div class="fighter timo" id="timo">
+                <div class="head">
+                    <div class="hair"></div>
+                    <div class="eyes">
+                        <div class="eye"></div>
+                        <div class="eye"></div>
+                    </div>
+                    <div class="mouth"></div>
+                    <div class="drool-drop"></div>
+                </div>
+                <div class="body">
+                    <div class="arm left"></div>
+                    <div class="arm right">
+                        <div class="flag-pole">
+                            <div class="flag"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="pants"></div>
+                <div class="feet">
+                    <div class="foot"></div>
+                    <div class="foot"></div>
+                </div>
+            </div>
+
+            <div class="dummy" id="dummy"></div>
+
+            <div class="demo-buttons">
+                <button class="demo-btn drool" onclick="playDrool()">Drool</button>
+                <button class="demo-btn complain" onclick="playComplain()">Complain</button>
+                <button class="demo-btn flag" onclick="playWaveFlag()">Wave Flag</button>
+                <button class="demo-btn ultimate" onclick="playUltimate()">MEGA TANTRUM!</button>
+            </div>
+        </div>
+
+        <!-- Move List -->
+        <div class="moves-panel">
+            <h2>Special Moves</h2>
+
+            <div class="section-label">Biological Functions</div>
+
+            <div class="move drool-move">
+                <span class="move-name">Excessive Drool</span>
+                <span class="move-combo">↓ ↓ Z</span>
+                <span class="damage-zero">0 dmg</span>
+                <p class="move-desc">Creates a puddle of drool on the ground. Does absolutely nothing.</p>
+            </div>
+
+            <div class="section-label">Verbal Attacks</div>
+
+            <div class="move">
+                <span class="move-name">Loud Complaining</span>
+                <span class="move-combo">← → Z</span>
+                <span class="damage-zero">0 dmg</span>
+                <p class="move-desc">Complains loudly about various things. The opponent is unimpressed.</p>
+            </div>
+
+            <div class="section-label">Political Expression</div>
+
+            <div class="move flag-move">
+                <span class="move-name">Wave the Flag</span>
+                <span class="move-combo">→ → X</span>
+                <span class="damage-zero">0 dmg</span>
+                <p class="move-desc">Waves an AFD flag enthusiastically. Has no combat application whatsoever.</p>
+            </div>
+
+            <div class="section-label">Ultimate</div>
+
+            <div class="move ultimate">
+                <span class="move-name">MEGA TANTRUM!</span>
+                <span class="move-combo">↓ → ↓ → Z</span>
+                <span class="damage-zero">0 dmg</span>
+                <p class="move-desc">Combines all three useless abilities at once. Still does nothing.</p>
+            </div>
+
+            <div class="warning-badge">WARNING: All attacks miss</div>
+        </div>
+    </div>
+
+    <div class="bio">
+        <p class="bio-quote">"This country is going downhill! *drools* Back in my day... *waves flag* ...and ANOTHER thing!"</p>
+    </div>
+
+    <script>
+        const arena = document.getElementById('arena');
+        const timo = document.getElementById('timo');
+        const dummy = document.getElementById('dummy');
+        let isAnimating = false;
+
+        const complaints = [
+            "This is unfair!",
+            "Back in my day...",
+            "Nobody listens!",
+            "I demand to speak to the manager!",
+            "This country...",
+            "The youth today...",
+            "In MY opinion...",
+            "Actually...",
+            "Well TECHNICALLY...",
+            "I'm not racist, but..."
+        ];
+
+        function showImpact(text, x, y, color = 'var(--grump-gray)', isItalic = false) {
+            const impact = document.createElement('div');
+            impact.className = 'impact-text' + (isItalic ? ' miss-text' : '');
+            impact.textContent = text;
+            impact.style.left = x + 'px';
+            impact.style.top = y + 'px';
+            impact.style.color = color;
+            arena.appendChild(impact);
+
+            let opacity = 1;
+            let offsetY = 0;
+            const fade = setInterval(() => {
+                opacity -= 0.05;
+                offsetY -= 2;
+                impact.style.opacity = opacity;
+                impact.style.top = (y + offsetY) + 'px';
+                if (opacity <= 0) {
+                    clearInterval(fade);
+                    impact.remove();
+                }
+            }, 30);
+        }
+
+        function showComplaintBubble(text, x, y) {
+            const bubble = document.createElement('div');
+            bubble.className = 'projectile complaint-bubble';
+            bubble.textContent = text;
+            bubble.style.left = x + 'px';
+            bubble.style.top = y + 'px';
+            arena.appendChild(bubble);
+
+            setTimeout(() => {
+                bubble.style.opacity = '0';
+                bubble.style.transition = 'opacity 0.3s';
+                setTimeout(() => bubble.remove(), 300);
+            }, 1500);
+        }
+
+        // DROOL - does nothing
+        function playDrool() {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            timo.classList.add('drooling');
+
+            // Create drool drops falling
+            for (let i = 0; i < 3; i++) {
+                setTimeout(() => {
+                    const drool = document.createElement('div');
+                    drool.className = 'projectile';
+                    drool.style.cssText = `
+                        width: 6px;
+                        height: 10px;
+                        background: var(--drool-blue);
+                        border: 1px solid #88b4c6;
+                        border-radius: 50% 50% 50% 50% / 30% 30% 70% 70%;
+                        left: 98px;
+                        top: 180px;
+                    `;
+                    arena.appendChild(drool);
+
+                    let y = 180;
+                    const fall = setInterval(() => {
+                        y += 8;
+                        drool.style.top = y + 'px';
+                        if (y >= 230) {
+                            clearInterval(fall);
+                            // Create puddle
+                            const puddle = document.createElement('div');
+                            puddle.className = 'projectile drool-puddle';
+                            puddle.style.left = (90 + i * 15) + 'px';
+                            puddle.style.bottom = '63px';
+                            arena.appendChild(puddle);
+                            drool.remove();
+
+                            if (i === 1) {
+                                showImpact('*splat*', 100, 200, 'var(--drool-blue)', true);
+                            }
+
+                            setTimeout(() => {
+                                puddle.style.opacity = '0';
+                                puddle.style.transition = 'opacity 0.5s';
+                                setTimeout(() => puddle.remove(), 500);
+                            }, 1000);
+                        }
+                    }, 30);
+                }, i * 200);
+            }
+
+            // Show miss text
+            setTimeout(() => {
+                showImpact('miss...', 320, 120, 'var(--pencil)', true);
+            }, 400);
+
+            setTimeout(() => {
+                timo.classList.remove('drooling');
+                isAnimating = false;
+            }, 1000);
+        }
+
+        // COMPLAIN - does nothing
+        function playComplain() {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            timo.classList.add('complaining');
+
+            // Show complaint bubbles
+            const complaint = complaints[Math.floor(Math.random() * complaints.length)];
+            showComplaintBubble(complaint, 60, 100);
+
+            showImpact('blah blah...', 70, 140, 'var(--grump-gray)', true);
+
+            // Opponent is unimpressed
+            setTimeout(() => {
+                showImpact('*yawn*', 320, 100, 'var(--pencil)', true);
+            }, 800);
+
+            setTimeout(() => {
+                showImpact('miss...', 320, 130, 'var(--pencil)', true);
+            }, 1200);
+
+            setTimeout(() => {
+                timo.classList.remove('complaining');
+                isAnimating = false;
+            }, 2000);
+        }
+
+        // WAVE FLAG - does nothing
+        function playWaveFlag() {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            timo.classList.add('waving-flag');
+
+            showImpact('*wave wave*', 130, 100, 'var(--afd-blue)', true);
+
+            // Create some patriotic sparkles that go nowhere
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    const sparkle = document.createElement('div');
+                    sparkle.className = 'projectile';
+                    sparkle.style.cssText = `
+                        width: 6px;
+                        height: 6px;
+                        background: ${i % 2 === 0 ? 'var(--afd-blue)' : 'var(--afd-red)'};
+                        border-radius: 50%;
+                        left: ${140 + Math.random() * 20}px;
+                        top: ${100 + Math.random() * 30}px;
+                    `;
+                    arena.appendChild(sparkle);
+
+                    let opacity = 1;
+                    const fade = setInterval(() => {
+                        opacity -= 0.1;
+                        sparkle.style.opacity = opacity;
+                        if (opacity <= 0) {
+                            clearInterval(fade);
+                            sparkle.remove();
+                        }
+                    }, 50);
+                }, i * 100);
+            }
+
+            // Miss
+            setTimeout(() => {
+                showImpact('miss...', 320, 120, 'var(--pencil)', true);
+            }, 600);
+
+            setTimeout(() => {
+                timo.classList.remove('waving-flag');
+                isAnimating = false;
+            }, 1200);
+        }
+
+        // ULTIMATE - still does nothing, just all three at once
+        function playUltimate() {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            timo.classList.add('drooling', 'complaining', 'waving-flag');
+
+            showImpact('MEGA TANTRUM!', 60, 70, 'var(--afd-red)');
+
+            // Drool everywhere
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    const drool = document.createElement('div');
+                    drool.className = 'projectile drool-puddle';
+                    drool.style.left = (70 + i * 20) + 'px';
+                    drool.style.bottom = '63px';
+                    drool.style.transform = `scale(${0.5 + Math.random() * 0.5})`;
+                    arena.appendChild(drool);
+                    setTimeout(() => {
+                        drool.style.opacity = '0';
+                        drool.style.transition = 'opacity 0.5s';
+                        setTimeout(() => drool.remove(), 500);
+                    }, 1500);
+                }, i * 100);
+            }
+
+            // Multiple complaint bubbles
+            setTimeout(() => showComplaintBubble("UNFAIR!", 40, 90), 200);
+            setTimeout(() => showComplaintBubble("OUTRAGEOUS!", 90, 70), 500);
+            setTimeout(() => showComplaintBubble("I DEMAND...", 60, 110), 800);
+
+            // Flag sparkles going crazy
+            for (let i = 0; i < 10; i++) {
+                setTimeout(() => {
+                    const sparkle = document.createElement('div');
+                    sparkle.className = 'projectile';
+                    sparkle.style.cssText = `
+                        width: 8px;
+                        height: 8px;
+                        background: ${['var(--afd-blue)', 'var(--afd-red)', 'var(--grump-gray)'][i % 3]};
+                        border-radius: 50%;
+                        left: ${120 + Math.random() * 40}px;
+                        top: ${80 + Math.random() * 50}px;
+                    `;
+                    arena.appendChild(sparkle);
+
+                    let opacity = 1;
+                    const fade = setInterval(() => {
+                        opacity -= 0.08;
+                        sparkle.style.opacity = opacity;
+                        sparkle.style.transform = `translate(${(Math.random() - 0.5) * 20}px, ${Math.random() * 10}px)`;
+                        if (opacity <= 0) {
+                            clearInterval(fade);
+                            sparkle.remove();
+                        }
+                    }, 50);
+                }, i * 80);
+            }
+
+            // Still misses completely
+            setTimeout(() => {
+                showImpact('...', 320, 100, 'var(--pencil)', true);
+            }, 1000);
+
+            setTimeout(() => {
+                showImpact('still miss', 320, 130, 'var(--pencil)', true);
+            }, 1500);
+
+            setTimeout(() => {
+                showImpact('0 damage', 320, 160, 'var(--afd-red)', true);
+            }, 2000);
+
+            setTimeout(() => {
+                timo.classList.remove('drooling', 'complaining', 'waving-flag');
+                isAnimating = false;
+            }, 2500);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vicky - Character Preview</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Finger+Paint&family=Patrick+Hand&family=Permanent+Marker&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --paper: #f5f0e1;
+            --ink: #333;
+            --pencil: #666;
+            --red: #c41e3a;
+            --green: #228b22;
+            --gold: #ffd700;
+            --white: #fffafa;
+            --brown: #5c4033;
+            --christmas-red: #c41e3a;
+            --christmas-green: #228b22;
+            --silk-purple: #9b59b6;
+            --silk-pink: #e91e8c;
+        }
+
+        body {
+            background: var(--paper);
+            background-image:
+                linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+            background-size: 25px 25px;
+            font-family: 'Patrick Hand', cursive;
+            color: var(--ink);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px;
+        }
+
+        h1 {
+            font-family: 'Finger Paint', cursive;
+            font-size: 3rem;
+            color: var(--christmas-red);
+            text-shadow: 3px 3px 0 var(--paper), 4px 4px 0 var(--christmas-green);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--pencil);
+            margin-bottom: 40px;
+            font-style: italic;
+        }
+
+        .character-showcase {
+            display: flex;
+            gap: 40px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        /* ==================== DEMO ARENA ==================== */
+        .demo-arena {
+            background: var(--paper);
+            border: 4px solid var(--ink);
+            border-radius: 12px;
+            box-shadow: 6px 6px 0 var(--christmas-red);
+            position: relative;
+            width: 500px;
+            height: 350px;
+            overflow: hidden;
+        }
+
+        .demo-arena h2 {
+            font-family: 'Finger Paint', cursive;
+            color: var(--christmas-red);
+            text-align: center;
+            padding: 10px;
+            border-bottom: 2px solid var(--ink);
+            background: rgba(255,255,255,0.5);
+        }
+
+        .arena-floor {
+            position: absolute;
+            bottom: 60px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--ink);
+        }
+
+        .demo-buttons {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .demo-btn {
+            padding: 6px 12px;
+            border: 2px solid var(--ink);
+            border-radius: 6px;
+            background: var(--paper);
+            font-family: 'Patrick Hand', cursive;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+
+        .demo-btn:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 3px 3px 0 var(--ink);
+        }
+
+        .demo-btn.telas { border-color: var(--silk-purple); color: var(--silk-purple); }
+        .demo-btn.christmas { border-color: var(--christmas-red); color: var(--christmas-red); }
+        .demo-btn.ultimate { border-color: var(--gold); color: var(--gold); background: rgba(255,215,0,0.1); }
+
+        /* ==================== VICKY CHARACTER - SLIM VERSION ==================== */
+        .fighter {
+            position: absolute;
+            bottom: 68px;
+            left: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transform-origin: bottom center;
+        }
+
+        .vicky .head {
+            width: 36px;
+            height: 38px;
+            border: 2px solid var(--ink);
+            border-radius: 50%;
+            background: var(--paper);
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Dark brown hair - cute style */
+        .vicky .hair {
+            position: absolute;
+            top: -5px;
+            left: -6px;
+            width: 48px;
+            height: 28px;
+            border: 2px solid var(--ink);
+            border-bottom: none;
+            border-radius: 50% 50% 0 0;
+            background: var(--brown);
+            z-index: 5;
+        }
+
+        /* Hair sides flowing down */
+        .vicky .hair-left {
+            position: absolute;
+            top: 16px;
+            left: -8px;
+            width: 10px;
+            height: 38px;
+            background: var(--brown);
+            border: 2px solid var(--ink);
+            border-top: none;
+            border-radius: 0 0 40% 40%;
+            z-index: 4;
+        }
+
+        .vicky .hair-right {
+            position: absolute;
+            top: 16px;
+            right: -8px;
+            width: 10px;
+            height: 38px;
+            background: var(--brown);
+            border: 2px solid var(--ink);
+            border-top: none;
+            border-radius: 0 0 40% 40%;
+            z-index: 4;
+        }
+
+        /* Happy curved eyes ^_^ */
+        .vicky .eyes {
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 15;
+        }
+
+        .vicky .eye {
+            width: 8px;
+            height: 5px;
+            background: transparent;
+            border-top: 3px solid var(--ink);
+            border-radius: 50% 50% 0 0;
+            position: relative;
+        }
+
+        /* Sparkle near eyes */
+        .vicky .eye::before {
+            content: '';
+            position: absolute;
+            top: -6px;
+            right: -3px;
+            width: 3px;
+            height: 3px;
+            background: var(--gold);
+            border-radius: 50%;
+            box-shadow: 0 0 4px var(--gold);
+        }
+
+        /* Big happy smile :D */
+        .vicky .mouth {
+            position: absolute;
+            bottom: 6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 6px;
+            border: 2px solid var(--ink);
+            border-top: none;
+            border-radius: 0 0 50% 50%;
+            background: rgba(255,150,150,0.3);
+            z-index: 15;
+        }
+
+        /* Rosy cheeks */
+        .vicky .blush {
+            position: absolute;
+            top: 18px;
+            width: 7px;
+            height: 4px;
+            background: rgba(255, 150, 170, 0.5);
+            border-radius: 50%;
+            z-index: 14;
+        }
+
+        .vicky .blush.left { left: 3px; }
+        .vicky .blush.right { right: 3px; }
+
+        /* Wedding dress bodice - slim */
+        .vicky .body {
+            width: 32px;
+            height: 28px;
+            border: 2px solid var(--ink);
+            border-radius: 3px 3px 0 0;
+            background: var(--white);
+            margin-top: -3px;
+            position: relative;
+            z-index: 8;
+        }
+
+        /* Cute bow on chest */
+        .vicky .bow {
+            position: absolute;
+            top: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 6px;
+            z-index: 9;
+        }
+
+        .vicky .bow::before,
+        .vicky .bow::after {
+            content: '';
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: var(--christmas-red);
+            border: 1px solid var(--ink);
+            border-radius: 50% 50% 50% 0;
+        }
+
+        .vicky .bow::before {
+            left: 0;
+            transform: rotate(-45deg);
+        }
+
+        .vicky .bow::after {
+            right: 0;
+            transform: rotate(45deg);
+        }
+
+        .vicky .bow-center {
+            position: absolute;
+            top: 2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 3px;
+            height: 3px;
+            background: var(--christmas-red);
+            border: 1px solid var(--ink);
+            border-radius: 50%;
+            z-index: 10;
+        }
+
+        .vicky .arm {
+            position: absolute;
+            width: 7px;
+            height: 22px;
+            border: 2px solid var(--ink);
+            border-radius: 4px;
+            background: var(--paper);
+            top: 3px;
+            transform-origin: top center;
+            z-index: 6;
+        }
+
+        .vicky .arm.left { left: -5px; }
+        .vicky .arm.right { right: -5px; }
+
+        /* Wedding dress skirt - slim A-line */
+        .vicky .skirt {
+            width: 50px;
+            height: 45px;
+            border: 2px solid var(--ink);
+            border-top: none;
+            background: var(--white);
+            margin-top: -2px;
+            position: relative;
+            z-index: 4;
+            clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%);
+        }
+
+        /* Skirt layers */
+        .vicky .skirt::before {
+            content: '';
+            position: absolute;
+            bottom: 15px;
+            left: 8px;
+            right: 8px;
+            height: 1px;
+            background: var(--pencil);
+            opacity: 0.3;
+        }
+
+        .vicky .skirt::after {
+            content: '';
+            position: absolute;
+            bottom: 6px;
+            left: 4px;
+            right: 4px;
+            height: 1px;
+            background: var(--pencil);
+            opacity: 0.3;
+        }
+
+        /* Little feet */
+        .vicky .feet {
+            display: flex;
+            gap: 8px;
+            margin-top: -2px;
+            z-index: 3;
+        }
+
+        .vicky .foot {
+            width: 10px;
+            height: 5px;
+            border: 2px solid var(--ink);
+            border-radius: 50%;
+            background: var(--white);
+        }
+
+        /* ==================== DUMMY TARGET ==================== */
+        .dummy {
+            position: absolute;
+            bottom: 68px;
+            right: 100px;
+            width: 40px;
+            height: 80px;
+            border: 3px solid var(--ink);
+            border-radius: 8px;
+            background: #ddd;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dummy::before {
+            content: 'TARGET';
+            font-size: 0.5rem;
+            color: var(--ink);
+        }
+
+        .dummy.hit {
+            animation: shake 0.3s;
+            background: #ffcccc;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* ==================== ANIMATION STATES ==================== */
+        .vicky.punching .arm.right {
+            transform: rotate(-90deg) translateY(-10px);
+            transition: transform 0.1s;
+        }
+
+        .vicky.silk-wrap .arm.right {
+            transform: rotate(-70deg);
+        }
+
+        /* ==================== PROJECTILES & EFFECTS ==================== */
+        .projectile {
+            position: absolute;
+            z-index: 100;
+        }
+
+        .silk-ribbon {
+            width: 150px;
+            height: 12px;
+            background: linear-gradient(90deg, var(--silk-purple), var(--silk-pink), var(--silk-purple));
+            border-radius: 6px;
+            transform-origin: left center;
+        }
+
+        .coal {
+            width: 16px;
+            height: 16px;
+            background: #333;
+            border: 2px solid #111;
+            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+            box-shadow: 0 0 8px rgba(255,100,0,0.6);
+        }
+
+        .gift-box {
+            width: 20px;
+            height: 20px;
+            background: var(--christmas-red);
+            border: 2px solid var(--ink);
+            position: relative;
+        }
+
+        .gift-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 100%;
+            background: var(--gold);
+        }
+
+        .gift-box::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            width: 100%;
+            height: 4px;
+            background: var(--gold);
+        }
+
+        .confetti {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+
+        .golden-glow {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,215,0,0.6) 0%, rgba(255,215,0,0) 70%);
+            pointer-events: none;
+        }
+
+        .christmas-tree {
+            width: 0;
+            height: 0;
+            border-left: 40px solid transparent;
+            border-right: 40px solid transparent;
+            border-bottom: 80px solid var(--christmas-green);
+            position: relative;
+        }
+
+        .christmas-tree::before {
+            content: '';
+            position: absolute;
+            bottom: -90px;
+            left: -8px;
+            width: 16px;
+            height: 20px;
+            background: #8b4513;
+        }
+
+        .tree-lights {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: twinkle 0.3s infinite alternate;
+        }
+
+        @keyframes twinkle {
+            from { opacity: 0.5; }
+            to { opacity: 1; }
+        }
+
+        .impact-text {
+            position: absolute;
+            font-family: 'Permanent Marker', cursive;
+            font-size: 1.5rem;
+            color: var(--christmas-red);
+            text-shadow: 2px 2px 0 var(--paper);
+            pointer-events: none;
+            z-index: 200;
+        }
+
+        /* ==================== MOVE LIST ==================== */
+        .moves-panel {
+            background: var(--paper);
+            border: 4px solid var(--ink);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 6px 6px 0 var(--christmas-green);
+            max-width: 350px;
+        }
+
+        .moves-panel h2 {
+            font-family: 'Finger Paint', cursive;
+            color: var(--christmas-green);
+            margin-bottom: 12px;
+            border-bottom: 2px solid var(--ink);
+            padding-bottom: 8px;
+            font-size: 1.3rem;
+        }
+
+        .move {
+            margin: 10px 0;
+            padding: 8px;
+            border-left: 3px solid var(--christmas-red);
+            background: rgba(255,255,255,0.5);
+            font-size: 0.9rem;
+        }
+
+        .move.telas {
+            border-left-color: var(--silk-purple);
+        }
+
+        .move-name {
+            font-family: 'Permanent Marker', cursive;
+            color: var(--christmas-red);
+            display: block;
+            margin-bottom: 3px;
+            font-size: 0.95rem;
+        }
+
+        .move.telas .move-name {
+            color: var(--silk-purple);
+        }
+
+        .move-combo {
+            font-family: monospace;
+            background: var(--ink);
+            color: var(--paper);
+            padding: 2px 6px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-right: 8px;
+            font-size: 0.8rem;
+        }
+
+        .move-desc {
+            font-size: 0.8rem;
+            color: var(--pencil);
+            margin-top: 4px;
+        }
+
+        .energy-cost {
+            display: inline-block;
+            background: var(--gold);
+            color: var(--ink);
+            padding: 1px 6px;
+            border-radius: 3px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+
+        .ultimate {
+            border-left-color: var(--gold);
+            background: linear-gradient(90deg, rgba(255,215,0,0.1), transparent);
+        }
+
+        .ultimate .move-name {
+            color: var(--gold);
+            text-shadow: 1px 1px 0 var(--ink);
+        }
+
+        .section-label {
+            font-family: 'Finger Paint', cursive;
+            font-size: 0.8rem;
+            color: var(--pencil);
+            margin-top: 15px;
+            margin-bottom: 5px;
+            padding-left: 5px;
+            border-bottom: 1px dashed var(--pencil);
+            padding-bottom: 3px;
+        }
+
+        /* Bio section */
+        .bio {
+            max-width: 500px;
+            text-align: center;
+            margin-top: 30px;
+            padding: 15px;
+            border: 3px solid var(--ink);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.5);
+        }
+
+        .bio-quote {
+            font-style: italic;
+            font-size: 1rem;
+            color: var(--pencil);
+        }
+    </style>
+</head>
+<body>
+    <h1>VICKY</h1>
+    <p class="subtitle">The Christmas Bride</p>
+
+    <div class="character-showcase">
+        <!-- Demo Arena -->
+        <div class="demo-arena" id="arena">
+            <h2>Move Preview</h2>
+            <div class="arena-floor"></div>
+
+            <div class="fighter vicky" id="vicky">
+                <div class="head">
+                    <div class="hair"></div>
+                    <div class="hair-left"></div>
+                    <div class="hair-right"></div>
+                    <div class="eyes">
+                        <div class="eye"></div>
+                        <div class="eye"></div>
+                    </div>
+                    <div class="mouth"></div>
+                    <div class="blush left"></div>
+                    <div class="blush right"></div>
+                </div>
+                <div class="body">
+                    <div class="bow">
+                        <div class="bow-center"></div>
+                    </div>
+                    <div class="arm left"></div>
+                    <div class="arm right"></div>
+                </div>
+                <div class="skirt"></div>
+                <div class="feet">
+                    <div class="foot"></div>
+                    <div class="foot"></div>
+                </div>
+            </div>
+
+            <div class="dummy" id="dummy"></div>
+
+            <div class="demo-buttons">
+                <button class="demo-btn telas" onclick="playSilkWrap()">Silk Wrap</button>
+                <button class="demo-btn christmas" onclick="playNaughtyList()">Naughty List</button>
+                <button class="demo-btn christmas" onclick="playNiceList()">Nice List</button>
+                <button class="demo-btn christmas" onclick="playChristmasSpirit()">Christmas Spirit</button>
+                <button class="demo-btn ultimate" onclick="playSilkDropMiracle()">SILK DROP MIRACLE!</button>
+            </div>
+        </div>
+
+        <!-- Move List -->
+        <div class="moves-panel">
+            <h2>Special Moves</h2>
+
+            <div class="section-label">Aerial Silks (Telas)</div>
+
+            <div class="move telas">
+                <span class="move-name">Silk Wrap</span>
+                <span class="move-combo">↓ ← Z</span>
+                <span>18 dmg</span>
+                <p class="move-desc">Lashes out with her aerial silk, wrapping and squeezing the opponent.</p>
+            </div>
+
+            <div class="section-label">The Power of Christmas</div>
+
+            <div class="move">
+                <span class="move-name">Naughty List</span>
+                <span class="move-combo">→ → Z</span>
+                <span>20 dmg</span>
+                <p class="move-desc">Summons a rain of burning coal from above.</p>
+            </div>
+
+            <div class="move">
+                <span class="move-name">Nice List</span>
+                <span class="move-combo">↓ ↓ Z</span>
+                <span>18 dmg</span>
+                <p class="move-desc">Throws magical gift boxes that explode into confetti!</p>
+            </div>
+
+            <div class="move">
+                <span class="move-name">Christmas Spirit</span>
+                <span class="move-combo">← → X</span>
+                <span>15 dmg + heal</span>
+                <span class="energy-cost">50 ENERGY</span>
+                <p class="move-desc">Golden glow damages enemies and heals Vicky. Requires energy to use!</p>
+            </div>
+
+            <div class="section-label">Ultimate</div>
+
+            <div class="move ultimate">
+                <span class="move-name">SILK DROP MIRACLE!</span>
+                <span class="move-combo">↓ → ↓ → Z</span>
+                <span>50 dmg</span>
+                <span class="energy-cost">100 ENERGY</span>
+                <p class="move-desc">Climbs silk into the air, plummets down trailing Christmas lights into a tree of light!</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bio">
+        <p class="bio-quote">"Grace in the air, love in her heart, and a candy cane that hits like a truck."</p>
+    </div>
+
+    <script>
+        const arena = document.getElementById('arena');
+        const vicky = document.getElementById('vicky');
+        const dummy = document.getElementById('dummy');
+        let isAnimating = false;
+
+        function showImpact(text, x, y, color = 'var(--christmas-red)') {
+            const impact = document.createElement('div');
+            impact.className = 'impact-text';
+            impact.textContent = text;
+            impact.style.left = x + 'px';
+            impact.style.top = y + 'px';
+            impact.style.color = color;
+            arena.appendChild(impact);
+
+            let opacity = 1;
+            let offsetY = 0;
+            const fade = setInterval(() => {
+                opacity -= 0.05;
+                offsetY -= 2;
+                impact.style.opacity = opacity;
+                impact.style.top = (y + offsetY) + 'px';
+                if (opacity <= 0) {
+                    clearInterval(fade);
+                    impact.remove();
+                }
+            }, 30);
+        }
+
+        function hitDummy() {
+            dummy.classList.add('hit');
+            setTimeout(() => dummy.classList.remove('hit'), 300);
+        }
+
+        function playSilkWrap() {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            vicky.classList.add('silk-wrap');
+
+            // Create silk ribbon
+            const silk = document.createElement('div');
+            silk.className = 'projectile silk-ribbon';
+            silk.style.left = '115px';
+            silk.style.bottom = '100px';
+            silk.style.transform = 'scaleX(0)';
+            arena.appendChild(silk);
+
+            // Animate silk extending
+            let scale = 0;
+            const extend = setInterval(() => {
+                scale += 0.1;
+                silk.style.transform = `scaleX(${scale})`;
+                if (scale >= 1) {
+                    clearInterval(extend);
+                    hitDummy();
+                    showImpact('WRAP!', 320, 100, 'var(--silk-purple)');
+
+                    // Silk wraps around dummy briefly
+                    setTimeout(() => {
+                        silk.style.transform = 'scaleX(0)';
+                        setTimeout(() => {
+                            silk.remove();
+                            vicky.classList.remove('silk-wrap');
+                            isAnimating = false;
+                        }, 200);
+                    }, 300);
+                }
+            }, 20);
+        }
+
+        function playNaughtyList() {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            // Rain coal from above
+            const dummyRect = dummy.getBoundingClientRect();
+            const arenaRect = arena.getBoundingClientRect();
+            const targetX = dummyRect.left - arenaRect.left;
+
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    const coal = document.createElement('div');
+                    coal.className = 'projectile coal';
+                    coal.style.left = (targetX + 10 + (i - 2) * 15) + 'px';
+                    coal.style.top = '60px';
+                    arena.appendChild(coal);
+
+                    let y = 60;
+                    const fall = setInterval(() => {
+                        y += 12;
+                        coal.style.top = y + 'px';
+                        coal.style.transform = `rotate(${y * 3}deg)`;
+
+                        if (y >= 200) {
+                            clearInterval(fall);
+                            if (i === 2) {
+                                hitDummy();
+                                showImpact('BURN!', targetX, 150, '#ff4400');
+                            }
+                            // Ember explosion
+                            for (let j = 0; j < 4; j++) {
+                                const ember = document.createElement('div');
+                                ember.style.cssText = `
+                                    position: absolute;
+                                    width: 4px;
+                                    height: 4px;
+                                    background: #ff6600;
+                                    border-radius: 50%;
+                                    left: ${coal.offsetLeft + 8}px;
+                                    top: ${y}px;
+                                    z-index: 100;
+                                `;
+                                arena.appendChild(ember);
+
+                                const angle = (j / 4) * Math.PI * 2;
+                                const speed = 3;
+                                let ex = 0, ey = 0, eo = 1;
+                                const emberFly = setInterval(() => {
+                                    ex += Math.cos(angle) * speed;
+                                    ey += Math.sin(angle) * speed - 1;
+                                    eo -= 0.1;
+                                    ember.style.transform = `translate(${ex}px, ${ey}px)`;
+                                    ember.style.opacity = eo;
+                                    if (eo <= 0) {
+                                        clearInterval(emberFly);
+                                        ember.remove();
+                                    }
+                                }, 30);
+                            }
+                            coal.remove();
+                        }
+                    }, 25);
+                }, i * 80);
+            }
+
+            setTimeout(() => { isAnimating = false; }, 800);
+        }
+
+        function playNiceList() {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            // Rain presents from above (like Naughty List)
+            const dummyRect = dummy.getBoundingClientRect();
+            const arenaRect = arena.getBoundingClientRect();
+            const targetX = dummyRect.left - arenaRect.left;
+
+            const giftColors = ['#c41e3a', '#228b22', '#ffd700', '#4169e1'];
+
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    const gift = document.createElement('div');
+                    gift.className = 'projectile gift-box';
+                    gift.style.left = (targetX + 5 + (i - 2) * 18) + 'px';
+                    gift.style.top = '60px';
+                    gift.style.background = giftColors[i % giftColors.length];
+                    arena.appendChild(gift);
+
+                    let y = 60;
+                    const fall = setInterval(() => {
+                        y += 10;
+                        gift.style.top = y + 'px';
+                        gift.style.transform = `rotate(${y * 2}deg)`;
+
+                        if (y >= 200) {
+                            clearInterval(fall);
+                            if (i === 2) {
+                                hitDummy();
+                                showImpact('SURPRISE!', targetX, 150, 'var(--christmas-green)');
+                            }
+
+                            // Confetti explosion!
+                            const colors = ['#ff0000', '#00ff00', '#ffff00', '#ff00ff', '#00ffff', '#ffd700'];
+                            for (let j = 0; j < 8; j++) {
+                                const confetti = document.createElement('div');
+                                confetti.className = 'projectile confetti';
+                                confetti.style.background = colors[j % colors.length];
+                                confetti.style.left = (gift.offsetLeft + 10) + 'px';
+                                confetti.style.top = y + 'px';
+                                arena.appendChild(confetti);
+
+                                const angle = (j / 8) * Math.PI * 2;
+                                const speed = 3 + Math.random() * 2;
+                                let cx = 0, cy = 0, co = 1;
+                                const confettiFly = setInterval(() => {
+                                    cx += Math.cos(angle) * speed;
+                                    cy += Math.sin(angle) * speed;
+                                    co -= 0.06;
+                                    confetti.style.transform = `translate(${cx}px, ${cy}px) rotate(${cx * 10}deg)`;
+                                    confetti.style.opacity = co;
+                                    if (co <= 0) {
+                                        clearInterval(confettiFly);
+                                        confetti.remove();
+                                    }
+                                }, 25);
+                            }
+                            gift.remove();
+                        }
+                    }, 25);
+                }, i * 100);
+            }
+
+            setTimeout(() => { isAnimating = false; }, 900);
+        }
+
+        function playChristmasSpirit() {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            // Golden glow radiates from Vicky
+            const glow = document.createElement('div');
+            glow.className = 'projectile golden-glow';
+            glow.style.left = '45px';
+            glow.style.bottom = '60px';
+            glow.style.transform = 'scale(0)';
+            arena.appendChild(glow);
+
+            showImpact('+HEAL', 70, 80, 'var(--christmas-green)');
+
+            let scale = 0;
+            const expand = setInterval(() => {
+                scale += 0.08;
+                glow.style.transform = `scale(${scale})`;
+                glow.style.opacity = 1 - scale * 0.3;
+
+                if (scale >= 2.5) {
+                    clearInterval(expand);
+                    hitDummy();
+                    showImpact('SPIRIT!', 320, 130, 'var(--gold)');
+                    glow.remove();
+                    isAnimating = false;
+                }
+            }, 30);
+        }
+
+        function playSilkDropMiracle() {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            const startLeft = vicky.offsetLeft;
+            const startBottom = 68;
+
+            // Phase 1: Climb up
+            let height = 0;
+            vicky.style.transition = 'none';
+
+            const climb = setInterval(() => {
+                height += 8;
+                vicky.style.bottom = (startBottom + height) + 'px';
+
+                if (height >= 150) {
+                    clearInterval(climb);
+
+                    // Phase 2: Drop down with lights trail
+                    setTimeout(() => {
+                        const dummyRect = dummy.getBoundingClientRect();
+                        const arenaRect = arena.getBoundingClientRect();
+                        const targetX = dummyRect.left - arenaRect.left - 20;
+
+                        let dropProgress = 0;
+                        const drop = setInterval(() => {
+                            dropProgress += 0.08;
+                            const currentX = startLeft + (targetX - startLeft) * dropProgress;
+                            const currentHeight = 150 * (1 - dropProgress * dropProgress);
+
+                            vicky.style.left = currentX + 'px';
+                            vicky.style.bottom = (startBottom + currentHeight) + 'px';
+
+                            // Trail of lights
+                            if (Math.random() > 0.5) {
+                                const light = document.createElement('div');
+                                light.className = 'tree-lights';
+                                light.style.left = (currentX + 20) + 'px';
+                                light.style.bottom = (startBottom + currentHeight + 40) + 'px';
+                                light.style.background = ['#ff0000', '#00ff00', '#ffff00', '#0000ff'][Math.floor(Math.random() * 4)];
+                                arena.appendChild(light);
+                                setTimeout(() => light.remove(), 500);
+                            }
+
+                            if (dropProgress >= 1) {
+                                clearInterval(drop);
+                                hitDummy();
+
+                                // Christmas tree explosion!
+                                const tree = document.createElement('div');
+                                tree.className = 'projectile christmas-tree';
+                                tree.style.left = (targetX - 20) + 'px';
+                                tree.style.bottom = '68px';
+                                tree.style.transform = 'scale(0)';
+                                arena.appendChild(tree);
+
+                                showImpact('MIRACLE!', targetX - 30, 80, 'var(--gold)');
+
+                                let treeScale = 0;
+                                const treeGrow = setInterval(() => {
+                                    treeScale += 0.15;
+                                    tree.style.transform = `scale(${treeScale})`;
+
+                                    if (treeScale >= 1.2) {
+                                        clearInterval(treeGrow);
+
+                                        // Add lights to tree
+                                        for (let i = 0; i < 6; i++) {
+                                            const treeLight = document.createElement('div');
+                                            treeLight.className = 'tree-lights';
+                                            treeLight.style.left = (targetX - 30 + Math.random() * 60) + 'px';
+                                            treeLight.style.bottom = (90 + Math.random() * 60) + 'px';
+                                            treeLight.style.background = ['#ff0000', '#ffff00', '#00ff00', '#0000ff'][i % 4];
+                                            arena.appendChild(treeLight);
+                                            setTimeout(() => treeLight.remove(), 800);
+                                        }
+
+                                        setTimeout(() => {
+                                            tree.style.opacity = '0';
+                                            tree.style.transition = 'opacity 0.3s';
+                                            setTimeout(() => tree.remove(), 300);
+                                        }, 600);
+                                    }
+                                }, 30);
+
+                                // Return Vicky to start
+                                setTimeout(() => {
+                                    vicky.style.transition = 'all 0.3s';
+                                    vicky.style.left = startLeft + 'px';
+                                    vicky.style.bottom = startBottom + 'px';
+                                    setTimeout(() => {
+                                        vicky.style.transition = 'none';
+                                        isAnimating = false;
+                                    }, 300);
+                                }, 800);
+                            }
+                        }, 25);
+                    }, 200);
+                }
+            }, 25);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audrey II - Character Preview</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Finger+Paint&family=Patrick+Hand&family=Permanent+Marker&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --paper: #f5f0e1;
+            --ink: #333;
+            --pencil: #666;
+            --plant-green: #228b22;
+            --plant-dark: #1a6b1a;
+            --plant-light: #32cd32;
+            --lip-red: #8b0000;
+            --lip-pink: #dc143c;
+            --tongue-pink: #ff69b4;
+            --pot-brown: #8b4513;
+            --pot-dark: #5c3317;
+            --gold: #ffd700;
+        }
+
+        body {
+            background: var(--paper);
+            background-image:
+                linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+            background-size: 25px 25px;
+            font-family: 'Patrick Hand', cursive;
+            color: var(--ink);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px;
+        }
+
+        h1 {
+            font-family: 'Finger Paint', cursive;
+            font-size: 3rem;
+            color: var(--plant-dark);
+            text-shadow: 3px 3px 0 var(--paper), 4px 4px 0 var(--lip-red);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--pencil);
+            margin-bottom: 40px;
+            font-style: italic;
+        }
+
+        .character-showcase {
+            display: flex;
+            gap: 40px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        /* ==================== DEMO ARENA ==================== */
+        .demo-arena {
+            background: var(--paper);
+            border: 4px solid var(--ink);
+            border-radius: 12px;
+            box-shadow: 6px 6px 0 var(--plant-green);
+            position: relative;
+            width: 500px;
+            height: 350px;
+            overflow: hidden;
+        }
+
+        .demo-arena h2 {
+            font-family: 'Finger Paint', cursive;
+            color: var(--plant-dark);
+            text-align: center;
+            padding: 10px;
+            border-bottom: 2px solid var(--ink);
+            background: rgba(255,255,255,0.5);
+        }
+
+        .arena-floor {
+            position: absolute;
+            bottom: 60px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--ink);
+        }
+
+        .demo-buttons {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .demo-btn {
+            padding: 6px 12px;
+            border: 2px solid var(--ink);
+            border-radius: 6px;
+            background: var(--paper);
+            font-family: 'Patrick Hand', cursive;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+
+        .demo-btn:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 3px 3px 0 var(--ink);
+        }
+
+        .demo-btn.vine { border-color: var(--plant-green); color: var(--plant-dark); }
+        .demo-btn.bite { border-color: var(--lip-red); color: var(--lip-red); }
+        .demo-btn.spit { border-color: var(--plant-light); color: var(--plant-dark); }
+        .demo-btn.ultimate { border-color: var(--gold); color: #b8860b; background: rgba(255,215,0,0.1); }
+
+        /* ==================== AUDREY II CHARACTER ==================== */
+        .fighter {
+            position: absolute;
+            bottom: 68px;
+            left: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transform-origin: bottom center;
+        }
+
+        /* The pot */
+        .audrey .pot {
+            width: 40px;
+            height: 30px;
+            background: linear-gradient(to bottom, var(--pot-brown) 0%, var(--pot-dark) 100%);
+            border: 3px solid var(--ink);
+            border-radius: 5px 5px 8px 8px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .audrey .pot-rim {
+            position: absolute;
+            top: -6px;
+            left: -5px;
+            width: 50px;
+            height: 10px;
+            background: var(--pot-brown);
+            border: 2px solid var(--ink);
+            border-radius: 3px;
+            z-index: 6;
+        }
+
+        /* Main stem */
+        .audrey .stem {
+            width: 12px;
+            height: 35px;
+            background: linear-gradient(90deg, var(--plant-dark) 0%, var(--plant-green) 50%, var(--plant-dark) 100%);
+            border: 2px solid var(--ink);
+            border-radius: 6px;
+            position: absolute;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 4;
+        }
+
+        /* The head/trap */
+        .audrey .head {
+            width: 55px;
+            height: 50px;
+            position: absolute;
+            bottom: 55px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+
+        /* Upper jaw */
+        .audrey .upper-jaw {
+            position: absolute;
+            width: 55px;
+            height: 28px;
+            background: linear-gradient(to bottom, var(--plant-green) 0%, var(--plant-dark) 100%);
+            border: 3px solid var(--ink);
+            border-radius: 50% 50% 0 0;
+            top: 0;
+            transform-origin: bottom center;
+            z-index: 12;
+        }
+
+        /* Spots on head */
+        .audrey .spot {
+            position: absolute;
+            background: var(--plant-light);
+            border-radius: 50%;
+            opacity: 0.6;
+        }
+
+        .audrey .spot1 { width: 8px; height: 8px; top: 5px; left: 10px; }
+        .audrey .spot2 { width: 6px; height: 6px; top: 8px; right: 12px; }
+        .audrey .spot3 { width: 5px; height: 5px; top: 15px; left: 25px; }
+
+        /* Lower jaw */
+        .audrey .lower-jaw {
+            position: absolute;
+            width: 55px;
+            height: 25px;
+            background: linear-gradient(to top, var(--plant-green) 0%, var(--plant-dark) 100%);
+            border: 3px solid var(--ink);
+            border-radius: 0 0 50% 50%;
+            bottom: 0;
+            transform-origin: top center;
+            z-index: 11;
+        }
+
+        /* Lips */
+        .audrey .upper-lip {
+            position: absolute;
+            bottom: -2px;
+            left: 5px;
+            right: 5px;
+            height: 8px;
+            background: linear-gradient(to bottom, var(--lip-pink) 0%, var(--lip-red) 100%);
+            border-radius: 0 0 50% 50%;
+            z-index: 13;
+        }
+
+        .audrey .lower-lip {
+            position: absolute;
+            top: -2px;
+            left: 5px;
+            right: 5px;
+            height: 8px;
+            background: linear-gradient(to top, var(--lip-pink) 0%, var(--lip-red) 100%);
+            border-radius: 50% 50% 0 0;
+            z-index: 13;
+        }
+
+        /* Teeth */
+        .audrey .teeth-upper {
+            position: absolute;
+            bottom: 5px;
+            left: 8px;
+            right: 8px;
+            height: 6px;
+            display: flex;
+            justify-content: space-around;
+            z-index: 14;
+        }
+
+        .audrey .teeth-lower {
+            position: absolute;
+            top: 5px;
+            left: 8px;
+            right: 8px;
+            height: 6px;
+            display: flex;
+            justify-content: space-around;
+            z-index: 14;
+        }
+
+        .audrey .tooth {
+            width: 5px;
+            height: 8px;
+            background: #fffef0;
+            border: 1px solid var(--ink);
+            clip-path: polygon(50% 100%, 0% 0%, 100% 0%);
+        }
+
+        .audrey .teeth-lower .tooth {
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        }
+
+        /* Tongue */
+        .audrey .tongue {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 12px;
+            background: var(--tongue-pink);
+            border: 2px solid #cc5599;
+            border-radius: 50%;
+            z-index: 10;
+        }
+
+        /* Eyes on stalks */
+        .audrey .eye-stalk {
+            position: absolute;
+            width: 6px;
+            height: 20px;
+            background: var(--plant-green);
+            border: 2px solid var(--ink);
+            border-radius: 4px;
+            top: -15px;
+            z-index: 15;
+        }
+
+        .audrey .eye-stalk.left {
+            left: 10px;
+            transform: rotate(-15deg);
+        }
+
+        .audrey .eye-stalk.right {
+            right: 10px;
+            transform: rotate(15deg);
+        }
+
+        .audrey .eye {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: #fffef0;
+            border: 2px solid var(--ink);
+            border-radius: 50%;
+            top: -8px;
+            left: -3px;
+        }
+
+        .audrey .pupil {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: var(--ink);
+            border-radius: 50%;
+            top: 2px;
+            left: 3px;
+        }
+
+        .audrey .pupil::before {
+            content: '';
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            top: 1px;
+            left: 1px;
+        }
+
+        /* Vines/tendrils */
+        .audrey .vine {
+            position: absolute;
+            width: 8px;
+            height: 25px;
+            background: var(--plant-green);
+            border: 2px solid var(--ink);
+            border-radius: 4px;
+            z-index: 3;
+            transform-origin: bottom center;
+        }
+
+        .audrey .vine.left {
+            left: -15px;
+            bottom: 40px;
+            transform: rotate(-30deg);
+        }
+
+        .audrey .vine.right {
+            right: -15px;
+            bottom: 40px;
+            transform: rotate(30deg);
+        }
+
+        .audrey .vine-tip {
+            position: absolute;
+            top: -5px;
+            left: -2px;
+            width: 12px;
+            height: 12px;
+            background: var(--plant-light);
+            border: 2px solid var(--ink);
+            border-radius: 50% 0 50% 50%;
+            transform: rotate(45deg);
+        }
+
+        /* ==================== DUMMY TARGET ==================== */
+        .dummy {
+            position: absolute;
+            bottom: 68px;
+            right: 100px;
+            width: 40px;
+            height: 80px;
+            border: 3px solid var(--ink);
+            border-radius: 8px;
+            background: #ddd;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dummy::before {
+            content: 'TARGET';
+            font-size: 0.5rem;
+            color: var(--ink);
+        }
+
+        .dummy.hit {
+            animation: shake 0.3s;
+            background: #ffcccc;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* ==================== ANIMATION STATES ==================== */
+        .audrey.biting .upper-jaw {
+            transform: rotate(-25deg);
+            transition: transform 0.15s;
+        }
+
+        .audrey.biting .lower-jaw {
+            transform: rotate(15deg);
+            transition: transform 0.15s;
+        }
+
+        /* ==================== PROJECTILES ==================== */
+        .projectile {
+            position: absolute;
+            z-index: 100;
+        }
+
+        .vine-whip {
+            width: 150px;
+            height: 10px;
+            background: linear-gradient(90deg, var(--plant-dark), var(--plant-green), var(--plant-light));
+            border: 2px solid var(--ink);
+            border-radius: 5px;
+            transform-origin: left center;
+        }
+
+        .acid-glob {
+            width: 18px;
+            height: 18px;
+            background: radial-gradient(circle at 30% 30%, #7fff00, #32cd32, #228b22);
+            border: 2px solid var(--plant-dark);
+            border-radius: 50% 40% 50% 45%;
+            box-shadow: 0 0 8px rgba(50, 205, 50, 0.6);
+        }
+
+        .seed-bullet {
+            width: 10px;
+            height: 14px;
+            background: linear-gradient(135deg, #654321 0%, #8b4513 50%, #654321 100%);
+            border: 2px solid var(--ink);
+            border-radius: 50% 50% 40% 40%;
+        }
+
+        .mini-plant {
+            width: 25px;
+            height: 30px;
+            position: relative;
+        }
+
+        .mini-plant .mini-head {
+            width: 20px;
+            height: 18px;
+            background: var(--plant-green);
+            border: 2px solid var(--ink);
+            border-radius: 50% 50% 40% 40%;
+            position: absolute;
+            top: 0;
+        }
+
+        .mini-plant .mini-mouth {
+            position: absolute;
+            top: 8px;
+            left: 4px;
+            width: 12px;
+            height: 6px;
+            background: var(--lip-red);
+            border: 1px solid var(--ink);
+            border-radius: 0 0 50% 50%;
+        }
+
+        .mini-plant .mini-stem {
+            width: 6px;
+            height: 12px;
+            background: var(--plant-green);
+            border: 2px solid var(--ink);
+            border-radius: 3px;
+            position: absolute;
+            bottom: 0;
+            left: 7px;
+        }
+
+        .blood-drop {
+            width: 8px;
+            height: 12px;
+            background: #8b0000;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+        }
+
+        .impact-text {
+            position: absolute;
+            font-family: 'Permanent Marker', cursive;
+            font-size: 1.5rem;
+            text-shadow: 2px 2px 0 var(--paper);
+            pointer-events: none;
+            z-index: 200;
+        }
+
+        /* ==================== MOVE LIST ==================== */
+        .moves-panel {
+            background: var(--paper);
+            border: 4px solid var(--ink);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 6px 6px 0 var(--lip-red);
+            max-width: 350px;
+        }
+
+        .moves-panel h2 {
+            font-family: 'Finger Paint', cursive;
+            color: var(--plant-dark);
+            margin-bottom: 12px;
+            border-bottom: 2px solid var(--ink);
+            padding-bottom: 8px;
+            font-size: 1.3rem;
+        }
+
+        .move {
+            margin: 10px 0;
+            padding: 8px;
+            border-left: 3px solid var(--plant-green);
+            background: rgba(255,255,255,0.5);
+            font-size: 0.9rem;
+        }
+
+        .move.bite-move {
+            border-left-color: var(--lip-red);
+        }
+
+        .move.acid-move {
+            border-left-color: var(--plant-light);
+        }
+
+        .move-name {
+            font-family: 'Permanent Marker', cursive;
+            color: var(--plant-dark);
+            display: block;
+            margin-bottom: 3px;
+            font-size: 0.95rem;
+        }
+
+        .move.bite-move .move-name {
+            color: var(--lip-red);
+        }
+
+        .move.acid-move .move-name {
+            color: var(--plant-dark);
+        }
+
+        .move-combo {
+            font-family: monospace;
+            background: var(--ink);
+            color: var(--paper);
+            padding: 2px 6px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-right: 8px;
+            font-size: 0.8rem;
+        }
+
+        .move-desc {
+            font-size: 0.8rem;
+            color: var(--pencil);
+            margin-top: 4px;
+        }
+
+        .energy-cost {
+            display: inline-block;
+            background: var(--gold);
+            color: var(--ink);
+            padding: 1px 6px;
+            border-radius: 3px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+
+        .ultimate {
+            border-left-color: var(--gold);
+            background: linear-gradient(90deg, rgba(255,215,0,0.1), transparent);
+        }
+
+        .ultimate .move-name {
+            color: #b8860b;
+        }
+
+        .section-label {
+            font-family: 'Finger Paint', cursive;
+            font-size: 0.8rem;
+            color: var(--pencil);
+            margin-top: 15px;
+            margin-bottom: 5px;
+            padding-left: 5px;
+            border-bottom: 1px dashed var(--pencil);
+            padding-bottom: 3px;
+        }
+
+        /* Bio section */
+        .bio {
+            max-width: 500px;
+            text-align: center;
+            margin-top: 30px;
+            padding: 15px;
+            border: 3px solid var(--ink);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.5);
+        }
+
+        .bio-quote {
+            font-style: italic;
+            font-size: 1rem;
+            color: var(--pencil);
+        }
+    </style>
+</head>
+<body>
+    <h1>AUDREY II</h1>
+    <p class="subtitle">The Mean Green Mother</p>
+
+    <div class="character-showcase">
+        <!-- Demo Arena -->
+        <div class="demo-arena" id="arena">
+            <h2>Move Preview</h2>
+            <div class="arena-floor"></div>
+
+            <div class="fighter audrey" id="audrey">
+                <!-- Vines -->
+                <div class="vine left">
+                    <div class="vine-tip"></div>
+                </div>
+                <div class="vine right">
+                    <div class="vine-tip"></div>
+                </div>
+
+                <!-- Pot -->
+                <div class="pot">
+                    <div class="pot-rim"></div>
+                </div>
+
+                <!-- Stem -->
+                <div class="stem"></div>
+
+                <!-- Head -->
+                <div class="head">
+                    <!-- Eye stalks -->
+                    <div class="eye-stalk left">
+                        <div class="eye">
+                            <div class="pupil"></div>
+                        </div>
+                    </div>
+                    <div class="eye-stalk right">
+                        <div class="eye">
+                            <div class="pupil"></div>
+                        </div>
+                    </div>
+
+                    <!-- Upper jaw -->
+                    <div class="upper-jaw">
+                        <div class="spot spot1"></div>
+                        <div class="spot spot2"></div>
+                        <div class="spot spot3"></div>
+                        <div class="upper-lip"></div>
+                        <div class="teeth-upper">
+                            <div class="tooth"></div>
+                            <div class="tooth"></div>
+                            <div class="tooth"></div>
+                            <div class="tooth"></div>
+                            <div class="tooth"></div>
+                        </div>
+                    </div>
+
+                    <!-- Lower jaw -->
+                    <div class="lower-jaw">
+                        <div class="lower-lip"></div>
+                        <div class="teeth-lower">
+                            <div class="tooth"></div>
+                            <div class="tooth"></div>
+                            <div class="tooth"></div>
+                            <div class="tooth"></div>
+                        </div>
+                        <div class="tongue"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dummy" id="dummy"></div>
+
+            <div class="demo-buttons">
+                <button class="demo-btn vine" onclick="playVineWhip()">Vine Whip</button>
+                <button class="demo-btn bite" onclick="playFeedMe()">Feed Me!</button>
+                <button class="demo-btn spit" onclick="playAcidSpit()">Acid Spit</button>
+                <button class="demo-btn bite" onclick="playSeedBurst()">Seed Burst</button>
+                <button class="demo-btn ultimate" onclick="playMeanGreenMother()">MEAN GREEN MOTHER!</button>
+            </div>
+        </div>
+
+        <!-- Move List -->
+        <div class="moves-panel">
+            <h2>Special Moves</h2>
+
+            <div class="section-label">Vine Attacks</div>
+
+            <div class="move">
+                <span class="move-name">Vine Whip</span>
+                <span class="move-combo">→ → Z</span>
+                <span>15 dmg</span>
+                <p class="move-desc">Lashes out with a thorny vine tendril, whipping the opponent.</p>
+            </div>
+
+            <div class="section-label">Carnivorous Attacks</div>
+
+            <div class="move bite-move">
+                <span class="move-name">Feed Me!</span>
+                <span class="move-combo">↓ → Z</span>
+                <span>28 dmg</span>
+                <p class="move-desc">Lunges forward with jaws wide open for a devastating bite!</p>
+            </div>
+
+            <div class="move acid-move">
+                <span class="move-name">Acid Spit</span>
+                <span class="move-combo">← → Z</span>
+                <span>12x3 dmg</span>
+                <p class="move-desc">Spits globs of digestive acid at the opponent.</p>
+            </div>
+
+            <div class="move">
+                <span class="move-name">Seed Burst</span>
+                <span class="move-combo">↓ ↓ Z</span>
+                <span>8x5 dmg</span>
+                <p class="move-desc">Fires a rapid barrage of hard seeds like bullets!</p>
+            </div>
+
+            <div class="section-label">Ultimate</div>
+
+            <div class="move ultimate">
+                <span class="move-name">MEAN GREEN MOTHER!</span>
+                <span class="move-combo">↓ → ↓ → Z</span>
+                <span>60 dmg</span>
+                <span class="energy-cost">100 ENERGY</span>
+                <p class="move-desc">Grows to massive size, spawns mini-plants everywhere, and devours the opponent whole!</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bio">
+        <p class="bio-quote">"Feed me, Seymour! Feed me ALL NIGHT LONG!"</p>
+    </div>
+
+    <script>
+        const arena = document.getElementById('arena');
+        const audrey = document.getElementById('audrey');
+        const dummy = document.getElementById('dummy');
+        let isAnimating = false;
+
+        function showImpact(text, x, y, color = 'var(--plant-dark)') {
+            const impact = document.createElement('div');
+            impact.className = 'impact-text';
+            impact.textContent = text;
+            impact.style.left = x + 'px';
+            impact.style.top = y + 'px';
+            impact.style.color = color;
+            arena.appendChild(impact);
+
+            let opacity = 1;
+            let offsetY = 0;
+            const fade = setInterval(() => {
+                opacity -= 0.05;
+                offsetY -= 2;
+                impact.style.opacity = opacity;
+                impact.style.top = (y + offsetY) + 'px';
+                if (opacity <= 0) {
+                    clearInterval(fade);
+                    impact.remove();
+                }
+            }, 30);
+        }
+
+        function hitDummy() {
+            dummy.classList.add('hit');
+            setTimeout(() => dummy.classList.remove('hit'), 300);
+        }
+
+        function playVineWhip() {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            const vine = document.createElement('div');
+            vine.className = 'projectile vine-whip';
+            vine.style.left = '120px';
+            vine.style.bottom = '110px';
+            vine.style.transform = 'scaleX(0)';
+            arena.appendChild(vine);
+
+            let scale = 0;
+            const extend = setInterval(() => {
+                scale += 0.12;
+                vine.style.transform = `scaleX(${scale}) rotate(${Math.sin(scale * 8) * 10}deg)`;
+                if (scale >= 1) {
+                    clearInterval(extend);
+                    hitDummy();
+                    showImpact('WHIP!', 320, 100, 'var(--plant-green)');
+
+                    setTimeout(() => {
+                        vine.style.transform = 'scaleX(0)';
+                        setTimeout(() => {
+                            vine.remove();
+                            isAnimating = false;
+                        }, 200);
+                    }, 200);
+                }
+            }, 20);
+        }
+
+        function playFeedMe() {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            const startLeft = audrey.offsetLeft;
+            audrey.classList.add('biting');
+
+            // Lunge forward
+            let lungeProgress = 0;
+            const dummyRect = dummy.getBoundingClientRect();
+            const arenaRect = arena.getBoundingClientRect();
+            const targetX = dummyRect.left - arenaRect.left - 60;
+
+            const lunge = setInterval(() => {
+                lungeProgress += 0.1;
+                const currentX = startLeft + (targetX - startLeft) * lungeProgress;
+                audrey.style.left = currentX + 'px';
+
+                if (lungeProgress >= 1) {
+                    clearInterval(lunge);
+                    hitDummy();
+                    showImpact('CHOMP!', targetX + 30, 80, 'var(--lip-red)');
+
+                    // Bite animation
+                    setTimeout(() => {
+                        audrey.classList.remove('biting');
+
+                        // Blood drops
+                        for (let i = 0; i < 4; i++) {
+                            const blood = document.createElement('div');
+                            blood.className = 'projectile blood-drop';
+                            blood.style.left = (targetX + 50 + Math.random() * 20) + 'px';
+                            blood.style.bottom = (100 + Math.random() * 30) + 'px';
+                            arena.appendChild(blood);
+
+                            let by = 0;
+                            let bx = (Math.random() - 0.5) * 3;
+                            let bo = 1;
+                            const drip = setInterval(() => {
+                                by -= 4;
+                                bx *= 0.98;
+                                bo -= 0.05;
+                                blood.style.transform = `translate(${bx * 10}px, ${by}px)`;
+                                blood.style.opacity = bo;
+                                if (bo <= 0) {
+                                    clearInterval(drip);
+                                    blood.remove();
+                                }
+                            }, 30);
+                        }
+
+                        // Return to start
+                        setTimeout(() => {
+                            audrey.style.transition = 'left 0.3s';
+                            audrey.style.left = startLeft + 'px';
+                            setTimeout(() => {
+                                audrey.style.transition = 'none';
+                                isAnimating = false;
+                            }, 300);
+                        }, 200);
+                    }, 150);
+                }
+            }, 25);
+        }
+
+        function playAcidSpit() {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            const startX = 130;
+            const dummyRect = dummy.getBoundingClientRect();
+            const arenaRect = arena.getBoundingClientRect();
+            const targetX = dummyRect.left - arenaRect.left;
+
+            for (let i = 0; i < 3; i++) {
+                setTimeout(() => {
+                    const acid = document.createElement('div');
+                    acid.className = 'projectile acid-glob';
+                    acid.style.left = startX + 'px';
+                    acid.style.bottom = (115 + (i - 1) * 15) + 'px';
+                    arena.appendChild(acid);
+
+                    let progress = 0;
+                    const fly = setInterval(() => {
+                        progress += 0.07;
+                        const x = startX + (targetX - startX) * progress;
+                        const wobble = Math.sin(progress * Math.PI * 6) * 8;
+                        acid.style.left = x + 'px';
+                        acid.style.bottom = (115 + (i - 1) * 15 + wobble) + 'px';
+                        acid.style.transform = `scale(${1 + Math.sin(progress * Math.PI * 4) * 0.2})`;
+
+                        if (progress >= 1) {
+                            clearInterval(fly);
+                            hitDummy();
+                            if (i === 1) showImpact('SIZZLE!', targetX, 100, '#7fff00');
+
+                            // Acid splash
+                            acid.style.transform = 'scale(1.5)';
+                            acid.style.opacity = '0';
+                            acid.style.transition = 'all 0.15s';
+                            setTimeout(() => acid.remove(), 150);
+                        }
+                    }, 25);
+                }, i * 120);
+            }
+
+            setTimeout(() => { isAnimating = false; }, 600);
+        }
+
+        function playSeedBurst() {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            const startX = 130;
+            const dummyRect = dummy.getBoundingClientRect();
+            const arenaRect = arena.getBoundingClientRect();
+            const targetX = dummyRect.left - arenaRect.left;
+
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    const seed = document.createElement('div');
+                    seed.className = 'projectile seed-bullet';
+                    seed.style.left = startX + 'px';
+                    seed.style.bottom = (110 + (i - 2) * 10) + 'px';
+                    arena.appendChild(seed);
+
+                    let progress = 0;
+                    const fly = setInterval(() => {
+                        progress += 0.1;
+                        const x = startX + (targetX - startX) * progress;
+                        seed.style.left = x + 'px';
+                        seed.style.transform = `rotate(${progress * 720}deg)`;
+
+                        if (progress >= 1) {
+                            clearInterval(fly);
+                            hitDummy();
+                            if (i === 2) showImpact('RAT-TAT-TAT!', targetX, 110, 'var(--pot-brown)');
+                            seed.remove();
+                        }
+                    }, 20);
+                }, i * 60);
+            }
+
+            setTimeout(() => { isAnimating = false; }, 500);
+        }
+
+        function playMeanGreenMother() {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            showImpact('MEAN GREEN', 150, 50, 'var(--plant-green)');
+            showImpact('MOTHER!', 180, 80, 'var(--lip-red)');
+
+            // Grow bigger
+            let scale = 1;
+            audrey.style.transition = 'transform 0.5s';
+            audrey.style.transform = 'scale(1.8)';
+            audrey.style.transformOrigin = 'bottom center';
+
+            setTimeout(() => {
+                audrey.classList.add('biting');
+            }, 400);
+
+            // Spawn mini plants
+            setTimeout(() => {
+                const positions = [
+                    { x: 200, y: 68 },
+                    { x: 280, y: 68 },
+                    { x: 350, y: 68 },
+                    { x: 240, y: 68 },
+                    { x: 310, y: 68 }
+                ];
+
+                positions.forEach((pos, i) => {
+                    setTimeout(() => {
+                        const mini = document.createElement('div');
+                        mini.className = 'projectile mini-plant';
+                        mini.innerHTML = `
+                            <div class="mini-head">
+                                <div class="mini-mouth"></div>
+                            </div>
+                            <div class="mini-stem"></div>
+                        `;
+                        mini.style.left = pos.x + 'px';
+                        mini.style.bottom = pos.y + 'px';
+                        mini.style.transform = 'scale(0)';
+                        arena.appendChild(mini);
+
+                        // Pop up
+                        setTimeout(() => {
+                            mini.style.transition = 'transform 0.2s';
+                            mini.style.transform = 'scale(1)';
+                        }, 50);
+
+                        // Bite animation
+                        setTimeout(() => {
+                            mini.style.transform = 'scale(1.2)';
+                            if (i === 2) hitDummy();
+                        }, 300);
+
+                        // Remove
+                        setTimeout(() => {
+                            mini.style.transform = 'scale(0)';
+                            setTimeout(() => mini.remove(), 200);
+                        }, 800);
+                    }, i * 100);
+                });
+            }, 600);
+
+            // Big chomp on dummy
+            setTimeout(() => {
+                const startLeft = audrey.offsetLeft;
+                const dummyRect = dummy.getBoundingClientRect();
+                const arenaRect = arena.getBoundingClientRect();
+                const targetX = dummyRect.left - arenaRect.left - 80;
+
+                audrey.style.transition = 'left 0.3s, transform 0.3s';
+                audrey.style.left = targetX + 'px';
+
+                setTimeout(() => {
+                    hitDummy();
+                    showImpact('DEVOURED!', targetX + 60, 60, 'var(--gold)');
+
+                    // Snap shut
+                    audrey.classList.remove('biting');
+
+                    // Blood explosion
+                    for (let i = 0; i < 8; i++) {
+                        const blood = document.createElement('div');
+                        blood.className = 'projectile blood-drop';
+                        blood.style.left = (targetX + 100) + 'px';
+                        blood.style.bottom = '130px';
+                        arena.appendChild(blood);
+
+                        const angle = (i / 8) * Math.PI * 2;
+                        let bx = 0, by = 0, bo = 1;
+                        const splatter = setInterval(() => {
+                            bx += Math.cos(angle) * 4;
+                            by += Math.sin(angle) * 4;
+                            bo -= 0.04;
+                            blood.style.transform = `translate(${bx}px, ${-by}px)`;
+                            blood.style.opacity = bo;
+                            if (bo <= 0) {
+                                clearInterval(splatter);
+                                blood.remove();
+                            }
+                        }, 25);
+                    }
+
+                    // Return to normal
+                    setTimeout(() => {
+                        audrey.style.transition = 'all 0.5s';
+                        audrey.style.transform = 'scale(1)';
+                        audrey.style.left = startLeft + 'px';
+                        setTimeout(() => {
+                            audrey.style.transition = 'none';
+                            isAnimating = false;
+                        }, 500);
+                    }, 500);
+                }, 300);
+            }, 1200);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dr. Frank-N-Furter - Character Preview</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Finger+Paint&family=Patrick+Hand&family=Permanent+Marker&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --paper: #f5f0e1;
+            --ink: #333;
+            --pencil: #666;
+            --lips-red: #cc0033;
+            --corset-black: #1a1a1a;
+            --pearl-white: #f5f5f0;
+            --fishnets: #2a2a2a;
+            --eyeshadow: #2d4a6f;
+            --gold: #ffd700;
+            --lightning: #00ffff;
+            --pink-glow: #ff69b4;
+        }
+
+        body {
+            background: var(--paper);
+            background-image:
+                linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+            background-size: 25px 25px;
+            font-family: 'Patrick Hand', cursive;
+            color: var(--ink);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px;
+        }
+
+        h1 {
+            font-family: 'Finger Paint', cursive;
+            font-size: 2.5rem;
+            color: var(--lips-red);
+            text-shadow: 3px 3px 0 var(--paper), 4px 4px 0 var(--corset-black);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--pencil);
+            margin-bottom: 40px;
+            font-style: italic;
+        }
+
+        .character-showcase {
+            display: flex;
+            gap: 40px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        /* ==================== DEMO ARENA ==================== */
+        .demo-arena {
+            background: var(--paper);
+            border: 4px solid var(--ink);
+            border-radius: 12px;
+            box-shadow: 6px 6px 0 var(--lips-red);
+            position: relative;
+            width: 500px;
+            height: 350px;
+            overflow: hidden;
+        }
+
+        .demo-arena h2 {
+            font-family: 'Finger Paint', cursive;
+            color: var(--lips-red);
+            text-align: center;
+            padding: 10px;
+            border-bottom: 2px solid var(--ink);
+            background: rgba(255,255,255,0.5);
+        }
+
+        .arena-floor {
+            position: absolute;
+            bottom: 60px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--ink);
+        }
+
+        .demo-buttons {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .demo-btn {
+            padding: 6px 12px;
+            border: 2px solid var(--ink);
+            border-radius: 6px;
+            background: var(--paper);
+            font-family: 'Patrick Hand', cursive;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+
+        .demo-btn:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 3px 3px 0 var(--ink);
+        }
+
+        .demo-btn.seduce { border-color: var(--pink-glow); color: var(--pink-glow); }
+        .demo-btn.science { border-color: var(--lightning); color: #00aaaa; }
+        .demo-btn.timewarp { border-color: var(--lips-red); color: var(--lips-red); }
+        .demo-btn.ultimate { border-color: var(--gold); color: #b8860b; background: rgba(255,215,0,0.1); }
+
+        /* ==================== FRANK-N-FURTER CHARACTER ==================== */
+        .fighter {
+            position: absolute;
+            bottom: 68px;
+            left: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transform-origin: bottom center;
+        }
+
+        .frank .head {
+            width: 34px;
+            height: 38px;
+            border: 2px solid var(--ink);
+            border-radius: 50%;
+            background: var(--paper);
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Wild curly black hair */
+        .frank .hair {
+            position: absolute;
+            top: -12px;
+            left: -10px;
+            width: 54px;
+            height: 32px;
+            border: 2px solid var(--ink);
+            border-bottom: none;
+            border-radius: 50% 50% 40% 40%;
+            background: var(--corset-black);
+            z-index: 5;
+        }
+
+        /* Curly hair details */
+        .frank .hair::before {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 3px;
+            width: 12px;
+            height: 12px;
+            border: 2px solid var(--ink);
+            border-radius: 50%;
+            background: var(--corset-black);
+        }
+
+        .frank .hair::after {
+            content: '';
+            position: absolute;
+            top: 0px;
+            right: 5px;
+            width: 10px;
+            height: 10px;
+            border: 2px solid var(--ink);
+            border-radius: 50%;
+            background: var(--corset-black);
+        }
+
+        /* Extra curl on top */
+        .frank .hair-curl {
+            position: absolute;
+            top: -8px;
+            left: 18px;
+            width: 14px;
+            height: 14px;
+            border: 2px solid var(--ink);
+            border-radius: 50%;
+            background: var(--corset-black);
+            z-index: 6;
+        }
+
+        /* Heavy eyeshadow and dramatic eyes */
+        .frank .eyes {
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 15;
+        }
+
+        .frank .eye {
+            width: 8px;
+            height: 6px;
+            background: var(--ink);
+            border-radius: 50%;
+            position: relative;
+        }
+
+        /* Heavy blue eyeshadow */
+        .frank .eye::before {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -2px;
+            width: 12px;
+            height: 6px;
+            background: var(--eyeshadow);
+            border-radius: 50% 50% 30% 30%;
+            opacity: 0.8;
+        }
+
+        /* Eyeliner flick */
+        .frank .eye::after {
+            content: '';
+            position: absolute;
+            top: 0px;
+            right: -3px;
+            width: 4px;
+            height: 2px;
+            background: var(--ink);
+            transform: rotate(-20deg);
+        }
+
+        /* Beauty mark */
+        .frank .beauty-mark {
+            position: absolute;
+            top: 22px;
+            right: 8px;
+            width: 3px;
+            height: 3px;
+            background: var(--ink);
+            border-radius: 50%;
+            z-index: 16;
+        }
+
+        /* Big red lips */
+        .frank .mouth {
+            position: absolute;
+            bottom: 6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 14px;
+            height: 8px;
+            background: var(--lips-red);
+            border: 2px solid #990022;
+            border-radius: 40% 40% 50% 50%;
+            z-index: 15;
+        }
+
+        /* Lip shine */
+        .frank .mouth::before {
+            content: '';
+            position: absolute;
+            top: 1px;
+            left: 3px;
+            width: 4px;
+            height: 2px;
+            background: rgba(255,255,255,0.4);
+            border-radius: 50%;
+        }
+
+        /* Pearl necklace */
+        .frank .pearls {
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 2px;
+            z-index: 9;
+        }
+
+        .frank .pearl {
+            width: 4px;
+            height: 4px;
+            background: var(--pearl-white);
+            border: 1px solid #ccc;
+            border-radius: 50%;
+        }
+
+        /* Corset body */
+        .frank .body {
+            width: 30px;
+            height: 32px;
+            border: 2px solid var(--ink);
+            border-radius: 3px 3px 0 0;
+            background: var(--corset-black);
+            margin-top: -3px;
+            position: relative;
+            z-index: 8;
+        }
+
+        /* Corset lacing */
+        .frank .body::before {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 20px;
+            background: var(--lips-red);
+        }
+
+        /* Corset lace crosses */
+        .frank .lace {
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9;
+        }
+
+        .frank .lace::before,
+        .frank .lace::after {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 1px;
+            background: var(--lips-red);
+        }
+
+        .frank .lace::before {
+            top: 0;
+            transform: rotate(30deg);
+        }
+
+        .frank .lace::after {
+            top: 8px;
+            transform: rotate(-30deg);
+        }
+
+        .frank .arm {
+            position: absolute;
+            width: 7px;
+            height: 24px;
+            border: 2px solid var(--ink);
+            border-radius: 4px;
+            background: var(--paper);
+            top: 3px;
+            transform-origin: top center;
+            z-index: 6;
+        }
+
+        .frank .arm.left { left: -5px; }
+        .frank .arm.right { right: -5px; }
+
+        /* Fishnet legs */
+        .frank .legs {
+            display: flex;
+            gap: 4px;
+            margin-top: -2px;
+            z-index: 4;
+        }
+
+        .frank .leg {
+            width: 10px;
+            height: 38px;
+            border: 2px solid var(--ink);
+            border-radius: 3px;
+            background: repeating-linear-gradient(
+                0deg,
+                var(--paper) 0px,
+                var(--paper) 2px,
+                var(--fishnets) 2px,
+                var(--fishnets) 4px
+            );
+            position: relative;
+        }
+
+        /* Fishnet diamond pattern overlay */
+        .frank .leg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent 0px,
+                transparent 3px,
+                rgba(0,0,0,0.3) 3px,
+                rgba(0,0,0,0.3) 4px
+            );
+        }
+
+        /* Platform heels */
+        .frank .feet {
+            display: flex;
+            gap: 4px;
+            margin-top: -2px;
+            z-index: 3;
+        }
+
+        .frank .foot {
+            width: 12px;
+            height: 10px;
+            border: 2px solid var(--ink);
+            background: var(--corset-black);
+            position: relative;
+        }
+
+        /* Platform heel */
+        .frank .foot::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: var(--lips-red);
+            border: 1px solid #990022;
+        }
+
+        /* Stiletto heel */
+        .frank .foot::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: -2px;
+            width: 3px;
+            height: 8px;
+            background: var(--corset-black);
+            border: 1px solid var(--ink);
+        }
+
+        /* ==================== DUMMY TARGET ==================== */
+        .dummy {
+            position: absolute;
+            bottom: 68px;
+            right: 100px;
+            width: 40px;
+            height: 80px;
+            border: 3px solid var(--ink);
+            border-radius: 8px;
+            background: #ddd;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dummy::before {
+            content: 'TARGET';
+            font-size: 0.5rem;
+            color: var(--ink);
+        }
+
+        .dummy.hit {
+            animation: shake 0.3s;
+            background: #ffcccc;
+        }
+
+        .dummy.seduced {
+            animation: swoon 0.5s;
+            background: #ffddee;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        @keyframes swoon {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(10deg) translateY(-5px); }
+        }
+
+        /* ==================== ANIMATION STATES ==================== */
+        .frank.posing {
+            animation: sway 0.5s ease-in-out infinite;
+        }
+
+        @keyframes sway {
+            0%, 100% { transform: rotate(-3deg); }
+            50% { transform: rotate(3deg); }
+        }
+
+        .frank.zapping .arm.right {
+            transform: rotate(-90deg);
+            transition: transform 0.1s;
+        }
+
+        /* ==================== PROJECTILES & EFFECTS ==================== */
+        .projectile {
+            position: absolute;
+            z-index: 100;
+        }
+
+        .heart {
+            width: 16px;
+            height: 16px;
+            background: var(--pink-glow);
+            transform: rotate(-45deg);
+            position: relative;
+        }
+
+        .heart::before,
+        .heart::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: var(--pink-glow);
+            border-radius: 50%;
+        }
+
+        .heart::before {
+            top: -8px;
+            left: 0;
+        }
+
+        .heart::after {
+            top: 0;
+            left: 8px;
+        }
+
+        .lightning-bolt {
+            width: 8px;
+            height: 30px;
+            background: var(--lightning);
+            clip-path: polygon(50% 0%, 100% 35%, 60% 35%, 100% 100%, 0% 55%, 45% 55%, 0% 20%);
+            box-shadow: 0 0 10px var(--lightning), 0 0 20px var(--lightning);
+        }
+
+        .lips-print {
+            width: 20px;
+            height: 10px;
+            background: var(--lips-red);
+            border-radius: 40% 40% 50% 50%;
+            opacity: 0.8;
+        }
+
+        .time-spiral {
+            width: 60px;
+            height: 60px;
+            border: 4px solid transparent;
+            border-top-color: var(--lips-red);
+            border-right-color: var(--pink-glow);
+            border-radius: 50%;
+            animation: spin 0.5s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .golden-glow {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,105,180,0.6) 0%, rgba(255,105,180,0) 70%);
+            pointer-events: none;
+        }
+
+        .impact-text {
+            position: absolute;
+            font-family: 'Permanent Marker', cursive;
+            font-size: 1.5rem;
+            color: var(--lips-red);
+            text-shadow: 2px 2px 0 var(--paper);
+            pointer-events: none;
+            z-index: 200;
+        }
+
+        /* ==================== MOVE LIST ==================== */
+        .moves-panel {
+            background: var(--paper);
+            border: 4px solid var(--ink);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 6px 6px 0 var(--corset-black);
+            max-width: 350px;
+        }
+
+        .moves-panel h2 {
+            font-family: 'Finger Paint', cursive;
+            color: var(--lips-red);
+            margin-bottom: 12px;
+            border-bottom: 2px solid var(--ink);
+            padding-bottom: 8px;
+            font-size: 1.3rem;
+        }
+
+        .move {
+            margin: 10px 0;
+            padding: 8px;
+            border-left: 3px solid var(--lips-red);
+            background: rgba(255,255,255,0.5);
+            font-size: 0.9rem;
+        }
+
+        .move.seduce-move {
+            border-left-color: var(--pink-glow);
+        }
+
+        .move.science-move {
+            border-left-color: var(--lightning);
+        }
+
+        .move-name {
+            font-family: 'Permanent Marker', cursive;
+            color: var(--lips-red);
+            display: block;
+            margin-bottom: 3px;
+            font-size: 0.95rem;
+        }
+
+        .move.seduce-move .move-name {
+            color: var(--pink-glow);
+        }
+
+        .move.science-move .move-name {
+            color: #00aaaa;
+        }
+
+        .move-combo {
+            font-family: monospace;
+            background: var(--ink);
+            color: var(--paper);
+            padding: 2px 6px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-right: 8px;
+            font-size: 0.8rem;
+        }
+
+        .move-desc {
+            font-size: 0.8rem;
+            color: var(--pencil);
+            margin-top: 4px;
+        }
+
+        .energy-cost {
+            display: inline-block;
+            background: var(--gold);
+            color: var(--ink);
+            padding: 1px 6px;
+            border-radius: 3px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+
+        .ultimate {
+            border-left-color: var(--gold);
+            background: linear-gradient(90deg, rgba(255,215,0,0.1), transparent);
+        }
+
+        .ultimate .move-name {
+            color: var(--gold);
+            text-shadow: 1px 1px 0 var(--ink);
+        }
+
+        .section-label {
+            font-family: 'Finger Paint', cursive;
+            font-size: 0.8rem;
+            color: var(--pencil);
+            margin-top: 15px;
+            margin-bottom: 5px;
+            padding-left: 5px;
+            border-bottom: 1px dashed var(--pencil);
+            padding-bottom: 3px;
+        }
+
+        /* Bio section */
+        .bio {
+            max-width: 500px;
+            text-align: center;
+            margin-top: 30px;
+            padding: 15px;
+            border: 3px solid var(--ink);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.5);
+        }
+
+        .bio-quote {
+            font-style: italic;
+            font-size: 1rem;
+            color: var(--pencil);
+        }
+    </style>
+</head>
+<body>
+    <h1>DR. FRANK-N-FURTER</h1>
+    <p class="subtitle">Sweet Transvestite from Transsexual, Transylvania</p>
+
+    <div class="character-showcase">
+        <!-- Demo Arena -->
+        <div class="demo-arena" id="arena">
+            <h2>Move Preview</h2>
+            <div class="arena-floor"></div>
+
+            <div class="fighter frank" id="frank">
+                <div class="head">
+                    <div class="hair"></div>
+                    <div class="hair-curl"></div>
+                    <div class="eyes">
+                        <div class="eye"></div>
+                        <div class="eye"></div>
+                    </div>
+                    <div class="beauty-mark"></div>
+                    <div class="mouth"></div>
+                    <div class="pearls">
+                        <div class="pearl"></div>
+                        <div class="pearl"></div>
+                        <div class="pearl"></div>
+                        <div class="pearl"></div>
+                        <div class="pearl"></div>
+                    </div>
+                </div>
+                <div class="body">
+                    <div class="lace"></div>
+                    <div class="arm left"></div>
+                    <div class="arm right"></div>
+                </div>
+                <div class="legs">
+                    <div class="leg"></div>
+                    <div class="leg"></div>
+                </div>
+                <div class="feet">
+                    <div class="foot"></div>
+                    <div class="foot"></div>
+                </div>
+            </div>
+
+            <div class="dummy" id="dummy"></div>
+
+            <div class="demo-buttons">
+                <button class="demo-btn seduce" onclick="playSweetTransvestite()">Sweet Transvestite</button>
+                <button class="demo-btn science" onclick="playMadScience()">Mad Science</button>
+                <button class="demo-btn timewarp" onclick="playTimeWarp()">Time Warp</button>
+                <button class="demo-btn ultimate" onclick="playFloorShow()">FLOOR SHOW!</button>
+            </div>
+        </div>
+
+        <!-- Move List -->
+        <div class="moves-panel">
+            <h2>Special Moves</h2>
+
+            <div class="section-label">Seduction</div>
+
+            <div class="move seduce-move">
+                <span class="move-name">Sweet Transvestite</span>
+                <span class="move-combo">← → Z</span>
+                <span>18 dmg</span>
+                <p class="move-desc">Blows a kiss that sends hearts flying at the opponent, leaving them stunned.</p>
+            </div>
+
+            <div class="section-label">Mad Science</div>
+
+            <div class="move science-move">
+                <span class="move-name">Laboratory Lightning</span>
+                <span class="move-combo">↓ ↓ Z</span>
+                <span>22 dmg</span>
+                <p class="move-desc">Channels the power used to create Rocky, zapping with electric fury!</p>
+            </div>
+
+            <div class="move">
+                <span class="move-name">Time Warp</span>
+                <span class="move-combo">→ → X</span>
+                <span>15 dmg + teleport</span>
+                <span class="energy-cost">50 ENERGY</span>
+                <p class="move-desc">It's just a jump to the left... and a step to the right! Teleport behind enemy.</p>
+            </div>
+
+            <div class="section-label">Ultimate</div>
+
+            <div class="move ultimate">
+                <span class="move-name">FLOOR SHOW!</span>
+                <span class="move-combo">↓ → ↓ → Z</span>
+                <span>55 dmg</span>
+                <span class="energy-cost">100 ENERGY</span>
+                <p class="move-desc">The ultimate performance! A dazzling display of theatrical devastation!</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bio">
+        <p class="bio-quote">"Don't dream it, be it. And if they get in your way... destroy them with style."</p>
+    </div>
+
+    <script>
+        const arena = document.getElementById('arena');
+        const frank = document.getElementById('frank');
+        const dummy = document.getElementById('dummy');
+        let isAnimating = false;
+
+        function showImpact(text, x, y, color = 'var(--lips-red)') {
+            const impact = document.createElement('div');
+            impact.className = 'impact-text';
+            impact.textContent = text;
+            impact.style.left = x + 'px';
+            impact.style.top = y + 'px';
+            impact.style.color = color;
+            arena.appendChild(impact);
+
+            let opacity = 1;
+            let offsetY = 0;
+            const fade = setInterval(() => {
+                opacity -= 0.05;
+                offsetY -= 2;
+                impact.style.opacity = opacity;
+                impact.style.top = (y + offsetY) + 'px';
+                if (opacity <= 0) {
+                    clearInterval(fade);
+                    impact.remove();
+                }
+            }, 30);
+        }
+
+        function hitDummy() {
+            dummy.classList.add('hit');
+            setTimeout(() => dummy.classList.remove('hit'), 300);
+        }
+
+        function seduceDummy() {
+            dummy.classList.add('seduced');
+            setTimeout(() => dummy.classList.remove('seduced'), 500);
+        }
+
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.className = 'projectile heart';
+            return heart;
+        }
+
+        function playSweetTransvestite() {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            frank.classList.add('posing');
+
+            // Blow kiss effect - lips print appears
+            const kiss = document.createElement('div');
+            kiss.className = 'projectile lips-print';
+            kiss.style.left = '120px';
+            kiss.style.bottom = '130px';
+            arena.appendChild(kiss);
+
+            setTimeout(() => kiss.remove(), 300);
+
+            // Hearts fly toward target
+            const dummyRect = dummy.getBoundingClientRect();
+            const arenaRect = arena.getBoundingClientRect();
+            const targetX = dummyRect.left - arenaRect.left;
+
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    const heart = createHeart();
+                    heart.style.left = '115px';
+                    heart.style.bottom = (120 + (i - 2) * 15) + 'px';
+                    heart.style.transform = 'rotate(-45deg) scale(0.5)';
+                    arena.appendChild(heart);
+
+                    let progress = 0;
+                    const fly = setInterval(() => {
+                        progress += 0.06;
+                        const x = 115 + (targetX - 115) * progress;
+                        const wobble = Math.sin(progress * Math.PI * 3) * 10;
+                        heart.style.left = x + 'px';
+                        heart.style.bottom = (120 + (i - 2) * 15 + wobble) + 'px';
+                        heart.style.opacity = 1 - progress * 0.3;
+
+                        if (progress >= 1) {
+                            clearInterval(fly);
+                            if (i === 2) {
+                                seduceDummy();
+                                showImpact('CHARMED!', targetX, 100, 'var(--pink-glow)');
+                            }
+                            heart.remove();
+                        }
+                    }, 25);
+                }, i * 100);
+            }
+
+            setTimeout(() => {
+                frank.classList.remove('posing');
+                isAnimating = false;
+            }, 800);
+        }
+
+        function playMadScience() {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            frank.classList.add('zapping');
+
+            const dummyRect = dummy.getBoundingClientRect();
+            const arenaRect = arena.getBoundingClientRect();
+            const targetX = dummyRect.left - arenaRect.left;
+
+            showImpact('IT\'S ALIVE!', 60, 80, 'var(--lightning)');
+
+            // Lightning bolts strike from above
+            for (let i = 0; i < 4; i++) {
+                setTimeout(() => {
+                    const bolt = document.createElement('div');
+                    bolt.className = 'projectile lightning-bolt';
+                    bolt.style.left = (targetX + 5 + (i - 1.5) * 15) + 'px';
+                    bolt.style.top = '50px';
+                    arena.appendChild(bolt);
+
+                    let y = 50;
+                    const fall = setInterval(() => {
+                        y += 15;
+                        bolt.style.top = y + 'px';
+
+                        if (y >= 180) {
+                            clearInterval(fall);
+                            if (i === 1) {
+                                hitDummy();
+                                showImpact('ZZAP!', targetX, 120, '#00ffff');
+                            }
+
+                            // Electric sparks
+                            for (let j = 0; j < 4; j++) {
+                                const spark = document.createElement('div');
+                                spark.style.cssText = `
+                                    position: absolute;
+                                    width: 4px;
+                                    height: 4px;
+                                    background: var(--lightning);
+                                    border-radius: 50%;
+                                    left: ${bolt.offsetLeft + 4}px;
+                                    top: ${y}px;
+                                    z-index: 100;
+                                    box-shadow: 0 0 6px var(--lightning);
+                                `;
+                                arena.appendChild(spark);
+
+                                const angle = (j / 4) * Math.PI * 2;
+                                let sx = 0, sy = 0, so = 1;
+                                const sparkFly = setInterval(() => {
+                                    sx += Math.cos(angle) * 4;
+                                    sy += Math.sin(angle) * 4;
+                                    so -= 0.1;
+                                    spark.style.transform = `translate(${sx}px, ${sy}px)`;
+                                    spark.style.opacity = so;
+                                    if (so <= 0) {
+                                        clearInterval(sparkFly);
+                                        spark.remove();
+                                    }
+                                }, 30);
+                            }
+
+                            bolt.remove();
+                        }
+                    }, 25);
+                }, i * 80);
+            }
+
+            setTimeout(() => {
+                frank.classList.remove('zapping');
+                isAnimating = false;
+            }, 800);
+        }
+
+        function playTimeWarp() {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            const startLeft = frank.offsetLeft;
+            const dummyRect = dummy.getBoundingClientRect();
+            const arenaRect = arena.getBoundingClientRect();
+            const targetX = dummyRect.left - arenaRect.left + 50;
+
+            showImpact('TIME WARP!', 60, 80, 'var(--lips-red)');
+
+            // Create time spiral at Frank's position
+            const spiral = document.createElement('div');
+            spiral.className = 'projectile time-spiral';
+            spiral.style.left = (startLeft - 10) + 'px';
+            spiral.style.bottom = '90px';
+            arena.appendChild(spiral);
+
+            // Frank fades out
+            frank.style.transition = 'opacity 0.2s';
+            frank.style.opacity = '0';
+
+            setTimeout(() => {
+                spiral.remove();
+
+                // Frank appears behind dummy
+                frank.style.left = targetX + 'px';
+                frank.style.opacity = '1';
+
+                // Second spiral at new position
+                const spiral2 = document.createElement('div');
+                spiral2.className = 'projectile time-spiral';
+                spiral2.style.left = (targetX - 10) + 'px';
+                spiral2.style.bottom = '90px';
+                arena.appendChild(spiral2);
+
+                setTimeout(() => {
+                    spiral2.remove();
+                    hitDummy();
+                    showImpact('BEHIND YOU!', targetX - 30, 100, 'var(--pink-glow)');
+
+                    // Return to original position
+                    setTimeout(() => {
+                        frank.style.transition = 'all 0.3s';
+                        frank.style.left = startLeft + 'px';
+                        setTimeout(() => {
+                            frank.style.transition = 'none';
+                            isAnimating = false;
+                        }, 300);
+                    }, 400);
+                }, 300);
+            }, 400);
+        }
+
+        function playFloorShow() {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            const startLeft = frank.offsetLeft;
+            const dummyRect = dummy.getBoundingClientRect();
+            const arenaRect = arena.getBoundingClientRect();
+            const targetX = dummyRect.left - arenaRect.left;
+
+            showImpact('FLOOR SHOW!', 150, 50, 'var(--gold)');
+
+            frank.classList.add('posing');
+
+            // Massive pink glow
+            const glow = document.createElement('div');
+            glow.className = 'projectile golden-glow';
+            glow.style.left = '45px';
+            glow.style.bottom = '60px';
+            glow.style.transform = 'scale(0)';
+            arena.appendChild(glow);
+
+            let scale = 0;
+            const expand = setInterval(() => {
+                scale += 0.1;
+                glow.style.transform = `scale(${scale})`;
+                if (scale >= 2) {
+                    clearInterval(expand);
+                }
+            }, 30);
+
+            // Shower of hearts and lips
+            for (let i = 0; i < 12; i++) {
+                setTimeout(() => {
+                    const isHeart = i % 2 === 0;
+
+                    if (isHeart) {
+                        const heart = createHeart();
+                        heart.style.left = (80 + Math.random() * 100) + 'px';
+                        heart.style.top = '60px';
+                        heart.style.transform = 'rotate(-45deg) scale(0.6)';
+                        arena.appendChild(heart);
+
+                        let y = 60;
+                        let x = parseFloat(heart.style.left);
+                        const fall = setInterval(() => {
+                            y += 6;
+                            x += (targetX - x) * 0.05;
+                            heart.style.top = y + 'px';
+                            heart.style.left = x + 'px';
+                            heart.style.opacity = 1 - (y - 60) / 160;
+
+                            if (y >= 220) {
+                                clearInterval(fall);
+                                heart.remove();
+                            }
+                        }, 25);
+                    } else {
+                        const lips = document.createElement('div');
+                        lips.className = 'projectile lips-print';
+                        lips.style.left = (100 + Math.random() * 80) + 'px';
+                        lips.style.top = '70px';
+                        arena.appendChild(lips);
+
+                        let y = 70;
+                        let x = parseFloat(lips.style.left);
+                        const fall = setInterval(() => {
+                            y += 5;
+                            x += (targetX - x) * 0.04;
+                            lips.style.top = y + 'px';
+                            lips.style.left = x + 'px';
+                            lips.style.transform = `rotate(${(y - 70) * 2}deg)`;
+                            lips.style.opacity = 1 - (y - 70) / 150;
+
+                            if (y >= 220) {
+                                clearInterval(fall);
+                                lips.remove();
+                            }
+                        }, 25);
+                    }
+
+                    if (i === 6) {
+                        hitDummy();
+                    }
+                }, i * 60);
+            }
+
+            // Multiple impact texts
+            setTimeout(() => showImpact('FABULOUS!', targetX - 20, 90, 'var(--pink-glow)'), 400);
+            setTimeout(() => showImpact('STUNNING!', targetX + 10, 120, 'var(--lips-red)'), 600);
+            setTimeout(() => showImpact('DIVINE!', targetX - 10, 150, 'var(--gold)'), 800);
+
+            // Lightning finale
+            setTimeout(() => {
+                for (let i = 0; i < 3; i++) {
+                    setTimeout(() => {
+                        const bolt = document.createElement('div');
+                        bolt.className = 'projectile lightning-bolt';
+                        bolt.style.left = (targetX + (i - 1) * 20) + 'px';
+                        bolt.style.top = '60px';
+                        arena.appendChild(bolt);
+
+                        let y = 60;
+                        const fall = setInterval(() => {
+                            y += 20;
+                            bolt.style.top = y + 'px';
+                            if (y >= 180) {
+                                clearInterval(fall);
+                                hitDummy();
+                                bolt.remove();
+                            }
+                        }, 20);
+                    }, i * 50);
+                }
+            }, 700);
+
+            setTimeout(() => {
+                glow.style.opacity = '0';
+                glow.style.transition = 'opacity 0.3s';
+                setTimeout(() => glow.remove(), 300);
+
+                frank.classList.remove('posing');
+                isAnimating = false;
+            }, 1200);
+        }
+    </script>
+</body>
+</html>

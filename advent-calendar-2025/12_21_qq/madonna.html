@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Madonna - Character Preview</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Finger+Paint&family=Patrick+Hand&family=Permanent+Marker&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --paper: #f5f0e1;
+            --ink: #333;
+            --pencil: #666;
+            --pink: #e91e8c;
+            --pink-dark: #c2185b;
+            --blonde: #f4d03f;
+            --blonde-dark: #d4ac0d;
+            --gold: #ffd700;
+            --purple: #9b59b6;
+        }
+
+        body {
+            background: var(--paper);
+            background-image:
+                linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+            background-size: 25px 25px;
+            font-family: 'Patrick Hand', cursive;
+            color: var(--ink);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px;
+        }
+
+        h1 {
+            font-family: 'Finger Paint', cursive;
+            font-size: 3rem;
+            color: var(--pink-dark);
+            text-shadow: 3px 3px 0 var(--paper), 4px 4px 0 var(--ink);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--pencil);
+            margin-bottom: 40px;
+            font-style: italic;
+        }
+
+        .character-showcase {
+            display: flex;
+            gap: 40px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        /* ==================== DEMO ARENA ==================== */
+        .demo-arena {
+            background: var(--paper);
+            border: 4px solid var(--ink);
+            border-radius: 12px;
+            box-shadow: 6px 6px 0 var(--pink);
+            position: relative;
+            width: 500px;
+            height: 350px;
+            overflow: hidden;
+        }
+
+        .demo-arena h2 {
+            font-family: 'Finger Paint', cursive;
+            color: var(--pink-dark);
+            text-align: center;
+            padding: 10px;
+            border-bottom: 2px solid var(--ink);
+            background: rgba(255,255,255,0.5);
+        }
+
+        .arena-floor {
+            position: absolute;
+            bottom: 60px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--ink);
+        }
+
+        .demo-buttons {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .demo-btn {
+            padding: 6px 12px;
+            border: 2px solid var(--ink);
+            border-radius: 6px;
+            background: var(--paper);
+            font-family: 'Patrick Hand', cursive;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+
+        .demo-btn:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 3px 3px 0 var(--ink);
+        }
+
+        .demo-btn.vogue { border-color: var(--pink); color: var(--pink-dark); }
+        .demo-btn.mic { border-color: var(--purple); color: var(--purple); }
+        .demo-btn.cone { border-color: #e74c3c; color: #e74c3c; }
+        .demo-btn.ultimate { border-color: var(--gold); color: #b8860b; background: rgba(255,215,0,0.1); }
+
+        /* ==================== MADONNA CHARACTER ==================== */
+        .fighter {
+            position: absolute;
+            bottom: 68px;
+            left: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transform-origin: bottom center;
+        }
+
+        .madonna .head {
+            width: 28px;
+            height: 30px;
+            border: 2px solid var(--ink);
+            border-radius: 50%;
+            background: var(--paper);
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Big blonde wavy hair */
+        .madonna .hair {
+            position: absolute;
+            top: -6px;
+            left: -8px;
+            width: 44px;
+            height: 35px;
+            border: 2px solid var(--ink);
+            border-radius: 50% 50% 40% 40%;
+            background: var(--blonde);
+            z-index: 5;
+        }
+
+        /* Hair waves/curls */
+        .madonna .hair::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: -4px;
+            width: 15px;
+            height: 20px;
+            border: 2px solid var(--ink);
+            border-top: none;
+            border-right: none;
+            border-radius: 0 0 0 50%;
+            background: var(--blonde);
+        }
+
+        .madonna .hair::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            right: -4px;
+            width: 15px;
+            height: 20px;
+            border: 2px solid var(--ink);
+            border-top: none;
+            border-left: none;
+            border-radius: 0 0 50% 0;
+            background: var(--blonde);
+        }
+
+        /* Hair highlight */
+        .madonna .hair-highlight {
+            position: absolute;
+            top: 2px;
+            left: 8px;
+            width: 20px;
+            height: 10px;
+            background: rgba(255,255,255,0.4);
+            border-radius: 50%;
+            z-index: 6;
+        }
+
+        /* Eyes with makeup */
+        .madonna .eyes {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 6px;
+            z-index: 16;
+        }
+
+        .madonna .eye {
+            width: 5px;
+            height: 5px;
+            background: var(--ink);
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .madonna .eye::before {
+            content: '';
+            position: absolute;
+            top: 1px;
+            left: 1px;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+        }
+
+        /* Eyelashes */
+        .madonna .eye::after {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: 0;
+            width: 5px;
+            height: 3px;
+            border-top: 2px solid var(--ink);
+            border-radius: 50% 50% 0 0;
+        }
+
+        /* Red lips */
+        .madonna .mouth {
+            position: absolute;
+            bottom: 6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 8px;
+            height: 4px;
+            background: #e74c3c;
+            border: 1px solid var(--ink);
+            border-radius: 0 0 50% 50%;
+            z-index: 16;
+        }
+
+        /* Beauty mark */
+        .madonna .beauty-mark {
+            position: absolute;
+            bottom: 10px;
+            right: 6px;
+            width: 3px;
+            height: 3px;
+            background: var(--ink);
+            border-radius: 50%;
+            z-index: 17;
+        }
+
+        /* Iconic cone bustier top */
+        .madonna .body {
+            width: 26px;
+            height: 28px;
+            border: 2px solid var(--ink);
+            border-radius: 3px 3px 0 0;
+            background: var(--pink);
+            margin-top: -3px;
+            position: relative;
+            z-index: 8;
+        }
+
+        /* Cone details */
+        .madonna .cone-left,
+        .madonna .cone-right {
+            position: absolute;
+            top: 3px;
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-bottom: 10px solid var(--pink-dark);
+            z-index: 9;
+        }
+
+        .madonna .cone-left {
+            left: 1px;
+            transform: rotate(-10deg);
+        }
+
+        .madonna .cone-right {
+            right: 1px;
+            transform: rotate(10deg);
+        }
+
+        .madonna .cone-left::after,
+        .madonna .cone-right::after {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: -3px;
+            width: 6px;
+            height: 3px;
+            background: var(--pink);
+            border-radius: 50%;
+        }
+
+        /* Belt */
+        .madonna .belt {
+            position: absolute;
+            bottom: 0;
+            left: -1px;
+            right: -1px;
+            height: 5px;
+            background: var(--gold);
+            border: 1px solid var(--ink);
+            z-index: 10;
+        }
+
+        .madonna .arm {
+            position: absolute;
+            width: 6px;
+            height: 20px;
+            border: 2px solid var(--ink);
+            border-radius: 3px;
+            background: var(--paper);
+            top: 3px;
+            transform-origin: top center;
+            z-index: 6;
+        }
+
+        .madonna .arm.left { left: -4px; }
+        .madonna .arm.right { right: -4px; }
+
+        /* Gloves */
+        .madonna .glove-left,
+        .madonna .glove-right {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: black;
+            border: 1px solid var(--ink);
+            border-radius: 2px;
+            z-index: 7;
+        }
+
+        .madonna .glove-left {
+            top: 18px;
+            left: -5px;
+        }
+
+        .madonna .glove-right {
+            top: 18px;
+            right: -5px;
+        }
+
+        /* Skirt */
+        .madonna .skirt {
+            width: 32px;
+            height: 18px;
+            border: 2px solid var(--ink);
+            border-radius: 0 0 50% 50%;
+            background: var(--pink);
+            margin-top: -2px;
+            z-index: 4;
+        }
+
+        /* Legs */
+        .madonna .legs {
+            display: flex;
+            gap: 6px;
+            margin-top: -2px;
+            z-index: 3;
+        }
+
+        .madonna .leg {
+            width: 8px;
+            height: 30px;
+            border: 2px solid var(--ink);
+            border-radius: 3px;
+            background: var(--paper);
+            transform-origin: top center;
+        }
+
+        /* High heels */
+        .madonna .feet {
+            display: flex;
+            gap: 6px;
+            margin-top: -2px;
+            z-index: 2;
+        }
+
+        .madonna .foot {
+            width: 10px;
+            height: 8px;
+            border: 2px solid var(--ink);
+            background: black;
+            position: relative;
+        }
+
+        .madonna .foot::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            right: 0;
+            width: 3px;
+            height: 6px;
+            background: black;
+            border: 1px solid var(--ink);
+        }
+
+        /* ==================== ANIMATIONS ==================== */
+
+        /* Vogue pose */
+        .madonna.vogue .arm.left {
+            transform: rotate(-90deg) translateX(-5px);
+        }
+
+        .madonna.vogue .arm.right {
+            transform: rotate(90deg) translateX(5px);
+        }
+
+        .madonna.vogue .glove-left {
+            top: 5px;
+            left: -22px;
+        }
+
+        .madonna.vogue .glove-right {
+            top: 5px;
+            right: -22px;
+        }
+
+        /* Dance spin */
+        .madonna.spinning {
+            animation: spin 0.3s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* ==================== DUMMY TARGET ==================== */
+        .dummy {
+            position: absolute;
+            bottom: 68px;
+            right: 100px;
+            width: 40px;
+            height: 80px;
+            border: 3px solid var(--ink);
+            border-radius: 8px;
+            background: #ddd;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dummy::before {
+            content: 'TARGET';
+            font-size: 0.5rem;
+            color: var(--ink);
+        }
+
+        .dummy.hit {
+            animation: shake 0.3s;
+            background: #ffcccc;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* ==================== PROJECTILES ==================== */
+        .projectile {
+            position: absolute;
+            z-index: 100;
+        }
+
+        .microphone {
+            width: 10px;
+            height: 28px;
+            position: relative;
+        }
+
+        .mic-head {
+            width: 14px;
+            height: 14px;
+            background: #555;
+            border: 2px solid var(--ink);
+            border-radius: 50%;
+            position: absolute;
+            top: 0;
+            left: -2px;
+        }
+
+        .mic-head::before {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            right: 2px;
+            bottom: 2px;
+            background: repeating-linear-gradient(
+                0deg,
+                #333 0px,
+                #333 1px,
+                #555 1px,
+                #555 2px
+            );
+            border-radius: 50%;
+        }
+
+        .mic-body {
+            width: 6px;
+            height: 18px;
+            background: linear-gradient(90deg, #888, #aaa, #888);
+            border: 1px solid var(--ink);
+            border-radius: 0 0 3px 3px;
+            position: absolute;
+            bottom: 0;
+            left: 2px;
+        }
+
+        .music-note {
+            font-size: 20px;
+            color: var(--pink);
+            text-shadow: 1px 1px 0 var(--ink);
+        }
+
+        .heart {
+            width: 20px;
+            height: 20px;
+            position: relative;
+        }
+
+        .heart::before,
+        .heart::after {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 18px;
+            background: var(--pink);
+            border: 2px solid var(--ink);
+            border-radius: 50% 50% 0 0;
+        }
+
+        .heart::before {
+            left: 0;
+            transform: rotate(-45deg);
+            transform-origin: bottom right;
+        }
+
+        .heart::after {
+            right: 0;
+            transform: rotate(45deg);
+            transform-origin: bottom left;
+        }
+
+        .impact-text {
+            position: absolute;
+            font-family: 'Permanent Marker', cursive;
+            font-size: 1.5rem;
+            text-shadow: 2px 2px 0 var(--paper);
+            pointer-events: none;
+            z-index: 200;
+        }
+
+        /* ==================== MOVE LIST ==================== */
+        .moves-panel {
+            background: var(--paper);
+            border: 4px solid var(--ink);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 6px 6px 0 var(--pink);
+            max-width: 350px;
+        }
+
+        .moves-panel h2 {
+            font-family: 'Finger Paint', cursive;
+            color: var(--pink-dark);
+            margin-bottom: 12px;
+            border-bottom: 2px solid var(--ink);
+            padding-bottom: 8px;
+            font-size: 1.3rem;
+        }
+
+        .move {
+            margin: 10px 0;
+            padding: 8px;
+            border-left: 3px solid var(--pink);
+            background: rgba(255,255,255,0.5);
+            font-size: 0.9rem;
+        }
+
+        .move.mic-move {
+            border-left-color: var(--purple);
+        }
+
+        .move.cone-move {
+            border-left-color: #e74c3c;
+        }
+
+        .move-name {
+            font-family: 'Permanent Marker', cursive;
+            color: var(--ink);
+            display: block;
+            margin-bottom: 3px;
+            font-size: 0.95rem;
+        }
+
+        .move .move-name {
+            color: var(--pink-dark);
+        }
+
+        .move.mic-move .move-name {
+            color: var(--purple);
+        }
+
+        .move.cone-move .move-name {
+            color: #e74c3c;
+        }
+
+        .move-combo {
+            font-family: monospace;
+            background: var(--ink);
+            color: var(--paper);
+            padding: 2px 6px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-right: 8px;
+            font-size: 0.8rem;
+        }
+
+        .move-desc {
+            font-size: 0.8rem;
+            color: var(--pencil);
+            margin-top: 4px;
+        }
+
+        .energy-cost {
+            display: inline-block;
+            background: var(--gold);
+            color: var(--ink);
+            padding: 1px 6px;
+            border-radius: 3px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+
+        .ultimate {
+            border-left-color: var(--gold);
+            background: linear-gradient(90deg, rgba(255,215,0,0.1), transparent);
+        }
+
+        .ultimate .move-name {
+            color: #b8860b;
+        }
+
+        .section-label {
+            font-family: 'Finger Paint', cursive;
+            font-size: 0.8rem;
+            color: var(--pencil);
+            margin-top: 15px;
+            margin-bottom: 5px;
+            padding-left: 5px;
+            border-bottom: 1px dashed var(--pencil);
+            padding-bottom: 3px;
+        }
+
+        /* Bio section */
+        .bio {
+            max-width: 500px;
+            text-align: center;
+            margin-top: 30px;
+            padding: 15px;
+            border: 3px solid var(--ink);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.5);
+        }
+
+        .bio-quote {
+            font-style: italic;
+            font-size: 1rem;
+            color: var(--pencil);
+        }
+    </style>
+</head>
+<body>
+    <h1>MADONNA</h1>
+    <p class="subtitle">The Material Girl</p>
+
+    <div class="character-showcase">
+        <!-- Demo Arena -->
+        <div class="demo-arena" id="arena">
+            <h2>Move Preview</h2>
+            <div class="arena-floor"></div>
+
+            <div class="fighter madonna" id="madonna">
+                <div class="head">
+                    <div class="hair">
+                        <div class="hair-highlight"></div>
+                    </div>
+                    <div class="eyes">
+                        <div class="eye"></div>
+                        <div class="eye"></div>
+                    </div>
+                    <div class="mouth"></div>
+                    <div class="beauty-mark"></div>
+                </div>
+                <div class="body">
+                    <div class="cone-left"></div>
+                    <div class="cone-right"></div>
+                    <div class="belt"></div>
+                    <div class="arm left"></div>
+                    <div class="arm right"></div>
+                    <div class="glove-left"></div>
+                    <div class="glove-right"></div>
+                </div>
+                <div class="skirt"></div>
+                <div class="legs">
+                    <div class="leg left"></div>
+                    <div class="leg right"></div>
+                </div>
+                <div class="feet">
+                    <div class="foot"></div>
+                    <div class="foot"></div>
+                </div>
+            </div>
+
+            <div class="dummy" id="dummy"></div>
+
+            <div class="demo-buttons">
+                <button class="demo-btn vogue" onclick="playVogue()">Vogue Strike</button>
+                <button class="demo-btn mic" onclick="playMicDrop()">Mic Drop</button>
+                <button class="demo-btn cone" onclick="playConeBlast()">Cone Blast</button>
+                <button class="demo-btn ultimate" onclick="playMaterialWorld()">MATERIAL WORLD!</button>
+            </div>
+        </div>
+
+        <!-- Move List -->
+        <div class="moves-panel">
+            <h2>Special Moves</h2>
+
+            <div class="section-label">Signature Moves</div>
+
+            <div class="move">
+                <span class="move-name">Vogue Strike</span>
+                <span class="move-combo">← → X</span>
+                <span>24 dmg</span>
+                <p class="move-desc">Strikes an iconic pose so fierce it damages anyone looking.</p>
+            </div>
+
+            <div class="move mic-move">
+                <span class="move-name">Mic Drop</span>
+                <span class="move-combo">↓ ↓ Z</span>
+                <span>20 dmg</span>
+                <p class="move-desc">Hurls a microphone at the opponent with devastating force.</p>
+            </div>
+
+            <div class="move cone-move">
+                <span class="move-name">Cone Blast</span>
+                <span class="move-combo">→ → Z</span>
+                <span>2x15 dmg</span>
+                <p class="move-desc">Fires twin energy beams from her iconic cone bustier.</p>
+            </div>
+
+            <div class="section-label">Ultimate</div>
+
+            <div class="move ultimate">
+                <span class="move-name">MATERIAL WORLD!</span>
+                <span class="move-combo">↓ → ↓ → Z</span>
+                <span>60 dmg</span>
+                <span class="energy-cost">100 ENERGY</span>
+                <p class="move-desc">Summons a whirlwind of diamonds, music notes, and hearts!</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bio">
+        <p class="bio-quote">"We are living in a material world, and I am a material girl."</p>
+    </div>
+
+    <script>
+        const arena = document.getElementById('arena');
+        const madonna = document.getElementById('madonna');
+        const dummy = document.getElementById('dummy');
+        let isAnimating = false;
+
+        function showImpact(text, x, y, color = 'var(--pink)') {
+            const impact = document.createElement('div');
+            impact.className = 'impact-text';
+            impact.textContent = text;
+            impact.style.left = x + 'px';
+            impact.style.top = y + 'px';
+            impact.style.color = color;
+            arena.appendChild(impact);
+
+            let opacity = 1;
+            let offsetY = 0;
+            const fade = setInterval(() => {
+                opacity -= 0.05;
+                offsetY -= 2;
+                impact.style.opacity = opacity;
+                impact.style.top = (y + offsetY) + 'px';
+                if (opacity <= 0) {
+                    clearInterval(fade);
+                    impact.remove();
+                }
+            }, 30);
+        }
+
+        function hitDummy() {
+            dummy.classList.add('hit');
+            setTimeout(() => dummy.classList.remove('hit'), 300);
+        }
+
+        function createMicrophone() {
+            const mic = document.createElement('div');
+            mic.className = 'projectile microphone';
+
+            const head = document.createElement('div');
+            head.className = 'mic-head';
+            mic.appendChild(head);
+
+            const body = document.createElement('div');
+            body.className = 'mic-body';
+            mic.appendChild(body);
+
+            return mic;
+        }
+
+        function createMusicNote() {
+            const note = document.createElement('div');
+            note.className = 'projectile music-note';
+            note.textContent = ['♪', '♫', '♬'][Math.floor(Math.random() * 3)];
+            return note;
+        }
+
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.className = 'projectile heart';
+            return heart;
+        }
+
+        function createDiamond() {
+            const diamond = document.createElement('div');
+            diamond.className = 'projectile';
+            diamond.style.cssText = `
+                width: 0;
+                height: 0;
+                border: 10px solid transparent;
+                border-bottom-color: #3498db;
+                position: relative;
+            `;
+            const bottom = document.createElement('div');
+            bottom.style.cssText = `
+                position: absolute;
+                top: 10px;
+                left: -10px;
+                width: 0;
+                height: 0;
+                border: 10px solid transparent;
+                border-top-color: #2980b9;
+            `;
+            diamond.appendChild(bottom);
+            return diamond;
+        }
+
+        function playVogue() {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            const madonnaX = madonna.offsetLeft;
+
+            // Strike the pose
+            madonna.classList.add('vogue');
+            showImpact('VOGUE!', madonnaX + 10, 80, 'var(--pink)');
+
+            // Sparkle effect around pose
+            for (let i = 0; i < 8; i++) {
+                setTimeout(() => {
+                    const sparkle = document.createElement('div');
+                    sparkle.textContent = '✦';
+                    sparkle.style.cssText = `
+                        position: absolute;
+                        left: ${madonnaX + 10 + Math.random() * 60}px;
+                        top: ${80 + Math.random() * 80}px;
+                        color: var(--gold);
+                        font-size: ${12 + Math.random() * 10}px;
+                        z-index: 100;
+                    `;
+                    arena.appendChild(sparkle);
+                    setTimeout(() => sparkle.remove(), 300);
+                }, i * 50);
+            }
+
+            // Shockwave from the pose
+            setTimeout(() => {
+                const wave = document.createElement('div');
+                wave.style.cssText = `
+                    position: absolute;
+                    left: ${madonnaX}px;
+                    bottom: 90px;
+                    width: 60px;
+                    height: 60px;
+                    border: 3px solid var(--pink);
+                    border-radius: 50%;
+                    z-index: 50;
+                `;
+                arena.appendChild(wave);
+
+                let size = 60;
+                let opacity = 1;
+                const expand = setInterval(() => {
+                    size += 20;
+                    opacity -= 0.1;
+                    wave.style.width = size + 'px';
+                    wave.style.height = size + 'px';
+                    wave.style.left = (madonnaX - (size - 60) / 2) + 'px';
+                    wave.style.bottom = (90 - (size - 60) / 2) + 'px';
+                    wave.style.opacity = opacity;
+
+                    if (opacity <= 0) {
+                        clearInterval(expand);
+                        wave.remove();
+                    }
+                }, 30);
+
+                hitDummy();
+                showImpact('FIERCE!', 280, 100, 'var(--pink-dark)');
+                showImpact('-24', 320, 130, '#ff0000');
+            }, 300);
+
+            setTimeout(() => {
+                madonna.classList.remove('vogue');
+                isAnimating = false;
+            }, 800);
+        }
+
+        function playMicDrop() {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            const startX = 115;
+            const dummyRect = dummy.getBoundingClientRect();
+            const arenaRect = arena.getBoundingClientRect();
+            const targetX = dummyRect.left - arenaRect.left;
+
+            showImpact('MIC DROP!', startX + 20, 80, 'var(--purple)');
+
+            const mic = createMicrophone();
+            mic.style.left = startX + 'px';
+            mic.style.bottom = '140px';
+            arena.appendChild(mic);
+
+            let progress = 0;
+            let rotation = 0;
+            const fly = setInterval(() => {
+                progress += 0.05;
+                rotation += 20;
+                const x = startX + (targetX - startX) * progress;
+                const arc = Math.sin(progress * Math.PI) * 60;
+                mic.style.left = x + 'px';
+                mic.style.bottom = (140 + arc - progress * 60) + 'px';
+                mic.style.transform = `rotate(${rotation}deg)`;
+
+                if (progress >= 1) {
+                    clearInterval(fly);
+                    hitDummy();
+
+                    showImpact('BOOM!', targetX, 90, 'var(--purple)');
+                    showImpact('-20', targetX + 30, 120, '#ff0000');
+
+                    // Mic bounce effect
+                    mic.style.transition = 'all 0.1s';
+                    mic.style.transform = 'scale(1.3)';
+                    setTimeout(() => {
+                        mic.style.opacity = '0';
+                        setTimeout(() => mic.remove(), 100);
+                    }, 100);
+
+                    // Sound waves
+                    for (let i = 0; i < 3; i++) {
+                        setTimeout(() => {
+                            const note = createMusicNote();
+                            note.style.left = (targetX + 10) + 'px';
+                            note.style.bottom = '100px';
+                            arena.appendChild(note);
+
+                            let ny = 0;
+                            let no = 1;
+                            const float = setInterval(() => {
+                                ny += 3;
+                                no -= 0.05;
+                                note.style.bottom = (100 + ny) + 'px';
+                                note.style.left = (targetX + 10 + Math.sin(ny / 10) * 15) + 'px';
+                                note.style.opacity = no;
+                                if (no <= 0) {
+                                    clearInterval(float);
+                                    note.remove();
+                                }
+                            }, 30);
+                        }, i * 100);
+                    }
+
+                    isAnimating = false;
+                }
+            }, 25);
+        }
+
+        function playConeBlast() {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            const madonnaX = madonna.offsetLeft;
+            const dummyRect = dummy.getBoundingClientRect();
+            const arenaRect = arena.getBoundingClientRect();
+            const targetX = dummyRect.left - arenaRect.left;
+
+            showImpact('CONE BLAST!', madonnaX + 30, 70, '#e74c3c');
+
+            // Fire two beams from cones
+            const beamColors = ['#e74c3c', '#c0392b'];
+            const beamOffsets = [95, 105];
+
+            beamOffsets.forEach((yOffset, i) => {
+                setTimeout(() => {
+                    const beam = document.createElement('div');
+                    beam.style.cssText = `
+                        position: absolute;
+                        left: ${madonnaX + 40}px;
+                        bottom: ${yOffset}px;
+                        width: 20px;
+                        height: 8px;
+                        background: linear-gradient(90deg, ${beamColors[i]}, #f39c12, #f1c40f);
+                        border-radius: 0 50% 50% 0;
+                        z-index: 100;
+                        box-shadow: 0 0 10px ${beamColors[i]};
+                    `;
+                    arena.appendChild(beam);
+
+                    let progress = 0;
+                    const shoot = setInterval(() => {
+                        progress += 0.1;
+                        const x = madonnaX + 40 + (targetX - madonnaX - 40) * progress;
+                        const width = 20 + progress * 30;
+                        beam.style.left = x + 'px';
+                        beam.style.width = width + 'px';
+
+                        if (progress >= 1) {
+                            clearInterval(shoot);
+                            hitDummy();
+
+                            if (i === 1) {
+                                showImpact('ZAP!', targetX, 100, '#e74c3c');
+                            }
+                            showImpact('-15', targetX + 20 + i * 20, 120 + i * 15, '#ff0000');
+
+                            beam.style.opacity = '0';
+                            beam.style.transition = 'opacity 0.1s';
+                            setTimeout(() => beam.remove(), 100);
+                        }
+                    }, 25);
+                }, i * 150);
+            });
+
+            setTimeout(() => { isAnimating = false; }, 600);
+        }
+
+        function playMaterialWorld() {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            const madonnaX = madonna.offsetLeft;
+            const dummyRect = dummy.getBoundingClientRect();
+            const arenaRect = arena.getBoundingClientRect();
+            const targetX = dummyRect.left - arenaRect.left;
+
+            showImpact('MATERIAL WORLD!', 150, 50, 'var(--gold)');
+
+            // Spin animation
+            madonna.classList.add('spinning');
+
+            // Spawn diamonds, hearts, and music notes
+            const items = [];
+            for (let i = 0; i < 15; i++) {
+                setTimeout(() => {
+                    let item;
+                    const type = i % 3;
+                    if (type === 0) {
+                        item = createDiamond();
+                    } else if (type === 1) {
+                        item = createHeart();
+                    } else {
+                        item = createMusicNote();
+                    }
+
+                    const startY = 80 + (i % 5) * 15;
+                    item.style.left = (madonnaX + 30) + 'px';
+                    item.style.bottom = startY + 'px';
+                    arena.appendChild(item);
+
+                    let progress = 0;
+                    const fly = setInterval(() => {
+                        progress += 0.06;
+                        const x = madonnaX + 30 + (targetX - madonnaX) * progress;
+                        const arc = Math.sin(progress * Math.PI) * (20 + (i % 3) * 15);
+                        item.style.left = x + 'px';
+                        item.style.bottom = (startY + arc) + 'px';
+                        item.style.transform = `rotate(${progress * 360}deg)`;
+
+                        if (progress >= 1) {
+                            clearInterval(fly);
+                            if (i % 4 === 0) hitDummy();
+
+                            item.style.opacity = '0';
+                            item.style.transition = 'opacity 0.1s';
+                            setTimeout(() => item.remove(), 100);
+                        }
+                    }, 25);
+                }, i * 60);
+            }
+
+            // Big finale
+            setTimeout(() => {
+                madonna.classList.remove('spinning');
+                hitDummy();
+                showImpact('ICONIC!', targetX - 20, 80, 'var(--gold)');
+                showImpact('-60', targetX + 30, 110, 'var(--gold)');
+
+                // Explosion of sparkles
+                for (let i = 0; i < 12; i++) {
+                    const sparkle = document.createElement('div');
+                    sparkle.textContent = '✦';
+                    sparkle.style.cssText = `
+                        position: absolute;
+                        left: ${targetX + 15}px;
+                        bottom: 110px;
+                        color: var(--gold);
+                        font-size: 16px;
+                        z-index: 150;
+                    `;
+                    arena.appendChild(sparkle);
+
+                    const angle = (i / 12) * Math.PI * 2;
+                    let dist = 0;
+                    let opacity = 1;
+                    const burst = setInterval(() => {
+                        dist += 6;
+                        opacity -= 0.05;
+                        sparkle.style.left = (targetX + 15 + Math.cos(angle) * dist) + 'px';
+                        sparkle.style.bottom = (110 + Math.sin(angle) * dist) + 'px';
+                        sparkle.style.opacity = opacity;
+                        if (opacity <= 0) {
+                            clearInterval(burst);
+                            sparkle.remove();
+                        }
+                    }, 25);
+                }
+
+                isAnimating = false;
+            }, 15 * 60 + 400);
+        }
+    </script>
+</body>
+</html>
