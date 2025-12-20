@@ -464,10 +464,10 @@ testAttack(char || 'fede', attack || 'punch');
 ### Phase 2: Combat System
 - [x] combat-system.js (damage calculation, hit effects)
 - [x] Hit detection in character attack methods
-- [ ] Hitstun (brief stagger animation when hit)
-- [ ] Knockback (getting hit pushes character back)
-- [ ] Block mechanic (hold back to reduce damage)
-- [ ] Invincibility frames after getting hit
+- [x] Hitstun (brief stagger animation when hit)
+- [x] Knockback (getting hit pushes character back)
+- [x] Block mechanic (hold back to reduce damage)
+- [x] Invincibility frames after getting hit
 
 ### Phase 3: Player Character (Fede)
 - [x] fede.js character definition
@@ -492,31 +492,33 @@ testAttack(char || 'fede', attack || 'punch');
 - [x] AI controller for NPC behavior
 
 ### Phase 5: Tournament Mode
-- [ ] tournament.js - Ladder system with 12 opponents
-- [ ] tournament-ui.js - VS screens, ladder display
-- [ ] State machine (TITLE → LADDER_VIEW → PRE_FIGHT → FIGHTING → ROUND_END → etc)
-- [ ] Best-of-3 rounds per match
-- [ ] "ROUND 1... FIGHT!" announcer text
-- [ ] Victory/defeat screens
-- [ ] Opponent intro cards (name, title, difficulty)
-- [ ] Final victory celebration (beat Billy)
-- [ ] Game over / continue screen
+- [x] tournament.js - Ladder system with 12 opponents
+- [x] tournament-ui.js - VS screens, ladder display
+- [x] State machine (TITLE → LADDER_VIEW → PRE_FIGHT → FIGHTING → ROUND_END → etc)
+- [x] Best-of-3 rounds per match
+- [x] "ROUND 1... FIGHT!" announcer text
+- [x] Victory/defeat screens
+- [x] Opponent intro cards (name, title, difficulty)
+- [x] Final victory celebration (beat Billy)
+- [x] Game over / continue screen
 
 ### Phase 6: Visual Feedback & Polish
 - [x] Hit sparks (basic)
 - [x] Screen shake on heavy hits
-- [ ] Flash on hit (character briefly flashes white when damaged)
-- [ ] Combo counter (optional - track consecutive hits)
-- [ ] Round win indicators (circles under health bar)
-- [ ] Victory pose after KO
+- [x] Flash on hit (character briefly flashes white when damaged)
+- [x] Combo counter (track consecutive hits)
+- [x] Damage numbers display
+- [x] Round win indicators (circles under health bar)
+- [x] Victory pose after KO
 - [ ] Sound effects (optional)
 - [ ] Particle polish
 
 ### Phase 7: Testing & Balance
-- [ ] Verify all attacks work from both sides (player left/right of opponent)
-- [ ] Test all special moves with Puppeteer screenshots
-- [ ] Balance damage values across characters
-- [ ] Ensure no auto-hit attacks (all require proper hit detection)
+- [x] Verify all attacks work from both sides (player left/right of opponent)
+- [x] Test all special moves with Puppeteer screenshots
+- [x] 174 automated tests passing (combat mechanics, integration, regression)
+- [x] Balance damage values across characters
+- [x] Ensure no auto-hit attacks (all require proper hit detection)
 - [ ] Performance testing (maintain 60fps)
 
 ---
@@ -549,32 +551,32 @@ Before marking any attack as complete:
 
 ### Movement
 - [x] **Smooth walking**: Left/right arrow keys move character fluidly
-- [ ] **Cannot walk through opponent**: Collision detection prevents overlapping
+- [x] **Cannot walk through opponent**: Collision detection prevents overlapping (50px)
 - [x] **Arena boundaries**: Characters cannot walk off-screen
 - [ ] **Jump arc**: C key triggers proper jump with gravity (basic implementation)
 - [x] **No movement during attack**: Locked in place while attack animation plays
 
 ### Combat Feel
-- [ ] **Hitstun**: Brief stagger animation when hit
-- [ ] **Knockback**: Getting hit pushes character back slightly
-- [ ] **Block (optional)**: Hold back to reduce damage
-- [ ] **Invincibility frames**: Brief i-frames after getting hit
+- [x] **Hitstun**: Brief stagger animation when hit (200-600ms based on attack)
+- [x] **Knockback**: Getting hit pushes character back (15-50px based on attack)
+- [x] **Block**: Hold back to reduce damage (75% reduction for basic, 50% for specials)
+- [x] **Invincibility frames**: Brief i-frames after getting hit (200ms after hitstun)
 - [ ] **Attack priority**: Some attacks beat others (anti-air, etc.)
 
 ### Visual Feedback
 - [x] **Hit sparks**: Visual effect on impact (showHitEffect)
-- [ ] **Damage numbers** (optional): Show damage dealt
+- [x] **Damage numbers**: Show damage dealt (floating numbers with animation)
 - [x] **Screen shake**: On heavy hits/ultimates
-- [ ] **Flash on hit**: Character briefly flashes white when damaged
-- [ ] **Combo counter** (optional): Track consecutive hits
+- [x] **Flash on hit**: Character briefly flashes white when damaged
+- [x] **Combo counter**: Track consecutive hits (shows after 2+ hits)
 
 ### Round/Match Flow
-- [x] **Round timer**: 99 seconds per round (implemented but needs round system)
+- [x] **Round timer**: 99 seconds per round
 - [x] **Health depletion = KO**: Round ends when health reaches 0
-- [ ] **Round announcer**: "ROUND 1... FIGHT!"
-- [ ] **Victory pose**: Winner does animation after KO
-- [ ] **Best of 3**: First to 2 round wins takes the match
-- [ ] **Round win indicators**: Circles under health bar to show rounds won
+- [x] **Round announcer**: "ROUND 1... FIGHT!"
+- [x] **Victory pose**: Winner does animation after KO
+- [x] **Best of 3**: First to 2 round wins takes the match
+- [x] **Round win indicators**: Circles under health bar to show rounds won
 
 ### Testing Checklist Per Attack
 For EVERY attack (punch, kick, special, ultimate):
@@ -715,14 +717,14 @@ The attacks in `POC_game_with_good_attacks/index.html` were carefully crafted an
 │   ├── audrey.js                ✅
 │   └── pato.js                  ✅
 ├── systems/
-│   ├── game-engine.js           ✅ Game loop, state
-│   ├── input-handler.js         ✅ Keyboard, combos
-│   ├── combat-system.js         ✅ Hit effects, damage
+│   ├── game-engine.js           ✅ Game loop, state, collision
+│   ├── input-handler.js         ✅ Keyboard, combos, blocking
+│   ├── combat-system.js         ✅ Hit effects, damage, hitstun, knockback, combos
 │   ├── ai-controller.js         ✅ NPC behavior
-│   └── tournament.js            ❌ TODO - Ladder system
+│   └── tournament.js            ✅ Ladder system, best-of-3
 ├── ui/
-│   ├── tournament-ui.js         ❌ TODO - VS screens
-│   └── victory-screen.js        ❌ TODO - Win/lose screens
+│   ├── tournament-ui.js         ✅ VS screens, ladder display
+│   └── victory-screen.js        ✅ Win/lose screens
 └── debug/
     ├── animation-tester.js      ✅ Puppeteer screenshots
     └── test-fede-attacks.js     ✅ Attack verification

@@ -50,8 +50,17 @@ const CombatSystem = {
         playerStunned: false,
         opponentStunned: false,
         playerBlocking: false,
-        opponentBlocking: false
+        opponentBlocking: false,
+        // Combo tracking
+        playerCombo: 0,
+        opponentCombo: 0,
+        playerComboDamage: 0,
+        opponentComboDamage: 0,
+        comboResetTimer: null
     },
+
+    // Combo reset delay (ms) - combo ends if no hit within this time
+    COMBO_RESET_DELAY: 1500,
 
     // Reference to game engine
     gameEngine: null,
@@ -108,6 +117,7 @@ const CombatSystem = {
             if (this.isBlocking(target)) {
                 damage = Math.floor(damage * 0.25);
                 this.showHitEffect(targetX, 'BLOCK!', '#4488ff');
+                this.showDamageNumber(targetX, damage, true);
                 return { hit: true, damage: damage, blocked: true };
             }
 
@@ -123,6 +133,10 @@ const CombatSystem = {
             this.applyKnockback(target, knockbackDir, this.KNOCKBACK.punch);
             this.applyHitstun(target, this.HITSTUN.punch);
             this.flashCharacter(target);
+
+            // Track combo and show damage
+            this.registerHit(isPlayer ? 'player' : 'opponent', damage);
+            this.showDamageNumber(targetX, damage, false);
 
             this.showHitEffect(targetX, 'HIT!');
             return { hit: true, damage: damage, blocked: false };
@@ -155,6 +169,7 @@ const CombatSystem = {
             if (this.isBlocking(target)) {
                 damage = Math.floor(damage * 0.25);
                 this.showHitEffect(targetX, 'BLOCK!', '#4488ff');
+                this.showDamageNumber(targetX, damage, true);
                 return { hit: true, damage: damage, blocked: true };
             }
 
@@ -171,6 +186,10 @@ const CombatSystem = {
             this.applyHitstun(target, this.HITSTUN.kick);
             this.flashCharacter(target);
             this.screenShake(3, 100); // Light screen shake on kicks
+
+            // Track combo and show damage
+            this.registerHit(isPlayer ? 'player' : 'opponent', damage);
+            this.showDamageNumber(targetX, damage, false);
 
             this.showHitEffect(targetX, 'POW!');
             return { hit: true, damage: damage, blocked: false };
@@ -221,6 +240,10 @@ const CombatSystem = {
             this.flashCharacter(target);
             this.screenShake(isUltimate ? 8 : 5, isUltimate ? 300 : 200);
 
+            // Track combo and show damage
+            this.registerHit(isPlayer ? 'player' : 'opponent', actualDamage);
+            this.showDamageNumber(targetX, actualDamage, blocking);
+
             if (blocking) {
                 this.showHitEffect(targetX, 'GUARD!', '#4488ff');
             } else {
@@ -257,6 +280,10 @@ const CombatSystem = {
         } else {
             this.gameEngine.damagePlayer(damage);
         }
+
+        // Track combo and show damage
+        this.registerHit(isPlayerProjectile ? 'player' : 'opponent', damage);
+        this.showDamageNumber(targetX, damage, false);
 
         this.showHitEffect(targetX, hitText, '#ffcc00');
     },
@@ -527,13 +554,23 @@ const CombatSystem = {
      * Reset combat state (for new round)
      */
     resetState() {
+        // Clear combo timer
+        if (this.state.comboResetTimer) {
+            clearTimeout(this.state.comboResetTimer);
+        }
+
         this.state = {
             playerInvincible: false,
             opponentInvincible: false,
             playerStunned: false,
             opponentStunned: false,
             playerBlocking: false,
-            opponentBlocking: false
+            opponentBlocking: false,
+            playerCombo: 0,
+            opponentCombo: 0,
+            playerComboDamage: 0,
+            opponentComboDamage: 0,
+            comboResetTimer: null
         };
 
         // Remove all combat classes
@@ -542,6 +579,126 @@ const CombatSystem = {
                 el.classList.remove('stunned', 'invincible', 'blocking', 'hit-flash');
             }
         });
+
+        // Remove combo display
+        this.hideComboDisplay();
+    },
+
+    // ==========================================
+    // Combo System
+    // ==========================================
+
+    /**
+     * Register a hit for combo tracking
+     * @param {string} attacker - 'player' or 'opponent'
+     * @param {number} damage - Damage dealt
+     */
+    registerHit(attacker, damage) {
+        if (attacker === 'player') {
+            this.state.playerCombo++;
+            this.state.playerComboDamage += damage;
+            this.state.opponentCombo = 0;
+            this.state.opponentComboDamage = 0;
+        } else {
+            this.state.opponentCombo++;
+            this.state.opponentComboDamage += damage;
+            this.state.playerCombo = 0;
+            this.state.playerComboDamage = 0;
+        }
+
+        // Show combo if 2+ hits
+        if (this.state.playerCombo >= 2) {
+            this.showComboDisplay(this.state.playerCombo, this.state.playerComboDamage, true);
+        } else if (this.state.opponentCombo >= 2) {
+            this.showComboDisplay(this.state.opponentCombo, this.state.opponentComboDamage, false);
+        }
+
+        // Reset combo timer
+        if (this.state.comboResetTimer) {
+            clearTimeout(this.state.comboResetTimer);
+        }
+        this.state.comboResetTimer = setTimeout(() => {
+            this.resetCombo();
+        }, this.COMBO_RESET_DELAY);
+    },
+
+    /**
+     * Reset combo counters
+     */
+    resetCombo() {
+        this.state.playerCombo = 0;
+        this.state.opponentCombo = 0;
+        this.state.playerComboDamage = 0;
+        this.state.opponentComboDamage = 0;
+        this.hideComboDisplay();
+    },
+
+    /**
+     * Show combo counter on screen
+     * @param {number} hits - Number of hits
+     * @param {number} damage - Total combo damage
+     * @param {boolean} isPlayer - Whether player did the combo
+     */
+    showComboDisplay(hits, damage, isPlayer) {
+        let comboDisplay = document.getElementById('combo-counter');
+
+        if (!comboDisplay && this.arena) {
+            comboDisplay = document.createElement('div');
+            comboDisplay.id = 'combo-counter';
+            comboDisplay.className = 'combo-counter';
+            this.arena.appendChild(comboDisplay);
+        }
+
+        if (comboDisplay) {
+            comboDisplay.innerHTML = `
+                <div class="combo-hits">${hits} HITS!</div>
+                <div class="combo-damage">${damage} DMG</div>
+            `;
+            comboDisplay.className = `combo-counter ${isPlayer ? 'player-combo' : 'opponent-combo'} active`;
+        }
+    },
+
+    /**
+     * Hide combo display
+     */
+    hideComboDisplay() {
+        const comboDisplay = document.getElementById('combo-counter');
+        if (comboDisplay) {
+            comboDisplay.classList.remove('active');
+        }
+    },
+
+    /**
+     * Show floating damage number
+     * @param {number} x - X position
+     * @param {number} damage - Damage amount
+     * @param {boolean} isBlocked - Whether attack was blocked
+     */
+    showDamageNumber(x, damage, isBlocked = false) {
+        if (!this.arena) return;
+
+        const number = document.createElement('div');
+        number.textContent = isBlocked ? `${damage}` : `-${damage}`;
+        number.className = `damage-number ${isBlocked ? 'blocked' : ''}`;
+        number.style.cssText = `
+            position: absolute;
+            left: ${x + Math.random() * 30 - 15}px;
+            bottom: ${160 + Math.random() * 20}px;
+            font-family: 'Impact', 'Arial Black', sans-serif;
+            font-size: ${isBlocked ? '16px' : '22px'};
+            font-weight: bold;
+            color: ${isBlocked ? '#4488ff' : '#ff4444'};
+            text-shadow: 2px 2px 0 #000, -1px -1px 0 #000;
+            pointer-events: none;
+            z-index: 200;
+            animation: damageFloat 0.8s ease-out forwards;
+        `;
+
+        this.arena.appendChild(number);
+
+        setTimeout(() => {
+            number.remove();
+        }, 800);
     }
 };
 
