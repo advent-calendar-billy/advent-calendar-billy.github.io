@@ -21,6 +21,7 @@ const OpponentAI = {
 
     // Initialize AI with opponent data
     init(opponent, opponentStats) {
+        console.log('[OpponentAI] Initializing:', opponent.name, 'HP:', opponentStats.hp, 'AttackChance:', opponentStats.attackChance);
         this.state = {
             isActive: true,
             character: opponent,
@@ -51,8 +52,8 @@ const OpponentAI = {
         this.state.moveTimer++;
         this.state.decisionTimer++;
 
-        // Make decisions periodically
-        if (this.state.decisionTimer >= 30) {
+        // Make decisions periodically (faster = more reactive)
+        if (this.state.decisionTimer >= 20) {
             this.state.decisionTimer = 0;
             this.makeDecision(playerX, distance);
         }
@@ -75,28 +76,31 @@ const OpponentAI = {
         const rand = Math.random();
         const difficulty = this.state.stats;
 
+        // Base attack chance scaled by difficulty (minimum 30% at close range for all opponents)
+        const baseAttackChance = Math.max(0.3, difficulty.attackChance * 10);
+
         // Determine action based on distance and randomness
-        if (distance < 80) {
-            // Close range - mostly attack
-            if (rand < difficulty.attackChance * 5) {
+        if (distance < 90) {
+            // Close range - mostly attack!
+            if (rand < baseAttackChance) {
                 this.state.currentAction = 'attack';
-            } else if (rand < 0.4) {
+            } else if (rand < baseAttackChance + 0.15) {
                 this.state.currentAction = 'retreat';
             } else {
                 this.state.currentAction = 'idle';
             }
-        } else if (distance < 200) {
-            // Medium range
-            if (rand < difficulty.attackChance * 3) {
+        } else if (distance < 180) {
+            // Medium range - approach and attack
+            if (rand < baseAttackChance * 0.5) {
                 this.state.currentAction = 'attack';
-            } else if (rand < 0.5) {
+            } else if (rand < 0.75) {
                 this.state.currentAction = 'approach';
             } else {
                 this.state.currentAction = 'idle';
             }
         } else {
-            // Long range - approach
-            if (rand < 0.7) {
+            // Long range - always approach
+            if (rand < 0.85) {
                 this.state.currentAction = 'approach';
             } else {
                 this.state.currentAction = 'idle';
@@ -132,9 +136,9 @@ const OpponentAI = {
                 break;
 
             case 'attack':
-                if (distance < 100 && !this.state.isAttacking) {
+                if (distance < 120 && !this.state.isAttacking) {
                     this.performAttack(gameState);
-                } else if (distance >= 100) {
+                } else if (distance >= 120) {
                     // Too far, approach instead
                     this.state.currentAction = 'approach';
                 }
@@ -163,7 +167,8 @@ const OpponentAI = {
         if (this.state.isAttacking) return;
 
         const now = Date.now();
-        if (now - this.state.lastAttackTime < 600) return; // Attack cooldown
+        const cooldown = 400 + Math.random() * 200; // Variable cooldown 400-600ms
+        if (now - this.state.lastAttackTime < cooldown) return;
 
         this.state.isAttacking = true;
         this.state.lastAttackTime = now;
@@ -196,6 +201,7 @@ const OpponentAI = {
 
         // Always trigger the attack callback for animation, even if out of range
         // Hit detection is handled in the callback
+        console.log('[OpponentAI] Performing attack:', attackName, 'damage:', damage, 'distance:', distance);
         if (this.onAttack) {
             this.onAttack({
                 type: attackName,
@@ -205,6 +211,8 @@ const OpponentAI = {
                 isSpecial: isSpecial,
                 characterId: this.state.character ? this.state.character.id : null
             });
+        } else {
+            console.warn('[OpponentAI] Attack callback not set!');
         }
 
         // Reset attacking state after duration

@@ -276,12 +276,28 @@
             clearInterval(tournamentGame.aiUpdateInterval);
         }
 
+        // Debug: confirm AI loop is starting
+        console.log('[TournamentAI] Starting AI loop');
+
         tournamentGame.aiUpdateInterval = setInterval(() => {
             if (!tournamentGame.active) return;
 
+            // Get player position - try multiple sources
+            let playerX = 100;
+            if (window.game && typeof window.game.playerX === 'number') {
+                playerX = window.game.playerX;
+            } else {
+                // Fallback: get position from fighter element
+                const playerFighter = document.getElementById('player-fighter');
+                if (playerFighter) {
+                    const left = parseFloat(playerFighter.style.left);
+                    if (!isNaN(left)) playerX = left;
+                }
+            }
+
             const aiResult = OpponentAI.update({
-                playerX: game.playerX,
-                playerHealth: game.playerHealth
+                playerX: playerX,
+                playerHealth: game.playerHealth || 100
             });
 
             if (aiResult) {
@@ -302,10 +318,16 @@
 
     // Handle opponent attacking player
     function handleOpponentAttack(attackData) {
-        if (!tournamentGame.active) return;
+        console.log('[TournamentAI] Opponent attack:', attackData.type, 'at distance:', Math.abs(attackData.x - attackData.playerX));
+
+        if (!tournamentGame.active) {
+            console.log('[TournamentAI] Attack blocked - tournament not active');
+            return;
+        }
 
         const opponentFighter = document.getElementById('opponent-fighter');
         const arena = document.getElementById('arena');
+        const facingLeft = attackData.x > attackData.playerX;
 
         // Show attack animation on opponent
         if (opponentFighter) {
@@ -321,28 +343,45 @@
                 setTimeout(() => opponentFighter.classList.remove('special-attack'), 500);
             }
 
-            // Show attack swoosh effect
+            // Show attack swoosh effect - more visible
             const swoosh = document.createElement('div');
-            const facingLeft = attackData.x > attackData.playerX;
             swoosh.style.cssText = `
                 position: absolute;
-                left: ${facingLeft ? attackData.x - 60 : attackData.x + 40}px;
+                left: ${facingLeft ? attackData.x - 80 : attackData.x + 60}px;
                 bottom: 100px;
-                width: 50px;
-                height: 30px;
-                background: radial-gradient(ellipse at ${facingLeft ? 'right' : 'left'}, rgba(255,100,100,0.6) 0%, transparent 70%);
+                width: 70px;
+                height: 40px;
+                background: radial-gradient(ellipse at ${facingLeft ? 'right' : 'left'}, rgba(255,80,80,0.8) 0%, rgba(255,150,50,0.4) 50%, transparent 70%);
                 border-radius: 50%;
                 z-index: 150;
-                animation: attackSwoosh 0.2s ease-out forwards;
+                animation: attackSwoosh 0.25s ease-out forwards;
                 transform: ${facingLeft ? 'scaleX(-1)' : ''};
             `;
             arena.appendChild(swoosh);
-            setTimeout(() => swoosh.remove(), 200);
+            setTimeout(() => swoosh.remove(), 250);
+
+            // Show attack type indicator above opponent
+            const attackLabel = document.createElement('div');
+            attackLabel.textContent = attackData.type.toUpperCase() + '!';
+            attackLabel.style.cssText = `
+                position: absolute;
+                left: ${attackData.x}px;
+                bottom: 200px;
+                font-family: 'Finger Paint', cursive;
+                font-size: 16px;
+                color: #ff6b6b;
+                text-shadow: 1px 1px 0 #000;
+                z-index: 200;
+                animation: hitTextPop 0.4s ease-out forwards;
+                pointer-events: none;
+            `;
+            arena.appendChild(attackLabel);
+            setTimeout(() => attackLabel.remove(), 400);
         }
 
-        // Hit detection
+        // Hit detection - slightly larger range for attacks to connect
         const distance = Math.abs(attackData.x - attackData.playerX);
-        if (distance < 85) {
+        if (distance < 100) {
             game.playerHealth = Math.max(0, game.playerHealth - attackData.damage);
             updateTournamentUI();
 
