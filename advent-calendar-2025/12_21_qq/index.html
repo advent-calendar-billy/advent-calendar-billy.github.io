@@ -3775,7 +3775,7 @@
         const game = {
             selectedCharacter: null,
             playerHealth: 100,
-            dummyHealth: 1000,
+            dummyHealth: 200,  // Reduced for faster matches
             playerEnergy: 0,
             playerX: 100,
             isJumping: false,
@@ -4218,7 +4218,7 @@
 
         function resetGame() {
             game.playerHealth = 100;
-            game.dummyHealth = 1000;
+            game.dummyHealth = 200;
             game.playerEnergy = 0;
             game.playerX = 100;
             game.isJumping = false;
@@ -6044,24 +6044,30 @@
         }
 
         function isInRange(range = 120) {
-            const dummy = document.getElementById('npc-dummy');
-            const dummyRect = dummy.getBoundingClientRect();
-            const dummyX = dummyRect.left;
+            // Check opponent fighter (tournament mode) or NPC dummy (practice mode)
+            const opponent = document.getElementById('opponent-fighter') || document.getElementById('npc-dummy');
+            if (!opponent) return false;
+
+            const opponentRect = opponent.getBoundingClientRect();
+            const opponentX = opponentRect.left;
 
             const arena = document.getElementById('arena');
             const arenaRect = arena.getBoundingClientRect();
             const playerScreenX = arenaRect.left + game.playerX;
 
-            return Math.abs(dummyX - playerScreenX) < range;
+            return Math.abs(opponentX - playerScreenX) < range;
         }
 
         function dealDamage(amount, text = 'HIT!') {
             game.dummyHealth = Math.max(0, game.dummyHealth - amount);
             game.playerEnergy = Math.min(100, game.playerEnergy + amount);
 
-            const dummy = document.getElementById('npc-dummy');
-            dummy.classList.add('hit');
-            setTimeout(() => dummy.classList.remove('hit'), 300);
+            // Support both tournament opponent and practice dummy
+            const opponent = document.getElementById('opponent-fighter') || document.getElementById('npc-dummy');
+            if (opponent) {
+                opponent.classList.add('hit');
+                setTimeout(() => opponent.classList.remove('hit'), 300);
+            }
 
             // Show impact effect
             showImpact(text, amount);
@@ -6075,8 +6081,10 @@
         window.dealDamage = dealDamage;
 
         function showImpact(text, damage) {
-            const dummy = document.getElementById('npc-dummy');
-            const rect = dummy.getBoundingClientRect();
+            // Support both tournament opponent and practice dummy
+            const opponent = document.getElementById('opponent-fighter') || document.getElementById('npc-dummy');
+            if (!opponent) return;
+            const rect = opponent.getBoundingClientRect();
             const arena = document.getElementById('arena');
             const arenaRect = arena.getBoundingClientRect();
 
@@ -11837,7 +11845,7 @@
 
         function restartGame() {
             document.getElementById('result-overlay').classList.remove('show');
-            game.dummyHealth = 1000;
+            game.dummyHealth = 200;
             game.playerHealth = 100;
             game.playerEnergy = 0;
             game.playerX = 100;
