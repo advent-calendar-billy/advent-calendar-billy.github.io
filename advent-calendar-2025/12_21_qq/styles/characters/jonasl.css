@@ -1,0 +1,243 @@
+/**
+ * Jonas L Character Styles
+ * Music/Paddle Theme - Brown color scheme
+ */
+
+/* ========================
+   JonasL Base Sprite
+   ======================== */
+
+.jonasl .head {
+    width: 40px;
+    height: 46px;
+    border: 2px solid var(--ink);
+    border-radius: 42%;
+    background: var(--paper);
+    position: relative;
+    z-index: 10;
+}
+
+.jonasl .hair {
+    position: absolute;
+    top: -4px;
+    left: 8px;
+    width: 24px;
+    height: 12px;
+    border: 2px solid var(--ink);
+    border-bottom: none;
+    border-radius: 50% 50% 0 0;
+    background: #5c4033;
+}
+
+.jonasl .eyes {
+    position: absolute;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+}
+
+.jonasl .eye {
+    width: 6px;
+    height: 6px;
+    background: var(--ink);
+    border-radius: 50%;
+}
+
+.jonasl .mouth {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 10px;
+    height: 5px;
+    border: 2px solid var(--ink);
+    border-top: none;
+    border-radius: 0 0 50% 50%;
+}
+
+.jonasl .body {
+    width: 50px;
+    height: 50px;
+    border: 2px solid var(--ink);
+    border-radius: 5px;
+    background: #2c1810;
+    margin-top: -5px;
+    position: relative;
+    z-index: 5;
+}
+
+.jonasl .arm {
+    position: absolute;
+    width: 10px;
+    height: 30px;
+    border: 2px solid var(--ink);
+    border-radius: 5px;
+    background: #2c1810;
+    top: 5px;
+    transform-origin: top center;
+}
+
+.jonasl .arm.left { left: -8px; }
+.jonasl .arm.right { right: -8px; }
+
+.jonasl .legs {
+    display: flex;
+    gap: 10px;
+    margin-top: -3px;
+    z-index: 1;
+}
+
+.jonasl .leg {
+    width: 12px;
+    height: 35px;
+    border: 2px solid var(--ink);
+    border-radius: 4px;
+    background: #1a1a2e;
+}
+
+/* Bass guitar on back */
+.jonasl .bass {
+    position: absolute;
+    left: -25px;
+    top: 5px;
+    z-index: 3;
+    transform: rotate(-20deg);
+}
+
+.jonasl .bass-neck {
+    position: absolute;
+    width: 8px;
+    height: 55px;
+    background: #5c4033;
+    border: 2px solid var(--ink);
+    border-radius: 2px;
+    top: -30px;
+    left: 12px;
+}
+
+.jonasl .bass-body {
+    width: 35px;
+    height: 45px;
+    background: #8b4513;
+    border: 3px solid var(--ink);
+    border-radius: 30% 30% 40% 40%;
+    position: relative;
+}
+
+.jonasl .bass-strings {
+    position: absolute;
+    top: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 12px;
+    height: 60px;
+    background: repeating-linear-gradient(
+        90deg,
+        transparent 0px,
+        transparent 2px,
+        #ccc 2px,
+        #ccc 3px
+    );
+}
+
+/* ========================
+   JonasL Idle Animation
+   ======================== */
+
+.jonasl.idle {
+    animation: idleBreathe 2s ease-in-out infinite;
+}
+
+/* ========================
+   JonasL Punching State
+   ======================== */
+
+.jonasl.punching .arm.right {
+    animation: jonasLPunch 0.25s ease-out;
+}
+
+@keyframes jonasLPunch {
+    0% {
+        transform: rotate(0deg);
+    }
+    50% {
+        transform: rotate(75deg) translateX(5px);
+    }
+    100% {
+        transform: rotate(0deg);
+    }
+}
+
+/* ========================
+   JonasL Kicking State
+   ======================== */
+
+.jonasl.kicking {
+    animation: jonasLKickBody 0.3s ease-out;
+}
+
+@keyframes jonasLKickBody {
+    0%, 100% {
+        transform: rotate(0deg);
+    }
+    50% {
+        transform: rotate(-10deg) translateY(-3px);
+    }
+}
+
+/* ========================
+   JonasL Special Effects
+   ======================== */
+
+/* Paddle Ball Projectile */
+.projectile.paddle-ball {
+    width: 18px;
+    height: 18px;
+    background: radial-gradient(circle at 30% 30%, #e74c3c, #c0392b);
+    border: 2px solid var(--ink);
+    border-radius: 50%;
+    box-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    z-index: 155;
+}
+
+/* Coffee Mug */
+.projectile.coffee-mug {
+    width: 20px;
+    height: 24px;
+    background: linear-gradient(to right, #fff, #e8e8e8, #fff);
+    border: 2px solid #666;
+    border-radius: 0 0 5px 5px;
+    z-index: 160;
+}
+
+/* Coffee splash */
+.coffee-splash {
+    width: 8px;
+    height: 8px;
+    background: #2d1810;
+    border-radius: 50%;
+    position: absolute;
+    z-index: 150;
+}
+
+/* Bass swing animation */
+.jonasl.special-bass .bass {
+    animation: bassSwing 0.4s ease-out;
+}
+
+@keyframes bassSwing {
+    0% {
+        transform: rotate(-20deg);
+    }
+    40% {
+        transform: rotate(-60deg) translateX(-10px);
+    }
+    70% {
+        transform: rotate(30deg) translateX(20px);
+    }
+    100% {
+        transform: rotate(-20deg);
+    }
+}

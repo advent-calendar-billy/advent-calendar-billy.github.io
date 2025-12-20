@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Fighter</title>
+
+    <!-- CSS - Modular Styles -->
+    <link rel="stylesheet" href="styles/base.css">
+    <link rel="stylesheet" href="styles/arena.css">
+    <link rel="stylesheet" href="styles/ui.css">
+    <link rel="stylesheet" href="styles/animations.css">
+
+    <!-- Character Styles -->
+    <link rel="stylesheet" href="styles/characters/fede.css">
+    <link rel="stylesheet" href="styles/characters/billy.css">
+    <link rel="stylesheet" href="styles/characters/jonas.css">
+    <link rel="stylesheet" href="styles/characters/vicky.css">
+    <link rel="stylesheet" href="styles/characters/lucas.css">
+    <link rel="stylesheet" href="styles/characters/jonasl.css">
+    <link rel="stylesheet" href="styles/characters/timo.css">
+    <link rel="stylesheet" href="styles/characters/pancho.css">
+    <link rel="stylesheet" href="styles/characters/madonna.css">
+    <link rel="stylesheet" href="styles/characters/frank.css">
+    <link rel="stylesheet" href="styles/characters/charly.css">
+    <link rel="stylesheet" href="styles/characters/audrey.css">
+    <link rel="stylesheet" href="styles/characters/pato.css">
+</head>
+<body>
+    <!-- Paper texture background -->
+    <div class="paper-bg"></div>
+
+    <!-- Main game container -->
+    <div class="game-container">
+        <!-- Title Screen -->
+        <div id="title-screen" class="title-screen">
+            <h1 class="game-title">FAMILY FIGHTER</h1>
+            <p class="title-subtitle">A very personal fighting game</p>
+            <button id="start-btn" class="menu-button primary">START GAME</button>
+            <button id="practice-btn" class="menu-button">PRACTICE MODE</button>
+        </div>
+
+        <!-- Arena Wrapper (hidden initially) -->
+        <div id="arena-wrapper" class="arena-wrapper hidden">
+            <!-- HUD - Health and Energy Bars -->
+            <div class="hud-container">
+                <!-- Player Panel -->
+                <div class="fighter-panel player">
+                    <span id="player-name" class="fighter-name">FEDE</span>
+                    <div class="health-bar-container">
+                        <div id="player-health" class="health-bar" style="width: 100%"></div>
+                    </div>
+                    <div class="energy-bar-container">
+                        <div id="player-energy" class="energy-bar" style="width: 0%"></div>
+                    </div>
+                    <div class="round-indicators">
+                        <div id="player-round-1" class="round-dot"></div>
+                        <div id="player-round-2" class="round-dot"></div>
+                    </div>
+                </div>
+
+                <!-- Timer -->
+                <div id="round-timer" class="round-timer">99</div>
+
+                <!-- Opponent Panel -->
+                <div class="fighter-panel opponent">
+                    <span id="opponent-name" class="fighter-name">OPPONENT</span>
+                    <div class="health-bar-container">
+                        <div id="opponent-health" class="health-bar" style="width: 100%"></div>
+                    </div>
+                    <div class="energy-bar-container">
+                        <div id="opponent-energy" class="energy-bar" style="width: 0%"></div>
+                    </div>
+                    <div class="round-indicators">
+                        <div id="opponent-round-1" class="round-dot"></div>
+                        <div id="opponent-round-2" class="round-dot"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Arena -->
+            <div id="arena">
+                <!-- Arena decorative corners -->
+                <div class="arena-corner top-left"></div>
+                <div class="arena-corner top-right"></div>
+                <div class="arena-corner bottom-left"></div>
+                <div class="arena-corner bottom-right"></div>
+
+                <!-- Arena floor -->
+                <div class="arena-floor"></div>
+
+                <!-- Player Fighter (Fede) -->
+                <div id="player-fighter" class="fighter fede idle">
+                    <div class="head">
+                        <div class="hair"></div>
+                        <div class="eyes"><div class="eye"></div><div class="eye"></div></div>
+                        <div class="mouth"></div>
+                    </div>
+                    <div class="body">
+                        <div class="collar-left"></div>
+                        <div class="collar-right"></div>
+                        <div class="buttons">
+                            <div class="button"></div>
+                            <div class="button"></div>
+                            <div class="button"></div>
+                        </div>
+                        <div class="arm left"></div>
+                        <div class="arm right"></div>
+                    </div>
+                    <div class="legs">
+                        <div class="leg left"></div>
+                        <div class="leg right"></div>
+                    </div>
+                    <div class="feet"><div class="foot"></div><div class="foot"></div></div>
+                </div>
+
+                <!-- Opponent Fighter (Billy) -->
+                <div id="opponent-fighter" class="fighter billy idle facing-left">
+                    <div class="head">
+                        <div class="hair"></div>
+                        <div class="glasses"><div class="lens"></div><div class="lens"></div></div>
+                        <div class="mouth"></div>
+                    </div>
+                    <div class="body">
+                        <span class="equation">f(x)</span>
+                        <div class="arm left"></div>
+                        <div class="arm right"></div>
+                    </div>
+                    <div class="legs"><div class="leg"></div><div class="leg"></div></div>
+                </div>
+
+                <!-- Announcement Overlay -->
+                <div id="announcement" class="announcement-overlay hidden">
+                    <div id="announcement-text" class="announcement-text"></div>
+                    <div id="announcement-subtitle" class="announcement-subtitle"></div>
+                </div>
+            </div>
+
+            <!-- Combo Display -->
+            <div id="combo-display" class="combo-display"></div>
+        </div>
+
+        <!-- Pause Menu (hidden initially) -->
+        <div id="pause-overlay" class="pause-overlay hidden">
+            <div class="pause-menu">
+                <h2 class="pause-title">PAUSED</h2>
+                <button id="resume-btn" class="menu-button primary">RESUME</button>
+                <button id="quit-btn" class="menu-button">QUIT TO MENU</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Core Systems -->
+    <script src="systems/game-engine.js"></script>
+    <script src="systems/input-handler.js"></script>
+    <script src="systems/combat-system.js"></script>
+
+    <!-- Character System -->
+    <script src="characters/character-base.js"></script>
+    <script src="characters/fede.js"></script>
+    <script src="characters/billy.js"></script>
+    <script src="characters/jonas.js"></script>
+    <script src="characters/vicky.js"></script>
+    <script src="characters/lucas.js"></script>
+    <script src="characters/jonasl.js"></script>
+    <script src="characters/timo.js"></script>
+    <script src="characters/pancho.js"></script>
+    <script src="characters/madonna.js"></script>
+    <script src="characters/frank.js"></script>
+    <script src="characters/charly.js"></script>
+    <script src="characters/audrey.js"></script>
+    <script src="characters/pato.js"></script>
+
+    <!-- AI System -->
+    <script src="systems/ai-controller.js"></script>
+
+    <!-- Main Game Initialization -->
+    <script>
+        /**
+         * Game Initialization Script
+         * Ties together all modules and handles UI interactions
+         */
+
+        // DOM Elements
+        const elements = {
+            titleScreen: document.getElementById('title-screen'),
+            arenaWrapper: document.getElementById('arena-wrapper'),
+            arena: document.getElementById('arena'),
+            startBtn: document.getElementById('start-btn'),
+            practiceBtn: document.getElementById('practice-btn'),
+            pauseOverlay: document.getElementById('pause-overlay'),
+            resumeBtn: document.getElementById('resume-btn'),
+            quitBtn: document.getElementById('quit-btn'),
+
+            // HUD
+            playerHealth: document.getElementById('player-health'),
+            playerEnergy: document.getElementById('player-energy'),
+            opponentHealth: document.getElementById('opponent-health'),
+            opponentEnergy: document.getElementById('opponent-energy'),
+            playerName: document.getElementById('player-name'),
+            opponentName: document.getElementById('opponent-name'),
+            roundTimer: document.getElementById('round-timer'),
+
+            // Fighters
+            playerFighter: document.getElementById('player-fighter'),
+            opponentFighter: document.getElementById('opponent-fighter'),
+
+            // Announcement
+            announcement: document.getElementById('announcement'),
+            announcementText: document.getElementById('announcement-text'),
+            announcementSubtitle: document.getElementById('announcement-subtitle'),
+
+            // Combo
+            comboDisplay: document.getElementById('combo-display')
+        };
+
+        // Game reference (for global access in Phase 1 testing)
+        let game;
+        let playerCharacter;
+        let opponentCharacter;
+
+        // Initialize all systems
+        function initGame() {
+            console.log('[Main] Initializing game...');
+
+            // Initialize Game Engine
+            GameEngine.init({
+                arenaWidth: 870
+            });
+
+            // Set up callbacks
+            GameEngine.on('healthChange', updateHealthBar);
+            GameEngine.on('energyChange', updateEnergyBar);
+            GameEngine.on('stateChange', handleStateChange);
+            GameEngine.on('roundEnd', handleRoundEnd);
+
+            // Initialize Combat System
+            CombatSystem.init(GameEngine, elements.arena);
+
+            // Initialize Player Character (Fede)
+            playerCharacter = new FedeCharacter();
+            playerCharacter.init(GameEngine, CombatSystem, elements.arena, elements.playerFighter);
+            playerCharacter.x = GameEngine.state.playerX;
+
+            // Initialize Opponent Character (Billy)
+            opponentCharacter = new BillyCharacter();
+            opponentCharacter.init(GameEngine, CombatSystem, elements.arena, elements.opponentFighter);
+            opponentCharacter.x = GameEngine.state.opponentX;
+            opponentCharacter.facingRight = false;
+            opponentCharacter.isPlayer = false; // Mark as AI-controlled opponent
+
+            // Override opponent's getTargetX to return player position
+            opponentCharacter.getTargetX = function() {
+                return GameEngine.state.playerX;
+            };
+
+            // Initialize AI Controller for opponent with CombatSystem
+            AIController.init(opponentCharacter, GameEngine, CombatSystem);
+            AIController.setDifficulty('normal');
+
+            // Register Fede's special moves with input handler
+            InputHandler.registerMoveList('fede', playerCharacter.specialMoves);
+            InputHandler.setCharacter('fede');
+
+            // Initialize Input Handler
+            InputHandler.init();
+
+            // Set up input callbacks - use character methods
+            InputHandler.on('punch', handlePunch);
+            InputHandler.on('kick', handleKick);
+            InputHandler.on('jump', handleJump);
+            InputHandler.on('special', handleSpecial);
+            InputHandler.on('move', handleMovement);
+
+            // Global reference for testing
+            game = {
+                engine: GameEngine,
+                combat: CombatSystem,
+                input: InputHandler,
+                player: playerCharacter,
+                opponent: opponentCharacter,
+                ai: AIController,
+                elements: elements
+            };
+
+            // Expose to window for debugging
+            window.game = game;
+
+            console.log('[Main] Game initialized successfully');
+            console.log('[Main] Player character: ' + playerCharacter.name);
+            console.log('[Main] Opponent character: ' + opponentCharacter.name);
+        }
+
+        // UI Update Functions
+        function updateHealthBar(target, health, maxHealth) {
+            const percentage = (health / maxHealth) * 100;
+            const bar = target === 'player' ? elements.playerHealth : elements.opponentHealth;
+
+            bar.style.width = percentage + '%';
+
+            // Update color based on health level
+            bar.classList.remove('low', 'critical');
+            if (percentage <= 25) {
+                bar.classList.add('critical');
+            } else if (percentage <= 50) {
+                bar.classList.add('low');
+            }
+        }
+
+        function updateEnergyBar(target, energy, maxEnergy) {
+            const percentage = (energy / maxEnergy) * 100;
+            const bar = target === 'player' ? elements.playerEnergy : elements.opponentEnergy;
+
+            bar.style.width = percentage + '%';
+
+            // Glow when full
+            bar.classList.toggle('full', percentage >= 100);
+        }
+
+        function handleStateChange(newState, oldState) {
+            console.log(`[Main] State changed: ${oldState} -> ${newState}`);
+
+            switch (newState) {
+                case GameEngine.STATES.FIGHTING:
+                    elements.announcement.classList.add('hidden');
+                    break;
+                case GameEngine.STATES.ROUND_END:
+                    // Show KO or round result
+                    break;
+            }
+        }
+
+        function handleRoundEnd(playerWon, playerWins, opponentWins) {
+            showAnnouncement(playerWon ? 'YOU WIN!' : 'YOU LOSE!', 'Round ' + GameEngine.state.roundNumber);
+        }
+
+        function showAnnouncement(text, subtitle = '') {
+            elements.announcementText.textContent = text;
+            elements.announcementSubtitle.textContent = subtitle;
+            elements.announcement.classList.remove('hidden');
+        }
+
+        function hideAnnouncement() {
+            elements.announcement.classList.add('hidden');
+        }
+
+        // Input Handlers - Using Character Methods
+        function handlePunch() {
+            if (!playerCharacter) return;
+
+            // Use character's punch method (includes animation)
+            const result = playerCharacter.executePunch();
+
+            if (result.hit) {
+                console.log('[Main] Punch hit! Damage:', result.damage);
+            }
+
+            updateFighterPositions();
+        }
+
+        function handleKick() {
+            if (!playerCharacter) return;
+
+            // Use character's kick method (includes animation)
+            const result = playerCharacter.executeKick();
+
+            if (result.hit) {
+                console.log('[Main] Kick hit! Damage:', result.damage);
+            }
+
+            updateFighterPositions();
+        }
+
+        function handleJump() {
+            console.log('[Main] Jump!');
+            // Jump animation will be handled by character system
+        }
+
+        function handleSpecial(move) {
+            if (!playerCharacter) return;
+
+            console.log('[Main] Special move:', move.name);
+
+            // Use character's special move method
+            const result = playerCharacter.executeSpecial(move.name);
+
+            if (result.hit) {
+                console.log('[Main] Special hit! Damage:', result.damage);
+            }
+
+            updateFighterPositions();
+        }
+
+        function handleMovement(direction) {
+            const moveSpeed = 5;
+            GameEngine.movePlayer(direction * moveSpeed);
+
+            // Sync player character position
+            if (playerCharacter) {
+                playerCharacter.x = GameEngine.state.playerX;
+                playerCharacter.facingRight = GameEngine.state.opponentX > GameEngine.state.playerX;
+            }
+
+            updateFighterPositions();
+        }
+
+        // Update fighter visual positions
+        function updateFighterPositions() {
+            elements.playerFighter.style.left = GameEngine.state.playerX + 'px';
+            elements.opponentFighter.style.left = GameEngine.state.opponentX + 'px';
+
+            // Update facing direction
+            if (GameEngine.state.playerFacingRight) {
+                elements.playerFighter.classList.remove('facing-left');
+                elements.playerFighter.classList.add('facing-right');
+            } else {
+                elements.playerFighter.classList.remove('facing-right');
+                elements.playerFighter.classList.add('facing-left');
+            }
+
+            if (GameEngine.state.opponentFacingRight) {
+                elements.opponentFighter.classList.remove('facing-left');
+                elements.opponentFighter.classList.add('facing-right');
+            } else {
+                elements.opponentFighter.classList.remove('facing-right');
+                elements.opponentFighter.classList.add('facing-left');
+            }
+        }
+
+        // Start game from title screen
+        function startGame() {
+            elements.titleScreen.classList.add('hidden');
+            elements.arenaWrapper.classList.remove('hidden');
+
+            // Start with Billy as opponent
+            elements.opponentName.textContent = 'BILLY';
+
+            // Show FIGHT announcement
+            showAnnouncement('ROUND 1', 'FIGHT!');
+
+            setTimeout(() => {
+                hideAnnouncement();
+                GameEngine.startFight('billy', { hp: 100 });
+
+                // Start AI controller
+                AIController.start();
+                console.log('[Main] AI started for Billy');
+            }, 1500);
+        }
+
+        // Practice mode (same as start for now)
+        function startPractice() {
+            startGame();
+        }
+
+        // Pause handling
+        function togglePause() {
+            if (GameEngine.state.currentState === GameEngine.STATES.FIGHTING) {
+                GameEngine.stop();
+                AIController.stop();
+                elements.pauseOverlay.classList.remove('hidden');
+            }
+        }
+
+        function resumeGame() {
+            elements.pauseOverlay.classList.add('hidden');
+            GameEngine.start();
+            AIController.start();
+        }
+
+        function quitToMenu() {
+            GameEngine.stop();
+            AIController.stop();
+            elements.pauseOverlay.classList.add('hidden');
+            elements.arenaWrapper.classList.add('hidden');
+            elements.titleScreen.classList.remove('hidden');
+            GameEngine.init(); // Reset state
+        }
+
+        // Event Listeners
+        elements.startBtn.addEventListener('click', startGame);
+        elements.practiceBtn.addEventListener('click', startPractice);
+        elements.resumeBtn.addEventListener('click', resumeGame);
+        elements.quitBtn.addEventListener('click', quitToMenu);
+
+        // Pause on Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (elements.pauseOverlay.classList.contains('hidden')) {
+                    togglePause();
+                } else {
+                    resumeGame();
+                }
+            }
+        });
+
+        // Continuous movement with game loop
+        function movementLoop() {
+            if (GameEngine.state.currentState === GameEngine.STATES.FIGHTING && GameEngine.isRunning) {
+                const direction = InputHandler.getMovementDirection();
+                if (direction !== 0) {
+                    GameEngine.movePlayer(direction * 3);
+                    updateFighterPositions();
+                }
+            }
+            requestAnimationFrame(movementLoop);
+        }
+
+        // Initialize on DOM load
+        document.addEventListener('DOMContentLoaded', () => {
+            initGame();
+            movementLoop();
+            console.log('[Main] Family Fighter ready!');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,367 @@
+/**
+ * Animations CSS - Keyframe animations for attacks, effects, UI
+ */
+
+/* ========================
+   Hit Effects
+   ======================== */
+
+@keyframes hitFloat {
+    0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: translateY(-20px) scale(1.2);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-40px) scale(0.8);
+    }
+}
+
+@keyframes damageFloat {
+    0% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+}
+
+/* ========================
+   Fighter Animations
+   ======================== */
+
+/* Idle breathing */
+@keyframes idleBreathe {
+    0%, 100% {
+        transform: scaleY(1);
+    }
+    50% {
+        transform: scaleY(1.02);
+    }
+}
+
+/* Punch animation */
+@keyframes punchSwing {
+    0% {
+        transform: rotate(-15deg);
+    }
+    50% {
+        transform: rotate(60deg);
+    }
+    100% {
+        transform: rotate(-15deg);
+    }
+}
+
+/* Kick animation */
+@keyframes kickSwing {
+    0% {
+        transform: rotate(0deg);
+    }
+    40% {
+        transform: rotate(-80deg);
+    }
+    100% {
+        transform: rotate(0deg);
+    }
+}
+
+/* Jump animation */
+@keyframes jump {
+    0% {
+        bottom: 80px;
+    }
+    50% {
+        bottom: 200px;
+    }
+    100% {
+        bottom: 80px;
+    }
+}
+
+/* Stagger/hit reaction */
+@keyframes stagger {
+    0% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-10px);
+    }
+    50% {
+        transform: translateX(5px);
+    }
+    75% {
+        transform: translateX(-3px);
+    }
+    100% {
+        transform: translateX(0);
+    }
+}
+
+/* Flash on hit */
+@keyframes hitFlash {
+    0%, 100% {
+        filter: brightness(1);
+    }
+    50% {
+        filter: brightness(2);
+    }
+}
+
+/* ========================
+   Projectile Animations
+   ======================== */
+
+/* Spin */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Wobble */
+@keyframes wobble {
+    0%, 100% {
+        transform: rotate(-5deg);
+    }
+    50% {
+        transform: rotate(5deg);
+    }
+}
+
+/* Pulse */
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.8;
+    }
+}
+
+/* Trail fade */
+@keyframes trailFade {
+    0% {
+        opacity: 0.6;
+        transform: scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+}
+
+/* ========================
+   UI Animations
+   ======================== */
+
+/* Health bar drain */
+@keyframes healthDrain {
+    0% {
+        background-color: var(--health-green);
+    }
+    100% {
+        background-color: var(--health-red);
+    }
+}
+
+/* Energy fill glow */
+@keyframes energyGlow {
+    0%, 100% {
+        box-shadow: 0 0 5px var(--energy-blue);
+    }
+    50% {
+        box-shadow: 0 0 15px var(--energy-gold);
+    }
+}
+
+/* Round announcement */
+@keyframes announceIn {
+    0% {
+        opacity: 0;
+        transform: scale(3);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.2);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes announceOut {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+}
+
+/* Victory text */
+@keyframes victoryBounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-20px);
+    }
+}
+
+/* ========================
+   Special Attack Specific
+   ======================== */
+
+/* Drool fall (Timo) */
+@keyframes droolFall {
+    0% {
+        opacity: 0.8;
+        transform: translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(100px);
+    }
+}
+
+/* Wah float (Timo complaining) */
+@keyframes wahFloat {
+    0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-50px) scale(1.5);
+    }
+}
+
+/* Flag wave (Timo) */
+@keyframes flagWave {
+    0%, 100% {
+        transform: rotate(-10deg);
+    }
+    50% {
+        transform: rotate(10deg);
+    }
+}
+
+/* Coffee splash */
+@keyframes coffeeSplash {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(2);
+    }
+}
+
+/* Vogue pose (Madonna) */
+@keyframes voguePose {
+    0% {
+        transform: rotate(0deg);
+    }
+    25% {
+        transform: rotate(-15deg);
+    }
+    50% {
+        transform: rotate(15deg);
+    }
+    75% {
+        transform: rotate(-10deg);
+    }
+    100% {
+        transform: rotate(0deg);
+    }
+}
+
+/* Lightning flash (Frank) */
+@keyframes lightningFlash {
+    0%, 100% {
+        opacity: 0;
+    }
+    10%, 30%, 50% {
+        opacity: 1;
+    }
+    20%, 40% {
+        opacity: 0.5;
+    }
+}
+
+/* Motorcycle rev (Charly) */
+@keyframes motorcycleRev {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    10%, 30%, 50%, 70%, 90% {
+        transform: translateX(-2px);
+    }
+    20%, 40%, 60%, 80% {
+        transform: translateX(2px);
+    }
+}
+
+/* Vine whip (Audrey) */
+@keyframes vineWhip {
+    0% {
+        transform: scaleX(0);
+        transform-origin: left;
+    }
+    50% {
+        transform: scaleX(1);
+        transform-origin: left;
+    }
+    100% {
+        transform: scaleX(0);
+        transform-origin: right;
+    }
+}
+
+/* Superman fly (Pancho) */
+@keyframes supermanFly {
+    0% {
+        transform: translateX(0) translateY(0);
+    }
+    100% {
+        transform: translateX(200px) translateY(-50px);
+    }
+}
+
+/* Bitcoin rise (Pato) */
+@keyframes bitcoinRise {
+    0% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100px);
+        opacity: 0;
+    }
+}
+
+/* Triangle spin (Billy) */
+@keyframes triangleSpin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}

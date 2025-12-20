@@ -1,0 +1,170 @@
+/**
+ * Arena CSS - Fight arena layout and background
+ */
+
+/* Arena container */
+.arena-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* Main arena */
+#arena {
+    position: relative;
+    width: var(--arena-width, 870px);
+    height: var(--arena-height, 400px);
+    background: linear-gradient(
+        to bottom,
+        var(--paper) 0%,
+        var(--paper-dark) 100%
+    );
+    border: 3px solid var(--ink);
+    border-radius: 5px;
+    overflow: hidden;
+    box-shadow:
+        inset 0 0 50px rgba(0, 0, 0, 0.1),
+        3px 3px 0 var(--ink-light);
+}
+
+/* Arena floor line */
+#arena::after {
+    content: '';
+    position: absolute;
+    bottom: 80px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        var(--ink-light) 10%,
+        var(--ink-light) 90%,
+        transparent 100%
+    );
+    opacity: 0.3;
+}
+
+/* Arena floor */
+.arena-floor {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(0, 0, 0, 0.05) 50%,
+        rgba(0, 0, 0, 0.1) 100%
+    );
+}
+
+/* Arena background elements */
+.arena-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 80px;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+/* Character positions */
+.fighter {
+    position: absolute;
+    bottom: 80px;
+    width: var(--fighter-width, 50px);
+    height: var(--fighter-height, 90px);
+    z-index: 10;
+    transition: left 0.05s linear;
+}
+
+/* Player fighter */
+#player-fighter {
+    left: 150px;
+}
+
+/* Opponent fighter */
+#opponent-fighter {
+    left: 650px;
+}
+
+/* Facing direction (flip sprite) */
+.fighter.facing-left {
+    transform: scaleX(-1);
+}
+
+.fighter.facing-right {
+    transform: scaleX(1);
+}
+
+/* Fighter shadow */
+.fighter::before {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 10px;
+    background: radial-gradient(
+        ellipse at center,
+        rgba(0, 0, 0, 0.3) 0%,
+        transparent 70%
+    );
+    border-radius: 50%;
+}
+
+/* Projectile container (for attacks) */
+.projectile {
+    position: absolute;
+    z-index: 15;
+    pointer-events: none;
+}
+
+/* Effect container */
+.effect {
+    position: absolute;
+    z-index: 20;
+    pointer-events: none;
+}
+
+/* Arena corners (decorative) */
+.arena-corner {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border: 2px solid var(--ink-light);
+    opacity: 0.3;
+}
+
+.arena-corner.top-left {
+    top: 10px;
+    left: 10px;
+    border-right: none;
+    border-bottom: none;
+}
+
+.arena-corner.top-right {
+    top: 10px;
+    right: 10px;
+    border-left: none;
+    border-bottom: none;
+}
+
+.arena-corner.bottom-left {
+    bottom: 90px;
+    left: 10px;
+    border-right: none;
+    border-top: none;
+}
+
+.arena-corner.bottom-right {
+    bottom: 90px;
+    right: 10px;
+    border-left: none;
+    border-top: none;
+}

@@ -456,42 +456,68 @@ testAttack(char || 'fede', attack || 'punch');
 ## 8. Implementation Plan
 
 ### Phase 1: Core Engine
-- [ ] Set up file structure
-- [ ] Implement game-engine.js (game loop, state)
-- [ ] Implement input-handler.js (keyboard, combos)
-- [ ] Basic arena HTML/CSS
+- [x] Set up file structure
+- [x] Implement game-engine.js (game loop, state)
+- [x] Implement input-handler.js (keyboard, combos)
+- [x] Basic arena HTML/CSS
 
 ### Phase 2: Combat System
-- [ ] attack-base.js with hit detection
-- [ ] melee-attacks.js (punch, kick)
-- [ ] projectiles.js base class
-- [ ] combat-system.js (damage, stun, knockback)
+- [x] combat-system.js (damage calculation, hit effects)
+- [x] Hit detection in character attack methods
+- [ ] Hitstun (brief stagger animation when hit)
+- [ ] Knockback (getting hit pushes character back)
+- [ ] Block mechanic (hold back to reduce damage)
+- [ ] Invincibility frames after getting hit
 
 ### Phase 3: Player Character (Fede)
-- [ ] fede.js character definition
-- [ ] fede.css sprite
-- [ ] fede-specials.js (The Split, Salmon Sashimi, Country Throw, WORLD TOUR!)
-- [ ] Test with animation debugging
+- [x] fede.js character definition
+- [x] fede.css sprite
+- [x] Fede specials (The Split, Salmon Sashimi, Country Throw, WORLD TOUR!)
+- [x] Correct combo inputs matching POC (↓↓X, →→Z, ↓←Z, ↓→↓→Z)
+- [x] Test with animation debugging (verified via Puppeteer screenshots)
 
-### Phase 4: NPCs (One at a time)
-For each NPC:
-- [ ] [name].js character definition
-- [ ] [name].css sprite
-- [ ] [name]-specials.js with FULL visual effects (not simplified)
-- [ ] ai-controller integration
-- [ ] Animation debugging verification
+### Phase 4: NPCs (All 12 characters)
+- [x] Billy (Final Boss) - Math theme
+- [x] Jonas - Coaching theme
+- [x] Vicky - Aerial silks/Christmas theme
+- [x] Lucas - Soccer/Cats theme
+- [x] JonasL - Bass/Coffee theme
+- [x] Timo - Baby/Complainer theme
+- [x] Pancho - Superman theme
+- [x] Madonna - Pop star theme
+- [x] Frank - Rocky Horror theme
+- [x] Charly - Motorcycle/Excel theme
+- [x] Audrey - Plant/Little Shop theme
+- [x] Pato - Bitcoin/Director theme
+- [x] AI controller for NPC behavior
 
 ### Phase 5: Tournament Mode
-- [ ] tournament.js ladder system
-- [ ] tournament-ui.js displays
-- [ ] Transitions and screens
-- [ ] Victory celebration
+- [ ] tournament.js - Ladder system with 12 opponents
+- [ ] tournament-ui.js - VS screens, ladder display
+- [ ] State machine (TITLE → LADDER_VIEW → PRE_FIGHT → FIGHTING → ROUND_END → etc)
+- [ ] Best-of-3 rounds per match
+- [ ] "ROUND 1... FIGHT!" announcer text
+- [ ] Victory/defeat screens
+- [ ] Opponent intro cards (name, title, difficulty)
+- [ ] Final victory celebration (beat Billy)
+- [ ] Game over / continue screen
 
-### Phase 6: Polish
+### Phase 6: Visual Feedback & Polish
+- [x] Hit sparks (basic)
+- [x] Screen shake on heavy hits
+- [ ] Flash on hit (character briefly flashes white when damaged)
+- [ ] Combo counter (optional - track consecutive hits)
+- [ ] Round win indicators (circles under health bar)
+- [ ] Victory pose after KO
 - [ ] Sound effects (optional)
-- [ ] Screen shake, flash effects
 - [ ] Particle polish
-- [ ] Balance testing
+
+### Phase 7: Testing & Balance
+- [ ] Verify all attacks work from both sides (player left/right of opponent)
+- [ ] Test all special moves with Puppeteer screenshots
+- [ ] Balance damage values across characters
+- [ ] Ensure no auto-hit attacks (all require proper hit detection)
+- [ ] Performance testing (maintain 60fps)
 
 ---
 
@@ -515,18 +541,18 @@ Before marking any attack as complete:
 **These are MANDATORY requirements for a proper Tekken-style fighting game.**
 
 ### Directional Mechanics
-- [ ] **Auto-facing**: Characters always face their opponent
-- [ ] **Attacks work from either side**: Whether player is left or right of opponent, attacks function correctly
-- [ ] **Projectiles auto-target**: Thrown objects/projectiles automatically travel TOWARD the opponent
-- [ ] **Mirrored animations**: Punch/kick animations mirror correctly when facing left vs right
-- [ ] **No hardcoded directions**: Never assume player is on left, opponent on right
+- [x] **Auto-facing**: Characters always face their opponent
+- [x] **Attacks work from either side**: Whether player is left or right of opponent, attacks function correctly
+- [x] **Projectiles auto-target**: Thrown objects/projectiles automatically travel TOWARD the opponent
+- [ ] **Mirrored animations**: Punch/kick animations mirror correctly when facing left vs right (needs verification)
+- [x] **No hardcoded directions**: Uses `getDirectionToTarget()` helper method
 
 ### Movement
-- [ ] **Smooth walking**: Left/right arrow keys move character fluidly
+- [x] **Smooth walking**: Left/right arrow keys move character fluidly
 - [ ] **Cannot walk through opponent**: Collision detection prevents overlapping
-- [ ] **Arena boundaries**: Characters cannot walk off-screen
-- [ ] **Jump arc**: C key triggers proper jump with gravity
-- [ ] **No movement during attack**: Locked in place while attack animation plays
+- [x] **Arena boundaries**: Characters cannot walk off-screen
+- [ ] **Jump arc**: C key triggers proper jump with gravity (basic implementation)
+- [x] **No movement during attack**: Locked in place while attack animation plays
 
 ### Combat Feel
 - [ ] **Hitstun**: Brief stagger animation when hit
@@ -536,18 +562,19 @@ Before marking any attack as complete:
 - [ ] **Attack priority**: Some attacks beat others (anti-air, etc.)
 
 ### Visual Feedback
-- [ ] **Hit sparks**: Visual effect on impact
+- [x] **Hit sparks**: Visual effect on impact (showHitEffect)
 - [ ] **Damage numbers** (optional): Show damage dealt
-- [ ] **Screen shake**: On heavy hits/ultimates
+- [x] **Screen shake**: On heavy hits/ultimates
 - [ ] **Flash on hit**: Character briefly flashes white when damaged
 - [ ] **Combo counter** (optional): Track consecutive hits
 
 ### Round/Match Flow
-- [ ] **Round timer** (optional): 99 seconds per round
-- [ ] **Health depletion = KO**: Round ends when health reaches 0
+- [x] **Round timer**: 99 seconds per round (implemented but needs round system)
+- [x] **Health depletion = KO**: Round ends when health reaches 0
 - [ ] **Round announcer**: "ROUND 1... FIGHT!"
 - [ ] **Victory pose**: Winner does animation after KO
 - [ ] **Best of 3**: First to 2 round wins takes the match
+- [ ] **Round win indicators**: Circles under health bar to show rounds won
 
 ### Testing Checklist Per Attack
 For EVERY attack (punch, kick, special, ultimate):
@@ -597,6 +624,109 @@ The attacks in `POC_game_with_good_attacks/index.html` were carefully crafted an
 | Frank | Floor Show! | search "FLOOR SHOW" | Rocky Horror spectacle |
 | Vicky | Silk Drop Miracle! | search "SILK DROP" | Aerial silk animation |
 | Audrey | Mean Green Mother! | search "MEAN GREEN" | Vine attacks, plant horror |
+
+---
+
+## 12. Priority Roadmap (Remaining Work)
+
+### HIGH PRIORITY - Core Game Loop
+
+1. **Tournament Mode (Phase 5)** - This is the main game structure
+   - Create `systems/tournament.js` with ladder progression
+   - Create `ui/tournament-ui.js` for VS screens
+   - Implement state machine flow
+   - Best-of-3 rounds per match
+   - All 12 opponents in order: Timo → Madonna → Jonas → Lucas → Vicky → JonasL → Frank → Charly → Audrey → Pancho → Pato → Billy
+
+2. **Round System**
+   - Round announcer: "ROUND 1... FIGHT!"
+   - Round end detection (health = 0)
+   - Round win tracking (2 wins = match win)
+   - Victory/defeat screens per round
+
+3. **Match Flow Screens**
+   - Pre-fight VS screen (show opponent name, title, portrait)
+   - Round end screen ("YOU WIN THIS ROUND!" / "YOU LOSE THIS ROUND!")
+   - Match end screen (advance or game over)
+   - Final victory (beat Billy = celebration!)
+
+### MEDIUM PRIORITY - Combat Polish
+
+4. **Combat Feel Improvements**
+   - Hitstun (0.2s stagger on hit)
+   - Knockback (push back 20-30px on hit)
+   - Character flash white when damaged
+
+5. **Visual Polish**
+   - Victory pose animations
+   - Round win indicators under health bars
+   - Better hit effect particles
+
+### LOWER PRIORITY - Nice to Have
+
+6. **Additional Features**
+   - Block mechanic (hold back)
+   - Invincibility frames
+   - Combo counter
+   - Sound effects
+   - Jump with proper gravity arc
+
+---
+
+## 13. File Structure Status
+
+```
+12_21_qq/
+├── index.html                    ✅ Created
+├── GAME_DESIGN.md               ✅ This document
+├── CLAUDE.md                    ✅ Development constraints
+├── styles/
+│   ├── base.css                 ✅ Paper background, fonts
+│   ├── arena.css                ✅ Fight arena layout
+│   ├── ui.css                   ✅ Health bars, menus
+│   ├── animations.css           ✅ Keyframe animations
+│   └── characters/
+│       ├── fede.css             ✅
+│       ├── billy.css            ✅
+│       ├── jonas.css            ✅
+│       ├── vicky.css            ✅
+│       ├── lucas.css            ✅
+│       ├── jonasl.css           ✅
+│       ├── timo.css             ✅
+│       ├── pancho.css           ✅
+│       ├── madonna.css          ✅
+│       ├── frank.css            ✅
+│       ├── charly.css           ✅
+│       ├── audrey.css           ✅
+│       └── pato.css             ✅
+├── characters/
+│   ├── character-base.js        ✅ Base class
+│   ├── fede.js                  ✅ Player character
+│   ├── billy.js                 ✅ Final boss
+│   ├── jonas.js                 ✅
+│   ├── vicky.js                 ✅
+│   ├── lucas.js                 ✅
+│   ├── jonasl.js                ✅
+│   ├── timo.js                  ✅
+│   ├── pancho.js                ✅
+│   ├── madonna.js               ✅
+│   ├── frank.js                 ✅
+│   ├── charly.js                ✅
+│   ├── audrey.js                ✅
+│   └── pato.js                  ✅
+├── systems/
+│   ├── game-engine.js           ✅ Game loop, state
+│   ├── input-handler.js         ✅ Keyboard, combos
+│   ├── combat-system.js         ✅ Hit effects, damage
+│   ├── ai-controller.js         ✅ NPC behavior
+│   └── tournament.js            ❌ TODO - Ladder system
+├── ui/
+│   ├── tournament-ui.js         ❌ TODO - VS screens
+│   └── victory-screen.js        ❌ TODO - Win/lose screens
+└── debug/
+    ├── animation-tester.js      ✅ Puppeteer screenshots
+    └── test-fede-attacks.js     ✅ Attack verification
+```
 
 ---
 

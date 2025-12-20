@@ -1,0 +1,351 @@
+/**
+ * Timo Character Styles
+ * The Perpetual Complainer - Gray color scheme
+ */
+
+/* ========================
+   Timo Base Sprite
+   ======================== */
+
+.timo .head {
+    width: 40px;
+    height: 42px;
+    border: 2px solid var(--ink);
+    border-radius: 50%;
+    background: var(--paper);
+    position: relative;
+    z-index: 10;
+}
+
+.timo .hair {
+    position: absolute;
+    top: -8px;
+    left: -4px;
+    width: 48px;
+    height: 20px;
+    border: 2px solid var(--ink);
+    border-bottom: none;
+    border-radius: 50% 50% 0 0;
+    background: #4a3728;
+    z-index: 5;
+}
+
+.timo .hair::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: 10px;
+    width: 8px;
+    height: 10px;
+    background: #4a3728;
+    border: 2px solid var(--ink);
+    border-bottom: none;
+    border-radius: 50% 50% 0 0;
+    transform: rotate(-15deg);
+}
+
+.timo .hair::after {
+    content: '';
+    position: absolute;
+    top: -3px;
+    right: 12px;
+    width: 6px;
+    height: 8px;
+    background: #4a3728;
+    border: 2px solid var(--ink);
+    border-bottom: none;
+    border-radius: 50% 50% 0 0;
+    transform: rotate(20deg);
+}
+
+.timo .eyes {
+    position: absolute;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    z-index: 15;
+}
+
+.timo .eye {
+    width: 8px;
+    height: 3px;
+    background: var(--ink);
+    border-radius: 0;
+    position: relative;
+}
+
+/* Tired bags under eyes */
+.timo .eye::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: -1px;
+    width: 10px;
+    height: 3px;
+    border-bottom: 1px solid var(--pencil);
+    border-radius: 0 0 50% 50%;
+    opacity: 0.5;
+}
+
+/* Frown mouth */
+.timo .mouth {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 10px;
+    height: 5px;
+    border: 2px solid var(--ink);
+    border-bottom: none;
+    border-radius: 50% 50% 0 0;
+    background: transparent;
+    z-index: 15;
+}
+
+/* Drool drop */
+.timo .drool-drop {
+    position: absolute;
+    bottom: 2px;
+    left: 18px;
+    width: 4px;
+    height: 8px;
+    background: #a8d4e6;
+    border: 1px solid var(--ink);
+    border-radius: 50% 50% 50% 50% / 30% 30% 70% 70%;
+    z-index: 16;
+    animation: droolBob 1.5s ease-in-out infinite;
+}
+
+@keyframes droolBob {
+    0%, 100% { transform: translateY(0) scaleY(1); }
+    50% { transform: translateY(2px) scaleY(1.1); }
+}
+
+.timo .body {
+    width: 36px;
+    height: 32px;
+    border: 2px solid var(--ink);
+    border-radius: 5px 5px 0 0;
+    background: #666;
+    margin-top: -3px;
+    position: relative;
+    z-index: 8;
+}
+
+.timo .body::before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: 8px;
+    width: 20px;
+    height: 1px;
+    background: var(--pencil);
+    opacity: 0.4;
+}
+
+.timo .arm {
+    position: absolute;
+    width: 8px;
+    height: 24px;
+    border: 2px solid var(--ink);
+    border-radius: 4px;
+    background: var(--paper);
+    top: 3px;
+    transform-origin: top center;
+    z-index: 6;
+}
+
+.timo .arm.left {
+    left: -6px;
+    transform: rotate(5deg);
+}
+
+.timo .arm.right {
+    right: -6px;
+    transform: rotate(-5deg);
+}
+
+.timo .pants {
+    width: 38px;
+    height: 35px;
+    border: 2px solid var(--ink);
+    border-top: none;
+    background: #444;
+    margin-top: -2px;
+    position: relative;
+    z-index: 4;
+    border-radius: 0 0 5px 5px;
+}
+
+.timo .pants::before,
+.timo .pants::after {
+    content: '';
+    position: absolute;
+    bottom: -12px;
+    width: 14px;
+    height: 14px;
+    background: #444;
+    border: 2px solid var(--ink);
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+}
+
+.timo .pants::before { left: 3px; }
+.timo .pants::after { right: 3px; }
+
+.timo .feet {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    z-index: 3;
+}
+
+.timo .foot {
+    width: 12px;
+    height: 5px;
+    border: 2px solid var(--ink);
+    border-radius: 50%;
+    background: #333;
+}
+
+/* ========================
+   Timo Idle Animation
+   ======================== */
+
+.timo.idle {
+    animation: timoSlump 3s ease-in-out infinite;
+}
+
+@keyframes timoSlump {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(2px); }
+}
+
+/* ========================
+   Timo Punching State
+   ======================== */
+
+.timo.punching .arm.right {
+    animation: timoLazyPunch 0.4s ease-out;
+}
+
+@keyframes timoLazyPunch {
+    0% {
+        transform: rotate(-5deg);
+    }
+    40% {
+        transform: rotate(40deg) translateX(3px);
+    }
+    100% {
+        transform: rotate(-5deg);
+    }
+}
+
+/* ========================
+   Timo Kicking State
+   ======================== */
+
+.timo.kicking {
+    animation: timoKickBody 0.35s ease-out;
+}
+
+@keyframes timoKickBody {
+    0%, 100% {
+        transform: rotate(0deg);
+    }
+    50% {
+        transform: rotate(-5deg) translateY(-2px);
+    }
+}
+
+/* ========================
+   Timo Special Effects
+   ======================== */
+
+/* Drool puddle */
+.drool-puddle {
+    position: absolute;
+    background: radial-gradient(ellipse, #a8d4e6 0%, #7bb8d4 100%);
+    border: 2px solid #5a9ec4;
+    border-radius: 50%;
+    opacity: 0.7;
+    z-index: 5;
+}
+
+/* Complaint bubble */
+.complaint-bubble {
+    position: absolute;
+    background: white;
+    border: 3px solid var(--ink);
+    border-radius: 20px;
+    padding: 8px 15px;
+    font-family: 'Patrick Hand', cursive;
+    font-size: 0.9rem;
+    color: var(--ink);
+    z-index: 200;
+    animation: bubbleFloat 0.5s ease-out;
+}
+
+.complaint-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 20px;
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 12px solid var(--ink);
+}
+
+@keyframes bubbleFloat {
+    0% {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Tantrum shake */
+.timo.tantrum {
+    animation: tantrumShake 0.1s infinite;
+}
+
+@keyframes tantrumShake {
+    0%, 100% { transform: translateX(-2px) rotate(-2deg); }
+    50% { transform: translateX(2px) rotate(2deg); }
+}
+
+/* Flag wave */
+.white-flag {
+    position: absolute;
+    z-index: 160;
+}
+
+.flag-pole {
+    width: 4px;
+    height: 50px;
+    background: #8b4513;
+    border: 1px solid var(--ink);
+}
+
+.flag-cloth {
+    position: absolute;
+    top: 0;
+    left: 4px;
+    width: 30px;
+    height: 20px;
+    background: white;
+    border: 2px solid var(--ink);
+    animation: flagWave 0.3s ease-in-out infinite;
+}
+
+@keyframes flagWave {
+    0%, 100% { transform: skewY(0deg); }
+    50% { transform: skewY(5deg); }
+}

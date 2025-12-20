@@ -1,0 +1,314 @@
+/**
+ * Pancho Character Styles
+ * The Tech Superman - Blue color scheme
+ */
+
+/* ========================
+   Pancho Base Sprite
+   ======================== */
+
+.pancho .head {
+    width: 38px;
+    height: 40px;
+    border: 3px solid var(--ink);
+    border-radius: 50%;
+    background: var(--paper);
+    position: relative;
+    z-index: 10;
+}
+
+.pancho .hair {
+    position: absolute;
+    top: -2px;
+    left: 2px;
+    right: 2px;
+    height: 18px;
+    background: #1a1a1a;
+    border: 2px solid var(--ink);
+    border-radius: 50% 50% 0 0;
+    z-index: 11;
+}
+
+.pancho .hair::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 3px;
+    width: 6px;
+    height: 8px;
+    background: #1a1a1a;
+    border-radius: 0 0 3px 3px;
+}
+
+.pancho .eyes {
+    position: absolute;
+    top: 14px;
+    left: 6px;
+    right: 6px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.pancho .eye {
+    width: 8px;
+    height: 8px;
+    background: white;
+    border: 2px solid var(--ink);
+    border-radius: 50%;
+    position: relative;
+}
+
+.pancho .eye::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 3px;
+    height: 3px;
+    background: #1a1a1a;
+    border-radius: 50%;
+}
+
+.pancho .mouth {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 10px;
+    height: 4px;
+    border: 2px solid var(--ink);
+    border-top: none;
+    border-radius: 0 0 10px 10px;
+    background: #ff9999;
+}
+
+.pancho .body {
+    width: 42px;
+    height: 45px;
+    border: 3px solid var(--ink);
+    border-radius: 8px;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    margin-top: -5px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pancho .body .logo {
+    font-family: 'Permanent Marker', cursive;
+    font-size: 18px;
+    color: #fbbf24;
+    text-shadow: 1px 1px 0 var(--ink);
+}
+
+.pancho .arm {
+    position: absolute;
+    width: 12px;
+    height: 35px;
+    border: 3px solid var(--ink);
+    border-radius: 6px;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+}
+
+.pancho .arm.left {
+    left: -12px;
+    top: 5px;
+    transform: rotate(15deg);
+}
+
+.pancho .arm.right {
+    right: -12px;
+    top: 5px;
+    transform: rotate(-15deg);
+}
+
+.pancho .cape {
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 55px;
+    height: 70px;
+    background: linear-gradient(180deg,
+        #ef4444 0%,
+        #dc2626 20%,
+        #b91c1c 60%,
+        #991b1b 100%);
+    border: 2px solid var(--ink);
+    border-radius: 8px 8px 35px 35px;
+    z-index: -1;
+    transform-origin: top center;
+    box-shadow: -3px 0 8px rgba(0,0,0,0.3), 3px 0 8px rgba(0,0,0,0.3);
+}
+
+.pancho .cape::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 5px;
+    right: 5px;
+    height: 8px;
+    background: linear-gradient(180deg, #fcd34d, #f59e0b);
+    border: 2px solid var(--ink);
+    border-radius: 3px;
+}
+
+.pancho .legs {
+    display: flex;
+    gap: 6px;
+    margin-top: -3px;
+}
+
+.pancho .leg {
+    width: 14px;
+    height: 35px;
+    border: 3px solid var(--ink);
+    border-radius: 5px;
+    background: #1e3a5f;
+}
+
+/* ========================
+   Pancho Idle Animation
+   ======================== */
+
+.pancho.idle {
+    animation: idleBreathe 2s ease-in-out infinite;
+}
+
+.pancho.idle .cape {
+    animation: capeFloat 3s ease-in-out infinite;
+}
+
+@keyframes capeFloat {
+    0%, 100% { transform: translateX(-50%) rotate(-2deg); }
+    50% { transform: translateX(-50%) rotate(2deg); }
+}
+
+/* ========================
+   Pancho Punching State
+   ======================== */
+
+.pancho.punching .arm.right {
+    animation: panchoPunch 0.25s ease-out;
+}
+
+.pancho.punching .cape {
+    animation: capeSwish 0.25s ease-out;
+}
+
+@keyframes panchoPunch {
+    0% {
+        transform: rotate(-15deg);
+    }
+    50% {
+        transform: rotate(85deg) translateX(8px);
+    }
+    100% {
+        transform: rotate(-15deg);
+    }
+}
+
+@keyframes capeSwish {
+    0% { transform: translateX(-50%) rotate(0deg); }
+    50% { transform: translateX(-50%) rotate(10deg); }
+    100% { transform: translateX(-50%) rotate(0deg); }
+}
+
+/* ========================
+   Pancho Kicking State
+   ======================== */
+
+.pancho.kicking {
+    animation: panchoKickBody 0.3s ease-out;
+}
+
+.pancho.kicking .cape {
+    animation: capeSwish 0.3s ease-out;
+}
+
+@keyframes panchoKickBody {
+    0%, 100% {
+        transform: rotate(0deg);
+    }
+    50% {
+        transform: rotate(-12deg) translateY(-5px);
+    }
+}
+
+/* ========================
+   Pancho Special Effects
+   ======================== */
+
+/* Flying state */
+.pancho.flying {
+    animation: superFlight 0.5s ease-in-out;
+}
+
+@keyframes superFlight {
+    0% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-40px) rotate(-15deg); }
+    100% { transform: translateY(0) rotate(0deg); }
+}
+
+.pancho.flying .cape {
+    animation: capeDramatic 0.3s ease-in-out infinite alternate;
+}
+
+@keyframes capeDramatic {
+    0% { transform: translateX(-50%) rotate(-8deg) scale(1); }
+    100% { transform: translateX(-50%) rotate(8deg) scale(1.1); }
+}
+
+/* Heat vision */
+.pancho.laser-eyes .cape {
+    animation: capeDramatic 0.5s ease-in-out infinite alternate;
+}
+
+.heat-beam {
+    position: absolute;
+    height: 4px;
+    background: linear-gradient(90deg, #ef4444, #fbbf24, #ef4444);
+    border-radius: 2px;
+    box-shadow: 0 0 10px #ef4444, 0 0 20px #fbbf24;
+    z-index: 200;
+}
+
+/* Freeze breath */
+.freeze-cloud {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    background: radial-gradient(circle, rgba(147, 197, 253, 0.8), rgba(59, 130, 246, 0.4));
+    border-radius: 50%;
+    z-index: 150;
+}
+
+/* Gadget projectile */
+.projectile.gadget {
+    width: 24px;
+    height: 24px;
+    background: linear-gradient(135deg, #374151, #1f2937);
+    border: 2px solid var(--ink);
+    border-radius: 4px;
+    box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
+    z-index: 155;
+}
+
+.projectile.gadget::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px;
+    height: 8px;
+    background: #3b82f6;
+    border-radius: 50%;
+    animation: gadgetBlink 0.3s infinite;
+}
+
+@keyframes gadgetBlink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}

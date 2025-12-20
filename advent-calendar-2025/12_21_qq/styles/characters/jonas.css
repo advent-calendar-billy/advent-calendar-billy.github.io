@@ -1,0 +1,242 @@
+/**
+ * Jonas M Character Styles
+ * The Coach - Green theme with briefcase
+ */
+
+/* ========================
+   Jonas Base Sprite
+   ======================== */
+
+.jonas .head {
+    width: 38px;
+    height: 42px;
+    border: 2px solid var(--ink);
+    border-radius: 40%;
+    background: var(--paper);
+    position: relative;
+    z-index: 10;
+}
+
+.jonas .hair {
+    position: absolute;
+    top: -2px;
+    left: 6px;
+    width: 26px;
+    height: 12px;
+    border: 2px solid var(--ink);
+    border-radius: 50% 50% 0 0;
+    background: var(--ink);
+}
+
+.jonas .eyes {
+    position: absolute;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+}
+
+.jonas .eye {
+    width: 7px;
+    height: 7px;
+    border: 2px solid var(--ink);
+    border-radius: 50%;
+    background: var(--paper);
+}
+
+.jonas .mouth {
+    position: absolute;
+    bottom: 7px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 14px;
+    height: 7px;
+    border: 2px solid var(--ink);
+    border-radius: 0 0 50% 50%;
+    border-top: none;
+    background: var(--paper);
+}
+
+.jonas .body {
+    width: 46px;
+    height: 48px;
+    border: 2px solid var(--ink);
+    border-radius: 4px;
+    background: var(--paper);
+    margin-top: -4px;
+    position: relative;
+    z-index: 5;
+}
+
+.jonas .badge {
+    position: absolute;
+    bottom: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 2px 5px;
+    background: var(--green, #27ae60);
+    color: #fff;
+    border-radius: 2px;
+    font-size: 0.38rem;
+    font-family: 'Patrick Hand', cursive;
+    font-weight: bold;
+}
+
+.jonas .arm {
+    position: absolute;
+    width: 10px;
+    height: 30px;
+    border: 2px solid var(--ink);
+    border-radius: 5px;
+    background: var(--paper);
+    top: 5px;
+    transform-origin: top center;
+}
+
+.jonas .arm.left {
+    left: -8px;
+    transform: rotate(15deg);
+}
+
+.jonas .arm.right {
+    right: -8px;
+    transform: rotate(-15deg);
+}
+
+.jonas .legs {
+    display: flex;
+    gap: 10px;
+    margin-top: -3px;
+    z-index: 1;
+}
+
+.jonas .leg {
+    width: 11px;
+    height: 32px;
+    border: 2px solid var(--ink);
+    border-radius: 4px;
+    background: #f5e6d3;
+}
+
+/* ========================
+   Jonas Idle Animation
+   ======================== */
+
+.jonas.idle {
+    animation: idleBreathe 2s ease-in-out infinite;
+}
+
+/* ========================
+   Jonas Punching State - Briefcase Swing
+   ======================== */
+
+.jonas.punching .arm.right {
+    animation: jonasPunch 0.3s ease-out;
+}
+
+.jonas.punching .body {
+    animation: jonasPunchBody 0.3s ease-out;
+}
+
+@keyframes jonasPunch {
+    0% {
+        transform: rotate(-15deg);
+    }
+    30% {
+        transform: rotate(-50deg) translateX(5px);
+    }
+    60% {
+        transform: rotate(70deg) translateX(-10px);
+    }
+    100% {
+        transform: rotate(-15deg);
+    }
+}
+
+@keyframes jonasPunchBody {
+    0% {
+        transform: rotate(0deg);
+    }
+    30% {
+        transform: rotate(10deg);
+    }
+    60% {
+        transform: rotate(-8deg);
+    }
+    100% {
+        transform: rotate(0deg);
+    }
+}
+
+/* ========================
+   Jonas Kicking State
+   ======================== */
+
+.jonas.kicking .leg:last-child {
+    animation: jonasKick 0.3s ease-out;
+    transform-origin: top center;
+}
+
+@keyframes jonasKick {
+    0% {
+        transform: rotate(0deg);
+    }
+    40% {
+        transform: rotate(-25deg) translateY(-3px);
+    }
+    70% {
+        transform: rotate(80deg) translateX(10px);
+    }
+    100% {
+        transform: rotate(0deg);
+    }
+}
+
+/* ========================
+   Jonas Special Effects
+   ======================== */
+
+/* Post-it Note Projectile */
+.projectile.sticky-note {
+    width: 24px;
+    height: 24px;
+    background: linear-gradient(135deg, #ffeb3b 0%, #ffc107 100%);
+    border: 2px solid #f9a825;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    font-family: 'Patrick Hand', cursive;
+    color: var(--ink);
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.15);
+    z-index: 150;
+}
+
+/* Paradigm Shield */
+.projectile.paradigm-shield {
+    width: 100px;
+    height: 100px;
+    border: 4px solid var(--green, #27ae60);
+    border-radius: 50%;
+    background: rgba(39, 174, 96, 0.1);
+    z-index: 140;
+}
+
+.paradigm-shield .buzzword {
+    position: absolute;
+    font-family: 'Patrick Hand', cursive;
+    font-size: 0.6rem;
+    color: var(--green, #27ae60);
+    white-space: nowrap;
+}
+
+/* Circle Back Trail */
+.circle-back-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--green, #27ae60);
+    border-radius: 50%;
+    opacity: 0.6;
+    z-index: 155;
+}

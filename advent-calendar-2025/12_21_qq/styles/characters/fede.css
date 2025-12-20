@@ -1,0 +1,324 @@
+/**
+ * Fede Character Styles
+ * The Globetrotting Gentleman
+ *
+ * Extracted from POC_game_with_good_attacks
+ */
+
+/* ========================
+   Fede Base Sprite
+   ======================== */
+
+.fede .head {
+    width: 30px;
+    height: 32px;
+    border: 2px solid var(--ink);
+    border-radius: 50%;
+    background: var(--paper);
+    position: relative;
+    z-index: 10;
+}
+
+.fede .hair {
+    position: absolute;
+    top: -2px;
+    left: 2px;
+    width: 26px;
+    height: 14px;
+    border: 2px solid var(--ink);
+    border-bottom: none;
+    border-radius: 50% 50% 0 0;
+    background: #1a1a1a;
+    z-index: 15;
+}
+
+.fede .eyes {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 6px;
+    z-index: 16;
+}
+
+.fede .eye {
+    width: 5px;
+    height: 5px;
+    background: var(--ink);
+    border-radius: 50%;
+}
+
+.fede .mouth {
+    position: absolute;
+    bottom: 7px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8px;
+    height: 4px;
+    border: 2px solid var(--ink);
+    border-top: none;
+    border-radius: 0 0 50% 50%;
+    z-index: 16;
+}
+
+.fede .body {
+    width: 28px;
+    height: 30px;
+    border: 2px solid var(--ink);
+    border-radius: 3px 3px 0 0;
+    background: var(--fede-blue, #4a90d9);
+    margin-top: -3px;
+    position: relative;
+    z-index: 8;
+}
+
+.fede .collar-left,
+.fede .collar-right {
+    position: absolute;
+    top: 0;
+    width: 8px;
+    height: 10px;
+    background: var(--fede-blue, #4a90d9);
+    border: 2px solid var(--ink);
+    z-index: 9;
+}
+
+.fede .collar-left {
+    left: 2px;
+    border-radius: 0 0 0 50%;
+    border-right: none;
+    transform: rotate(-15deg);
+    transform-origin: top right;
+}
+
+.fede .collar-right {
+    right: 2px;
+    border-radius: 0 0 50% 0;
+    border-left: none;
+    transform: rotate(15deg);
+    transform-origin: top left;
+}
+
+.fede .buttons {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    z-index: 10;
+}
+
+.fede .button {
+    width: 4px;
+    height: 4px;
+    background: #ddd;
+    border: 1px solid var(--ink);
+    border-radius: 50%;
+}
+
+.fede .arm {
+    position: absolute;
+    width: 7px;
+    height: 22px;
+    border: 2px solid var(--ink);
+    border-radius: 4px;
+    background: var(--fede-blue, #4a90d9);
+    top: 3px;
+    transform-origin: top center;
+    z-index: 6;
+}
+
+.fede .arm.left {
+    left: -5px;
+}
+
+.fede .arm.right {
+    right: -5px;
+}
+
+.fede .legs {
+    display: flex;
+    gap: 4px;
+    margin-top: -2px;
+    z-index: 4;
+    transition: gap 0.15s;
+}
+
+.fede .leg {
+    position: relative;
+    width: 14px;
+    height: 30px;
+    border: 2px solid var(--ink);
+    border-radius: 3px;
+    background: #2c3e50;
+    transform-origin: top center;
+    transition: transform 0.15s, height 0.15s;
+}
+
+.fede .feet {
+    display: flex;
+    gap: 4px;
+    margin-top: -2px;
+    z-index: 3;
+    transition: gap 0.15s;
+}
+
+.fede .foot {
+    width: 12px;
+    height: 5px;
+    border: 2px solid var(--ink);
+    border-radius: 3px 5px 3px 3px;
+    background: #1a1a1a;
+}
+
+/* ========================
+   Fede Idle Animation
+   ======================== */
+
+.fede.idle {
+    animation: idleBreathe 2s ease-in-out infinite;
+}
+
+/* ========================
+   Fede Punching State
+   ======================== */
+
+.fede.punching .arm.right {
+    animation: punch 0.2s ease-out;
+}
+
+/* ========================
+   Fede Kicking State
+   ======================== */
+
+.fede.kicking .leg.right {
+    animation: kick 0.25s ease-out;
+    transform-origin: top center;
+}
+
+/* ========================
+   The Split Special
+   ======================== */
+
+.fede.split {
+    transform: translateY(45px);
+    animation: splitDrop 0.2s ease-out;
+}
+
+@keyframes splitDrop {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(45px); }
+}
+
+.fede.split .legs {
+    position: relative;
+    gap: 0;
+    flex-direction: row;
+    justify-content: center;
+    width: 180px;
+    left: -75px;
+}
+
+.fede.split .leg.left {
+    position: absolute;
+    left: 0;
+    width: 90px;
+    height: 12px;
+    transform: rotate(0deg);
+    border-radius: 6px 0 0 6px;
+    animation: splitLeft 0.2s ease-out forwards;
+}
+
+@keyframes splitLeft {
+    0% {
+        width: 14px;
+        height: 30px;
+        transform: rotate(0deg);
+    }
+    100% {
+        width: 90px;
+        height: 12px;
+        transform: rotate(0deg);
+    }
+}
+
+.fede.split .leg.right {
+    position: absolute;
+    right: 0;
+    width: 90px;
+    height: 12px;
+    transform: rotate(0deg);
+    border-radius: 0 6px 6px 0;
+    animation: splitRight 0.2s ease-out forwards;
+}
+
+@keyframes splitRight {
+    0% {
+        width: 14px;
+        height: 30px;
+        transform: rotate(0deg);
+    }
+    100% {
+        width: 90px;
+        height: 12px;
+        transform: rotate(0deg);
+    }
+}
+
+.fede.split .leg::after {
+    content: '';
+    position: absolute;
+    width: 15px;
+    height: 8px;
+    background: #1a1a1a;
+    border: 2px solid var(--ink);
+    border-radius: 4px;
+    bottom: -2px;
+}
+
+.fede.split .leg.left::after {
+    left: -5px;
+    border-radius: 4px 2px 2px 4px;
+}
+
+.fede.split .leg.right::after {
+    right: -5px;
+    border-radius: 2px 4px 4px 2px;
+}
+
+.fede.split .feet {
+    display: none;
+}
+
+/* ========================
+   Special Move Text Pop
+   ======================== */
+
+@keyframes splitTextPop {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes shockwaveExpand {
+    0% {
+        transform: scaleX(0.5);
+        opacity: 1;
+    }
+    100% {
+        transform: scaleX(1.5);
+        opacity: 0;
+    }
+}

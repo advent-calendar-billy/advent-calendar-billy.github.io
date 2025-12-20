@@ -1,0 +1,333 @@
+/**
+ * Vicky Character Styles
+ * Christmas Silks Theme - Red/Pink color scheme
+ */
+
+/* ========================
+   Vicky Base Sprite
+   ======================== */
+
+.vicky .head {
+    width: 34px;
+    height: 36px;
+    border: 2px solid var(--ink);
+    border-radius: 50%;
+    background: var(--paper);
+    position: relative;
+    z-index: 10;
+}
+
+.vicky .hair {
+    position: absolute;
+    top: -5px;
+    left: -6px;
+    width: 46px;
+    height: 26px;
+    border: 2px solid var(--ink);
+    border-bottom: none;
+    border-radius: 50% 50% 0 0;
+    background: #5c4033;
+    z-index: 5;
+}
+
+.vicky .hair-left {
+    position: absolute;
+    top: 14px;
+    left: -8px;
+    width: 9px;
+    height: 35px;
+    background: #5c4033;
+    border: 2px solid var(--ink);
+    border-top: none;
+    border-radius: 0 0 40% 40%;
+    z-index: 4;
+}
+
+.vicky .hair-right {
+    position: absolute;
+    top: 14px;
+    right: -8px;
+    width: 9px;
+    height: 35px;
+    background: #5c4033;
+    border: 2px solid var(--ink);
+    border-top: none;
+    border-radius: 0 0 40% 40%;
+    z-index: 4;
+}
+
+.vicky .eyes {
+    position: absolute;
+    top: 11px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 15;
+}
+
+.vicky .eye {
+    width: 7px;
+    height: 4px;
+    background: transparent;
+    border-top: 3px solid var(--ink);
+    border-radius: 50% 50% 0 0;
+}
+
+.vicky .mouth {
+    position: absolute;
+    bottom: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 10px;
+    height: 5px;
+    border: 2px solid var(--ink);
+    border-top: none;
+    border-radius: 0 0 50% 50%;
+    background: rgba(255,150,150,0.3);
+    z-index: 15;
+}
+
+.vicky .blush {
+    position: absolute;
+    top: 16px;
+    width: 6px;
+    height: 4px;
+    background: rgba(255, 150, 170, 0.5);
+    border-radius: 50%;
+    z-index: 14;
+}
+
+.vicky .blush.left { left: 3px; }
+.vicky .blush.right { right: 3px; }
+
+.vicky .body {
+    width: 30px;
+    height: 26px;
+    border: 2px solid var(--ink);
+    border-radius: 3px 3px 0 0;
+    background: #fffafa;
+    margin-top: -3px;
+    position: relative;
+    z-index: 8;
+}
+
+.vicky .bow {
+    position: absolute;
+    top: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 12px;
+    height: 6px;
+    z-index: 9;
+}
+
+.vicky .bow::before,
+.vicky .bow::after {
+    content: '';
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: #c41e3a;
+    border: 1px solid var(--ink);
+    border-radius: 50% 50% 50% 0;
+}
+
+.vicky .bow::before {
+    left: 0;
+    transform: rotate(-45deg);
+}
+
+.vicky .bow::after {
+    right: 0;
+    transform: rotate(45deg);
+}
+
+.vicky .bow-center {
+    position: absolute;
+    top: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    background: #c41e3a;
+    border: 1px solid var(--ink);
+    border-radius: 50%;
+    z-index: 10;
+}
+
+.vicky .arm {
+    position: absolute;
+    width: 8px;
+    height: 24px;
+    border: 2px solid var(--ink);
+    border-radius: 4px;
+    background: var(--paper);
+    top: 3px;
+    transform-origin: top center;
+}
+
+.vicky .arm.left {
+    left: -5px;
+    transform: rotate(15deg);
+}
+
+.vicky .arm.right {
+    right: -5px;
+    transform: rotate(-15deg);
+}
+
+.vicky .skirt {
+    width: 36px;
+    height: 22px;
+    border: 2px solid var(--ink);
+    border-top: none;
+    border-radius: 0 0 50% 50%;
+    background: linear-gradient(180deg, #c41e3a 0%, #8b0000 100%);
+    margin-top: -2px;
+    margin-left: -3px;
+    z-index: 7;
+}
+
+.vicky .feet {
+    display: flex;
+    gap: 8px;
+    margin-top: -2px;
+    z-index: 6;
+}
+
+.vicky .foot {
+    width: 10px;
+    height: 8px;
+    border: 2px solid var(--ink);
+    border-radius: 3px 3px 5px 5px;
+    background: #c41e3a;
+}
+
+/* ========================
+   Vicky Idle Animation
+   ======================== */
+
+.vicky.idle {
+    animation: idleBreathe 2s ease-in-out infinite;
+}
+
+/* ========================
+   Vicky Punching State - Handbag Whack
+   ======================== */
+
+.vicky.punching .arm.right {
+    animation: vickyPunch 0.28s ease-out;
+}
+
+@keyframes vickyPunch {
+    0% {
+        transform: rotate(-15deg);
+    }
+    35% {
+        transform: rotate(-60deg) translateX(3px);
+    }
+    65% {
+        transform: rotate(60deg) translateX(-8px);
+    }
+    100% {
+        transform: rotate(-15deg);
+    }
+}
+
+/* ========================
+   Vicky Kicking State
+   ======================== */
+
+.vicky.kicking {
+    animation: vickyKickBody 0.3s ease-out;
+}
+
+.vicky.kicking .skirt {
+    animation: vickySkirtKick 0.3s ease-out;
+}
+
+@keyframes vickyKickBody {
+    0%, 100% {
+        transform: rotate(0deg);
+    }
+    50% {
+        transform: rotate(-10deg) translateY(-3px);
+    }
+}
+
+@keyframes vickySkirtKick {
+    0%, 100% {
+        transform: rotate(0deg);
+    }
+    50% {
+        transform: rotate(15deg);
+    }
+}
+
+/* ========================
+   Vicky Special Effects
+   ======================== */
+
+/* Silk Wrap Projectile */
+.projectile.silk-head {
+    width: 18px;
+    height: 18px;
+    background: radial-gradient(circle, #e91e8c, #9b59b6);
+    border: 3px solid #9b59b6;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #e91e8c, 0 0 20px rgba(233, 30, 140, 0.5);
+    z-index: 101;
+}
+
+.projectile.silk-trail {
+    height: 6px;
+    background: linear-gradient(90deg, #9b59b6, #e91e8c, #c41e3a);
+    border-radius: 3px;
+    transform-origin: left center;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(233, 30, 140, 0.4);
+}
+
+/* Coal Projectile */
+.projectile.coal {
+    width: 16px;
+    height: 16px;
+    background: radial-gradient(circle at 30% 30%, #4a4a4a, #1a1a1a);
+    border: 2px solid #000;
+    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+    box-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    z-index: 150;
+}
+
+/* Handbag */
+.projectile.handbag {
+    width: 28px;
+    height: 22px;
+    background: linear-gradient(135deg, #c41e3a 0%, #8b0000 100%);
+    border-radius: 5px 5px 8px 8px;
+    box-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    z-index: 150;
+}
+
+.handbag-handle {
+    position: absolute;
+    top: -6px;
+    left: 6px;
+    width: 12px;
+    height: 7px;
+    border: 2px solid #ffd700;
+    border-bottom: none;
+    border-radius: 6px 6px 0 0;
+}
+
+.handbag-clasp {
+    position: absolute;
+    top: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8px;
+    height: 5px;
+    background: #ffd700;
+    border-radius: 2px;
+}

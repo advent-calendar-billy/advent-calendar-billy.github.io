@@ -1,0 +1,150 @@
+/**
+ * Base CSS - Core styles, variables, and paper background
+ */
+
+/* CSS Variables */
+:root {
+    /* Paper theme colors */
+    --paper: #fdf6e3;
+    --paper-dark: #f5e6c8;
+    --ink: #2c1810;
+    --ink-light: #5c4030;
+    --pencil: #666;
+
+    /* Character colors */
+    --fede-blue: #4a90d9;
+    --billy-blue: #3366cc;
+    --pato-orange: #ff8c00;
+    --jonas-green: #2ecc71;
+    --vicky-red: #c41e3a;
+    --frank-crimson: #cc0033;
+    --charly-rust: #c0392b;
+    --audrey-green: #228b22;
+    --pancho-blue: #2563eb;
+    --madonna-pink: #e91e8c;
+    --jonasl-brown: #8b4513;
+    --lucas-purple: #9b59b6;
+    --timo-gray: #888;
+
+    /* UI colors */
+    --health-green: #4ade80;
+    --health-yellow: #fbbf24;
+    --health-red: #ef4444;
+    --energy-blue: #3b82f6;
+    --energy-gold: #f59e0b;
+
+    /* Sizing */
+    --fighter-width: 50px;
+    --fighter-height: 90px;
+    --arena-width: 870px;
+    --arena-height: 400px;
+}
+
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Base styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    overflow: hidden;
+    user-select: none;
+}
+
+/* Paper texture background */
+.paper-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background:
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 24px,
+            rgba(0, 0, 0, 0.03) 24px,
+            rgba(0, 0, 0, 0.03) 25px
+        ),
+        repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent 24px,
+            rgba(0, 0, 0, 0.02) 24px,
+            rgba(0, 0, 0, 0.02) 25px
+        );
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Sketch/hand-drawn effect for borders */
+.sketch-border {
+    border: 2px solid var(--ink);
+    border-radius: 3px;
+    box-shadow:
+        1px 1px 0 var(--ink-light),
+        -1px -1px 0 var(--paper-dark);
+}
+
+/* Pencil-style text */
+.pencil-text {
+    font-family: 'Comic Sans MS', 'Chalkboard', cursive;
+    color: var(--pencil);
+}
+
+/* Ink-style text */
+.ink-text {
+    font-family: 'Georgia', serif;
+    color: var(--ink);
+    text-shadow: 0.5px 0.5px 0 var(--ink-light);
+}
+
+/* Title font (for headers) */
+.title-font {
+    font-family: 'Bangers', 'Impact', sans-serif;
+    letter-spacing: 2px;
+}
+
+/* Container */
+.game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+    position: relative;
+    z-index: 1;
+}
+
+/* Hidden class */
+.hidden {
+    display: none !important;
+}
+
+/* Fade transitions */
+.fade-in {
+    animation: fadeIn 0.3s ease-in forwards;
+}
+
+.fade-out {
+    animation: fadeOut 0.3s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+/* Import Bangers font for titles */
+@import url('https://fonts.googleapis.com/css2?family=Bangers&display=swap');

@@ -1,0 +1,262 @@
+/**
+ * Pato Character Styles
+ * Bitcoin/Director Theme - Orange color scheme
+ */
+
+/* ========================
+   Pato Base Sprite
+   ======================== */
+
+.pato .head {
+    width: 40px;
+    height: 48px;
+    border: 2px solid var(--ink);
+    border-radius: 40% 40% 45% 45%;
+    background: var(--paper);
+    position: relative;
+    z-index: 10;
+}
+
+.pato .hair {
+    position: absolute;
+    top: -8px;
+    left: 5px;
+    width: 30px;
+    height: 18px;
+    border: 2px solid var(--ink);
+    border-bottom: none;
+    border-radius: 50% 50% 0 0;
+    background: var(--paper);
+}
+
+.pato .eyes {
+    position: absolute;
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+}
+
+.pato .eye {
+    width: 6px;
+    height: 6px;
+    background: var(--ink);
+    border-radius: 50%;
+}
+
+.pato .mouth {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 10px;
+    height: 5px;
+    border: 2px solid var(--ink);
+    border-top: none;
+    border-radius: 0 0 50% 50%;
+}
+
+.pato .body {
+    width: 48px;
+    height: 48px;
+    border: 2px solid var(--ink);
+    border-radius: 6px;
+    background: var(--paper);
+    margin-top: -5px;
+    position: relative;
+    z-index: 5;
+}
+
+/* Bitcoin logo on shirt */
+.pato .logo {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Finger Paint', cursive;
+    font-size: 1.2rem;
+    color: #f39c12;
+    font-weight: bold;
+}
+
+.pato .arm {
+    position: absolute;
+    width: 10px;
+    height: 32px;
+    border: 2px solid var(--ink);
+    border-radius: 5px;
+    background: var(--paper);
+    top: 6px;
+    transform-origin: top center;
+}
+
+.pato .arm.left {
+    left: -8px;
+    transform: rotate(10deg);
+}
+
+.pato .arm.right {
+    right: -8px;
+    transform: rotate(-10deg);
+}
+
+.pato .legs {
+    display: flex;
+    gap: 10px;
+    margin-top: -3px;
+    z-index: 1;
+}
+
+.pato .leg {
+    width: 12px;
+    height: 35px;
+    border: 2px solid var(--ink);
+    border-radius: 4px;
+    background: var(--paper);
+}
+
+/* ========================
+   Pato Idle Animation
+   ======================== */
+
+.pato.idle {
+    animation: patoIdle 2s ease-in-out infinite;
+}
+
+@keyframes patoIdle {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-2px); }
+}
+
+/* ========================
+   Pato Punching State
+   ======================== */
+
+.pato.punching .arm.right {
+    animation: patoPunch 0.25s ease-out;
+}
+
+@keyframes patoPunch {
+    0% { transform: rotate(-10deg); }
+    50% { transform: rotate(75deg) translateX(5px); }
+    100% { transform: rotate(-10deg); }
+}
+
+/* ========================
+   Pato Kicking State
+   ======================== */
+
+.pato.kicking {
+    animation: patoKickBody 0.3s ease-out;
+}
+
+@keyframes patoKickBody {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(-10deg) translateY(-3px); }
+}
+
+/* ========================
+   Pato Special Effects
+   ======================== */
+
+/* Bitcoin coin */
+.bitcoin-coin {
+    position: absolute;
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, #f7931a 0%, #ffb347 50%, #f7931a 100%);
+    border: 3px solid #c77800;
+    border-radius: 50%;
+    z-index: 155;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Arial', sans-serif;
+    font-weight: bold;
+    font-size: 16px;
+    color: #fff;
+    text-shadow: 1px 1px 0 #c77800;
+    box-shadow: 0 0 8px rgba(247, 147, 26, 0.5);
+}
+
+/* Film strip for Director's Cut */
+.film-strip {
+    position: absolute;
+    width: 80px;
+    height: 18px;
+    background: repeating-linear-gradient(90deg, var(--ink) 0px, var(--ink) 12px, var(--paper) 12px, var(--paper) 16px);
+    border: 2px solid var(--ink);
+    z-index: 90;
+}
+
+/* Code bracket for Stack Overflow */
+.code-bracket {
+    position: absolute;
+    font-family: monospace;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #f39c12;
+    z-index: 150;
+}
+
+/* Rocket for TO THE MOON! */
+.pato-rocket {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 150;
+}
+
+.rocket-body {
+    width: 30px;
+    height: 50px;
+    background: var(--paper);
+    border: 3px solid var(--ink);
+    border-radius: 50% 50% 6px 6px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.rocket-body span {
+    font-family: 'Finger Paint', cursive;
+    font-size: 1rem;
+    color: #f39c12;
+    font-weight: bold;
+}
+
+.rocket-fin {
+    position: absolute;
+    bottom: 3px;
+    width: 10px;
+    height: 18px;
+    border: 2px solid var(--ink);
+    background: #f39c12;
+}
+
+.rocket-fin.left {
+    left: -6px;
+    border-radius: 0 0 0 50%;
+}
+
+.rocket-fin.right {
+    right: -6px;
+    border-radius: 0 0 50% 0;
+}
+
+.rocket-flame {
+    width: 16px;
+    height: 24px;
+    background: linear-gradient(180deg, #f39c12, #f1c40f, #e74c3c);
+    border-radius: 50% 50% 50% 50% / 30% 30% 70% 70%;
+    margin-top: -3px;
+    animation: flame-flicker 0.1s infinite;
+}
+
+@keyframes flame-flicker {
+    0%, 100% { transform: scaleX(1); }
+    50% { transform: scaleX(0.9); }
+}
