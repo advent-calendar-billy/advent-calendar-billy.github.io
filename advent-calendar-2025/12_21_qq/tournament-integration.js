@@ -174,9 +174,9 @@
         updateTournamentUI();
         startOpponentAILoop();
 
-        // Make sure game loop is running
-        if (typeof startGameLoop === 'function') {
-            // Don't restart if already running
+        // Start the game loop if it exists
+        if (typeof window.startGameLoop === 'function') {
+            window.startGameLoop();
         }
     }
 
@@ -207,12 +207,20 @@
 
         const fighter = document.getElementById('player-fighter');
         if (fighter) {
+            fighter.style.position = 'absolute';
             fighter.style.left = '100px';
+            fighter.style.bottom = '68px';
         }
     }
 
     // Setup the opponent character
     function setupOpponent(opponent, stats) {
+        // Hide the NPC dummy - we're using the opponent fighter instead
+        const npcDummy = document.getElementById('npc-dummy');
+        if (npcDummy) {
+            npcDummy.style.display = 'none';
+        }
+
         // Update opponent name in header
         const opponentNameEl = document.getElementById('opponent-name');
         if (opponentNameEl) {
@@ -230,10 +238,12 @@
             opponentContainer.innerHTML = template;
         }
 
-        // Position opponent
+        // Position opponent with absolute positioning
         const opponentFighter = document.getElementById('opponent-fighter');
         if (opponentFighter) {
+            opponentFighter.style.position = 'absolute';
             opponentFighter.style.left = '650px';
+            opponentFighter.style.bottom = '68px';
         }
 
         // Update health bar max

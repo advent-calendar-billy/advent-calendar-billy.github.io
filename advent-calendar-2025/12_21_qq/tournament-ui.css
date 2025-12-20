@@ -1,5 +1,29 @@
 /* Tournament Mode UI Styles */
 
+/* ==================== OPPONENT FIGHTER STYLES ==================== */
+#opponent-fighter-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+/* Flip opponent to face left (toward player) */
+.fighter.facing-left {
+    transform: scaleX(-1);
+}
+
+/* Ensure damage numbers have proper positioning */
+.damage-number {
+    position: absolute;
+    pointer-events: none;
+}
+
+.hit-text.impact-effect {
+    position: absolute;
+    pointer-events: none;
+}
+
 /* ==================== TOURNAMENT LADDER SCREEN ==================== */
 #tournament-ladder {
     display: flex;
