@@ -431,6 +431,7 @@
         const projectile = document.createElement('div');
         const startX = attackData.x + (facingLeft ? -20 : 60);
         const targetX = attackData.playerX;
+        // Direction toward player: if facingLeft (opponent to right of player), move left (-1)
         const direction = facingLeft ? -1 : 1;
 
         // Get character-specific projectile style
@@ -473,7 +474,7 @@
 
         const flyInterval = setInterval(() => {
             // Move toward player
-            currentX += direction * -speed; // Negative because we're moving toward player
+            currentX += direction * speed;
             projectile.style.left = currentX + 'px';
 
             // Add slight wobble
