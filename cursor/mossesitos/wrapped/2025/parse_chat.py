@@ -130,7 +130,8 @@ STOP_WORDS = {
     'q', 'omitted', 'media', 'https', 'http', 'www', 'com', 'jaja', 'jajaja',
     'jajajaja', 'jajajajaja', 'jeje', 'jejeje', 'hola', 'bien', 'bueno', 'si',
     'no', 'ok', 'ah', 'oh', 'eh', 'uh', 'mm', 'mmm', 'ya', 'va', 'voy', 'vamos',
-    'this', 'message', 'was', 'deleted', 'attached', 'file', 'you'
+    'this', 'message', 'was', 'deleted', 'attached', 'file', 'you', 'edited',
+    'sharing', 'shared'
 }
 
 def get_audio_duration(filepath: str) -> float:
@@ -433,10 +434,33 @@ def parse_whatsapp_chat(file_path: str, year_filter: int = 2025, media_folder: s
                 word_usage[word].add(person)
 
         # Find words unique to each person (used by only 1 person, at least 3 times)
+        # Filter out gibberish/URL parameters
+        url_params = {'mibextid', 'wwxifr', 'gasearch', 'source', 'fbclid', 'utm', 'ref', 'share', 'thefork'}
         for person, person_words in all_words_by_person.items():
             unique = []
             for word, count in sorted(person_words.items(), key=lambda x: x[1], reverse=True):
                 if len(word_usage[word]) == 1 and count >= 3 and word not in STOP_WORDS:
+                    # Filter out gibberish
+                    if len(word) < 3 or len(word) > 15:
+                        continue
+                    # Skip words with numbers mixed in (URL params)
+                    if any(c.isdigit() for c in word):
+                        continue
+                    # Skip known URL params
+                    if word.lower() in url_params:
+                        continue
+                    # Skip words with too many consonants in a row (gibberish)
+                    vowels = set('aeiouáéíóú')
+                    consonant_streak = 0
+                    max_streak = 0
+                    for c in word.lower():
+                        if c.isalpha() and c not in vowels:
+                            consonant_streak += 1
+                            max_streak = max(max_streak, consonant_streak)
+                        else:
+                            consonant_streak = 0
+                    if max_streak > 4:
+                        continue
                     unique.append(word)
                 if len(unique) >= 5:
                     break

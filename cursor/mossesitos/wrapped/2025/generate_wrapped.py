@@ -60,10 +60,13 @@ def get_fun_facts(stats: dict, messages: list) -> list:
     # Most active day
     if stats['most_active_day']:
         day_es = DAY_NAMES_ES.get(stats['most_active_day'], stats['most_active_day'])
+        # Add Friday music if the most active day is Friday
+        music = 'friday-im-in-love' if stats['most_active_day'] == 'Friday' else None
         facts.append({
             'title': 'Día Favorito',
             'value': day_es,
-            'description': f"A la familia le encanta chatear los {day_es.lower()}!"
+            'description': f"A la familia le encanta chatear los {day_es.lower()}!",
+            'music': music
         })
 
     # Most active hour (Argentina time)
@@ -90,7 +93,8 @@ def get_fun_facts(stats: dict, messages: list) -> list:
         facts.append({
             'title': 'Ave Nocturna',
             'value': night_owl[0],
-            'description': f"Envió {night_owl[1]} mensajes entre medianoche y las 5 AM (de su hora local)!"
+            'description': f"Envió {night_owl[1]} mensajes entre medianoche y las 5 AM (de su hora local)!",
+            'music': 'bajan'
         })
 
     # Early bird (local time)
@@ -99,7 +103,8 @@ def get_fun_facts(stats: dict, messages: list) -> list:
         facts.append({
             'title': 'Madrugador/a',
             'value': early_bird[0],
-            'description': f"Envió {early_bird[1]} mensajes antes de las 8 AM (de su hora local)!"
+            'description': f"Envió {early_bird[1]} mensajes antes de las 8 AM (de su hora local)!",
+            'music': 'here-comes-the-sun'
         })
 
     # Most censored (deleted messages)
@@ -108,7 +113,8 @@ def get_fun_facts(stats: dict, messages: list) -> list:
         facts.append({
             'title': 'El/La Más Censurado/a',
             'value': top_deleted[0],
-            'description': f"Tuvo que borrar {top_deleted[1]} mensajes este año!"
+            'description': f"Tuvo que borrar {top_deleted[1]} mensajes este año!",
+            'music': 'mejor-no-hablar'
         })
 
     # Most media shared
@@ -144,16 +150,23 @@ def get_fun_facts(stats: dict, messages: list) -> list:
         facts.append({
             'title': 'El/La Novelista',
             'value': top_length[0],
-            'description': f"Promedio de {top_length[1]} palabras por mensaje!"
+            'description': f"Promedio de {top_length[1]} palabras por mensaje!",
+            'music': 'los-libros'
         })
 
     # Top emoji
     if stats.get('top_emojis'):
-        top_emoji = list(stats['top_emojis'].items())[0]
+        top_emoji_char, top_emoji_count = list(stats['top_emojis'].items())[0]
+        # Fix heart emoji display
+        if top_emoji_char == '\u2764':
+            top_emoji_char = '\u2764\uFE0F'  # ❤️
+        # Add heart music if the top emoji is a heart
+        music = 'yo-vengo-a-ofrecer' if '\u2764' in top_emoji_char or '❤' in top_emoji_char else None
         facts.append({
             'title': 'Emoji Favorito',
-            'value': top_emoji[0],
-            'description': f"Usado {top_emoji[1]:,} veces este año!"
+            'value': top_emoji_char,
+            'description': f"Usado {top_emoji_count:,} veces este año!",
+            'music': music
         })
 
     # Peak hour (single hour with most messages)
@@ -210,19 +223,28 @@ def build_ranking_html(sender_percentages):
     return ''.join(items)
 
 
-def build_dual_ranking_html(messages_by_sender, words_by_sender):
-    """Build two-column ranking: messages and characters/words."""
-    # Sort by messages
-    msg_sorted = sorted(messages_by_sender.items(), key=lambda x: x[1], reverse=True)
+def build_dual_ranking_html(messages_by_sender, words_by_sender, media_by_sender=None):
+    """Build two-column ranking: text messages and words."""
+    if media_by_sender is None:
+        media_by_sender = {}
+
+    # Calculate text messages (total messages minus media)
+    text_msgs_by_sender = {}
+    for sender, total_msgs in messages_by_sender.items():
+        media_msgs = media_by_sender.get(sender, 0)
+        text_msgs_by_sender[sender] = total_msgs - media_msgs
+
+    # Sort by text messages
+    msg_sorted = sorted(text_msgs_by_sender.items(), key=lambda x: x[1], reverse=True)
     max_msgs = msg_sorted[0][1] if msg_sorted else 1
 
     # Sort by words
     word_sorted = sorted(words_by_sender.items(), key=lambda x: x[1], reverse=True)
     max_words = word_sorted[0][1] if word_sorted else 1
 
-    # Build messages column
+    # Build messages column (text only)
     msg_items = []
-    for i, (name, count) in enumerate(msg_sorted[:10]):
+    for i, (name, count) in enumerate(msg_sorted):
         pct = (count / max_msgs) * 100
         msg_items.append(f'''
         <div class="mini-rank-item">
@@ -233,7 +255,7 @@ def build_dual_ranking_html(messages_by_sender, words_by_sender):
 
     # Build words column
     word_items = []
-    for i, (name, count) in enumerate(word_sorted[:10]):
+    for i, (name, count) in enumerate(word_sorted):
         pct = (count / max_words) * 100
         word_items.append(f'''
         <div class="mini-rank-item">
@@ -249,8 +271,9 @@ def build_carousel_html(fun_facts):
     """Build the carousel slides HTML."""
     slides = []
     for fact in fun_facts:
+        music_attr = f'data-music="{fact["music"]}"' if fact.get('music') else ''
         slide = f'''
-        <div class="carousel-slide">
+        <div class="carousel-slide" {music_attr}>
             <div class="fact-card">
                 <div class="fact-title">{fact['title']}</div>
                 <div class="fact-value">{fact['value']}</div>
@@ -350,7 +373,7 @@ def build_person_buttons_html(persons_data, images_by_sender):
         if person_images:
             random.shuffle(person_images)
             selected = person_images[:4]
-            # Create image grid background
+            # Create image grid background - use contain to keep aspect ratio
             if len(selected) >= 4:
                 img_style = f'''background-image:
                     url('media/{selected[0]}'),
@@ -358,9 +381,10 @@ def build_person_buttons_html(persons_data, images_by_sender):
                     url('media/{selected[2]}'),
                     url('media/{selected[3]}');
                     background-size: 50% 50%;
-                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;'''
+                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;
+                    background-repeat: no-repeat;'''
             else:
-                img_style = f"background-image: url('media/{selected[0]}'); background-size: cover;"
+                img_style = f"background-image: url('media/{selected[0]}'); background-size: cover; background-position: center;"
             buttons.append(f'''<button class="person-btn has-images" style="{img_style}" onclick="showPerson('{name}')"><span class="person-btn-name">{name}</span></button>''')
         else:
             buttons.append(f"<button class=\"person-btn\" onclick=\"showPerson('{name}')\">{name}</button>")
@@ -500,7 +524,8 @@ def get_day_excerpts(messages: list, date_str: str, max_items: int = 80) -> dict
     """Get all messages from a specific day for grid display."""
     from datetime import datetime
 
-    all_items = []
+    text_items = []
+    media_items = []
 
     # Parse target date
     try:
@@ -515,7 +540,7 @@ def get_day_excerpts(messages: list, date_str: str, max_items: int = 80) -> dict
             # Check if it's media
             if msg.is_media and msg.media_filename:
                 if msg.media_filename.startswith(('IMG-2025', 'VID-2025')):
-                    all_items.append({
+                    media_items.append({
                         'type': 'media',
                         'filename': msg.media_filename,
                         'sender': msg.sender,
@@ -527,20 +552,33 @@ def get_day_excerpts(messages: list, date_str: str, max_items: int = 80) -> dict
                 # Skip links-only messages
                 if content.startswith('http'):
                     continue
-                # Truncate long messages
-                if len(content) > 80:
-                    content = content[:77] + '...'
-                all_items.append({
+                # Store full content for tooltip, truncate for display
+                full_content = content
+                display_content = content
+                if len(content) > 60:
+                    display_content = content[:57] + '...'
+                text_items.append({
                     'type': 'text',
                     'sender': msg.sender,
-                    'content': content,
-                    'time': msg.timestamp.strftime('%H:%M')
+                    'content': display_content,
+                    'full_content': full_content,
+                    'time': msg.timestamp.strftime('%H:%M'),
+                    'length': len(full_content)
                 })
 
-    total_count = len(all_items)
+    total_count = len(text_items) + len(media_items)
 
-    # Mix items to get variety - interleave media and text
+    # Prioritize longer text messages
+    text_items.sort(key=lambda x: x['length'], reverse=True)
+
+    # Take more text items (50) and fewer media items (30)
     import random
+    random.shuffle(media_items)
+    selected_texts = text_items[:50]
+    selected_media = media_items[:30]
+
+    # Mix them together
+    all_items = selected_texts + selected_media
     random.shuffle(all_items)
 
     return {
@@ -551,6 +589,7 @@ def get_day_excerpts(messages: list, date_str: str, max_items: int = 80) -> dict
 
 def build_day_excerpts_html(day_data: dict) -> str:
     """Build HTML for day excerpts as a 10x8 grid."""
+    import html as html_escape
     items = day_data.get('items', [])
     if not items:
         return ''
@@ -570,10 +609,12 @@ def build_day_excerpts_html(day_data: dict) -> str:
                     <img src="media/{item['filename']}" alt="" loading="lazy">
                 </div>''')
         else:
-            # Text message
-            html_parts.append(f'''<div class="day-grid-item text-item">
+            # Text message with tooltip for full content
+            full_content = html_escape.escape(item.get('full_content', item['content']))
+            display_content = html_escape.escape(item['content'])
+            html_parts.append(f'''<div class="day-grid-item text-item" title="{full_content}">
                 <span class="grid-sender">{item['sender']}</span>
-                <span class="grid-content">{item['content']}</span>
+                <span class="grid-content">{display_content}</span>
             </div>''')
 
     html_parts.append('</div>')
@@ -640,6 +681,31 @@ def build_github_calendar_html(messages_by_date):
     return ''.join(calendar_cells)
 
 
+def filter_gibberish_word(word):
+    """Filter out gibberish/URL parameter words."""
+    url_params = {'mibextid', 'wwxifr', 'gasearch', 'source', 'fbclid', 'utm', 'ref', 'share', 'thefork',
+                  'edited', 'sharing', 'shared', 'this', 'message', 'was', 'deleted', 'you', 'attached', 'file'}
+    if len(word) < 3 or len(word) > 15:
+        return False
+    if any(c.isdigit() for c in word):
+        return False
+    if word.lower() in url_params:
+        return False
+    # Skip words with too many consonants in a row (gibberish)
+    vowels = set('aeiouáéíóú')
+    consonant_streak = 0
+    max_streak = 0
+    for c in word.lower():
+        if c.isalpha() and c not in vowels:
+            consonant_streak += 1
+            max_streak = max(max_streak, consonant_streak)
+        else:
+            consonant_streak = 0
+    if max_streak > 4:
+        return False
+    return True
+
+
 def build_person_details_html(persons_data, words_by_person, unique_words_by_person=None):
     """Build the person detail cards - show everyone."""
     if unique_words_by_person is None:
@@ -649,11 +715,10 @@ def build_person_details_html(persons_data, words_by_person, unique_words_by_per
         safe_name = p['name'].replace(' ', '-')
         traits_html = ''.join([f'<span class="trait">{t}</span>' for t in p['traits']]) if p['traits'] else ''
 
-        # Get top words for this person (exclude deleted message text and common English)
+        # Get top words for this person (with filtering for gibberish)
         person_words = words_by_person.get(p['name'], {})
-        # Filter out words from "this message was deleted" and other noise
-        filtered_words = {w: c for w, c in person_words.items()
-                        if w not in ['this', 'message', 'was', 'deleted', 'you', 'attached', 'file']}
+        # Filter out gibberish/URL params
+        filtered_words = {w: c for w, c in person_words.items() if filter_gibberish_word(w)}
         top_words_list = list(filtered_words.items())[:5]
         words_html = ''
         if top_words_list:
@@ -777,7 +842,7 @@ def generate_html(stats: dict, messages: list) -> str:
     # Pre-build all dynamic HTML parts
     ranking_html = build_ranking_html(sender_percentages)
     msg_ranking_html, words_ranking_html = build_dual_ranking_html(
-        stats['messages_by_sender'], stats['words_by_sender']
+        stats['messages_by_sender'], stats['words_by_sender'], stats.get('media_by_sender', {})
     )
     carousel_html = build_carousel_html(fun_facts)
     word_cloud_html = build_word_cloud_html(top_words)
@@ -1148,10 +1213,65 @@ def generate_html(stats: dict, messages: list) -> str:
             transition: all 0.3s;
         }}
 
+        .person-btn.has-images {{
+            width: 100px;
+            height: 100px;
+            border-radius: 16px;
+            padding: 0;
+            position: relative;
+            background-color: rgba(0,0,0,0.3);
+            overflow: hidden;
+            border: none;
+        }}
+
+        .person-btn.has-images::before {{
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.6) 100%);
+            z-index: 1;
+            pointer-events: none;
+        }}
+
+        .person-btn.has-images::after {{
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            box-shadow: inset 0 0 20px 10px rgba(0,0,0,0.5);
+            border-radius: 16px;
+            z-index: 2;
+            pointer-events: none;
+        }}
+
+        .person-btn.has-images .person-btn-name {{
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.9));
+            padding: 0.5rem 0.25rem 0.25rem;
+            font-size: 0.75rem;
+            text-align: center;
+            z-index: 3;
+            font-weight: 700;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+        }}
+
         .person-btn:hover, .person-btn.active {{
             background: white;
             color: #333;
             transform: scale(1.05);
+        }}
+
+        .person-btn.has-images:hover, .person-btn.has-images.active {{
+            background-color: rgba(0,0,0,0.5);
+            color: white;
         }}
 
         /* Person Detail Card */
@@ -1795,23 +1915,28 @@ def generate_html(stats: dict, messages: list) -> str:
 
         .day-grid-item.text-item {{
             background: rgba(255,255,255,0.15);
-            padding: 2px;
+            padding: 4px;
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            cursor: pointer;
+        }}
+
+        .day-grid-item.text-item:hover {{
+            background: rgba(255,255,255,0.3);
         }}
 
         .grid-sender {{
             font-weight: 700;
-            font-size: 0.4rem;
+            font-size: 1.1rem;
             opacity: 0.7;
             white-space: nowrap;
             overflow: hidden;
         }}
 
         .grid-content {{
-            font-size: 0.35rem;
-            line-height: 1.2;
+            font-size: 1rem;
+            line-height: 1.3;
             overflow: hidden;
             flex: 1;
         }}
@@ -1821,7 +1946,7 @@ def generate_html(stats: dict, messages: list) -> str:
                 grid-template-columns: repeat(8, 1fr);
             }}
             .grid-content {{
-                font-size: 0.3rem;
+                font-size: 0.9rem;
             }}
         }}
 
@@ -1919,7 +2044,7 @@ def generate_html(stats: dict, messages: list) -> str:
             <div class="slide-title">Los Que Más Escribieron</div>
             <div class="dual-ranking">
                 <div class="ranking-column">
-                    <div class="column-title">Más Mensajes</div>
+                    <div class="column-title">Más Textos</div>
                     <div class="mini-ranking">
                         {msg_ranking_html}
                     </div>
@@ -2067,6 +2192,18 @@ def generate_html(stats: dict, messages: list) -> str:
         let carouselIndex = 0;
         const totalFacts = factsData.length;
 
+        // Carousel music configuration (start from middle of song for lyrics)
+        const carouselMusic = {{
+            'friday-im-in-love': {{ file: 'audio/friday-im-in-love.mp3', start: 107 }},
+            'bajan': {{ file: 'audio/bajan.mp3', start: 103 }},
+            'here-comes-the-sun': {{ file: 'audio/here-comes-the-sun.mp3', start: 95 }},
+            'mejor-no-hablar': {{ file: 'audio/mejor-no-hablar.mp3', start: 136 }},
+            'yo-vengo-a-ofrecer': {{ file: 'audio/yo-vengo-a-ofrecer.mp3', start: 105 }},
+            'los-libros': {{ file: 'audio/los-libros.mp3', start: 34 }},
+            'come-together': {{ file: 'audio/come-together.mp3', start: 129 }}
+        }};
+        let currentCarouselAudio = null;
+
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {{
             initCarousel();
@@ -2115,13 +2252,7 @@ def generate_html(stats: dict, messages: list) -> str:
                 }})(i);
                 dots.appendChild(dot);
             }}
-
-            // Auto-advance carousel
-            setInterval(function() {{
-                if (document.visibilityState === 'visible') {{
-                    moveCarousel(1);
-                }}
-            }}, 5000);
+            // No auto-advance - let user control the carousel
         }}
 
         function moveCarousel(direction) {{
@@ -2145,6 +2276,28 @@ def generate_html(stats: dict, messages: list) -> str:
                 }} else {{
                     allDots[i].classList.remove('active');
                 }}
+            }}
+
+            // Handle carousel music
+            var slides = document.querySelectorAll('.carousel-slide');
+            var currentSlideEl = slides[carouselIndex];
+            var musicId = currentSlideEl ? currentSlideEl.getAttribute('data-music') : null;
+
+            // Stop current audio if playing
+            if (currentCarouselAudio) {{
+                currentCarouselAudio.pause();
+                currentCarouselAudio = null;
+            }}
+
+            // Play new music if slide has music
+            if (musicId && carouselMusic[musicId]) {{
+                var config = carouselMusic[musicId];
+                currentCarouselAudio = new Audio(config.file);
+                currentCarouselAudio.currentTime = config.start;
+                currentCarouselAudio.volume = 0.5;
+                currentCarouselAudio.play().catch(function(e) {{
+                    console.log('Audio autoplay blocked');
+                }});
             }}
         }}
 

@@ -310,10 +310,65 @@
             transition: all 0.3s;
         }
 
+        .person-btn.has-images {
+            width: 100px;
+            height: 100px;
+            border-radius: 16px;
+            padding: 0;
+            position: relative;
+            background-color: rgba(0,0,0,0.3);
+            overflow: hidden;
+            border: none;
+        }
+
+        .person-btn.has-images::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.6) 100%);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .person-btn.has-images::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            box-shadow: inset 0 0 20px 10px rgba(0,0,0,0.5);
+            border-radius: 16px;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .person-btn.has-images .person-btn-name {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.9));
+            padding: 0.5rem 0.25rem 0.25rem;
+            font-size: 0.75rem;
+            text-align: center;
+            z-index: 3;
+            font-weight: 700;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+        }
+
         .person-btn:hover, .person-btn.active {
             background: white;
             color: #333;
             transform: scale(1.05);
+        }
+
+        .person-btn.has-images:hover, .person-btn.has-images.active {
+            background-color: rgba(0,0,0,0.5);
+            color: white;
         }
 
         /* Person Detail Card */
@@ -957,23 +1012,28 @@
 
         .day-grid-item.text-item {
             background: rgba(255,255,255,0.15);
-            padding: 2px;
+            padding: 4px;
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            cursor: pointer;
+        }
+
+        .day-grid-item.text-item:hover {
+            background: rgba(255,255,255,0.3);
         }
 
         .grid-sender {
             font-weight: 700;
-            font-size: 0.4rem;
+            font-size: 1.1rem;
             opacity: 0.7;
             white-space: nowrap;
             overflow: hidden;
         }
 
         .grid-content {
-            font-size: 0.35rem;
-            line-height: 1.2;
+            font-size: 1rem;
+            line-height: 1.3;
             overflow: hidden;
             flex: 1;
         }
@@ -983,7 +1043,7 @@
                 grid-template-columns: repeat(8, 1fr);
             }
             .grid-content {
-                font-size: 0.3rem;
+                font-size: 0.9rem;
             }
         }
 
@@ -1072,7 +1132,7 @@
             <div class="slide-title" style="margin-bottom: 0.5rem;">Recuerdos de 2025</div>
             <div class="comparison-text" style="margin-bottom: 0.5rem;">Un álbum de fotos gigante con 4,101 recuerdos</div>
             <div class="media-gallery">
-                <div class="gallery-item"><img src="media/IMG-20250611-WA0175.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250601-WA0018.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><video autoplay muted loop playsinline onclick="openMedia(this.src)"><source src="media/VID-20250602-WA0010.mp4" type="video/mp4"></video></div><div class="gallery-item"><img src="media/IMG-20251127-WA0030.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250222-WA0004.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250626-WA0001.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251205-WA0021.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250524-WA0003.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250611-WA0054.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251127-WA0014.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251122-WA0017.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250915-WA0002.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250723-WA0009.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><video autoplay muted loop playsinline onclick="openMedia(this.src)"><source src="media/VID-20250611-WA0046.mp4" type="video/mp4"></video></div><div class="gallery-item"><img src="media/IMG-20250817-WA0024.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251209-WA0045.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250104-WA0025.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><video autoplay muted loop playsinline onclick="openMedia(this.src)"><source src="media/VID-20251108-WA0018.mp4" type="video/mp4"></video></div><div class="gallery-item"><video autoplay muted loop playsinline onclick="openMedia(this.src)"><source src="media/VID-20250222-WA0012.mp4" type="video/mp4"></video></div><div class="gallery-item"><img src="media/IMG-20250727-WA0027.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250902-WA0001.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250612-WA0019.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250307-WA0038.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251031-WA0014.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250101-WA0052.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250908-WA0021.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250601-WA0021.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250426-WA0028.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250222-WA0003.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251020-WA0011.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250824-WA0008.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250416-WA0001.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250611-WA0159.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251215-WA0015.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250413-WA0007.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251018-WA0011.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250226-WA0001.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251113-WA0009.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250717-WA0007.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><video autoplay muted loop playsinline onclick="openMedia(this.src)"><source src="media/VID-20250329-WA0004.mp4" type="video/mp4"></video></div><div class="gallery-item"><img src="media/IMG-20251129-WA0021.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251018-WA0016.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251026-WA0021.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251023-WA0006.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251015-WA0049.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250714-WA0002.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251015-WA0041.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250705-WA0006.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251026-WA0009.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250627-WA0001.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250822-WA0043.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251108-WA0010.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250611-WA0152.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250611-WA0128.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251123-WA0001.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250323-WA0032.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250228-WA0003.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250422-WA0007.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250222-WA0023.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251026-WA0010.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250227-WA0011.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250214-WA0010.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><video autoplay muted loop playsinline onclick="openMedia(this.src)"><source src="media/VID-20250728-WA0006.mp4" type="video/mp4"></video></div><div class="gallery-item"><video autoplay muted loop playsinline onclick="openMedia(this.src)"><source src="media/VID-20250915-WA0006.mp4" type="video/mp4"></video></div><div class="gallery-item"><video autoplay muted loop playsinline onclick="openMedia(this.src)"><source src="media/VID-20251103-WA0004.mp4" type="video/mp4"></video></div><div class="gallery-item"><img src="media/IMG-20250409-WA0002.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250727-WA0025.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250115-WA0016.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251107-WA0000.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251031-WA0024.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250820-WA0010.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250118-WA0010.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250811-WA0012.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251109-WA0063.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250326-WA0028.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251106-WA0008.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250915-WA0009.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251220-WA0009.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250217-WA0012.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250213-WA0008.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250818-WA0003.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251212-WA0021.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250628-WA0005.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250108-WA0000.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250912-WA0011.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250309-WA0024.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251204-WA0007.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250607-WA0013.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250814-WA0004.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><video autoplay muted loop playsinline onclick="openMedia(this.src)"><source src="media/VID-20250326-WA0024.mp4" type="video/mp4"></video></div><div class="gallery-item"><img src="media/IMG-20251115-WA0003.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251015-WA0033.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250514-WA0017.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250607-WA0009.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250610-WA0052.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251129-WA0020.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251215-WA0004.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250323-WA0030.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><video autoplay muted loop playsinline onclick="openMedia(this.src)"><source src="media/VID-20250521-WA0004.mp4" type="video/mp4"></video></div><div class="gallery-item"><img src="media/IMG-20250423-WA0010.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div>
+                <div class="gallery-item"><img src="media/IMG-20251024-WA0044.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251219-WA0003.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250906-WA0006.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250321-WA0005.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251018-WA0045.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250829-WA0007.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250219-WA0012.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250327-WA0012.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250615-WA0005.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250523-WA0004.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250413-WA0001.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250928-WA0005.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250331-WA0014.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250405-WA0000.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250821-WA0021.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250902-WA0014.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250712-WA0009.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><video autoplay muted loop playsinline onclick="openMedia(this.src)"><source src="media/VID-20250327-WA0007.mp4" type="video/mp4"></video></div><div class="gallery-item"><video autoplay muted loop playsinline onclick="openMedia(this.src)"><source src="media/VID-20250616-WA0006.mp4" type="video/mp4"></video></div><div class="gallery-item"><img src="media/IMG-20250511-WA0005.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251123-WA0016.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250724-WA0004.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251025-WA0025.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250129-WA0007.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250324-WA0030.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250512-WA0021.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251129-WA0024.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251020-WA0013.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250613-WA0034.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250406-WA0003.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250815-WA0001.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250808-WA0021.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250626-WA0003.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251201-WA0000.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><video autoplay muted loop playsinline onclick="openMedia(this.src)"><source src="media/VID-20250118-WA0019.mp4" type="video/mp4"></video></div><div class="gallery-item"><img src="media/IMG-20250906-WA0011.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250915-WA0011.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250219-WA0000.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250228-WA0007.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250611-WA0037.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251215-WA0020.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250918-WA0008.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><video autoplay muted loop playsinline onclick="openMedia(this.src)"><source src="media/VID-20251114-WA0038.mp4" type="video/mp4"></video></div><div class="gallery-item"><video autoplay muted loop playsinline onclick="openMedia(this.src)"><source src="media/VID-20250930-WA0018.mp4" type="video/mp4"></video></div><div class="gallery-item"><img src="media/IMG-20250916-WA0016.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251115-WA0005.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250808-WA0014.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251008-WA0001.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250128-WA0006.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250201-WA0007.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250611-WA0053.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250217-WA0013.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251116-WA0003.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250824-WA0003.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251205-WA0001.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250308-WA0012.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250528-WA0027.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250318-WA0019.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250216-WA0004.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250108-WA0013.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251022-WA0000.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><video autoplay muted loop playsinline onclick="openMedia(this.src)"><source src="media/VID-20250827-WA0013.mp4" type="video/mp4"></video></div><div class="gallery-item"><video autoplay muted loop playsinline onclick="openMedia(this.src)"><source src="media/VID-20250607-WA0008.mp4" type="video/mp4"></video></div><div class="gallery-item"><img src="media/IMG-20250506-WA0022.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250614-WA0003.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251127-WA0001.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250419-WA0006.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250228-WA0015.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250327-WA0006.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251014-WA0033.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251109-WA0020.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251026-WA0002.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250108-WA0020.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250601-WA0015.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251219-WA0000.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251024-WA0035.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251017-WA0018.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250103-WA0021.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251004-WA0016.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251127-WA0026.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250109-WA0006.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250612-WA0017.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251220-WA0015.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><video autoplay muted loop playsinline onclick="openMedia(this.src)"><source src="media/VID-20250829-WA0006.mp4" type="video/mp4"></video></div><div class="gallery-item"><img src="media/IMG-20250928-WA0012.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250303-WA0002.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250429-WA0020.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250128-WA0004.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250822-WA0010.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><video autoplay muted loop playsinline onclick="openMedia(this.src)"><source src="media/VID-20250325-WA0012.mp4" type="video/mp4"></video></div><div class="gallery-item"><img src="media/IMG-20250818-WA0016.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><video autoplay muted loop playsinline onclick="openMedia(this.src)"><source src="media/VID-20250524-WA0004.mp4" type="video/mp4"></video></div><div class="gallery-item"><img src="media/IMG-20251010-WA0028.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250408-WA0006.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250504-WA0008.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251009-WA0007.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250405-WA0013.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251129-WA0009.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251024-WA0016.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250330-WA0010.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div>
             </div>
         </div>
 
@@ -1081,58 +1141,88 @@
             <div class="slide-title">Los Que Más Escribieron</div>
             <div class="dual-ranking">
                 <div class="ranking-column">
-                    <div class="column-title">Más Mensajes</div>
+                    <div class="column-title">Más Textos</div>
                     <div class="mini-ranking">
                         
         <div class="mini-rank-item">
             <span class="mini-rank-num">#1</span>
             <span class="mini-rank-name">Marta</span>
-            <span class="mini-rank-val">5,454</span>
+            <span class="mini-rank-val">4,369</span>
         </div>
         <div class="mini-rank-item">
             <span class="mini-rank-num">#2</span>
-            <span class="mini-rank-name">Pato</span>
-            <span class="mini-rank-val">2,493</span>
+            <span class="mini-rank-name">Pancho</span>
+            <span class="mini-rank-val">1,575</span>
         </div>
         <div class="mini-rank-item">
             <span class="mini-rank-num">#3</span>
-            <span class="mini-rank-name">Pancho</span>
-            <span class="mini-rank-val">1,830</span>
+            <span class="mini-rank-name">Pato</span>
+            <span class="mini-rank-val">1,552</span>
         </div>
         <div class="mini-rank-item">
             <span class="mini-rank-num">#4</span>
             <span class="mini-rank-name">Pitu</span>
-            <span class="mini-rank-val">1,606</span>
+            <span class="mini-rank-val">1,393</span>
         </div>
         <div class="mini-rank-item">
             <span class="mini-rank-num">#5</span>
             <span class="mini-rank-name">Jonito</span>
-            <span class="mini-rank-val">1,142</span>
+            <span class="mini-rank-val">856</span>
         </div>
         <div class="mini-rank-item">
             <span class="mini-rank-num">#6</span>
-            <span class="mini-rank-name">Michel</span>
-            <span class="mini-rank-val">1,042</span>
+            <span class="mini-rank-name">Inigo Montoya</span>
+            <span class="mini-rank-val">838</span>
         </div>
         <div class="mini-rank-item">
             <span class="mini-rank-num">#7</span>
-            <span class="mini-rank-name">Candelis</span>
-            <span class="mini-rank-val">971</span>
+            <span class="mini-rank-name">Michel</span>
+            <span class="mini-rank-val">691</span>
         </div>
         <div class="mini-rank-item">
             <span class="mini-rank-num">#8</span>
-            <span class="mini-rank-name">Inigo Montoya</span>
-            <span class="mini-rank-val">902</span>
+            <span class="mini-rank-name">Candelis</span>
+            <span class="mini-rank-val">599</span>
         </div>
         <div class="mini-rank-item">
             <span class="mini-rank-num">#9</span>
             <span class="mini-rank-name">Char</span>
-            <span class="mini-rank-val">696</span>
+            <span class="mini-rank-val">521</span>
         </div>
         <div class="mini-rank-item">
             <span class="mini-rank-num">#10</span>
             <span class="mini-rank-name">Billy</span>
-            <span class="mini-rank-val">403</span>
+            <span class="mini-rank-val">355</span>
+        </div>
+        <div class="mini-rank-item">
+            <span class="mini-rank-num">#11</span>
+            <span class="mini-rank-name">Luqui</span>
+            <span class="mini-rank-val">308</span>
+        </div>
+        <div class="mini-rank-item">
+            <span class="mini-rank-num">#12</span>
+            <span class="mini-rank-name">Vero</span>
+            <span class="mini-rank-val">155</span>
+        </div>
+        <div class="mini-rank-item">
+            <span class="mini-rank-num">#13</span>
+            <span class="mini-rank-name">Liam</span>
+            <span class="mini-rank-val">127</span>
+        </div>
+        <div class="mini-rank-item">
+            <span class="mini-rank-num">#14</span>
+            <span class="mini-rank-name">Benju</span>
+            <span class="mini-rank-val">19</span>
+        </div>
+        <div class="mini-rank-item">
+            <span class="mini-rank-num">#15</span>
+            <span class="mini-rank-name">Toti</span>
+            <span class="mini-rank-val">10</span>
+        </div>
+        <div class="mini-rank-item">
+            <span class="mini-rank-num">#16</span>
+            <span class="mini-rank-name">Will</span>
+            <span class="mini-rank-val">1</span>
         </div>
                     </div>
                 </div>
@@ -1189,6 +1279,36 @@
             <span class="mini-rank-num">#10</span>
             <span class="mini-rank-name">Billy</span>
             <span class="mini-rank-val">2,657</span>
+        </div>
+        <div class="mini-rank-item">
+            <span class="mini-rank-num">#11</span>
+            <span class="mini-rank-name">Luqui</span>
+            <span class="mini-rank-val">2,238</span>
+        </div>
+        <div class="mini-rank-item">
+            <span class="mini-rank-num">#12</span>
+            <span class="mini-rank-name">Liam</span>
+            <span class="mini-rank-val">1,321</span>
+        </div>
+        <div class="mini-rank-item">
+            <span class="mini-rank-num">#13</span>
+            <span class="mini-rank-name">Vero</span>
+            <span class="mini-rank-val">1,012</span>
+        </div>
+        <div class="mini-rank-item">
+            <span class="mini-rank-num">#14</span>
+            <span class="mini-rank-name">Benju</span>
+            <span class="mini-rank-val">122</span>
+        </div>
+        <div class="mini-rank-item">
+            <span class="mini-rank-num">#15</span>
+            <span class="mini-rank-name">Toti</span>
+            <span class="mini-rank-val">15</span>
+        </div>
+        <div class="mini-rank-item">
+            <span class="mini-rank-num">#16</span>
+            <span class="mini-rank-name">Will</span>
+            <span class="mini-rank-val">3</span>
         </div>
                     </div>
                 </div>
@@ -1363,7 +1483,7 @@
             <div class="carousel" id="carousel">
                 <div class="carousel-track" id="carouselTrack">
                     
-        <div class="carousel-slide">
+        <div class="carousel-slide" data-music="friday-im-in-love">
             <div class="fact-card">
                 <div class="fact-title">Día Favorito</div>
                 <div class="fact-value">Viernes</div>
@@ -1371,7 +1491,7 @@
             </div>
         </div>
         
-        <div class="carousel-slide">
+        <div class="carousel-slide" >
             <div class="fact-card">
                 <div class="fact-title">Hora Pico</div>
                 <div class="fact-value">17:00</div>
@@ -1379,7 +1499,7 @@
             </div>
         </div>
         
-        <div class="carousel-slide">
+        <div class="carousel-slide" >
             <div class="fact-card">
                 <div class="fact-title">Arranca Conversaciones</div>
                 <div class="fact-value">Marta</div>
@@ -1387,7 +1507,7 @@
             </div>
         </div>
         
-        <div class="carousel-slide">
+        <div class="carousel-slide" data-music="bajan">
             <div class="fact-card">
                 <div class="fact-title">Ave Nocturna</div>
                 <div class="fact-value">Pato</div>
@@ -1395,7 +1515,7 @@
             </div>
         </div>
         
-        <div class="carousel-slide">
+        <div class="carousel-slide" data-music="here-comes-the-sun">
             <div class="fact-card">
                 <div class="fact-title">Madrugador/a</div>
                 <div class="fact-value">Marta</div>
@@ -1403,7 +1523,7 @@
             </div>
         </div>
         
-        <div class="carousel-slide">
+        <div class="carousel-slide" data-music="mejor-no-hablar">
             <div class="fact-card">
                 <div class="fact-title">El/La Más Censurado/a</div>
                 <div class="fact-value">Marta</div>
@@ -1411,7 +1531,7 @@
             </div>
         </div>
         
-        <div class="carousel-slide">
+        <div class="carousel-slide" >
             <div class="fact-card">
                 <div class="fact-title">Campeón de Fotos</div>
                 <div class="fact-value">Marta</div>
@@ -1419,7 +1539,7 @@
             </div>
         </div>
         
-        <div class="carousel-slide">
+        <div class="carousel-slide" >
             <div class="fact-card">
                 <div class="fact-title">Curador de Links</div>
                 <div class="fact-value">Marta</div>
@@ -1427,7 +1547,7 @@
             </div>
         </div>
         
-        <div class="carousel-slide">
+        <div class="carousel-slide" >
             <div class="fact-card">
                 <div class="fact-title">Master de Emojis</div>
                 <div class="fact-value">Marta</div>
@@ -1435,7 +1555,7 @@
             </div>
         </div>
         
-        <div class="carousel-slide">
+        <div class="carousel-slide" data-music="los-libros">
             <div class="fact-card">
                 <div class="fact-title">El/La Novelista</div>
                 <div class="fact-value">Pancho</div>
@@ -1443,15 +1563,15 @@
             </div>
         </div>
         
-        <div class="carousel-slide">
+        <div class="carousel-slide" data-music="yo-vengo-a-ofrecer">
             <div class="fact-card">
                 <div class="fact-title">Emoji Favorito</div>
-                <div class="fact-value">❤</div>
+                <div class="fact-value">❤️</div>
                 <div class="fact-description">Usado 1,143 veces este año!</div>
             </div>
         </div>
         
-        <div class="carousel-slide">
+        <div class="carousel-slide" >
             <div class="fact-card">
                 <div class="fact-title">La Hora Pico</div>
                 <div class="fact-value">22:00</div>
@@ -1459,7 +1579,7 @@
             </div>
         </div>
         
-        <div class="carousel-slide">
+        <div class="carousel-slide" >
             <div class="fact-card">
                 <div class="fact-title">Conversación Más Larga</div>
                 <div class="fact-value">Pato y Candelis</div>
@@ -1499,180 +1619,121 @@
         <div class="slide" style="padding: 1rem;">
             <div class="slide-title">Día Más Activo: 11 de Junio</div>
             <div class="slide-subtitle">Lo que pasó ese día</div>
-            <div class="day-grid"><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0138.jpg')">
-                    <img src="media/IMG-20250611-WA0138.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0151.jpg')">
-                    <img src="media/IMG-20250611-WA0151.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0132.jpg')">
-                    <img src="media/IMG-20250611-WA0132.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0074.jpg')">
-                    <img src="media/IMG-20250611-WA0074.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0116.jpg')">
-                    <img src="media/IMG-20250611-WA0116.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0073.jpg')">
-                    <img src="media/IMG-20250611-WA0073.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/VID-20250611-WA0048.mp4')">
-                    <video autoplay muted loop playsinline>
-                        <source src="media/VID-20250611-WA0048.mp4" type="video/mp4">
-                    </video>
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0104.jpg')">
-                    <img src="media/IMG-20250611-WA0104.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0161.jpg')">
-                    <img src="media/IMG-20250611-WA0161.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item text-item">
-                <span class="grid-sender">Inigo Montoya</span>
-                <span class="grid-content">Odetta, Lily y Víctor Matzas.</span>
-            </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0099.jpg')">
-                    <img src="media/IMG-20250611-WA0099.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0163.jpg')">
-                    <img src="media/IMG-20250611-WA0163.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0034.jpg')">
-                    <img src="media/IMG-20250611-WA0034.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0167.jpg')">
-                    <img src="media/IMG-20250611-WA0167.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0063.jpg')">
-                    <img src="media/IMG-20250611-WA0063.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0015.jpg')">
-                    <img src="media/IMG-20250611-WA0015.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item text-item">
-                <span class="grid-sender">Billy</span>
-                <span class="grid-content">(pero gracias por el dato! Solo que estoy cansado ya)</span>
-            </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0052.jpg')">
-                    <img src="media/IMG-20250611-WA0052.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item text-item">
-                <span class="grid-sender">Vero</span>
-                <span class="grid-content">Bom díaa si alguno tiene a mano lleva cargador de iphone al desayuno xfi</span>
+            <div class="day-grid"><div class="day-grid-item text-item" title="Che @⁨Guillermo Mosse⁩, me fijé y podrás tomar un colectivo del aeropuerto si te interesa un poco más de viaje">
+                <span class="grid-sender">Liam</span>
+                <span class="grid-content">Che @⁨Guillermo Mosse⁩, me fijé y podrás tomar un colecti...</span>
+            </div><div class="day-grid-item text-item" title="Los pasan a buscar?">
+                <span class="grid-sender">Candelis</span>
+                <span class="grid-content">Los pasan a buscar?</span>
             </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0095.jpg')">
                     <img src="media/IMG-20250611-WA0095.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0110.jpg')">
-                    <img src="media/IMG-20250611-WA0110.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0037.jpg')">
-                    <img src="media/IMG-20250611-WA0037.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0154.jpg')">
-                    <img src="media/IMG-20250611-WA0154.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0123.jpg')">
-                    <img src="media/IMG-20250611-WA0123.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0060.jpg')">
-                    <img src="media/IMG-20250611-WA0060.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0126.jpg')">
-                    <img src="media/IMG-20250611-WA0126.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item text-item">
-                <span class="grid-sender">Liam</span>
-                <span class="grid-content">Che @⁨Guillermo Mosse⁩, me fijé y podrás tomar un colectivo del aeropuerto si...</span>
-            </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0171.jpg')">
-                    <img src="media/IMG-20250611-WA0171.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0083.jpg')">
-                    <img src="media/IMG-20250611-WA0083.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0026.jpg')">
-                    <img src="media/IMG-20250611-WA0026.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0113.jpg')">
-                    <img src="media/IMG-20250611-WA0113.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0033.jpg')">
-                    <img src="media/IMG-20250611-WA0033.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0056.jpg')">
-                    <img src="media/IMG-20250611-WA0056.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0164.jpg')">
-                    <img src="media/IMG-20250611-WA0164.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0130.jpg')">
-                    <img src="media/IMG-20250611-WA0130.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0071.jpg')">
-                    <img src="media/IMG-20250611-WA0071.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0124.jpg')">
-                    <img src="media/IMG-20250611-WA0124.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0152.jpg')">
-                    <img src="media/IMG-20250611-WA0152.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0136.jpg')">
-                    <img src="media/IMG-20250611-WA0136.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0093.jpg')">
-                    <img src="media/IMG-20250611-WA0093.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0168.jpg')">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0077.jpg')">
+                    <img src="media/IMG-20250611-WA0077.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item text-item" title="Efjaristo! ❤️">
+                <span class="grid-sender">Inigo Montoya</span>
+                <span class="grid-content">Efjaristo! ❤️</span>
+            </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0168.jpg')">
                     <img src="media/IMG-20250611-WA0168.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0135.jpg')">
+                    <img src="media/IMG-20250611-WA0135.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item text-item" title="Odetta, Lily y Víctor Matzas.">
+                <span class="grid-sender">Inigo Montoya</span>
+                <span class="grid-content">Odetta, Lily y Víctor Matzas.</span>
+            </div><div class="day-grid-item text-item" title="Los que fueron al flyzone?">
+                <span class="grid-sender">Candelis</span>
+                <span class="grid-content">Los que fueron al flyzone?</span>
+            </div><div class="day-grid-item text-item" title="Bom díaa si alguno tiene a mano lleva cargador de iphone al desayuno xfi">
+                <span class="grid-sender">Vero</span>
+                <span class="grid-content">Bom díaa si alguno tiene a mano lleva cargador de iphone ...</span>
+            </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0088.jpg')">
+                    <img src="media/IMG-20250611-WA0088.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0025.jpg')">
+                    <img src="media/IMG-20250611-WA0025.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/VID-20250611-WA0047.mp4')">
+                    <video autoplay muted loop playsinline>
+                        <source src="media/VID-20250611-WA0047.mp4" type="video/mp4">
+                    </video>
                 </div><div class="day-grid-item media-item" onclick="openMedia('media/VID-20250611-WA0046.mp4')">
                     <video autoplay muted loop playsinline>
                         <source src="media/VID-20250611-WA0046.mp4" type="video/mp4">
                     </video>
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0174.jpg')">
-                    <img src="media/IMG-20250611-WA0174.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0085.jpg')">
-                    <img src="media/IMG-20250611-WA0085.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0158.jpg')">
-                    <img src="media/IMG-20250611-WA0158.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0125.jpg')">
-                    <img src="media/IMG-20250611-WA0125.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0128.jpg')">
-                    <img src="media/IMG-20250611-WA0128.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0101.jpg')">
-                    <img src="media/IMG-20250611-WA0101.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0173.jpg')">
-                    <img src="media/IMG-20250611-WA0173.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0134.jpg')">
-                    <img src="media/IMG-20250611-WA0134.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0068.jpg')">
-                    <img src="media/IMG-20250611-WA0068.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0127.jpg')">
-                    <img src="media/IMG-20250611-WA0127.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0079.jpg')">
-                    <img src="media/IMG-20250611-WA0079.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0053.jpg')">
-                    <img src="media/IMG-20250611-WA0053.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0137.jpg')">
-                    <img src="media/IMG-20250611-WA0137.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0139.jpg')">
-                    <img src="media/IMG-20250611-WA0139.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0108.jpg')">
-                    <img src="media/IMG-20250611-WA0108.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item text-item">
-                <span class="grid-sender">Liam</span>
-                <span class="grid-content">Isa y yo vamos caminando</span>
-            </div><div class="day-grid-item text-item">
+                </div><div class="day-grid-item text-item" title="(pero gracias por el dato! Solo que estoy cansado ya)">
+                <span class="grid-sender">Billy</span>
+                <span class="grid-content">(pero gracias por el dato! Solo que estoy cansado ya)</span>
+            </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0083.jpg')">
+                    <img src="media/IMG-20250611-WA0083.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item text-item" title="Sino el taxi vale $25.000">
+                <span class="grid-sender">Pitu</span>
+                <span class="grid-content">Sino el taxi vale $25.000</span>
+            </div><div class="day-grid-item text-item" title="Que hermosooooo">
+                <span class="grid-sender">Marta</span>
+                <span class="grid-content">Que hermosooooo</span>
+            </div><div class="day-grid-item text-item" title="Eh no, con 4 aviones estoy bien jeje">
                 <span class="grid-sender">Billy</span>
                 <span class="grid-content">Eh no, con 4 aviones estoy bien jeje</span>
-            </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0176.jpg')">
-                    <img src="media/IMG-20250611-WA0176.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0098.jpg')">
-                    <img src="media/IMG-20250611-WA0098.jpg" alt="" loading="lazy">
+            </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0125.jpg')">
+                    <img src="media/IMG-20250611-WA0125.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0093.jpg')">
+                    <img src="media/IMG-20250611-WA0093.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0086.jpg')">
+                    <img src="media/IMG-20250611-WA0086.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item text-item" title="Por dónde andan, hay tour que sale 11:30, sino 12:20">
+                <span class="grid-sender">Liam</span>
+                <span class="grid-content">Por dónde andan, hay tour que sale 11:30, sino 12:20</span>
+            </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0178.jpg')">
+                    <img src="media/IMG-20250611-WA0178.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0138.jpg')">
+                    <img src="media/IMG-20250611-WA0138.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0123.jpg')">
+                    <img src="media/IMG-20250611-WA0123.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item text-item" title="Todos vamos caminando">
+                <span class="grid-sender">Char</span>
+                <span class="grid-content">Todos vamos caminando</span>
+            </div><div class="day-grid-item text-item" title="Manda las q sacaste hoy porfi de todos">
+                <span class="grid-sender">Marta</span>
+                <span class="grid-content">Manda las q sacaste hoy porfi de todos</span>
+            </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0076.jpg')">
+                    <img src="media/IMG-20250611-WA0076.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item text-item" title="Nos olvidamos los palos de trekking en el restorán">
+                <span class="grid-sender">Candelis</span>
+                <span class="grid-content">Nos olvidamos los palos de trekking en el restorán</span>
+            </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0167.jpg')">
+                    <img src="media/IMG-20250611-WA0167.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0043.jpg')">
+                    <img src="media/IMG-20250611-WA0043.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0133.jpg')">
+                    <img src="media/IMG-20250611-WA0133.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0091.jpg')">
+                    <img src="media/IMG-20250611-WA0091.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0151.jpg')">
+                    <img src="media/IMG-20250611-WA0151.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0105.jpg')">
+                    <img src="media/IMG-20250611-WA0105.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0137.jpg')">
+                    <img src="media/IMG-20250611-WA0137.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0112.jpg')">
+                    <img src="media/IMG-20250611-WA0112.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0131.jpg')">
+                    <img src="media/IMG-20250611-WA0131.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0065.jpg')">
+                    <img src="media/IMG-20250611-WA0065.jpg" alt="" loading="lazy">
                 </div><div class="day-grid-item media-item" onclick="openMedia('media/VID-20250611-WA0038.mp4')">
                     <video autoplay muted loop playsinline>
                         <source src="media/VID-20250611-WA0038.mp4" type="video/mp4">
                     </video>
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0111.jpg')">
-                    <img src="media/IMG-20250611-WA0111.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0135.jpg')">
-                    <img src="media/IMG-20250611-WA0135.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0153.jpg')">
-                    <img src="media/IMG-20250611-WA0153.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0144.jpg')">
-                    <img src="media/IMG-20250611-WA0144.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0159.jpg')">
-                    <img src="media/IMG-20250611-WA0159.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0119.jpg')">
-                    <img src="media/IMG-20250611-WA0119.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0141.jpg')">
-                    <img src="media/IMG-20250611-WA0141.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0140.jpg')">
-                    <img src="media/IMG-20250611-WA0140.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0106.jpg')">
-                    <img src="media/IMG-20250611-WA0106.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0058.jpg')">
-                    <img src="media/IMG-20250611-WA0058.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0105.jpg')">
-                    <img src="media/IMG-20250611-WA0105.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0059.jpg')">
-                    <img src="media/IMG-20250611-WA0059.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0120.jpg')">
-                    <img src="media/IMG-20250611-WA0120.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0112.jpg')">
-                    <img src="media/IMG-20250611-WA0112.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0075.jpg')">
-                    <img src="media/IMG-20250611-WA0075.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item text-item">
-                <span class="grid-sender">Candelis</span>
-                <span class="grid-content">Los pasan a buscar?</span>
-            </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0122.jpg')">
-                    <img src="media/IMG-20250611-WA0122.jpg" alt="" loading="lazy">
-                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0155.jpg')">
-                    <img src="media/IMG-20250611-WA0155.jpg" alt="" loading="lazy">
-                </div></div>
+                </div><div class="day-grid-item text-item" title="Isa y yo vamos caminando">
+                <span class="grid-sender">Liam</span>
+                <span class="grid-content">Isa y yo vamos caminando</span>
+            </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0079.jpg')">
+                    <img src="media/IMG-20250611-WA0079.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0098.jpg')">
+                    <img src="media/IMG-20250611-WA0098.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0073.jpg')">
+                    <img src="media/IMG-20250611-WA0073.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item text-item" title="Nos vemos ahí!">
+                <span class="grid-sender">Liam</span>
+                <span class="grid-content">Nos vemos ahí!</span>
+            </div></div>
         </div>
 
         <!-- Slide 6: Top Words -->
@@ -1798,96 +1859,111 @@
             <div class="slide-title">Estadísticas Personales</div>
             <div class="person-selector" id="personSelector">
                 <button class="person-btn has-images" style="background-image:
-                    url('media/IMG-20250426-WA0010.jpg'),
-                    url('media/IMG-20251129-WA0019.jpg'),
-                    url('media/IMG-20251103-WA0010.jpg'),
-                    url('media/IMG-20251019-WA0004.jpg');
+                    url('media/IMG-20250728-WA0011.jpg'),
+                    url('media/IMG-20250213-WA0012.jpg'),
+                    url('media/IMG-20251211-WA0022.jpg'),
+                    url('media/IMG-20250426-WA0033.jpg');
                     background-size: 50% 50%;
-                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;" onclick="showPerson('Marta')"><span class="person-btn-name">Marta</span></button><button class="person-btn has-images" style="background-image:
-                    url('media/IMG-20250622-WA0007.jpg'),
-                    url('media/IMG-20250623-WA0008.jpg'),
-                    url('media/IMG-20250611-WA0110.jpg'),
-                    url('media/IMG-20250611-WA0157.jpg');
+                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;
+                    background-repeat: no-repeat;" onclick="showPerson('Marta')"><span class="person-btn-name">Marta</span></button><button class="person-btn has-images" style="background-image:
+                    url('media/IMG-20250504-WA0015.jpg'),
+                    url('media/IMG-20250611-WA0074.jpg'),
+                    url('media/IMG-20251106-WA0001.jpg'),
+                    url('media/IMG-20250904-WA0001.jpg');
                     background-size: 50% 50%;
-                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;" onclick="showPerson('Pato')"><span class="person-btn-name">Pato</span></button><button class="person-btn has-images" style="background-image:
-                    url('media/IMG-20250206-WA0013.jpg'),
-                    url('media/IMG-20251129-WA0013.jpg'),
-                    url('media/IMG-20251013-WA0015.jpg'),
-                    url('media/IMG-20251129-WA0009.jpg');
+                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;
+                    background-repeat: no-repeat;" onclick="showPerson('Pato')"><span class="person-btn-name">Pato</span></button><button class="person-btn has-images" style="background-image:
+                    url('media/IMG-20250516-WA0014.jpg'),
+                    url('media/IMG-20250524-WA0002.jpg'),
+                    url('media/IMG-20250213-WA0019.jpg'),
+                    url('media/IMG-20250516-WA0015.jpg');
                     background-size: 50% 50%;
-                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;" onclick="showPerson('Pancho')"><span class="person-btn-name">Pancho</span></button><button class="person-btn has-images" style="background-image:
-                    url('media/IMG-20251031-WA0026.jpg'),
-                    url('media/IMG-20250108-WA0000.jpg'),
-                    url('media/IMG-20251106-WA0005.jpg'),
-                    url('media/IMG-20250824-WA0003.jpg');
+                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;
+                    background-repeat: no-repeat;" onclick="showPerson('Pancho')"><span class="person-btn-name">Pancho</span></button><button class="person-btn has-images" style="background-image:
+                    url('media/IMG-20251111-WA0011.jpg'),
+                    url('media/IMG-20250307-WA0002.jpg'),
+                    url('media/IMG-20250726-WA0022.jpg'),
+                    url('media/IMG-20250529-WA0008.jpg');
                     background-size: 50% 50%;
-                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;" onclick="showPerson('Pitu')"><span class="person-btn-name">Pitu</span></button><button class="person-btn has-images" style="background-image:
-                    url('media/IMG-20250501-WA0037.jpg'),
-                    url('media/IMG-20251024-WA0045.jpg'),
-                    url('media/IMG-20250326-WA0028.jpg'),
-                    url('media/IMG-20250822-WA0051.jpg');
+                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;
+                    background-repeat: no-repeat;" onclick="showPerson('Pitu')"><span class="person-btn-name">Pitu</span></button><button class="person-btn has-images" style="background-image:
+                    url('media/IMG-20250408-WA0015.jpg'),
+                    url('media/IMG-20250703-WA0011.jpg'),
+                    url('media/IMG-20250807-WA0005.jpg'),
+                    url('media/IMG-20250822-WA0043.jpg');
                     background-size: 50% 50%;
-                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;" onclick="showPerson('Jonito')"><span class="person-btn-name">Jonito</span></button><button class="person-btn has-images" style="background-image:
-                    url('media/IMG-20250506-WA0020.jpg'),
-                    url('media/IMG-20251015-WA0037.jpg'),
-                    url('media/IMG-20250828-WA0006.jpg'),
-                    url('media/IMG-20250110-WA0004.jpg');
+                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;
+                    background-repeat: no-repeat;" onclick="showPerson('Jonito')"><span class="person-btn-name">Jonito</span></button><button class="person-btn has-images" style="background-image:
+                    url('media/IMG-20250222-WA0031.jpg'),
+                    url('media/IMG-20250406-WA0001.jpg'),
+                    url('media/IMG-20250325-WA0017.jpg'),
+                    url('media/IMG-20250511-WA0004.jpg');
                     background-size: 50% 50%;
-                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;" onclick="showPerson('Michel')"><span class="person-btn-name">Michel</span></button><button class="person-btn has-images" style="background-image:
-                    url('media/IMG-20250514-WA0017.jpg'),
-                    url('media/IMG-20250718-WA0014.jpg'),
-                    url('media/IMG-20250330-WA0006.jpg'),
-                    url('media/IMG-20250126-WA0012.jpg');
+                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;
+                    background-repeat: no-repeat;" onclick="showPerson('Michel')"><span class="person-btn-name">Michel</span></button><button class="person-btn has-images" style="background-image:
+                    url('media/IMG-20250612-WA0011.jpg'),
+                    url('media/IMG-20250711-WA0006.jpg'),
+                    url('media/IMG-20250309-WA0020.jpg'),
+                    url('media/IMG-20250126-WA0013.jpg');
                     background-size: 50% 50%;
-                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;" onclick="showPerson('Candelis')"><span class="person-btn-name">Candelis</span></button><button class="person-btn has-images" style="background-image:
-                    url('media/IMG-20250427-WA0013.jpg'),
+                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;
+                    background-repeat: no-repeat;" onclick="showPerson('Candelis')"><span class="person-btn-name">Candelis</span></button><button class="person-btn has-images" style="background-image:
+                    url('media/IMG-20250522-WA0009.jpg'),
                     url('media/IMG-20250525-WA0003.jpg'),
-                    url('media/IMG-20250427-WA0012.jpg'),
-                    url('media/IMG-20250807-WA0024.jpg');
+                    url('media/IMG-20250807-WA0024.jpg'),
+                    url('media/IMG-20250918-WA0012.jpg');
                     background-size: 50% 50%;
-                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;" onclick="showPerson('Inigo Montoya')"><span class="person-btn-name">Inigo Montoya</span></button><button class="person-btn has-images" style="background-image:
-                    url('media/IMG-20251111-WA0004.jpg'),
-                    url('media/IMG-20250419-WA0020.jpg'),
-                    url('media/IMG-20251003-WA0013.jpg'),
-                    url('media/IMG-20250115-WA0010.jpg');
+                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;
+                    background-repeat: no-repeat;" onclick="showPerson('Inigo Montoya')"><span class="person-btn-name">Inigo Montoya</span></button><button class="person-btn has-images" style="background-image:
+                    url('media/IMG-20251004-WA0000.jpg'),
+                    url('media/IMG-20250628-WA0004.jpg'),
+                    url('media/IMG-20250501-WA0022.jpg'),
+                    url('media/IMG-20250125-WA0001.jpg');
                     background-size: 50% 50%;
-                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;" onclick="showPerson('Char')"><span class="person-btn-name">Char</span></button><button class="person-btn has-images" style="background-image:
-                    url('media/IMG-20250318-WA0019.jpg'),
-                    url('media/IMG-20250219-WA0014.jpg'),
-                    url('media/IMG-20250512-WA0008.jpg'),
-                    url('media/IMG-20250429-WA0019.jpg');
+                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;
+                    background-repeat: no-repeat;" onclick="showPerson('Char')"><span class="person-btn-name">Char</span></button><button class="person-btn has-images" style="background-image:
+                    url('media/IMG-20250808-WA0001.jpg'),
+                    url('media/IMG-20250724-WA0006.jpg'),
+                    url('media/IMG-20250912-WA0001.jpg'),
+                    url('media/IMG-20250724-WA0008.jpg');
                     background-size: 50% 50%;
-                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;" onclick="showPerson('Billy')"><span class="person-btn-name">Billy</span></button><button class="person-btn has-images" style="background-image:
-                    url('media/IMG-20251123-WA0002.jpg'),
-                    url('media/IMG-20251111-WA0015.jpg'),
-                    url('media/IMG-20250521-WA0003.jpg'),
-                    url('media/IMG-20250114-WA0008.jpg');
+                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;
+                    background-repeat: no-repeat;" onclick="showPerson('Billy')"><span class="person-btn-name">Billy</span></button><button class="person-btn has-images" style="background-image:
+                    url('media/IMG-20250530-WA0011.jpg'),
+                    url('media/IMG-20250307-WA0036.jpg'),
+                    url('media/IMG-20250306-WA0021.jpg'),
+                    url('media/IMG-20250601-WA0015.jpg');
                     background-size: 50% 50%;
-                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;" onclick="showPerson('Luqui')"><span class="person-btn-name">Luqui</span></button><button class="person-btn has-images" style="background-image:
-                    url('media/IMG-20250705-WA0002.jpg'),
-                    url('media/IMG-20251122-WA0007.jpg'),
-                    url('media/IMG-20251025-WA0020.jpg'),
-                    url('media/IMG-20250605-WA0011.jpg');
+                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;
+                    background-repeat: no-repeat;" onclick="showPerson('Luqui')"><span class="person-btn-name">Luqui</span></button><button class="person-btn has-images" style="background-image:
+                    url('media/IMG-20251209-WA0043.jpg'),
+                    url('media/IMG-20250914-WA0012.jpg'),
+                    url('media/IMG-20251222-WA0012.jpg'),
+                    url('media/IMG-20250621-WA0000.jpg');
                     background-size: 50% 50%;
-                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;" onclick="showPerson('Liam')"><span class="person-btn-name">Liam</span></button><button class="person-btn has-images" style="background-image:
-                    url('media/IMG-20250614-WA0040.jpg'),
+                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;
+                    background-repeat: no-repeat;" onclick="showPerson('Liam')"><span class="person-btn-name">Liam</span></button><button class="person-btn has-images" style="background-image:
+                    url('media/IMG-20250623-WA0014.jpg'),
                     url('media/IMG-20251025-WA0032.jpg'),
-                    url('media/IMG-20251111-WA0007.jpg'),
-                    url('media/IMG-20250224-WA0015.jpg');
+                    url('media/IMG-20250614-WA0038.jpg'),
+                    url('media/IMG-20250614-WA0036.jpg');
                     background-size: 50% 50%;
-                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;" onclick="showPerson('Vero')"><span class="person-btn-name">Vero</span></button><button class="person-btn has-images" style="background-image:
-                    url('media/IMG-20250613-WA0041.jpg'),
-                    url('media/IMG-20250712-WA0016.jpg'),
-                    url('media/IMG-20250614-WA0019.jpg'),
-                    url('media/IMG-20250613-WA0044.jpg');
+                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;
+                    background-repeat: no-repeat;" onclick="showPerson('Vero')"><span class="person-btn-name">Vero</span></button><button class="person-btn has-images" style="background-image:
+                    url('media/IMG-20250613-WA0042.jpg'),
+                    url('media/IMG-20250712-WA0019.jpg'),
+                    url('media/IMG-20251023-WA0014.jpg'),
+                    url('media/IMG-20250614-WA0018.jpg');
                     background-size: 50% 50%;
-                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;" onclick="showPerson('Toti')"><span class="person-btn-name">Toti</span></button><button class="person-btn has-images" style="background-image: url('media/IMG-20250830-WA0010.jpg'); background-size: cover;" onclick="showPerson('Benju')"><span class="person-btn-name">Benju</span></button><button class="person-btn has-images" style="background-image:
+                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;
+                    background-repeat: no-repeat;" onclick="showPerson('Toti')"><span class="person-btn-name">Toti</span></button><button class="person-btn has-images" style="background-image: url('media/IMG-20250325-WA0006.jpg'); background-size: cover; background-position: center;" onclick="showPerson('Benju')"><span class="person-btn-name">Benju</span></button><button class="person-btn has-images" style="background-image:
                     url('media/IMG-20250329-WA0008.jpg'),
-                    url('media/IMG-20251216-WA0032.jpg'),
-                    url('media/IMG-20251026-WA0025.jpg'),
-                    url('media/IMG-20250315-WA0012.jpg');
+                    url('media/IMG-20250101-WA0040.jpg'),
+                    url('media/IMG-20250318-WA0001.jpg'),
+                    url('media/IMG-20250223-WA0011.jpg');
                     background-size: 50% 50%;
-                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;" onclick="showPerson('Will')"><span class="person-btn-name">Will</span></button>
+                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;
+                    background-repeat: no-repeat;" onclick="showPerson('Will')"><span class="person-btn-name">Will</span></button>
             </div>
             <div id="personDetails">
                 
@@ -1914,7 +1990,7 @@
                 </div>
             </div>
             <div class="person-words"><div class="words-title">Palabras favoritas:</div><div class="words-list"><span class="fav-word">buen (207)</span>, <span class="fav-word">día (148)</span>, <span class="fav-word">lindo (90)</span>, <span class="fav-word">instagram (82)</span>, <span class="fav-word">cdo (81)</span></div></div>
-            <div class="person-words unique-words"><div class="words-title">Palabras únicas (solo vos las usás):</div><div class="words-list"><span class="fav-word unique">cdo</span>, <span class="fav-word unique">yeah</span>, <span class="fav-word unique">hijito</span>, <span class="fav-word unique">o1cmwzk2wxntmywdjdqsww</span>, <span class="fav-word unique">porq</span></div></div>
+            <div class="person-words unique-words"><div class="words-title">Palabras únicas (solo vos las usás):</div><div class="words-list"><span class="fav-word unique">cdo</span>, <span class="fav-word unique">yeah</span>, <span class="fav-word unique">hijito</span>, <span class="fav-word unique">porq</span>, <span class="fav-word unique">iupi</span></div></div>
             <div class="traits">
                 <span class="trait">Visual</span><span class="trait">Links</span><span class="trait">Nocturno/a</span>
             </div>
@@ -2000,7 +2076,7 @@
                     <div class="stat-name">Con Emojis</div>
                 </div>
             </div>
-            <div class="person-words"><div class="words-title">Palabras favoritas:</div><div class="words-list"><span class="fav-word">está (34)</span>, <span class="fav-word">jajajaj (25)</span>, <span class="fav-word">edited (22)</span>, <span class="fav-word">siii (20)</span>, <span class="fav-word">vos (19)</span></div></div>
+            <div class="person-words"><div class="words-title">Palabras favoritas:</div><div class="words-list"><span class="fav-word">está (34)</span>, <span class="fav-word">jajajaj (25)</span>, <span class="fav-word">siii (20)</span>, <span class="fav-word">vos (19)</span>, <span class="fav-word">ahhh (19)</span></div></div>
             <div class="person-words unique-words"><div class="words-title">Palabras únicas (solo vos las usás):</div><div class="words-list"><span class="fav-word unique">jajajaaj</span>, <span class="fav-word unique">dsp</span>, <span class="fav-word unique">uauuuuu</span>, <span class="fav-word unique">opaaaa</span>, <span class="fav-word unique">opaaa</span></div></div>
             <div class="traits">
                 <span class="trait">Visual</span><span class="trait">Madrugador/a</span><span class="trait">Iniciador/a</span>
@@ -2088,7 +2164,7 @@
                 </div>
             </div>
             <div class="person-words"><div class="words-title">Palabras favoritas:</div><div class="words-list"><span class="fav-word">viaje (27)</span>, <span class="fav-word">eli (27)</span>, <span class="fav-word">hoy (26)</span>, <span class="fav-word">buen (26)</span>, <span class="fav-word">isa (24)</span></div></div>
-            <div class="person-words unique-words"><div class="words-title">Palabras únicas (solo vos las usás):</div><div class="words-list"><span class="fav-word unique">fran</span>, <span class="fav-word unique">ratón</span>, <span class="fav-word unique">sharing</span></div></div>
+            <div class="person-words unique-words"><div class="words-title">Palabras únicas (solo vos las usás):</div><div class="words-list"><span class="fav-word unique">fran</span>, <span class="fav-word unique">ratón</span></div></div>
             <div class="traits">
                 <span class="trait">Visual</span><span class="trait">Madrugador/a</span><span class="trait">Iniciador/a</span>
             </div>
@@ -2116,8 +2192,8 @@
                     <div class="stat-name">Con Emojis</div>
                 </div>
             </div>
-            <div class="person-words"><div class="words-title">Palabras favoritas:</div><div class="words-list"><span class="fav-word">share (32)</span>, <span class="fav-word">facebook (29)</span>, <span class="fav-word">mibextid (27)</span>, <span class="fav-word">wwxifr (27)</span>, <span class="fav-word">spotify (26)</span></div></div>
-            <div class="person-words unique-words"><div class="words-title">Palabras únicas (solo vos las usás):</div><div class="words-list"><span class="fav-word unique">mibextid</span>, <span class="fav-word unique">wwxifr</span>, <span class="fav-word unique">ñum</span>, <span class="fav-word unique">gasearch</span>, <span class="fav-word unique">source</span></div></div>
+            <div class="person-words"><div class="words-title">Palabras favoritas:</div><div class="words-list"><span class="fav-word">facebook (29)</span>, <span class="fav-word">spotify (26)</span></div></div>
+            <div class="person-words unique-words"><div class="words-title">Palabras únicas (solo vos las usás):</div><div class="words-list"><span class="fav-word unique">ñum</span>, <span class="fav-word unique">fax</span>, <span class="fav-word unique">cangrejito</span>, <span class="fav-word unique">oliver</span>, <span class="fav-word unique">ratas</span></div></div>
             <div class="traits">
                 <span class="trait">Visual</span><span class="trait">Emojis</span><span class="trait">Links</span>
             </div>
@@ -2146,7 +2222,7 @@
                 </div>
             </div>
             <div class="person-words"><div class="words-title">Palabras favoritas:</div><div class="words-list"><span class="fav-word">genio (17)</span>, <span class="fav-word">buenísimo (14)</span>, <span class="fav-word">jajajaj (12)</span>, <span class="fav-word">feliz (11)</span>, <span class="fav-word">está (11)</span></div></div>
-            <div class="person-words unique-words"><div class="words-title">Palabras únicas (solo vos las usás):</div><div class="words-list"><span class="fav-word unique">entré</span>, <span class="fav-word unique">frutassssssss</span>, <span class="fav-word unique">míchel</span>, <span class="fav-word unique">thefork</span>, <span class="fav-word unique">eaaaa</span></div></div>
+            <div class="person-words unique-words"><div class="words-title">Palabras únicas (solo vos las usás):</div><div class="words-list"><span class="fav-word unique">entré</span>, <span class="fav-word unique">míchel</span>, <span class="fav-word unique">eaaaa</span>, <span class="fav-word unique">uuu</span>, <span class="fav-word unique">propone</span></div></div>
             <div class="traits">
                 <span class="trait">Visual</span><span class="trait">Nocturno/a</span><span class="trait">Madrugador/a</span>
             </div>
@@ -2396,13 +2472,25 @@
 
     <script>
         const personsData = [{"name": "Marta", "title": "Family Member", "messages": 5454, "words": 40184, "media": 1085, "emojis": 1216, "links": 166, "avg_length": 7.4, "night_messages": 93, "early_messages": 483, "conversations_started": 428, "traits": ["Visual", "Links", "Nocturno/a"], "color": "#1DB954"}, {"name": "Pato", "title": "Family Member", "messages": 2493, "words": 10255, "media": 941, "emojis": 30, "links": 29, "avg_length": 4.1, "night_messages": 411, "early_messages": 21, "conversations_started": 242, "traits": ["Visual", "Links", "Nocturno/a"], "color": "#FF6B6B"}, {"name": "Pancho", "title": "Family Member", "messages": 1830, "words": 47827, "media": 255, "emojis": 83, "links": 29, "avg_length": 26.1, "night_messages": 13, "early_messages": 39, "conversations_started": 251, "traits": ["Visual", "Links", "Mensajes largos"], "color": "#4ECDC4"}, {"name": "Pitu", "title": "Family Member", "messages": 1606, "words": 6016, "media": 213, "emojis": 221, "links": 5, "avg_length": 3.7, "night_messages": 0, "early_messages": 89, "conversations_started": 66, "traits": ["Visual", "Madrugador/a", "Iniciador/a"], "color": "#FFE66D"}, {"name": "Jonito", "title": "Family Member", "messages": 1142, "words": 6245, "media": 286, "emojis": 89, "links": 9, "avg_length": 5.5, "night_messages": 15, "early_messages": 186, "conversations_started": 140, "traits": ["Visual", "Nocturno/a", "Madrugador/a"], "color": "#95E1D3"}, {"name": "Michel", "title": "Family Member", "messages": 1042, "words": 4618, "media": 351, "emojis": 142, "links": 10, "avg_length": 4.4, "night_messages": 37, "early_messages": 106, "conversations_started": 99, "traits": ["Visual", "Nocturno/a", "Madrugador/a"], "color": "#F38181"}, {"name": "Candelis", "title": "Family Member", "messages": 971, "words": 4110, "media": 372, "emojis": 86, "links": 10, "avg_length": 4.2, "night_messages": 0, "early_messages": 90, "conversations_started": 48, "traits": ["Visual", "Madrugador/a", "Iniciador/a"], "color": "#AA96DA"}, {"name": "Inigo Montoya", "title": "Family Member", "messages": 902, "words": 8023, "media": 64, "emojis": 278, "links": 83, "avg_length": 8.9, "night_messages": 14, "early_messages": 121, "conversations_started": 99, "traits": ["Visual", "Emojis", "Links"], "color": "#FCBAD3"}, {"name": "Char", "title": "Family Member", "messages": 696, "words": 4545, "media": 175, "emojis": 91, "links": 5, "avg_length": 6.5, "night_messages": 20, "early_messages": 85, "conversations_started": 60, "traits": ["Visual", "Nocturno/a", "Madrugador/a"], "color": "#A8D8EA"}, {"name": "Billy", "title": "Family Member", "messages": 403, "words": 2657, "media": 48, "emojis": 12, "links": 13, "avg_length": 6.6, "night_messages": 49, "early_messages": 82, "conversations_started": 42, "traits": ["Nocturno/a", "Madrugador/a", "Iniciador/a"], "color": "#FF9F43"}, {"name": "Luqui", "title": "Family Member", "messages": 369, "words": 2238, "media": 61, "emojis": 33, "links": 0, "avg_length": 6.1, "night_messages": 0, "early_messages": 24, "conversations_started": 29, "traits": ["Visual", "Madrugador/a"], "color": "#1DB954"}, {"name": "Liam", "title": "Family Member", "messages": 285, "words": 1321, "media": 158, "emojis": 0, "links": 4, "avg_length": 4.6, "night_messages": 0, "early_messages": 15, "conversations_started": 46, "traits": ["Visual", "Iniciador/a"], "color": "#FF6B6B"}, {"name": "Vero", "title": "Family Member", "messages": 201, "words": 1012, "media": 46, "emojis": 28, "links": 0, "avg_length": 5.0, "night_messages": 2, "early_messages": 16, "conversations_started": 14, "traits": [], "color": "#4ECDC4"}, {"name": "Toti", "title": "Family Member", "messages": 33, "words": 15, "media": 23, "emojis": 0, "links": 0, "avg_length": 0.5, "night_messages": 0, "early_messages": 1, "conversations_started": 2, "traits": [], "color": "#FFE66D"}, {"name": "Benju", "title": "Family Member", "messages": 26, "words": 122, "media": 7, "emojis": 1, "links": 0, "avg_length": 4.7, "night_messages": 0, "early_messages": 1, "conversations_started": 4, "traits": [], "color": "#95E1D3"}, {"name": "Will", "title": "Family Member", "messages": 17, "words": 3, "media": 16, "emojis": 0, "links": 0, "avg_length": 0.2, "night_messages": 1, "early_messages": 0, "conversations_started": 9, "traits": [], "color": "#F38181"}];
-        const factsData = [{"title": "Día Favorito", "value": "Viernes", "description": "A la familia le encanta chatear los viernes!"}, {"title": "Hora Pico", "value": "17:00", "description": "Cuando el chat explota! (hora de Argentina)"}, {"title": "Arranca Conversaciones", "value": "Marta", "description": "Inició 428 conversaciones este año!"}, {"title": "Ave Nocturna", "value": "Pato", "description": "Envió 411 mensajes entre medianoche y las 5 AM (de su hora local)!"}, {"title": "Madrugador/a", "value": "Marta", "description": "Envió 483 mensajes antes de las 8 AM (de su hora local)!"}, {"title": "El/La Más Censurado/a", "value": "Marta", "description": "Tuvo que borrar 75 mensajes este año!"}, {"title": "Campeón de Fotos", "value": "Marta", "description": "Compartió 1085 fotos y videos!"}, {"title": "Curador de Links", "value": "Marta", "description": "Compartió 166 links con la familia!"}, {"title": "Master de Emojis", "value": "Marta", "description": "Usó emojis en 1216 mensajes!"}, {"title": "El/La Novelista", "value": "Pancho", "description": "Promedio de 26.1 palabras por mensaje!"}, {"title": "Emoji Favorito", "value": "❤", "description": "Usado 1,143 veces este año!"}, {"title": "La Hora Pico", "value": "22:00", "description": "El 11 de Junio - la hora con más mensajes del año!"}, {"title": "Conversación Más Larga", "value": "Pato y Candelis", "description": "¡111 mensajes seguidos sin parar!"}];
+        const factsData = [{"title": "Día Favorito", "value": "Viernes", "description": "A la familia le encanta chatear los viernes!", "music": "friday-im-in-love"}, {"title": "Hora Pico", "value": "17:00", "description": "Cuando el chat explota! (hora de Argentina)"}, {"title": "Arranca Conversaciones", "value": "Marta", "description": "Inició 428 conversaciones este año!"}, {"title": "Ave Nocturna", "value": "Pato", "description": "Envió 411 mensajes entre medianoche y las 5 AM (de su hora local)!", "music": "bajan"}, {"title": "Madrugador/a", "value": "Marta", "description": "Envió 483 mensajes antes de las 8 AM (de su hora local)!", "music": "here-comes-the-sun"}, {"title": "El/La Más Censurado/a", "value": "Marta", "description": "Tuvo que borrar 75 mensajes este año!", "music": "mejor-no-hablar"}, {"title": "Campeón de Fotos", "value": "Marta", "description": "Compartió 1085 fotos y videos!"}, {"title": "Curador de Links", "value": "Marta", "description": "Compartió 166 links con la familia!"}, {"title": "Master de Emojis", "value": "Marta", "description": "Usó emojis en 1216 mensajes!"}, {"title": "El/La Novelista", "value": "Pancho", "description": "Promedio de 26.1 palabras por mensaje!", "music": "los-libros"}, {"title": "Emoji Favorito", "value": "❤️", "description": "Usado 1,143 veces este año!", "music": "yo-vengo-a-ofrecer"}, {"title": "La Hora Pico", "value": "22:00", "description": "El 11 de Junio - la hora con más mensajes del año!"}, {"title": "Conversación Más Larga", "value": "Pato y Candelis", "description": "¡111 mensajes seguidos sin parar!"}];
         const monthlyData = [1285, 1606, 1656, 1247, 1398, 1698, 1106, 1164, 1288, 1893, 1760, 1369];
         const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
         let currentSlide = 0;
         let carouselIndex = 0;
         const totalFacts = factsData.length;
+
+        // Carousel music configuration (start from middle of song for lyrics)
+        const carouselMusic = {
+            'friday-im-in-love': { file: 'audio/friday-im-in-love.mp3', start: 107 },
+            'bajan': { file: 'audio/bajan.mp3', start: 103 },
+            'here-comes-the-sun': { file: 'audio/here-comes-the-sun.mp3', start: 95 },
+            'mejor-no-hablar': { file: 'audio/mejor-no-hablar.mp3', start: 136 },
+            'yo-vengo-a-ofrecer': { file: 'audio/yo-vengo-a-ofrecer.mp3', start: 105 },
+            'los-libros': { file: 'audio/los-libros.mp3', start: 34 },
+            'come-together': { file: 'audio/come-together.mp3', start: 129 }
+        };
+        let currentCarouselAudio = null;
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
@@ -2452,13 +2540,7 @@
                 })(i);
                 dots.appendChild(dot);
             }
-
-            // Auto-advance carousel
-            setInterval(function() {
-                if (document.visibilityState === 'visible') {
-                    moveCarousel(1);
-                }
-            }, 5000);
+            // No auto-advance - let user control the carousel
         }
 
         function moveCarousel(direction) {
@@ -2482,6 +2564,28 @@
                 } else {
                     allDots[i].classList.remove('active');
                 }
+            }
+
+            // Handle carousel music
+            var slides = document.querySelectorAll('.carousel-slide');
+            var currentSlideEl = slides[carouselIndex];
+            var musicId = currentSlideEl ? currentSlideEl.getAttribute('data-music') : null;
+
+            // Stop current audio if playing
+            if (currentCarouselAudio) {
+                currentCarouselAudio.pause();
+                currentCarouselAudio = null;
+            }
+
+            // Play new music if slide has music
+            if (musicId && carouselMusic[musicId]) {
+                var config = carouselMusic[musicId];
+                currentCarouselAudio = new Audio(config.file);
+                currentCarouselAudio.currentTime = config.start;
+                currentCarouselAudio.volume = 0.5;
+                currentCarouselAudio.play().catch(function(e) {
+                    console.log('Audio autoplay blocked');
+                });
             }
         }
 
