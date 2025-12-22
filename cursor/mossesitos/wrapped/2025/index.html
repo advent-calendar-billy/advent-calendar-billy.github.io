@@ -874,6 +874,18 @@
             max-width: 95%;
             width: 100%;
             border-radius: 16px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .wordcloud-img:hover {
+            transform: scale(1.02);
+        }
+
+        .tap-hint {
+            font-size: 0.9rem;
+            opacity: 0.6;
+            margin-top: 0.5rem;
         }
 
         /* GitHub-style calendar */
@@ -1038,12 +1050,41 @@
             flex: 1;
         }
 
-        @media (max-width: 480px) {
+        @media (max-width: 768px) {
             .day-grid {
-                grid-template-columns: repeat(8, 1fr);
+                grid-template-columns: repeat(5, 1fr);
+                gap: 4px;
+            }
+            .day-grid-item {
+                font-size: 0.6rem;
+            }
+            .grid-sender {
+                font-size: 0.7rem;
             }
             .grid-content {
-                font-size: 0.9rem;
+                font-size: 0.6rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .day-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 5px;
+            }
+            .day-grid-item {
+                font-size: 0.7rem;
+            }
+            .day-grid-item:hover {
+                transform: none;
+            }
+            .grid-sender {
+                font-size: 0.8rem;
+            }
+            .grid-content {
+                font-size: 0.7rem;
+            }
+            .day-grid-item.text-item {
+                padding: 6px;
             }
         }
 
@@ -1739,7 +1780,8 @@
         <!-- Slide 6: Top Words -->
         <div class="slide" style="padding-top: 1rem; padding-bottom: 1rem;">
             <div class="slide-title" style="margin-bottom: 1rem;">Palabras Más Usadas</div>
-            <img src="wordcloud.png" alt="Nube de palabras" class="wordcloud-img">
+            <img src="wordcloud.png" alt="Nube de palabras" class="wordcloud-img" onclick="openMedia('wordcloud.png')">
+            <div class="tap-hint">Tocá para ampliar</div>
         </div>
 
         <!-- Slide 6: Emojis -->
