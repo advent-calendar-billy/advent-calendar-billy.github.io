@@ -1,0 +1,2603 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Familia Wrapped 2025</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1DB954;
+            --secondary: #FF6B6B;
+            --dark: #121212;
+            --light: #ffffff;
+            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --gradient-4: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            --gradient-5: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+
+        html, body {
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--dark);
+            color: var(--light);
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        /* Intro Screen */
+        .intro-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--gradient-1);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.5s, transform 0.5s;
+        }
+
+        .intro-screen.hidden {
+            opacity: 0;
+            transform: scale(1.1);
+            pointer-events: none;
+        }
+
+        .intro-title {
+            font-size: 3rem;
+            font-weight: 900;
+            text-align: center;
+            margin-bottom: 1rem;
+            animation: pulse 2s infinite;
+        }
+
+        .intro-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 3rem;
+        }
+
+        .intro-year {
+            font-size: 8rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #fff, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        .start-btn {
+            margin-top: 2rem;
+            padding: 1rem 3rem;
+            font-size: 1.2rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 50px;
+            background: white;
+            color: #764ba2;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .start-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 20px rgba(255,215,0,0.5)); }
+            to { filter: drop-shadow(0 0 40px rgba(255,215,0,0.8)); }
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        /* Slides */
+        .slide {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide:nth-child(1) { background: var(--gradient-1); }
+        .slide:nth-child(2) { background: var(--gradient-2); }
+        .slide:nth-child(3) { background: var(--gradient-3); }
+        .slide:nth-child(4) { background: var(--gradient-4); }
+        .slide:nth-child(5) { background: var(--gradient-5); }
+        .slide:nth-child(6) { background: var(--gradient-1); }
+        .slide:nth-child(7) { background: var(--gradient-2); }
+        .slide:nth-child(8) { background: var(--gradient-3); }
+
+        .slide-title {
+            font-size: 2.5rem;
+            font-weight: 900;
+            text-align: center;
+            margin-bottom: 2rem;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .big-number {
+            font-size: 5rem;
+            font-weight: 900;
+            margin: 1rem 0;
+            animation: countUp 1s ease-out;
+        }
+
+        .stat-label {
+            font-size: 1.5rem;
+            opacity: 0.9;
+            text-align: center;
+        }
+
+        /* Cards */
+        .card {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 2rem;
+            margin: 1rem 0;
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: transform 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Dual Ranking */
+        .dual-ranking {
+            display: flex;
+            gap: 1rem;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .ranking-column {
+            flex: 1;
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 1rem;
+        }
+
+        .column-title {
+            font-size: 1rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 0.75rem;
+            opacity: 0.9;
+        }
+
+        .mini-ranking {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .mini-rank-item {
+            display: flex;
+            align-items: center;
+            padding: 0.4rem 0.5rem;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            font-size: 0.8rem;
+        }
+
+        .mini-rank-num {
+            font-weight: 700;
+            width: 25px;
+            opacity: 0.7;
+        }
+
+        .mini-rank-name {
+            flex: 1;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .mini-rank-val {
+            font-weight: 700;
+            color: #ffd700;
+            font-size: 0.75rem;
+        }
+
+        /* Ranking */
+        .ranking {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .rank-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            transition: transform 0.3s, background 0.3s;
+            cursor: pointer;
+        }
+
+        .rank-item:hover {
+            background: rgba(255,255,255,0.2);
+            transform: scale(1.02);
+        }
+
+        .rank-number {
+            font-size: 2rem;
+            font-weight: 900;
+            width: 50px;
+            text-align: center;
+        }
+
+        .rank-info {
+            flex: 1;
+            margin-left: 1rem;
+        }
+
+        .rank-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .rank-stat {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .rank-bar {
+            height: 6px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 3px;
+            margin-top: 0.5rem;
+            overflow: hidden;
+        }
+
+        .rank-bar-fill {
+            height: 100%;
+            background: white;
+            border-radius: 3px;
+            transition: width 1s ease-out;
+        }
+
+        /* Person Selector */
+        .person-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+            max-width: 400px;
+            margin: 1rem 0;
+        }
+
+        .person-btn {
+            padding: 0.75rem 1.25rem;
+            border: 2px solid rgba(255,255,255,0.5);
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .person-btn:hover, .person-btn.active {
+            background: white;
+            color: #333;
+            transform: scale(1.05);
+        }
+
+        /* Person Detail Card */
+        .person-detail {
+            display: none;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .person-detail.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .person-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .person-name {
+            font-size: 2.5rem;
+            font-weight: 900;
+        }
+
+        .person-title {
+            font-size: 1.1rem;
+            opacity: 0.8;
+            font-style: italic;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .stat-box {
+            background: rgba(255,255,255,0.15);
+            padding: 1.5rem;
+            border-radius: 16px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+        }
+
+        .stat-name {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            margin-top: 0.25rem;
+        }
+
+        .traits {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+
+        .trait {
+            background: rgba(255,255,255,0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        /* Word Cloud */
+        .word-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 0.4rem;
+            max-width: 95%;
+            width: 100%;
+            padding: 1rem;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .word {
+            padding: 0.2rem 0.5rem;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            font-weight: 500;
+            transition: transform 0.2s, background 0.2s;
+            white-space: nowrap;
+        }
+
+        .word:hover {
+            transform: scale(1.15);
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* Emoji display */
+        .emoji-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            max-width: 400px;
+            margin-top: 1.5rem;
+        }
+
+        .emoji-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: rgba(255,255,255,0.15);
+            padding: 1rem;
+            border-radius: 16px;
+            min-width: 70px;
+        }
+
+        .emoji-char {
+            font-size: 2.5rem;
+        }
+
+        .emoji-count {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            margin-top: 0.25rem;
+        }
+
+        .emoji-item.rare {
+            background: rgba(255,255,255,0.1);
+            border: 1px dashed rgba(255,255,255,0.3);
+        }
+
+        /* Person favorite words */
+        .person-words {
+            margin-top: 1.5rem;
+            text-align: center;
+        }
+
+        .words-title {
+            font-size: 0.9rem;
+            opacity: 0.7;
+            margin-bottom: 0.5rem;
+        }
+
+        .words-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .fav-word {
+            background: rgba(255,255,255,0.2);
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.9rem;
+        }
+
+        .fav-word.unique {
+            background: rgba(78, 205, 196, 0.3);
+            border: 1px solid rgba(78, 205, 196, 0.5);
+        }
+
+        .unique-words {
+            margin-top: 1rem;
+        }
+
+        .unique-words .words-title {
+            color: #4ecdc4;
+        }
+
+        /* Fun Facts Carousel */
+        .carousel {
+            width: 100%;
+            max-width: 400px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .carousel-track {
+            display: flex;
+            transition: transform 0.5s ease;
+        }
+
+        .carousel-slide {
+            min-width: 100%;
+            padding: 0 1rem;
+        }
+
+        .fact-card {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 2rem;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .fact-title {
+            font-size: 1rem;
+            opacity: 0.8;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 1rem;
+        }
+
+        .fact-value {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin: 1rem 0;
+        }
+
+        .fact-description {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .carousel-dots {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .carousel-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            cursor: pointer;
+            transition: background 0.3s, transform 0.3s;
+        }
+
+        .carousel-dot.active {
+            background: white;
+            transform: scale(1.2);
+        }
+
+        .carousel-nav {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .carousel-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.5);
+            background: rgba(255,255,255,0.1);
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .carousel-btn:hover {
+            background: white;
+            color: #333;
+        }
+
+        /* Charts */
+        .chart-container {
+            width: 100%;
+            max-width: 400px;
+            margin: 1rem 0;
+        }
+
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            height: 200px;
+            gap: 4px;
+            padding: 1rem;
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+        }
+
+        .bar {
+            flex: 1;
+            background: white;
+            border-radius: 4px 4px 0 0;
+            transition: height 1s ease-out;
+            position: relative;
+            min-height: 4px;
+        }
+
+        .bar-label {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.6rem;
+            white-space: nowrap;
+        }
+
+        /* Scroll indicator */
+        .scroll-indicator {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: bounce 2s infinite;
+            opacity: 0.7;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .scroll-indicator span {
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+            40% { transform: translateX(-50%) translateY(-10px); }
+            60% { transform: translateX(-50%) translateY(-5px); }
+        }
+
+        /* Floating elements */
+        .floating {
+            position: absolute;
+            font-size: 3rem;
+            opacity: 0.2;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(10deg); }
+        }
+
+        /* Music Player */
+        .music-player {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            z-index: 1000;
+        }
+
+        .music-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            transition: transform 0.3s;
+        }
+
+        .music-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .music-btn.playing {
+            animation: pulse 1s infinite;
+        }
+
+        /* Share section */
+        .share-section {
+            margin-top: 2rem;
+        }
+
+        .share-btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 50px;
+            background: white;
+            color: #333;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin: 0.5rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .share-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 3rem 1rem;
+            background: var(--dark);
+        }
+
+        .footer-text {
+            opacity: 0.6;
+            font-size: 0.9rem;
+        }
+
+        /* Comparison text */
+        .comparison-text {
+            font-size: 0.9rem;
+            opacity: 0.7;
+            font-style: italic;
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+
+        /* Harry Potter lightning bolts */
+        .hp-bolts {
+            display: inline-flex;
+            align-items: center;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }
+
+        .hp-bolt {
+            width: 1.2rem;
+            height: 1.2rem;
+            color: #ffd700;
+            filter: drop-shadow(0 0 3px rgba(255, 215, 0, 0.8));
+            margin: 0 1px;
+        }
+
+        .hp-bolt.partial {
+            opacity: 0.6;
+        }
+
+        /* Media Gallery - dense overwhelming grid */
+        .media-gallery {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 2px;
+            max-width: 100%;
+            width: 100%;
+            padding: 0.5rem;
+        }
+
+        .gallery-item {
+            aspect-ratio: 1;
+            border-radius: 4px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .gallery-item:hover {
+            transform: scale(1.5);
+            z-index: 10;
+            position: relative;
+        }
+
+        .gallery-item img,
+        .gallery-item video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Media lightbox */
+        .media-lightbox {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .media-lightbox.active {
+            display: flex;
+        }
+
+        .media-lightbox img,
+        .media-lightbox video {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 2rem;
+            color: white;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+
+        /* Word cloud image */
+        .wordcloud-img {
+            max-width: 95%;
+            width: 100%;
+            border-radius: 16px;
+        }
+
+        /* GitHub-style calendar */
+        .calendar-container {
+            width: 100%;
+            max-width: 400px;
+            overflow-x: auto;
+            padding: 1rem;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(53, 10px);
+            grid-template-rows: repeat(7, 10px);
+            gap: 2px;
+        }
+
+        .calendar-day {
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .calendar-day.level-1 { background: #0e4429; }
+        .calendar-day.level-2 { background: #006d32; }
+        .calendar-day.level-3 { background: #26a641; }
+        .calendar-day.level-4 { background: #39d353; }
+
+        /* Data ranking */
+        .data-ranking {
+            width: 100%;
+            max-width: 350px;
+        }
+
+        .data-rank-item {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 0.75rem;
+            margin: 0.25rem 0;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .data-rank-num {
+            font-weight: 700;
+            width: 30px;
+            opacity: 0.7;
+        }
+
+        .data-rank-name {
+            flex: 1;
+            font-weight: 600;
+        }
+
+        .data-rank-mb {
+            font-weight: 700;
+            color: #ffd700;
+        }
+
+        /* Audio ranking */
+        .audio-ranking {
+            width: 100%;
+            max-width: 350px;
+        }
+
+        .audio-rank-item {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 0.75rem;
+            margin: 0.25rem 0;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .audio-rank-num {
+            font-weight: 700;
+            width: 30px;
+            opacity: 0.7;
+        }
+
+        .audio-rank-name {
+            flex: 1;
+            font-weight: 600;
+        }
+
+        .audio-rank-mins {
+            font-weight: 700;
+            color: #4ecdc4;
+        }
+
+        /* Day highlights - 10x8 grid */
+        .slide-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .day-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 3px;
+            width: 100%;
+            max-width: 100%;
+            padding: 0.5rem;
+        }
+
+        .day-grid-item {
+            aspect-ratio: 1;
+            border-radius: 4px;
+            overflow: hidden;
+            font-size: 0.5rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .day-grid-item:hover {
+            transform: scale(2);
+            z-index: 10;
+            position: relative;
+        }
+
+        .day-grid-item.media-item {
+            background: rgba(0,0,0,0.3);
+        }
+
+        .day-grid-item.media-item img,
+        .day-grid-item.media-item video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .day-grid-item.text-item {
+            background: rgba(255,255,255,0.15);
+            padding: 2px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .grid-sender {
+            font-weight: 700;
+            font-size: 0.4rem;
+            opacity: 0.7;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .grid-content {
+            font-size: 0.35rem;
+            line-height: 1.2;
+            overflow: hidden;
+            flex: 1;
+        }
+
+        @media (max-width: 480px) {
+            .day-grid {
+                grid-template-columns: repeat(8, 1fr);
+            }
+            .grid-content {
+                font-size: 0.3rem;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .slide-title { font-size: 2rem; }
+            .big-number { font-size: 4rem; }
+            .intro-year { font-size: 5rem; }
+            .person-name { font-size: 2rem; }
+            .stat-value { font-size: 1.5rem; }
+            .media-gallery { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        /* Confetti */
+        .confetti {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            overflow: hidden;
+        }
+
+        .confetti-piece {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            top: -10px;
+            animation: confetti-fall 3s ease-out forwards;
+        }
+
+        @keyframes confetti-fall {
+            0% { top: -10px; transform: rotate(0deg) translateX(0); }
+            100% { top: 100vh; transform: rotate(720deg) translateX(100px); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Intro Screen -->
+    <div class="intro-screen" id="intro">
+        <div class="intro-title">Familia WhatsApp</div>
+        <div class="intro-year">2025</div>
+        <div class="intro-subtitle">Tu Año en Mensajes</div>
+        <button class="start-btn" onclick="startWrapped()">Empezar</button>
+    </div>
+
+    <!-- Music Player -->
+    <div class="music-player">
+        <button class="music-btn" id="musicBtn" onclick="toggleMusic()">
+            <span id="musicIcon">&#128266;</span>
+        </button>
+    </div>
+
+    <!-- Scroll Indicator -->
+    <div class="scroll-indicator" id="scrollIndicator">
+        <span>Scroll</span>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 5v14M19 12l-7 7-7-7"/>
+        </svg>
+    </div>
+
+    <div class="container">
+        <!-- Slide 1: Total Messages -->
+        <div class="slide">
+            <div class="floating" style="top: 10%; left: 10%;">&#128172;</div>
+            <div class="floating" style="top: 20%; right: 15%; animation-delay: -2s;">&#10084;&#65039;</div>
+            <div class="floating" style="bottom: 20%; left: 20%; animation-delay: -4s;">&#127881;</div>
+
+            <div class="slide-title">Este año, la familia envió</div>
+            <div class="big-number" id="totalMessages">17,470</div>
+            <div class="stat-label">mensajes</div>
+            <div class="comparison-text">Si tenés el celular con sonido, son suficientes notificaciones para tocar la 5ta Sinfonía de Beethoven 9 veces seguidas</div>
+            <div class="card" style="margin-top: 2rem;">
+                <div style="text-align: center;">
+                    <div style="font-size: 1.5rem; font-weight: 700;">139,191</div>
+                    <div style="opacity: 0.8;">palabras en total</div>
+                    <div class="comparison-text" style="margin-top: 0.5rem;">Casi 1.8 libros de Harry Potter 1 ⚡</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: Media Gallery (overwhelming) -->
+        <div class="slide" style="padding: 1rem;">
+            <div class="slide-title" style="margin-bottom: 0.5rem;">Recuerdos de 2025</div>
+            <div class="comparison-text" style="margin-bottom: 0.5rem;">Un álbum de fotos gigante con 4,101 recuerdos</div>
+            <div class="media-gallery">
+                <div class="gallery-item"><img src="media/IMG-20250611-WA0175.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250601-WA0018.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><video autoplay muted loop playsinline onclick="openMedia(this.src)"><source src="media/VID-20250602-WA0010.mp4" type="video/mp4"></video></div><div class="gallery-item"><img src="media/IMG-20251127-WA0030.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250222-WA0004.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250626-WA0001.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251205-WA0021.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250524-WA0003.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250611-WA0054.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251127-WA0014.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251122-WA0017.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250915-WA0002.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250723-WA0009.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><video autoplay muted loop playsinline onclick="openMedia(this.src)"><source src="media/VID-20250611-WA0046.mp4" type="video/mp4"></video></div><div class="gallery-item"><img src="media/IMG-20250817-WA0024.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251209-WA0045.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250104-WA0025.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><video autoplay muted loop playsinline onclick="openMedia(this.src)"><source src="media/VID-20251108-WA0018.mp4" type="video/mp4"></video></div><div class="gallery-item"><video autoplay muted loop playsinline onclick="openMedia(this.src)"><source src="media/VID-20250222-WA0012.mp4" type="video/mp4"></video></div><div class="gallery-item"><img src="media/IMG-20250727-WA0027.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250902-WA0001.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250612-WA0019.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250307-WA0038.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251031-WA0014.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250101-WA0052.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250908-WA0021.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250601-WA0021.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250426-WA0028.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250222-WA0003.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251020-WA0011.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250824-WA0008.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250416-WA0001.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250611-WA0159.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251215-WA0015.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250413-WA0007.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251018-WA0011.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250226-WA0001.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251113-WA0009.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250717-WA0007.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><video autoplay muted loop playsinline onclick="openMedia(this.src)"><source src="media/VID-20250329-WA0004.mp4" type="video/mp4"></video></div><div class="gallery-item"><img src="media/IMG-20251129-WA0021.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251018-WA0016.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251026-WA0021.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251023-WA0006.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251015-WA0049.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250714-WA0002.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251015-WA0041.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250705-WA0006.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251026-WA0009.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250627-WA0001.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250822-WA0043.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251108-WA0010.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250611-WA0152.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250611-WA0128.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251123-WA0001.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250323-WA0032.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250228-WA0003.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250422-WA0007.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250222-WA0023.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251026-WA0010.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250227-WA0011.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250214-WA0010.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><video autoplay muted loop playsinline onclick="openMedia(this.src)"><source src="media/VID-20250728-WA0006.mp4" type="video/mp4"></video></div><div class="gallery-item"><video autoplay muted loop playsinline onclick="openMedia(this.src)"><source src="media/VID-20250915-WA0006.mp4" type="video/mp4"></video></div><div class="gallery-item"><video autoplay muted loop playsinline onclick="openMedia(this.src)"><source src="media/VID-20251103-WA0004.mp4" type="video/mp4"></video></div><div class="gallery-item"><img src="media/IMG-20250409-WA0002.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250727-WA0025.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250115-WA0016.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251107-WA0000.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251031-WA0024.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250820-WA0010.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250118-WA0010.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250811-WA0012.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251109-WA0063.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250326-WA0028.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251106-WA0008.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250915-WA0009.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251220-WA0009.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250217-WA0012.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250213-WA0008.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250818-WA0003.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251212-WA0021.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250628-WA0005.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250108-WA0000.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250912-WA0011.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250309-WA0024.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251204-WA0007.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250607-WA0013.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250814-WA0004.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><video autoplay muted loop playsinline onclick="openMedia(this.src)"><source src="media/VID-20250326-WA0024.mp4" type="video/mp4"></video></div><div class="gallery-item"><img src="media/IMG-20251115-WA0003.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251015-WA0033.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250514-WA0017.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250607-WA0009.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250610-WA0052.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251129-WA0020.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20251215-WA0004.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><img src="media/IMG-20250323-WA0030.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div><div class="gallery-item"><video autoplay muted loop playsinline onclick="openMedia(this.src)"><source src="media/VID-20250521-WA0004.mp4" type="video/mp4"></video></div><div class="gallery-item"><img src="media/IMG-20250423-WA0010.jpg" alt="" loading="lazy" onclick="openMedia(this.src)"></div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Top Writers (dual columns) -->
+        <div class="slide">
+            <div class="slide-title">Los Que Más Escribieron</div>
+            <div class="dual-ranking">
+                <div class="ranking-column">
+                    <div class="column-title">Más Mensajes</div>
+                    <div class="mini-ranking">
+                        
+        <div class="mini-rank-item">
+            <span class="mini-rank-num">#1</span>
+            <span class="mini-rank-name">Marta</span>
+            <span class="mini-rank-val">5,454</span>
+        </div>
+        <div class="mini-rank-item">
+            <span class="mini-rank-num">#2</span>
+            <span class="mini-rank-name">Pato</span>
+            <span class="mini-rank-val">2,493</span>
+        </div>
+        <div class="mini-rank-item">
+            <span class="mini-rank-num">#3</span>
+            <span class="mini-rank-name">Pancho</span>
+            <span class="mini-rank-val">1,830</span>
+        </div>
+        <div class="mini-rank-item">
+            <span class="mini-rank-num">#4</span>
+            <span class="mini-rank-name">Pitu</span>
+            <span class="mini-rank-val">1,606</span>
+        </div>
+        <div class="mini-rank-item">
+            <span class="mini-rank-num">#5</span>
+            <span class="mini-rank-name">Jonito</span>
+            <span class="mini-rank-val">1,142</span>
+        </div>
+        <div class="mini-rank-item">
+            <span class="mini-rank-num">#6</span>
+            <span class="mini-rank-name">Michel</span>
+            <span class="mini-rank-val">1,042</span>
+        </div>
+        <div class="mini-rank-item">
+            <span class="mini-rank-num">#7</span>
+            <span class="mini-rank-name">Candelis</span>
+            <span class="mini-rank-val">971</span>
+        </div>
+        <div class="mini-rank-item">
+            <span class="mini-rank-num">#8</span>
+            <span class="mini-rank-name">Inigo Montoya</span>
+            <span class="mini-rank-val">902</span>
+        </div>
+        <div class="mini-rank-item">
+            <span class="mini-rank-num">#9</span>
+            <span class="mini-rank-name">Char</span>
+            <span class="mini-rank-val">696</span>
+        </div>
+        <div class="mini-rank-item">
+            <span class="mini-rank-num">#10</span>
+            <span class="mini-rank-name">Billy</span>
+            <span class="mini-rank-val">403</span>
+        </div>
+                    </div>
+                </div>
+                <div class="ranking-column">
+                    <div class="column-title">Más Palabras</div>
+                    <div class="mini-ranking">
+                        
+        <div class="mini-rank-item">
+            <span class="mini-rank-num">#1</span>
+            <span class="mini-rank-name">Pancho</span>
+            <span class="mini-rank-val">47,827</span>
+        </div>
+        <div class="mini-rank-item">
+            <span class="mini-rank-num">#2</span>
+            <span class="mini-rank-name">Marta</span>
+            <span class="mini-rank-val">40,184</span>
+        </div>
+        <div class="mini-rank-item">
+            <span class="mini-rank-num">#3</span>
+            <span class="mini-rank-name">Pato</span>
+            <span class="mini-rank-val">10,255</span>
+        </div>
+        <div class="mini-rank-item">
+            <span class="mini-rank-num">#4</span>
+            <span class="mini-rank-name">Inigo Montoya</span>
+            <span class="mini-rank-val">8,023</span>
+        </div>
+        <div class="mini-rank-item">
+            <span class="mini-rank-num">#5</span>
+            <span class="mini-rank-name">Jonito</span>
+            <span class="mini-rank-val">6,245</span>
+        </div>
+        <div class="mini-rank-item">
+            <span class="mini-rank-num">#6</span>
+            <span class="mini-rank-name">Pitu</span>
+            <span class="mini-rank-val">6,016</span>
+        </div>
+        <div class="mini-rank-item">
+            <span class="mini-rank-num">#7</span>
+            <span class="mini-rank-name">Michel</span>
+            <span class="mini-rank-val">4,618</span>
+        </div>
+        <div class="mini-rank-item">
+            <span class="mini-rank-num">#8</span>
+            <span class="mini-rank-name">Char</span>
+            <span class="mini-rank-val">4,545</span>
+        </div>
+        <div class="mini-rank-item">
+            <span class="mini-rank-num">#9</span>
+            <span class="mini-rank-name">Candelis</span>
+            <span class="mini-rank-val">4,110</span>
+        </div>
+        <div class="mini-rank-item">
+            <span class="mini-rank-num">#10</span>
+            <span class="mini-rank-name">Billy</span>
+            <span class="mini-rank-val">2,657</span>
+        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3b: Top Audio Talkers -->
+        <div class="slide">
+            <div class="slide-title">Los Que Más Hablaron</div>
+            <div class="comparison-text" style="margin-bottom: 1rem;">Marta habló 129 minutos - como escuchar Abbey Road 2.7 veces</div>
+            <div class="audio-ranking">
+                
+        <div class="audio-rank-item">
+            <span class="audio-rank-num">#1</span>
+            <span class="audio-rank-name">Marta</span>
+            <span class="audio-rank-mins">128.8 min</span>
+        </div>
+        
+        <div class="audio-rank-item">
+            <span class="audio-rank-num">#2</span>
+            <span class="audio-rank-name">Pato</span>
+            <span class="audio-rank-mins">30.9 min</span>
+        </div>
+        
+        <div class="audio-rank-item">
+            <span class="audio-rank-num">#3</span>
+            <span class="audio-rank-name">Pancho</span>
+            <span class="audio-rank-mins">18.2 min</span>
+        </div>
+        
+        <div class="audio-rank-item">
+            <span class="audio-rank-num">#4</span>
+            <span class="audio-rank-name">Luqui</span>
+            <span class="audio-rank-mins">1.6 min</span>
+        </div>
+        
+        <div class="audio-rank-item">
+            <span class="audio-rank-num">#5</span>
+            <span class="audio-rank-name">Candelis</span>
+            <span class="audio-rank-mins">1.3 min</span>
+        </div>
+        
+        <div class="audio-rank-item">
+            <span class="audio-rank-num">#6</span>
+            <span class="audio-rank-name">Billy</span>
+            <span class="audio-rank-mins">1.0 min</span>
+        </div>
+        
+        <div class="audio-rank-item">
+            <span class="audio-rank-num">#7</span>
+            <span class="audio-rank-name">Michel</span>
+            <span class="audio-rank-mins">0.7 min</span>
+        </div>
+        
+        <div class="audio-rank-item">
+            <span class="audio-rank-num">#8</span>
+            <span class="audio-rank-name">Pitu</span>
+            <span class="audio-rank-mins">0.5 min</span>
+        </div>
+        
+            </div>
+        </div>
+
+        <!-- Slide 3c: Data Consumption -->
+        <div class="slide">
+            <div class="slide-title">Los Que Te Consumieron Más Datos</div>
+            <div class="comparison-text" style="margin-bottom: 1rem;">Total: 3229.1 MB en fotos y videos</div>
+            <div class="data-ranking">
+                
+        <div class="data-rank-item">
+            <span class="data-rank-num">#1</span>
+            <span class="data-rank-name">Marta</span>
+            <span class="data-rank-mb">659.0 MB</span>
+        </div>
+        
+        <div class="data-rank-item">
+            <span class="data-rank-num">#2</span>
+            <span class="data-rank-name">Pato</span>
+            <span class="data-rank-mb">587.7 MB</span>
+        </div>
+        
+        <div class="data-rank-item">
+            <span class="data-rank-num">#3</span>
+            <span class="data-rank-name">Michel</span>
+            <span class="data-rank-mb">448.4 MB</span>
+        </div>
+        
+        <div class="data-rank-item">
+            <span class="data-rank-num">#4</span>
+            <span class="data-rank-name">Pancho</span>
+            <span class="data-rank-mb">439.7 MB</span>
+        </div>
+        
+        <div class="data-rank-item">
+            <span class="data-rank-num">#5</span>
+            <span class="data-rank-name">Candelis</span>
+            <span class="data-rank-mb">298.6 MB</span>
+        </div>
+        
+        <div class="data-rank-item">
+            <span class="data-rank-num">#6</span>
+            <span class="data-rank-name">Jonito</span>
+            <span class="data-rank-mb">201.0 MB</span>
+        </div>
+        
+        <div class="data-rank-item">
+            <span class="data-rank-num">#7</span>
+            <span class="data-rank-name">Char</span>
+            <span class="data-rank-mb">142.4 MB</span>
+        </div>
+        
+        <div class="data-rank-item">
+            <span class="data-rank-num">#8</span>
+            <span class="data-rank-name">Inigo Montoya</span>
+            <span class="data-rank-mb">120.8 MB</span>
+        </div>
+        
+        <div class="data-rank-item">
+            <span class="data-rank-num">#9</span>
+            <span class="data-rank-name">Liam</span>
+            <span class="data-rank-mb">112.8 MB</span>
+        </div>
+        
+        <div class="data-rank-item">
+            <span class="data-rank-num">#10</span>
+            <span class="data-rank-name">Pitu</span>
+            <span class="data-rank-mb">97.8 MB</span>
+        </div>
+        
+        <div class="data-rank-item">
+            <span class="data-rank-num">#11</span>
+            <span class="data-rank-name">Luqui</span>
+            <span class="data-rank-mb">46.6 MB</span>
+        </div>
+        
+        <div class="data-rank-item">
+            <span class="data-rank-num">#12</span>
+            <span class="data-rank-name">Billy</span>
+            <span class="data-rank-mb">36.4 MB</span>
+        </div>
+        
+        <div class="data-rank-item">
+            <span class="data-rank-num">#13</span>
+            <span class="data-rank-name">Vero</span>
+            <span class="data-rank-mb">19.5 MB</span>
+        </div>
+        
+        <div class="data-rank-item">
+            <span class="data-rank-num">#14</span>
+            <span class="data-rank-name">Will</span>
+            <span class="data-rank-mb">10.1 MB</span>
+        </div>
+        
+        <div class="data-rank-item">
+            <span class="data-rank-num">#15</span>
+            <span class="data-rank-name">Benju</span>
+            <span class="data-rank-mb">5.4 MB</span>
+        </div>
+        
+        <div class="data-rank-item">
+            <span class="data-rank-num">#16</span>
+            <span class="data-rank-name">Toti</span>
+            <span class="data-rank-mb">2.8 MB</span>
+        </div>
+        
+            </div>
+        </div>
+
+        <!-- Slide 4: Fun Facts Carousel -->
+        <div class="slide">
+            <div class="slide-title">Datos Curiosos</div>
+            <div class="carousel" id="carousel">
+                <div class="carousel-track" id="carouselTrack">
+                    
+        <div class="carousel-slide">
+            <div class="fact-card">
+                <div class="fact-title">Día Favorito</div>
+                <div class="fact-value">Viernes</div>
+                <div class="fact-description">A la familia le encanta chatear los viernes!</div>
+            </div>
+        </div>
+        
+        <div class="carousel-slide">
+            <div class="fact-card">
+                <div class="fact-title">Hora Pico</div>
+                <div class="fact-value">17:00</div>
+                <div class="fact-description">Cuando el chat explota! (hora de Argentina)</div>
+            </div>
+        </div>
+        
+        <div class="carousel-slide">
+            <div class="fact-card">
+                <div class="fact-title">Arranca Conversaciones</div>
+                <div class="fact-value">Marta</div>
+                <div class="fact-description">Inició 428 conversaciones este año!</div>
+            </div>
+        </div>
+        
+        <div class="carousel-slide">
+            <div class="fact-card">
+                <div class="fact-title">Ave Nocturna</div>
+                <div class="fact-value">Pato</div>
+                <div class="fact-description">Envió 411 mensajes entre medianoche y las 5 AM (de su hora local)!</div>
+            </div>
+        </div>
+        
+        <div class="carousel-slide">
+            <div class="fact-card">
+                <div class="fact-title">Madrugador/a</div>
+                <div class="fact-value">Marta</div>
+                <div class="fact-description">Envió 483 mensajes antes de las 8 AM (de su hora local)!</div>
+            </div>
+        </div>
+        
+        <div class="carousel-slide">
+            <div class="fact-card">
+                <div class="fact-title">El/La Más Censurado/a</div>
+                <div class="fact-value">Marta</div>
+                <div class="fact-description">Tuvo que borrar 75 mensajes este año!</div>
+            </div>
+        </div>
+        
+        <div class="carousel-slide">
+            <div class="fact-card">
+                <div class="fact-title">Campeón de Fotos</div>
+                <div class="fact-value">Marta</div>
+                <div class="fact-description">Compartió 1085 fotos y videos!</div>
+            </div>
+        </div>
+        
+        <div class="carousel-slide">
+            <div class="fact-card">
+                <div class="fact-title">Curador de Links</div>
+                <div class="fact-value">Marta</div>
+                <div class="fact-description">Compartió 166 links con la familia!</div>
+            </div>
+        </div>
+        
+        <div class="carousel-slide">
+            <div class="fact-card">
+                <div class="fact-title">Master de Emojis</div>
+                <div class="fact-value">Marta</div>
+                <div class="fact-description">Usó emojis en 1216 mensajes!</div>
+            </div>
+        </div>
+        
+        <div class="carousel-slide">
+            <div class="fact-card">
+                <div class="fact-title">El/La Novelista</div>
+                <div class="fact-value">Pancho</div>
+                <div class="fact-description">Promedio de 26.1 palabras por mensaje!</div>
+            </div>
+        </div>
+        
+        <div class="carousel-slide">
+            <div class="fact-card">
+                <div class="fact-title">Emoji Favorito</div>
+                <div class="fact-value">❤</div>
+                <div class="fact-description">Usado 1,143 veces este año!</div>
+            </div>
+        </div>
+        
+        <div class="carousel-slide">
+            <div class="fact-card">
+                <div class="fact-title">La Hora Pico</div>
+                <div class="fact-value">22:00</div>
+                <div class="fact-description">El 11 de Junio - la hora con más mensajes del año!</div>
+            </div>
+        </div>
+        
+        <div class="carousel-slide">
+            <div class="fact-card">
+                <div class="fact-title">Conversación Más Larga</div>
+                <div class="fact-value">Pato y Candelis</div>
+                <div class="fact-description">¡111 mensajes seguidos sin parar!</div>
+            </div>
+        </div>
+        
+                </div>
+            </div>
+            <div class="carousel-dots" id="carouselDots"></div>
+            <div class="carousel-nav">
+                <button class="carousel-btn" onclick="moveCarousel(-1)">&#8592;</button>
+                <button class="carousel-btn" onclick="moveCarousel(1)">&#8594;</button>
+            </div>
+        </div>
+
+        <!-- Slide 5: Activity Calendar -->
+        <div class="slide">
+            <div class="slide-title">Actividad 2025</div>
+            <div class="calendar-container">
+                <div class="calendar-grid">
+                    <div class="calendar-day level-0" title="2024-12-29"></div><div class="calendar-day level-0" title="2024-12-30"></div><div class="calendar-day level-0" title="2024-12-31"></div><div class="calendar-day level-1" title="2025-01-01: 39 mensajes"></div><div class="calendar-day level-1" title="2025-01-02: 18 mensajes"></div><div class="calendar-day level-1" title="2025-01-03: 32 mensajes"></div><div class="calendar-day level-1" title="2025-01-04: 26 mensajes"></div><div class="calendar-day level-1" title="2025-01-05: 1 mensajes"></div><div class="calendar-day level-2" title="2025-01-06: 87 mensajes"></div><div class="calendar-day level-2" title="2025-01-07: 48 mensajes"></div><div class="calendar-day level-4" title="2025-01-08: 146 mensajes"></div><div class="calendar-day level-1" title="2025-01-09: 29 mensajes"></div><div class="calendar-day level-2" title="2025-01-10: 51 mensajes"></div><div class="calendar-day level-1" title="2025-01-11: 29 mensajes"></div><div class="calendar-day level-1" title="2025-01-12: 33 mensajes"></div><div class="calendar-day level-1" title="2025-01-13: 25 mensajes"></div><div class="calendar-day level-1" title="2025-01-14: 12 mensajes"></div><div class="calendar-day level-2" title="2025-01-15: 50 mensajes"></div><div class="calendar-day level-1" title="2025-01-16: 16 mensajes"></div><div class="calendar-day level-1" title="2025-01-17: 36 mensajes"></div><div class="calendar-day level-2" title="2025-01-18: 82 mensajes"></div><div class="calendar-day level-2" title="2025-01-19: 53 mensajes"></div><div class="calendar-day level-1" title="2025-01-20: 8 mensajes"></div><div class="calendar-day level-3" title="2025-01-21: 94 mensajes"></div><div class="calendar-day level-1" title="2025-01-22: 23 mensajes"></div><div class="calendar-day level-1" title="2025-01-23: 11 mensajes"></div><div class="calendar-day level-1" title="2025-01-24: 11 mensajes"></div><div class="calendar-day level-1" title="2025-01-25: 30 mensajes"></div><div class="calendar-day level-2" title="2025-01-26: 54 mensajes"></div><div class="calendar-day level-1" title="2025-01-27: 30 mensajes"></div><div class="calendar-day level-2" title="2025-01-28: 64 mensajes"></div><div class="calendar-day level-2" title="2025-01-29: 86 mensajes"></div><div class="calendar-day level-1" title="2025-01-30: 23 mensajes"></div><div class="calendar-day level-1" title="2025-01-31: 38 mensajes"></div><div class="calendar-day level-1" title="2025-02-01: 23 mensajes"></div><div class="calendar-day level-1" title="2025-02-02: 35 mensajes"></div><div class="calendar-day level-2" title="2025-02-03: 84 mensajes"></div><div class="calendar-day level-2" title="2025-02-04: 65 mensajes"></div><div class="calendar-day level-2" title="2025-02-05: 71 mensajes"></div><div class="calendar-day level-2" title="2025-02-06: 82 mensajes"></div><div class="calendar-day level-1" title="2025-02-07: 30 mensajes"></div><div class="calendar-day level-2" title="2025-02-08: 51 mensajes"></div><div class="calendar-day level-2" title="2025-02-09: 59 mensajes"></div><div class="calendar-day level-1" title="2025-02-10: 31 mensajes"></div><div class="calendar-day level-2" title="2025-02-11: 54 mensajes"></div><div class="calendar-day level-1" title="2025-02-12: 42 mensajes"></div><div class="calendar-day level-1" title="2025-02-13: 35 mensajes"></div><div class="calendar-day level-1" title="2025-02-14: 32 mensajes"></div><div class="calendar-day level-2" title="2025-02-15: 56 mensajes"></div><div class="calendar-day level-2" title="2025-02-16: 45 mensajes"></div><div class="calendar-day level-2" title="2025-02-17: 50 mensajes"></div><div class="calendar-day level-1" title="2025-02-18: 20 mensajes"></div><div class="calendar-day level-2" title="2025-02-19: 53 mensajes"></div><div class="calendar-day level-2" title="2025-02-20: 55 mensajes"></div><div class="calendar-day level-2" title="2025-02-21: 58 mensajes"></div><div class="calendar-day level-3" title="2025-02-22: 94 mensajes"></div><div class="calendar-day level-1" title="2025-02-23: 35 mensajes"></div><div class="calendar-day level-3" title="2025-02-24: 112 mensajes"></div><div class="calendar-day level-2" title="2025-02-25: 69 mensajes"></div><div class="calendar-day level-2" title="2025-02-26: 59 mensajes"></div><div class="calendar-day level-2" title="2025-02-27: 78 mensajes"></div><div class="calendar-day level-3" title="2025-02-28: 128 mensajes"></div><div class="calendar-day level-1" title="2025-03-01: 15 mensajes"></div><div class="calendar-day level-2" title="2025-03-02: 65 mensajes"></div><div class="calendar-day level-2" title="2025-03-03: 52 mensajes"></div><div class="calendar-day level-2" title="2025-03-04: 68 mensajes"></div><div class="calendar-day level-3" title="2025-03-05: 112 mensajes"></div><div class="calendar-day level-3" title="2025-03-06: 109 mensajes"></div><div class="calendar-day level-2" title="2025-03-07: 79 mensajes"></div><div class="calendar-day level-1" title="2025-03-08: 36 mensajes"></div><div class="calendar-day level-1" title="2025-03-09: 43 mensajes"></div><div class="calendar-day level-2" title="2025-03-10: 46 mensajes"></div><div class="calendar-day level-1" title="2025-03-11: 37 mensajes"></div><div class="calendar-day level-2" title="2025-03-12: 46 mensajes"></div><div class="calendar-day level-2" title="2025-03-13: 65 mensajes"></div><div class="calendar-day level-2" title="2025-03-14: 78 mensajes"></div><div class="calendar-day level-2" title="2025-03-15: 63 mensajes"></div><div class="calendar-day level-2" title="2025-03-16: 71 mensajes"></div><div class="calendar-day level-2" title="2025-03-17: 73 mensajes"></div><div class="calendar-day level-2" title="2025-03-18: 65 mensajes"></div><div class="calendar-day level-1" title="2025-03-19: 32 mensajes"></div><div class="calendar-day level-1" title="2025-03-20: 40 mensajes"></div><div class="calendar-day level-2" title="2025-03-21: 60 mensajes"></div><div class="calendar-day level-1" title="2025-03-22: 1 mensajes"></div><div class="calendar-day level-1" title="2025-03-23: 41 mensajes"></div><div class="calendar-day level-2" title="2025-03-24: 55 mensajes"></div><div class="calendar-day level-3" title="2025-03-25: 125 mensajes"></div><div class="calendar-day level-2" title="2025-03-26: 54 mensajes"></div><div class="calendar-day level-0" title="2025-03-27"></div><div class="calendar-day level-1" title="2025-03-28: 6 mensajes"></div><div class="calendar-day level-1" title="2025-03-29: 28 mensajes"></div><div class="calendar-day level-2" title="2025-03-30: 53 mensajes"></div><div class="calendar-day level-1" title="2025-03-31: 38 mensajes"></div><div class="calendar-day level-1" title="2025-04-01: 20 mensajes"></div><div class="calendar-day level-1" title="2025-04-02: 3 mensajes"></div><div class="calendar-day level-1" title="2025-04-03: 14 mensajes"></div><div class="calendar-day level-1" title="2025-04-04: 22 mensajes"></div><div class="calendar-day level-3" title="2025-04-05: 91 mensajes"></div><div class="calendar-day level-1" title="2025-04-06: 41 mensajes"></div><div class="calendar-day level-2" title="2025-04-07: 47 mensajes"></div><div class="calendar-day level-2" title="2025-04-08: 80 mensajes"></div><div class="calendar-day level-1" title="2025-04-09: 11 mensajes"></div><div class="calendar-day level-1" title="2025-04-10: 11 mensajes"></div><div class="calendar-day level-1" title="2025-04-11: 43 mensajes"></div><div class="calendar-day level-2" title="2025-04-12: 68 mensajes"></div><div class="calendar-day level-1" title="2025-04-13: 20 mensajes"></div><div class="calendar-day level-1" title="2025-04-14: 24 mensajes"></div><div class="calendar-day level-2" title="2025-04-15: 54 mensajes"></div><div class="calendar-day level-1" title="2025-04-16: 38 mensajes"></div><div class="calendar-day level-1" title="2025-04-17: 43 mensajes"></div><div class="calendar-day level-1" title="2025-04-18: 17 mensajes"></div><div class="calendar-day level-2" title="2025-04-19: 60 mensajes"></div><div class="calendar-day level-1" title="2025-04-20: 17 mensajes"></div><div class="calendar-day level-1" title="2025-04-21: 13 mensajes"></div><div class="calendar-day level-1" title="2025-04-22: 22 mensajes"></div><div class="calendar-day level-1" title="2025-04-23: 8 mensajes"></div><div class="calendar-day level-1" title="2025-04-24: 41 mensajes"></div><div class="calendar-day level-4" title="2025-04-25: 150 mensajes"></div><div class="calendar-day level-2" title="2025-04-26: 75 mensajes"></div><div class="calendar-day level-2" title="2025-04-27: 77 mensajes"></div><div class="calendar-day level-2" title="2025-04-28: 71 mensajes"></div><div class="calendar-day level-1" title="2025-04-29: 16 mensajes"></div><div class="calendar-day level-2" title="2025-04-30: 50 mensajes"></div><div class="calendar-day level-3" title="2025-05-01: 127 mensajes"></div><div class="calendar-day level-1" title="2025-05-02: 21 mensajes"></div><div class="calendar-day level-1" title="2025-05-03: 15 mensajes"></div><div class="calendar-day level-2" title="2025-05-04: 72 mensajes"></div><div class="calendar-day level-1" title="2025-05-05: 20 mensajes"></div><div class="calendar-day level-2" title="2025-05-06: 55 mensajes"></div><div class="calendar-day level-2" title="2025-05-07: 46 mensajes"></div><div class="calendar-day level-1" title="2025-05-08: 34 mensajes"></div><div class="calendar-day level-1" title="2025-05-09: 26 mensajes"></div><div class="calendar-day level-2" title="2025-05-10: 72 mensajes"></div><div class="calendar-day level-1" title="2025-05-11: 21 mensajes"></div><div class="calendar-day level-1" title="2025-05-12: 10 mensajes"></div><div class="calendar-day level-2" title="2025-05-13: 53 mensajes"></div><div class="calendar-day level-1" title="2025-05-14: 20 mensajes"></div><div class="calendar-day level-1" title="2025-05-15: 14 mensajes"></div><div class="calendar-day level-2" title="2025-05-16: 69 mensajes"></div><div class="calendar-day level-2" title="2025-05-17: 71 mensajes"></div><div class="calendar-day level-3" title="2025-05-18: 94 mensajes"></div><div class="calendar-day level-2" title="2025-05-19: 80 mensajes"></div><div class="calendar-day level-1" title="2025-05-20: 17 mensajes"></div><div class="calendar-day level-1" title="2025-05-21: 18 mensajes"></div><div class="calendar-day level-3" title="2025-05-22: 88 mensajes"></div><div class="calendar-day level-2" title="2025-05-23: 46 mensajes"></div><div class="calendar-day level-2" title="2025-05-24: 54 mensajes"></div><div class="calendar-day level-1" title="2025-05-25: 34 mensajes"></div><div class="calendar-day level-1" title="2025-05-26: 23 mensajes"></div><div class="calendar-day level-1" title="2025-05-27: 38 mensajes"></div><div class="calendar-day level-2" title="2025-05-28: 64 mensajes"></div><div class="calendar-day level-1" title="2025-05-29: 34 mensajes"></div><div class="calendar-day level-1" title="2025-05-30: 33 mensajes"></div><div class="calendar-day level-1" title="2025-05-31: 29 mensajes"></div><div class="calendar-day level-2" title="2025-06-01: 79 mensajes"></div><div class="calendar-day level-1" title="2025-06-02: 27 mensajes"></div><div class="calendar-day level-1" title="2025-06-03: 24 mensajes"></div><div class="calendar-day level-1" title="2025-06-04: 36 mensajes"></div><div class="calendar-day level-2" title="2025-06-05: 54 mensajes"></div><div class="calendar-day level-2" title="2025-06-06: 54 mensajes"></div><div class="calendar-day level-2" title="2025-06-07: 53 mensajes"></div><div class="calendar-day level-2" title="2025-06-08: 68 mensajes"></div><div class="calendar-day level-2" title="2025-06-09: 71 mensajes"></div><div class="calendar-day level-4" title="2025-06-10: 149 mensajes"></div><div class="calendar-day level-4" title="2025-06-11: 175 mensajes"></div><div class="calendar-day level-4" title="2025-06-12: 140 mensajes"></div><div class="calendar-day level-2" title="2025-06-13: 61 mensajes"></div><div class="calendar-day level-3" title="2025-06-14: 113 mensajes"></div><div class="calendar-day level-2" title="2025-06-15: 74 mensajes"></div><div class="calendar-day level-2" title="2025-06-16: 57 mensajes"></div><div class="calendar-day level-2" title="2025-06-17: 50 mensajes"></div><div class="calendar-day level-1" title="2025-06-18: 13 mensajes"></div><div class="calendar-day level-2" title="2025-06-19: 61 mensajes"></div><div class="calendar-day level-1" title="2025-06-20: 31 mensajes"></div><div class="calendar-day level-1" title="2025-06-21: 31 mensajes"></div><div class="calendar-day level-2" title="2025-06-22: 47 mensajes"></div><div class="calendar-day level-1" title="2025-06-23: 12 mensajes"></div><div class="calendar-day level-1" title="2025-06-24: 23 mensajes"></div><div class="calendar-day level-1" title="2025-06-25: 36 mensajes"></div><div class="calendar-day level-1" title="2025-06-26: 11 mensajes"></div><div class="calendar-day level-2" title="2025-06-27: 52 mensajes"></div><div class="calendar-day level-1" title="2025-06-28: 30 mensajes"></div><div class="calendar-day level-1" title="2025-06-29: 19 mensajes"></div><div class="calendar-day level-2" title="2025-06-30: 47 mensajes"></div><div class="calendar-day level-1" title="2025-07-01: 22 mensajes"></div><div class="calendar-day level-3" title="2025-07-02: 95 mensajes"></div><div class="calendar-day level-1" title="2025-07-03: 27 mensajes"></div><div class="calendar-day level-1" title="2025-07-04: 33 mensajes"></div><div class="calendar-day level-2" title="2025-07-05: 51 mensajes"></div><div class="calendar-day level-1" title="2025-07-06: 13 mensajes"></div><div class="calendar-day level-1" title="2025-07-07: 8 mensajes"></div><div class="calendar-day level-2" title="2025-07-08: 69 mensajes"></div><div class="calendar-day level-1" title="2025-07-09: 1 mensajes"></div><div class="calendar-day level-2" title="2025-07-10: 81 mensajes"></div><div class="calendar-day level-1" title="2025-07-11: 43 mensajes"></div><div class="calendar-day level-2" title="2025-07-12: 54 mensajes"></div><div class="calendar-day level-1" title="2025-07-13: 15 mensajes"></div><div class="calendar-day level-0" title="2025-07-14"></div><div class="calendar-day level-1" title="2025-07-15: 34 mensajes"></div><div class="calendar-day level-1" title="2025-07-16: 4 mensajes"></div><div class="calendar-day level-2" title="2025-07-17: 49 mensajes"></div><div class="calendar-day level-1" title="2025-07-18: 24 mensajes"></div><div class="calendar-day level-1" title="2025-07-19: 32 mensajes"></div><div class="calendar-day level-1" title="2025-07-20: 22 mensajes"></div><div class="calendar-day level-1" title="2025-07-21: 17 mensajes"></div><div class="calendar-day level-1" title="2025-07-22: 12 mensajes"></div><div class="calendar-day level-2" title="2025-07-23: 61 mensajes"></div><div class="calendar-day level-1" title="2025-07-24: 23 mensajes"></div><div class="calendar-day level-2" title="2025-07-25: 44 mensajes"></div><div class="calendar-day level-1" title="2025-07-26: 31 mensajes"></div><div class="calendar-day level-3" title="2025-07-27: 91 mensajes"></div><div class="calendar-day level-1" title="2025-07-28: 42 mensajes"></div><div class="calendar-day level-1" title="2025-07-29: 36 mensajes"></div><div class="calendar-day level-1" title="2025-07-30: 8 mensajes"></div><div class="calendar-day level-2" title="2025-07-31: 64 mensajes"></div><div class="calendar-day level-1" title="2025-08-01: 22 mensajes"></div><div class="calendar-day level-1" title="2025-08-02: 4 mensajes"></div><div class="calendar-day level-1" title="2025-08-03: 25 mensajes"></div><div class="calendar-day level-1" title="2025-08-04: 13 mensajes"></div><div class="calendar-day level-1" title="2025-08-05: 7 mensajes"></div><div class="calendar-day level-1" title="2025-08-06: 28 mensajes"></div><div class="calendar-day level-1" title="2025-08-07: 39 mensajes"></div><div class="calendar-day level-3" title="2025-08-08: 96 mensajes"></div><div class="calendar-day level-1" title="2025-08-09: 3 mensajes"></div><div class="calendar-day level-1" title="2025-08-10: 5 mensajes"></div><div class="calendar-day level-2" title="2025-08-11: 71 mensajes"></div><div class="calendar-day level-1" title="2025-08-12: 17 mensajes"></div><div class="calendar-day level-1" title="2025-08-13: 9 mensajes"></div><div class="calendar-day level-2" title="2025-08-14: 46 mensajes"></div><div class="calendar-day level-1" title="2025-08-15: 16 mensajes"></div><div class="calendar-day level-1" title="2025-08-16: 20 mensajes"></div><div class="calendar-day level-2" title="2025-08-17: 77 mensajes"></div><div class="calendar-day level-2" title="2025-08-18: 76 mensajes"></div><div class="calendar-day level-1" title="2025-08-19: 31 mensajes"></div><div class="calendar-day level-3" title="2025-08-20: 98 mensajes"></div><div class="calendar-day level-2" title="2025-08-21: 47 mensajes"></div><div class="calendar-day level-3" title="2025-08-22: 96 mensajes"></div><div class="calendar-day level-1" title="2025-08-23: 26 mensajes"></div><div class="calendar-day level-2" title="2025-08-24: 53 mensajes"></div><div class="calendar-day level-1" title="2025-08-25: 16 mensajes"></div><div class="calendar-day level-1" title="2025-08-26: 24 mensajes"></div><div class="calendar-day level-1" title="2025-08-27: 33 mensajes"></div><div class="calendar-day level-2" title="2025-08-28: 44 mensajes"></div><div class="calendar-day level-1" title="2025-08-29: 24 mensajes"></div><div class="calendar-day level-1" title="2025-08-30: 41 mensajes"></div><div class="calendar-day level-2" title="2025-08-31: 57 mensajes"></div><div class="calendar-day level-1" title="2025-09-01: 20 mensajes"></div><div class="calendar-day level-2" title="2025-09-02: 81 mensajes"></div><div class="calendar-day level-1" title="2025-09-03: 35 mensajes"></div><div class="calendar-day level-1" title="2025-09-04: 42 mensajes"></div><div class="calendar-day level-1" title="2025-09-05: 9 mensajes"></div><div class="calendar-day level-2" title="2025-09-06: 63 mensajes"></div><div class="calendar-day level-1" title="2025-09-07: 34 mensajes"></div><div class="calendar-day level-2" title="2025-09-08: 50 mensajes"></div><div class="calendar-day level-1" title="2025-09-09: 33 mensajes"></div><div class="calendar-day level-1" title="2025-09-10: 24 mensajes"></div><div class="calendar-day level-2" title="2025-09-11: 72 mensajes"></div><div class="calendar-day level-2" title="2025-09-12: 53 mensajes"></div><div class="calendar-day level-2" title="2025-09-13: 66 mensajes"></div><div class="calendar-day level-2" title="2025-09-14: 61 mensajes"></div><div class="calendar-day level-1" title="2025-09-15: 33 mensajes"></div><div class="calendar-day level-2" title="2025-09-16: 61 mensajes"></div><div class="calendar-day level-1" title="2025-09-17: 15 mensajes"></div><div class="calendar-day level-1" title="2025-09-18: 31 mensajes"></div><div class="calendar-day level-1" title="2025-09-19: 39 mensajes"></div><div class="calendar-day level-1" title="2025-09-20: 31 mensajes"></div><div class="calendar-day level-2" title="2025-09-21: 54 mensajes"></div><div class="calendar-day level-2" title="2025-09-22: 57 mensajes"></div><div class="calendar-day level-1" title="2025-09-23: 43 mensajes"></div><div class="calendar-day level-1" title="2025-09-24: 35 mensajes"></div><div class="calendar-day level-1" title="2025-09-25: 31 mensajes"></div><div class="calendar-day level-1" title="2025-09-26: 42 mensajes"></div><div class="calendar-day level-1" title="2025-09-27: 5 mensajes"></div><div class="calendar-day level-2" title="2025-09-28: 67 mensajes"></div><div class="calendar-day level-2" title="2025-09-29: 64 mensajes"></div><div class="calendar-day level-1" title="2025-09-30: 37 mensajes"></div><div class="calendar-day level-2" title="2025-10-01: 53 mensajes"></div><div class="calendar-day level-1" title="2025-10-02: 23 mensajes"></div><div class="calendar-day level-3" title="2025-10-03: 94 mensajes"></div><div class="calendar-day level-2" title="2025-10-04: 52 mensajes"></div><div class="calendar-day level-1" title="2025-10-05: 41 mensajes"></div><div class="calendar-day level-1" title="2025-10-06: 8 mensajes"></div><div class="calendar-day level-1" title="2025-10-07: 26 mensajes"></div><div class="calendar-day level-2" title="2025-10-08: 64 mensajes"></div><div class="calendar-day level-1" title="2025-10-09: 33 mensajes"></div><div class="calendar-day level-2" title="2025-10-10: 78 mensajes"></div><div class="calendar-day level-3" title="2025-10-11: 99 mensajes"></div><div class="calendar-day level-3" title="2025-10-12: 100 mensajes"></div><div class="calendar-day level-2" title="2025-10-13: 64 mensajes"></div><div class="calendar-day level-1" title="2025-10-14: 26 mensajes"></div><div class="calendar-day level-3" title="2025-10-15: 91 mensajes"></div><div class="calendar-day level-3" title="2025-10-16: 97 mensajes"></div><div class="calendar-day level-2" title="2025-10-17: 86 mensajes"></div><div class="calendar-day level-3" title="2025-10-18: 101 mensajes"></div><div class="calendar-day level-1" title="2025-10-19: 27 mensajes"></div><div class="calendar-day level-1" title="2025-10-20: 26 mensajes"></div><div class="calendar-day level-1" title="2025-10-21: 14 mensajes"></div><div class="calendar-day level-3" title="2025-10-22: 94 mensajes"></div><div class="calendar-day level-2" title="2025-10-23: 45 mensajes"></div><div class="calendar-day level-2" title="2025-10-24: 86 mensajes"></div><div class="calendar-day level-2" title="2025-10-25: 66 mensajes"></div><div class="calendar-day level-2" title="2025-10-26: 46 mensajes"></div><div class="calendar-day level-2" title="2025-10-27: 69 mensajes"></div><div class="calendar-day level-2" title="2025-10-28: 82 mensajes"></div><div class="calendar-day level-1" title="2025-10-29: 13 mensajes"></div><div class="calendar-day level-3" title="2025-10-30: 110 mensajes"></div><div class="calendar-day level-2" title="2025-10-31: 79 mensajes"></div><div class="calendar-day level-2" title="2025-11-01: 79 mensajes"></div><div class="calendar-day level-1" title="2025-11-02: 5 mensajes"></div><div class="calendar-day level-1" title="2025-11-03: 36 mensajes"></div><div class="calendar-day level-1" title="2025-11-04: 19 mensajes"></div><div class="calendar-day level-2" title="2025-11-05: 77 mensajes"></div><div class="calendar-day level-2" title="2025-11-06: 65 mensajes"></div><div class="calendar-day level-3" title="2025-11-07: 109 mensajes"></div><div class="calendar-day level-3" title="2025-11-08: 100 mensajes"></div><div class="calendar-day level-2" title="2025-11-09: 78 mensajes"></div><div class="calendar-day level-2" title="2025-11-10: 47 mensajes"></div><div class="calendar-day level-3" title="2025-11-11: 104 mensajes"></div><div class="calendar-day level-1" title="2025-11-12: 20 mensajes"></div><div class="calendar-day level-2" title="2025-11-13: 75 mensajes"></div><div class="calendar-day level-4" title="2025-11-14: 154 mensajes"></div><div class="calendar-day level-2" title="2025-11-15: 64 mensajes"></div><div class="calendar-day level-1" title="2025-11-16: 40 mensajes"></div><div class="calendar-day level-1" title="2025-11-17: 12 mensajes"></div><div class="calendar-day level-1" title="2025-11-18: 4 mensajes"></div><div class="calendar-day level-2" title="2025-11-19: 78 mensajes"></div><div class="calendar-day level-1" title="2025-11-20: 14 mensajes"></div><div class="calendar-day level-1" title="2025-11-21: 22 mensajes"></div><div class="calendar-day level-2" title="2025-11-22: 58 mensajes"></div><div class="calendar-day level-2" title="2025-11-23: 55 mensajes"></div><div class="calendar-day level-1" title="2025-11-24: 28 mensajes"></div><div class="calendar-day level-2" title="2025-11-25: 75 mensajes"></div><div class="calendar-day level-2" title="2025-11-26: 53 mensajes"></div><div class="calendar-day level-3" title="2025-11-27: 98 mensajes"></div><div class="calendar-day level-1" title="2025-11-28: 36 mensajes"></div><div class="calendar-day level-2" title="2025-11-29: 71 mensajes"></div><div class="calendar-day level-2" title="2025-11-30: 84 mensajes"></div><div class="calendar-day level-1" title="2025-12-01: 40 mensajes"></div><div class="calendar-day level-2" title="2025-12-02: 44 mensajes"></div><div class="calendar-day level-2" title="2025-12-03: 58 mensajes"></div><div class="calendar-day level-1" title="2025-12-04: 29 mensajes"></div><div class="calendar-day level-3" title="2025-12-05: 93 mensajes"></div><div class="calendar-day level-2" title="2025-12-06: 73 mensajes"></div><div class="calendar-day level-2" title="2025-12-07: 53 mensajes"></div><div class="calendar-day level-1" title="2025-12-08: 36 mensajes"></div><div class="calendar-day level-2" title="2025-12-09: 58 mensajes"></div><div class="calendar-day level-3" title="2025-12-10: 108 mensajes"></div><div class="calendar-day level-4" title="2025-12-11: 135 mensajes"></div><div class="calendar-day level-2" title="2025-12-12: 51 mensajes"></div><div class="calendar-day level-3" title="2025-12-13: 108 mensajes"></div><div class="calendar-day level-3" title="2025-12-14: 95 mensajes"></div><div class="calendar-day level-2" title="2025-12-15: 64 mensajes"></div><div class="calendar-day level-1" title="2025-12-16: 37 mensajes"></div><div class="calendar-day level-1" title="2025-12-17: 36 mensajes"></div><div class="calendar-day level-2" title="2025-12-18: 74 mensajes"></div><div class="calendar-day level-2" title="2025-12-19: 52 mensajes"></div><div class="calendar-day level-1" title="2025-12-20: 39 mensajes"></div><div class="calendar-day level-1" title="2025-12-21: 37 mensajes"></div><div class="calendar-day level-2" title="2025-12-22: 49 mensajes"></div><div class="calendar-day level-0" title="2025-12-23"></div><div class="calendar-day level-0" title="2025-12-24"></div><div class="calendar-day level-0" title="2025-12-25"></div><div class="calendar-day level-0" title="2025-12-26"></div><div class="calendar-day level-0" title="2025-12-27"></div><div class="calendar-day level-0" title="2025-12-28"></div><div class="calendar-day level-0" title="2025-12-29"></div><div class="calendar-day level-0" title="2025-12-30"></div><div class="calendar-day level-0" title="2025-12-31"></div><div class="calendar-day level-0" title="2026-01-01"></div><div class="calendar-day level-0" title="2026-01-02"></div><div class="calendar-day level-0" title="2026-01-03"></div>
+                </div>
+            </div>
+            <div class="chart-container" style="margin-top: 1rem;">
+                <div class="bar-chart" id="monthlyChart"></div>
+            </div>
+            <div class="card">
+                <div style="text-align: center;">
+                    <div>Mes más activo: <strong>Octubre</strong></div>
+                    <div style="margin-top: 0.5rem;">Día más activo: <strong>11 de Junio</strong></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5b: Most Active Day Highlights -->
+        <div class="slide" style="padding: 1rem;">
+            <div class="slide-title">Día Más Activo: 11 de Junio</div>
+            <div class="slide-subtitle">Lo que pasó ese día</div>
+            <div class="day-grid"><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0138.jpg')">
+                    <img src="media/IMG-20250611-WA0138.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0151.jpg')">
+                    <img src="media/IMG-20250611-WA0151.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0132.jpg')">
+                    <img src="media/IMG-20250611-WA0132.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0074.jpg')">
+                    <img src="media/IMG-20250611-WA0074.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0116.jpg')">
+                    <img src="media/IMG-20250611-WA0116.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0073.jpg')">
+                    <img src="media/IMG-20250611-WA0073.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/VID-20250611-WA0048.mp4')">
+                    <video autoplay muted loop playsinline>
+                        <source src="media/VID-20250611-WA0048.mp4" type="video/mp4">
+                    </video>
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0104.jpg')">
+                    <img src="media/IMG-20250611-WA0104.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0161.jpg')">
+                    <img src="media/IMG-20250611-WA0161.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item text-item">
+                <span class="grid-sender">Inigo Montoya</span>
+                <span class="grid-content">Odetta, Lily y Víctor Matzas.</span>
+            </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0099.jpg')">
+                    <img src="media/IMG-20250611-WA0099.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0163.jpg')">
+                    <img src="media/IMG-20250611-WA0163.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0034.jpg')">
+                    <img src="media/IMG-20250611-WA0034.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0167.jpg')">
+                    <img src="media/IMG-20250611-WA0167.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0063.jpg')">
+                    <img src="media/IMG-20250611-WA0063.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0015.jpg')">
+                    <img src="media/IMG-20250611-WA0015.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item text-item">
+                <span class="grid-sender">Billy</span>
+                <span class="grid-content">(pero gracias por el dato! Solo que estoy cansado ya)</span>
+            </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0052.jpg')">
+                    <img src="media/IMG-20250611-WA0052.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item text-item">
+                <span class="grid-sender">Vero</span>
+                <span class="grid-content">Bom díaa si alguno tiene a mano lleva cargador de iphone al desayuno xfi</span>
+            </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0095.jpg')">
+                    <img src="media/IMG-20250611-WA0095.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0110.jpg')">
+                    <img src="media/IMG-20250611-WA0110.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0037.jpg')">
+                    <img src="media/IMG-20250611-WA0037.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0154.jpg')">
+                    <img src="media/IMG-20250611-WA0154.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0123.jpg')">
+                    <img src="media/IMG-20250611-WA0123.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0060.jpg')">
+                    <img src="media/IMG-20250611-WA0060.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0126.jpg')">
+                    <img src="media/IMG-20250611-WA0126.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item text-item">
+                <span class="grid-sender">Liam</span>
+                <span class="grid-content">Che @⁨Guillermo Mosse⁩, me fijé y podrás tomar un colectivo del aeropuerto si...</span>
+            </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0171.jpg')">
+                    <img src="media/IMG-20250611-WA0171.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0083.jpg')">
+                    <img src="media/IMG-20250611-WA0083.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0026.jpg')">
+                    <img src="media/IMG-20250611-WA0026.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0113.jpg')">
+                    <img src="media/IMG-20250611-WA0113.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0033.jpg')">
+                    <img src="media/IMG-20250611-WA0033.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0056.jpg')">
+                    <img src="media/IMG-20250611-WA0056.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0164.jpg')">
+                    <img src="media/IMG-20250611-WA0164.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0130.jpg')">
+                    <img src="media/IMG-20250611-WA0130.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0071.jpg')">
+                    <img src="media/IMG-20250611-WA0071.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0124.jpg')">
+                    <img src="media/IMG-20250611-WA0124.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0152.jpg')">
+                    <img src="media/IMG-20250611-WA0152.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0136.jpg')">
+                    <img src="media/IMG-20250611-WA0136.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0093.jpg')">
+                    <img src="media/IMG-20250611-WA0093.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0168.jpg')">
+                    <img src="media/IMG-20250611-WA0168.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/VID-20250611-WA0046.mp4')">
+                    <video autoplay muted loop playsinline>
+                        <source src="media/VID-20250611-WA0046.mp4" type="video/mp4">
+                    </video>
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0174.jpg')">
+                    <img src="media/IMG-20250611-WA0174.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0085.jpg')">
+                    <img src="media/IMG-20250611-WA0085.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0158.jpg')">
+                    <img src="media/IMG-20250611-WA0158.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0125.jpg')">
+                    <img src="media/IMG-20250611-WA0125.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0128.jpg')">
+                    <img src="media/IMG-20250611-WA0128.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0101.jpg')">
+                    <img src="media/IMG-20250611-WA0101.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0173.jpg')">
+                    <img src="media/IMG-20250611-WA0173.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0134.jpg')">
+                    <img src="media/IMG-20250611-WA0134.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0068.jpg')">
+                    <img src="media/IMG-20250611-WA0068.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0127.jpg')">
+                    <img src="media/IMG-20250611-WA0127.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0079.jpg')">
+                    <img src="media/IMG-20250611-WA0079.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0053.jpg')">
+                    <img src="media/IMG-20250611-WA0053.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0137.jpg')">
+                    <img src="media/IMG-20250611-WA0137.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0139.jpg')">
+                    <img src="media/IMG-20250611-WA0139.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0108.jpg')">
+                    <img src="media/IMG-20250611-WA0108.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item text-item">
+                <span class="grid-sender">Liam</span>
+                <span class="grid-content">Isa y yo vamos caminando</span>
+            </div><div class="day-grid-item text-item">
+                <span class="grid-sender">Billy</span>
+                <span class="grid-content">Eh no, con 4 aviones estoy bien jeje</span>
+            </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0176.jpg')">
+                    <img src="media/IMG-20250611-WA0176.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0098.jpg')">
+                    <img src="media/IMG-20250611-WA0098.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/VID-20250611-WA0038.mp4')">
+                    <video autoplay muted loop playsinline>
+                        <source src="media/VID-20250611-WA0038.mp4" type="video/mp4">
+                    </video>
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0111.jpg')">
+                    <img src="media/IMG-20250611-WA0111.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0135.jpg')">
+                    <img src="media/IMG-20250611-WA0135.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0153.jpg')">
+                    <img src="media/IMG-20250611-WA0153.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0144.jpg')">
+                    <img src="media/IMG-20250611-WA0144.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0159.jpg')">
+                    <img src="media/IMG-20250611-WA0159.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0119.jpg')">
+                    <img src="media/IMG-20250611-WA0119.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0141.jpg')">
+                    <img src="media/IMG-20250611-WA0141.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0140.jpg')">
+                    <img src="media/IMG-20250611-WA0140.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0106.jpg')">
+                    <img src="media/IMG-20250611-WA0106.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0058.jpg')">
+                    <img src="media/IMG-20250611-WA0058.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0105.jpg')">
+                    <img src="media/IMG-20250611-WA0105.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0059.jpg')">
+                    <img src="media/IMG-20250611-WA0059.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0120.jpg')">
+                    <img src="media/IMG-20250611-WA0120.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0112.jpg')">
+                    <img src="media/IMG-20250611-WA0112.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0075.jpg')">
+                    <img src="media/IMG-20250611-WA0075.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item text-item">
+                <span class="grid-sender">Candelis</span>
+                <span class="grid-content">Los pasan a buscar?</span>
+            </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0122.jpg')">
+                    <img src="media/IMG-20250611-WA0122.jpg" alt="" loading="lazy">
+                </div><div class="day-grid-item media-item" onclick="openMedia('media/IMG-20250611-WA0155.jpg')">
+                    <img src="media/IMG-20250611-WA0155.jpg" alt="" loading="lazy">
+                </div></div>
+        </div>
+
+        <!-- Slide 6: Top Words -->
+        <div class="slide" style="padding-top: 1rem; padding-bottom: 1rem;">
+            <div class="slide-title" style="margin-bottom: 1rem;">Palabras Más Usadas</div>
+            <img src="wordcloud.png" alt="Nube de palabras" class="wordcloud-img">
+        </div>
+
+        <!-- Slide 6: Emojis -->
+        <div class="slide">
+            <div class="slide-title">Emojis Favoritos</div>
+            <div class="emoji-grid">
+                
+        <div class="emoji-item">
+            <span class="emoji-char">❤️</span>
+            <span class="emoji-count">1,143</span>
+        </div>
+        
+        <div class="emoji-item">
+            <span class="emoji-char">😂</span>
+            <span class="emoji-count">437</span>
+        </div>
+        
+        <div class="emoji-item">
+            <span class="emoji-char">👏</span>
+            <span class="emoji-count">356</span>
+        </div>
+        
+        <div class="emoji-item">
+            <span class="emoji-char">😜</span>
+            <span class="emoji-count">334</span>
+        </div>
+        
+        <div class="emoji-item">
+            <span class="emoji-char">🥰</span>
+            <span class="emoji-count">146</span>
+        </div>
+        
+        <div class="emoji-item">
+            <span class="emoji-char">😮</span>
+            <span class="emoji-count">140</span>
+        </div>
+        
+        <div class="emoji-item">
+            <span class="emoji-char">😍</span>
+            <span class="emoji-count">137</span>
+        </div>
+        
+        <div class="emoji-item">
+            <span class="emoji-char">🤗</span>
+            <span class="emoji-count">125</span>
+        </div>
+        
+        <div class="emoji-item">
+            <span class="emoji-char">🤣</span>
+            <span class="emoji-count">118</span>
+        </div>
+        
+        <div class="emoji-item">
+            <span class="emoji-char">😃</span>
+            <span class="emoji-count">97</span>
+        </div>
+        
+            </div>
+            <div class="slide-title" style="margin-top: 2.5rem; font-size: 1.5rem;">Emojis Más Raros</div>
+            <div class="emoji-grid">
+                
+        <div class="emoji-item rare">
+            <span class="emoji-char">💡</span>
+            <span class="emoji-count">1x</span>
+        </div>
+        
+        <div class="emoji-item rare">
+            <span class="emoji-char">💖</span>
+            <span class="emoji-count">1x</span>
+        </div>
+        
+        <div class="emoji-item rare">
+            <span class="emoji-char">🚪</span>
+            <span class="emoji-count">1x</span>
+        </div>
+        
+        <div class="emoji-item rare">
+            <span class="emoji-char">😚</span>
+            <span class="emoji-count">1x</span>
+        </div>
+        
+        <div class="emoji-item rare">
+            <span class="emoji-char">🫒</span>
+            <span class="emoji-count">1x</span>
+        </div>
+        
+        <div class="emoji-item rare">
+            <span class="emoji-char">🦋</span>
+            <span class="emoji-count">1x</span>
+        </div>
+        
+        <div class="emoji-item rare">
+            <span class="emoji-char">🥴</span>
+            <span class="emoji-count">1x</span>
+        </div>
+        
+        <div class="emoji-item rare">
+            <span class="emoji-char">😳</span>
+            <span class="emoji-count">1x</span>
+        </div>
+        
+        <div class="emoji-item rare">
+            <span class="emoji-char">🐣</span>
+            <span class="emoji-count">1x</span>
+        </div>
+        
+        <div class="emoji-item rare">
+            <span class="emoji-char">📎</span>
+            <span class="emoji-count">1x</span>
+        </div>
+        
+            </div>
+        </div>
+
+        <!-- Slide 7: Individual Stats -->
+        <div class="slide">
+            <div class="slide-title">Estadísticas Personales</div>
+            <div class="person-selector" id="personSelector">
+                <button class="person-btn has-images" style="background-image:
+                    url('media/IMG-20250426-WA0010.jpg'),
+                    url('media/IMG-20251129-WA0019.jpg'),
+                    url('media/IMG-20251103-WA0010.jpg'),
+                    url('media/IMG-20251019-WA0004.jpg');
+                    background-size: 50% 50%;
+                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;" onclick="showPerson('Marta')"><span class="person-btn-name">Marta</span></button><button class="person-btn has-images" style="background-image:
+                    url('media/IMG-20250622-WA0007.jpg'),
+                    url('media/IMG-20250623-WA0008.jpg'),
+                    url('media/IMG-20250611-WA0110.jpg'),
+                    url('media/IMG-20250611-WA0157.jpg');
+                    background-size: 50% 50%;
+                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;" onclick="showPerson('Pato')"><span class="person-btn-name">Pato</span></button><button class="person-btn has-images" style="background-image:
+                    url('media/IMG-20250206-WA0013.jpg'),
+                    url('media/IMG-20251129-WA0013.jpg'),
+                    url('media/IMG-20251013-WA0015.jpg'),
+                    url('media/IMG-20251129-WA0009.jpg');
+                    background-size: 50% 50%;
+                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;" onclick="showPerson('Pancho')"><span class="person-btn-name">Pancho</span></button><button class="person-btn has-images" style="background-image:
+                    url('media/IMG-20251031-WA0026.jpg'),
+                    url('media/IMG-20250108-WA0000.jpg'),
+                    url('media/IMG-20251106-WA0005.jpg'),
+                    url('media/IMG-20250824-WA0003.jpg');
+                    background-size: 50% 50%;
+                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;" onclick="showPerson('Pitu')"><span class="person-btn-name">Pitu</span></button><button class="person-btn has-images" style="background-image:
+                    url('media/IMG-20250501-WA0037.jpg'),
+                    url('media/IMG-20251024-WA0045.jpg'),
+                    url('media/IMG-20250326-WA0028.jpg'),
+                    url('media/IMG-20250822-WA0051.jpg');
+                    background-size: 50% 50%;
+                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;" onclick="showPerson('Jonito')"><span class="person-btn-name">Jonito</span></button><button class="person-btn has-images" style="background-image:
+                    url('media/IMG-20250506-WA0020.jpg'),
+                    url('media/IMG-20251015-WA0037.jpg'),
+                    url('media/IMG-20250828-WA0006.jpg'),
+                    url('media/IMG-20250110-WA0004.jpg');
+                    background-size: 50% 50%;
+                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;" onclick="showPerson('Michel')"><span class="person-btn-name">Michel</span></button><button class="person-btn has-images" style="background-image:
+                    url('media/IMG-20250514-WA0017.jpg'),
+                    url('media/IMG-20250718-WA0014.jpg'),
+                    url('media/IMG-20250330-WA0006.jpg'),
+                    url('media/IMG-20250126-WA0012.jpg');
+                    background-size: 50% 50%;
+                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;" onclick="showPerson('Candelis')"><span class="person-btn-name">Candelis</span></button><button class="person-btn has-images" style="background-image:
+                    url('media/IMG-20250427-WA0013.jpg'),
+                    url('media/IMG-20250525-WA0003.jpg'),
+                    url('media/IMG-20250427-WA0012.jpg'),
+                    url('media/IMG-20250807-WA0024.jpg');
+                    background-size: 50% 50%;
+                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;" onclick="showPerson('Inigo Montoya')"><span class="person-btn-name">Inigo Montoya</span></button><button class="person-btn has-images" style="background-image:
+                    url('media/IMG-20251111-WA0004.jpg'),
+                    url('media/IMG-20250419-WA0020.jpg'),
+                    url('media/IMG-20251003-WA0013.jpg'),
+                    url('media/IMG-20250115-WA0010.jpg');
+                    background-size: 50% 50%;
+                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;" onclick="showPerson('Char')"><span class="person-btn-name">Char</span></button><button class="person-btn has-images" style="background-image:
+                    url('media/IMG-20250318-WA0019.jpg'),
+                    url('media/IMG-20250219-WA0014.jpg'),
+                    url('media/IMG-20250512-WA0008.jpg'),
+                    url('media/IMG-20250429-WA0019.jpg');
+                    background-size: 50% 50%;
+                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;" onclick="showPerson('Billy')"><span class="person-btn-name">Billy</span></button><button class="person-btn has-images" style="background-image:
+                    url('media/IMG-20251123-WA0002.jpg'),
+                    url('media/IMG-20251111-WA0015.jpg'),
+                    url('media/IMG-20250521-WA0003.jpg'),
+                    url('media/IMG-20250114-WA0008.jpg');
+                    background-size: 50% 50%;
+                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;" onclick="showPerson('Luqui')"><span class="person-btn-name">Luqui</span></button><button class="person-btn has-images" style="background-image:
+                    url('media/IMG-20250705-WA0002.jpg'),
+                    url('media/IMG-20251122-WA0007.jpg'),
+                    url('media/IMG-20251025-WA0020.jpg'),
+                    url('media/IMG-20250605-WA0011.jpg');
+                    background-size: 50% 50%;
+                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;" onclick="showPerson('Liam')"><span class="person-btn-name">Liam</span></button><button class="person-btn has-images" style="background-image:
+                    url('media/IMG-20250614-WA0040.jpg'),
+                    url('media/IMG-20251025-WA0032.jpg'),
+                    url('media/IMG-20251111-WA0007.jpg'),
+                    url('media/IMG-20250224-WA0015.jpg');
+                    background-size: 50% 50%;
+                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;" onclick="showPerson('Vero')"><span class="person-btn-name">Vero</span></button><button class="person-btn has-images" style="background-image:
+                    url('media/IMG-20250613-WA0041.jpg'),
+                    url('media/IMG-20250712-WA0016.jpg'),
+                    url('media/IMG-20250614-WA0019.jpg'),
+                    url('media/IMG-20250613-WA0044.jpg');
+                    background-size: 50% 50%;
+                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;" onclick="showPerson('Toti')"><span class="person-btn-name">Toti</span></button><button class="person-btn has-images" style="background-image: url('media/IMG-20250830-WA0010.jpg'); background-size: cover;" onclick="showPerson('Benju')"><span class="person-btn-name">Benju</span></button><button class="person-btn has-images" style="background-image:
+                    url('media/IMG-20250329-WA0008.jpg'),
+                    url('media/IMG-20251216-WA0032.jpg'),
+                    url('media/IMG-20251026-WA0025.jpg'),
+                    url('media/IMG-20250315-WA0012.jpg');
+                    background-size: 50% 50%;
+                    background-position: 0 0, 100% 0, 0 100%, 100% 100%;" onclick="showPerson('Will')"><span class="person-btn-name">Will</span></button>
+            </div>
+            <div id="personDetails">
+                
+        <div class="person-detail card" id="detail-Marta" data-name="Marta">
+            <div class="person-header">
+                <div class="person-name">Marta</div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-value">5,454</div>
+                    <div class="stat-name">Mensajes</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">40,184</div>
+                    <div class="stat-name">Palabras</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">1085</div>
+                    <div class="stat-name">Fotos/Videos</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">1216</div>
+                    <div class="stat-name">Con Emojis</div>
+                </div>
+            </div>
+            <div class="person-words"><div class="words-title">Palabras favoritas:</div><div class="words-list"><span class="fav-word">buen (207)</span>, <span class="fav-word">día (148)</span>, <span class="fav-word">lindo (90)</span>, <span class="fav-word">instagram (82)</span>, <span class="fav-word">cdo (81)</span></div></div>
+            <div class="person-words unique-words"><div class="words-title">Palabras únicas (solo vos las usás):</div><div class="words-list"><span class="fav-word unique">cdo</span>, <span class="fav-word unique">yeah</span>, <span class="fav-word unique">hijito</span>, <span class="fav-word unique">o1cmwzk2wxntmywdjdqsww</span>, <span class="fav-word unique">porq</span></div></div>
+            <div class="traits">
+                <span class="trait">Visual</span><span class="trait">Links</span><span class="trait">Nocturno/a</span>
+            </div>
+        </div>
+        
+        <div class="person-detail card" id="detail-Pato" data-name="Pato">
+            <div class="person-header">
+                <div class="person-name">Pato</div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-value">2,493</div>
+                    <div class="stat-name">Mensajes</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">10,255</div>
+                    <div class="stat-name">Palabras</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">941</div>
+                    <div class="stat-name">Fotos/Videos</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">30</div>
+                    <div class="stat-name">Con Emojis</div>
+                </div>
+            </div>
+            <div class="person-words"><div class="words-title">Palabras favoritas:</div><div class="words-list"><span class="fav-word">genial (66)</span>, <span class="fav-word">buen (39)</span>, <span class="fav-word">creo (32)</span>, <span class="fav-word">está (31)</span>, <span class="fav-word">tremendo (31)</span></div></div>
+            <div class="person-words unique-words"><div class="words-title">Palabras únicas (solo vos las usás):</div><div class="words-list"><span class="fav-word unique">soluciones</span>, <span class="fav-word unique">cortarlo</span>, <span class="fav-word unique">ferry</span>, <span class="fav-word unique">escalas</span>, <span class="fav-word unique">ocuparte</span></div></div>
+            <div class="traits">
+                <span class="trait">Visual</span><span class="trait">Links</span><span class="trait">Nocturno/a</span>
+            </div>
+        </div>
+        
+        <div class="person-detail card" id="detail-Pancho" data-name="Pancho">
+            <div class="person-header">
+                <div class="person-name">Pancho</div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-value">1,830</div>
+                    <div class="stat-name">Mensajes</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">47,827</div>
+                    <div class="stat-name">Palabras</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">255</div>
+                    <div class="stat-name">Fotos/Videos</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">83</div>
+                    <div class="stat-name">Con Emojis</div>
+                </div>
+            </div>
+            <div class="person-words"><div class="words-title">Palabras favoritas:</div><div class="words-list"><span class="fav-word">lindo (42)</span>, <span class="fav-word">hacer (42)</span>, <span class="fav-word">está (38)</span>, <span class="fav-word">ver (38)</span>, <span class="fav-word">era (38)</span></div></div>
+            <div class="person-words unique-words"><div class="words-title">Palabras únicas (solo vos las usás):</div><div class="words-list"><span class="fav-word unique">ésto</span>, <span class="fav-word unique">mina</span>, <span class="fav-word unique">repetto</span>, <span class="fav-word unique">incluso</span>, <span class="fav-word unique">muela</span></div></div>
+            <div class="traits">
+                <span class="trait">Visual</span><span class="trait">Links</span><span class="trait">Mensajes largos</span>
+            </div>
+        </div>
+        
+        <div class="person-detail card" id="detail-Pitu" data-name="Pitu">
+            <div class="person-header">
+                <div class="person-name">Pitu</div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-value">1,606</div>
+                    <div class="stat-name">Mensajes</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">6,016</div>
+                    <div class="stat-name">Palabras</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">213</div>
+                    <div class="stat-name">Fotos/Videos</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">221</div>
+                    <div class="stat-name">Con Emojis</div>
+                </div>
+            </div>
+            <div class="person-words"><div class="words-title">Palabras favoritas:</div><div class="words-list"><span class="fav-word">está (34)</span>, <span class="fav-word">jajajaj (25)</span>, <span class="fav-word">edited (22)</span>, <span class="fav-word">siii (20)</span>, <span class="fav-word">vos (19)</span></div></div>
+            <div class="person-words unique-words"><div class="words-title">Palabras únicas (solo vos las usás):</div><div class="words-list"><span class="fav-word unique">jajajaaj</span>, <span class="fav-word unique">dsp</span>, <span class="fav-word unique">uauuuuu</span>, <span class="fav-word unique">opaaaa</span>, <span class="fav-word unique">opaaa</span></div></div>
+            <div class="traits">
+                <span class="trait">Visual</span><span class="trait">Madrugador/a</span><span class="trait">Iniciador/a</span>
+            </div>
+        </div>
+        
+        <div class="person-detail card" id="detail-Jonito" data-name="Jonito">
+            <div class="person-header">
+                <div class="person-name">Jonito</div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-value">1,142</div>
+                    <div class="stat-name">Mensajes</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">6,245</div>
+                    <div class="stat-name">Palabras</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">286</div>
+                    <div class="stat-name">Fotos/Videos</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">89</div>
+                    <div class="stat-name">Con Emojis</div>
+                </div>
+            </div>
+            <div class="person-words"><div class="words-title">Palabras favoritas:</div><div class="words-list"><span class="fav-word">buenas (41)</span>, <span class="fav-word">pancho (31)</span>, <span class="fav-word">frutas (29)</span>, <span class="fav-word">casa (20)</span>, <span class="fav-word">aterrizado (18)</span></div></div>
+            <div class="person-words unique-words"><div class="words-title">Palabras únicas (solo vos las usás):</div><div class="words-list"><span class="fav-word unique">meta</span>, <span class="fav-word unique">carajo</span>, <span class="fav-word unique">ushuaia</span>, <span class="fav-word unique">restaurant</span>, <span class="fav-word unique">seis</span></div></div>
+            <div class="traits">
+                <span class="trait">Visual</span><span class="trait">Nocturno/a</span><span class="trait">Madrugador/a</span>
+            </div>
+        </div>
+        
+        <div class="person-detail card" id="detail-Michel" data-name="Michel">
+            <div class="person-header">
+                <div class="person-name">Michel</div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-value">1,042</div>
+                    <div class="stat-name">Mensajes</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">4,618</div>
+                    <div class="stat-name">Palabras</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">351</div>
+                    <div class="stat-name">Fotos/Videos</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">142</div>
+                    <div class="stat-name">Con Emojis</div>
+                </div>
+            </div>
+            <div class="person-words"><div class="words-title">Palabras favoritas:</div><div class="words-list"><span class="fav-word">buenas (38)</span>, <span class="fav-word">frutas (37)</span>, <span class="fav-word">buena (19)</span>, <span class="fav-word">ahí (18)</span>, <span class="fav-word">acá (15)</span></div></div>
+            <div class="person-words unique-words"><div class="words-title">Palabras únicas (solo vos las usás):</div><div class="words-list"><span class="fav-word unique">jeep</span>, <span class="fav-word unique">leones</span>, <span class="fav-word unique">fritos</span>, <span class="fav-word unique">she</span>, <span class="fav-word unique">said</span></div></div>
+            <div class="traits">
+                <span class="trait">Visual</span><span class="trait">Nocturno/a</span><span class="trait">Madrugador/a</span>
+            </div>
+        </div>
+        
+        <div class="person-detail card" id="detail-Candelis" data-name="Candelis">
+            <div class="person-header">
+                <div class="person-name">Candelis</div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-value">971</div>
+                    <div class="stat-name">Mensajes</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">4,110</div>
+                    <div class="stat-name">Palabras</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">372</div>
+                    <div class="stat-name">Fotos/Videos</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">86</div>
+                    <div class="stat-name">Con Emojis</div>
+                </div>
+            </div>
+            <div class="person-words"><div class="words-title">Palabras favoritas:</div><div class="words-list"><span class="fav-word">viaje (27)</span>, <span class="fav-word">eli (27)</span>, <span class="fav-word">hoy (26)</span>, <span class="fav-word">buen (26)</span>, <span class="fav-word">isa (24)</span></div></div>
+            <div class="person-words unique-words"><div class="words-title">Palabras únicas (solo vos las usás):</div><div class="words-list"><span class="fav-word unique">fran</span>, <span class="fav-word unique">ratón</span>, <span class="fav-word unique">sharing</span></div></div>
+            <div class="traits">
+                <span class="trait">Visual</span><span class="trait">Madrugador/a</span><span class="trait">Iniciador/a</span>
+            </div>
+        </div>
+        
+        <div class="person-detail card" id="detail-Inigo-Montoya" data-name="Inigo Montoya">
+            <div class="person-header">
+                <div class="person-name">Inigo Montoya</div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-value">902</div>
+                    <div class="stat-name">Mensajes</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">8,023</div>
+                    <div class="stat-name">Palabras</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">64</div>
+                    <div class="stat-name">Fotos/Videos</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">278</div>
+                    <div class="stat-name">Con Emojis</div>
+                </div>
+            </div>
+            <div class="person-words"><div class="words-title">Palabras favoritas:</div><div class="words-list"><span class="fav-word">share (32)</span>, <span class="fav-word">facebook (29)</span>, <span class="fav-word">mibextid (27)</span>, <span class="fav-word">wwxifr (27)</span>, <span class="fav-word">spotify (26)</span></div></div>
+            <div class="person-words unique-words"><div class="words-title">Palabras únicas (solo vos las usás):</div><div class="words-list"><span class="fav-word unique">mibextid</span>, <span class="fav-word unique">wwxifr</span>, <span class="fav-word unique">ñum</span>, <span class="fav-word unique">gasearch</span>, <span class="fav-word unique">source</span></div></div>
+            <div class="traits">
+                <span class="trait">Visual</span><span class="trait">Emojis</span><span class="trait">Links</span>
+            </div>
+        </div>
+        
+        <div class="person-detail card" id="detail-Char" data-name="Char">
+            <div class="person-header">
+                <div class="person-name">Char</div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-value">696</div>
+                    <div class="stat-name">Mensajes</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">4,545</div>
+                    <div class="stat-name">Palabras</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">175</div>
+                    <div class="stat-name">Fotos/Videos</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">91</div>
+                    <div class="stat-name">Con Emojis</div>
+                </div>
+            </div>
+            <div class="person-words"><div class="words-title">Palabras favoritas:</div><div class="words-list"><span class="fav-word">genio (17)</span>, <span class="fav-word">buenísimo (14)</span>, <span class="fav-word">jajajaj (12)</span>, <span class="fav-word">feliz (11)</span>, <span class="fav-word">está (11)</span></div></div>
+            <div class="person-words unique-words"><div class="words-title">Palabras únicas (solo vos las usás):</div><div class="words-list"><span class="fav-word unique">entré</span>, <span class="fav-word unique">frutassssssss</span>, <span class="fav-word unique">míchel</span>, <span class="fav-word unique">thefork</span>, <span class="fav-word unique">eaaaa</span></div></div>
+            <div class="traits">
+                <span class="trait">Visual</span><span class="trait">Nocturno/a</span><span class="trait">Madrugador/a</span>
+            </div>
+        </div>
+        
+        <div class="person-detail card" id="detail-Billy" data-name="Billy">
+            <div class="person-header">
+                <div class="person-name">Billy</div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-value">403</div>
+                    <div class="stat-name">Mensajes</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">2,657</div>
+                    <div class="stat-name">Palabras</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">48</div>
+                    <div class="stat-name">Fotos/Videos</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">12</div>
+                    <div class="stat-name">Con Emojis</div>
+                </div>
+            </div>
+            <div class="person-words"><div class="words-title">Palabras favoritas:</div><div class="words-list"><span class="fav-word">alguien (9)</span>, <span class="fav-word">pato (7)</span>, <span class="fav-word">tarde (7)</span>, <span class="fav-word">tío (7)</span>, <span class="fav-word">jonito (7)</span></div></div>
+            <div class="person-words unique-words"><div class="words-title">Palabras únicas (solo vos las usás):</div><div class="words-list"><span class="fav-word unique">boxeo</span></div></div>
+            <div class="traits">
+                <span class="trait">Nocturno/a</span><span class="trait">Madrugador/a</span><span class="trait">Iniciador/a</span>
+            </div>
+        </div>
+        
+        <div class="person-detail card" id="detail-Luqui" data-name="Luqui">
+            <div class="person-header">
+                <div class="person-name">Luqui</div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-value">369</div>
+                    <div class="stat-name">Mensajes</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">2,238</div>
+                    <div class="stat-name">Palabras</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">61</div>
+                    <div class="stat-name">Fotos/Videos</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">33</div>
+                    <div class="stat-name">Con Emojis</div>
+                </div>
+            </div>
+            <div class="person-words"><div class="words-title">Palabras favoritas:</div><div class="words-list"><span class="fav-word">buen (20)</span>, <span class="fav-word">viaje (14)</span>, <span class="fav-word">buena (9)</span>, <span class="fav-word">excelente (9)</span>, <span class="fav-word">essssaaaa (7)</span></div></div>
+            <div class="person-words unique-words"><div class="words-title">Palabras únicas (solo vos las usás):</div><div class="words-list"><span class="fav-word unique">essssaaaa</span>, <span class="fav-word unique">esssaaa</span>, <span class="fav-word unique">jejejeje</span>, <span class="fav-word unique">esssaaaaa</span>, <span class="fav-word unique">esssaaaa</span></div></div>
+            <div class="traits">
+                <span class="trait">Visual</span><span class="trait">Madrugador/a</span>
+            </div>
+        </div>
+        
+        <div class="person-detail card" id="detail-Liam" data-name="Liam">
+            <div class="person-header">
+                <div class="person-name">Liam</div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-value">285</div>
+                    <div class="stat-name">Mensajes</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">1,321</div>
+                    <div class="stat-name">Palabras</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">158</div>
+                    <div class="stat-name">Fotos/Videos</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">0</div>
+                    <div class="stat-name">Con Emojis</div>
+                </div>
+            </div>
+            <div class="person-words"><div class="words-title">Palabras favoritas:</div><div class="words-list"><span class="fav-word">eli (12)</span>, <span class="fav-word">isa (10)</span>, <span class="fav-word">hoy (9)</span>, <span class="fav-word">niños (9)</span>, <span class="fav-word">está (7)</span></div></div>
+            <div class="person-words unique-words"><div class="words-title">Palabras únicas (solo vos las usás):</div><div class="words-list"><span class="fav-word unique">avi</span></div></div>
+            <div class="traits">
+                <span class="trait">Visual</span><span class="trait">Iniciador/a</span>
+            </div>
+        </div>
+        
+        <div class="person-detail card" id="detail-Vero" data-name="Vero">
+            <div class="person-header">
+                <div class="person-name">Vero</div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-value">201</div>
+                    <div class="stat-name">Mensajes</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">1,012</div>
+                    <div class="stat-name">Palabras</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">46</div>
+                    <div class="stat-name">Fotos/Videos</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">28</div>
+                    <div class="stat-name">Con Emojis</div>
+                </div>
+            </div>
+            <div class="person-words"><div class="words-title">Palabras favoritas:</div><div class="words-list"><span class="fav-word">buen (10)</span>, <span class="fav-word">feliz (9)</span>, <span class="fav-word">lindo (7)</span>, <span class="fav-word">panchito (6)</span>, <span class="fav-word">vos (5)</span></div></div>
+            <div class="person-words unique-words"><div class="words-title">Palabras únicas (solo vos las usás):</div><div class="words-list"><span class="fav-word unique">hermosaaa</span></div></div>
+            <div class="traits">
+                
+            </div>
+        </div>
+        
+        <div class="person-detail card" id="detail-Toti" data-name="Toti">
+            <div class="person-header">
+                <div class="person-name">Toti</div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-value">33</div>
+                    <div class="stat-name">Mensajes</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">15</div>
+                    <div class="stat-name">Palabras</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">23</div>
+                    <div class="stat-name">Fotos/Videos</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">0</div>
+                    <div class="stat-name">Con Emojis</div>
+                </div>
+            </div>
+            <div class="person-words"><div class="words-title">Palabras favoritas:</div><div class="words-list"><span class="fav-word">estoy (1)</span>, <span class="fav-word">pity (1)</span>, <span class="fav-word">martínez (1)</span>, <span class="fav-word">jugador (1)</span>, <span class="fav-word">river (1)</span></div></div>
+            
+            <div class="traits">
+                
+            </div>
+        </div>
+        
+        <div class="person-detail card" id="detail-Benju" data-name="Benju">
+            <div class="person-header">
+                <div class="person-name">Benju</div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-value">26</div>
+                    <div class="stat-name">Mensajes</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">122</div>
+                    <div class="stat-name">Palabras</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">7</div>
+                    <div class="stat-name">Fotos/Videos</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">1</div>
+                    <div class="stat-name">Con Emojis</div>
+                </div>
+            </div>
+            <div class="person-words"><div class="words-title">Palabras favoritas:</div><div class="words-list"><span class="fav-word">pago (2)</span>, <span class="fav-word">efectivo (2)</span>, <span class="fav-word">mañana (2)</span>, <span class="fav-word">doy (2)</span>, <span class="fav-word">número (2)</span></div></div>
+            
+            <div class="traits">
+                
+            </div>
+        </div>
+        
+        <div class="person-detail card" id="detail-Will" data-name="Will">
+            <div class="person-header">
+                <div class="person-name">Will</div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-value">17</div>
+                    <div class="stat-name">Mensajes</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">3</div>
+                    <div class="stat-name">Palabras</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">16</div>
+                    <div class="stat-name">Fotos/Videos</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">0</div>
+                    <div class="stat-name">Con Emojis</div>
+                </div>
+            </div>
+            <div class="person-words"><div class="words-title">Palabras favoritas:</div><div class="words-list"><span class="fav-word">michel (1)</span>, <span class="fav-word">candelis (1)</span>, <span class="fav-word">pato (1)</span></div></div>
+            
+            <div class="traits">
+                
+            </div>
+        </div>
+        
+            </div>
+        </div>
+
+        <!-- Slide 9: Thank You -->
+        <div class="slide">
+            <div class="slide-title">Gracias por un 2025 increíble!</div>
+            <div class="card" style="text-align: center;">
+                <div style="font-size: 4rem; margin-bottom: 1rem;">&#10084;&#65039;</div>
+                <p style="font-size: 1.2rem; line-height: 1.6;">
+                    16 miembros de la familia compartieron 17,470 momentos juntos.
+                    <br><br>
+                    Por más conversaciones en 2026!
+                </p>
+            </div>
+            <div class="share-section">
+                <button class="share-btn" onclick="shareWrapped()">Compartir</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p class="footer-text">Familia Wrapped 2025</p>
+    </div>
+
+    <!-- Confetti Container -->
+    <div class="confetti" id="confetti"></div>
+
+    <!-- Media Lightbox -->
+    <div class="media-lightbox" id="lightbox" onclick="closeLightbox()">
+        <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+        <img id="lightbox-img" style="display: none;">
+        <video id="lightbox-video" style="display: none;" controls autoplay></video>
+    </div>
+
+    <!-- Background Music (royalty-free festive music) -->
+    <audio id="bgMusic" loop>
+        <source src="https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        const personsData = [{"name": "Marta", "title": "Family Member", "messages": 5454, "words": 40184, "media": 1085, "emojis": 1216, "links": 166, "avg_length": 7.4, "night_messages": 93, "early_messages": 483, "conversations_started": 428, "traits": ["Visual", "Links", "Nocturno/a"], "color": "#1DB954"}, {"name": "Pato", "title": "Family Member", "messages": 2493, "words": 10255, "media": 941, "emojis": 30, "links": 29, "avg_length": 4.1, "night_messages": 411, "early_messages": 21, "conversations_started": 242, "traits": ["Visual", "Links", "Nocturno/a"], "color": "#FF6B6B"}, {"name": "Pancho", "title": "Family Member", "messages": 1830, "words": 47827, "media": 255, "emojis": 83, "links": 29, "avg_length": 26.1, "night_messages": 13, "early_messages": 39, "conversations_started": 251, "traits": ["Visual", "Links", "Mensajes largos"], "color": "#4ECDC4"}, {"name": "Pitu", "title": "Family Member", "messages": 1606, "words": 6016, "media": 213, "emojis": 221, "links": 5, "avg_length": 3.7, "night_messages": 0, "early_messages": 89, "conversations_started": 66, "traits": ["Visual", "Madrugador/a", "Iniciador/a"], "color": "#FFE66D"}, {"name": "Jonito", "title": "Family Member", "messages": 1142, "words": 6245, "media": 286, "emojis": 89, "links": 9, "avg_length": 5.5, "night_messages": 15, "early_messages": 186, "conversations_started": 140, "traits": ["Visual", "Nocturno/a", "Madrugador/a"], "color": "#95E1D3"}, {"name": "Michel", "title": "Family Member", "messages": 1042, "words": 4618, "media": 351, "emojis": 142, "links": 10, "avg_length": 4.4, "night_messages": 37, "early_messages": 106, "conversations_started": 99, "traits": ["Visual", "Nocturno/a", "Madrugador/a"], "color": "#F38181"}, {"name": "Candelis", "title": "Family Member", "messages": 971, "words": 4110, "media": 372, "emojis": 86, "links": 10, "avg_length": 4.2, "night_messages": 0, "early_messages": 90, "conversations_started": 48, "traits": ["Visual", "Madrugador/a", "Iniciador/a"], "color": "#AA96DA"}, {"name": "Inigo Montoya", "title": "Family Member", "messages": 902, "words": 8023, "media": 64, "emojis": 278, "links": 83, "avg_length": 8.9, "night_messages": 14, "early_messages": 121, "conversations_started": 99, "traits": ["Visual", "Emojis", "Links"], "color": "#FCBAD3"}, {"name": "Char", "title": "Family Member", "messages": 696, "words": 4545, "media": 175, "emojis": 91, "links": 5, "avg_length": 6.5, "night_messages": 20, "early_messages": 85, "conversations_started": 60, "traits": ["Visual", "Nocturno/a", "Madrugador/a"], "color": "#A8D8EA"}, {"name": "Billy", "title": "Family Member", "messages": 403, "words": 2657, "media": 48, "emojis": 12, "links": 13, "avg_length": 6.6, "night_messages": 49, "early_messages": 82, "conversations_started": 42, "traits": ["Nocturno/a", "Madrugador/a", "Iniciador/a"], "color": "#FF9F43"}, {"name": "Luqui", "title": "Family Member", "messages": 369, "words": 2238, "media": 61, "emojis": 33, "links": 0, "avg_length": 6.1, "night_messages": 0, "early_messages": 24, "conversations_started": 29, "traits": ["Visual", "Madrugador/a"], "color": "#1DB954"}, {"name": "Liam", "title": "Family Member", "messages": 285, "words": 1321, "media": 158, "emojis": 0, "links": 4, "avg_length": 4.6, "night_messages": 0, "early_messages": 15, "conversations_started": 46, "traits": ["Visual", "Iniciador/a"], "color": "#FF6B6B"}, {"name": "Vero", "title": "Family Member", "messages": 201, "words": 1012, "media": 46, "emojis": 28, "links": 0, "avg_length": 5.0, "night_messages": 2, "early_messages": 16, "conversations_started": 14, "traits": [], "color": "#4ECDC4"}, {"name": "Toti", "title": "Family Member", "messages": 33, "words": 15, "media": 23, "emojis": 0, "links": 0, "avg_length": 0.5, "night_messages": 0, "early_messages": 1, "conversations_started": 2, "traits": [], "color": "#FFE66D"}, {"name": "Benju", "title": "Family Member", "messages": 26, "words": 122, "media": 7, "emojis": 1, "links": 0, "avg_length": 4.7, "night_messages": 0, "early_messages": 1, "conversations_started": 4, "traits": [], "color": "#95E1D3"}, {"name": "Will", "title": "Family Member", "messages": 17, "words": 3, "media": 16, "emojis": 0, "links": 0, "avg_length": 0.2, "night_messages": 1, "early_messages": 0, "conversations_started": 9, "traits": [], "color": "#F38181"}];
+        const factsData = [{"title": "Día Favorito", "value": "Viernes", "description": "A la familia le encanta chatear los viernes!"}, {"title": "Hora Pico", "value": "17:00", "description": "Cuando el chat explota! (hora de Argentina)"}, {"title": "Arranca Conversaciones", "value": "Marta", "description": "Inició 428 conversaciones este año!"}, {"title": "Ave Nocturna", "value": "Pato", "description": "Envió 411 mensajes entre medianoche y las 5 AM (de su hora local)!"}, {"title": "Madrugador/a", "value": "Marta", "description": "Envió 483 mensajes antes de las 8 AM (de su hora local)!"}, {"title": "El/La Más Censurado/a", "value": "Marta", "description": "Tuvo que borrar 75 mensajes este año!"}, {"title": "Campeón de Fotos", "value": "Marta", "description": "Compartió 1085 fotos y videos!"}, {"title": "Curador de Links", "value": "Marta", "description": "Compartió 166 links con la familia!"}, {"title": "Master de Emojis", "value": "Marta", "description": "Usó emojis en 1216 mensajes!"}, {"title": "El/La Novelista", "value": "Pancho", "description": "Promedio de 26.1 palabras por mensaje!"}, {"title": "Emoji Favorito", "value": "❤", "description": "Usado 1,143 veces este año!"}, {"title": "La Hora Pico", "value": "22:00", "description": "El 11 de Junio - la hora con más mensajes del año!"}, {"title": "Conversación Más Larga", "value": "Pato y Candelis", "description": "¡111 mensajes seguidos sin parar!"}];
+        const monthlyData = [1285, 1606, 1656, 1247, 1398, 1698, 1106, 1164, 1288, 1893, 1760, 1369];
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+        let currentSlide = 0;
+        let carouselIndex = 0;
+        const totalFacts = factsData.length;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            initCarousel();
+            initMonthlyChart();
+
+            // Hide scroll indicator after scrolling
+            window.addEventListener('scroll', function() {
+                document.getElementById('scrollIndicator').style.opacity = '0';
+            }, { once: true });
+        });
+
+        function startWrapped() {
+            document.getElementById('intro').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            triggerConfetti();
+
+            // Try to play music
+            var music = document.getElementById('bgMusic');
+            music.volume = 0.3;
+            music.play().catch(function() {});
+        }
+
+        function toggleMusic() {
+            var music = document.getElementById('bgMusic');
+            var btn = document.getElementById('musicBtn');
+            var icon = document.getElementById('musicIcon');
+
+            if (music.paused) {
+                music.play();
+                icon.innerHTML = '&#128266;';
+                btn.classList.add('playing');
+            } else {
+                music.pause();
+                icon.innerHTML = '&#128263;';
+                btn.classList.remove('playing');
+            }
+        }
+
+        function initCarousel() {
+            var dots = document.getElementById('carouselDots');
+            for (var i = 0; i < totalFacts; i++) {
+                var dot = document.createElement('div');
+                dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
+                dot.onclick = (function(index) {
+                    return function() { goToSlide(index); };
+                })(i);
+                dots.appendChild(dot);
+            }
+
+            // Auto-advance carousel
+            setInterval(function() {
+                if (document.visibilityState === 'visible') {
+                    moveCarousel(1);
+                }
+            }, 5000);
+        }
+
+        function moveCarousel(direction) {
+            carouselIndex = (carouselIndex + direction + totalFacts) % totalFacts;
+            updateCarousel();
+        }
+
+        function goToSlide(index) {
+            carouselIndex = index;
+            updateCarousel();
+        }
+
+        function updateCarousel() {
+            var track = document.getElementById('carouselTrack');
+            track.style.transform = 'translateX(-' + (carouselIndex * 100) + '%)';
+
+            var allDots = document.querySelectorAll('.carousel-dot');
+            for (var i = 0; i < allDots.length; i++) {
+                if (i === carouselIndex) {
+                    allDots[i].classList.add('active');
+                } else {
+                    allDots[i].classList.remove('active');
+                }
+            }
+        }
+
+        function initMonthlyChart() {
+            var chart = document.getElementById('monthlyChart');
+            var maxVal = Math.max.apply(null, monthlyData);
+
+            for (var i = 0; i < monthlyData.length; i++) {
+                var bar = document.createElement('div');
+                bar.className = 'bar';
+                var height = maxVal > 0 ? (monthlyData[i] / maxVal * 100) : 0;
+                bar.style.height = height + '%';
+
+                var label = document.createElement('span');
+                label.className = 'bar-label';
+                label.textContent = monthNames[i];
+                bar.appendChild(label);
+
+                chart.appendChild(bar);
+            }
+        }
+
+        function showPerson(name) {
+            // Hide all details
+            var allDetails = document.querySelectorAll('.person-detail');
+            for (var i = 0; i < allDetails.length; i++) {
+                allDetails[i].classList.remove('active');
+            }
+
+            // Update buttons
+            var allBtns = document.querySelectorAll('.person-btn');
+            for (var i = 0; i < allBtns.length; i++) {
+                if (allBtns[i].textContent === name) {
+                    allBtns[i].classList.add('active');
+                } else {
+                    allBtns[i].classList.remove('active');
+                }
+            }
+
+            // Show selected detail
+            var safeName = name.replace(/ /g, '-');
+            var detail = document.getElementById('detail-' + safeName);
+            if (detail) {
+                detail.classList.add('active');
+            }
+        }
+
+        function triggerConfetti() {
+            var container = document.getElementById('confetti');
+            var colors = ['#ff6b6b', '#4ecdc4', '#ffe66d', '#95e1d3', '#aa96da', '#fcbad3'];
+
+            for (var i = 0; i < 100; i++) {
+                var piece = document.createElement('div');
+                piece.className = 'confetti-piece';
+                piece.style.left = Math.random() * 100 + '%';
+                piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+                piece.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                piece.style.animationDelay = Math.random() * 2 + 's';
+                container.appendChild(piece);
+            }
+
+            setTimeout(function() {
+                container.innerHTML = '';
+            }, 5000);
+        }
+
+        function shareWrapped() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Familia Wrapped 2025',
+                    text: 'Mirá nuestro Wrapped de WhatsApp familiar 2025!',
+                    url: window.location.href
+                });
+            } else {
+                alert('Compartí esta página con tu familia!');
+            }
+        }
+
+        function openMedia(src) {
+            var lightbox = document.getElementById('lightbox');
+            var img = document.getElementById('lightbox-img');
+            var video = document.getElementById('lightbox-video');
+
+            if (src.includes('.mp4') || src.includes('.mov')) {
+                video.src = src;
+                video.style.display = 'block';
+                img.style.display = 'none';
+            } else {
+                img.src = src;
+                img.style.display = 'block';
+                video.style.display = 'none';
+            }
+
+            lightbox.classList.add('active');
+        }
+
+        function closeLightbox() {
+            var lightbox = document.getElementById('lightbox');
+            var video = document.getElementById('lightbox-video');
+            video.pause();
+            lightbox.classList.remove('active');
+        }
+
+        // Touch swipe for carousel
+        var touchStartX = 0;
+        var touchEndX = 0;
+
+        document.getElementById('carousel').addEventListener('touchstart', function(e) {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        document.getElementById('carousel').addEventListener('touchend', function(e) {
+            touchEndX = e.changedTouches[0].screenX;
+            if (touchStartX - touchEndX > 50) moveCarousel(1);
+            if (touchEndX - touchStartX > 50) moveCarousel(-1);
+        });
+    </script>
+</body>
+</html>

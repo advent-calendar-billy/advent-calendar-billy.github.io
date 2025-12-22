@@ -1,0 +1,28 @@
+TODOs for Wrapped 2025
+
+CURRENT WORK:
+(none - all features complete!)
+
+COMPLETED:
+[x] Person buttons with 1-4 image backgrounds
+[x] Audio duration tracking by sender using mutagen
+[x] Add "Los Que Más Hablaron" (audio) slide with Abbey Road comparison
+[x] Rename text talkers slide to "Los Que Más Escribieron"
+[x] Add peak hour ("La Hora Pico") fact - single hour with most messages
+[x] Add longest conversation fact to fun facts
+[x] Add unique words to person detail cards
+[x] Add audio message count to person stats
+[x] Update person_buttons_html call to pass images_by_sender
+[x] Update stats_to_dict to include audio_duration_by_sender
+[x] Media gallery at top with 100 small images
+[x] GitHub-style activity calendar
+[x] Data consumption ranking
+[x] Most active day
+[x] Deleted messages tracking
+[x] HP comparison with emoji
+[x] Beethoven comparison for messages
+[x] Timezone clarifications
+[x] Word cloud PNG
+[x] Day highlights slide (June 11 excerpts + media)
+[x] Heart emoji display fix (variation selector)
+
