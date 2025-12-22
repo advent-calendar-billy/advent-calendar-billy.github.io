@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Familia Wrapped 2025</title>
+    <title>Mossesitos Wrapped 2025</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         * {
@@ -845,10 +845,18 @@
             justify-content: center;
             align-items: center;
             z-index: 2000;
+            overflow: hidden;
         }
 
         .media-lightbox.active {
             display: flex;
+        }
+
+        .media-lightbox.zoomed {
+            overflow: auto;
+            -webkit-overflow-scrolling: touch;
+            align-items: flex-start;
+            justify-content: flex-start;
         }
 
         .media-lightbox img,
@@ -856,17 +864,41 @@
             max-width: 90%;
             max-height: 90%;
             object-fit: contain;
+            cursor: zoom-in;
+        }
+
+        .media-lightbox.zoomed img {
+            max-width: none;
+            max-height: none;
+            width: 250%;
+            cursor: zoom-out;
+            margin: 20px;
         }
 
         .lightbox-close {
-            position: absolute;
+            position: fixed;
             top: 1rem;
             right: 1rem;
             font-size: 2rem;
             color: white;
             cursor: pointer;
-            background: none;
+            background: rgba(0,0,0,0.5);
             border: none;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            z-index: 2001;
+        }
+
+        .lightbox-hint {
+            position: fixed;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 0.9rem;
+            opacity: 0.7;
+            z-index: 2001;
         }
 
         /* Word cloud image */
@@ -1127,7 +1159,7 @@
 <body>
     <!-- Intro Screen -->
     <div class="intro-screen" id="intro">
-        <div class="intro-title">Familia WhatsApp</div>
+        <div class="intro-title">Mossesitos</div>
         <div class="intro-year">2025</div>
         <div class="intro-subtitle">Tu Año en Mensajes</div>
         <button class="start-btn" onclick="startWrapped()">Empezar</button>
@@ -2494,17 +2526,18 @@
     </div>
 
     <div class="footer">
-        <p class="footer-text">Familia Wrapped 2025</p>
+        <p class="footer-text">Mossesitos Wrapped 2025</p>
     </div>
 
     <!-- Confetti Container -->
     <div class="confetti" id="confetti"></div>
 
     <!-- Media Lightbox -->
-    <div class="media-lightbox" id="lightbox" onclick="closeLightbox()">
+    <div class="media-lightbox" id="lightbox" onclick="handleLightboxClick(event)">
         <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
-        <img id="lightbox-img" style="display: none;">
+        <img id="lightbox-img" style="display: none;" onclick="toggleZoom(event)">
         <video id="lightbox-video" style="display: none;" controls autoplay></video>
+        <div class="lightbox-hint" id="lightbox-hint">Tocá la imagen para ampliar</div>
     </div>
 
     <!-- Background Music (royalty-free festive music) -->
@@ -2697,7 +2730,7 @@
         function shareWrapped() {
             if (navigator.share) {
                 navigator.share({
-                    title: 'Familia Wrapped 2025',
+                    title: 'Mossesitos Wrapped 2025',
                     text: 'Mirá nuestro Wrapped de WhatsApp familiar 2025!',
                     url: window.location.href
                 });
@@ -2710,18 +2743,40 @@
             var lightbox = document.getElementById('lightbox');
             var img = document.getElementById('lightbox-img');
             var video = document.getElementById('lightbox-video');
+            var hint = document.getElementById('lightbox-hint');
 
             if (src.includes('.mp4') || src.includes('.mov')) {
                 video.src = src;
                 video.style.display = 'block';
                 img.style.display = 'none';
+                hint.style.display = 'none';
             } else {
                 img.src = src;
                 img.style.display = 'block';
                 video.style.display = 'none';
+                hint.style.display = 'block';
             }
 
+            lightbox.classList.remove('zoomed');
             lightbox.classList.add('active');
+        }
+
+        function toggleZoom(event) {
+            event.stopPropagation();
+            var lightbox = document.getElementById('lightbox');
+            var hint = document.getElementById('lightbox-hint');
+            lightbox.classList.toggle('zoomed');
+            if (lightbox.classList.contains('zoomed')) {
+                hint.textContent = 'Tocá para reducir';
+            } else {
+                hint.textContent = 'Tocá la imagen para ampliar';
+            }
+        }
+
+        function handleLightboxClick(event) {
+            if (event.target.id === 'lightbox') {
+                closeLightbox();
+            }
         }
 
         function closeLightbox() {
@@ -2729,6 +2784,7 @@
             var video = document.getElementById('lightbox-video');
             video.pause();
             lightbox.classList.remove('active');
+            lightbox.classList.remove('zoomed');
         }
 
         // Touch swipe for carousel
