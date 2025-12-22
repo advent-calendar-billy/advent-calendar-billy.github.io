@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pyodide + Micropip Demo</title>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.27.0/full/pyodide.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #1a1a2e;
+            color: #eee;
+        }
+        h1 { color: #00d4ff; }
+        #output {
+            background: #0f0f23;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 20px;
+            white-space: pre-wrap;
+            font-family: 'Monaco', 'Menlo', monospace;
+            min-height: 200px;
+        }
+        .status { color: #ffd700; }
+        .success { color: #00ff88; }
+        .result { color: #ff6b6b; }
+        button {
+            background: #00d4ff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px 10px 0;
+        }
+        button:hover { background: #00a8cc; }
+        button:disabled { background: #666; cursor: not-allowed; }
+        textarea {
+            width: 100%;
+            height: 150px;
+            background: #0f0f23;
+            color: #eee;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Python in the Browser</h1>
+    <p>Powered by <a href="https://pyodide.org" style="color:#00d4ff">Pyodide</a> (Python compiled to WebAssembly)</p>
+
+    <div id="output"><span class="status">Loading Pyodide...</span></div>
+
+    <h3>Try it yourself:</h3>
+    <textarea id="code">import math
+print(f"Pi = {math.pi}")
+print(f"Square root of 2 = {math.sqrt(2)}")
+
+# List comprehension example
+squares = [x**2 for x in range(10)]
+print(f"Squares: {squares}")</textarea>
+    <br>
+    <button id="runBtn" disabled onclick="runCode()">Run Python</button>
+    <button id="numpyBtn" disabled onclick="runNumpyDemo()">NumPy Demo (uses micropip)</button>
+
+    <script>
+        let pyodide = null;
+        const output = document.getElementById('output');
+
+        function log(text, className = '') {
+            const span = document.createElement('span');
+            span.className = className;
+            span.textContent = text + '\n';
+            output.appendChild(span);
+            output.scrollTop = output.scrollHeight;
+        }
+
+        async function initPyodide() {
+            output.innerHTML = '';
+            log('Loading Pyodide...', 'status');
+
+            pyodide = await loadPyodide();
+            log('Pyodide loaded!', 'success');
+
+            // Redirect Python stdout to our output div
+            pyodide.runPython(`
+import sys
+from io import StringIO
+
+class OutputCapture:
+    def __init__(self):
+        self.outputs = []
+    def write(self, text):
+        self.outputs.append(text)
+    def flush(self):
+        pass
+    def get_output(self):
+        result = ''.join(self.outputs)
+        self.outputs = []
+        return result
+
+_capture = OutputCapture()
+sys.stdout = _capture
+sys.stderr = _capture
+            `);
+
+            log(`Python ${pyodide.runPython('import sys; sys.version.split()[0]')} ready!`, 'success');
+
+            document.getElementById('runBtn').disabled = false;
+            document.getElementById('numpyBtn').disabled = false;
+        }
+
+        async function runCode() {
+            const code = document.getElementById('code').value;
+            output.innerHTML = '';
+            log('Running Python code...', 'status');
+
+            try {
+                pyodide.runPython(code);
+                const result = pyodide.runPython('_capture.get_output()');
+                if (result) log(result, 'result');
+                log('Done!', 'success');
+            } catch (err) {
+                log('Error: ' + err.message, 'result');
+            }
+        }
+
+        async function runNumpyDemo() {
+            output.innerHTML = '';
+            log('Installing NumPy via micropip...', 'status');
+
+            try {
+                await pyodide.loadPackage('micropip');
+                const micropip = pyodide.pyimport('micropip');
+                await micropip.install('numpy');
+                log('NumPy installed!', 'success');
+
+                log('Running NumPy demo...', 'status');
+                pyodide.runPython(`
+import numpy as np
+
+# Create arrays
+arr = np.array([1, 2, 3, 4, 5])
+print(f"Array: {arr}")
+print(f"Mean: {np.mean(arr)}")
+print(f"Std: {np.std(arr):.4f}")
+
+# Matrix operations
+matrix = np.random.rand(3, 3)
+print(f"\\nRandom 3x3 matrix:\\n{matrix.round(3)}")
+print(f"\\nDeterminant: {np.linalg.det(matrix):.4f}")
+                `);
+
+                const result = pyodide.runPython('_capture.get_output()');
+                if (result) log(result, 'result');
+                log('Done!', 'success');
+            } catch (err) {
+                log('Error: ' + err.message, 'result');
+            }
+        }
+
+        initPyodide();
+    </script>
+</body>
+</html>
