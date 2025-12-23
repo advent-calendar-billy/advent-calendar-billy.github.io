@@ -570,12 +570,12 @@ class ChatParser {
                 .sort((a, b) => b[1] - a[1])[0][0];
         }
 
-        // Unique words per person
-        const wordUsage = {};
+        // Unique words per person (use Map to avoid prototype pollution with words like 'constructor')
+        const wordUsage = new Map();
         for (const [person, words] of Object.entries(wordsByPerson)) {
             for (const word of Object.keys(words)) {
-                if (!wordUsage[word]) wordUsage[word] = new Set();
-                wordUsage[word].add(person);
+                if (!wordUsage.has(word)) wordUsage.set(word, new Set());
+                wordUsage.get(word).add(person);
             }
         }
 
@@ -585,7 +585,8 @@ class ChatParser {
                 .sort((a, b) => b[1] - a[1]);
 
             for (const [word, count] of sortedPersonWords) {
-                if (wordUsage[word].size === 1 && count >= 3 && !this.isGibberish(word)) {
+                const usage = wordUsage.get(word);
+                if (usage && usage.size === 1 && count >= 3 && !this.isGibberish(word)) {
                     uniqueWords.push(word);
                     if (uniqueWords.length >= 5) break;
                 }

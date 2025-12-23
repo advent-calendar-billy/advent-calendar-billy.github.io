@@ -476,6 +476,22 @@ class ZipHandler {
      * @returns {Promise<number>} - File size in bytes
      */
     async getFileSize(filename) {
+        // For zip.js streaming mode, use stored entries
+        if (this.usingZipJs && this.zipEntries) {
+            const entry = this.zipEntries.find(e =>
+                e.filename.endsWith('/' + filename) || e.filename === filename
+            );
+            if (entry && !entry.directory) {
+                return entry.uncompressedSize || 0;
+            }
+            return 0;
+        }
+
+        // For JSZip mode
+        if (!this.zip || !this.zip.files) {
+            return 0;
+        }
+
         for (const path of Object.keys(this.zip.files)) {
             if (path.endsWith('/' + filename) || path === filename) {
                 const zipFile = this.zip.files[path];

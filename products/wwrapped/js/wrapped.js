@@ -562,44 +562,39 @@ class WrappedUI {
             }
         }
 
-        // Build grid items - prioritize media, then fill with text
+        // Build grid items with balanced mix: max 10 videos, max 10 messages (longest), rest photos
         const gridItems = [];
         const maxItems = 50;
+        const maxVideos = 10;
+        const maxMessages = 10;
 
-        // First add all media (up to limit)
-        for (let i = 0; i < Math.min(dayMedia.length, maxItems); i++) {
-            const filename = dayMedia[i];
+        // Separate images and videos
+        const dayImages = dayMedia.filter(f => this.zipHandler.isImage(f));
+        const dayVideos = dayMedia.filter(f => this.zipHandler.isVideo(f));
+
+        // Sort messages by length (longest first) and take top 10
+        const sortedMessages = [...dayMessages].sort((a, b) => b.content.length - a.content.length);
+        const topMessages = sortedMessages.slice(0, maxMessages);
+
+        // Add videos (max 10)
+        for (let i = 0; i < Math.min(dayVideos.length, maxVideos); i++) {
+            const filename = dayVideos[i];
             const blobUrl = await this.zipHandler.getMediaBlob(filename);
-
             if (blobUrl) {
                 this.mediaCache[filename] = blobUrl;
-
-                if (this.zipHandler.isVideo(filename)) {
-                    gridItems.push({
-                        type: 'video',
-                        html: `<div class="day-grid-item media-item" onclick="app.wrapped.openMedia('${filename}')">
-                                <video autoplay muted loop playsinline>
-                                    <source src="${blobUrl}" type="video/mp4">
-                                </video>
-                            </div>`
-                    });
-                } else {
-                    gridItems.push({
-                        type: 'image',
-                        html: `<div class="day-grid-item media-item" onclick="app.wrapped.openMedia('${filename}')">
-                                <img src="${blobUrl}" alt="" loading="lazy">
-                            </div>`
-                    });
-                }
+                gridItems.push({
+                    type: 'video',
+                    html: `<div class="day-grid-item media-item" onclick="app.wrapped.openMedia('${filename}')">
+                            <video autoplay muted loop playsinline>
+                                <source src="${blobUrl}" type="video/mp4">
+                            </video>
+                        </div>`
+                });
             }
         }
 
-        // Then add text messages to fill remaining slots
-        let msgIndex = 0;
-        while (gridItems.length < maxItems && msgIndex < dayMessages.length) {
-            const msg = dayMessages[msgIndex];
-            msgIndex++;
-
+        // Add top 10 longest messages
+        for (const msg of topMessages) {
             const shortContent = msg.content.substring(0, 80) + (msg.content.length > 80 ? '...' : '');
             gridItems.push({
                 type: 'text',
@@ -610,7 +605,23 @@ class WrappedUI {
             });
         }
 
-        // Shuffle to mix media and text
+        // Fill remaining slots with photos
+        const remainingSlots = maxItems - gridItems.length;
+        for (let i = 0; i < Math.min(dayImages.length, remainingSlots); i++) {
+            const filename = dayImages[i];
+            const blobUrl = await this.zipHandler.getMediaBlob(filename);
+            if (blobUrl) {
+                this.mediaCache[filename] = blobUrl;
+                gridItems.push({
+                    type: 'image',
+                    html: `<div class="day-grid-item media-item" onclick="app.wrapped.openMedia('${filename}')">
+                            <img src="${blobUrl}" alt="" loading="lazy">
+                        </div>`
+                });
+            }
+        }
+
+        // Shuffle to mix everything together
         const shuffled = gridItems.sort(() => Math.random() - 0.5);
         const gridHtml = shuffled.map(item => item.html).join('');
 
