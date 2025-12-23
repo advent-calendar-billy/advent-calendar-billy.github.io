@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WhatsApp Wrapped</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="version-badge">v1.0.3</div>
+    <script>console.log('=== INLINE SCRIPT AT BODY START ===');</script>
+    <!-- Upload Screen -->
+    <div class="screen upload-screen active" id="uploadScreen">
+        <div class="upload-container">
+            <div class="upload-title">WhatsApp Wrapped</div>
+            <div class="upload-year">2025</div>
+            <div class="upload-subtitle">Your Year in Messages</div>
+
+            <div class="upload-instructions">
+                <div class="instruction-title">How to export your WhatsApp chat:</div>
+                <div class="instruction-steps">
+                    <div class="instruction-step">
+                        <span class="step-number">1</span>
+                        <span class="step-text">Open the chat in WhatsApp and tap the <strong>group name</strong> at the top</span>
+                    </div>
+                    <div class="instruction-step">
+                        <span class="step-number">2</span>
+                        <span class="step-text">Scroll down and tap <strong>Export Chat</strong>, then choose <strong>Attach Media</strong></span>
+                    </div>
+                    <div class="instruction-step">
+                        <span class="step-number">3</span>
+                        <span class="step-text">Save the .zip file and upload it below</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="upload-zone" id="uploadZone">
+                <div class="upload-icon">
+                    <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                </div>
+                <div class="upload-text">Drop your WhatsApp export .zip here</div>
+                <div class="upload-or">or</div>
+                <label class="upload-btn">
+                    Choose File
+                    <input type="file" id="fileInput" accept=".zip" hidden>
+                </label>
+            </div>
+
+            <div class="upload-hint">
+                <a href="https://faq.whatsapp.com/1180414079177245" target="_blank" style="color: inherit; text-decoration: underline;">Need help? See WhatsApp's official guide</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Screen -->
+    <div class="screen loading-screen" id="loadingScreen">
+        <div class="loading-container">
+            <div class="loading-title">Analyzing your memories...</div>
+            <div class="loading-progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-percent" id="progressPercent">0%</div>
+            </div>
+            <div class="loading-comment" id="loadingComment">Unzipping files...</div>
+            <div class="loading-subcomment" id="loadingSubcomment"></div>
+        </div>
+    </div>
+
+    <!-- Config Screen -->
+    <div class="screen config-screen" id="configScreen">
+        <div class="config-container">
+            <div class="config-title">Almost there!</div>
+            <div class="config-subtitle">Review participants before we generate your Wrapped</div>
+
+            <div class="config-section">
+                <div class="config-section-title">Participants & Timezones</div>
+                <div class="config-hint">Click a name to rename. Set each person's timezone for night owl/early bird calculations.</div>
+                <div class="participants-grid" id="participantsGrid"></div>
+            </div>
+
+            <button class="config-continue-btn" id="configContinueBtn">Generate Wrapped</button>
+        </div>
+    </div>
+
+    <!-- Wrapped Screen (all slides) -->
+    <div class="screen wrapped-screen" id="wrappedScreen">
+        <!-- Intro Screen -->
+        <div class="intro-screen" id="intro">
+            <div class="intro-title" id="introTitle">WhatsApp Wrapped</div>
+            <div class="intro-year" id="introYear">2025</div>
+            <div class="intro-subtitle">Your Year in Messages</div>
+            <button class="start-btn" id="startBtn">Start</button>
+        </div>
+
+        <!-- Music Player -->
+        <div class="music-player">
+            <button class="music-btn" id="musicBtn">
+                <span id="musicIcon">&#128266;</span>
+            </button>
+        </div>
+
+        <!-- Scroll Indicator -->
+        <div class="scroll-indicator" id="scrollIndicator">
+            <span>Scroll</span>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 5v14M19 12l-7 7-7-7"/>
+            </svg>
+        </div>
+
+        <div class="container" id="slidesContainer">
+            <!-- Slides will be dynamically generated -->
+        </div>
+
+        <div class="footer">
+            <p class="footer-text">WhatsApp Wrapped <span id="footerYear">2025</span></p>
+        </div>
+    </div>
+
+    <!-- Confetti Container -->
+    <div class="confetti" id="confetti"></div>
+
+    <!-- Media Lightbox -->
+    <div class="media-lightbox" id="lightbox">
+        <button class="lightbox-close" id="lightboxClose">&times;</button>
+        <img id="lightbox-img" style="display: none;">
+        <video id="lightbox-video" style="display: none;" controls autoplay></video>
+        <div class="lightbox-hint" id="lightbox-hint">Tap image to zoom</div>
+    </div>
+
+    <!-- Hidden YouTube player for audio -->
+    <div id="youtubePlayer" style="position: absolute; left: -9999px; width: 1px; height: 1px;"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <!-- zip.js for streaming large files (Gildas Lormeau's official library) -->
+    <script src="https://unpkg.com/@aspect-build/aspect-zip@0.12.0/dist/zip-full.min.js"></script>
+    <script>console.log('zip.js global:', typeof zip, zip ? Object.keys(zip).slice(0,10) : 'undefined');</script>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+    <script src="js/chat-parser.js"></script>
+    <script src="js/zip-handler.js"></script>
+    <script src="js/loader.js"></script>
+    <script src="js/config-screen.js"></script>
+    <script src="js/wordcloud-generator.js"></script>
+    <script src="js/wrapped.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
