@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <div class="version-badge">v1.0.3</div>
+    <div class="version-badge">v1.0.4</div>
     <script>console.log('=== INLINE SCRIPT AT BODY START ===');</script>
     <!-- Upload Screen -->
     <div class="screen upload-screen active" id="uploadScreen">
@@ -138,9 +138,9 @@
 
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <!-- zip.js for streaming large files (Gildas Lormeau's official library) -->
-    <script src="https://unpkg.com/@aspect-build/aspect-zip@0.12.0/dist/zip-full.min.js"></script>
-    <script>console.log('zip.js global:', typeof zip, zip ? Object.keys(zip).slice(0,10) : 'undefined');</script>
+    <!-- zip.js for streaming large files (official @zip.js/zip.js) -->
+    <script src="https://unpkg.com/@zip.js/zip.js/dist/zip.min.js"></script>
+    <script>console.log('zip.js loaded:', typeof zip !== 'undefined', zip ? 'ZipReader=' + (typeof zip.ZipReader) : '');</script>
     <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
     <script src="js/chat-parser.js"></script>
     <script src="js/zip-handler.js"></script>
