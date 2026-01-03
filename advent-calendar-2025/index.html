@@ -247,14 +247,9 @@
         // Days that will have games (15-24)
         const gameDays = [15, 16, 17, 18, 19, 20, 21, 22, 23, 24];
 
-        // Check if a day should be unlocked (Berlin midnight)
+        // Check if a day should be unlocked (all days unlocked)
         function isDayUnlocked(day) {
-            // Must be December
-            if (currentMonth !== 11) return false;
-            // Days with early access (always unlocked)
-            if (day <= 19) return true;
-            // Other days unlock at midnight Berlin time on their respective day
-            return currentDay >= day;
+            return true;
         }
 
         for (let day = 1; day <= 24; day++) {
