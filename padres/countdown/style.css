@@ -1,0 +1,185 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    position: relative;
+    background: #1a1a2e url('background.png') center center / cover no-repeat fixed;
+}
+
+.container {
+    max-width: 900px;
+    width: 100%;
+    text-align: center;
+}
+
+header {
+    margin-bottom: 50px;
+}
+
+h1 {
+    font-size: 2.5rem;
+    font-weight: 300;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    color: #a0c4ff;
+    font-weight: 300;
+}
+
+/* Countdown Styles */
+.countdown {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 60px;
+    flex-wrap: wrap;
+}
+
+.countdown-item {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 25px 20px;
+    min-width: 100px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.countdown-value {
+    display: block;
+    font-size: 3.5rem;
+    font-weight: 200;
+    line-height: 1;
+    color: #fff;
+}
+
+.countdown-label {
+    display: block;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #a0c4ff;
+    margin-top: 10px;
+}
+
+.countdown-separator {
+    font-size: 3rem;
+    font-weight: 200;
+    color: rgba(255, 255, 255, 0.5);
+    padding: 0 5px;
+}
+
+/* Carousel Styles */
+.carousel-container {
+    margin-bottom: 40px;
+}
+
+.carousel {
+    overflow: hidden;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.carousel-track {
+    display: flex;
+    transition: transform 0.6s ease-in-out;
+}
+
+.carousel-slide {
+    min-width: 100%;
+    padding: 50px 40px;
+}
+
+.carousel-slide h3 {
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: #ffd700;
+    margin-bottom: 20px;
+    font-weight: 400;
+}
+
+.carousel-slide p {
+    font-size: 1.3rem;
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 300;
+}
+
+.carousel-indicators {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.carousel-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.carousel-indicator.active {
+    background: #ffd700;
+    transform: scale(1.2);
+}
+
+.carousel-indicator:hover {
+    background: rgba(255, 255, 255, 0.6);
+}
+
+/* Arrived State */
+.arrived h1 {
+    color: #ffd700;
+}
+
+.arrived .countdown-value {
+    color: #4ade80;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    h1 {
+        font-size: 1.8rem;
+    }
+
+    .countdown-item {
+        min-width: 70px;
+        padding: 15px 10px;
+    }
+
+    .countdown-value {
+        font-size: 2.2rem;
+    }
+
+    .countdown-separator {
+        font-size: 2rem;
+    }
+
+    .carousel-slide {
+        padding: 30px 20px;
+    }
+
+    .carousel-slide p {
+        font-size: 1.1rem;
+    }
+}

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuenta Regresiva</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Cuenta Regresiva</h1>
+            <p class="subtitle">Viernes 9 de Enero, 8:00 AM</p>
+        </header>
+
+        <div class="countdown">
+            <div class="countdown-item">
+                <span class="countdown-value" id="days">--</span>
+                <span class="countdown-label">Dias</span>
+            </div>
+            <div class="countdown-separator">:</div>
+            <div class="countdown-item">
+                <span class="countdown-value" id="hours">--</span>
+                <span class="countdown-label">Horas</span>
+            </div>
+            <div class="countdown-separator">:</div>
+            <div class="countdown-item">
+                <span class="countdown-value" id="minutes">--</span>
+                <span class="countdown-label">Minutos</span>
+            </div>
+            <div class="countdown-separator">:</div>
+            <div class="countdown-item">
+                <span class="countdown-value" id="seconds">--</span>
+                <span class="countdown-label">Segundos</span>
+            </div>
+        </div>
+
+        <div class="carousel-container">
+            <div class="carousel">
+                <div class="carousel-track" id="carousel-track">
+                    <!-- Facts will be inserted here by JavaScript -->
+                </div>
+            </div>
+            <div class="carousel-indicators" id="carousel-indicators"></div>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
