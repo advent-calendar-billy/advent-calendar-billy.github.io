@@ -1,8 +1,18 @@
 // Target date: Friday January 9, 2026 at 8:00 AM Miami time (EST)
 const TARGET_DATE = new Date('2026-01-09T08:00:00-05:00');
 
-// Default fun facts about Miami/Key Biscayne in Argentinian Spanish
+// Default fun facts in Argentinian Spanish
 const DEFAULT_FACTS = [
+    "Billy solamente vivió en ciudades que empiezan con B: Barcelona, Berlín, Boston y Buenos Aires",
+    "Nuñez guarda una reliquia de los tiempos del colonialismo: un viejo sillón negro",
+    "Michel supo tener un call center en 4m²",
+    "Martuchita es categoría Platinum en Mercado Libre",
+    "Todas las semanas, Martuchita se pone barro en la cabeza y se lo deja unas horas como parte de una antigua ceremonia polaca que le da superpoderes",
+    "Inigo tuvo un pequeño altercado en un barco una vez",
+    "Billy, Matías y Martuchita son las únicas personas de la familia que usan anteojos montados al aire",
+    "A Inigo le gusta comer cabeza de chancho",
+    "Martuchita ya dio 1/3 de la vuelta al mundo corriendo, si asumimos un promedio de 8km/día durante los últimos 5 años.",
+    "Michel, cuando era chico, se sacaba los mocos y se los comía",
     "El Faro de Cape Florida, ubicado en Key Biscayne, es la estructura mas antigua del condado Miami-Dade. Fue construido en 1825.",
     "El nombre 'Biscayne' proviene de un marinero del Golfo de Vizcaya (Bay of Biscay) que naufragó y vivió en la costa este de Florida.",
     "Antes del desarrollo residencial, Key Biscayne operaba como la plantación de cocos mas grande de los Estados Unidos continentales.",
@@ -12,9 +22,7 @@ const DEFAULT_FACTS = [
     "Cerca de Key Biscayne hay un sendero arqueologico submarino, el unico reconocido federalmente en Estados Unidos.",
     "La familia Matheson donó mas de 800 acres de su tierra al condado en 1940 para crear Crandon Park, a cambio de que construyeran el puente a la isla.",
     "El Parque Nacional Biscayne protege el tercer arrecife de coral mas grande del mundo y tiene evidencia de 10,000 años de historia humana.",
-    "En 1951, se podía comprar una casa nueva en Key Biscayne por solo $9,540 dolares, con $500 de anticipo.",
-    "El Rickenbacker Causeway, el puente que conecta Key Biscayne con Miami, fue inaugurado en 1947 y mide 6 kilometros de largo.",
-    "Andy Garcia y el musico colombiano Juanes viven en Key Biscayne."
+    "Juanes y Messi viven en Key Biscayne."
 ];
 
 // Storage key for localStorage
