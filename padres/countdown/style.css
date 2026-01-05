@@ -88,6 +88,15 @@ h1 {
     margin-bottom: 40px;
 }
 
+.carousel-title {
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: #ffd700;
+    margin-bottom: 20px;
+    font-weight: 400;
+}
+
 .carousel {
     overflow: hidden;
     border-radius: 20px;
@@ -103,16 +112,10 @@ h1 {
 
 .carousel-slide {
     min-width: 100%;
-    padding: 50px 40px;
-}
-
-.carousel-slide h3 {
-    font-size: 1rem;
-    text-transform: uppercase;
-    letter-spacing: 3px;
-    color: #ffd700;
-    margin-bottom: 20px;
-    font-weight: 400;
+    padding: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .carousel-slide p {

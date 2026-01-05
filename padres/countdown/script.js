@@ -101,10 +101,7 @@ function createCarouselSlides() {
         // Create slide
         const slide = document.createElement('div');
         slide.className = 'carousel-slide';
-        slide.innerHTML = `
-            <h3>Fun Facts</h3>
-            <p>${fact}</p>
-        `;
+        slide.innerHTML = `<p>${fact}</p>`;
         track.appendChild(slide);
 
         // Create indicator
