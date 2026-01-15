@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Worm: Gestation - Taylor's First Night</title>
+    <title>Worm: Gestation</title>
     <style>
         * {
             margin: 0;
@@ -38,10 +38,6 @@
             color: #8b7355;
             margin-bottom: 10px;
         }
-        #game-wrapper {
-            display: flex;
-            gap: 10px;
-        }
         #game-container {
             position: relative;
         }
@@ -49,259 +45,108 @@
             display: block;
             background: #0f0f15;
             border: 2px solid #333;
-            cursor: crosshair;
             image-rendering: pixelated;
         }
-        #ui-panel {
-            width: 220px;
-            background: linear-gradient(180deg, #151520 0%, #0a0a10 100%);
-            border: 1px solid #333;
-            padding: 12px;
-            font-size: 11px;
+        #ui-overlay {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            pointer-events: none;
         }
-        .panel-section {
-            margin-bottom: 12px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #222;
-        }
-        .panel-section:last-child {
-            border-bottom: none;
-        }
-        .panel-title {
-            color: #8b7355;
-            font-weight: bold;
+        .hp-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
             margin-bottom: 8px;
-            font-size: 10px;
-            letter-spacing: 1px;
         }
-        .stat-row {
-            display: flex;
-            justify-content: space-between;
-            margin: 4px 0;
-            color: #888;
-        }
-        .stat-value {
-            color: #c0c0c0;
-        }
-        .attack-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 6px;
-        }
-        .attack-btn {
-            background: linear-gradient(180deg, #1a1a25 0%, #12121a 100%);
-            border: 1px solid #333;
-            color: #999;
-            padding: 8px 6px;
-            cursor: pointer;
-            font-size: 9px;
-            text-align: left;
-            transition: all 0.15s;
-            position: relative;
-        }
-        .attack-btn:hover {
-            background: linear-gradient(180deg, #252535 0%, #1a1a25 100%);
-            border-color: #8b7355;
-            color: #ccc;
-        }
-        .attack-btn.active {
-            background: linear-gradient(180deg, #3a2a1a 0%, #251a10 100%);
-            border-color: #8b7355;
-            color: #d4a574;
-        }
-        .attack-btn .key {
-            display: inline-block;
-            background: #0a0a0f;
+        .hp-label {
             color: #8b7355;
-            padding: 2px 5px;
             font-size: 10px;
-            font-weight: bold;
-            margin-right: 4px;
+            width: 50px;
+        }
+        .hp-bar-outer {
+            width: 120px;
+            height: 10px;
+            background: #1a1a20;
             border: 1px solid #333;
         }
-        .attack-btn .name {
-            font-weight: bold;
-            display: block;
-            margin-bottom: 2px;
+        .hp-bar-inner {
+            height: 100%;
+            background: linear-gradient(90deg, #4a6a5a 0%, #6a9a7a 100%);
+            transition: width 0.3s;
         }
-        .attack-btn .desc {
-            font-size: 8px;
-            color: #666;
-            display: block;
+        .hp-bar-inner.enemy {
+            background: linear-gradient(90deg, #6a4a4a 0%, #9a6a6a 100%);
         }
-        .control-groups {
-            display: flex;
-            gap: 4px;
-        }
-        .group-btn {
-            flex: 1;
-            background: #12121a;
-            border: 1px solid #222;
-            color: #555;
-            padding: 6px 4px;
-            cursor: pointer;
+        .swarm-count {
+            color: #7a7a5a;
             font-size: 10px;
-            text-align: center;
         }
-        .group-btn.has-bugs {
-            background: #1a2a1a;
-            border-color: #2a4a2a;
-            color: #5a8a5a;
-        }
-        .group-btn.active {
-            border-color: #8b7355;
-            color: #d4a574;
-        }
-        #help-text {
-            color: #555;
+        #controls-hint {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            color: #444;
             font-size: 9px;
-            line-height: 1.5;
+            pointer-events: none;
         }
-        #help-text kbd {
-            background: #1a1a25;
+        #controls-hint kbd {
+            background: #1a1a20;
             padding: 1px 4px;
-            color: #8b7355;
             border: 1px solid #333;
-        }
-        .lung-warning {
-            background: linear-gradient(180deg, #3a1a1a 0%, #2a1010 100%);
-            border: 1px solid #5a2020;
-            padding: 8px;
-            margin-bottom: 10px;
-            color: #c06060;
-            font-size: 10px;
-            text-align: center;
-        }
-        .lung-warning .stage {
-            font-weight: bold;
-            color: #ff6060;
+            color: #666;
         }
         .hidden {
             display: none !important;
-        }
-        .hp-bar {
-            height: 8px;
-            background: #1a1a1a;
-            border: 1px solid #333;
-            margin-top: 4px;
-        }
-        .hp-bar-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #2a5a2a 0%, #4a8a4a 100%);
-            transition: width 0.3s;
-        }
-        .hp-bar-fill.low {
-            background: linear-gradient(90deg, #5a2a2a 0%, #8a4a4a 100%);
         }
     </style>
 </head>
 <body>
     <h1>WORM: GESTATION</h1>
-    <div class="subtitle">Taylor's First Night - The Docks, Brockton Bay</div>
+    <div class="subtitle">The Docks - Brockton Bay</div>
     <div id="loading">Initializing...</div>
 
-    <div id="game-wrapper" class="hidden">
-        <div id="game-container">
-            <canvas id="game-canvas" width="800" height="550"></canvas>
+    <div id="game-container" class="hidden">
+        <canvas id="game-canvas" width="900" height="600"></canvas>
+        <div id="ui-overlay">
+            <div class="hp-container">
+                <span class="hp-label">TAYLOR</span>
+                <div class="hp-bar-outer">
+                    <div class="hp-bar-inner" id="taylor-hp" style="width: 100%"></div>
+                </div>
+            </div>
+            <div class="hp-container hidden" id="boss-hp-container">
+                <span class="hp-label">LUNG</span>
+                <div class="hp-bar-outer">
+                    <div class="hp-bar-inner enemy" id="boss-hp" style="width: 100%"></div>
+                </div>
+            </div>
+            <div class="swarm-count" id="swarm-count">Swarm: 0</div>
         </div>
-        <div id="ui-panel">
-            <div class="panel-section lung-warning hidden" id="lung-warning">
-                LUNG IS RAMPING UP<br>
-                Stage: <span class="stage" id="lung-stage">1</span>/5
-            </div>
-
-            <div class="panel-section">
-                <div class="panel-title">TAYLOR HEBERT</div>
-                <div class="stat-row">
-                    <span>Health</span>
-                    <span class="stat-value" id="taylor-hp">100/100</span>
-                </div>
-                <div class="hp-bar">
-                    <div class="hp-bar-fill" id="taylor-hp-bar" style="width: 100%"></div>
-                </div>
-                <div class="stat-row" style="margin-top: 8px">
-                    <span>Swarm</span>
-                    <span class="stat-value" id="bug-count">0 controlled</span>
-                </div>
-            </div>
-
-            <div class="panel-section">
-                <div class="panel-title">BUG ATTACKS</div>
-                <div class="attack-grid">
-                    <div class="attack-btn" data-attack="sting">
-                        <span class="name"><span class="key">Q</span> Sting</span>
-                        <span class="desc">Wasp suicide attack. High damage.</span>
-                    </div>
-                    <div class="attack-btn" data-attack="bite">
-                        <span class="name"><span class="key">W</span> Bite</span>
-                        <span class="desc">Spider venom. Damage over time.</span>
-                    </div>
-                    <div class="attack-btn" data-attack="blind">
-                        <span class="name"><span class="key">E</span> Blind</span>
-                        <span class="desc">Flies in eyes. Reduces accuracy.</span>
-                    </div>
-                    <div class="attack-btn" data-attack="web">
-                        <span class="name"><span class="key">R</span> Web</span>
-                        <span class="desc">Spiders trap. Slows enemy.</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="panel-section">
-                <div class="panel-title">SELECTION</div>
-                <div id="selection-info" style="color: #666; font-size: 10px;">No bugs selected</div>
-            </div>
-
-            <div class="panel-section">
-                <div class="panel-title">CONTROL GROUPS</div>
-                <div class="control-groups">
-                    <div class="group-btn" data-group="1">1</div>
-                    <div class="group-btn" data-group="2">2</div>
-                    <div class="group-btn" data-group="3">3</div>
-                    <div class="group-btn" data-group="4">4</div>
-                    <div class="group-btn" data-group="5">5</div>
-                </div>
-            </div>
-
-            <div class="panel-section">
-                <div class="panel-title">CONTROLS</div>
-                <div id="help-text">
-                    <kbd>WASD</kbd> Move Taylor<br>
-                    <kbd>Drag</kbd> Select bugs<br>
-                    <kbd>Right-Click</kbd> Move bugs<br>
-                    <kbd>Q/W/E/R</kbd> Attack nearest<br>
-                    <kbd>Tab</kbd> Swarm sense<br>
-                    <kbd>Ctrl+1-5</kbd> Assign group
-                </div>
-            </div>
+        <div id="controls-hint">
+            <kbd>A/D</kbd> Move
+            <kbd>SPACE</kbd> Jump
+            <kbd>J</kbd> Sting
+            <kbd>K</kbd> Bite
+            <kbd>L</kbd> Blind
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
     <script>
         const loading = document.getElementById('loading');
-        const gameWrapper = document.getElementById('game-wrapper');
+        const gameContainer = document.getElementById('game-container');
 
         window.inputState = {
             keys: {},
-            mouse: { x: 0, y: 0, buttons: 0 },
-            mouseDown: null,
-            mouseUp: null,
-            rightClick: null,
-            cmdClick: null,
-            attackCmd: null
+            keyPressed: {}
         };
 
         window.uiState = {
-            selectionInfo: '',
-            taylorHp: '100/100',
-            taylorHpPercent: 100,
-            bugCount: '0',
-            controlGroups: [0, 0, 0, 0, 0],
-            activeGroup: -1,
-            lungStage: 0,
-            lungVisible: false,
-            activeAttack: null
+            taylorHp: 100,
+            bossHp: 100,
+            bossVisible: false,
+            swarmCount: 0
         };
 
         async function main() {
@@ -311,62 +156,12 @@
 
                 loading.textContent = 'Entering Brockton Bay...';
 
-                const canvas = document.getElementById('game-canvas');
-
-                canvas.addEventListener('mousemove', (e) => {
-                    const rect = canvas.getBoundingClientRect();
-                    window.inputState.mouse.x = e.clientX - rect.left;
-                    window.inputState.mouse.y = e.clientY - rect.top;
-                });
-
-                canvas.addEventListener('mousedown', (e) => {
-                    const rect = canvas.getBoundingClientRect();
-                    const x = e.clientX - rect.left;
-                    const y = e.clientY - rect.top;
-
-                    if (e.button === 0) {
-                        window.inputState.mouse.buttons |= 1;
-                        window.inputState.mouseDown = { x, y, shift: e.shiftKey };
-                    } else if (e.button === 2) {
-                        window.inputState.rightClick = { x, y };
-                    }
-                    e.preventDefault();
-                });
-
-                canvas.addEventListener('mouseup', (e) => {
-                    const rect = canvas.getBoundingClientRect();
-                    const x = e.clientX - rect.left;
-                    const y = e.clientY - rect.top;
-
-                    if (e.button === 0) {
-                        window.inputState.mouse.buttons &= ~1;
-                        window.inputState.mouseUp = { x, y, shift: e.shiftKey };
-                    }
-                });
-
-                canvas.addEventListener('contextmenu', (e) => e.preventDefault());
-
                 document.addEventListener('keydown', (e) => {
-                    window.inputState.keys[e.code] = true;
-
-                    // Attack hotkeys
-                    if (e.code === 'KeyQ') window.inputState.attackCmd = 'sting';
-                    if (e.code === 'KeyW' && !e.ctrlKey) window.inputState.attackCmd = 'bite';
-                    if (e.code === 'KeyE') window.inputState.attackCmd = 'blind';
-                    if (e.code === 'KeyR') window.inputState.attackCmd = 'web';
-
-                    // Control groups
-                    if (e.code >= 'Digit1' && e.code <= 'Digit5') {
-                        const num = parseInt(e.code.replace('Digit', ''));
-                        if (e.ctrlKey || e.metaKey) {
-                            window.inputState.cmdClick = { type: 'assign', group: num };
-                            e.preventDefault();
-                        } else {
-                            window.inputState.cmdClick = { type: 'select', group: num, time: Date.now() };
-                        }
+                    if (!window.inputState.keys[e.code]) {
+                        window.inputState.keyPressed[e.code] = true;
                     }
-
-                    if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(e.code)) {
+                    window.inputState.keys[e.code] = true;
+                    if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) {
                         e.preventDefault();
                     }
                 });
@@ -375,56 +170,19 @@
                     window.inputState.keys[e.code] = false;
                 });
 
-                // Attack buttons
-                document.querySelectorAll('.attack-btn').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        const attack = btn.dataset.attack;
-                        window.inputState.attackCmd = attack;
-                    });
-                });
-
-                // Group buttons
-                document.querySelectorAll('.group-btn').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        const group = parseInt(btn.dataset.group);
-                        window.inputState.cmdClick = { type: 'select', group: group, time: Date.now() };
-                    });
-                });
-
                 await pyodide.runPythonAsync(`
 ${GAME_CODE}
                 `);
 
                 loading.classList.add('hidden');
-                gameWrapper.classList.remove('hidden');
+                gameContainer.classList.remove('hidden');
 
                 // Update UI
                 setInterval(() => {
-                    document.getElementById('selection-info').textContent = window.uiState.selectionInfo;
-                    document.getElementById('taylor-hp').textContent = window.uiState.taylorHp;
-                    document.getElementById('bug-count').textContent = window.uiState.bugCount;
-
-                    const hpBar = document.getElementById('taylor-hp-bar');
-                    hpBar.style.width = window.uiState.taylorHpPercent + '%';
-                    hpBar.classList.toggle('low', window.uiState.taylorHpPercent < 30);
-
-                    // Lung warning
-                    const lungWarning = document.getElementById('lung-warning');
-                    lungWarning.classList.toggle('hidden', !window.uiState.lungVisible);
-                    document.getElementById('lung-stage').textContent = window.uiState.lungStage;
-
-                    // Control groups
-                    document.querySelectorAll('.group-btn').forEach((btn, i) => {
-                        const count = window.uiState.controlGroups[i];
-                        btn.classList.toggle('has-bugs', count > 0);
-                        btn.classList.toggle('active', window.uiState.activeGroup === i + 1);
-                        btn.textContent = count > 0 ? `${i+1}:${count}` : `${i+1}`;
-                    });
-
-                    // Attack buttons
-                    document.querySelectorAll('.attack-btn').forEach(btn => {
-                        btn.classList.toggle('active', btn.dataset.attack === window.uiState.activeAttack);
-                    });
+                    document.getElementById('taylor-hp').style.width = window.uiState.taylorHp + '%';
+                    document.getElementById('boss-hp').style.width = window.uiState.bossHp + '%';
+                    document.getElementById('boss-hp-container').classList.toggle('hidden', !window.uiState.bossVisible);
+                    document.getElementById('swarm-count').textContent = 'Swarm: ' + window.uiState.swarmCount;
                 }, 100);
 
             } catch (error) {
@@ -441,721 +199,703 @@ from js import document, window, requestAnimationFrame
 from pyodide.ffi import create_proxy
 
 # ============== CONSTANTS ==============
-CANVAS_WIDTH = 800
-CANVAS_HEIGHT = 550
-MAP_WIDTH = 1600
-MAP_HEIGHT = 1100
+CANVAS_WIDTH = 900
+CANVAS_HEIGHT = 600
+WORLD_WIDTH = 2400
+WORLD_HEIGHT = 900
 
-TAYLOR_SPEED = 1.5
-TAYLOR_CONTROL_RANGE = 180
-
-BUG_TYPES = {
-    'fly': {
-        'color': '#7a7a4a',
-        'speed': 1.8,
-        'hp': 3,
-        'damage': 0.5,
-        'size': 3,
-        'vision': 80,
-        'can_blind': True
-    },
-    'spider': {
-        'color': '#4a3a2a',
-        'speed': 0.8,
-        'hp': 8,
-        'damage': 2,
-        'size': 5,
-        'vision': 35,
-        'can_web': True,
-        'can_bite': True
-    },
-    'wasp': {
-        'color': '#8a6a20',
-        'speed': 1.5,
-        'hp': 5,
-        'damage': 4,
-        'size': 4,
-        'vision': 50,
-        'sting_damage': 15,
-        'can_sting': True
-    },
-    'beetle': {
-        'color': '#2a3a2a',
-        'speed': 0.5,
-        'hp': 15,
-        'damage': 3,
-        'size': 6,
-        'vision': 25
-    },
-    'mosquito': {
-        'color': '#505050',
-        'speed': 2.2,
-        'hp': 2,
-        'damage': 1,
-        'size': 2,
-        'vision': 70,
-        'can_blind': True
-    },
-    'cockroach': {
-        'color': '#3a2a1a',
-        'speed': 1.2,
-        'hp': 10,
-        'damage': 1,
-        'size': 4,
-        'vision': 30
-    }
-}
+GRAVITY = 0.5
+JUMP_FORCE = -11
+MAX_FALL_SPEED = 12
+TAYLOR_SPEED = 3.5
 
 # ============== UTILITY ==============
-def distance(x1, y1, x2, y2):
-    return math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
-
-def normalize(x, y):
-    d = math.sqrt(x*x + y*y)
-    if d == 0:
-        return 0, 0
-    return x/d, y/d
-
 def clamp(val, min_val, max_val):
     return max(min_val, min(max_val, val))
 
 def lerp(a, b, t):
     return a + (b - a) * t
 
-# ============== ENTITIES ==============
-class Entity:
-    next_id = 0
+def distance(x1, y1, x2, y2):
+    return math.sqrt((x2-x1)**2 + (y2-y1)**2)
 
-    def __init__(self, x, y):
-        self.id = Entity.next_id
-        Entity.next_id += 1
+def rect_intersect(x1, y1, w1, h1, x2, y2, w2, h2):
+    return x1 < x2 + w2 and x1 + w1 > x2 and y1 < y2 + h2 and y1 + h1 > y2
+
+# ============== PLATFORMS ==============
+class Platform:
+    def __init__(self, x, y, w, h, platform_type='solid'):
         self.x = x
         self.y = y
-        self.alive = True
+        self.w = w
+        self.h = h
+        self.platform_type = platform_type  # 'solid', 'one_way'
 
-class Taylor(Entity):
+    def draw(self, ctx, cx, cy):
+        sx, sy = self.x - cx, self.y - cy
+
+        if self.platform_type == 'solid':
+            # Main platform
+            ctx.fillStyle = '#1a1a22'
+            ctx.fillRect(sx, sy, self.w, self.h)
+
+            # Top edge highlight
+            ctx.fillStyle = '#2a2a35'
+            ctx.fillRect(sx, sy, self.w, 3)
+
+            # Texture lines
+            ctx.strokeStyle = '#151518'
+            ctx.lineWidth = 1
+            for i in range(int(self.w // 40)):
+                lx = sx + 20 + i * 40
+                ctx.beginPath()
+                ctx.moveTo(lx, sy + 4)
+                ctx.lineTo(lx, sy + self.h)
+                ctx.stroke()
+        else:
+            # One-way platform (thinner, can jump through from below)
+            ctx.fillStyle = '#252530'
+            ctx.fillRect(sx, sy, self.w, 8)
+            ctx.fillStyle = '#3a3a45'
+            ctx.fillRect(sx, sy, self.w, 2)
+
+# ============== TAYLOR ==============
+class Taylor:
     def __init__(self, x, y):
-        super().__init__(x, y)
+        self.x = x
+        self.y = y
+        self.vx = 0
+        self.vy = 0
+        self.w = 20
+        self.h = 40
+
         self.hp = 100
         self.max_hp = 100
-        self.control_range = TAYLOR_CONTROL_RANGE
-        self.speed = TAYLOR_SPEED
-        self.facing = 'down'
-        self.walk_frame = 0
-        self.walk_timer = 0
 
-    def update(self, keys):
-        dx, dy = 0, 0
-        if keys.get('KeyW') or keys.get('ArrowUp'):
-            dy -= 1
-            self.facing = 'up'
-        if keys.get('KeyS') or keys.get('ArrowDown'):
-            dy += 1
-            self.facing = 'down'
+        self.on_ground = False
+        self.facing = 1  # 1 = right, -1 = left
+        self.state = 'idle'  # idle, run, jump, fall, attack
+
+        self.attack_timer = 0
+        self.attack_type = None
+        self.attack_cooldown = 0
+        self.invuln_timer = 0
+
+        self.anim_frame = 0
+        self.anim_timer = 0
+
+    def update(self, keys, key_pressed, platforms):
+        # Movement
+        move_x = 0
         if keys.get('KeyA') or keys.get('ArrowLeft'):
-            dx -= 1
-            self.facing = 'left'
+            move_x = -1
+            self.facing = -1
         if keys.get('KeyD') or keys.get('ArrowRight'):
-            dx += 1
-            self.facing = 'right'
+            move_x = 1
+            self.facing = 1
 
-        if dx != 0 or dy != 0:
-            dx, dy = normalize(dx, dy)
-            self.x += dx * self.speed
-            self.y += dy * self.speed
-            self.walk_timer += 1
-            if self.walk_timer >= 12:
-                self.walk_timer = 0
-                self.walk_frame = (self.walk_frame + 1) % 4
+        self.vx = move_x * TAYLOR_SPEED
+
+        # Jumping
+        if (key_pressed.get('Space') or key_pressed.get('KeyW') or key_pressed.get('ArrowUp')) and self.on_ground:
+            self.vy = JUMP_FORCE
+            self.on_ground = False
+
+        # Gravity
+        self.vy += GRAVITY
+        self.vy = min(self.vy, MAX_FALL_SPEED)
+
+        # Attack inputs
+        if self.attack_cooldown <= 0:
+            if key_pressed.get('KeyJ'):
+                self.start_attack('sting')
+            elif key_pressed.get('KeyK'):
+                self.start_attack('bite')
+            elif key_pressed.get('KeyL'):
+                self.start_attack('blind')
+
+        # Update attack
+        if self.attack_timer > 0:
+            self.attack_timer -= 1
+            if self.attack_timer <= 0:
+                self.attack_type = None
+
+        if self.attack_cooldown > 0:
+            self.attack_cooldown -= 1
+
+        if self.invuln_timer > 0:
+            self.invuln_timer -= 1
+
+        # Apply velocity
+        self.x += self.vx
+        self.y += self.vy
+
+        # Collision with platforms
+        self.on_ground = False
+        for plat in platforms:
+            if self.collide_platform(plat):
+                pass  # Collision handled in method
+
+        # World bounds
+        self.x = clamp(self.x, 0, WORLD_WIDTH - self.w)
+        self.y = clamp(self.y, 0, WORLD_HEIGHT - self.h)
+
+        # Ground at bottom
+        if self.y + self.h >= WORLD_HEIGHT - 50:
+            self.y = WORLD_HEIGHT - 50 - self.h
+            self.vy = 0
+            self.on_ground = True
+
+        # State
+        if self.attack_timer > 0:
+            self.state = 'attack'
+        elif not self.on_ground:
+            self.state = 'jump' if self.vy < 0 else 'fall'
+        elif abs(self.vx) > 0.5:
+            self.state = 'run'
         else:
-            self.walk_frame = 0
+            self.state = 'idle'
 
-        self.x = clamp(self.x, 20, MAP_WIDTH - 20)
-        self.y = clamp(self.y, 20, MAP_HEIGHT - 20)
+        # Animation
+        self.anim_timer += 1
+        if self.state == 'run':
+            if self.anim_timer >= 8:
+                self.anim_timer = 0
+                self.anim_frame = (self.anim_frame + 1) % 4
+        else:
+            self.anim_frame = 0
 
-    def draw(self, ctx, sx, sy):
-        # Taylor in her homemade costume - grey-black with yellow lenses
-        ctx.fillStyle = '#1a1a1a'
+    def collide_platform(self, plat):
+        # Check if we're intersecting
+        if not rect_intersect(self.x, self.y, self.w, self.h, plat.x, plat.y, plat.w, plat.h):
+            return False
 
-        if self.facing == 'down':
-            # Body
-            ctx.fillRect(sx - 6, sy - 8, 12, 16)
-            # Head/Mask
-            ctx.fillStyle = '#252525'
-            ctx.fillRect(sx - 5, sy - 14, 10, 7)
-            # Yellow lenses
-            ctx.fillStyle = '#c9a227'
-            ctx.fillRect(sx - 3, sy - 12, 2, 2)
-            ctx.fillRect(sx + 1, sy - 12, 2, 2)
-            # Hair
-            ctx.fillStyle = '#0f0f0f'
-            ctx.fillRect(sx - 6, sy - 16, 12, 4)
-            # Legs
-            ctx.fillStyle = '#1a1a1a'
-            off = [0, 1, 0, -1][self.walk_frame]
-            ctx.fillRect(sx - 4, sy + 8, 3, 6 + off)
-            ctx.fillRect(sx + 1, sy + 8, 3, 6 - off)
+        if plat.platform_type == 'one_way':
+            # Only collide if falling onto it from above
+            feet_y = self.y + self.h
+            if self.vy > 0 and feet_y - self.vy <= plat.y + 5:
+                self.y = plat.y - self.h
+                self.vy = 0
+                self.on_ground = True
+                return True
+            return False
 
-        elif self.facing == 'up':
-            ctx.fillRect(sx - 6, sy - 8, 12, 16)
-            ctx.fillStyle = '#252525'
-            ctx.fillRect(sx - 5, sy - 14, 10, 7)
-            ctx.fillStyle = '#0f0f0f'
-            ctx.fillRect(sx - 6, sy - 16, 12, 5)
-            ctx.fillStyle = '#1a1a1a'
-            off = [0, 1, 0, -1][self.walk_frame]
-            ctx.fillRect(sx - 4, sy + 8, 3, 6 - off)
-            ctx.fillRect(sx + 1, sy + 8, 3, 6 + off)
+        # Solid platform - resolve collision
+        overlap_left = (self.x + self.w) - plat.x
+        overlap_right = (plat.x + plat.w) - self.x
+        overlap_top = (self.y + self.h) - plat.y
+        overlap_bottom = (plat.y + plat.h) - self.y
 
-        elif self.facing == 'left':
-            ctx.fillRect(sx - 4, sy - 8, 8, 16)
-            ctx.fillStyle = '#252525'
-            ctx.fillRect(sx - 5, sy - 14, 8, 7)
-            ctx.fillStyle = '#c9a227'
-            ctx.fillRect(sx - 4, sy - 12, 2, 2)
-            ctx.fillStyle = '#0f0f0f'
-            ctx.fillRect(sx - 4, sy - 16, 10, 4)
-            ctx.fillStyle = '#1a1a1a'
-            off = [0, 2, 0, -2][self.walk_frame]
-            ctx.fillRect(sx - 3 + off, sy + 8, 3, 6)
-            ctx.fillRect(sx - off, sy + 8, 3, 6)
+        min_overlap = min(overlap_left, overlap_right, overlap_top, overlap_bottom)
 
-        elif self.facing == 'right':
-            ctx.fillRect(sx - 4, sy - 8, 8, 16)
-            ctx.fillStyle = '#252525'
-            ctx.fillRect(sx - 3, sy - 14, 8, 7)
-            ctx.fillStyle = '#c9a227'
-            ctx.fillRect(sx + 2, sy - 12, 2, 2)
-            ctx.fillStyle = '#0f0f0f'
-            ctx.fillRect(sx - 6, sy - 16, 10, 4)
-            ctx.fillStyle = '#1a1a1a'
-            off = [0, 2, 0, -2][self.walk_frame]
-            ctx.fillRect(sx - 3 - off, sy + 8, 3, 6)
-            ctx.fillRect(sx + off, sy + 8, 3, 6)
+        if min_overlap == overlap_top and self.vy >= 0:
+            self.y = plat.y - self.h
+            self.vy = 0
+            self.on_ground = True
+        elif min_overlap == overlap_bottom and self.vy < 0:
+            self.y = plat.y + plat.h
+            self.vy = 0
+        elif min_overlap == overlap_left:
+            self.x = plat.x - self.w
+        elif min_overlap == overlap_right:
+            self.x = plat.x + plat.w
 
-class Bug(Entity):
-    def __init__(self, x, y, bug_type):
-        super().__init__(x, y)
-        self.bug_type = bug_type
-        stats = BUG_TYPES[bug_type]
-        self.color = stats['color']
-        self.speed = stats['speed']
-        self.hp = stats['hp']
-        self.max_hp = stats['hp']
-        self.damage = stats['damage']
-        self.size = stats['size']
-        self.vision = stats['vision']
-        self.can_web = stats.get('can_web', False)
-        self.can_sting = stats.get('can_sting', False)
-        self.can_bite = stats.get('can_bite', False)
-        self.can_blind = stats.get('can_blind', False)
-        self.sting_damage = stats.get('sting_damage', 0)
+        return True
 
-        self.selected = False
-        self.controlled = True
-        self.target = None
-        self.target_entity = None
-        self.command = 'idle'
-        self.attack_mode = None
+    def start_attack(self, attack_type):
+        self.attack_type = attack_type
+        self.attack_timer = 25
+        self.attack_cooldown = 35
 
-        self.wander_angle = random.uniform(0, math.pi * 2)
-        self.wander_timer = 0
-        self.anim_phase = random.uniform(0, math.pi * 2)
+    def get_attack_hitbox(self):
+        if not self.attack_type or self.attack_timer < 15:
+            return None
+        # Attack hitbox in front of Taylor
+        hb_w, hb_h = 50, 30
+        hb_x = self.x + self.w if self.facing > 0 else self.x - hb_w
+        hb_y = self.y + 5
+        return (hb_x, hb_y, hb_w, hb_h)
 
-    def update(self, taylor, enemies):
-        if not self.alive:
+    def take_damage(self, amount):
+        if self.invuln_timer > 0:
+            return
+        self.hp -= amount
+        self.invuln_timer = 60
+        if self.hp <= 0:
+            self.hp = 0
+
+    def draw(self, ctx, cx, cy):
+        sx, sy = self.x - cx, self.y - cy
+
+        # Flash when invulnerable
+        if self.invuln_timer > 0 and (self.invuln_timer // 4) % 2 == 0:
             return
 
-        dist_to_taylor = distance(self.x, self.y, taylor.x, taylor.y)
-        self.controlled = dist_to_taylor <= taylor.control_range
+        # Taylor in her grey-black costume
+        f = self.facing
 
-        if not self.controlled:
-            self.wander_timer -= 1
-            if self.wander_timer <= 0:
-                self.wander_angle += random.uniform(-0.3, 0.3)
-                self.wander_timer = random.randint(60, 120)
-            self.x += math.cos(self.wander_angle) * self.speed * 0.2
-            self.y += math.sin(self.wander_angle) * self.speed * 0.2
-            self.command = 'idle'
-            self.selected = False
-        elif self.command == 'move' and self.target:
-            tx, ty = self.target
-            dx, dy = tx - self.x, ty - self.y
-            dist = math.sqrt(dx*dx + dy*dy)
-            if dist > 3:
-                dx, dy = normalize(dx, dy)
-                self.x += dx * self.speed
-                self.y += dy * self.speed
-            else:
-                self.command = 'idle'
-                self.target = None
-        elif self.command == 'attack' and self.target_entity:
-            enemy = self.target_entity
-            if enemy.alive:
-                dx, dy = enemy.x - self.x, enemy.y - self.y
-                dist = math.sqrt(dx*dx + dy*dy)
-                attack_range = 15 if self.attack_mode else 10
+        # Body
+        ctx.fillStyle = '#1a1a1a'
+        body_offset = 0
+        if self.state == 'run':
+            body_offset = [0, -1, 0, -1][self.anim_frame]
+        ctx.fillRect(sx + 4, sy + 12 + body_offset, 12, 20)
 
-                if dist < attack_range:
-                    self.execute_attack(enemy)
-                else:
-                    dx, dy = normalize(dx, dy)
-                    self.x += dx * self.speed
-                    self.y += dy * self.speed
-            else:
-                self.command = 'idle'
-                self.target_entity = None
-                self.attack_mode = None
-
-        self.x = clamp(self.x, 5, MAP_WIDTH - 5)
-        self.y = clamp(self.y, 5, MAP_HEIGHT - 5)
-
-    def execute_attack(self, enemy):
-        if self.attack_mode == 'sting' and self.can_sting:
-            enemy.take_damage(self.sting_damage, 'sting')
-            self.alive = False
-        elif self.attack_mode == 'bite' and self.can_bite:
-            enemy.add_effect('venom', 5, 180)  # 3 seconds of venom
-            self.command = 'idle'
-            self.attack_mode = None
-        elif self.attack_mode == 'blind' and self.can_blind:
-            enemy.add_effect('blind', 0, 300)  # 5 seconds blind
-            self.command = 'idle'
-            self.attack_mode = None
-        elif self.attack_mode == 'web' and self.can_web:
-            enemy.add_effect('webbed', 0, 360)  # 6 seconds slow
-            self.command = 'idle'
-            self.attack_mode = None
+        # Legs
+        ctx.fillStyle = '#151515'
+        if self.state == 'run':
+            offsets = [(0, 3), (2, -2), (0, 3), (-2, -2)]
+            l1, l2 = offsets[self.anim_frame]
+            ctx.fillRect(sx + 5, sy + 32 + body_offset, 4, 8 + l1)
+            ctx.fillRect(sx + 11, sy + 32 + body_offset, 4, 8 + l2)
+        elif self.state in ['jump', 'fall']:
+            ctx.fillRect(sx + 4, sy + 32, 5, 6)
+            ctx.fillRect(sx + 11, sy + 30, 5, 8)
         else:
-            # Basic attack
-            enemy.take_damage(self.damage, 'basic')
+            ctx.fillRect(sx + 5, sy + 32, 4, 8)
+            ctx.fillRect(sx + 11, sy + 32, 4, 8)
 
-    def draw(self, ctx, sx, sy, frame):
-        wobble = math.sin(frame * 0.15 + self.anim_phase) * 0.5
-        color = self.color if self.controlled else '#3a3a3a'
+        # Head with mask
+        ctx.fillStyle = '#202020'
+        ctx.fillRect(sx + 5, sy + 2, 10, 12)
 
-        if self.bug_type in ['fly', 'mosquito']:
-            ctx.fillStyle = color
+        # Yellow lenses
+        ctx.fillStyle = '#c9a227'
+        if f > 0:
+            ctx.fillRect(sx + 10, sy + 5, 3, 3)
+        else:
+            ctx.fillRect(sx + 7, sy + 5, 3, 3)
+
+        # Hair (curly, dark)
+        ctx.fillStyle = '#0a0a0a'
+        ctx.fillRect(sx + 4, sy, 12, 5)
+        ctx.fillRect(sx + 3, sy + 2, 2, 6)
+        ctx.fillRect(sx + 15, sy + 2, 2, 6)
+
+        # Arm
+        ctx.fillStyle = '#1a1a1a'
+        arm_y = sy + 14 + body_offset
+        if self.state == 'attack':
+            # Arm extended
+            if f > 0:
+                ctx.fillRect(sx + 14, arm_y, 12, 4)
+            else:
+                ctx.fillRect(sx - 6, arm_y, 12, 4)
+        else:
+            if f > 0:
+                ctx.fillRect(sx + 14, arm_y, 4, 10)
+            else:
+                ctx.fillRect(sx + 2, arm_y, 4, 10)
+
+        # Attack effect
+        if self.attack_type and self.attack_timer > 15:
+            hb = self.get_attack_hitbox()
+            if hb:
+                hx, hy, hw, hh = hb
+                hx -= cx
+                hy -= cy
+                if self.attack_type == 'sting':
+                    ctx.fillStyle = 'rgba(200, 180, 50, 0.4)'
+                elif self.attack_type == 'bite':
+                    ctx.fillStyle = 'rgba(100, 200, 100, 0.4)'
+                else:
+                    ctx.fillStyle = 'rgba(150, 150, 200, 0.4)'
+                ctx.fillRect(hx, hy, hw, hh)
+
+# ============== BUG ==============
+class Bug:
+    def __init__(self, x, y, bug_type='fly'):
+        self.x = x
+        self.y = y
+        self.bug_type = bug_type
+        self.alive = True
+        self.following = False
+        self.target_x = x
+        self.target_y = y
+        self.anim_phase = random.uniform(0, math.pi * 2)
+
+        if bug_type == 'fly':
+            self.color = '#6a6a4a'
+            self.size = 3
+            self.speed = 2.5
+        elif bug_type == 'spider':
+            self.color = '#4a3a2a'
+            self.size = 5
+            self.speed = 1.5
+        elif bug_type == 'wasp':
+            self.color = '#8a6a20'
+            self.size = 4
+            self.speed = 2.0
+        elif bug_type == 'beetle':
+            self.color = '#2a3a2a'
+            self.size = 5
+            self.speed = 1.0
+
+    def update(self, taylor):
+        # Check if within Taylor's range
+        dist = distance(self.x, self.y, taylor.x + taylor.w/2, taylor.y + taylor.h/2)
+        if dist < 150:
+            self.following = True
+
+        if self.following:
+            # Swarm around Taylor
+            angle = math.atan2(self.y - taylor.y - taylor.h/2, self.x - taylor.x - taylor.w/2)
+            angle += math.sin(self.anim_phase) * 0.5
+            self.anim_phase += 0.08
+
+            # Target position in swarm
+            swarm_dist = 30 + math.sin(self.anim_phase * 0.7) * 15
+            self.target_x = taylor.x + taylor.w/2 + math.cos(self.anim_phase) * swarm_dist
+            self.target_y = taylor.y + taylor.h/2 + math.sin(self.anim_phase * 1.3) * swarm_dist * 0.6
+
+            # Move toward target
+            dx = self.target_x - self.x
+            dy = self.target_y - self.y
+            dist = math.sqrt(dx*dx + dy*dy)
+            if dist > 2:
+                self.x += (dx / dist) * self.speed
+                self.y += (dy / dist) * self.speed
+
+    def draw(self, ctx, cx, cy, frame):
+        sx, sy = self.x - cx, self.y - cy
+
+        ctx.fillStyle = self.color
+
+        if self.bug_type in ['fly', 'wasp']:
+            # Body
             ctx.beginPath()
             ctx.ellipse(sx, sy, self.size, self.size * 0.6, 0, 0, math.pi * 2)
             ctx.fill()
             # Wings
+            wing_flap = math.sin(frame * 0.5 + self.anim_phase) * 0.4
             ctx.fillStyle = 'rgba(100, 100, 100, 0.3)'
-            wing = math.sin(frame * 0.4 + self.anim_phase) * 0.3
             ctx.beginPath()
-            ctx.ellipse(sx - 2, sy - 1 + wobble, 3, 1.5, wing, 0, math.pi * 2)
+            ctx.ellipse(sx - 2, sy - 2, 3, 1.5, wing_flap, 0, math.pi * 2)
             ctx.fill()
             ctx.beginPath()
-            ctx.ellipse(sx + 2, sy - 1 + wobble, 3, 1.5, -wing, 0, math.pi * 2)
+            ctx.ellipse(sx + 2, sy - 2, 3, 1.5, -wing_flap, 0, math.pi * 2)
             ctx.fill()
-
         elif self.bug_type == 'spider':
-            ctx.fillStyle = color
             ctx.beginPath()
             ctx.arc(sx, sy, self.size, 0, math.pi * 2)
             ctx.fill()
             # Legs
-            ctx.strokeStyle = color
+            ctx.strokeStyle = self.color
             ctx.lineWidth = 0.8
             for i in range(4):
-                angle = i * 0.4 - 0.6 + math.sin(frame * 0.08 + i) * 0.08
+                angle = i * 0.4 - 0.6 + math.sin(frame * 0.05 + i) * 0.1
                 ctx.beginPath()
                 ctx.moveTo(sx, sy)
-                ctx.lineTo(sx - math.cos(angle) * 8, sy + math.sin(angle) * 6)
+                ctx.lineTo(sx - math.cos(angle) * 7, sy + math.sin(angle) * 5)
                 ctx.stroke()
                 ctx.beginPath()
                 ctx.moveTo(sx, sy)
-                ctx.lineTo(sx + math.cos(angle) * 8, sy + math.sin(angle) * 6)
+                ctx.lineTo(sx + math.cos(angle) * 7, sy + math.sin(angle) * 5)
                 ctx.stroke()
-
-        elif self.bug_type == 'wasp':
-            ctx.fillStyle = '#1a1a1a'
+        else:
             ctx.beginPath()
-            ctx.ellipse(sx - 1, sy, 2, 1.5, 0, 0, math.pi * 2)
-            ctx.fill()
-            ctx.fillStyle = color
-            ctx.beginPath()
-            ctx.ellipse(sx + 2, sy, 3, 2, 0, 0, math.pi * 2)
-            ctx.fill()
-            ctx.fillStyle = '#1a1a1a'
-            ctx.fillRect(sx + 1, sy - 1.5, 1, 3)
-            ctx.fillRect(sx + 3, sy - 1.5, 1, 3)
-            # Wings
-            ctx.fillStyle = 'rgba(100, 100, 100, 0.25)'
-            ctx.beginPath()
-            ctx.ellipse(sx, sy - 2 + wobble, 4, 1.5, 0, 0, math.pi * 2)
+            ctx.ellipse(sx, sy, self.size, self.size * 0.7, 0, 0, math.pi * 2)
             ctx.fill()
 
-        elif self.bug_type == 'beetle':
-            ctx.fillStyle = color
-            ctx.beginPath()
-            ctx.ellipse(sx, sy, self.size, self.size * 0.75, 0, 0, math.pi * 2)
-            ctx.fill()
-            ctx.strokeStyle = '#1a2a1a'
-            ctx.lineWidth = 0.8
-            ctx.beginPath()
-            ctx.moveTo(sx, sy - self.size * 0.75)
-            ctx.lineTo(sx, sy + self.size * 0.75)
-            ctx.stroke()
-
-        elif self.bug_type == 'cockroach':
-            ctx.fillStyle = color
-            ctx.beginPath()
-            ctx.ellipse(sx, sy, self.size, self.size * 0.5, 0, 0, math.pi * 2)
-            ctx.fill()
-            # Antennae
-            ctx.strokeStyle = color
-            ctx.lineWidth = 0.5
-            ctx.beginPath()
-            ctx.moveTo(sx - 2, sy - self.size * 0.5)
-            ctx.lineTo(sx - 4, sy - self.size - 2)
-            ctx.stroke()
-            ctx.beginPath()
-            ctx.moveTo(sx + 2, sy - self.size * 0.5)
-            ctx.lineTo(sx + 4, sy - self.size - 2)
-            ctx.stroke()
-
-class Enemy(Entity):
+# ============== ENEMY ==============
+class Enemy:
     def __init__(self, x, y, enemy_type='thug'):
-        super().__init__(x, y)
+        self.x = x
+        self.y = y
+        self.vx = 0
+        self.vy = 0
+        self.w = 24
+        self.h = 44
+
         self.enemy_type = enemy_type
+        self.alive = True
+        self.facing = -1
 
         if enemy_type == 'thug':
             self.hp = 40
             self.max_hp = 40
-            self.speed = 0.8
-            self.damage = 8
-            self.size = 12
-            self.vision = 100
-            self.color = '#5a3030'
-        elif enemy_type == 'abb':
+            self.damage = 10
+            self.color = '#5a3535'
+        else:  # abb
             self.hp = 60
             self.max_hp = 60
-            self.speed = 1.0
-            self.damage = 12
-            self.size = 14
-            self.vision = 120
-            self.color = '#803030'
+            self.damage = 15
+            self.color = '#6a3030'
 
-        self.attack_range = 25
-        self.attack_cooldown = 0
-        self.patrol_points = []
-        self.patrol_index = 0
+        self.patrol_left = x - 80
+        self.patrol_right = x + 80
         self.state = 'patrol'
-        self.target = None
+        self.attack_cooldown = 0
+        self.stun_timer = 0
 
-        self.effects = {}  # {effect_name: {value, duration}}
-        self.facing = 'down'
+        self.effects = {}
 
-    def add_effect(self, name, value, duration):
-        if name in self.effects:
-            self.effects[name]['duration'] = max(self.effects[name]['duration'], duration)
-        else:
-            self.effects[name] = {'value': value, 'duration': duration}
+    def add_effect(self, name, duration):
+        self.effects[name] = duration
 
-    def take_damage(self, amount, damage_type='basic'):
+    def take_damage(self, amount, effect=None):
         self.hp -= amount
+        self.stun_timer = 15
+        if effect:
+            if effect == 'sting':
+                pass  # Just damage
+            elif effect == 'bite':
+                self.add_effect('venom', 180)
+            elif effect == 'blind':
+                self.add_effect('blind', 180)
         if self.hp <= 0:
             self.alive = False
 
-    def get_speed(self):
-        speed = self.speed
-        if 'webbed' in self.effects:
-            speed *= 0.3
-        return speed
-
-    def set_patrol(self, points):
-        self.patrol_points = points
-
-    def update(self, taylor, bugs):
+    def update(self, taylor, platforms):
         if not self.alive:
             return
 
         # Update effects
         for name in list(self.effects.keys()):
-            self.effects[name]['duration'] -= 1
+            self.effects[name] -= 1
             if name == 'venom':
-                self.take_damage(self.effects[name]['value'] * 0.016)  # DPS
-            if self.effects[name]['duration'] <= 0:
+                self.hp -= 0.1
+                if self.hp <= 0:
+                    self.alive = False
+            if self.effects[name] <= 0:
                 del self.effects[name]
 
-        self.attack_cooldown = max(0, self.attack_cooldown - 1)
+        if self.stun_timer > 0:
+            self.stun_timer -= 1
+            self.vy += GRAVITY
+            self.y += self.vy
+            self.check_ground(platforms)
+            return
 
-        # Blind reduces vision
-        effective_vision = self.vision
-        if 'blind' in self.effects:
-            effective_vision = self.vision * 0.3
+        if self.attack_cooldown > 0:
+            self.attack_cooldown -= 1
 
+        # AI
         dist_to_taylor = distance(self.x, self.y, taylor.x, taylor.y)
+        can_see = 'blind' not in self.effects
 
-        nearest_bug = None
-        nearest_bug_dist = float('inf')
-        for bug in bugs:
-            if bug.alive and bug.controlled:
-                d = distance(self.x, self.y, bug.x, bug.y)
-                if d < nearest_bug_dist:
-                    nearest_bug = bug
-                    nearest_bug_dist = d
+        speed = 1.5 if can_see else 0.5
 
-        if dist_to_taylor < effective_vision:
+        if can_see and dist_to_taylor < 200:
             self.state = 'chase'
-            self.target = taylor
-        elif nearest_bug and nearest_bug_dist < effective_vision * 0.7:
-            self.state = 'chase'
-            self.target = nearest_bug
+            if taylor.x < self.x:
+                self.vx = -speed
+                self.facing = -1
+            else:
+                self.vx = speed
+                self.facing = 1
+
+            # Attack if close
+            if dist_to_taylor < 35 and self.attack_cooldown <= 0:
+                taylor.take_damage(self.damage)
+                self.attack_cooldown = 90
         else:
             self.state = 'patrol'
-            self.target = None
+            if self.x <= self.patrol_left:
+                self.facing = 1
+            elif self.x >= self.patrol_right:
+                self.facing = -1
+            self.vx = self.facing * speed * 0.5
 
-        speed = self.get_speed()
+        # Physics
+        self.vy += GRAVITY
+        self.x += self.vx
+        self.y += self.vy
 
-        if self.state == 'chase' and self.target:
-            dx, dy = self.target.x - self.x, self.target.y - self.y
-            dist = math.sqrt(dx*dx + dy*dy)
+        self.check_ground(platforms)
+        self.x = clamp(self.x, 0, WORLD_WIDTH - self.w)
 
-            # Update facing
-            if abs(dx) > abs(dy):
-                self.facing = 'right' if dx > 0 else 'left'
-            else:
-                self.facing = 'down' if dy > 0 else 'up'
+    def check_ground(self, platforms):
+        # Ground
+        if self.y + self.h >= WORLD_HEIGHT - 50:
+            self.y = WORLD_HEIGHT - 50 - self.h
+            self.vy = 0
 
-            # Miss chance when blind
-            hit_chance = 1.0 if 'blind' not in self.effects else 0.4
+        for plat in platforms:
+            if plat.platform_type == 'solid':
+                if rect_intersect(self.x, self.y, self.w, self.h, plat.x, plat.y, plat.w, plat.h):
+                    if self.vy > 0:
+                        self.y = plat.y - self.h
+                        self.vy = 0
 
-            if dist < self.attack_range:
-                if self.attack_cooldown == 0 and random.random() < hit_chance:
-                    self.target.hp -= self.damage
-                    self.attack_cooldown = 90
-                    if self.target.hp <= 0:
-                        self.target.alive = False
-            else:
-                dx, dy = normalize(dx, dy)
-                self.x += dx * speed
-                self.y += dy * speed
+    def draw(self, ctx, cx, cy):
+        sx, sy = self.x - cx, self.y - cy
 
-        elif self.state == 'patrol' and self.patrol_points:
-            px, py = self.patrol_points[self.patrol_index]
-            dx, dy = px - self.x, py - self.y
-            dist = math.sqrt(dx*dx + dy*dy)
-
-            if dist < 8:
-                self.patrol_index = (self.patrol_index + 1) % len(self.patrol_points)
-            else:
-                dx, dy = normalize(dx, dy)
-                self.x += dx * speed * 0.4
-                self.y += dy * speed * 0.4
-
-        self.x = clamp(self.x, 20, MAP_WIDTH - 20)
-        self.y = clamp(self.y, 20, MAP_HEIGHT - 20)
-
-    def draw(self, ctx, sx, sy):
-        # Draw as person
         color = self.color
-        if 'webbed' in self.effects:
-            color = '#4a4a5a'
         if 'venom' in self.effects:
-            color = '#5a4a5a'
+            color = '#4a5a4a'
+        if 'blind' in self.effects:
+            color = '#4a4a5a'
 
+        # Body
         ctx.fillStyle = color
-        ctx.fillRect(sx - self.size//3, sy - self.size//2, self.size*2//3, self.size)
+        ctx.fillRect(sx + 4, sy + 14, 16, 22)
+
+        # Head
         ctx.beginPath()
-        ctx.arc(sx, sy - self.size//2 - 4, 5, 0, math.pi * 2)
+        ctx.arc(sx + 12, sy + 10, 8, 0, math.pi * 2)
         ctx.fill()
+
+        # Legs
+        ctx.fillRect(sx + 6, sy + 36, 5, 8)
+        ctx.fillRect(sx + 13, sy + 36, 5, 8)
+
+        # HP bar
+        ctx.fillStyle = '#1a1a1a'
+        ctx.fillRect(sx, sy - 8, self.w, 4)
+        ctx.fillStyle = '#5a4a4a'
+        ctx.fillRect(sx, sy - 8, self.w * (self.hp / self.max_hp), 4)
+
+# ============== LUNG ==============
+class Lung:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.vx = 0
+        self.vy = 0
+        self.w = 40
+        self.h = 60
+
+        self.hp = 300
+        self.max_hp = 300
+        self.damage = 20
+        self.alive = True
+        self.facing = -1
+
+        self.stage = 1
+        self.stage_timer = 0
+        self.engaged = False
+
+        self.attack_cooldown = 0
+        self.state = 'idle'
+        self.effects = {}
+
+    def add_effect(self, name, duration):
+        # Lung resists effects
+        duration = int(duration * (1 - (self.stage - 1) * 0.15))
+        if duration > 0:
+            self.effects[name] = duration
+
+    def take_damage(self, amount, effect=None):
+        # Damage reduction at higher stages
+        reduction = 1 - (self.stage - 1) * 0.1
+        self.hp -= amount * reduction
+        self.engaged = True
+        if effect:
+            if effect == 'bite':
+                self.add_effect('venom', 180)
+            elif effect == 'blind':
+                self.add_effect('blind', 120)
+        if self.hp <= 0:
+            self.alive = False
+
+    def update(self, taylor, platforms):
+        if not self.alive:
+            return
+
+        # Stage up when engaged
+        if self.engaged:
+            self.stage_timer += 1
+            if self.stage_timer >= 900 and self.stage < 5:  # 15 seconds
+                self.stage += 1
+                self.stage_timer = 0
+                self.max_hp += 30
+                self.hp = min(self.hp + 50, self.max_hp)
+
+        # Update effects
+        for name in list(self.effects.keys()):
+            self.effects[name] -= 1
+            if name == 'venom':
+                self.hp -= 0.15 * (1 - (self.stage - 1) * 0.1)
+            if self.effects[name] <= 0:
+                del self.effects[name]
+
+        if self.attack_cooldown > 0:
+            self.attack_cooldown -= 1
+
+        # AI - always chase when engaged
+        speed = 1.2 + self.stage * 0.3
+        if 'blind' in self.effects:
+            speed *= 0.5
+
+        dist = distance(self.x, self.y, taylor.x, taylor.y)
+
+        if dist < 400 or self.engaged:
+            self.engaged = True
+            self.state = 'chase'
+
+            if taylor.x < self.x:
+                self.vx = -speed
+                self.facing = -1
+            else:
+                self.vx = speed
+                self.facing = 1
+
+            # Attack
+            attack_range = 50 + self.stage * 10
+            if dist < attack_range and self.attack_cooldown <= 0:
+                taylor.take_damage(self.damage + self.stage * 5)
+                self.attack_cooldown = max(60, 90 - self.stage * 5)
+        else:
+            self.state = 'idle'
+            self.vx = 0
+
+        # Physics
+        self.vy += GRAVITY
+        self.x += self.vx
+        self.y += self.vy
+
+        # Ground
+        if self.y + self.h >= WORLD_HEIGHT - 50:
+            self.y = WORLD_HEIGHT - 50 - self.h
+            self.vy = 0
+
+        self.x = clamp(self.x, 0, WORLD_WIDTH - self.w)
+
+    def draw(self, ctx, cx, cy, frame):
+        sx, sy = self.x - cx, self.y - cy
+
+        # Scale size with stage
+        scale = 1 + (self.stage - 1) * 0.15
+        w = int(self.w * scale)
+        h = int(self.h * scale)
+
+        # Color shifts with stage
+        colors = ['#704020', '#804030', '#904035', '#a54530', '#c05525']
+        color = colors[self.stage - 1]
+
+        # Fire aura at high stages
+        if self.stage >= 3:
+            ctx.fillStyle = f'rgba(255, {100 - self.stage * 15}, 0, {0.15 + math.sin(frame * 0.15) * 0.05})'
+            ctx.beginPath()
+            ctx.arc(sx + w//2, sy + h//2, w//2 + 15 + self.stage * 5, 0, math.pi * 2)
+            ctx.fill()
+
+        # Body
+        ctx.fillStyle = color
+        ctx.fillRect(sx, sy + 15, w, h - 25)
+
+        # Head
+        head_size = 12 + self.stage * 2
+        ctx.beginPath()
+        ctx.arc(sx + w//2, sy + head_size, head_size, 0, math.pi * 2)
+        ctx.fill()
+
+        # Legs
+        ctx.fillRect(sx + 5, sy + h - 12, w//3, 12)
+        ctx.fillRect(sx + w - w//3 - 5, sy + h - 12, w//3, 12)
+
+        # Scales at high stages
+        if self.stage >= 4:
+            ctx.fillStyle = '#2a2020'
+            for i in range(self.stage - 3):
+                ctx.fillRect(sx + 5, sy + 25 + i * 10, w - 10, 3)
 
         # Effect indicators
         if 'blind' in self.effects:
             ctx.fillStyle = '#ffff00'
-            ctx.font = '8px monospace'
-            ctx.fillText('*', sx - 2, sy - self.size//2 - 8)
-        if 'webbed' in self.effects:
-            ctx.strokeStyle = 'rgba(200, 200, 200, 0.5)'
-            ctx.lineWidth = 1
-            ctx.beginPath()
-            ctx.arc(sx, sy, self.size + 3, 0, math.pi * 2)
-            ctx.stroke()
-
-class Lung(Entity):
-    def __init__(self, x, y):
-        super().__init__(x, y)
-        self.hp = 200
-        self.max_hp = 200
-        self.base_speed = 0.6
-        self.base_damage = 15
-        self.base_size = 18
-        self.vision = 180
-
-        self.stage = 1
-        self.stage_timer = 0
-        self.stage_interval = 1200  # 20 seconds per stage
-
-        self.attack_range = 30
-        self.attack_cooldown = 0
-        self.state = 'patrol'
-        self.target = None
-        self.patrol_points = []
-        self.patrol_index = 0
-        self.effects = {}
-        self.engaged = False
-
-    @property
-    def speed(self):
-        return self.base_speed * (1 + self.stage * 0.2)
-
-    @property
-    def damage(self):
-        return self.base_damage * (1 + self.stage * 0.3)
-
-    @property
-    def size(self):
-        return int(self.base_size * (1 + self.stage * 0.15))
-
-    def add_effect(self, name, value, duration):
-        # Lung resists effects more as he scales
-        resistance = 1 - (self.stage - 1) * 0.15
-        duration = int(duration * resistance)
-        if duration > 0:
-            if name in self.effects:
-                self.effects[name]['duration'] = max(self.effects[name]['duration'], duration)
-            else:
-                self.effects[name] = {'value': value, 'duration': duration}
-
-    def take_damage(self, amount, damage_type='basic'):
-        # Lung has damage reduction at higher stages
-        reduction = 1 - (self.stage - 1) * 0.1
-        self.hp -= amount * reduction
-        self.engaged = True
-        if self.hp <= 0:
-            self.alive = False
-
-    def get_speed(self):
-        speed = self.speed
-        if 'webbed' in self.effects:
-            speed *= 0.5  # Webs less effective on Lung
-        return speed
-
-    def set_patrol(self, points):
-        self.patrol_points = points
-
-    def update(self, taylor, bugs):
-        if not self.alive:
-            return
-
-        # Stage up over time when engaged
-        if self.engaged:
-            self.stage_timer += 1
-            if self.stage_timer >= self.stage_interval and self.stage < 5:
-                self.stage += 1
-                self.stage_timer = 0
-                self.hp = min(self.hp + 30, self.max_hp + self.stage * 20)
-                self.max_hp = 200 + self.stage * 20
-
-        # Update effects
-        for name in list(self.effects.keys()):
-            self.effects[name]['duration'] -= 1
-            if name == 'venom':
-                # Venom less effective at higher stages
-                venom_mult = 1 - (self.stage - 1) * 0.15
-                self.take_damage(self.effects[name]['value'] * 0.016 * venom_mult)
-            if self.effects[name]['duration'] <= 0:
-                del self.effects[name]
-
-        self.attack_cooldown = max(0, self.attack_cooldown - 1)
-
-        effective_vision = self.vision * (1 + self.stage * 0.1)
-        if 'blind' in self.effects:
-            effective_vision *= 0.5
-
-        dist_to_taylor = distance(self.x, self.y, taylor.x, taylor.y)
-
-        if dist_to_taylor < effective_vision or self.engaged:
-            self.state = 'chase'
-            self.target = taylor
-            self.engaged = True
-        elif self.patrol_points:
-            self.state = 'patrol'
-            self.target = None
-
-        speed = self.get_speed()
-
-        if self.state == 'chase' and self.target:
-            dx, dy = self.target.x - self.x, self.target.y - self.y
-            dist = math.sqrt(dx*dx + dy*dy)
-
-            hit_chance = 1.0 if 'blind' not in self.effects else 0.6
-
-            attack_range = self.attack_range + self.stage * 5
-
-            if dist < attack_range:
-                if self.attack_cooldown == 0 and random.random() < hit_chance:
-                    self.target.hp -= self.damage
-                    self.attack_cooldown = max(60, 90 - self.stage * 5)
-                    if self.target.hp <= 0:
-                        self.target.alive = False
-            else:
-                dx, dy = normalize(dx, dy)
-                self.x += dx * speed
-                self.y += dy * speed
-
-        elif self.state == 'patrol' and self.patrol_points:
-            px, py = self.patrol_points[self.patrol_index]
-            dx, dy = px - self.x, py - self.y
-            dist = math.sqrt(dx*dx + dy*dy)
-
-            if dist < 10:
-                self.patrol_index = (self.patrol_index + 1) % len(self.patrol_points)
-            else:
-                dx, dy = normalize(dx, dy)
-                self.x += dx * speed * 0.3
-                self.y += dy * speed * 0.3
-
-        self.x = clamp(self.x, 30, MAP_WIDTH - 30)
-        self.y = clamp(self.y, 30, MAP_HEIGHT - 30)
-
-    def draw(self, ctx, sx, sy, frame):
-        size = self.size
-
-        # Color shifts as he scales (more red/orange)
-        if self.stage == 1:
-            color = '#804020'
-        elif self.stage == 2:
-            color = '#904030'
-        elif self.stage == 3:
-            color = '#a04535'
-        elif self.stage == 4:
-            color = '#b55030'
-        else:
-            color = '#c05520'
-
-        # Body grows
-        ctx.fillStyle = color
-        ctx.fillRect(sx - size//2, sy - size//2, size, size * 1.2)
-
-        # Head
-        head_size = 6 + self.stage
-        ctx.beginPath()
-        ctx.arc(sx, sy - size//2 - head_size//2, head_size, 0, math.pi * 2)
-        ctx.fill()
-
-        # Scales/armor at higher stages
-        if self.stage >= 3:
-            ctx.fillStyle = '#2a2a2a'
-            for i in range(self.stage - 2):
-                ctx.fillRect(sx - size//2 + 2, sy - size//4 + i * 4, size - 4, 2)
-
-        # Fire effect at stage 4+
-        if self.stage >= 4:
-            ctx.fillStyle = f'rgba(255, {150 - self.stage * 20}, 0, {0.3 + math.sin(frame * 0.2) * 0.1})'
-            ctx.beginPath()
-            ctx.arc(sx, sy, size + 5 + math.sin(frame * 0.3) * 3, 0, math.pi * 2)
-            ctx.fill()
-
-        # Effect indicators
-        if 'webbed' in self.effects:
-            ctx.strokeStyle = 'rgba(200, 200, 200, 0.4)'
-            ctx.lineWidth = 2
-            ctx.beginPath()
-            ctx.arc(sx, sy, size + 8, 0, math.pi * 2)
-            ctx.stroke()
+            ctx.font = '14px monospace'
+            ctx.fillText('*', sx + w//2 - 4, sy + 5)
 
 # ============== GAME ==============
 class Game:
@@ -1163,360 +903,160 @@ class Game:
         self.canvas = document.getElementById('game-canvas')
         self.ctx = self.canvas.getContext('2d')
 
-        # Taylor starts in safer area
-        self.taylor = Taylor(200, 300)
+        self.taylor = Taylor(150, WORLD_HEIGHT - 150)
+        self.platforms = []
         self.bugs = []
         self.enemies = []
         self.lung = None
-        self.control_groups = {1: [], 2: [], 3: [], 4: [], 5: []}
 
         self.camera_x = 0
         self.camera_y = 0
 
-        self.selection_box = None
-        self.current_attack = None
-        self.swarm_sense = False
-        self.last_group_press = {'group': 0, 'time': 0}
-
-        self.spawn_bugs()
-        self.spawn_enemies()
-        self.spawn_lung()
-
-        self.running = True
-        self.frame_count = 0
+        self.frame = 0
         self.game_over = False
         self.victory = False
 
+        self.create_level()
+        self.spawn_bugs()
+        self.spawn_enemies()
+
+    def create_level(self):
+        # Ground
+        self.platforms.append(Platform(0, WORLD_HEIGHT - 50, WORLD_WIDTH, 50, 'solid'))
+
+        # Warehouse platforms - multiple levels
+        # Area 1: Starting area
+        self.platforms.append(Platform(100, WORLD_HEIGHT - 150, 200, 20, 'solid'))
+        self.platforms.append(Platform(50, WORLD_HEIGHT - 250, 150, 15, 'one_way'))
+        self.platforms.append(Platform(250, WORLD_HEIGHT - 300, 180, 20, 'solid'))
+
+        # Area 2: Mid section
+        self.platforms.append(Platform(500, WORLD_HEIGHT - 180, 250, 25, 'solid'))
+        self.platforms.append(Platform(600, WORLD_HEIGHT - 320, 200, 15, 'one_way'))
+        self.platforms.append(Platform(450, WORLD_HEIGHT - 450, 180, 20, 'solid'))
+        self.platforms.append(Platform(700, WORLD_HEIGHT - 500, 150, 15, 'one_way'))
+
+        # Area 3: Vertical section
+        self.platforms.append(Platform(900, WORLD_HEIGHT - 150, 200, 20, 'solid'))
+        self.platforms.append(Platform(950, WORLD_HEIGHT - 280, 150, 20, 'solid'))
+        self.platforms.append(Platform(850, WORLD_HEIGHT - 400, 200, 15, 'one_way'))
+        self.platforms.append(Platform(1000, WORLD_HEIGHT - 520, 180, 20, 'solid'))
+
+        # Area 4: Upper platforms
+        self.platforms.append(Platform(1200, WORLD_HEIGHT - 200, 250, 25, 'solid'))
+        self.platforms.append(Platform(1300, WORLD_HEIGHT - 350, 200, 15, 'one_way'))
+        self.platforms.append(Platform(1150, WORLD_HEIGHT - 480, 220, 20, 'solid'))
+
+        # Area 5: Lung's arena
+        self.platforms.append(Platform(1550, WORLD_HEIGHT - 150, 350, 30, 'solid'))
+        self.platforms.append(Platform(1600, WORLD_HEIGHT - 300, 250, 20, 'solid'))
+        self.platforms.append(Platform(1700, WORLD_HEIGHT - 450, 200, 15, 'one_way'))
+        self.platforms.append(Platform(1500, WORLD_HEIGHT - 550, 300, 20, 'solid'))
+
+        # Final area
+        self.platforms.append(Platform(2000, WORLD_HEIGHT - 180, 300, 25, 'solid'))
+        self.platforms.append(Platform(2100, WORLD_HEIGHT - 350, 200, 20, 'solid'))
+
     def spawn_bugs(self):
-        # Bugs scattered around the docks
-        bug_spawns = [
-            ('fly', 40), ('spider', 20), ('wasp', 15),
-            ('beetle', 10), ('mosquito', 25), ('cockroach', 20)
-        ]
+        # Bugs scattered throughout
+        bug_types = ['fly', 'fly', 'spider', 'wasp', 'beetle', 'fly']
 
-        for bug_type, count in bug_spawns:
-            for _ in range(count):
-                x = random.uniform(50, MAP_WIDTH - 50)
-                y = random.uniform(50, MAP_HEIGHT - 50)
-                self.bugs.append(Bug(x, y, bug_type))
+        # Near start
+        for i in range(20):
+            x = random.uniform(50, 400)
+            y = random.uniform(WORLD_HEIGHT - 400, WORLD_HEIGHT - 100)
+            self.bugs.append(Bug(x, y, random.choice(bug_types)))
 
-        # Extra bugs near Taylor
-        for _ in range(25):
-            angle = random.uniform(0, math.pi * 2)
-            dist = random.uniform(20, 120)
-            x = self.taylor.x + math.cos(angle) * dist
-            y = self.taylor.y + math.sin(angle) * dist
-            bug_type = random.choice(['fly', 'fly', 'spider', 'wasp', 'cockroach'])
-            self.bugs.append(Bug(x, y, bug_type))
+        # Mid area
+        for i in range(25):
+            x = random.uniform(450, 900)
+            y = random.uniform(WORLD_HEIGHT - 550, WORLD_HEIGHT - 100)
+            self.bugs.append(Bug(x, y, random.choice(bug_types)))
+
+        # Near Lung
+        for i in range(30):
+            x = random.uniform(1400, 2200)
+            y = random.uniform(WORLD_HEIGHT - 600, WORLD_HEIGHT - 100)
+            self.bugs.append(Bug(x, y, random.choice(bug_types)))
 
     def spawn_enemies(self):
         # ABB thugs patrolling
         positions = [
-            (500, 200), (700, 400), (400, 600),
-            (900, 300), (600, 700), (1000, 500)
+            (400, WORLD_HEIGHT - 100, 'thug'),
+            (650, WORLD_HEIGHT - 230, 'abb'),
+            (550, WORLD_HEIGHT - 500, 'thug'),
+            (950, WORLD_HEIGHT - 200, 'abb'),
+            (1100, WORLD_HEIGHT - 330, 'thug'),
+            (1250, WORLD_HEIGHT - 250, 'abb'),
+            (1400, WORLD_HEIGHT - 200, 'thug'),
         ]
 
-        for i, (x, y) in enumerate(positions):
-            enemy_type = 'abb' if i % 2 == 0 else 'thug'
-            e = Enemy(x, y, enemy_type)
-            patrol_size = 80
-            e.set_patrol([
-                (x - patrol_size, y - patrol_size),
-                (x + patrol_size, y - patrol_size),
-                (x + patrol_size, y + patrol_size),
-                (x - patrol_size, y + patrol_size)
-            ])
-            self.enemies.append(e)
+        for x, y, etype in positions:
+            self.enemies.append(Enemy(x, y, etype))
 
-    def spawn_lung(self):
-        # Lung in the back of the docks
-        self.lung = Lung(1300, 600)
-        self.lung.set_patrol([
-            (1200, 500), (1400, 500), (1400, 700), (1200, 700)
-        ])
-
-    def handle_input(self):
-        input_state = window.inputState
-        keys = dict(input_state.keys.object_entries())
-
-        self.taylor.update(keys)
-
-        # Swarm sense
-        if keys.get('Tab'):
-            if not hasattr(self, '_tab_held') or not self._tab_held:
-                self.swarm_sense = not self.swarm_sense
-                self._tab_held = True
-        else:
-            self._tab_held = False
-
-        # Attack commands - directly attack nearest enemy
-        attack_cmd = input_state.attackCmd
-        if attack_cmd:
-            self.execute_attack_command(attack_cmd)
-            input_state.attackCmd = None
-
-        # Selection
-        mouse_down = input_state.mouseDown
-        mouse_up = input_state.mouseUp
-
-        if mouse_down:
-            sx = mouse_down.x + self.camera_x
-            sy = mouse_down.y + self.camera_y
-            self.selection_box = {
-                'start_x': sx, 'start_y': sy,
-                'end_x': sx, 'end_y': sy,
-                'shift': mouse_down.shift
-            }
-            input_state.mouseDown = None
-
-        if self.selection_box:
-            mouse = input_state.mouse
-            self.selection_box['end_x'] = mouse.x + self.camera_x
-            self.selection_box['end_y'] = mouse.y + self.camera_y
-
-        if mouse_up and self.selection_box:
-            self.finish_selection(mouse_up.shift)
-            self.selection_box = None
-            input_state.mouseUp = None
-
-        # Right click
-        right_click = input_state.rightClick
-        if right_click:
-            tx = right_click.x + self.camera_x
-            ty = right_click.y + self.camera_y
-
-            # Check if clicking on enemy
-            target_enemy = None
-            all_enemies = self.enemies + ([self.lung] if self.lung and self.lung.alive else [])
-
-            for enemy in all_enemies:
-                if enemy.alive and distance(tx, ty, enemy.x, enemy.y) < enemy.size + 10:
-                    target_enemy = enemy
-                    break
-
-            if target_enemy and self.current_attack:
-                self.command_attack(target_enemy, self.current_attack)
-            elif target_enemy:
-                self.command_attack(target_enemy, None)
-            else:
-                self.command_move(tx, ty)
-
-            input_state.rightClick = None
-
-        # Control groups
-        cmd_click = input_state.cmdClick
-        if cmd_click:
-            cmd_type = cmd_click.type if hasattr(cmd_click, 'type') else cmd_click.get('type')
-
-            if cmd_type == 'assign':
-                group = cmd_click.group if hasattr(cmd_click, 'group') else cmd_click.get('group')
-                self.assign_group(group)
-            elif cmd_type == 'select':
-                group = cmd_click.group if hasattr(cmd_click, 'group') else cmd_click.get('group')
-                click_time = cmd_click.time if hasattr(cmd_click, 'time') else cmd_click.get('time')
-
-                if self.last_group_press['group'] == group and click_time - self.last_group_press['time'] < 300:
-                    self.center_on_group(group)
-                else:
-                    self.select_group(group)
-
-                self.last_group_press = {'group': group, 'time': click_time}
-
-            input_state.cmdClick = None
-
-        # Stop command
-        if keys.get('KeyS') and keys.get('ControlLeft'):
-            for bug in self.bugs:
-                if bug.selected:
-                    bug.command = 'idle'
-                    bug.target = None
-                    bug.target_entity = None
-
-    def finish_selection(self, shift):
-        box = self.selection_box
-        x1, y1 = min(box['start_x'], box['end_x']), min(box['start_y'], box['end_y'])
-        x2, y2 = max(box['start_x'], box['end_x']), max(box['start_y'], box['end_y'])
-
-        if abs(x2 - x1) < 5 and abs(y2 - y1) < 5:
-            if not shift:
-                for bug in self.bugs:
-                    bug.selected = False
-            for bug in self.bugs:
-                if bug.alive and bug.controlled and distance(x1, y1, bug.x, bug.y) < 12:
-                    bug.selected = not bug.selected if shift else True
-                    break
-        else:
-            if not shift:
-                for bug in self.bugs:
-                    bug.selected = False
-            for bug in self.bugs:
-                if bug.alive and bug.controlled and x1 <= bug.x <= x2 and y1 <= bug.y <= y2:
-                    bug.selected = True
-
-    def command_move(self, x, y):
-        selected = [b for b in self.bugs if b.selected and b.alive]
-        if not selected:
-            return
-
-        count = len(selected)
-        cols = max(1, int(math.ceil(math.sqrt(count))))
-        spacing = 12
-
-        for i, bug in enumerate(selected):
-            row, col = i // cols, i % cols
-            ox = (col - cols // 2) * spacing
-            oy = (row - (count // cols) // 2) * spacing
-            bug.command = 'move'
-            bug.target = (x + ox, y + oy)
-            bug.attack_mode = None
-
-        self.current_attack = None
-        window.uiState.activeAttack = None
-
-    def execute_attack_command(self, attack_type):
-        # Get selected bugs that can do this attack
-        selected = [b for b in self.bugs if b.selected and b.alive]
-        capable_bugs = []
-
-        for bug in selected:
-            can_do = False
-            if attack_type == 'sting' and bug.can_sting:
-                can_do = True
-            elif attack_type == 'bite' and bug.can_bite:
-                can_do = True
-            elif attack_type == 'blind' and bug.can_blind:
-                can_do = True
-            elif attack_type == 'web' and bug.can_web:
-                can_do = True
-
-            if can_do:
-                capable_bugs.append(bug)
-
-        if not capable_bugs:
-            return
-
-        # Find nearest enemy to the center of capable bugs
-        avg_x = sum(b.x for b in capable_bugs) / len(capable_bugs)
-        avg_y = sum(b.y for b in capable_bugs) / len(capable_bugs)
-
-        all_enemies = self.enemies + ([self.lung] if self.lung and self.lung.alive else [])
-        nearest_enemy = None
-        nearest_dist = float('inf')
-
-        for enemy in all_enemies:
-            if enemy.alive:
-                d = distance(avg_x, avg_y, enemy.x, enemy.y)
-                if d < nearest_dist:
-                    nearest_dist = d
-                    nearest_enemy = enemy
-
-        if nearest_enemy:
-            for bug in capable_bugs:
-                bug.command = 'attack'
-                bug.target_entity = nearest_enemy
-                bug.attack_mode = attack_type
-            window.uiState.activeAttack = attack_type
-
-    def command_attack(self, enemy, attack_type):
-        selected = [b for b in self.bugs if b.selected and b.alive]
-
-        for bug in selected:
-            # Check if bug can do this attack
-            can_do = True
-            if attack_type == 'sting' and not bug.can_sting:
-                can_do = False
-            elif attack_type == 'bite' and not bug.can_bite:
-                can_do = False
-            elif attack_type == 'blind' and not bug.can_blind:
-                can_do = False
-            elif attack_type == 'web' and not bug.can_web:
-                can_do = False
-
-            if can_do:
-                bug.command = 'attack'
-                bug.target_entity = enemy
-                bug.attack_mode = attack_type
-
-        self.current_attack = None
-        window.uiState.activeAttack = None
-
-    def assign_group(self, group):
-        selected = [b for b in self.bugs if b.selected and b.alive]
-        self.control_groups[group] = [b.id for b in selected]
-
-    def select_group(self, group):
-        for bug in self.bugs:
-            bug.selected = False
-        for bug in self.bugs:
-            if bug.id in self.control_groups[group] and bug.alive and bug.controlled:
-                bug.selected = True
-        window.uiState.activeGroup = group
-
-    def center_on_group(self, group):
-        bugs = [b for b in self.bugs if b.id in self.control_groups[group] and b.alive]
-        if bugs:
-            avg_x = sum(b.x for b in bugs) / len(bugs)
-            avg_y = sum(b.y for b in bugs) / len(bugs)
-            self.camera_x = avg_x - CANVAS_WIDTH // 2
-            self.camera_y = avg_y - CANVAS_HEIGHT // 2
+        # Lung at the back
+        self.lung = Lung(1800, WORLD_HEIGHT - 150)
 
     def update(self):
         if self.game_over:
             return
 
-        self.frame_count += 1
+        self.frame += 1
 
+        # Get input
+        keys = dict(window.inputState.keys.object_entries())
+        key_pressed = dict(window.inputState.keyPressed.object_entries())
+        window.inputState.keyPressed = {}
+
+        # Update Taylor
+        self.taylor.update(keys, key_pressed, self.platforms)
+
+        # Update bugs
         for bug in self.bugs:
-            bug.update(self.taylor, self.enemies + ([self.lung] if self.lung else []))
+            bug.update(self.taylor)
 
+        # Update enemies
         for enemy in self.enemies:
-            enemy.update(self.taylor, self.bugs)
+            enemy.update(self.taylor, self.platforms)
 
+        # Update Lung
         if self.lung and self.lung.alive:
-            self.lung.update(self.taylor, self.bugs)
+            self.lung.update(self.taylor, self.platforms)
 
-        self.bugs = [b for b in self.bugs if b.alive]
+        # Check Taylor's attacks hitting enemies
+        hitbox = self.taylor.get_attack_hitbox()
+        if hitbox:
+            hx, hy, hw, hh = hitbox
+            for enemy in self.enemies:
+                if enemy.alive and rect_intersect(hx, hy, hw, hh, enemy.x, enemy.y, enemy.w, enemy.h):
+                    dmg = 15 if self.taylor.attack_type == 'sting' else 8
+                    enemy.take_damage(dmg, self.taylor.attack_type)
+
+            if self.lung and self.lung.alive:
+                if rect_intersect(hx, hy, hw, hh, self.lung.x, self.lung.y, self.lung.w, self.lung.h):
+                    dmg = 20 if self.taylor.attack_type == 'sting' else 10
+                    self.lung.take_damage(dmg, self.taylor.attack_type)
+
+        # Clean up dead enemies
         self.enemies = [e for e in self.enemies if e.alive]
 
-        # Camera follow
-        target_x = self.taylor.x - CANVAS_WIDTH // 2
-        target_y = self.taylor.y - CANVAS_HEIGHT // 2
+        # Camera
+        target_x = self.taylor.x - CANVAS_WIDTH // 2 + self.taylor.w // 2
+        target_y = self.taylor.y - CANVAS_HEIGHT // 2 + self.taylor.h // 2
         self.camera_x = lerp(self.camera_x, target_x, 0.08)
         self.camera_y = lerp(self.camera_y, target_y, 0.08)
-        self.camera_x = clamp(self.camera_x, 0, MAP_WIDTH - CANVAS_WIDTH)
-        self.camera_y = clamp(self.camera_y, 0, MAP_HEIGHT - CANVAS_HEIGHT)
+        self.camera_x = clamp(self.camera_x, 0, WORLD_WIDTH - CANVAS_WIDTH)
+        self.camera_y = clamp(self.camera_y, 0, WORLD_HEIGHT - CANVAS_HEIGHT)
 
-        # Update UI
-        selected = [b for b in self.bugs if b.selected]
-        if selected:
-            types = {}
-            for b in selected:
-                types[b.bug_type] = types.get(b.bug_type, 0) + 1
-            info_lines = [f"{len(selected)} bugs selected"]
-            for t, c in types.items():
-                info_lines.append(f"  {t}: {c}")
-            window.uiState.selectionInfo = "\\n".join(info_lines)
-        else:
-            window.uiState.selectionInfo = "No bugs selected"
+        # UI
+        window.uiState.taylorHp = (self.taylor.hp / self.taylor.max_hp) * 100
+        if self.lung and self.lung.engaged:
+            window.uiState.bossVisible = True
+            window.uiState.bossHp = (self.lung.hp / self.lung.max_hp) * 100
+        swarm = len([b for b in self.bugs if b.following])
+        window.uiState.swarmCount = swarm
 
-        window.uiState.taylorHp = f"{int(self.taylor.hp)}/{self.taylor.max_hp}"
-        window.uiState.taylorHpPercent = (self.taylor.hp / self.taylor.max_hp) * 100
-
-        controlled = len([b for b in self.bugs if b.controlled])
-        window.uiState.bugCount = f"{controlled} controlled"
-
-        for i in range(5):
-            count = len([b for b in self.bugs if b.id in self.control_groups[i + 1] and b.alive and b.controlled])
-            window.uiState.controlGroups[i] = count
-
-        # Lung UI
-        if self.lung and self.lung.alive and self.lung.engaged:
-            window.uiState.lungVisible = True
-            window.uiState.lungStage = self.lung.stage
-        else:
-            window.uiState.lungVisible = False
-
-        # Win/lose conditions
+        # Win/lose
         if self.taylor.hp <= 0:
             self.game_over = True
         if self.lung and not self.lung.alive:
@@ -1527,224 +1067,90 @@ class Game:
         ctx = self.ctx
         cx, cy = self.camera_x, self.camera_y
 
-        # Night sky background
-        ctx.fillStyle = '#0a0a12'
+        # Background gradient (night sky)
+        gradient = ctx.createLinearGradient(0, 0, 0, CANVAS_HEIGHT)
+        gradient.addColorStop(0, '#050508')
+        gradient.addColorStop(1, '#0a0a12')
+        ctx.fillStyle = gradient
         ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
 
-        # Ground - dark concrete
-        ctx.fillStyle = '#151518'
-        ctx.fillRect(-cx, -cy, MAP_WIDTH, MAP_HEIGHT)
+        # Background buildings (parallax)
+        self.draw_background(ctx, cx, cy)
 
-        # Dock structures
-        self.draw_environment(ctx, cx, cy)
-
-        # Grid (subtle)
-        ctx.strokeStyle = 'rgba(40, 40, 50, 0.3)'
-        ctx.lineWidth = 1
-        grid = 60
-        for x in range(int(-cx % grid), CANVAS_WIDTH + grid, grid):
-            ctx.beginPath()
-            ctx.moveTo(x, 0)
-            ctx.lineTo(x, CANVAS_HEIGHT)
-            ctx.stroke()
-        for y in range(int(-cy % grid), CANVAS_HEIGHT + grid, grid):
-            ctx.beginPath()
-            ctx.moveTo(0, y)
-            ctx.lineTo(CANVAS_WIDTH, y)
-            ctx.stroke()
-
-        # Control range
-        tx, ty = self.taylor.x - cx, self.taylor.y - cy
-        ctx.strokeStyle = 'rgba(100, 90, 70, 0.25)'
-        ctx.lineWidth = 1
-        ctx.setLineDash([4, 4])
-        ctx.beginPath()
-        ctx.arc(tx, ty, self.taylor.control_range, 0, math.pi * 2)
-        ctx.stroke()
-        ctx.setLineDash([])
+        # Platforms
+        for plat in self.platforms:
+            plat.draw(ctx, cx, cy)
 
         # Bugs
         for bug in self.bugs:
-            bx, by = bug.x - cx, bug.y - cy
-            if -20 < bx < CANVAS_WIDTH + 20 and -20 < by < CANVAS_HEIGHT + 20:
-                if bug.selected:
-                    ctx.strokeStyle = 'rgba(100, 150, 100, 0.8)'
-                    ctx.lineWidth = 1
-                    ctx.beginPath()
-                    ctx.arc(bx, by, bug.size + 4, 0, math.pi * 2)
-                    ctx.stroke()
-                bug.draw(ctx, bx, by, self.frame_count)
+            bug.draw(ctx, cx, cy, self.frame)
 
         # Enemies
         for enemy in self.enemies:
             if enemy.alive:
-                ex, ey = enemy.x - cx, enemy.y - cy
-                if -30 < ex < CANVAS_WIDTH + 30 and -30 < ey < CANVAS_HEIGHT + 30:
-                    enemy.draw(ctx, ex, ey)
-                    # HP bar
-                    ctx.fillStyle = '#1a1a1a'
-                    ctx.fillRect(ex - 12, ey - enemy.size//2 - 10, 24, 3)
-                    ctx.fillStyle = '#4a6a4a'
-                    ctx.fillRect(ex - 12, ey - enemy.size//2 - 10, 24 * (enemy.hp / enemy.max_hp), 3)
+                enemy.draw(ctx, cx, cy)
 
         # Lung
         if self.lung and self.lung.alive:
-            lx, ly = self.lung.x - cx, self.lung.y - cy
-            if -50 < lx < CANVAS_WIDTH + 50 and -50 < ly < CANVAS_HEIGHT + 50:
-                self.lung.draw(ctx, lx, ly, self.frame_count)
-                # HP bar
-                bar_w = 40
-                ctx.fillStyle = '#1a1a1a'
-                ctx.fillRect(lx - bar_w//2, ly - self.lung.size//2 - 14, bar_w, 4)
-                ctx.fillStyle = '#8a4a3a'
-                ctx.fillRect(lx - bar_w//2, ly - self.lung.size//2 - 14, bar_w * (self.lung.hp / self.lung.max_hp), 4)
-                # Name
-                ctx.fillStyle = '#aa6050'
-                ctx.font = '9px monospace'
-                ctx.fillText(f'LUNG [{self.lung.stage}]', lx - 20, ly - self.lung.size//2 - 18)
+            self.lung.draw(ctx, cx, cy, self.frame)
 
         # Taylor
-        self.taylor.draw(ctx, tx, ty)
+        self.taylor.draw(ctx, cx, cy)
 
-        # Taylor HP bar
-        ctx.fillStyle = '#1a1a1a'
-        ctx.fillRect(tx - 15, ty - 22, 30, 3)
-        ctx.fillStyle = '#4a7a6a'
-        ctx.fillRect(tx - 15, ty - 22, 30 * (self.taylor.hp / self.taylor.max_hp), 3)
-
-        # Selection box
-        if self.selection_box:
-            box = self.selection_box
-            x1, y1 = box['start_x'] - cx, box['start_y'] - cy
-            x2, y2 = box['end_x'] - cx, box['end_y'] - cy
-            ctx.strokeStyle = 'rgba(100, 150, 100, 0.6)'
-            ctx.fillStyle = 'rgba(100, 150, 100, 0.1)'
-            ctx.lineWidth = 1
-            ctx.beginPath()
-            ctx.rect(x1, y1, x2 - x1, y2 - y1)
-            ctx.fill()
-            ctx.stroke()
-
-        # Swarm sense overlay
-        if self.swarm_sense:
-            ctx.fillStyle = 'rgba(0, 0, 10, 0.7)'
-            ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
-            ctx.globalCompositeOperation = 'destination-out'
-            ctx.beginPath()
-            ctx.arc(tx, ty, 80, 0, math.pi * 2)
-            ctx.fill()
-            for bug in self.bugs:
-                if bug.controlled:
-                    bx, by = bug.x - cx, bug.y - cy
-                    ctx.beginPath()
-                    ctx.arc(bx, by, bug.vision * 0.7, 0, math.pi * 2)
-                    ctx.fill()
-            ctx.globalCompositeOperation = 'source-over'
-
-        # Game over
+        # Game over screen
         if self.game_over:
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.85)'
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.8)'
             ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+
             if self.victory:
                 ctx.fillStyle = '#6a8a6a'
-                ctx.font = '28px monospace'
-                ctx.fillText('LUNG DEFEATED', CANVAS_WIDTH//2 - 100, CANVAS_HEIGHT//2 - 20)
+                ctx.font = '32px monospace'
+                ctx.fillText('LUNG DEFEATED', CANVAS_WIDTH//2 - 120, CANVAS_HEIGHT//2 - 20)
                 ctx.fillStyle = '#888'
-                ctx.font = '12px monospace'
-                ctx.fillText('Taylor escapes into the night...', CANVAS_WIDTH//2 - 90, CANVAS_HEIGHT//2 + 20)
+                ctx.font = '14px monospace'
+                ctx.fillText('The Undersiders arrive... Taylor escapes into the night.', CANVAS_WIDTH//2 - 200, CANVAS_HEIGHT//2 + 30)
             else:
                 ctx.fillStyle = '#8a5050'
-                ctx.font = '28px monospace'
-                ctx.fillText('DEFEATED', CANVAS_WIDTH//2 - 60, CANVAS_HEIGHT//2)
+                ctx.font = '32px monospace'
+                ctx.fillText('DEFEATED', CANVAS_WIDTH//2 - 70, CANVAS_HEIGHT//2)
 
-    def draw_environment(self, ctx, cx, cy):
-        # Warehouses with details
-        warehouses = [
-            (100, 500, 150, 100, 'WAREHOUSE 7'),
-            (800, 100, 180, 120, 'STORAGE'),
-            (1100, 300, 200, 150, 'DOCK 3'),
-            (300, 800, 160, 100, 'SHIPPING'),
-            (1200, 800, 180, 120, 'ABB'),
+    def draw_background(self, ctx, cx, cy):
+        # Parallax city silhouette
+        parallax = 0.3
+        bx = -cx * parallax
+
+        ctx.fillStyle = '#08080c'
+
+        # Distant buildings
+        buildings = [
+            (100, 200), (180, 280), (300, 220), (400, 300),
+            (550, 250), (700, 320), (850, 240), (1000, 290),
+            (1150, 260), (1300, 310), (1450, 230), (1600, 280),
         ]
 
-        for wx, wy, ww, wh, label in warehouses:
-            x, y = wx - cx, wy - cy
-
-            # Main building
-            ctx.fillStyle = '#0c0c10'
-            ctx.fillRect(x, y, ww, wh)
-
-            # Roof edge
-            ctx.fillStyle = '#1a1a20'
-            ctx.fillRect(x, y, ww, 8)
-
-            # Wall texture lines
-            ctx.strokeStyle = '#181820'
-            ctx.lineWidth = 1
-            for i in range(3):
-                lx = x + ww * (i + 1) // 4
-                ctx.beginPath()
-                ctx.moveTo(lx, y + 10)
-                ctx.lineTo(lx, y + wh)
-                ctx.stroke()
-
-            # Door
-            door_w, door_h = 20, 35
-            ctx.fillStyle = '#1a1a25'
-            ctx.fillRect(x + ww//2 - door_w//2, y + wh - door_h, door_w, door_h)
-            ctx.fillStyle = '#252530'
-            ctx.fillRect(x + ww//2 - 2, y + wh - door_h + 12, 4, 10)
-
+        for bldg_x, height in buildings:
+            x = bldg_x + bx
+            y = CANVAS_HEIGHT - height
+            w = 60
+            ctx.fillRect(x, y, w, height)
             # Windows
-            ctx.fillStyle = '#151520'
-            win_y = y + 20
-            for i in range(int(ww // 50)):
-                win_x = x + 25 + i * 50
-                ctx.fillRect(win_x, win_y, 15, 12)
-                # Dim light in some windows
-                if (wx + i) % 3 == 0:
-                    ctx.fillStyle = 'rgba(60, 50, 30, 0.3)'
-                    ctx.fillRect(win_x + 1, win_y + 1, 13, 10)
-                    ctx.fillStyle = '#151520'
+            ctx.fillStyle = 'rgba(40, 35, 25, 0.4)'
+            for wy in range(int(y + 20), int(CANVAS_HEIGHT - 20), 25):
+                for wx in range(int(x + 8), int(x + w - 8), 15):
+                    if random.random() > 0.7:
+                        ctx.fillRect(wx, wy, 6, 8)
+            ctx.fillStyle = '#08080c'
 
-            # Building outline
-            ctx.strokeStyle = '#252530'
-            ctx.lineWidth = 2
-            ctx.strokeRect(x, y, ww, wh)
-
-            # Label
-            ctx.fillStyle = '#2a2a35'
-            ctx.font = '8px monospace'
-            ctx.fillText(label, x + 5, y + wh - 5)
-
-        # Street lamps (circles of light)
-        lamp_positions = [
-            (150, 200), (400, 150), (600, 350),
-            (250, 550), (500, 700), (850, 500),
-            (1000, 200), (1150, 600), (700, 850)
-        ]
-
-        for lx, ly in lamp_positions:
-            x, y = lx - cx, ly - cy
-            # Light glow
-            gradient = ctx.createRadialGradient(x, y, 0, x, y, 60)
-            gradient.addColorStop(0, 'rgba(80, 70, 50, 0.15)')
-            gradient.addColorStop(1, 'rgba(80, 70, 50, 0)')
-            ctx.fillStyle = gradient
-            ctx.beginPath()
-            ctx.arc(x, y, 60, 0, math.pi * 2)
-            ctx.fill()
-            # Lamp post
-            ctx.fillStyle = '#2a2a30'
-            ctx.fillRect(x - 2, y - 15, 4, 18)
+        # Moon
+        ctx.fillStyle = '#1a1a25'
+        ctx.beginPath()
+        ctx.arc(700 - cx * 0.1, 80, 30, 0, math.pi * 2)
+        ctx.fill()
 
     def game_loop(self, timestamp):
-        self.handle_input()
         self.update()
         self.render()
-
-        if self.running:
-            requestAnimationFrame(create_proxy(self.game_loop))
+        requestAnimationFrame(create_proxy(self.game_loop))
 
 # Start
 game = Game()
