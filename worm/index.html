@@ -269,7 +269,7 @@
                     <kbd>WASD</kbd> Move Taylor<br>
                     <kbd>Drag</kbd> Select bugs<br>
                     <kbd>Right-Click</kbd> Move bugs<br>
-                    <kbd>Q/W/E/R</kbd> Attack on target<br>
+                    <kbd>Q/W/E/R</kbd> Attack nearest<br>
                     <kbd>Tab</kbd> Swarm sense<br>
                     <kbd>Ctrl+1-5</kbd> Assign group
                 </div>
@@ -1249,11 +1249,10 @@ class Game:
         else:
             self._tab_held = False
 
-        # Attack commands
+        # Attack commands - directly attack nearest enemy
         attack_cmd = input_state.attackCmd
         if attack_cmd:
-            self.current_attack = attack_cmd
-            window.uiState.activeAttack = attack_cmd
+            self.execute_attack_command(attack_cmd)
             input_state.attackCmd = None
 
         # Selection
@@ -1373,6 +1372,50 @@ class Game:
 
         self.current_attack = None
         window.uiState.activeAttack = None
+
+    def execute_attack_command(self, attack_type):
+        # Get selected bugs that can do this attack
+        selected = [b for b in self.bugs if b.selected and b.alive]
+        capable_bugs = []
+
+        for bug in selected:
+            can_do = False
+            if attack_type == 'sting' and bug.can_sting:
+                can_do = True
+            elif attack_type == 'bite' and bug.can_bite:
+                can_do = True
+            elif attack_type == 'blind' and bug.can_blind:
+                can_do = True
+            elif attack_type == 'web' and bug.can_web:
+                can_do = True
+
+            if can_do:
+                capable_bugs.append(bug)
+
+        if not capable_bugs:
+            return
+
+        # Find nearest enemy to the center of capable bugs
+        avg_x = sum(b.x for b in capable_bugs) / len(capable_bugs)
+        avg_y = sum(b.y for b in capable_bugs) / len(capable_bugs)
+
+        all_enemies = self.enemies + ([self.lung] if self.lung and self.lung.alive else [])
+        nearest_enemy = None
+        nearest_dist = float('inf')
+
+        for enemy in all_enemies:
+            if enemy.alive:
+                d = distance(avg_x, avg_y, enemy.x, enemy.y)
+                if d < nearest_dist:
+                    nearest_dist = d
+                    nearest_enemy = enemy
+
+        if nearest_enemy:
+            for bug in capable_bugs:
+                bug.command = 'attack'
+                bug.target_entity = nearest_enemy
+                bug.attack_mode = attack_type
+            window.uiState.activeAttack = attack_type
 
     def command_attack(self, enemy, attack_type):
         selected = [b for b in self.bugs if b.selected and b.alive]
@@ -1597,12 +1640,6 @@ class Game:
                     ctx.arc(bx, by, bug.vision * 0.7, 0, math.pi * 2)
                     ctx.fill()
             ctx.globalCompositeOperation = 'source-over'
-
-        # Attack mode indicator
-        if self.current_attack:
-            ctx.fillStyle = '#8b7355'
-            ctx.font = '11px monospace'
-            ctx.fillText(f'[{self.current_attack.upper()}] Click on enemy', 10, CANVAS_HEIGHT - 12)
 
         # Game over
         if self.game_over:
