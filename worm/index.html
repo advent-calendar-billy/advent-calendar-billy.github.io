@@ -1658,23 +1658,64 @@ class Game:
                 ctx.fillText('DEFEATED', CANVAS_WIDTH//2 - 60, CANVAS_HEIGHT//2)
 
     def draw_environment(self, ctx, cx, cy):
-        # Warehouse outlines
-        ctx.fillStyle = '#101015'
-        ctx.strokeStyle = '#252530'
-        ctx.lineWidth = 2
-
+        # Warehouses with details
         warehouses = [
-            (100, 500, 150, 100),
-            (800, 100, 180, 120),
-            (1100, 300, 200, 150),
-            (300, 800, 160, 100),
-            (1200, 800, 180, 120),
+            (100, 500, 150, 100, 'WAREHOUSE 7'),
+            (800, 100, 180, 120, 'STORAGE'),
+            (1100, 300, 200, 150, 'DOCK 3'),
+            (300, 800, 160, 100, 'SHIPPING'),
+            (1200, 800, 180, 120, 'ABB'),
         ]
 
-        for wx, wy, ww, wh in warehouses:
+        for wx, wy, ww, wh, label in warehouses:
             x, y = wx - cx, wy - cy
+
+            # Main building
+            ctx.fillStyle = '#0c0c10'
             ctx.fillRect(x, y, ww, wh)
+
+            # Roof edge
+            ctx.fillStyle = '#1a1a20'
+            ctx.fillRect(x, y, ww, 8)
+
+            # Wall texture lines
+            ctx.strokeStyle = '#181820'
+            ctx.lineWidth = 1
+            for i in range(3):
+                lx = x + ww * (i + 1) // 4
+                ctx.beginPath()
+                ctx.moveTo(lx, y + 10)
+                ctx.lineTo(lx, y + wh)
+                ctx.stroke()
+
+            # Door
+            door_w, door_h = 20, 35
+            ctx.fillStyle = '#1a1a25'
+            ctx.fillRect(x + ww//2 - door_w//2, y + wh - door_h, door_w, door_h)
+            ctx.fillStyle = '#252530'
+            ctx.fillRect(x + ww//2 - 2, y + wh - door_h + 12, 4, 10)
+
+            # Windows
+            ctx.fillStyle = '#151520'
+            win_y = y + 20
+            for i in range(int(ww // 50)):
+                win_x = x + 25 + i * 50
+                ctx.fillRect(win_x, win_y, 15, 12)
+                # Dim light in some windows
+                if (wx + i) % 3 == 0:
+                    ctx.fillStyle = 'rgba(60, 50, 30, 0.3)'
+                    ctx.fillRect(win_x + 1, win_y + 1, 13, 10)
+                    ctx.fillStyle = '#151520'
+
+            # Building outline
+            ctx.strokeStyle = '#252530'
+            ctx.lineWidth = 2
             ctx.strokeRect(x, y, ww, wh)
+
+            # Label
+            ctx.fillStyle = '#2a2a35'
+            ctx.font = '8px monospace'
+            ctx.fillText(label, x + 5, y + wh - 5)
 
         # Street lamps (circles of light)
         lamp_positions = [
