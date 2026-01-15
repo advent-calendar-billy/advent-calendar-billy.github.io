@@ -137,10 +137,8 @@
         const loading = document.getElementById('loading');
         const gameContainer = document.getElementById('game-container');
 
-        window.inputState = {
-            keys: {},
-            keyPressed: {}
-        };
+        window.keysHeld = {};
+        window.keysJustPressed = [];
 
         window.uiState = {
             taylorHp: 100,
@@ -157,17 +155,17 @@
                 loading.textContent = 'Entering Brockton Bay...';
 
                 document.addEventListener('keydown', (e) => {
-                    if (!window.inputState.keys[e.code]) {
-                        window.inputState.keyPressed[e.code] = true;
+                    if (!window.keysHeld[e.code]) {
+                        window.keysJustPressed.push(e.code);
                     }
-                    window.inputState.keys[e.code] = true;
+                    window.keysHeld[e.code] = true;
                     if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) {
                         e.preventDefault();
                     }
                 });
 
                 document.addEventListener('keyup', (e) => {
-                    window.inputState.keys[e.code] = false;
+                    window.keysHeld[e.code] = false;
                 });
 
                 await pyodide.runPythonAsync(`
@@ -1004,9 +1002,9 @@ class Game:
         self.frame += 1
 
         # Get input
-        keys = dict(window.inputState.keys.object_entries())
-        key_pressed = dict(window.inputState.keyPressed.object_entries())
-        window.inputState.keyPressed = {}
+        keys = {k: True for k in window.keysHeld.object_keys() if window.keysHeld[k]}
+        key_pressed = {k: True for k in list(window.keysJustPressed)}
+        window.keysJustPressed.splice(0, len(window.keysJustPressed))
 
         # Update Taylor
         self.taylor.update(keys, key_pressed, self.platforms)
