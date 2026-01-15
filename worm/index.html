@@ -11,7 +11,7 @@
             box-sizing: border-box;
         }
         body {
-            background: #0a0a0f;
+            background: #1a1a24;
             color: #c0c0c0;
             font-family: 'Courier New', monospace;
             min-height: 100vh;
@@ -22,20 +22,20 @@
             user-select: none;
         }
         h1 {
-            color: #8b7355;
+            color: #a08060;
             margin-bottom: 5px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
             font-size: 1.4em;
             letter-spacing: 2px;
         }
         .subtitle {
-            color: #666;
+            color: #888;
             font-size: 0.8em;
             margin-bottom: 10px;
         }
         #loading {
             font-size: 1em;
-            color: #8b7355;
+            color: #a08060;
             margin-bottom: 10px;
         }
         #game-container {
@@ -43,8 +43,8 @@
         }
         #game-canvas {
             display: block;
-            background: #0f0f15;
-            border: 2px solid #333;
+            background: #1a1a24;
+            border: 2px solid #444;
             image-rendering: pixelated;
         }
         #ui-overlay {
@@ -60,41 +60,41 @@
             margin-bottom: 8px;
         }
         .hp-label {
-            color: #8b7355;
+            color: #a08060;
             font-size: 10px;
             width: 50px;
         }
         .hp-bar-outer {
             width: 120px;
             height: 10px;
-            background: #1a1a20;
-            border: 1px solid #333;
+            background: #2a2a34;
+            border: 1px solid #444;
         }
         .hp-bar-inner {
             height: 100%;
-            background: linear-gradient(90deg, #4a6a5a 0%, #6a9a7a 100%);
+            background: linear-gradient(90deg, #5a8a6a 0%, #7aba8a 100%);
             transition: width 0.3s;
         }
         .hp-bar-inner.enemy {
-            background: linear-gradient(90deg, #6a4a4a 0%, #9a6a6a 100%);
+            background: linear-gradient(90deg, #8a5a5a 0%, #ba7a7a 100%);
         }
         .swarm-count {
-            color: #7a7a5a;
+            color: #9a9a7a;
             font-size: 10px;
         }
         #controls-hint {
             position: absolute;
             bottom: 10px;
             left: 10px;
-            color: #444;
+            color: #666;
             font-size: 9px;
             pointer-events: none;
         }
         #controls-hint kbd {
-            background: #1a1a20;
+            background: #2a2a34;
             padding: 1px 4px;
-            border: 1px solid #333;
-            color: #666;
+            border: 1px solid #444;
+            color: #888;
         }
         .hidden {
             display: none !important;
@@ -199,13 +199,18 @@ from pyodide.ffi import create_proxy
 # ============== CONSTANTS ==============
 CANVAS_WIDTH = 900
 CANVAS_HEIGHT = 600
-WORLD_WIDTH = 2400
-WORLD_HEIGHT = 900
+WORLD_WIDTH = 2800
+WORLD_HEIGHT = 700
 
-GRAVITY = 0.5
-JUMP_FORCE = -11
-MAX_FALL_SPEED = 12
-TAYLOR_SPEED = 3.5
+GRAVITY = 0.45
+JUMP_FORCE = -10
+MAX_FALL_SPEED = 11
+TAYLOR_SPEED = 3.2
+CONTROL_RANGE = 140
+LOSE_RANGE = 190
+
+# Ground level
+GROUND_Y = WORLD_HEIGHT - 60
 
 # ============== UTILITY ==============
 def clamp(val, min_val, max_val):
@@ -220,42 +225,112 @@ def distance(x1, y1, x2, y2):
 def rect_intersect(x1, y1, w1, h1, x2, y2, w2, h2):
     return x1 < x2 + w2 and x1 + w1 > x2 and y1 < y2 + h2 and y1 + h1 > y2
 
-# ============== PLATFORMS ==============
-class Platform:
-    def __init__(self, x, y, w, h, platform_type='solid'):
+# ============== STRUCTURES ==============
+class Structure:
+    def __init__(self, x, y, w, h, struct_type='crate'):
         self.x = x
         self.y = y
         self.w = w
         self.h = h
-        self.platform_type = platform_type  # 'solid', 'one_way'
+        self.struct_type = struct_type
+
+    def get_top_surface(self):
+        # Returns (x, y, width) of walkable top
+        return (self.x, self.y, self.w)
 
     def draw(self, ctx, cx, cy):
         sx, sy = self.x - cx, self.y - cy
 
-        if self.platform_type == 'solid':
-            # Main platform
-            ctx.fillStyle = '#1a1a22'
+        if self.struct_type == 'crate':
+            # Wooden crate
+            ctx.fillStyle = '#5a4a35'
             ctx.fillRect(sx, sy, self.w, self.h)
-
-            # Top edge highlight
-            ctx.fillStyle = '#2a2a35'
+            # Wood grain
+            ctx.strokeStyle = '#4a3a28'
+            ctx.lineWidth = 1
+            ctx.strokeRect(sx + 2, sy + 2, self.w - 4, self.h - 4)
+            # Cross boards
+            ctx.beginPath()
+            ctx.moveTo(sx + 3, sy + 3)
+            ctx.lineTo(sx + self.w - 3, sy + self.h - 3)
+            ctx.stroke()
+            ctx.beginPath()
+            ctx.moveTo(sx + self.w - 3, sy + 3)
+            ctx.lineTo(sx + 3, sy + self.h - 3)
+            ctx.stroke()
+            # Highlight
+            ctx.fillStyle = '#6a5a45'
             ctx.fillRect(sx, sy, self.w, 3)
 
-            # Texture lines
-            ctx.strokeStyle = '#151518'
+        elif self.struct_type == 'container':
+            # Shipping container
+            ctx.fillStyle = '#4a5560'
+            ctx.fillRect(sx, sy, self.w, self.h)
+            # Ridges
+            ctx.fillStyle = '#3a4550'
+            for i in range(int(self.w // 30)):
+                ctx.fillRect(sx + 10 + i * 30, sy, 3, self.h)
+            # Top highlight
+            ctx.fillStyle = '#5a6570'
+            ctx.fillRect(sx, sy, self.w, 4)
+            # Door lines
+            ctx.strokeStyle = '#3a4550'
+            ctx.lineWidth = 2
+            ctx.strokeRect(sx + 5, sy + 10, self.w - 10, self.h - 15)
+
+        elif self.struct_type == 'warehouse_floor':
+            # Metal floor/catwalk
+            ctx.fillStyle = '#4a4a50'
+            ctx.fillRect(sx, sy, self.w, self.h)
+            # Grating pattern
+            ctx.strokeStyle = '#3a3a40'
             ctx.lineWidth = 1
-            for i in range(int(self.w // 40)):
-                lx = sx + 20 + i * 40
+            for i in range(int(self.w // 15)):
                 ctx.beginPath()
-                ctx.moveTo(lx, sy + 4)
-                ctx.lineTo(lx, sy + self.h)
+                ctx.moveTo(sx + i * 15, sy)
+                ctx.lineTo(sx + i * 15, sy + self.h)
                 ctx.stroke()
-        else:
-            # One-way platform (thinner, can jump through from below)
-            ctx.fillStyle = '#252530'
-            ctx.fillRect(sx, sy, self.w, 8)
-            ctx.fillStyle = '#3a3a45'
+            # Edge
+            ctx.fillStyle = '#5a5a60'
             ctx.fillRect(sx, sy, self.w, 2)
+            # Support beams underneath
+            ctx.fillStyle = '#3a3a40'
+            ctx.fillRect(sx + 10, sy + self.h, 8, 30)
+            ctx.fillRect(sx + self.w - 18, sy + self.h, 8, 30)
+
+        elif self.struct_type == 'stairs':
+            # Stairs going up-right
+            ctx.fillStyle = '#4a4a50'
+            steps = 5
+            step_w = self.w // steps
+            step_h = self.h // steps
+            for i in range(steps):
+                ctx.fillRect(sx + i * step_w, sy + self.h - (i + 1) * step_h, step_w + 2, (i + 1) * step_h)
+                ctx.fillStyle = '#5a5a60'
+                ctx.fillRect(sx + i * step_w, sy + self.h - (i + 1) * step_h, step_w + 2, 2)
+                ctx.fillStyle = '#4a4a50'
+
+        elif self.struct_type == 'warehouse_wall':
+            # Background warehouse wall (not collidable, just visual)
+            ctx.fillStyle = '#2a2a30'
+            ctx.fillRect(sx, sy, self.w, self.h)
+            # Windows
+            ctx.fillStyle = '#1a2a35'
+            win_y = sy + 30
+            for i in range(int(self.w // 80)):
+                ctx.fillRect(sx + 20 + i * 80, win_y, 40, 50)
+                # Window frame
+                ctx.strokeStyle = '#3a3a40'
+                ctx.lineWidth = 2
+                ctx.strokeRect(sx + 20 + i * 80, win_y, 40, 50)
+            # Corrugated metal lines
+            ctx.strokeStyle = '#353540'
+            ctx.lineWidth = 1
+            for i in range(int(self.w // 20)):
+                ctx.beginPath()
+                ctx.moveTo(sx + i * 20, sy)
+                ctx.lineTo(sx + i * 20, sy + self.h)
+                ctx.stroke()
 
 # ============== TAYLOR ==============
 class Taylor:
@@ -264,15 +339,15 @@ class Taylor:
         self.y = y
         self.vx = 0
         self.vy = 0
-        self.w = 20
-        self.h = 40
+        self.w = 18
+        self.h = 38
 
         self.hp = 100
         self.max_hp = 100
 
         self.on_ground = False
-        self.facing = 1  # 1 = right, -1 = left
-        self.state = 'idle'  # idle, run, jump, fall, attack
+        self.facing = 1
+        self.state = 'idle'
 
         self.attack_timer = 0
         self.attack_type = None
@@ -282,8 +357,7 @@ class Taylor:
         self.anim_frame = 0
         self.anim_timer = 0
 
-    def update(self, keys, key_pressed, platforms):
-        # Movement
+    def update(self, keys, key_pressed, structures):
         move_x = 0
         if keys.get('KeyA') or keys.get('ArrowLeft'):
             move_x = -1
@@ -294,16 +368,13 @@ class Taylor:
 
         self.vx = move_x * TAYLOR_SPEED
 
-        # Jumping
         if (key_pressed.get('Space') or key_pressed.get('KeyW') or key_pressed.get('ArrowUp')) and self.on_ground:
             self.vy = JUMP_FORCE
             self.on_ground = False
 
-        # Gravity
         self.vy += GRAVITY
         self.vy = min(self.vy, MAX_FALL_SPEED)
 
-        # Attack inputs
         if self.attack_cooldown <= 0:
             if key_pressed.get('KeyJ'):
                 self.start_attack('sting')
@@ -312,7 +383,6 @@ class Taylor:
             elif key_pressed.get('KeyL'):
                 self.start_attack('blind')
 
-        # Update attack
         if self.attack_timer > 0:
             self.attack_timer -= 1
             if self.attack_timer <= 0:
@@ -324,25 +394,40 @@ class Taylor:
         if self.invuln_timer > 0:
             self.invuln_timer -= 1
 
-        # Apply velocity
+        # Horizontal movement
         self.x += self.vx
+        # Check horizontal collision
+        for struct in structures:
+            if struct.struct_type in ['crate', 'container', 'warehouse_floor']:
+                if rect_intersect(self.x, self.y, self.w, self.h, struct.x, struct.y, struct.w, struct.h):
+                    if self.vx > 0:
+                        self.x = struct.x - self.w
+                    elif self.vx < 0:
+                        self.x = struct.x + struct.w
+
+        # Vertical movement
         self.y += self.vy
-
-        # Collision with platforms
         self.on_ground = False
-        for plat in platforms:
-            if self.collide_platform(plat):
-                pass  # Collision handled in method
 
-        # World bounds
-        self.x = clamp(self.x, 0, WORLD_WIDTH - self.w)
-        self.y = clamp(self.y, 0, WORLD_HEIGHT - self.h)
+        # Check vertical collision
+        for struct in structures:
+            if struct.struct_type in ['crate', 'container', 'warehouse_floor', 'stairs']:
+                if rect_intersect(self.x, self.y, self.w, self.h, struct.x, struct.y, struct.w, struct.h):
+                    if self.vy > 0:
+                        self.y = struct.y - self.h
+                        self.vy = 0
+                        self.on_ground = True
+                    elif self.vy < 0 and struct.struct_type != 'stairs':
+                        self.y = struct.y + struct.h
+                        self.vy = 0
 
-        # Ground at bottom
-        if self.y + self.h >= WORLD_HEIGHT - 50:
-            self.y = WORLD_HEIGHT - 50 - self.h
+        # Ground
+        if self.y + self.h >= GROUND_Y:
+            self.y = GROUND_Y - self.h
             self.vy = 0
             self.on_ground = True
+
+        self.x = clamp(self.x, 0, WORLD_WIDTH - self.w)
 
         # State
         if self.attack_timer > 0:
@@ -357,59 +442,21 @@ class Taylor:
         # Animation
         self.anim_timer += 1
         if self.state == 'run':
-            if self.anim_timer >= 8:
+            if self.anim_timer >= 6:
                 self.anim_timer = 0
                 self.anim_frame = (self.anim_frame + 1) % 4
         else:
             self.anim_frame = 0
 
-    def collide_platform(self, plat):
-        # Check if we're intersecting
-        if not rect_intersect(self.x, self.y, self.w, self.h, plat.x, plat.y, plat.w, plat.h):
-            return False
-
-        if plat.platform_type == 'one_way':
-            # Only collide if falling onto it from above
-            feet_y = self.y + self.h
-            if self.vy > 0 and feet_y - self.vy <= plat.y + 5:
-                self.y = plat.y - self.h
-                self.vy = 0
-                self.on_ground = True
-                return True
-            return False
-
-        # Solid platform - resolve collision
-        overlap_left = (self.x + self.w) - plat.x
-        overlap_right = (plat.x + plat.w) - self.x
-        overlap_top = (self.y + self.h) - plat.y
-        overlap_bottom = (plat.y + plat.h) - self.y
-
-        min_overlap = min(overlap_left, overlap_right, overlap_top, overlap_bottom)
-
-        if min_overlap == overlap_top and self.vy >= 0:
-            self.y = plat.y - self.h
-            self.vy = 0
-            self.on_ground = True
-        elif min_overlap == overlap_bottom and self.vy < 0:
-            self.y = plat.y + plat.h
-            self.vy = 0
-        elif min_overlap == overlap_left:
-            self.x = plat.x - self.w
-        elif min_overlap == overlap_right:
-            self.x = plat.x + plat.w
-
-        return True
-
     def start_attack(self, attack_type):
         self.attack_type = attack_type
         self.attack_timer = 25
-        self.attack_cooldown = 35
+        self.attack_cooldown = 30
 
     def get_attack_hitbox(self):
         if not self.attack_type or self.attack_timer < 15:
             return None
-        # Attack hitbox in front of Taylor
-        hb_w, hb_h = 50, 30
+        hb_w, hb_h = 45, 28
         hb_x = self.x + self.w if self.facing > 0 else self.x - hb_w
         hb_y = self.y + 5
         return (hb_x, hb_y, hb_w, hb_h)
@@ -425,80 +472,84 @@ class Taylor:
     def draw(self, ctx, cx, cy):
         sx, sy = self.x - cx, self.y - cy
 
-        # Flash when invulnerable
         if self.invuln_timer > 0 and (self.invuln_timer // 4) % 2 == 0:
             return
 
-        # Taylor in her grey-black costume
         f = self.facing
-
-        # Body
-        ctx.fillStyle = '#1a1a1a'
         body_offset = 0
         if self.state == 'run':
             body_offset = [0, -1, 0, -1][self.anim_frame]
-        ctx.fillRect(sx + 4, sy + 12 + body_offset, 12, 20)
+
+        # Body (grey-black costume)
+        ctx.fillStyle = '#2a2a2a'
+        ctx.fillRect(sx + 3, sy + 11 + body_offset, 12, 18)
 
         # Legs
-        ctx.fillStyle = '#151515'
+        ctx.fillStyle = '#222222'
         if self.state == 'run':
             offsets = [(0, 3), (2, -2), (0, 3), (-2, -2)]
             l1, l2 = offsets[self.anim_frame]
-            ctx.fillRect(sx + 5, sy + 32 + body_offset, 4, 8 + l1)
-            ctx.fillRect(sx + 11, sy + 32 + body_offset, 4, 8 + l2)
+            ctx.fillRect(sx + 4, sy + 29 + body_offset, 4, 9 + l1)
+            ctx.fillRect(sx + 10, sy + 29 + body_offset, 4, 9 + l2)
         elif self.state in ['jump', 'fall']:
-            ctx.fillRect(sx + 4, sy + 32, 5, 6)
-            ctx.fillRect(sx + 11, sy + 30, 5, 8)
+            ctx.fillRect(sx + 3, sy + 29, 5, 7)
+            ctx.fillRect(sx + 10, sy + 27, 5, 9)
         else:
-            ctx.fillRect(sx + 5, sy + 32, 4, 8)
-            ctx.fillRect(sx + 11, sy + 32, 4, 8)
+            ctx.fillRect(sx + 4, sy + 29, 4, 9)
+            ctx.fillRect(sx + 10, sy + 29, 4, 9)
 
         # Head with mask
-        ctx.fillStyle = '#202020'
-        ctx.fillRect(sx + 5, sy + 2, 10, 12)
+        ctx.fillStyle = '#303030'
+        ctx.fillRect(sx + 4, sy + 1, 10, 11)
 
         # Yellow lenses
-        ctx.fillStyle = '#c9a227'
+        ctx.fillStyle = '#d4b030'
         if f > 0:
-            ctx.fillRect(sx + 10, sy + 5, 3, 3)
+            ctx.fillRect(sx + 9, sy + 4, 3, 3)
         else:
-            ctx.fillRect(sx + 7, sy + 5, 3, 3)
+            ctx.fillRect(sx + 6, sy + 4, 3, 3)
 
-        # Hair (curly, dark)
-        ctx.fillStyle = '#0a0a0a'
-        ctx.fillRect(sx + 4, sy, 12, 5)
-        ctx.fillRect(sx + 3, sy + 2, 2, 6)
-        ctx.fillRect(sx + 15, sy + 2, 2, 6)
+        # Dark curly hair
+        ctx.fillStyle = '#151515'
+        ctx.fillRect(sx + 3, sy - 1, 12, 4)
+        ctx.fillRect(sx + 2, sy + 1, 2, 5)
+        ctx.fillRect(sx + 14, sy + 1, 2, 5)
 
         # Arm
-        ctx.fillStyle = '#1a1a1a'
-        arm_y = sy + 14 + body_offset
+        ctx.fillStyle = '#2a2a2a'
+        arm_y = sy + 13 + body_offset
         if self.state == 'attack':
-            # Arm extended
             if f > 0:
-                ctx.fillRect(sx + 14, arm_y, 12, 4)
+                ctx.fillRect(sx + 13, arm_y, 10, 4)
             else:
-                ctx.fillRect(sx - 6, arm_y, 12, 4)
+                ctx.fillRect(sx - 5, arm_y, 10, 4)
         else:
             if f > 0:
-                ctx.fillRect(sx + 14, arm_y, 4, 10)
+                ctx.fillRect(sx + 13, arm_y, 4, 9)
             else:
-                ctx.fillRect(sx + 2, arm_y, 4, 10)
+                ctx.fillRect(sx + 1, arm_y, 4, 9)
 
-        # Attack effect
+        # Attack effect (swarm of bugs)
         if self.attack_type and self.attack_timer > 15:
             hb = self.get_attack_hitbox()
             if hb:
                 hx, hy, hw, hh = hb
                 hx -= cx
                 hy -= cy
+                # Draw swarm particles
                 if self.attack_type == 'sting':
-                    ctx.fillStyle = 'rgba(200, 180, 50, 0.4)'
+                    ctx.fillStyle = 'rgba(200, 180, 60, 0.5)'
                 elif self.attack_type == 'bite':
-                    ctx.fillStyle = 'rgba(100, 200, 100, 0.4)'
+                    ctx.fillStyle = 'rgba(120, 200, 120, 0.5)'
                 else:
-                    ctx.fillStyle = 'rgba(150, 150, 200, 0.4)'
-                ctx.fillRect(hx, hy, hw, hh)
+                    ctx.fillStyle = 'rgba(160, 160, 200, 0.5)'
+
+                for i in range(8):
+                    px = hx + random.uniform(0, hw)
+                    py = hy + random.uniform(0, hh)
+                    ctx.beginPath()
+                    ctx.arc(px, py, 2, 0, math.pi * 2)
+                    ctx.fill()
 
 # ============== BUG ==============
 class Bug:
@@ -513,60 +564,76 @@ class Bug:
         self.anim_phase = random.uniform(0, math.pi * 2)
 
         if bug_type == 'fly':
-            self.color = '#6a6a4a'
+            self.color = '#7a7a5a'
             self.size = 3
-            self.speed = 2.5
-        elif bug_type == 'spider':
-            self.color = '#4a3a2a'
-            self.size = 5
-            self.speed = 1.5
-        elif bug_type == 'wasp':
-            self.color = '#8a6a20'
-            self.size = 4
             self.speed = 2.0
-        elif bug_type == 'beetle':
-            self.color = '#2a3a2a'
+        elif bug_type == 'spider':
+            self.color = '#5a4a3a'
             self.size = 5
             self.speed = 1.0
+        elif bug_type == 'wasp':
+            self.color = '#9a7a30'
+            self.size = 4
+            self.speed = 1.8
+        elif bug_type == 'beetle':
+            self.color = '#3a4a3a'
+            self.size = 5
+            self.speed = 0.7
 
-    def update(self, taylor):
-        # Check if within Taylor's range
-        dist = distance(self.x, self.y, taylor.x + taylor.w/2, taylor.y + taylor.h/2)
-        if dist < 150:
+    def update(self, taylor, structures):
+        taylor_cx = taylor.x + taylor.w/2
+        taylor_cy = taylor.y + taylor.h/2
+        dist = distance(self.x, self.y, taylor_cx, taylor_cy)
+
+        if dist < CONTROL_RANGE and not self.following:
             self.following = True
 
+        if self.following and dist > LOSE_RANGE:
+            self.following = False
+
         if self.following:
-            # Swarm around Taylor
-            angle = math.atan2(self.y - taylor.y - taylor.h/2, self.x - taylor.x - taylor.w/2)
-            angle += math.sin(self.anim_phase) * 0.5
-            self.anim_phase += 0.08
+            self.anim_phase += 0.05
 
-            # Target position in swarm
-            swarm_dist = 30 + math.sin(self.anim_phase * 0.7) * 15
-            self.target_x = taylor.x + taylor.w/2 + math.cos(self.anim_phase) * swarm_dist
-            self.target_y = taylor.y + taylor.h/2 + math.sin(self.anim_phase * 1.3) * swarm_dist * 0.6
+            swarm_dist = 22 + math.sin(self.anim_phase * 0.7) * 10
+            self.target_x = taylor_cx + math.cos(self.anim_phase) * swarm_dist
+            self.target_y = taylor_cy + math.sin(self.anim_phase * 1.3) * swarm_dist * 0.4
 
-            # Move toward target
             dx = self.target_x - self.x
             dy = self.target_y - self.y
-            dist = math.sqrt(dx*dx + dy*dy)
-            if dist > 2:
-                self.x += (dx / dist) * self.speed
-                self.y += (dy / dist) * self.speed
+            move_dist = math.sqrt(dx*dx + dy*dy)
+
+            if move_dist > 3:
+                urgency = min(1.4, move_dist / 60)
+                speed = self.speed * urgency
+                self.x += (dx / move_dist) * speed
+                self.y += (dy / move_dist) * speed
+
+            # Ground bugs affected by gravity and structures
+            if self.bug_type in ['spider', 'beetle']:
+                self.y += 1.2
+                for struct in structures:
+                    if struct.struct_type in ['crate', 'container', 'warehouse_floor']:
+                        if (self.x > struct.x and self.x < struct.x + struct.w and
+                            self.y > struct.y and self.y < struct.y + 10):
+                            self.y = struct.y
+                if self.y > GROUND_Y:
+                    self.y = GROUND_Y
 
     def draw(self, ctx, cx, cy, frame):
         sx, sy = self.x - cx, self.y - cy
 
-        ctx.fillStyle = self.color
+        # Dim if not following
+        if self.following:
+            ctx.fillStyle = self.color
+        else:
+            ctx.fillStyle = '#4a4a4a'
 
         if self.bug_type in ['fly', 'wasp']:
-            # Body
             ctx.beginPath()
             ctx.ellipse(sx, sy, self.size, self.size * 0.6, 0, 0, math.pi * 2)
             ctx.fill()
-            # Wings
             wing_flap = math.sin(frame * 0.5 + self.anim_phase) * 0.4
-            ctx.fillStyle = 'rgba(100, 100, 100, 0.3)'
+            ctx.fillStyle = 'rgba(120, 120, 120, 0.3)'
             ctx.beginPath()
             ctx.ellipse(sx - 2, sy - 2, 3, 1.5, wing_flap, 0, math.pi * 2)
             ctx.fill()
@@ -577,18 +644,17 @@ class Bug:
             ctx.beginPath()
             ctx.arc(sx, sy, self.size, 0, math.pi * 2)
             ctx.fill()
-            # Legs
-            ctx.strokeStyle = self.color
+            ctx.strokeStyle = self.color if self.following else '#4a4a4a'
             ctx.lineWidth = 0.8
             for i in range(4):
                 angle = i * 0.4 - 0.6 + math.sin(frame * 0.05 + i) * 0.1
                 ctx.beginPath()
                 ctx.moveTo(sx, sy)
-                ctx.lineTo(sx - math.cos(angle) * 7, sy + math.sin(angle) * 5)
+                ctx.lineTo(sx - math.cos(angle) * 6, sy + math.sin(angle) * 4)
                 ctx.stroke()
                 ctx.beginPath()
                 ctx.moveTo(sx, sy)
-                ctx.lineTo(sx + math.cos(angle) * 7, sy + math.sin(angle) * 5)
+                ctx.lineTo(sx + math.cos(angle) * 6, sy + math.sin(angle) * 4)
                 ctx.stroke()
         else:
             ctx.beginPath()
@@ -602,8 +668,8 @@ class Enemy:
         self.y = y
         self.vx = 0
         self.vy = 0
-        self.w = 24
-        self.h = 44
+        self.w = 22
+        self.h = 42
 
         self.enemy_type = enemy_type
         self.alive = True
@@ -613,19 +679,18 @@ class Enemy:
             self.hp = 40
             self.max_hp = 40
             self.damage = 10
-            self.color = '#5a3535'
-        else:  # abb
-            self.hp = 60
-            self.max_hp = 60
-            self.damage = 15
-            self.color = '#6a3030'
+            self.color = '#6a4545'
+        else:
+            self.hp = 55
+            self.max_hp = 55
+            self.damage = 14
+            self.color = '#7a4040'
 
-        self.patrol_left = x - 80
-        self.patrol_right = x + 80
+        self.patrol_left = x - 60
+        self.patrol_right = x + 60
         self.state = 'patrol'
         self.attack_cooldown = 0
         self.stun_timer = 0
-
         self.effects = {}
 
     def add_effect(self, name, duration):
@@ -633,22 +698,19 @@ class Enemy:
 
     def take_damage(self, amount, effect=None):
         self.hp -= amount
-        self.stun_timer = 15
+        self.stun_timer = 12
         if effect:
-            if effect == 'sting':
-                pass  # Just damage
-            elif effect == 'bite':
+            if effect == 'bite':
                 self.add_effect('venom', 180)
             elif effect == 'blind':
                 self.add_effect('blind', 180)
         if self.hp <= 0:
             self.alive = False
 
-    def update(self, taylor, platforms):
+    def update(self, taylor, structures):
         if not self.alive:
             return
 
-        # Update effects
         for name in list(self.effects.keys()):
             self.effects[name] -= 1
             if name == 'venom':
@@ -662,19 +724,17 @@ class Enemy:
             self.stun_timer -= 1
             self.vy += GRAVITY
             self.y += self.vy
-            self.check_ground(platforms)
+            self.check_ground(structures)
             return
 
         if self.attack_cooldown > 0:
             self.attack_cooldown -= 1
 
-        # AI
         dist_to_taylor = distance(self.x, self.y, taylor.x, taylor.y)
         can_see = 'blind' not in self.effects
+        speed = 1.4 if can_see else 0.4
 
-        speed = 1.5 if can_see else 0.5
-
-        if can_see and dist_to_taylor < 200:
+        if can_see and dist_to_taylor < 180:
             self.state = 'chase'
             if taylor.x < self.x:
                 self.vx = -speed
@@ -683,37 +743,33 @@ class Enemy:
                 self.vx = speed
                 self.facing = 1
 
-            # Attack if close
-            if dist_to_taylor < 35 and self.attack_cooldown <= 0:
+            if dist_to_taylor < 30 and self.attack_cooldown <= 0:
                 taylor.take_damage(self.damage)
-                self.attack_cooldown = 90
+                self.attack_cooldown = 80
         else:
             self.state = 'patrol'
             if self.x <= self.patrol_left:
                 self.facing = 1
             elif self.x >= self.patrol_right:
                 self.facing = -1
-            self.vx = self.facing * speed * 0.5
+            self.vx = self.facing * speed * 0.4
 
-        # Physics
         self.vy += GRAVITY
         self.x += self.vx
         self.y += self.vy
-
-        self.check_ground(platforms)
+        self.check_ground(structures)
         self.x = clamp(self.x, 0, WORLD_WIDTH - self.w)
 
-    def check_ground(self, platforms):
-        # Ground
-        if self.y + self.h >= WORLD_HEIGHT - 50:
-            self.y = WORLD_HEIGHT - 50 - self.h
+    def check_ground(self, structures):
+        if self.y + self.h >= GROUND_Y:
+            self.y = GROUND_Y - self.h
             self.vy = 0
 
-        for plat in platforms:
-            if plat.platform_type == 'solid':
-                if rect_intersect(self.x, self.y, self.w, self.h, plat.x, plat.y, plat.w, plat.h):
+        for struct in structures:
+            if struct.struct_type in ['crate', 'container', 'warehouse_floor']:
+                if rect_intersect(self.x, self.y, self.w, self.h, struct.x, struct.y, struct.w, struct.h):
                     if self.vy > 0:
-                        self.y = plat.y - self.h
+                        self.y = struct.y - self.h
                         self.vy = 0
 
     def draw(self, ctx, cx, cy):
@@ -721,27 +777,24 @@ class Enemy:
 
         color = self.color
         if 'venom' in self.effects:
-            color = '#4a5a4a'
+            color = '#5a6a5a'
         if 'blind' in self.effects:
-            color = '#4a4a5a'
+            color = '#5a5a6a'
 
-        # Body
         ctx.fillStyle = color
-        ctx.fillRect(sx + 4, sy + 14, 16, 22)
+        ctx.fillRect(sx + 4, sy + 12, 14, 20)
 
-        # Head
         ctx.beginPath()
-        ctx.arc(sx + 12, sy + 10, 8, 0, math.pi * 2)
+        ctx.arc(sx + 11, sy + 9, 7, 0, math.pi * 2)
         ctx.fill()
 
-        # Legs
-        ctx.fillRect(sx + 6, sy + 36, 5, 8)
-        ctx.fillRect(sx + 13, sy + 36, 5, 8)
+        ctx.fillRect(sx + 5, sy + 32, 5, 10)
+        ctx.fillRect(sx + 12, sy + 32, 5, 10)
 
         # HP bar
-        ctx.fillStyle = '#1a1a1a'
+        ctx.fillStyle = '#2a2a2a'
         ctx.fillRect(sx, sy - 8, self.w, 4)
-        ctx.fillStyle = '#5a4a4a'
+        ctx.fillStyle = '#6a5555'
         ctx.fillRect(sx, sy - 8, self.w * (self.hp / self.max_hp), 4)
 
 # ============== LUNG ==============
@@ -751,12 +804,12 @@ class Lung:
         self.y = y
         self.vx = 0
         self.vy = 0
-        self.w = 40
-        self.h = 60
+        self.w = 36
+        self.h = 55
 
-        self.hp = 300
-        self.max_hp = 300
-        self.damage = 20
+        self.hp = 280
+        self.max_hp = 280
+        self.damage = 18
         self.alive = True
         self.facing = -1
 
@@ -769,56 +822,51 @@ class Lung:
         self.effects = {}
 
     def add_effect(self, name, duration):
-        # Lung resists effects
-        duration = int(duration * (1 - (self.stage - 1) * 0.15))
+        duration = int(duration * (1 - (self.stage - 1) * 0.12))
         if duration > 0:
             self.effects[name] = duration
 
     def take_damage(self, amount, effect=None):
-        # Damage reduction at higher stages
-        reduction = 1 - (self.stage - 1) * 0.1
+        reduction = 1 - (self.stage - 1) * 0.08
         self.hp -= amount * reduction
         self.engaged = True
         if effect:
             if effect == 'bite':
                 self.add_effect('venom', 180)
             elif effect == 'blind':
-                self.add_effect('blind', 120)
+                self.add_effect('blind', 100)
         if self.hp <= 0:
             self.alive = False
 
-    def update(self, taylor, platforms):
+    def update(self, taylor, structures):
         if not self.alive:
             return
 
-        # Stage up when engaged
         if self.engaged:
             self.stage_timer += 1
-            if self.stage_timer >= 900 and self.stage < 5:  # 15 seconds
+            if self.stage_timer >= 800 and self.stage < 5:
                 self.stage += 1
                 self.stage_timer = 0
-                self.max_hp += 30
-                self.hp = min(self.hp + 50, self.max_hp)
+                self.max_hp += 25
+                self.hp = min(self.hp + 40, self.max_hp)
 
-        # Update effects
         for name in list(self.effects.keys()):
             self.effects[name] -= 1
             if name == 'venom':
-                self.hp -= 0.15 * (1 - (self.stage - 1) * 0.1)
+                self.hp -= 0.12 * (1 - (self.stage - 1) * 0.08)
             if self.effects[name] <= 0:
                 del self.effects[name]
 
         if self.attack_cooldown > 0:
             self.attack_cooldown -= 1
 
-        # AI - always chase when engaged
-        speed = 1.2 + self.stage * 0.3
+        speed = 1.0 + self.stage * 0.25
         if 'blind' in self.effects:
             speed *= 0.5
 
         dist = distance(self.x, self.y, taylor.x, taylor.y)
 
-        if dist < 400 or self.engaged:
+        if dist < 350 or self.engaged:
             self.engaged = True
             self.state = 'chase'
 
@@ -829,23 +877,20 @@ class Lung:
                 self.vx = speed
                 self.facing = 1
 
-            # Attack
-            attack_range = 50 + self.stage * 10
+            attack_range = 45 + self.stage * 8
             if dist < attack_range and self.attack_cooldown <= 0:
-                taylor.take_damage(self.damage + self.stage * 5)
-                self.attack_cooldown = max(60, 90 - self.stage * 5)
+                taylor.take_damage(self.damage + self.stage * 4)
+                self.attack_cooldown = max(55, 85 - self.stage * 5)
         else:
             self.state = 'idle'
             self.vx = 0
 
-        # Physics
         self.vy += GRAVITY
         self.x += self.vx
         self.y += self.vy
 
-        # Ground
-        if self.y + self.h >= WORLD_HEIGHT - 50:
-            self.y = WORLD_HEIGHT - 50 - self.h
+        if self.y + self.h >= GROUND_Y:
+            self.y = GROUND_Y - self.h
             self.vy = 0
 
         self.x = clamp(self.x, 0, WORLD_WIDTH - self.w)
@@ -853,47 +898,40 @@ class Lung:
     def draw(self, ctx, cx, cy, frame):
         sx, sy = self.x - cx, self.y - cy
 
-        # Scale size with stage
-        scale = 1 + (self.stage - 1) * 0.15
+        scale = 1 + (self.stage - 1) * 0.12
         w = int(self.w * scale)
         h = int(self.h * scale)
 
-        # Color shifts with stage
-        colors = ['#704020', '#804030', '#904035', '#a54530', '#c05525']
+        colors = ['#805030', '#905040', '#a04540', '#b54535', '#c55030']
         color = colors[self.stage - 1]
 
-        # Fire aura at high stages
+        # Fire aura
         if self.stage >= 3:
-            ctx.fillStyle = f'rgba(255, {100 - self.stage * 15}, 0, {0.15 + math.sin(frame * 0.15) * 0.05})'
+            ctx.fillStyle = f'rgba(255, {120 - self.stage * 15}, 20, {0.12 + math.sin(frame * 0.12) * 0.04})'
             ctx.beginPath()
-            ctx.arc(sx + w//2, sy + h//2, w//2 + 15 + self.stage * 5, 0, math.pi * 2)
+            ctx.arc(sx + w//2, sy + h//2, w//2 + 12 + self.stage * 4, 0, math.pi * 2)
             ctx.fill()
 
-        # Body
         ctx.fillStyle = color
-        ctx.fillRect(sx, sy + 15, w, h - 25)
+        ctx.fillRect(sx, sy + 14, w, h - 24)
 
-        # Head
-        head_size = 12 + self.stage * 2
+        head_size = 10 + self.stage * 2
         ctx.beginPath()
         ctx.arc(sx + w//2, sy + head_size, head_size, 0, math.pi * 2)
         ctx.fill()
 
-        # Legs
-        ctx.fillRect(sx + 5, sy + h - 12, w//3, 12)
-        ctx.fillRect(sx + w - w//3 - 5, sy + h - 12, w//3, 12)
+        ctx.fillRect(sx + 4, sy + h - 10, w//3, 10)
+        ctx.fillRect(sx + w - w//3 - 4, sy + h - 10, w//3, 10)
 
-        # Scales at high stages
         if self.stage >= 4:
-            ctx.fillStyle = '#2a2020'
+            ctx.fillStyle = '#302525'
             for i in range(self.stage - 3):
-                ctx.fillRect(sx + 5, sy + 25 + i * 10, w - 10, 3)
+                ctx.fillRect(sx + 4, sy + 22 + i * 8, w - 8, 2)
 
-        # Effect indicators
         if 'blind' in self.effects:
             ctx.fillStyle = '#ffff00'
-            ctx.font = '14px monospace'
-            ctx.fillText('*', sx + w//2 - 4, sy + 5)
+            ctx.font = '12px monospace'
+            ctx.fillText('*', sx + w//2 - 3, sy + 4)
 
 # ============== GAME ==============
 class Game:
@@ -901,8 +939,9 @@ class Game:
         self.canvas = document.getElementById('game-canvas')
         self.ctx = self.canvas.getContext('2d')
 
-        self.taylor = Taylor(150, WORLD_HEIGHT - 150)
-        self.platforms = []
+        self.taylor = Taylor(100, GROUND_Y - 50)
+        self.structures = []
+        self.bg_structures = []  # Background visuals
         self.bugs = []
         self.enemies = []
         self.lung = None
@@ -919,81 +958,80 @@ class Game:
         self.spawn_enemies()
 
     def create_level(self):
-        # Ground
-        self.platforms.append(Platform(0, WORLD_HEIGHT - 50, WORLD_WIDTH, 50, 'solid'))
+        # Background warehouse walls (visual only)
+        self.bg_structures.append(Structure(0, GROUND_Y - 300, 400, 300, 'warehouse_wall'))
+        self.bg_structures.append(Structure(600, GROUND_Y - 350, 500, 350, 'warehouse_wall'))
+        self.bg_structures.append(Structure(1300, GROUND_Y - 320, 450, 320, 'warehouse_wall'))
+        self.bg_structures.append(Structure(2000, GROUND_Y - 380, 600, 380, 'warehouse_wall'))
 
-        # Warehouse platforms - multiple levels
-        # Area 1: Starting area
-        self.platforms.append(Platform(100, WORLD_HEIGHT - 150, 200, 20, 'solid'))
-        self.platforms.append(Platform(50, WORLD_HEIGHT - 250, 150, 15, 'one_way'))
-        self.platforms.append(Platform(250, WORLD_HEIGHT - 300, 180, 20, 'solid'))
+        # Area 1: Starting dock - crates and containers
+        self.structures.append(Structure(80, GROUND_Y - 45, 50, 45, 'crate'))
+        self.structures.append(Structure(130, GROUND_Y - 45, 50, 45, 'crate'))
+        self.structures.append(Structure(95, GROUND_Y - 90, 50, 45, 'crate'))
+        self.structures.append(Structure(220, GROUND_Y - 70, 120, 70, 'container'))
 
-        # Area 2: Mid section
-        self.platforms.append(Platform(500, WORLD_HEIGHT - 180, 250, 25, 'solid'))
-        self.platforms.append(Platform(600, WORLD_HEIGHT - 320, 200, 15, 'one_way'))
-        self.platforms.append(Platform(450, WORLD_HEIGHT - 450, 180, 20, 'solid'))
-        self.platforms.append(Platform(700, WORLD_HEIGHT - 500, 150, 15, 'one_way'))
+        # Area 2: Warehouse section
+        self.structures.append(Structure(450, GROUND_Y - 50, 55, 50, 'crate'))
+        self.structures.append(Structure(505, GROUND_Y - 50, 55, 50, 'crate'))
+        self.structures.append(Structure(470, GROUND_Y - 95, 55, 45, 'crate'))
+        self.structures.append(Structure(620, GROUND_Y - 80, 140, 80, 'container'))
+        self.structures.append(Structure(620, GROUND_Y - 130, 100, 50, 'warehouse_floor'))
 
-        # Area 3: Vertical section
-        self.platforms.append(Platform(900, WORLD_HEIGHT - 150, 200, 20, 'solid'))
-        self.platforms.append(Platform(950, WORLD_HEIGHT - 280, 150, 20, 'solid'))
-        self.platforms.append(Platform(850, WORLD_HEIGHT - 400, 200, 15, 'one_way'))
-        self.platforms.append(Platform(1000, WORLD_HEIGHT - 520, 180, 20, 'solid'))
+        # Area 3: Catwalks and vertical
+        self.structures.append(Structure(850, GROUND_Y - 55, 60, 55, 'crate'))
+        self.structures.append(Structure(910, GROUND_Y - 55, 60, 55, 'crate'))
+        self.structures.append(Structure(850, GROUND_Y - 100, 120, 45, 'warehouse_floor'))
+        self.structures.append(Structure(1000, GROUND_Y - 80, 150, 80, 'container'))
+        self.structures.append(Structure(1000, GROUND_Y - 135, 150, 55, 'warehouse_floor'))
 
-        # Area 4: Upper platforms
-        self.platforms.append(Platform(1200, WORLD_HEIGHT - 200, 250, 25, 'solid'))
-        self.platforms.append(Platform(1300, WORLD_HEIGHT - 350, 200, 15, 'one_way'))
-        self.platforms.append(Platform(1150, WORLD_HEIGHT - 480, 220, 20, 'solid'))
+        # Area 4: More complex
+        self.structures.append(Structure(1220, GROUND_Y - 50, 55, 50, 'crate'))
+        self.structures.append(Structure(1275, GROUND_Y - 50, 55, 50, 'crate'))
+        self.structures.append(Structure(1330, GROUND_Y - 50, 55, 50, 'crate'))
+        self.structures.append(Structure(1240, GROUND_Y - 95, 110, 45, 'crate'))
+        self.structures.append(Structure(1450, GROUND_Y - 90, 180, 90, 'container'))
+        self.structures.append(Structure(1450, GROUND_Y - 145, 130, 55, 'warehouse_floor'))
 
         # Area 5: Lung's arena
-        self.platforms.append(Platform(1550, WORLD_HEIGHT - 150, 350, 30, 'solid'))
-        self.platforms.append(Platform(1600, WORLD_HEIGHT - 300, 250, 20, 'solid'))
-        self.platforms.append(Platform(1700, WORLD_HEIGHT - 450, 200, 15, 'one_way'))
-        self.platforms.append(Platform(1500, WORLD_HEIGHT - 550, 300, 20, 'solid'))
-
-        # Final area
-        self.platforms.append(Platform(2000, WORLD_HEIGHT - 180, 300, 25, 'solid'))
-        self.platforms.append(Platform(2100, WORLD_HEIGHT - 350, 200, 20, 'solid'))
+        self.structures.append(Structure(1750, GROUND_Y - 60, 70, 60, 'crate'))
+        self.structures.append(Structure(1820, GROUND_Y - 60, 70, 60, 'crate'))
+        self.structures.append(Structure(1950, GROUND_Y - 100, 200, 100, 'container'))
+        self.structures.append(Structure(2200, GROUND_Y - 55, 60, 55, 'crate'))
+        self.structures.append(Structure(2260, GROUND_Y - 55, 60, 55, 'crate'))
+        self.structures.append(Structure(2400, GROUND_Y - 80, 160, 80, 'container'))
 
     def spawn_bugs(self):
-        # Bugs scattered throughout
-        bug_types = ['fly', 'fly', 'spider', 'wasp', 'beetle', 'fly']
+        bug_types = ['fly', 'fly', 'fly', 'spider', 'wasp', 'beetle']
 
-        # Near start
-        for i in range(20):
-            x = random.uniform(50, 400)
-            y = random.uniform(WORLD_HEIGHT - 400, WORLD_HEIGHT - 100)
-            self.bugs.append(Bug(x, y, random.choice(bug_types)))
-
-        # Mid area
         for i in range(25):
-            x = random.uniform(450, 900)
-            y = random.uniform(WORLD_HEIGHT - 550, WORLD_HEIGHT - 100)
+            x = random.uniform(50, 500)
+            y = random.uniform(GROUND_Y - 200, GROUND_Y - 20)
             self.bugs.append(Bug(x, y, random.choice(bug_types)))
 
-        # Near Lung
         for i in range(30):
-            x = random.uniform(1400, 2200)
-            y = random.uniform(WORLD_HEIGHT - 600, WORLD_HEIGHT - 100)
+            x = random.uniform(550, 1200)
+            y = random.uniform(GROUND_Y - 250, GROUND_Y - 20)
+            self.bugs.append(Bug(x, y, random.choice(bug_types)))
+
+        for i in range(35):
+            x = random.uniform(1400, 2600)
+            y = random.uniform(GROUND_Y - 200, GROUND_Y - 20)
             self.bugs.append(Bug(x, y, random.choice(bug_types)))
 
     def spawn_enemies(self):
-        # ABB thugs patrolling
         positions = [
-            (400, WORLD_HEIGHT - 100, 'thug'),
-            (650, WORLD_HEIGHT - 230, 'abb'),
-            (550, WORLD_HEIGHT - 500, 'thug'),
-            (950, WORLD_HEIGHT - 200, 'abb'),
-            (1100, WORLD_HEIGHT - 330, 'thug'),
-            (1250, WORLD_HEIGHT - 250, 'abb'),
-            (1400, WORLD_HEIGHT - 200, 'thug'),
+            (350, GROUND_Y - 50, 'thug'),
+            (700, GROUND_Y - 50, 'abb'),
+            (1050, GROUND_Y - 50, 'thug'),
+            (1350, GROUND_Y - 50, 'abb'),
+            (1600, GROUND_Y - 50, 'thug'),
+            (2100, GROUND_Y - 50, 'abb'),
         ]
 
         for x, y, etype in positions:
             self.enemies.append(Enemy(x, y, etype))
 
-        # Lung at the back
-        self.lung = Lung(1800, WORLD_HEIGHT - 150)
+        self.lung = Lung(2350, GROUND_Y - 60)
 
     def update(self):
         if self.game_over:
@@ -1001,52 +1039,44 @@ class Game:
 
         self.frame += 1
 
-        # Get input
         keys = {k: True for k in window.keysHeld.object_keys() if window.keysHeld[k]}
         key_pressed = {k: True for k in list(window.keysJustPressed)}
         window.keysJustPressed.splice(0, len(window.keysJustPressed))
 
-        # Update Taylor
-        self.taylor.update(keys, key_pressed, self.platforms)
+        self.taylor.update(keys, key_pressed, self.structures)
 
-        # Update bugs
         for bug in self.bugs:
-            bug.update(self.taylor)
+            bug.update(self.taylor, self.structures)
 
-        # Update enemies
         for enemy in self.enemies:
-            enemy.update(self.taylor, self.platforms)
+            enemy.update(self.taylor, self.structures)
 
-        # Update Lung
         if self.lung and self.lung.alive:
-            self.lung.update(self.taylor, self.platforms)
+            self.lung.update(self.taylor, self.structures)
 
-        # Check Taylor's attacks hitting enemies
         hitbox = self.taylor.get_attack_hitbox()
         if hitbox:
             hx, hy, hw, hh = hitbox
             for enemy in self.enemies:
                 if enemy.alive and rect_intersect(hx, hy, hw, hh, enemy.x, enemy.y, enemy.w, enemy.h):
-                    dmg = 15 if self.taylor.attack_type == 'sting' else 8
+                    dmg = 14 if self.taylor.attack_type == 'sting' else 7
                     enemy.take_damage(dmg, self.taylor.attack_type)
 
             if self.lung and self.lung.alive:
                 if rect_intersect(hx, hy, hw, hh, self.lung.x, self.lung.y, self.lung.w, self.lung.h):
-                    dmg = 20 if self.taylor.attack_type == 'sting' else 10
+                    dmg = 18 if self.taylor.attack_type == 'sting' else 9
                     self.lung.take_damage(dmg, self.taylor.attack_type)
 
-        # Clean up dead enemies
         self.enemies = [e for e in self.enemies if e.alive]
 
         # Camera
         target_x = self.taylor.x - CANVAS_WIDTH // 2 + self.taylor.w // 2
         target_y = self.taylor.y - CANVAS_HEIGHT // 2 + self.taylor.h // 2
-        self.camera_x = lerp(self.camera_x, target_x, 0.08)
-        self.camera_y = lerp(self.camera_y, target_y, 0.08)
+        self.camera_x = lerp(self.camera_x, target_x, 0.07)
+        self.camera_y = lerp(self.camera_y, target_y, 0.07)
         self.camera_x = clamp(self.camera_x, 0, WORLD_WIDTH - CANVAS_WIDTH)
         self.camera_y = clamp(self.camera_y, 0, WORLD_HEIGHT - CANVAS_HEIGHT)
 
-        # UI
         window.uiState.taylorHp = (self.taylor.hp / self.taylor.max_hp) * 100
         if self.lung and self.lung.engaged:
             window.uiState.bossVisible = True
@@ -1054,7 +1084,6 @@ class Game:
         swarm = len([b for b in self.bugs if b.following])
         window.uiState.swarmCount = swarm
 
-        # Win/lose
         if self.taylor.hp <= 0:
             self.game_over = True
         if self.lung and not self.lung.alive:
@@ -1065,19 +1094,54 @@ class Game:
         ctx = self.ctx
         cx, cy = self.camera_x, self.camera_y
 
-        # Background gradient (night sky)
+        # Sky gradient (not too dark)
         gradient = ctx.createLinearGradient(0, 0, 0, CANVAS_HEIGHT)
-        gradient.addColorStop(0, '#050508')
-        gradient.addColorStop(1, '#0a0a12')
+        gradient.addColorStop(0, '#1a1a28')
+        gradient.addColorStop(0.6, '#1e2030')
+        gradient.addColorStop(1, '#252535')
         ctx.fillStyle = gradient
         ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
 
-        # Background buildings (parallax)
-        self.draw_background(ctx, cx, cy)
+        # Moon
+        ctx.fillStyle = '#3a3a50'
+        ctx.beginPath()
+        ctx.arc(700 - cx * 0.05, 60, 25, 0, math.pi * 2)
+        ctx.fill()
 
-        # Platforms
-        for plat in self.platforms:
-            plat.draw(ctx, cx, cy)
+        # Background warehouse walls
+        for struct in self.bg_structures:
+            struct.draw(ctx, cx * 0.5, cy * 0.5)
+
+        # Ground
+        ctx.fillStyle = '#353540'
+        ctx.fillRect(-cx, GROUND_Y - cy, WORLD_WIDTH, 60)
+        # Ground line
+        ctx.fillStyle = '#454550'
+        ctx.fillRect(-cx, GROUND_Y - cy, WORLD_WIDTH, 3)
+
+        # Structures
+        for struct in self.structures:
+            struct.draw(ctx, cx, cy)
+
+        # Control range indicator around Taylor
+        tx = self.taylor.x + self.taylor.w/2 - cx
+        ty = self.taylor.y + self.taylor.h/2 - cy
+
+        # Outer ring (lose range)
+        ctx.strokeStyle = 'rgba(100, 80, 60, 0.15)'
+        ctx.lineWidth = 1
+        ctx.setLineDash([4, 4])
+        ctx.beginPath()
+        ctx.arc(tx, ty, LOSE_RANGE, 0, math.pi * 2)
+        ctx.stroke()
+
+        # Inner ring (control range)
+        ctx.strokeStyle = 'rgba(140, 120, 80, 0.25)'
+        ctx.lineWidth = 2
+        ctx.setLineDash([])
+        ctx.beginPath()
+        ctx.arc(tx, ty, CONTROL_RANGE, 0, math.pi * 2)
+        ctx.stroke()
 
         # Bugs
         for bug in self.bugs:
@@ -1095,55 +1159,22 @@ class Game:
         # Taylor
         self.taylor.draw(ctx, cx, cy)
 
-        # Game over screen
+        # Game over
         if self.game_over:
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.8)'
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.75)'
             ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
 
             if self.victory:
-                ctx.fillStyle = '#6a8a6a'
-                ctx.font = '32px monospace'
-                ctx.fillText('LUNG DEFEATED', CANVAS_WIDTH//2 - 120, CANVAS_HEIGHT//2 - 20)
-                ctx.fillStyle = '#888'
-                ctx.font = '14px monospace'
-                ctx.fillText('The Undersiders arrive... Taylor escapes into the night.', CANVAS_WIDTH//2 - 200, CANVAS_HEIGHT//2 + 30)
+                ctx.fillStyle = '#7a9a7a'
+                ctx.font = '30px monospace'
+                ctx.fillText('LUNG DEFEATED', CANVAS_WIDTH//2 - 110, CANVAS_HEIGHT//2 - 20)
+                ctx.fillStyle = '#999'
+                ctx.font = '13px monospace'
+                ctx.fillText('The Undersiders arrive... Taylor escapes into the night.', CANVAS_WIDTH//2 - 195, CANVAS_HEIGHT//2 + 25)
             else:
-                ctx.fillStyle = '#8a5050'
-                ctx.font = '32px monospace'
-                ctx.fillText('DEFEATED', CANVAS_WIDTH//2 - 70, CANVAS_HEIGHT//2)
-
-    def draw_background(self, ctx, cx, cy):
-        # Parallax city silhouette
-        parallax = 0.3
-        bx = -cx * parallax
-
-        ctx.fillStyle = '#08080c'
-
-        # Distant buildings
-        buildings = [
-            (100, 200), (180, 280), (300, 220), (400, 300),
-            (550, 250), (700, 320), (850, 240), (1000, 290),
-            (1150, 260), (1300, 310), (1450, 230), (1600, 280),
-        ]
-
-        for bldg_x, height in buildings:
-            x = bldg_x + bx
-            y = CANVAS_HEIGHT - height
-            w = 60
-            ctx.fillRect(x, y, w, height)
-            # Windows
-            ctx.fillStyle = 'rgba(40, 35, 25, 0.4)'
-            for wy in range(int(y + 20), int(CANVAS_HEIGHT - 20), 25):
-                for wx in range(int(x + 8), int(x + w - 8), 15):
-                    if random.random() > 0.7:
-                        ctx.fillRect(wx, wy, 6, 8)
-            ctx.fillStyle = '#08080c'
-
-        # Moon
-        ctx.fillStyle = '#1a1a25'
-        ctx.beginPath()
-        ctx.arc(700 - cx * 0.1, 80, 30, 0, math.pi * 2)
-        ctx.fill()
+                ctx.fillStyle = '#9a6060'
+                ctx.font = '30px monospace'
+                ctx.fillText('DEFEATED', CANVAS_WIDTH//2 - 65, CANVAS_HEIGHT//2)
 
     def game_loop(self, timestamp):
         self.update()
