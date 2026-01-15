@@ -146,6 +146,11 @@
         </div>
         <div id="ui-panel">
             <div class="panel-section">
+                <div class="panel-title">LOCATION</div>
+                <div id="location-info">Central District</div>
+            </div>
+
+            <div class="panel-section">
                 <div class="panel-title">SELECTION</div>
                 <div id="selection-info">No bugs selected</div>
             </div>
@@ -217,7 +222,8 @@
             taylorHp: '100/100',
             bugCount: '0',
             controlGroups: [0, 0, 0, 0, 0],
-            activeGroup: -1
+            activeGroup: -1,
+            locationInfo: 'Central District'
         };
 
         async function main() {
@@ -278,7 +284,7 @@
                     }
 
                     // Prevent scrolling with space/arrows
-                    if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) {
+                    if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(e.code)) {
                         e.preventDefault();
                     }
                 });
@@ -316,6 +322,7 @@ ${GAME_CODE}
                     document.getElementById('selection-info').textContent = window.uiState.selectionInfo;
                     document.getElementById('taylor-hp').textContent = window.uiState.taylorHp;
                     document.getElementById('bug-count').textContent = window.uiState.bugCount;
+                    document.getElementById('location-info').textContent = window.uiState.locationInfo;
 
                     document.querySelectorAll('.group-btn').forEach((btn, i) => {
                         const count = window.uiState.controlGroups[i];
@@ -341,8 +348,8 @@ from pyodide.ffi import create_proxy
 # ============== CONSTANTS ==============
 CANVAS_WIDTH = 900
 CANVAS_HEIGHT = 600
-MAP_WIDTH = 1800
-MAP_HEIGHT = 1200
+MAP_WIDTH = 2400
+MAP_HEIGHT = 1800
 
 TAYLOR_SPEED = 3
 TAYLOR_CONTROL_RANGE = 200
@@ -374,8 +381,100 @@ BUG_TYPES = {
         'vision': 60,
         'sting_damage': 20,
         'can_sting': True
+    },
+    'beetle': {
+        'color': '#2d5a27',
+        'speed': 1,
+        'hp': 25,
+        'damage': 5,
+        'size': 7,
+        'vision': 30
+    },
+    'mosquito': {
+        'color': '#666666',
+        'speed': 5,
+        'hp': 3,
+        'damage': 2,
+        'size': 3,
+        'vision': 80
     }
 }
+
+# ============== MAP AREAS (Pokemon-style) ==============
+AREAS = [
+    {
+        'name': 'Downtown Brockton',
+        'x': 0, 'y': 0, 'width': 800, 'height': 600,
+        'color': '#3d3d3d',
+        'ground': '#4a4a4a',
+        'bugs': ['fly', 'fly', 'mosquito'],
+        'description': 'Urban streets with flies and mosquitoes'
+    },
+    {
+        'name': 'The Docks',
+        'x': 800, 'y': 0, 'width': 800, 'height': 600,
+        'color': '#2a4858',
+        'ground': '#1e3a47',
+        'bugs': ['spider', 'beetle', 'fly'],
+        'description': 'Abandoned warehouses, good for spiders'
+    },
+    {
+        'name': 'Trainyard',
+        'x': 1600, 'y': 0, 'width': 800, 'height': 600,
+        'color': '#5c4033',
+        'ground': '#4a3528',
+        'bugs': ['beetle', 'spider', 'fly'],
+        'description': 'Rusted trains and beetles'
+    },
+    {
+        'name': 'Lord Street',
+        'x': 0, 'y': 600, 'width': 800, 'height': 600,
+        'color': '#2d4a3e',
+        'ground': '#243d33',
+        'bugs': ['wasp', 'fly', 'fly'],
+        'description': 'Residential area with wasps'
+    },
+    {
+        'name': 'Central Park',
+        'x': 800, 'y': 600, 'width': 800, 'height': 600,
+        'color': '#1a5c1a',
+        'ground': '#144a14',
+        'bugs': ['wasp', 'beetle', 'spider', 'fly'],
+        'description': 'Green space, diverse bugs'
+    },
+    {
+        'name': 'The Boardwalk',
+        'x': 1600, 'y': 600, 'width': 800, 'height': 600,
+        'color': '#c2a060',
+        'ground': '#a88a50',
+        'bugs': ['fly', 'mosquito', 'wasp'],
+        'description': 'Tourist area near the beach'
+    },
+    {
+        'name': 'Boat Graveyard',
+        'x': 0, 'y': 1200, 'width': 800, 'height': 600,
+        'color': '#1a3d4d',
+        'ground': '#143240',
+        'bugs': ['spider', 'spider', 'beetle'],
+        'description': 'Shipwrecks full of spiders'
+    },
+    {
+        'name': 'The Marsh',
+        'x': 800, 'y': 1200, 'width': 800, 'height': 600,
+        'color': '#3d4a30',
+        'ground': '#2d3a22',
+        'bugs': ['mosquito', 'mosquito', 'beetle', 'spider'],
+        'description': 'Wetlands with mosquitoes'
+    },
+    {
+        'name': 'ABB Territory',
+        'x': 1600, 'y': 1200, 'width': 800, 'height': 600,
+        'color': '#4a2020',
+        'ground': '#3a1515',
+        'bugs': ['wasp', 'wasp', 'fly'],
+        'description': 'Dangerous gang territory'
+    }
+]
 
 # ============== UTILITY ==============
 def distance(x1, y1, x2, y2):
@@ -389,6 +488,13 @@ def normalize(x, y):
 
 def clamp(val, min_val, max_val):
     return max(min_val, min(max_val, val))
+
+def get_area_at(x, y):
+    for area in AREAS:
+        if (area['x'] <= x < area['x'] + area['width'] and
+            area['y'] <= y < area['y'] + area['height']):
+            return area
+    return None
 
 # ============== ENTITIES ==============
 class Entity:
@@ -410,26 +516,131 @@ class Taylor(Entity):
         self.max_hp = 100
         self.control_range = TAYLOR_CONTROL_RANGE
         self.speed = TAYLOR_SPEED
+        self.facing = 'down'
+        self.walk_frame = 0
+        self.walk_timer = 0
 
     def update(self, keys):
         dx, dy = 0, 0
         if keys.get('KeyW') or keys.get('ArrowUp'):
             dy -= 1
+            self.facing = 'up'
         if keys.get('KeyS') or keys.get('ArrowDown'):
             dy += 1
+            self.facing = 'down'
         if keys.get('KeyA') or keys.get('ArrowLeft'):
             dx -= 1
+            self.facing = 'left'
         if keys.get('KeyD') or keys.get('ArrowRight'):
             dx += 1
+            self.facing = 'right'
 
         if dx != 0 or dy != 0:
             dx, dy = normalize(dx, dy)
             self.x += dx * self.speed
             self.y += dy * self.speed
+            self.walk_timer += 1
+            if self.walk_timer >= 8:
+                self.walk_timer = 0
+                self.walk_frame = (self.walk_frame + 1) % 4
+        else:
+            self.walk_frame = 0
+            self.walk_timer = 0
 
         # Clamp to map
         self.x = clamp(self.x, 20, MAP_WIDTH - 20)
         self.y = clamp(self.y, 20, MAP_HEIGHT - 20)
+
+    def draw(self, ctx, screen_x, screen_y):
+        # Taylor sprite - black costume with yellow lenses
+        # 32x32 pixel art style
+
+        # Body (black bodysuit)
+        ctx.fillStyle = '#1a1a1a'
+
+        # Draw based on facing direction
+        if self.facing == 'down':
+            # Torso
+            ctx.fillRect(screen_x - 8, screen_y - 10, 16, 20)
+            # Head
+            ctx.fillStyle = '#2a2a2a'
+            ctx.fillRect(screen_x - 7, screen_y - 16, 14, 8)
+            # Mask/face with yellow lenses
+            ctx.fillStyle = '#1a1a1a'
+            ctx.fillRect(screen_x - 6, screen_y - 14, 12, 5)
+            # Yellow lenses (eyes)
+            ctx.fillStyle = '#ffd700'
+            ctx.fillRect(screen_x - 4, screen_y - 13, 3, 3)
+            ctx.fillRect(screen_x + 1, screen_y - 13, 3, 3)
+            # Legs
+            ctx.fillStyle = '#1a1a1a'
+            leg_offset = [0, 2, 0, -2][self.walk_frame]
+            ctx.fillRect(screen_x - 6, screen_y + 10, 5, 8 + leg_offset)
+            ctx.fillRect(screen_x + 1, screen_y + 10, 5, 8 - leg_offset)
+            # Hair (curly, dark)
+            ctx.fillStyle = '#0a0a0a'
+            ctx.fillRect(screen_x - 8, screen_y - 18, 16, 4)
+            ctx.fillRect(screen_x - 9, screen_y - 16, 2, 6)
+            ctx.fillRect(screen_x + 7, screen_y - 16, 2, 6)
+
+        elif self.facing == 'up':
+            # Torso
+            ctx.fillRect(screen_x - 8, screen_y - 10, 16, 20)
+            # Head (back of mask)
+            ctx.fillStyle = '#2a2a2a'
+            ctx.fillRect(screen_x - 7, screen_y - 16, 14, 8)
+            # Hair from behind
+            ctx.fillStyle = '#0a0a0a'
+            ctx.fillRect(screen_x - 8, screen_y - 18, 16, 6)
+            ctx.fillRect(screen_x - 9, screen_y - 14, 2, 8)
+            ctx.fillRect(screen_x + 7, screen_y - 14, 2, 8)
+            # Legs
+            ctx.fillStyle = '#1a1a1a'
+            leg_offset = [0, 2, 0, -2][self.walk_frame]
+            ctx.fillRect(screen_x - 6, screen_y + 10, 5, 8 - leg_offset)
+            ctx.fillRect(screen_x + 1, screen_y + 10, 5, 8 + leg_offset)
+
+        elif self.facing == 'left':
+            # Body (side view)
+            ctx.fillRect(screen_x - 5, screen_y - 10, 10, 20)
+            # Head
+            ctx.fillStyle = '#2a2a2a'
+            ctx.fillRect(screen_x - 6, screen_y - 16, 10, 8)
+            # Mask with lens
+            ctx.fillStyle = '#1a1a1a'
+            ctx.fillRect(screen_x - 8, screen_y - 14, 8, 5)
+            ctx.fillStyle = '#ffd700'
+            ctx.fillRect(screen_x - 7, screen_y - 13, 3, 3)
+            # Hair
+            ctx.fillStyle = '#0a0a0a'
+            ctx.fillRect(screen_x - 6, screen_y - 18, 12, 4)
+            ctx.fillRect(screen_x + 4, screen_y - 14, 3, 8)
+            # Legs
+            ctx.fillStyle = '#1a1a1a'
+            leg_offset = [0, 3, 0, -3][self.walk_frame]
+            ctx.fillRect(screen_x - 4 + leg_offset, screen_y + 10, 4, 8)
+            ctx.fillRect(screen_x - leg_offset, screen_y + 10, 4, 8)
+
+        elif self.facing == 'right':
+            # Body (side view)
+            ctx.fillRect(screen_x - 5, screen_y - 10, 10, 20)
+            # Head
+            ctx.fillStyle = '#2a2a2a'
+            ctx.fillRect(screen_x - 4, screen_y - 16, 10, 8)
+            # Mask with lens
+            ctx.fillStyle = '#1a1a1a'
+            ctx.fillRect(screen_x, screen_y - 14, 8, 5)
+            ctx.fillStyle = '#ffd700'
+            ctx.fillRect(screen_x + 4, screen_y - 13, 3, 3)
+            # Hair
+            ctx.fillStyle = '#0a0a0a'
+            ctx.fillRect(screen_x - 6, screen_y - 18, 12, 4)
+            ctx.fillRect(screen_x - 7, screen_y - 14, 3, 8)
+            # Legs
+            ctx.fillStyle = '#1a1a1a'
+            leg_offset = [0, 3, 0, -3][self.walk_frame]
+            ctx.fillRect(screen_x - 4 - leg_offset, screen_y + 10, 4, 8)
+            ctx.fillRect(screen_x + leg_offset, screen_y + 10, 4, 8)
 
 class Bug(Entity):
     def __init__(self, x, y, bug_type):
@@ -460,13 +671,15 @@ class Bug(Entity):
         self.wander_angle = random.uniform(0, math.pi * 2)
         self.wander_timer = 0
 
+        # Animation
+        self.anim_offset = random.uniform(0, math.pi * 2)
+
     def update(self, taylor, enemies):
         if not self.alive:
             return
 
         # Check if in Taylor's control range
         dist_to_taylor = distance(self.x, self.y, taylor.x, taylor.y)
-        was_controlled = self.controlled
         self.controlled = dist_to_taylor <= taylor.control_range
 
         if not self.controlled:
@@ -480,6 +693,9 @@ class Bug(Entity):
             self.y += math.sin(self.wander_angle) * self.speed * 0.3
             self.command = 'idle'
             self.selected = False
+            # Keep in map
+            self.x = clamp(self.x, 5, MAP_WIDTH - 5)
+            self.y = clamp(self.y, 5, MAP_HEIGHT - 5)
             return
 
         # Execute command
@@ -514,10 +730,8 @@ class Bug(Entity):
                         nearest_dist = ed
 
             if nearest_enemy and nearest_dist < 20:
-                # Attack!
                 self.attack_enemy(nearest_enemy)
             elif nearest_enemy:
-                # Move toward enemy
                 dx, dy = normalize(nearest_enemy.x - self.x, nearest_enemy.y - self.y)
                 self.x += dx * self.speed
                 self.y += dy * self.speed
@@ -530,7 +744,6 @@ class Bug(Entity):
                 self.target = None
 
         elif self.command == 'guard':
-            # Orbit around Taylor
             self.guard_angle += self.orbit_speed
             target_x = taylor.x + math.cos(self.guard_angle) * 50
             target_y = taylor.y + math.sin(self.guard_angle) * 50
@@ -542,7 +755,6 @@ class Bug(Entity):
                 self.x += dx * self.speed
                 self.y += dy * self.speed
 
-            # Attack nearby enemies
             for enemy in enemies:
                 if enemy.alive:
                     ed = distance(self.x, self.y, enemy.x, enemy.y)
@@ -551,9 +763,6 @@ class Bug(Entity):
                         break
 
         elif self.command == 'hide':
-            # Spread out from other bugs
-            push_x, push_y = 0, 0
-            # Move away from Taylor slightly
             dx, dy = self.x - taylor.x, self.y - taylor.y
             if dx != 0 or dy != 0:
                 dx, dy = normalize(dx, dy)
@@ -576,13 +785,12 @@ class Bug(Entity):
                     self.attack_enemy(enemy)
                 else:
                     dx, dy = normalize(dx, dy)
-                    self.x += dx * self.speed * 1.2  # Faster when swarming
+                    self.x += dx * self.speed * 1.2
                     self.y += dy * self.speed * 1.2
             else:
                 self.command = 'idle'
                 self.target_entity = None
 
-        # Clamp to map
         self.x = clamp(self.x, 5, MAP_WIDTH - 5)
         self.y = clamp(self.y, 5, MAP_HEIGHT - 5)
 
@@ -597,20 +805,142 @@ class Bug(Entity):
             if enemy.hp <= 0:
                 enemy.alive = False
 
+    def draw(self, ctx, screen_x, screen_y, frame):
+        # Animated bug drawing
+        wobble = math.sin(frame * 0.2 + self.anim_offset) * 1
+
+        if self.bug_type == 'fly':
+            # Body
+            ctx.fillStyle = self.color if self.controlled else '#666'
+            ctx.beginPath()
+            ctx.ellipse(screen_x, screen_y, self.size, self.size * 0.7, 0, 0, math.pi * 2)
+            ctx.fill()
+            # Wings
+            ctx.fillStyle = 'rgba(200, 200, 200, 0.5)'
+            wing_angle = math.sin(frame * 0.5 + self.anim_offset) * 0.3
+            ctx.beginPath()
+            ctx.ellipse(screen_x - 3, screen_y - 2 + wobble, 4, 2, wing_angle, 0, math.pi * 2)
+            ctx.fill()
+            ctx.beginPath()
+            ctx.ellipse(screen_x + 3, screen_y - 2 + wobble, 4, 2, -wing_angle, 0, math.pi * 2)
+            ctx.fill()
+
+        elif self.bug_type == 'spider':
+            # Body
+            ctx.fillStyle = self.color if self.controlled else '#666'
+            ctx.beginPath()
+            ctx.arc(screen_x, screen_y, self.size, 0, math.pi * 2)
+            ctx.fill()
+            # Legs
+            ctx.strokeStyle = self.color if self.controlled else '#666'
+            ctx.lineWidth = 1
+            for i in range(4):
+                angle = i * 0.5 - 0.75 + math.sin(frame * 0.1 + i) * 0.1
+                ctx.beginPath()
+                ctx.moveTo(screen_x, screen_y)
+                ctx.lineTo(screen_x - math.cos(angle) * 10, screen_y + math.sin(angle) * 8)
+                ctx.stroke()
+                ctx.beginPath()
+                ctx.moveTo(screen_x, screen_y)
+                ctx.lineTo(screen_x + math.cos(angle) * 10, screen_y + math.sin(angle) * 8)
+                ctx.stroke()
+
+        elif self.bug_type == 'wasp':
+            # Body segments
+            ctx.fillStyle = '#1a1a1a'
+            ctx.beginPath()
+            ctx.ellipse(screen_x - 2, screen_y, 3, 2, 0, 0, math.pi * 2)
+            ctx.fill()
+            ctx.fillStyle = self.color if self.controlled else '#666'
+            ctx.beginPath()
+            ctx.ellipse(screen_x + 2, screen_y, 4, 3, 0, 0, math.pi * 2)
+            ctx.fill()
+            # Stripes
+            ctx.fillStyle = '#1a1a1a'
+            ctx.fillRect(screen_x + 1, screen_y - 2, 1, 4)
+            ctx.fillRect(screen_x + 4, screen_y - 2, 1, 4)
+            # Wings
+            ctx.fillStyle = 'rgba(200, 200, 200, 0.4)'
+            wing_angle = math.sin(frame * 0.6 + self.anim_offset) * 0.4
+            ctx.beginPath()
+            ctx.ellipse(screen_x, screen_y - 3 + wobble, 5, 2, wing_angle, 0, math.pi * 2)
+            ctx.fill()
+
+        elif self.bug_type == 'beetle':
+            # Shell
+            ctx.fillStyle = self.color if self.controlled else '#666'
+            ctx.beginPath()
+            ctx.ellipse(screen_x, screen_y, self.size, self.size * 0.8, 0, 0, math.pi * 2)
+            ctx.fill()
+            # Shell line
+            ctx.strokeStyle = '#1a3a14'
+            ctx.lineWidth = 1
+            ctx.beginPath()
+            ctx.moveTo(screen_x, screen_y - self.size * 0.8)
+            ctx.lineTo(screen_x, screen_y + self.size * 0.8)
+            ctx.stroke()
+            # Head
+            ctx.fillStyle = '#1a1a1a'
+            ctx.beginPath()
+            ctx.arc(screen_x, screen_y - self.size, 3, 0, math.pi * 2)
+            ctx.fill()
+
+        elif self.bug_type == 'mosquito':
+            # Tiny body
+            ctx.fillStyle = self.color if self.controlled else '#666'
+            ctx.beginPath()
+            ctx.ellipse(screen_x, screen_y, 2, 3, 0, 0, math.pi * 2)
+            ctx.fill()
+            # Long legs
+            ctx.strokeStyle = self.color if self.controlled else '#666'
+            ctx.lineWidth = 0.5
+            for i in range(3):
+                angle = i * 0.4 - 0.4
+                ctx.beginPath()
+                ctx.moveTo(screen_x, screen_y)
+                ctx.lineTo(screen_x - 4, screen_y + 5 + i * 2)
+                ctx.stroke()
+                ctx.beginPath()
+                ctx.moveTo(screen_x, screen_y)
+                ctx.lineTo(screen_x + 4, screen_y + 5 + i * 2)
+                ctx.stroke()
+            # Wings
+            ctx.fillStyle = 'rgba(180, 180, 180, 0.3)'
+            ctx.beginPath()
+            ctx.ellipse(screen_x, screen_y - 2 + wobble, 4, 1.5, 0, 0, math.pi * 2)
+            ctx.fill()
+
 class Enemy(Entity):
     def __init__(self, x, y, enemy_type='grunt'):
         super().__init__(x, y)
         self.enemy_type = enemy_type
-        self.hp = 50
-        self.max_hp = 50
-        self.speed = 1.5
-        self.damage = 10
-        self.size = 16
-        self.vision = 150
+        if enemy_type == 'grunt':
+            self.hp = 50
+            self.max_hp = 50
+            self.speed = 1.5
+            self.damage = 10
+            self.size = 16
+            self.vision = 150
+            self.color = '#e74c3c'
+        elif enemy_type == 'thug':
+            self.hp = 80
+            self.max_hp = 80
+            self.speed = 1.2
+            self.damage = 15
+            self.size = 20
+            self.vision = 120
+            self.color = '#c0392b'
+        elif enemy_type == 'cape':
+            self.hp = 150
+            self.max_hp = 150
+            self.speed = 2
+            self.damage = 25
+            self.size = 24
+            self.vision = 200
+            self.color = '#8e44ad'
+
         self.attack_range = 30
         self.attack_cooldown = 0
-
-        # Patrol
         self.patrol_points = []
         self.patrol_index = 0
         self.state = 'patrol'
@@ -625,11 +955,8 @@ class Enemy(Entity):
             return
 
         self.attack_cooldown = max(0, self.attack_cooldown - 1)
-
-        # Check for Taylor or bugs in vision
         dist_to_taylor = distance(self.x, self.y, taylor.x, taylor.y)
 
-        # Find nearest threat
         nearest_bug = None
         nearest_bug_dist = float('inf')
         for bug in bugs:
@@ -639,7 +966,6 @@ class Enemy(Entity):
                     nearest_bug = bug
                     nearest_bug_dist = d
 
-        # Decide what to do
         if dist_to_taylor < self.vision:
             self.state = 'chase'
             self.target = taylor
@@ -650,7 +976,6 @@ class Enemy(Entity):
             self.state = 'patrol'
             self.target = None
 
-        # Execute state
         if self.state == 'chase' and self.target:
             dx, dy = self.target.x - self.x, self.target.y - self.y
             dist = math.sqrt(dx*dx + dy*dy)
@@ -681,11 +1006,21 @@ class Enemy(Entity):
         self.x = clamp(self.x, 20, MAP_WIDTH - 20)
         self.y = clamp(self.y, 20, MAP_HEIGHT - 20)
 
+    def draw(self, ctx, screen_x, screen_y):
+        # Draw enemy as a person
+        ctx.fillStyle = self.color
+        # Body
+        ctx.fillRect(screen_x - self.size//3, screen_y - self.size//2, self.size*2//3, self.size)
+        # Head
+        ctx.beginPath()
+        ctx.arc(screen_x, screen_y - self.size//2 - 6, 6, 0, math.pi * 2)
+        ctx.fill()
+
 class WebTrap(Entity):
     def __init__(self, x, y):
         super().__init__(x, y)
         self.radius = 40
-        self.duration = 600  # 10 seconds
+        self.duration = 600
         self.slow_factor = 0.3
 
     def update(self):
@@ -699,7 +1034,8 @@ class Game:
         self.canvas = document.getElementById('game-canvas')
         self.ctx = self.canvas.getContext('2d')
 
-        self.taylor = Taylor(MAP_WIDTH // 2, MAP_HEIGHT // 2)
+        # Start Taylor in Central Park
+        self.taylor = Taylor(1200, 900)
         self.bugs = []
         self.enemies = []
         self.webs = []
@@ -713,57 +1049,83 @@ class Game:
         self.swarm_sense = False
         self.last_group_press = {'group': 0, 'time': 0}
 
-        self.spawn_initial_bugs()
+        self.spawn_bugs_in_areas()
         self.spawn_enemies()
 
         self.running = True
         self.frame_count = 0
 
-    def spawn_initial_bugs(self):
-        # Spawn mixed swarm around Taylor
-        for _ in range(30):
+    def spawn_bugs_in_areas(self):
+        # Spawn bugs in each area according to their bug types
+        for area in AREAS:
+            num_bugs = random.randint(15, 25)
+            for _ in range(num_bugs):
+                x = random.uniform(area['x'] + 50, area['x'] + area['width'] - 50)
+                y = random.uniform(area['y'] + 50, area['y'] + area['height'] - 50)
+                bug_type = random.choice(area['bugs'])
+                self.bugs.append(Bug(x, y, bug_type))
+
+        # Extra bugs near Taylor's starting position
+        for _ in range(20):
             angle = random.uniform(0, math.pi * 2)
             dist = random.uniform(30, 150)
             x = self.taylor.x + math.cos(angle) * dist
             y = self.taylor.y + math.sin(angle) * dist
-            bug_type = random.choice(['fly', 'fly', 'fly', 'spider', 'wasp', 'wasp'])
-            self.bugs.append(Bug(x, y, bug_type))
-
-        # Spawn some bugs around the map
-        for _ in range(50):
-            x = random.uniform(100, MAP_WIDTH - 100)
-            y = random.uniform(100, MAP_HEIGHT - 100)
-            bug_type = random.choice(['fly', 'spider', 'wasp'])
+            bug_type = random.choice(['fly', 'fly', 'spider', 'wasp'])
             self.bugs.append(Bug(x, y, bug_type))
 
     def spawn_enemies(self):
-        # Patrol group 1
-        e1 = Enemy(300, 300)
-        e1.set_patrol([(300, 300), (500, 300), (500, 500), (300, 500)])
-        self.enemies.append(e1)
+        # Enemies in different areas
+        # Downtown
+        e = Enemy(400, 300, 'grunt')
+        e.set_patrol([(300, 200), (500, 200), (500, 400), (300, 400)])
+        self.enemies.append(e)
 
-        # Patrol group 2
-        e2 = Enemy(1400, 400)
-        e2.set_patrol([(1400, 400), (1600, 400), (1600, 600), (1400, 600)])
-        self.enemies.append(e2)
+        # Docks - tougher enemies
+        e = Enemy(1000, 300, 'thug')
+        e.set_patrol([(900, 200), (1100, 200), (1100, 400), (900, 400)])
+        self.enemies.append(e)
 
-        # Patrol group 3
-        e3 = Enemy(800, 900)
-        e3.set_patrol([(800, 900), (1000, 900), (1000, 1100), (800, 1100)])
-        self.enemies.append(e3)
+        # Trainyard
+        e = Enemy(1900, 300, 'grunt')
+        e.set_patrol([(1800, 200), (2000, 200), (2000, 400), (1800, 400)])
+        self.enemies.append(e)
 
-        # Stationary guards
-        self.enemies.append(Enemy(200, 800))
-        self.enemies.append(Enemy(1500, 200))
+        # Lord Street
+        e = Enemy(400, 900, 'grunt')
+        e.set_patrol([(300, 800), (500, 800), (500, 1000), (300, 1000)])
+        self.enemies.append(e)
+
+        # Boardwalk
+        e = Enemy(1900, 900, 'thug')
+        e.set_patrol([(1800, 800), (2100, 800), (2100, 1000), (1800, 1000)])
+        self.enemies.append(e)
+
+        # Boat Graveyard - dangerous
+        e = Enemy(400, 1500, 'thug')
+        e.set_patrol([(300, 1400), (500, 1400), (500, 1600), (300, 1600)])
+        self.enemies.append(e)
+
+        # Marsh
+        e = Enemy(1200, 1500, 'grunt')
+        e.set_patrol([(1100, 1400), (1300, 1400), (1300, 1600), (1100, 1600)])
+        self.enemies.append(e)
+
+        # ABB Territory - cape (boss)
+        e = Enemy(2000, 1500, 'cape')
+        e.set_patrol([(1900, 1400), (2100, 1400), (2100, 1600), (1900, 1600)])
+        self.enemies.append(e)
+
+        # Additional grunt
+        e = Enemy(2200, 1400, 'thug')
+        self.enemies.append(e)
 
     def handle_input(self):
         input_state = window.inputState
         keys = dict(input_state.keys.object_entries())
 
-        # Taylor movement
         self.taylor.update(keys)
 
-        # Swarm sense toggle
         if keys.get('Tab'):
             if not hasattr(self, '_tab_held'):
                 self._tab_held = False
@@ -773,7 +1135,6 @@ class Game:
         else:
             self._tab_held = False
 
-        # Selection box
         mouse_down = input_state.mouseDown
         mouse_up = input_state.mouseUp
 
@@ -799,13 +1160,11 @@ class Game:
             self.selection_box = None
             input_state.mouseUp = None
 
-        # Right click - move/attack command
         right_click = input_state.rightClick
         if right_click:
             target_x = right_click.x + self.camera_x
             target_y = right_click.y + self.camera_y
 
-            # Check if clicking on enemy
             clicked_enemy = None
             for enemy in self.enemies:
                 if enemy.alive:
@@ -820,7 +1179,6 @@ class Game:
 
             input_state.rightClick = None
 
-        # Command buttons and groups
         cmd_click = input_state.cmdClick
         if cmd_click:
             cmd_type = cmd_click.type if hasattr(cmd_click, 'type') else cmd_click.get('type')
@@ -835,7 +1193,6 @@ class Game:
                 group = cmd_click.group if hasattr(cmd_click, 'group') else cmd_click.get('group')
                 click_time = cmd_click.time if hasattr(cmd_click, 'time') else cmd_click.get('time')
 
-                # Double-tap detection
                 if (self.last_group_press['group'] == group and
                     click_time - self.last_group_press['time'] < 300):
                     self.center_on_group(group)
@@ -846,7 +1203,6 @@ class Game:
 
             input_state.cmdClick = None
 
-        # Keyboard commands
         if keys.get('KeyA'):
             if not hasattr(self, '_a_held') or not self._a_held:
                 self.current_command = 'attack'
@@ -889,9 +1245,7 @@ class Game:
         x2 = max(box['start_x'], box['end_x'])
         y2 = max(box['start_y'], box['end_y'])
 
-        # If box is tiny, treat as click
         if abs(x2 - x1) < 5 and abs(y2 - y1) < 5:
-            # Click selection
             if not shift:
                 for bug in self.bugs:
                     bug.selected = False
@@ -902,7 +1256,6 @@ class Game:
                         bug.selected = not bug.selected if shift else True
                         break
         else:
-            # Box selection
             if not shift:
                 for bug in self.bugs:
                     bug.selected = False
@@ -917,7 +1270,6 @@ class Game:
         if not selected:
             return
 
-        # Formation spread
         count = len(selected)
         cols = int(math.ceil(math.sqrt(count)))
         spacing = 15
@@ -967,11 +1319,9 @@ class Game:
         self.control_groups[group] = [b.id for b in selected]
 
     def select_control_group(self, group):
-        # Deselect all
         for bug in self.bugs:
             bug.selected = False
 
-        # Select group members
         group_ids = self.control_groups[group]
         for bug in self.bugs:
             if bug.id in group_ids and bug.alive and bug.controlled:
@@ -992,33 +1342,33 @@ class Game:
     def update(self):
         self.frame_count += 1
 
-        # Update bugs
         for bug in self.bugs:
             bug.update(self.taylor, self.enemies)
 
-        # Update enemies
         for enemy in self.enemies:
             enemy.update(self.taylor, self.bugs)
 
-        # Update webs
         for web in self.webs:
             web.update()
         self.webs = [w for w in self.webs if w.alive]
 
-        # Remove dead bugs
         self.bugs = [b for b in self.bugs if b.alive]
 
-        # Update camera to follow Taylor
         target_cam_x = self.taylor.x - CANVAS_WIDTH // 2
         target_cam_y = self.taylor.y - CANVAS_HEIGHT // 2
         self.camera_x += (target_cam_x - self.camera_x) * 0.1
         self.camera_y += (target_cam_y - self.camera_y) * 0.1
 
-        # Clamp camera
         self.camera_x = clamp(self.camera_x, 0, MAP_WIDTH - CANVAS_WIDTH)
         self.camera_y = clamp(self.camera_y, 0, MAP_HEIGHT - CANVAS_HEIGHT)
 
-        # Update UI state
+        # Update location
+        area = get_area_at(self.taylor.x, self.taylor.y)
+        if area:
+            window.uiState.locationInfo = area['name']
+        else:
+            window.uiState.locationInfo = 'Unknown'
+
         selected = [b for b in self.bugs if b.selected]
         if selected:
             types = {}
@@ -1035,7 +1385,6 @@ class Game:
         controlled = len([b for b in self.bugs if b.controlled])
         window.uiState.bugCount = f"{controlled}/{len(self.bugs)}"
 
-        # Update control group counts
         for i in range(5):
             group_ids = self.control_groups[i + 1]
             count = len([b for b in self.bugs if b.id in group_ids and b.alive and b.controlled])
@@ -1045,12 +1394,34 @@ class Game:
         ctx = self.ctx
         cam_x, cam_y = self.camera_x, self.camera_y
 
-        # Clear
-        ctx.fillStyle = '#2d4a3e'
-        ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+        # Draw areas
+        for area in AREAS:
+            ax = area['x'] - cam_x
+            ay = area['y'] - cam_y
+
+            # Skip if off screen
+            if ax + area['width'] < 0 or ax > CANVAS_WIDTH or ay + area['height'] < 0 or ay > CANVAS_HEIGHT:
+                continue
+
+            # Ground
+            ctx.fillStyle = area['ground']
+            ctx.fillRect(ax, ay, area['width'], area['height'])
+
+            # Area border
+            ctx.strokeStyle = area['color']
+            ctx.lineWidth = 3
+            ctx.strokeRect(ax, ay, area['width'], area['height'])
+
+            # Area name (if visible)
+            if 0 < ax < CANVAS_WIDTH - 100 and 0 < ay < CANVAS_HEIGHT - 20:
+                ctx.fillStyle = 'rgba(0,0,0,0.6)'
+                ctx.fillRect(ax + 5, ay + 5, 150, 20)
+                ctx.fillStyle = '#fff'
+                ctx.font = '12px monospace'
+                ctx.fillText(area['name'], ax + 10, ay + 18)
 
         # Draw grid
-        ctx.strokeStyle = 'rgba(255,255,255,0.1)'
+        ctx.strokeStyle = 'rgba(255,255,255,0.05)'
         ctx.lineWidth = 1
         grid_size = 50
         start_x = -(cam_x % grid_size)
@@ -1067,11 +1438,6 @@ class Game:
             ctx.moveTo(0, y)
             ctx.lineTo(CANVAS_WIDTH, y)
             ctx.stroke()
-
-        # Draw map boundary
-        ctx.strokeStyle = '#e94560'
-        ctx.lineWidth = 3
-        ctx.strokeRect(-cam_x, -cam_y, MAP_WIDTH, MAP_HEIGHT)
 
         # Draw webs
         for web in self.webs:
@@ -1095,38 +1461,27 @@ class Game:
         for bug in self.bugs:
             bx, by = bug.x - cam_x, bug.y - cam_y
 
-            # Skip if off screen
             if bx < -20 or bx > CANVAS_WIDTH + 20 or by < -20 or by > CANVAS_HEIGHT + 20:
                 continue
 
-            # Selection highlight
             if bug.selected:
                 ctx.strokeStyle = '#00ff00'
                 ctx.lineWidth = 2
                 ctx.beginPath()
-                ctx.arc(bx, by, bug.size + 3, 0, math.pi * 2)
+                ctx.arc(bx, by, bug.size + 4, 0, math.pi * 2)
                 ctx.stroke()
 
-            # Bug body
-            if bug.controlled:
-                ctx.fillStyle = bug.color
-            else:
-                ctx.fillStyle = '#666'  # Gray for uncontrolled
+            bug.draw(ctx, bx, by, self.frame_count)
 
-            ctx.beginPath()
-            ctx.arc(bx, by, bug.size, 0, math.pi * 2)
-            ctx.fill()
-
-            # Command indicator
             if bug.command == 'guard':
                 ctx.fillStyle = '#00ffff'
                 ctx.beginPath()
-                ctx.arc(bx, by - bug.size - 4, 2, 0, math.pi * 2)
+                ctx.arc(bx, by - bug.size - 5, 2, 0, math.pi * 2)
                 ctx.fill()
             elif bug.command == 'attack' or bug.command == 'swarm':
                 ctx.fillStyle = '#ff0000'
                 ctx.beginPath()
-                ctx.arc(bx, by - bug.size - 4, 2, 0, math.pi * 2)
+                ctx.arc(bx, by - bug.size - 5, 2, 0, math.pi * 2)
                 ctx.fill()
 
         # Draw enemies
@@ -1139,18 +1494,20 @@ class Game:
             if ex < -30 or ex > CANVAS_WIDTH + 30 or ey < -30 or ey > CANVAS_HEIGHT + 30:
                 continue
 
-            # Enemy body
-            ctx.fillStyle = '#e74c3c'
-            ctx.fillRect(ex - enemy.size//2, ey - enemy.size//2, enemy.size, enemy.size)
+            enemy.draw(ctx, ex, ey)
 
             # Health bar
             ctx.fillStyle = '#333'
-            ctx.fillRect(ex - 15, ey - enemy.size//2 - 8, 30, 4)
+            ctx.fillRect(ex - 15, ey - enemy.size//2 - 12, 30, 4)
             ctx.fillStyle = '#2ecc71'
             health_width = 30 * (enemy.hp / enemy.max_hp)
-            ctx.fillRect(ex - 15, ey - enemy.size//2 - 8, health_width, 4)
+            ctx.fillRect(ex - 15, ey - enemy.size//2 - 12, health_width, 4)
 
-            # Vision range (in swarm sense mode)
+            # Enemy type label
+            ctx.fillStyle = 'rgba(0,0,0,0.5)'
+            ctx.font = '8px monospace'
+            ctx.fillText(enemy.enemy_type, ex - 10, ey + enemy.size//2 + 10)
+
             if self.swarm_sense:
                 ctx.strokeStyle = 'rgba(231, 76, 60, 0.3)'
                 ctx.lineWidth = 1
@@ -1159,15 +1516,14 @@ class Game:
                 ctx.stroke()
 
         # Draw Taylor
-        ctx.fillStyle = '#9b59b6'
-        ctx.fillRect(tx - 16, ty - 16, 32, 32)
+        self.taylor.draw(ctx, tx, ty)
 
         # Taylor health bar
         ctx.fillStyle = '#333'
-        ctx.fillRect(tx - 20, ty - 25, 40, 5)
+        ctx.fillRect(tx - 20, ty - 28, 40, 5)
         ctx.fillStyle = '#3498db'
         health_width = 40 * (self.taylor.hp / self.taylor.max_hp)
-        ctx.fillRect(tx - 20, ty - 25, health_width, 5)
+        ctx.fillRect(tx - 20, ty - 28, health_width, 5)
 
         # Draw selection box
         if self.selection_box:
@@ -1187,19 +1543,15 @@ class Game:
 
         # Swarm sense overlay
         if self.swarm_sense:
-            # Darken areas outside bug vision
             ctx.fillStyle = 'rgba(0, 0, 0, 0.6)'
             ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
 
-            # Cut out vision circles
             ctx.globalCompositeOperation = 'destination-out'
 
-            # Taylor's personal vision
             ctx.beginPath()
             ctx.arc(tx, ty, 100, 0, math.pi * 2)
             ctx.fill()
 
-            # Bug vision
             for bug in self.bugs:
                 if bug.controlled:
                     bx, by = bug.x - cam_x, bug.y - cam_y
@@ -1209,7 +1561,6 @@ class Game:
 
             ctx.globalCompositeOperation = 'source-over'
 
-            # Overlay tint
             ctx.fillStyle = 'rgba(155, 89, 182, 0.1)'
             ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
 
@@ -1221,21 +1572,63 @@ class Game:
 
         # HUD
         ctx.fillStyle = 'rgba(0,0,0,0.7)'
-        ctx.fillRect(5, 5, 200, 60)
+        ctx.fillRect(5, 5, 220, 75)
         ctx.fillStyle = '#fff'
         ctx.font = '12px monospace'
-        ctx.fillText(f"Taylor HP: {int(self.taylor.hp)}/{self.taylor.max_hp}", 10, 22)
+
+        area = get_area_at(self.taylor.x, self.taylor.y)
+        area_name = area['name'] if area else 'Unknown'
+        ctx.fillText(f"Location: {area_name}", 10, 22)
+        ctx.fillText(f"Taylor HP: {int(self.taylor.hp)}/{self.taylor.max_hp}", 10, 38)
 
         controlled = len([b for b in self.bugs if b.controlled])
-        ctx.fillText(f"Bugs: {controlled} controlled / {len(self.bugs)} total", 10, 38)
+        ctx.fillText(f"Bugs: {controlled} controlled / {len(self.bugs)} total", 10, 54)
 
         enemies_alive = len([e for e in self.enemies if e.alive])
-        ctx.fillText(f"Enemies: {enemies_alive} remaining", 10, 54)
+        ctx.fillText(f"Enemies: {enemies_alive} remaining", 10, 70)
 
-        # Swarm sense indicator
         if self.swarm_sense:
             ctx.fillStyle = '#9b59b6'
             ctx.fillText("[TAB] SWARM SENSE ACTIVE", CANVAS_WIDTH - 200, 22)
+
+        # Minimap
+        minimap_w, minimap_h = 120, 90
+        minimap_x = CANVAS_WIDTH - minimap_w - 10
+        minimap_y = CANVAS_HEIGHT - minimap_h - 10
+        ctx.fillStyle = 'rgba(0,0,0,0.7)'
+        ctx.fillRect(minimap_x - 2, minimap_y - 2, minimap_w + 4, minimap_h + 4)
+
+        # Draw areas on minimap
+        for area in AREAS:
+            mx = minimap_x + (area['x'] / MAP_WIDTH) * minimap_w
+            my = minimap_y + (area['y'] / MAP_HEIGHT) * minimap_h
+            mw = (area['width'] / MAP_WIDTH) * minimap_w
+            mh = (area['height'] / MAP_HEIGHT) * minimap_h
+            ctx.fillStyle = area['ground']
+            ctx.fillRect(mx, my, mw, mh)
+
+        # Taylor on minimap
+        mtx = minimap_x + (self.taylor.x / MAP_WIDTH) * minimap_w
+        mty = minimap_y + (self.taylor.y / MAP_HEIGHT) * minimap_h
+        ctx.fillStyle = '#9b59b6'
+        ctx.fillRect(mtx - 2, mty - 2, 4, 4)
+
+        # Enemies on minimap
+        for enemy in self.enemies:
+            if enemy.alive:
+                mex = minimap_x + (enemy.x / MAP_WIDTH) * minimap_w
+                mey = minimap_y + (enemy.y / MAP_HEIGHT) * minimap_h
+                ctx.fillStyle = '#e74c3c'
+                ctx.fillRect(mex - 1, mey - 1, 2, 2)
+
+        # Camera viewport on minimap
+        ctx.strokeStyle = '#fff'
+        ctx.lineWidth = 1
+        cvx = minimap_x + (self.camera_x / MAP_WIDTH) * minimap_w
+        cvy = minimap_y + (self.camera_y / MAP_HEIGHT) * minimap_h
+        cvw = (CANVAS_WIDTH / MAP_WIDTH) * minimap_w
+        cvh = (CANVAS_HEIGHT / MAP_HEIGHT) * minimap_h
+        ctx.strokeRect(cvx, cvy, cvw, cvh)
 
         # Win/Lose check
         if enemies_alive == 0:
@@ -1244,6 +1637,9 @@ class Game:
             ctx.fillStyle = '#2ecc71'
             ctx.font = '48px monospace'
             ctx.fillText("VICTORY!", CANVAS_WIDTH//2 - 100, CANVAS_HEIGHT//2)
+            ctx.fillStyle = '#fff'
+            ctx.font = '16px monospace'
+            ctx.fillText("Brockton Bay is safe... for now.", CANVAS_WIDTH//2 - 130, CANVAS_HEIGHT//2 + 40)
 
         if self.taylor.hp <= 0:
             ctx.fillStyle = 'rgba(0,0,0,0.8)'
