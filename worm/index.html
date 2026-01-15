@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Worm - Taylor's Bug Control (Pyodide Test)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #1a1a2e;
+            color: #eee;
+            font-family: 'Courier New', monospace;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        h1 {
+            color: #e94560;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        #loading {
+            font-size: 1.2em;
+            color: #ffd700;
+            margin-bottom: 20px;
+        }
+        #output {
+            background: #16213e;
+            border: 2px solid #e94560;
+            border-radius: 8px;
+            padding: 20px;
+            min-width: 400px;
+            min-height: 200px;
+            font-size: 1.1em;
+            white-space: pre-wrap;
+        }
+        .success {
+            color: #00ff88;
+        }
+        .error {
+            color: #ff4444;
+        }
+        #canvas-container {
+            margin-top: 20px;
+            border: 2px solid #e94560;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+            background: #0f0f23;
+        }
+    </style>
+</head>
+<body>
+    <h1>🕷️ Taylor's Bug Control 🐝</h1>
+    <div id="loading">Loading Pyodide...</div>
+    <div id="output"></div>
+    <div id="canvas-container">
+        <canvas id="game-canvas" width="640" height="480"></canvas>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+    <script>
+        const output = document.getElementById('output');
+        const loading = document.getElementById('loading');
+
+        function log(message, type = '') {
+            const span = document.createElement('span');
+            span.className = type;
+            span.textContent = message + '\n';
+            output.appendChild(span);
+        }
+
+        async function main() {
+            try {
+                log('Initializing Pyodide...');
+
+                // Load Pyodide
+                const pyodide = await loadPyodide();
+                loading.textContent = 'Pyodide loaded!';
+                loading.style.color = '#00ff88';
+
+                log('Pyodide loaded successfully!', 'success');
+                log('Python version: ' + pyodide.runPython('import sys; sys.version'));
+
+                // Test basic Python
+                log('\n--- Running Python Tests ---\n');
+
+                // Hello World
+                pyodide.runPython(`
+print("Hello from Python in the browser!")
+print("This is Taylor's Bug Control prototype.")
+                `);
+
+                // Test some game-related calculations
+                const result = pyodide.runPython(`
+import math
+
+# Simulate bug swarm calculations
+class Bug:
+    def __init__(self, x, y, bug_type):
+        self.x = x
+        self.y = y
+        self.bug_type = bug_type
+
+    def distance_to(self, other_x, other_y):
+        return math.sqrt((self.x - other_x)**2 + (self.y - other_y)**2)
+
+# Create some test bugs
+bugs = [
+    Bug(100, 100, "fly"),
+    Bug(150, 120, "spider"),
+    Bug(200, 100, "wasp"),
+    Bug(130, 180, "fly"),
+    Bug(170, 150, "spider"),
+]
+
+taylor_x, taylor_y = 150, 140
+control_range = 100
+
+# Count bugs in range
+bugs_in_range = [b for b in bugs if b.distance_to(taylor_x, taylor_y) <= control_range]
+print(f"Taylor's position: ({taylor_x}, {taylor_y})")
+print(f"Control range: {control_range}")
+print(f"Total bugs: {len(bugs)}")
+print(f"Bugs in control range: {len(bugs_in_range)}")
+
+for bug in bugs_in_range:
+    dist = bug.distance_to(taylor_x, taylor_y)
+    print(f"  - {bug.bug_type} at ({bug.x}, {bug.y}), distance: {dist:.1f}")
+
+"Test completed successfully!"
+                `);
+
+                log('\n' + result, 'success');
+
+                // Now draw something on the canvas to prove we can do graphics
+                log('\n--- Canvas Graphics Test ---\n');
+
+                // Get canvas context via JavaScript and draw from Python
+                pyodide.runPython(`
+from js import document
+
+canvas = document.getElementById('game-canvas')
+ctx = canvas.getContext('2d')
+
+# Clear canvas
+ctx.fillStyle = '#0f0f23'
+ctx.fillRect(0, 0, 640, 480)
+
+# Draw Taylor (purple square)
+taylor_screen_x, taylor_screen_y = 320, 240
+ctx.fillStyle = '#9b59b6'
+ctx.fillRect(taylor_screen_x - 16, taylor_screen_y - 16, 32, 32)
+
+# Draw control range circle
+ctx.strokeStyle = 'rgba(155, 89, 182, 0.5)'
+ctx.lineWidth = 2
+ctx.beginPath()
+ctx.arc(taylor_screen_x, taylor_screen_y, 150, 0, 2 * 3.14159)
+ctx.stroke()
+
+# Draw some bugs
+import random
+random.seed(42)
+
+bug_colors = {
+    'fly': '#ffeb3b',
+    'spider': '#8b4513',
+    'wasp': '#ff9800'
+}
+
+for i in range(50):
+    angle = random.uniform(0, 2 * 3.14159)
+    dist = random.uniform(20, 140)
+    bx = taylor_screen_x + dist * math.cos(angle)
+    by = taylor_screen_y + dist * math.sin(angle)
+    bug_type = random.choice(['fly', 'spider', 'wasp'])
+
+    ctx.fillStyle = bug_colors[bug_type]
+    ctx.fillRect(bx - 3, by - 3, 6, 6)
+
+# Draw title
+ctx.fillStyle = '#e94560'
+ctx.font = '16px monospace'
+ctx.fillText('Pyodide + Canvas Test', 10, 25)
+ctx.fillStyle = '#aaa'
+ctx.font = '12px monospace'
+ctx.fillText('Purple = Taylor | Yellow = Flies | Brown = Spiders | Orange = Wasps', 10, 45)
+ctx.fillText('Circle = Control Range', 10, 60)
+
+print("Canvas drawing complete!")
+                `);
+
+                log('Canvas graphics rendered!', 'success');
+                log('\n✓ All tests passed! Pyodide is working correctly.', 'success');
+
+            } catch (error) {
+                loading.textContent = 'Error!';
+                loading.style.color = '#ff4444';
+                log('Error: ' + error.message, 'error');
+                console.error(error);
+            }
+        }
+
+        main();
+    </script>
+</body>
+</html>
