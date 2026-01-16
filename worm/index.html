@@ -3,1190 +3,1635 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Worm: Gestation</title>
+    <title>Worm: First Steps</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --sky-top: #87CEEB;
+            --sky-bottom: #E8F4F8;
+            --sun-glow: #FFF8E7;
+            --warm-cream: #FDF6E3;
+            --terracotta: #C4A484;
+            --sage: #9CAF88;
+            --deep-green: #2D4A3E;
+            --taylor-costume: #2A2D2E;
+            --silk-white: #FAFBFC;
+            --silk-shimmer: rgba(255, 255, 255, 0.9);
+            --ui-bg: rgba(255, 255, 255, 0.92);
+            --ui-shadow: rgba(0, 0, 0, 0.08);
+            --text-dark: #2C3E50;
+            --text-muted: #7F8C8D;
+            --accent-gold: #E6A23C;
+            --accent-soft: #A8D8EA;
+            --success: #7CB342;
+            --wasp-yellow: #F4D03F;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+
         body {
-            background: #1a1a24;
-            color: #c0c0c0;
-            font-family: 'Courier New', monospace;
+            font-family: 'DM Sans', sans-serif;
+            background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 60%, var(--warm-cream) 100%);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 10px;
-            user-select: none;
+            padding: 20px;
+            color: var(--text-dark);
+            overflow-x: hidden;
         }
+
+        header {
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
         h1 {
-            color: #a08060;
-            margin-bottom: 5px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-            font-size: 1.4em;
-            letter-spacing: 2px;
+            font-family: 'Crimson Pro', serif;
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: var(--deep-green);
+            letter-spacing: 0.02em;
+            text-shadow: 0 2px 8px rgba(255, 255, 255, 0.6);
         }
+
         .subtitle {
-            color: #888;
-            font-size: 0.8em;
-            margin-bottom: 10px;
+            font-family: 'Crimson Pro', serif;
+            font-style: italic;
+            color: var(--text-muted);
+            font-size: 1rem;
+            margin-top: 4px;
         }
-        #loading {
-            font-size: 1em;
-            color: #a08060;
-            margin-bottom: 10px;
-        }
-        #game-container {
+
+        #game-wrapper {
             position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow:
+                0 4px 24px rgba(0, 0, 0, 0.1),
+                0 1px 3px rgba(0, 0, 0, 0.05),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.5);
         }
+
         #game-canvas {
             display: block;
-            background: #1a1a24;
-            border: 2px solid #444;
-            image-rendering: pixelated;
+            background: var(--sky-bottom);
         }
-        #ui-overlay {
+
+        /* UI Overlay */
+        #ui-layer {
             position: absolute;
-            top: 10px;
-            left: 10px;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             pointer-events: none;
         }
-        .hp-container {
+
+        .ui-panel {
+            background: var(--ui-bg);
+            backdrop-filter: blur(12px);
+            border-radius: 12px;
+            box-shadow:
+                0 4px 16px var(--ui-shadow),
+                0 1px 3px rgba(0, 0, 0, 0.04);
+            pointer-events: auto;
+        }
+
+        /* Mission Panel */
+        #mission-panel {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            padding: 16px 20px;
+            max-width: 280px;
+            border-left: 3px solid var(--accent-gold);
+        }
+
+        #mission-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--accent-gold);
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        #mission-text {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.05rem;
+            line-height: 1.4;
+            color: var(--text-dark);
+        }
+
+        #mission-hint {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        /* Powers Panel */
+        #powers-panel {
+            position: absolute;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
             display: flex;
-            align-items: center;
             gap: 8px;
-            margin-bottom: 8px;
+            padding: 10px 14px;
         }
-        .hp-label {
-            color: #a08060;
-            font-size: 10px;
-            width: 50px;
+
+        .power-btn {
+            width: 56px;
+            height: 56px;
+            border-radius: 10px;
+            border: 2px solid transparent;
+            background: linear-gradient(145deg, #fff 0%, #f5f5f5 100%);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
         }
-        .hp-bar-outer {
-            width: 120px;
-            height: 10px;
-            background: #2a2a34;
-            border: 1px solid #444;
+
+        .power-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
-        .hp-bar-inner {
+
+        .power-btn.active {
+            border-color: var(--accent-gold);
+            background: linear-gradient(145deg, #FFF8E7 0%, #FDF6E3 100%);
+        }
+
+        .power-btn.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .power-icon {
+            font-size: 1.4rem;
+            margin-bottom: 2px;
+        }
+
+        .power-key {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        /* Swarm indicator */
+        #swarm-panel {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            padding: 12px 16px;
+            text-align: center;
+        }
+
+        #swarm-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        #swarm-count {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--deep-green);
+        }
+
+        #swarm-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(0, 0, 0, 0.06);
+            border-radius: 2px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        #swarm-fill {
             height: 100%;
-            background: linear-gradient(90deg, #5a8a6a 0%, #7aba8a 100%);
-            transition: width 0.3s;
+            background: linear-gradient(90deg, var(--sage) 0%, var(--deep-green) 100%);
+            border-radius: 2px;
+            transition: width 0.3s ease;
         }
-        .hp-bar-inner.enemy {
-            background: linear-gradient(90deg, #8a5a5a 0%, #ba7a7a 100%);
-        }
-        .swarm-count {
-            color: #9a9a7a;
-            font-size: 10px;
-        }
+
+        /* Controls hint */
         #controls-hint {
             position: absolute;
-            bottom: 10px;
-            left: 10px;
-            color: #666;
-            font-size: 9px;
+            bottom: 16px;
+            right: 16px;
+            padding: 10px 14px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        #controls-hint kbd {
+            display: inline-block;
+            padding: 2px 6px;
+            background: rgba(0, 0, 0, 0.04);
+            border-radius: 4px;
+            font-family: inherit;
+            font-weight: 500;
+            margin: 0 2px;
+        }
+
+        /* Success overlay */
+        #success-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            padding: 32px 48px;
+            text-align: center;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             pointer-events: none;
         }
-        #controls-hint kbd {
-            background: #2a2a34;
-            padding: 1px 4px;
-            border: 1px solid #444;
-            color: #888;
+
+        #success-overlay.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
         }
+
+        #success-overlay h2 {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.6rem;
+            color: var(--success);
+            margin-bottom: 8px;
+        }
+
+        #success-overlay p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Silk aiming indicator */
+        #silk-aim {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--silk-shimmer);
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.8);
+        }
+
+        #silk-aim.active {
+            opacity: 1;
+        }
+
         .hidden {
             display: none !important;
         }
     </style>
 </head>
 <body>
-    <h1>WORM: GESTATION</h1>
-    <div class="subtitle">The Docks - Brockton Bay</div>
-    <div id="loading">Initializing...</div>
+    <header>
+        <h1>Worm: First Steps</h1>
+        <p class="subtitle">Brockton Bay — A quiet afternoon</p>
+    </header>
 
-    <div id="game-container" class="hidden">
-        <canvas id="game-canvas" width="900" height="600"></canvas>
-        <div id="ui-overlay">
-            <div class="hp-container">
-                <span class="hp-label">TAYLOR</span>
-                <div class="hp-bar-outer">
-                    <div class="hp-bar-inner" id="taylor-hp" style="width: 100%"></div>
+    <div id="game-wrapper">
+        <canvas id="game-canvas" width="960" height="540"></canvas>
+
+        <div id="ui-layer">
+            <div id="mission-panel" class="ui-panel">
+                <div id="mission-label">Current Task</div>
+                <div id="mission-text">Walk through the neighborhood and get familiar with your powers.</div>
+                <div id="mission-hint">Use A/D to move, Space to jump</div>
+            </div>
+
+            <div id="swarm-panel" class="ui-panel">
+                <div id="swarm-label">Swarm</div>
+                <div id="swarm-count">0</div>
+                <div id="swarm-bar">
+                    <div id="swarm-fill" style="width: 0%"></div>
                 </div>
             </div>
-            <div class="hp-container hidden" id="boss-hp-container">
-                <span class="hp-label">LUNG</span>
-                <div class="hp-bar-outer">
-                    <div class="hp-bar-inner enemy" id="boss-hp" style="width: 100%"></div>
-                </div>
+
+            <div id="powers-panel" class="ui-panel">
+                <button class="power-btn" data-power="silk" title="Spider Silk">
+                    <span class="power-icon">🕸️</span>
+                    <span class="power-key">Q</span>
+                </button>
+                <button class="power-btn" data-power="wasps" title="Send Wasps">
+                    <span class="power-icon">🐝</span>
+                    <span class="power-key">W</span>
+                </button>
+                <button class="power-btn" data-power="scout" title="Bug Scout">
+                    <span class="power-icon">👁️</span>
+                    <span class="power-key">E</span>
+                </button>
             </div>
-            <div class="swarm-count" id="swarm-count">Swarm: 0</div>
-        </div>
-        <div id="controls-hint">
-            <kbd>A/D</kbd> Move
-            <kbd>SPACE</kbd> Jump
-            <kbd>J</kbd> Sting
-            <kbd>K</kbd> Bite
-            <kbd>L</kbd> Blind
+
+            <div id="controls-hint" class="ui-panel">
+                <kbd>A</kbd><kbd>D</kbd> Move
+                <kbd>Space</kbd> Jump
+                <kbd>Click</kbd> Aim power
+            </div>
+
+            <div id="success-overlay" class="ui-panel">
+                <h2>Task Complete!</h2>
+                <p>Moving to next area...</p>
+            </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
     <script>
-        const loading = document.getElementById('loading');
-        const gameContainer = document.getElementById('game-container');
+// ============== GAME ENGINE ==============
+const canvas = document.getElementById('game-canvas');
+const ctx = canvas.getContext('2d');
+const CANVAS_WIDTH = canvas.width;
+const CANVAS_HEIGHT = canvas.height;
 
-        window.keysHeld = {};
-        window.keysJustPressed = [];
+// World dimensions
+const WORLD_WIDTH = 3200;
+const WORLD_HEIGHT = 540;
+const GROUND_Y = WORLD_HEIGHT - 80;
 
-        window.uiState = {
-            taylorHp: 100,
-            bossHp: 100,
-            bossVisible: false,
-            swarmCount: 0
-        };
+// Physics
+const GRAVITY = 0.4;
+const FRICTION = 0.92;
 
-        async function main() {
-            try {
-                loading.textContent = 'Loading Python runtime...';
-                const pyodide = await loadPyodide();
+// Input state
+const keys = {};
+const keysJustPressed = new Set();
+let mouseX = 0, mouseY = 0;
+let mouseDown = false;
+let mouseClicked = false;
 
-                loading.textContent = 'Entering Brockton Bay...';
+// Game state
+let camera = { x: 0, y: 0 };
+let frame = 0;
+let currentPower = null;
+let missionIndex = 0;
+let missionComplete = false;
 
-                document.addEventListener('keydown', (e) => {
-                    if (!window.keysHeld[e.code]) {
-                        window.keysJustPressed.push(e.code);
-                    }
-                    window.keysHeld[e.code] = true;
-                    if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) {
-                        e.preventDefault();
-                    }
-                });
+// ============== MISSIONS ==============
+const missions = [
+    {
+        text: "Walk through the neighborhood and gather some insects.",
+        hint: "Move with A/D, bugs will join your swarm automatically",
+        check: (game) => game.swarmCount >= 15,
+        area: { x: 0, w: 800 }
+    },
+    {
+        text: "Two kids are fighting near the park. Send some wasps to distract them.",
+        hint: "Press W to select wasps, then click near the kids",
+        check: (game) => game.kidsCalmed,
+        area: { x: 600, w: 600 }
+    },
+    {
+        text: "A cat is stuck in that tree! Use spider silk to create a path down.",
+        hint: "Press Q to select silk, click to anchor points",
+        check: (game) => game.catSaved,
+        area: { x: 1100, w: 700 }
+    },
+    {
+        text: "Excellent work, Taylor. You're learning fast.",
+        hint: "Continue exploring...",
+        check: () => false,
+        area: { x: 1700, w: 800 }
+    }
+];
 
-                document.addEventListener('keyup', (e) => {
-                    window.keysHeld[e.code] = false;
-                });
+// ============== COLOR UTILITIES ==============
+function rgb(r, g, b, a = 1) {
+    return `rgba(${r}, ${g}, ${b}, ${a})`;
+}
 
-                await pyodide.runPythonAsync(`
-${GAME_CODE}
-                `);
+function gradient(ctx, x1, y1, x2, y2, stops) {
+    const g = ctx.createLinearGradient(x1, y1, x2, y2);
+    stops.forEach(([pos, color]) => g.addColorStop(pos, color));
+    return g;
+}
 
-                loading.classList.add('hidden');
-                gameContainer.classList.remove('hidden');
+function lerp(a, b, t) {
+    return a + (b - a) * t;
+}
 
-                // Update UI
-                setInterval(() => {
-                    document.getElementById('taylor-hp').style.width = window.uiState.taylorHp + '%';
-                    document.getElementById('boss-hp').style.width = window.uiState.bossHp + '%';
-                    document.getElementById('boss-hp-container').classList.toggle('hidden', !window.uiState.bossVisible);
-                    document.getElementById('swarm-count').textContent = 'Swarm: ' + window.uiState.swarmCount;
-                }, 100);
+function dist(x1, y1, x2, y2) {
+    return Math.sqrt((x2-x1)**2 + (y2-y1)**2);
+}
 
-            } catch (error) {
-                loading.textContent = 'Error: ' + error.message;
-                loading.style.color = '#ff4444';
-                console.error(error);
+function clamp(v, min, max) {
+    return Math.max(min, Math.min(max, v));
+}
+
+// ============== VERLET ROPE (SILK) ==============
+class SilkRope {
+    constructor(x1, y1, x2, y2, segments = 12) {
+        this.points = [];
+        this.stiffness = 0.8;
+        this.gravity = 0.15;
+        this.anchored = [true, true]; // Both ends anchored initially
+
+        for (let i = 0; i <= segments; i++) {
+            const t = i / segments;
+            this.points.push({
+                x: lerp(x1, y1, t) + (Math.random() - 0.5) * 2,
+                y: lerp(x2, y2, t),
+                oldX: lerp(x1, y1, t),
+                oldY: lerp(x2, y2, t),
+                pinned: i === 0 || i === segments
+            });
+        }
+        // Fix initial positions
+        for (let i = 0; i <= segments; i++) {
+            const t = i / segments;
+            this.points[i].x = lerp(x1, x2, t);
+            this.points[i].y = lerp(y1, y2, t);
+            this.points[i].oldX = this.points[i].x;
+            this.points[i].oldY = this.points[i].y;
+        }
+
+        this.restLength = dist(x1, y1, x2, y2) / segments;
+        this.shimmerPhase = Math.random() * Math.PI * 2;
+    }
+
+    update() {
+        // Verlet integration
+        for (let i = 0; i < this.points.length; i++) {
+            const p = this.points[i];
+            if (p.pinned) continue;
+
+            const vx = (p.x - p.oldX) * FRICTION;
+            const vy = (p.y - p.oldY) * FRICTION;
+
+            p.oldX = p.x;
+            p.oldY = p.y;
+            p.x += vx;
+            p.y += vy + this.gravity;
+        }
+
+        // Constraints (multiple iterations for stability)
+        for (let iter = 0; iter < 5; iter++) {
+            for (let i = 0; i < this.points.length - 1; i++) {
+                const p1 = this.points[i];
+                const p2 = this.points[i + 1];
+
+                const dx = p2.x - p1.x;
+                const dy = p2.y - p1.y;
+                const d = Math.sqrt(dx * dx + dy * dy);
+                const diff = (this.restLength - d) / d * this.stiffness;
+
+                const offsetX = dx * diff * 0.5;
+                const offsetY = dy * diff * 0.5;
+
+                if (!p1.pinned) {
+                    p1.x -= offsetX;
+                    p1.y -= offsetY;
+                }
+                if (!p2.pinned) {
+                    p2.x += offsetX;
+                    p2.y += offsetY;
+                }
+            }
+        }
+    }
+
+    draw(ctx, cx, cy) {
+        this.shimmerPhase += 0.05;
+
+        // Draw silk strand
+        ctx.beginPath();
+        ctx.moveTo(this.points[0].x - cx, this.points[0].y - cy);
+
+        for (let i = 1; i < this.points.length; i++) {
+            ctx.lineTo(this.points[i].x - cx, this.points[i].y - cy);
+        }
+
+        // Main strand
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+        ctx.lineWidth = 2.5;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+
+        // Shimmer effect
+        const shimmer = Math.sin(this.shimmerPhase) * 0.3 + 0.7;
+        ctx.strokeStyle = `rgba(255, 255, 255, ${shimmer * 0.5})`;
+        ctx.lineWidth = 4;
+        ctx.stroke();
+
+        // Anchor points
+        for (let i = 0; i < this.points.length; i++) {
+            if (this.points[i].pinned) {
+                const p = this.points[i];
+                ctx.beginPath();
+                ctx.arc(p.x - cx, p.y - cy, 4, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+                ctx.fill();
+                ctx.strokeStyle = 'rgba(200, 200, 200, 0.5)';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            }
+        }
+    }
+
+    checkCollision(x, y, radius = 10) {
+        for (const p of this.points) {
+            if (dist(x, y, p.x, p.y) < radius) return true;
+        }
+        return false;
+    }
+}
+
+// ============== TAYLOR ==============
+class Taylor {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.vx = 0;
+        this.vy = 0;
+        this.w = 24;
+        this.h = 48;
+        this.onGround = false;
+        this.facing = 1;
+        this.walkFrame = 0;
+        this.walkTimer = 0;
+    }
+
+    update(structures) {
+        // Movement
+        let moveX = 0;
+        if (keys['KeyA'] || keys['ArrowLeft']) { moveX = -1; this.facing = -1; }
+        if (keys['KeyD'] || keys['ArrowRight']) { moveX = 1; this.facing = 1; }
+
+        this.vx = moveX * 3.5;
+
+        // Jump
+        if ((keysJustPressed.has('Space') || keysJustPressed.has('KeyW')) && this.onGround) {
+            this.vy = -9;
+            this.onGround = false;
+        }
+
+        // Gravity
+        this.vy += GRAVITY;
+        this.vy = Math.min(this.vy, 12);
+
+        // Apply velocity
+        this.x += this.vx;
+        this.y += this.vy;
+
+        // Ground collision
+        this.onGround = false;
+        if (this.y + this.h >= GROUND_Y) {
+            this.y = GROUND_Y - this.h;
+            this.vy = 0;
+            this.onGround = true;
+        }
+
+        // Structure collision
+        for (const s of structures) {
+            if (this.x < s.x + s.w && this.x + this.w > s.x &&
+                this.y < s.y + s.h && this.y + this.h > s.y) {
+
+                // Top collision
+                if (this.vy > 0 && this.y + this.h - this.vy <= s.y + 5) {
+                    this.y = s.y - this.h;
+                    this.vy = 0;
+                    this.onGround = true;
+                }
             }
         }
 
-        const GAME_CODE = `
-import math
-import random
-from js import document, window, requestAnimationFrame
-from pyodide.ffi import create_proxy
-
-# ============== CONSTANTS ==============
-CANVAS_WIDTH = 900
-CANVAS_HEIGHT = 600
-WORLD_WIDTH = 2800
-WORLD_HEIGHT = 700
-
-GRAVITY = 0.45
-JUMP_FORCE = -10
-MAX_FALL_SPEED = 11
-TAYLOR_SPEED = 3.2
-CONTROL_RANGE = 140
-LOSE_RANGE = 190
-
-# Ground level
-GROUND_Y = WORLD_HEIGHT - 60
-
-# ============== UTILITY ==============
-def clamp(val, min_val, max_val):
-    return max(min_val, min(max_val, val))
-
-def lerp(a, b, t):
-    return a + (b - a) * t
-
-def distance(x1, y1, x2, y2):
-    return math.sqrt((x2-x1)**2 + (y2-y1)**2)
-
-def rect_intersect(x1, y1, w1, h1, x2, y2, w2, h2):
-    return x1 < x2 + w2 and x1 + w1 > x2 and y1 < y2 + h2 and y1 + h1 > y2
-
-# ============== STRUCTURES ==============
-class Structure:
-    def __init__(self, x, y, w, h, struct_type='crate'):
-        self.x = x
-        self.y = y
-        self.w = w
-        self.h = h
-        self.struct_type = struct_type
-
-    def get_top_surface(self):
-        # Returns (x, y, width) of walkable top
-        return (self.x, self.y, self.w)
-
-    def draw(self, ctx, cx, cy):
-        sx, sy = self.x - cx, self.y - cy
-
-        if self.struct_type == 'crate':
-            # Wooden crate
-            ctx.fillStyle = '#5a4a35'
-            ctx.fillRect(sx, sy, self.w, self.h)
-            # Wood grain
-            ctx.strokeStyle = '#4a3a28'
-            ctx.lineWidth = 1
-            ctx.strokeRect(sx + 2, sy + 2, self.w - 4, self.h - 4)
-            # Cross boards
-            ctx.beginPath()
-            ctx.moveTo(sx + 3, sy + 3)
-            ctx.lineTo(sx + self.w - 3, sy + self.h - 3)
-            ctx.stroke()
-            ctx.beginPath()
-            ctx.moveTo(sx + self.w - 3, sy + 3)
-            ctx.lineTo(sx + 3, sy + self.h - 3)
-            ctx.stroke()
-            # Highlight
-            ctx.fillStyle = '#6a5a45'
-            ctx.fillRect(sx, sy, self.w, 3)
-
-        elif self.struct_type == 'container':
-            # Shipping container
-            ctx.fillStyle = '#4a5560'
-            ctx.fillRect(sx, sy, self.w, self.h)
-            # Ridges
-            ctx.fillStyle = '#3a4550'
-            for i in range(int(self.w // 30)):
-                ctx.fillRect(sx + 10 + i * 30, sy, 3, self.h)
-            # Top highlight
-            ctx.fillStyle = '#5a6570'
-            ctx.fillRect(sx, sy, self.w, 4)
-            # Door lines
-            ctx.strokeStyle = '#3a4550'
-            ctx.lineWidth = 2
-            ctx.strokeRect(sx + 5, sy + 10, self.w - 10, self.h - 15)
-
-        elif self.struct_type == 'warehouse_floor':
-            # Metal floor/catwalk
-            ctx.fillStyle = '#4a4a50'
-            ctx.fillRect(sx, sy, self.w, self.h)
-            # Grating pattern
-            ctx.strokeStyle = '#3a3a40'
-            ctx.lineWidth = 1
-            for i in range(int(self.w // 15)):
-                ctx.beginPath()
-                ctx.moveTo(sx + i * 15, sy)
-                ctx.lineTo(sx + i * 15, sy + self.h)
-                ctx.stroke()
-            # Edge
-            ctx.fillStyle = '#5a5a60'
-            ctx.fillRect(sx, sy, self.w, 2)
-            # Support beams underneath
-            ctx.fillStyle = '#3a3a40'
-            ctx.fillRect(sx + 10, sy + self.h, 8, 30)
-            ctx.fillRect(sx + self.w - 18, sy + self.h, 8, 30)
-
-        elif self.struct_type == 'stairs':
-            # Stairs going up-right
-            ctx.fillStyle = '#4a4a50'
-            steps = 5
-            step_w = self.w // steps
-            step_h = self.h // steps
-            for i in range(steps):
-                ctx.fillRect(sx + i * step_w, sy + self.h - (i + 1) * step_h, step_w + 2, (i + 1) * step_h)
-                ctx.fillStyle = '#5a5a60'
-                ctx.fillRect(sx + i * step_w, sy + self.h - (i + 1) * step_h, step_w + 2, 2)
-                ctx.fillStyle = '#4a4a50'
-
-        elif self.struct_type == 'warehouse_wall':
-            # Background warehouse wall (not collidable, just visual)
-            ctx.fillStyle = '#2a2a30'
-            ctx.fillRect(sx, sy, self.w, self.h)
-            # Windows
-            ctx.fillStyle = '#1a2a35'
-            win_y = sy + 30
-            for i in range(int(self.w // 80)):
-                ctx.fillRect(sx + 20 + i * 80, win_y, 40, 50)
-                # Window frame
-                ctx.strokeStyle = '#3a3a40'
-                ctx.lineWidth = 2
-                ctx.strokeRect(sx + 20 + i * 80, win_y, 40, 50)
-            # Corrugated metal lines
-            ctx.strokeStyle = '#353540'
-            ctx.lineWidth = 1
-            for i in range(int(self.w // 20)):
-                ctx.beginPath()
-                ctx.moveTo(sx + i * 20, sy)
-                ctx.lineTo(sx + i * 20, sy + self.h)
-                ctx.stroke()
-
-# ============== TAYLOR ==============
-class Taylor:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-        self.vx = 0
-        self.vy = 0
-        self.w = 18
-        self.h = 38
-
-        self.hp = 100
-        self.max_hp = 100
-
-        self.on_ground = False
-        self.facing = 1
-        self.state = 'idle'
-
-        self.attack_timer = 0
-        self.attack_type = None
-        self.attack_cooldown = 0
-        self.invuln_timer = 0
-
-        self.anim_frame = 0
-        self.anim_timer = 0
-
-    def update(self, keys, key_pressed, structures):
-        move_x = 0
-        if keys.get('KeyA') or keys.get('ArrowLeft'):
-            move_x = -1
-            self.facing = -1
-        if keys.get('KeyD') or keys.get('ArrowRight'):
-            move_x = 1
-            self.facing = 1
-
-        self.vx = move_x * TAYLOR_SPEED
-
-        if (key_pressed.get('Space') or key_pressed.get('KeyW') or key_pressed.get('ArrowUp')) and self.on_ground:
-            self.vy = JUMP_FORCE
-            self.on_ground = False
-
-        self.vy += GRAVITY
-        self.vy = min(self.vy, MAX_FALL_SPEED)
-
-        if self.attack_cooldown <= 0:
-            if key_pressed.get('KeyJ'):
-                self.start_attack('sting')
-            elif key_pressed.get('KeyK'):
-                self.start_attack('bite')
-            elif key_pressed.get('KeyL'):
-                self.start_attack('blind')
-
-        if self.attack_timer > 0:
-            self.attack_timer -= 1
-            if self.attack_timer <= 0:
-                self.attack_type = None
-
-        if self.attack_cooldown > 0:
-            self.attack_cooldown -= 1
-
-        if self.invuln_timer > 0:
-            self.invuln_timer -= 1
-
-        # Horizontal movement
-        self.x += self.vx
-        # Check horizontal collision
-        for struct in structures:
-            if struct.struct_type in ['crate', 'container', 'warehouse_floor']:
-                if rect_intersect(self.x, self.y, self.w, self.h, struct.x, struct.y, struct.w, struct.h):
-                    if self.vx > 0:
-                        self.x = struct.x - self.w
-                    elif self.vx < 0:
-                        self.x = struct.x + struct.w
-
-        # Vertical movement
-        self.y += self.vy
-        self.on_ground = False
-
-        # Check vertical collision
-        for struct in structures:
-            if struct.struct_type in ['crate', 'container', 'warehouse_floor', 'stairs']:
-                if rect_intersect(self.x, self.y, self.w, self.h, struct.x, struct.y, struct.w, struct.h):
-                    if self.vy > 0:
-                        self.y = struct.y - self.h
-                        self.vy = 0
-                        self.on_ground = True
-                    elif self.vy < 0 and struct.struct_type != 'stairs':
-                        self.y = struct.y + struct.h
-                        self.vy = 0
-
-        # Ground
-        if self.y + self.h >= GROUND_Y:
-            self.y = GROUND_Y - self.h
-            self.vy = 0
-            self.on_ground = True
-
-        self.x = clamp(self.x, 0, WORLD_WIDTH - self.w)
-
-        # State
-        if self.attack_timer > 0:
-            self.state = 'attack'
-        elif not self.on_ground:
-            self.state = 'jump' if self.vy < 0 else 'fall'
-        elif abs(self.vx) > 0.5:
-            self.state = 'run'
-        else:
-            self.state = 'idle'
-
-        # Animation
-        self.anim_timer += 1
-        if self.state == 'run':
-            if self.anim_timer >= 6:
-                self.anim_timer = 0
-                self.anim_frame = (self.anim_frame + 1) % 4
-        else:
-            self.anim_frame = 0
-
-    def start_attack(self, attack_type):
-        self.attack_type = attack_type
-        self.attack_timer = 25
-        self.attack_cooldown = 30
-
-    def get_attack_hitbox(self):
-        if not self.attack_type or self.attack_timer < 15:
-            return None
-        hb_w, hb_h = 45, 28
-        hb_x = self.x + self.w if self.facing > 0 else self.x - hb_w
-        hb_y = self.y + 5
-        return (hb_x, hb_y, hb_w, hb_h)
-
-    def take_damage(self, amount):
-        if self.invuln_timer > 0:
-            return
-        self.hp -= amount
-        self.invuln_timer = 60
-        if self.hp <= 0:
-            self.hp = 0
-
-    def draw(self, ctx, cx, cy):
-        sx, sy = self.x - cx, self.y - cy
-
-        if self.invuln_timer > 0 and (self.invuln_timer // 4) % 2 == 0:
-            return
-
-        f = self.facing
-        body_offset = 0
-        if self.state == 'run':
-            body_offset = [0, -1, 0, -1][self.anim_frame]
-
-        # Body (grey-black costume)
-        ctx.fillStyle = '#2a2a2a'
-        ctx.fillRect(sx + 3, sy + 11 + body_offset, 12, 18)
-
-        # Legs
-        ctx.fillStyle = '#222222'
-        if self.state == 'run':
-            offsets = [(0, 3), (2, -2), (0, 3), (-2, -2)]
-            l1, l2 = offsets[self.anim_frame]
-            ctx.fillRect(sx + 4, sy + 29 + body_offset, 4, 9 + l1)
-            ctx.fillRect(sx + 10, sy + 29 + body_offset, 4, 9 + l2)
-        elif self.state in ['jump', 'fall']:
-            ctx.fillRect(sx + 3, sy + 29, 5, 7)
-            ctx.fillRect(sx + 10, sy + 27, 5, 9)
-        else:
-            ctx.fillRect(sx + 4, sy + 29, 4, 9)
-            ctx.fillRect(sx + 10, sy + 29, 4, 9)
-
-        # Head with mask
-        ctx.fillStyle = '#303030'
-        ctx.fillRect(sx + 4, sy + 1, 10, 11)
-
-        # Yellow lenses
-        ctx.fillStyle = '#d4b030'
-        if f > 0:
-            ctx.fillRect(sx + 9, sy + 4, 3, 3)
-        else:
-            ctx.fillRect(sx + 6, sy + 4, 3, 3)
-
-        # Dark curly hair
-        ctx.fillStyle = '#151515'
-        ctx.fillRect(sx + 3, sy - 1, 12, 4)
-        ctx.fillRect(sx + 2, sy + 1, 2, 5)
-        ctx.fillRect(sx + 14, sy + 1, 2, 5)
-
-        # Arm
-        ctx.fillStyle = '#2a2a2a'
-        arm_y = sy + 13 + body_offset
-        if self.state == 'attack':
-            if f > 0:
-                ctx.fillRect(sx + 13, arm_y, 10, 4)
-            else:
-                ctx.fillRect(sx - 5, arm_y, 10, 4)
-        else:
-            if f > 0:
-                ctx.fillRect(sx + 13, arm_y, 4, 9)
-            else:
-                ctx.fillRect(sx + 1, arm_y, 4, 9)
-
-        # Attack effect (swarm of bugs)
-        if self.attack_type and self.attack_timer > 15:
-            hb = self.get_attack_hitbox()
-            if hb:
-                hx, hy, hw, hh = hb
-                hx -= cx
-                hy -= cy
-                # Draw swarm particles
-                if self.attack_type == 'sting':
-                    ctx.fillStyle = 'rgba(200, 180, 60, 0.5)'
-                elif self.attack_type == 'bite':
-                    ctx.fillStyle = 'rgba(120, 200, 120, 0.5)'
-                else:
-                    ctx.fillStyle = 'rgba(160, 160, 200, 0.5)'
-
-                for i in range(8):
-                    px = hx + random.uniform(0, hw)
-                    py = hy + random.uniform(0, hh)
-                    ctx.beginPath()
-                    ctx.arc(px, py, 2, 0, math.pi * 2)
-                    ctx.fill()
-
-# ============== BUG ==============
-class Bug:
-    def __init__(self, x, y, bug_type='fly'):
-        self.x = x
-        self.y = y
-        self.bug_type = bug_type
-        self.alive = True
-        self.following = False
-        self.target_x = x
-        self.target_y = y
-        self.anim_phase = random.uniform(0, math.pi * 2)
-
-        if bug_type == 'fly':
-            self.color = '#7a7a5a'
-            self.size = 3
-            self.speed = 2.0
-        elif bug_type == 'spider':
-            self.color = '#5a4a3a'
-            self.size = 5
-            self.speed = 1.0
-        elif bug_type == 'wasp':
-            self.color = '#9a7a30'
-            self.size = 4
-            self.speed = 1.8
-        elif bug_type == 'beetle':
-            self.color = '#3a4a3a'
-            self.size = 5
-            self.speed = 0.7
-
-    def update(self, taylor, structures):
-        taylor_cx = taylor.x + taylor.w/2
-        taylor_cy = taylor.y + taylor.h/2
-        dist = distance(self.x, self.y, taylor_cx, taylor_cy)
-
-        if dist < CONTROL_RANGE and not self.following:
-            self.following = True
-
-        if self.following and dist > LOSE_RANGE:
-            self.following = False
-
-        if self.following:
-            self.anim_phase += 0.05
-
-            swarm_dist = 22 + math.sin(self.anim_phase * 0.7) * 10
-            self.target_x = taylor_cx + math.cos(self.anim_phase) * swarm_dist
-            self.target_y = taylor_cy + math.sin(self.anim_phase * 1.3) * swarm_dist * 0.4
-
-            dx = self.target_x - self.x
-            dy = self.target_y - self.y
-            move_dist = math.sqrt(dx*dx + dy*dy)
-
-            if move_dist > 3:
-                urgency = min(1.4, move_dist / 60)
-                speed = self.speed * urgency
-                self.x += (dx / move_dist) * speed
-                self.y += (dy / move_dist) * speed
-
-            # Ground bugs affected by gravity and structures
-            if self.bug_type in ['spider', 'beetle']:
-                self.y += 1.2
-                for struct in structures:
-                    if struct.struct_type in ['crate', 'container', 'warehouse_floor']:
-                        if (self.x > struct.x and self.x < struct.x + struct.w and
-                            self.y > struct.y and self.y < struct.y + 10):
-                            self.y = struct.y
-                if self.y > GROUND_Y:
-                    self.y = GROUND_Y
-
-    def draw(self, ctx, cx, cy, frame):
-        sx, sy = self.x - cx, self.y - cy
-
-        # Dim if not following
-        if self.following:
-            ctx.fillStyle = self.color
-        else:
-            ctx.fillStyle = '#4a4a4a'
-
-        if self.bug_type in ['fly', 'wasp']:
-            ctx.beginPath()
-            ctx.ellipse(sx, sy, self.size, self.size * 0.6, 0, 0, math.pi * 2)
-            ctx.fill()
-            wing_flap = math.sin(frame * 0.5 + self.anim_phase) * 0.4
-            ctx.fillStyle = 'rgba(120, 120, 120, 0.3)'
-            ctx.beginPath()
-            ctx.ellipse(sx - 2, sy - 2, 3, 1.5, wing_flap, 0, math.pi * 2)
-            ctx.fill()
-            ctx.beginPath()
-            ctx.ellipse(sx + 2, sy - 2, 3, 1.5, -wing_flap, 0, math.pi * 2)
-            ctx.fill()
-        elif self.bug_type == 'spider':
-            ctx.beginPath()
-            ctx.arc(sx, sy, self.size, 0, math.pi * 2)
-            ctx.fill()
-            ctx.strokeStyle = self.color if self.following else '#4a4a4a'
-            ctx.lineWidth = 0.8
-            for i in range(4):
-                angle = i * 0.4 - 0.6 + math.sin(frame * 0.05 + i) * 0.1
-                ctx.beginPath()
-                ctx.moveTo(sx, sy)
-                ctx.lineTo(sx - math.cos(angle) * 6, sy + math.sin(angle) * 4)
-                ctx.stroke()
-                ctx.beginPath()
-                ctx.moveTo(sx, sy)
-                ctx.lineTo(sx + math.cos(angle) * 6, sy + math.sin(angle) * 4)
-                ctx.stroke()
-        else:
-            ctx.beginPath()
-            ctx.ellipse(sx, sy, self.size, self.size * 0.7, 0, 0, math.pi * 2)
-            ctx.fill()
-
-# ============== ENEMY ==============
-class Enemy:
-    def __init__(self, x, y, enemy_type='thug'):
-        self.x = x
-        self.y = y
-        self.vx = 0
-        self.vy = 0
-        self.w = 22
-        self.h = 42
-
-        self.enemy_type = enemy_type
-        self.alive = True
-        self.facing = -1
-
-        if enemy_type == 'thug':
-            self.hp = 40
-            self.max_hp = 40
-            self.damage = 10
-            self.color = '#6a4545'
-        else:
-            self.hp = 55
-            self.max_hp = 55
-            self.damage = 14
-            self.color = '#7a4040'
-
-        self.patrol_left = x - 60
-        self.patrol_right = x + 60
-        self.state = 'patrol'
-        self.attack_cooldown = 0
-        self.stun_timer = 0
-        self.effects = {}
-
-    def add_effect(self, name, duration):
-        self.effects[name] = duration
-
-    def take_damage(self, amount, effect=None):
-        self.hp -= amount
-        self.stun_timer = 12
-        if effect:
-            if effect == 'bite':
-                self.add_effect('venom', 180)
-            elif effect == 'blind':
-                self.add_effect('blind', 180)
-        if self.hp <= 0:
-            self.alive = False
-
-    def update(self, taylor, structures):
-        if not self.alive:
-            return
-
-        for name in list(self.effects.keys()):
-            self.effects[name] -= 1
-            if name == 'venom':
-                self.hp -= 0.1
-                if self.hp <= 0:
-                    self.alive = False
-            if self.effects[name] <= 0:
-                del self.effects[name]
-
-        if self.stun_timer > 0:
-            self.stun_timer -= 1
-            self.vy += GRAVITY
-            self.y += self.vy
-            self.check_ground(structures)
-            return
-
-        if self.attack_cooldown > 0:
-            self.attack_cooldown -= 1
-
-        dist_to_taylor = distance(self.x, self.y, taylor.x, taylor.y)
-        can_see = 'blind' not in self.effects
-        speed = 1.4 if can_see else 0.4
-
-        if can_see and dist_to_taylor < 180:
-            self.state = 'chase'
-            if taylor.x < self.x:
-                self.vx = -speed
-                self.facing = -1
-            else:
-                self.vx = speed
-                self.facing = 1
-
-            if dist_to_taylor < 30 and self.attack_cooldown <= 0:
-                taylor.take_damage(self.damage)
-                self.attack_cooldown = 80
-        else:
-            self.state = 'patrol'
-            if self.x <= self.patrol_left:
-                self.facing = 1
-            elif self.x >= self.patrol_right:
-                self.facing = -1
-            self.vx = self.facing * speed * 0.4
-
-        self.vy += GRAVITY
-        self.x += self.vx
-        self.y += self.vy
-        self.check_ground(structures)
-        self.x = clamp(self.x, 0, WORLD_WIDTH - self.w)
-
-    def check_ground(self, structures):
-        if self.y + self.h >= GROUND_Y:
-            self.y = GROUND_Y - self.h
-            self.vy = 0
-
-        for struct in structures:
-            if struct.struct_type in ['crate', 'container', 'warehouse_floor']:
-                if rect_intersect(self.x, self.y, self.w, self.h, struct.x, struct.y, struct.w, struct.h):
-                    if self.vy > 0:
-                        self.y = struct.y - self.h
-                        self.vy = 0
-
-    def draw(self, ctx, cx, cy):
-        sx, sy = self.x - cx, self.y - cy
-
-        color = self.color
-        if 'venom' in self.effects:
-            color = '#5a6a5a'
-        if 'blind' in self.effects:
-            color = '#5a5a6a'
-
-        ctx.fillStyle = color
-        ctx.fillRect(sx + 4, sy + 12, 14, 20)
-
-        ctx.beginPath()
-        ctx.arc(sx + 11, sy + 9, 7, 0, math.pi * 2)
-        ctx.fill()
-
-        ctx.fillRect(sx + 5, sy + 32, 5, 10)
-        ctx.fillRect(sx + 12, sy + 32, 5, 10)
-
-        # HP bar
-        ctx.fillStyle = '#2a2a2a'
-        ctx.fillRect(sx, sy - 8, self.w, 4)
-        ctx.fillStyle = '#6a5555'
-        ctx.fillRect(sx, sy - 8, self.w * (self.hp / self.max_hp), 4)
-
-# ============== LUNG ==============
-class Lung:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-        self.vx = 0
-        self.vy = 0
-        self.w = 36
-        self.h = 55
-
-        self.hp = 280
-        self.max_hp = 280
-        self.damage = 18
-        self.alive = True
-        self.facing = -1
-
-        self.stage = 1
-        self.stage_timer = 0
-        self.engaged = False
-
-        self.attack_cooldown = 0
-        self.state = 'idle'
-        self.effects = {}
-
-    def add_effect(self, name, duration):
-        duration = int(duration * (1 - (self.stage - 1) * 0.12))
-        if duration > 0:
-            self.effects[name] = duration
-
-    def take_damage(self, amount, effect=None):
-        reduction = 1 - (self.stage - 1) * 0.08
-        self.hp -= amount * reduction
-        self.engaged = True
-        if effect:
-            if effect == 'bite':
-                self.add_effect('venom', 180)
-            elif effect == 'blind':
-                self.add_effect('blind', 100)
-        if self.hp <= 0:
-            self.alive = False
-
-    def update(self, taylor, structures):
-        if not self.alive:
-            return
-
-        if self.engaged:
-            self.stage_timer += 1
-            if self.stage_timer >= 800 and self.stage < 5:
-                self.stage += 1
-                self.stage_timer = 0
-                self.max_hp += 25
-                self.hp = min(self.hp + 40, self.max_hp)
-
-        for name in list(self.effects.keys()):
-            self.effects[name] -= 1
-            if name == 'venom':
-                self.hp -= 0.12 * (1 - (self.stage - 1) * 0.08)
-            if self.effects[name] <= 0:
-                del self.effects[name]
-
-        if self.attack_cooldown > 0:
-            self.attack_cooldown -= 1
-
-        speed = 1.0 + self.stage * 0.25
-        if 'blind' in self.effects:
-            speed *= 0.5
-
-        dist = distance(self.x, self.y, taylor.x, taylor.y)
-
-        if dist < 350 or self.engaged:
-            self.engaged = True
-            self.state = 'chase'
-
-            if taylor.x < self.x:
-                self.vx = -speed
-                self.facing = -1
-            else:
-                self.vx = speed
-                self.facing = 1
-
-            attack_range = 45 + self.stage * 8
-            if dist < attack_range and self.attack_cooldown <= 0:
-                taylor.take_damage(self.damage + self.stage * 4)
-                self.attack_cooldown = max(55, 85 - self.stage * 5)
-        else:
-            self.state = 'idle'
-            self.vx = 0
-
-        self.vy += GRAVITY
-        self.x += self.vx
-        self.y += self.vy
-
-        if self.y + self.h >= GROUND_Y:
-            self.y = GROUND_Y - self.h
-            self.vy = 0
-
-        self.x = clamp(self.x, 0, WORLD_WIDTH - self.w)
-
-    def draw(self, ctx, cx, cy, frame):
-        sx, sy = self.x - cx, self.y - cy
-
-        scale = 1 + (self.stage - 1) * 0.12
-        w = int(self.w * scale)
-        h = int(self.h * scale)
-
-        colors = ['#805030', '#905040', '#a04540', '#b54535', '#c55030']
-        color = colors[self.stage - 1]
-
-        # Fire aura
-        if self.stage >= 3:
-            ctx.fillStyle = f'rgba(255, {120 - self.stage * 15}, 20, {0.12 + math.sin(frame * 0.12) * 0.04})'
-            ctx.beginPath()
-            ctx.arc(sx + w//2, sy + h//2, w//2 + 12 + self.stage * 4, 0, math.pi * 2)
-            ctx.fill()
-
-        ctx.fillStyle = color
-        ctx.fillRect(sx, sy + 14, w, h - 24)
-
-        head_size = 10 + self.stage * 2
-        ctx.beginPath()
-        ctx.arc(sx + w//2, sy + head_size, head_size, 0, math.pi * 2)
-        ctx.fill()
-
-        ctx.fillRect(sx + 4, sy + h - 10, w//3, 10)
-        ctx.fillRect(sx + w - w//3 - 4, sy + h - 10, w//3, 10)
-
-        if self.stage >= 4:
-            ctx.fillStyle = '#302525'
-            for i in range(self.stage - 3):
-                ctx.fillRect(sx + 4, sy + 22 + i * 8, w - 8, 2)
-
-        if 'blind' in self.effects:
-            ctx.fillStyle = '#ffff00'
-            ctx.font = '12px monospace'
-            ctx.fillText('*', sx + w//2 - 3, sy + 4)
-
-# ============== GAME ==============
-class Game:
-    def __init__(self):
-        self.canvas = document.getElementById('game-canvas')
-        self.ctx = self.canvas.getContext('2d')
-
-        self.taylor = Taylor(100, GROUND_Y - 50)
-        self.structures = []
-        self.bg_structures = []  # Background visuals
-        self.bugs = []
-        self.enemies = []
-        self.lung = None
-
-        self.camera_x = 0
-        self.camera_y = 0
-
-        self.frame = 0
-        self.game_over = False
-        self.victory = False
-
-        self.create_level()
-        self.spawn_bugs()
-        self.spawn_enemies()
-
-    def create_level(self):
-        # Background warehouse walls (visual only)
-        self.bg_structures.append(Structure(0, GROUND_Y - 300, 400, 300, 'warehouse_wall'))
-        self.bg_structures.append(Structure(600, GROUND_Y - 350, 500, 350, 'warehouse_wall'))
-        self.bg_structures.append(Structure(1300, GROUND_Y - 320, 450, 320, 'warehouse_wall'))
-        self.bg_structures.append(Structure(2000, GROUND_Y - 380, 600, 380, 'warehouse_wall'))
-
-        # Area 1: Starting dock - crates and containers
-        self.structures.append(Structure(80, GROUND_Y - 45, 50, 45, 'crate'))
-        self.structures.append(Structure(130, GROUND_Y - 45, 50, 45, 'crate'))
-        self.structures.append(Structure(95, GROUND_Y - 90, 50, 45, 'crate'))
-        self.structures.append(Structure(220, GROUND_Y - 70, 120, 70, 'container'))
-
-        # Area 2: Warehouse section
-        self.structures.append(Structure(450, GROUND_Y - 50, 55, 50, 'crate'))
-        self.structures.append(Structure(505, GROUND_Y - 50, 55, 50, 'crate'))
-        self.structures.append(Structure(470, GROUND_Y - 95, 55, 45, 'crate'))
-        self.structures.append(Structure(620, GROUND_Y - 80, 140, 80, 'container'))
-        self.structures.append(Structure(620, GROUND_Y - 130, 100, 50, 'warehouse_floor'))
-
-        # Area 3: Catwalks and vertical
-        self.structures.append(Structure(850, GROUND_Y - 55, 60, 55, 'crate'))
-        self.structures.append(Structure(910, GROUND_Y - 55, 60, 55, 'crate'))
-        self.structures.append(Structure(850, GROUND_Y - 100, 120, 45, 'warehouse_floor'))
-        self.structures.append(Structure(1000, GROUND_Y - 80, 150, 80, 'container'))
-        self.structures.append(Structure(1000, GROUND_Y - 135, 150, 55, 'warehouse_floor'))
-
-        # Area 4: More complex
-        self.structures.append(Structure(1220, GROUND_Y - 50, 55, 50, 'crate'))
-        self.structures.append(Structure(1275, GROUND_Y - 50, 55, 50, 'crate'))
-        self.structures.append(Structure(1330, GROUND_Y - 50, 55, 50, 'crate'))
-        self.structures.append(Structure(1240, GROUND_Y - 95, 110, 45, 'crate'))
-        self.structures.append(Structure(1450, GROUND_Y - 90, 180, 90, 'container'))
-        self.structures.append(Structure(1450, GROUND_Y - 145, 130, 55, 'warehouse_floor'))
-
-        # Area 5: Lung's arena
-        self.structures.append(Structure(1750, GROUND_Y - 60, 70, 60, 'crate'))
-        self.structures.append(Structure(1820, GROUND_Y - 60, 70, 60, 'crate'))
-        self.structures.append(Structure(1950, GROUND_Y - 100, 200, 100, 'container'))
-        self.structures.append(Structure(2200, GROUND_Y - 55, 60, 55, 'crate'))
-        self.structures.append(Structure(2260, GROUND_Y - 55, 60, 55, 'crate'))
-        self.structures.append(Structure(2400, GROUND_Y - 80, 160, 80, 'container'))
-
-    def spawn_bugs(self):
-        bug_types = ['fly', 'fly', 'fly', 'spider', 'wasp', 'beetle']
-
-        for i in range(25):
-            x = random.uniform(50, 500)
-            y = random.uniform(GROUND_Y - 200, GROUND_Y - 20)
-            self.bugs.append(Bug(x, y, random.choice(bug_types)))
-
-        for i in range(30):
-            x = random.uniform(550, 1200)
-            y = random.uniform(GROUND_Y - 250, GROUND_Y - 20)
-            self.bugs.append(Bug(x, y, random.choice(bug_types)))
-
-        for i in range(35):
-            x = random.uniform(1400, 2600)
-            y = random.uniform(GROUND_Y - 200, GROUND_Y - 20)
-            self.bugs.append(Bug(x, y, random.choice(bug_types)))
-
-    def spawn_enemies(self):
-        positions = [
-            (350, GROUND_Y - 50, 'thug'),
-            (700, GROUND_Y - 50, 'abb'),
-            (1050, GROUND_Y - 50, 'thug'),
-            (1350, GROUND_Y - 50, 'abb'),
-            (1600, GROUND_Y - 50, 'thug'),
-            (2100, GROUND_Y - 50, 'abb'),
-        ]
-
-        for x, y, etype in positions:
-            self.enemies.append(Enemy(x, y, etype))
-
-        self.lung = Lung(2350, GROUND_Y - 60)
-
-    def update(self):
-        if self.game_over:
-            return
-
-        self.frame += 1
-
-        keys = {k: True for k in window.keysHeld.object_keys() if window.keysHeld[k]}
-        key_pressed = {k: True for k in list(window.keysJustPressed)}
-        window.keysJustPressed.splice(0, len(window.keysJustPressed))
-
-        self.taylor.update(keys, key_pressed, self.structures)
-
-        for bug in self.bugs:
-            bug.update(self.taylor, self.structures)
-
-        for enemy in self.enemies:
-            enemy.update(self.taylor, self.structures)
-
-        if self.lung and self.lung.alive:
-            self.lung.update(self.taylor, self.structures)
-
-        hitbox = self.taylor.get_attack_hitbox()
-        if hitbox:
-            hx, hy, hw, hh = hitbox
-            for enemy in self.enemies:
-                if enemy.alive and rect_intersect(hx, hy, hw, hh, enemy.x, enemy.y, enemy.w, enemy.h):
-                    dmg = 14 if self.taylor.attack_type == 'sting' else 7
-                    enemy.take_damage(dmg, self.taylor.attack_type)
-
-            if self.lung and self.lung.alive:
-                if rect_intersect(hx, hy, hw, hh, self.lung.x, self.lung.y, self.lung.w, self.lung.h):
-                    dmg = 18 if self.taylor.attack_type == 'sting' else 9
-                    self.lung.take_damage(dmg, self.taylor.attack_type)
-
-        self.enemies = [e for e in self.enemies if e.alive]
-
-        # Camera
-        target_x = self.taylor.x - CANVAS_WIDTH // 2 + self.taylor.w // 2
-        target_y = self.taylor.y - CANVAS_HEIGHT // 2 + self.taylor.h // 2
-        self.camera_x = lerp(self.camera_x, target_x, 0.07)
-        self.camera_y = lerp(self.camera_y, target_y, 0.07)
-        self.camera_x = clamp(self.camera_x, 0, WORLD_WIDTH - CANVAS_WIDTH)
-        self.camera_y = clamp(self.camera_y, 0, WORLD_HEIGHT - CANVAS_HEIGHT)
-
-        window.uiState.taylorHp = (self.taylor.hp / self.taylor.max_hp) * 100
-        if self.lung and self.lung.engaged:
-            window.uiState.bossVisible = True
-            window.uiState.bossHp = (self.lung.hp / self.lung.max_hp) * 100
-        swarm = len([b for b in self.bugs if b.following])
-        window.uiState.swarmCount = swarm
-
-        if self.taylor.hp <= 0:
-            self.game_over = True
-        if self.lung and not self.lung.alive:
-            self.victory = True
-            self.game_over = True
-
-    def render(self):
-        ctx = self.ctx
-        cx, cy = self.camera_x, self.camera_y
-
-        # Sky gradient (not too dark)
-        gradient = ctx.createLinearGradient(0, 0, 0, CANVAS_HEIGHT)
-        gradient.addColorStop(0, '#1a1a28')
-        gradient.addColorStop(0.6, '#1e2030')
-        gradient.addColorStop(1, '#252535')
-        ctx.fillStyle = gradient
-        ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
-
-        # Moon
-        ctx.fillStyle = '#3a3a50'
-        ctx.beginPath()
-        ctx.arc(700 - cx * 0.05, 60, 25, 0, math.pi * 2)
-        ctx.fill()
-
-        # Background warehouse walls
-        for struct in self.bg_structures:
-            struct.draw(ctx, cx * 0.5, cy * 0.5)
-
-        # Ground
-        ctx.fillStyle = '#353540'
-        ctx.fillRect(-cx, GROUND_Y - cy, WORLD_WIDTH, 60)
-        # Ground line
-        ctx.fillStyle = '#454550'
-        ctx.fillRect(-cx, GROUND_Y - cy, WORLD_WIDTH, 3)
-
-        # Structures
-        for struct in self.structures:
-            struct.draw(ctx, cx, cy)
-
-        # Control range indicator around Taylor
-        tx = self.taylor.x + self.taylor.w/2 - cx
-        ty = self.taylor.y + self.taylor.h/2 - cy
-
-        # Outer ring (lose range)
-        ctx.strokeStyle = 'rgba(100, 80, 60, 0.15)'
-        ctx.lineWidth = 1
-        ctx.setLineDash([4, 4])
-        ctx.beginPath()
-        ctx.arc(tx, ty, LOSE_RANGE, 0, math.pi * 2)
-        ctx.stroke()
-
-        # Inner ring (control range)
-        ctx.strokeStyle = 'rgba(140, 120, 80, 0.25)'
-        ctx.lineWidth = 2
-        ctx.setLineDash([])
-        ctx.beginPath()
-        ctx.arc(tx, ty, CONTROL_RANGE, 0, math.pi * 2)
-        ctx.stroke()
-
-        # Bugs
-        for bug in self.bugs:
-            bug.draw(ctx, cx, cy, self.frame)
-
-        # Enemies
-        for enemy in self.enemies:
-            if enemy.alive:
-                enemy.draw(ctx, cx, cy)
-
-        # Lung
-        if self.lung and self.lung.alive:
-            self.lung.draw(ctx, cx, cy, self.frame)
-
-        # Taylor
-        self.taylor.draw(ctx, cx, cy)
-
-        # Game over
-        if self.game_over:
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.75)'
-            ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
-
-            if self.victory:
-                ctx.fillStyle = '#7a9a7a'
-                ctx.font = '30px monospace'
-                ctx.fillText('LUNG DEFEATED', CANVAS_WIDTH//2 - 110, CANVAS_HEIGHT//2 - 20)
-                ctx.fillStyle = '#999'
-                ctx.font = '13px monospace'
-                ctx.fillText('The Undersiders arrive... Taylor escapes into the night.', CANVAS_WIDTH//2 - 195, CANVAS_HEIGHT//2 + 25)
-            else:
-                ctx.fillStyle = '#9a6060'
-                ctx.font = '30px monospace'
-                ctx.fillText('DEFEATED', CANVAS_WIDTH//2 - 65, CANVAS_HEIGHT//2)
-
-    def game_loop(self, timestamp):
-        self.update()
-        self.render()
-        requestAnimationFrame(create_proxy(self.game_loop))
-
-# Start
-game = Game()
-requestAnimationFrame(create_proxy(game.game_loop))
-`;
-
-        main();
+        // World bounds
+        this.x = clamp(this.x, 0, WORLD_WIDTH - this.w);
+
+        // Animation
+        if (Math.abs(this.vx) > 0.5 && this.onGround) {
+            this.walkTimer++;
+            if (this.walkTimer >= 8) {
+                this.walkTimer = 0;
+                this.walkFrame = (this.walkFrame + 1) % 4;
+            }
+        } else {
+            this.walkFrame = 0;
+        }
+    }
+
+    draw(ctx, cx, cy) {
+        const sx = this.x - cx;
+        const sy = this.y - cy;
+        const f = this.facing;
+
+        const bodyBob = this.onGround && Math.abs(this.vx) > 0.5 ?
+            [0, -2, 0, -2][this.walkFrame] : 0;
+
+        // Shadow
+        ctx.beginPath();
+        ctx.ellipse(sx + this.w/2, GROUND_Y - cy, 16, 5, 0, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+        ctx.fill();
+
+        // Legs
+        ctx.fillStyle = '#1a1a1a';
+        if (this.onGround && Math.abs(this.vx) > 0.5) {
+            const legOffsets = [[0, 4], [3, -2], [0, 4], [-3, -2]];
+            const [l1, l2] = legOffsets[this.walkFrame];
+            this.drawLeg(ctx, sx + 7, sy + 30 + bodyBob, 4, 18 + l1);
+            this.drawLeg(ctx, sx + 13, sy + 30 + bodyBob, 4, 18 + l2);
+        } else {
+            this.drawLeg(ctx, sx + 7, sy + 30, 4, 18);
+            this.drawLeg(ctx, sx + 13, sy + 30, 4, 18);
+        }
+
+        // Body
+        ctx.fillStyle = '#2a2d2e';
+        this.roundRect(ctx, sx + 4, sy + 12 + bodyBob, 16, 20, 3);
+        ctx.fill();
+
+        // Head
+        ctx.fillStyle = '#2d3030';
+        ctx.beginPath();
+        ctx.ellipse(sx + 12, sy + 8 + bodyBob, 9, 10, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Yellow lenses
+        ctx.fillStyle = '#d4b030';
+        const lensX = f > 0 ? sx + 14 : sx + 6;
+        ctx.beginPath();
+        ctx.ellipse(lensX, sy + 7 + bodyBob, 3, 2.5, f * 0.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Hair
+        ctx.fillStyle = '#1a1512';
+        ctx.beginPath();
+        ctx.moveTo(sx + 3, sy + 8 + bodyBob);
+        ctx.quadraticCurveTo(sx + 12, sy - 4 + bodyBob, sx + 21, sy + 8 + bodyBob);
+        ctx.quadraticCurveTo(sx + 18, sy + 2 + bodyBob, sx + 12, sy + 1 + bodyBob);
+        ctx.quadraticCurveTo(sx + 6, sy + 2 + bodyBob, sx + 3, sy + 8 + bodyBob);
+        ctx.fill();
+
+        // Control range indicator (subtle)
+        ctx.beginPath();
+        ctx.arc(sx + this.w/2, sy + this.h/2, 120, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(159, 168, 136, 0.15)';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([8, 8]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+    }
+
+    drawLeg(ctx, x, y, w, h) {
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + w, y);
+        ctx.lineTo(x + w + 1, y + h);
+        ctx.lineTo(x - 1, y + h);
+        ctx.closePath();
+        ctx.fill();
+    }
+
+    roundRect(ctx, x, y, w, h, r) {
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.lineTo(x + w - r, y);
+        ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+        ctx.lineTo(x + w, y + h - r);
+        ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+        ctx.lineTo(x + r, y + h);
+        ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+        ctx.lineTo(x, y + r);
+        ctx.quadraticCurveTo(x, y, x + r, y);
+        ctx.closePath();
+    }
+}
+
+// ============== BUG ==============
+class Bug {
+    constructor(x, y, type = 'fly') {
+        this.x = x;
+        this.y = y;
+        this.type = type;
+        this.following = false;
+        this.phase = Math.random() * Math.PI * 2;
+        this.targetX = x;
+        this.targetY = y;
+
+        this.speed = type === 'spider' ? 1.5 : type === 'wasp' ? 2.5 : 2.2;
+        this.size = type === 'spider' ? 5 : type === 'wasp' ? 4 : 3;
+    }
+
+    update(taylor) {
+        const tcx = taylor.x + taylor.w/2;
+        const tcy = taylor.y + taylor.h/2;
+        const d = dist(this.x, this.y, tcx, tcy);
+
+        if (d < 120 && !this.following) {
+            this.following = true;
+        }
+
+        if (d > 180 && this.following) {
+            this.following = false;
+        }
+
+        if (this.following) {
+            this.phase += 0.04;
+            const orbitDist = 25 + Math.sin(this.phase * 0.8) * 12;
+            this.targetX = tcx + Math.cos(this.phase) * orbitDist;
+            this.targetY = tcy + Math.sin(this.phase * 1.2) * orbitDist * 0.5 - 10;
+
+            const dx = this.targetX - this.x;
+            const dy = this.targetY - this.y;
+            const td = Math.sqrt(dx*dx + dy*dy);
+
+            if (td > 2) {
+                const urgency = Math.min(1.3, td / 50);
+                this.x += (dx / td) * this.speed * urgency;
+                this.y += (dy / td) * this.speed * urgency;
+            }
+        }
+
+        // Ground bugs
+        if (this.type === 'spider') {
+            if (this.y < GROUND_Y - 5) this.y += 1.5;
+            if (this.y > GROUND_Y) this.y = GROUND_Y;
+        }
+    }
+
+    draw(ctx, cx, cy, frame) {
+        const sx = this.x - cx;
+        const sy = this.y - cy;
+
+        if (this.type === 'wasp') {
+            // Body
+            ctx.fillStyle = this.following ? '#f4d03f' : '#a0a080';
+            ctx.beginPath();
+            ctx.ellipse(sx, sy, this.size, this.size * 0.6, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Stripes
+            ctx.fillStyle = '#2a2a2a';
+            ctx.fillRect(sx - 2, sy - 1, 1.5, 2);
+            ctx.fillRect(sx + 1, sy - 1, 1.5, 2);
+
+            // Wings
+            const wingFlap = Math.sin(frame * 0.6 + this.phase) * 0.5;
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+            ctx.beginPath();
+            ctx.ellipse(sx - 2, sy - 3, 3, 2, wingFlap, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(sx + 2, sy - 3, 3, 2, -wingFlap, 0, Math.PI * 2);
+            ctx.fill();
+
+        } else if (this.type === 'spider') {
+            ctx.fillStyle = this.following ? '#5a4a3a' : '#4a4a4a';
+            ctx.beginPath();
+            ctx.arc(sx, sy, this.size, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Legs
+            ctx.strokeStyle = ctx.fillStyle;
+            ctx.lineWidth = 0.8;
+            for (let i = 0; i < 4; i++) {
+                const angle = i * 0.4 - 0.6 + Math.sin(frame * 0.04 + i) * 0.1;
+                ctx.beginPath();
+                ctx.moveTo(sx, sy);
+                ctx.lineTo(sx - Math.cos(angle) * 7, sy + Math.sin(angle) * 5);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(sx, sy);
+                ctx.lineTo(sx + Math.cos(angle) * 7, sy + Math.sin(angle) * 5);
+                ctx.stroke();
+            }
+
+        } else {
+            // Fly
+            ctx.fillStyle = this.following ? '#6a7a5a' : '#5a5a5a';
+            ctx.beginPath();
+            ctx.ellipse(sx, sy, this.size, this.size * 0.6, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Wings
+            const wingFlap = Math.sin(frame * 0.5 + this.phase) * 0.4;
+            ctx.fillStyle = 'rgba(200, 200, 200, 0.3)';
+            ctx.beginPath();
+            ctx.ellipse(sx - 2, sy - 2, 2.5, 1.5, wingFlap, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(sx + 2, sy - 2, 2.5, 1.5, -wingFlap, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+}
+
+// ============== INTERACTABLE OBJECTS ==============
+class FightingKids {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.calmed = false;
+        this.waspCount = 0;
+        this.animPhase = 0;
+    }
+
+    addWasp() {
+        this.waspCount++;
+        if (this.waspCount >= 3) {
+            this.calmed = true;
+        }
+    }
+
+    draw(ctx, cx, cy, frame) {
+        const sx = this.x - cx;
+        const sy = this.y - cy;
+
+        if (this.calmed) {
+            // Kids standing apart, calm
+            this.drawKid(ctx, sx - 20, sy, '#e74c3c', 0);
+            this.drawKid(ctx, sx + 20, sy, '#3498db', 0);
+
+            // Speech bubble
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            this.roundRect(ctx, sx - 15, sy - 50, 30, 20, 5);
+            ctx.fill();
+            ctx.fillStyle = '#2c3e50';
+            ctx.font = '10px DM Sans';
+            ctx.textAlign = 'center';
+            ctx.fillText('Sorry!', sx, sy - 36);
+        } else {
+            // Animated fighting
+            this.animPhase += 0.1;
+            const shake = Math.sin(this.animPhase * 3) * 3;
+
+            this.drawKid(ctx, sx - 8 + shake, sy, '#e74c3c', shake * 0.1);
+            this.drawKid(ctx, sx + 8 - shake, sy, '#3498db', -shake * 0.1);
+
+            // Dust cloud
+            ctx.fillStyle = 'rgba(200, 180, 150, 0.3)';
+            for (let i = 0; i < 5; i++) {
+                const px = sx + Math.sin(this.animPhase + i) * 15;
+                const py = sy + 15 + Math.cos(this.animPhase * 0.7 + i) * 5;
+                ctx.beginPath();
+                ctx.arc(px, py, 4 + Math.sin(i) * 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Exclamation marks
+            ctx.fillStyle = '#e74c3c';
+            ctx.font = 'bold 14px DM Sans';
+            ctx.fillText('!', sx - 15, sy - 30 + Math.sin(this.animPhase * 2) * 3);
+            ctx.fillText('!', sx + 15, sy - 30 + Math.cos(this.animPhase * 2) * 3);
+        }
+
+        // Indicator if wasps nearby
+        if (this.waspCount > 0 && !this.calmed) {
+            ctx.fillStyle = 'rgba(244, 208, 63, 0.5)';
+            ctx.beginPath();
+            ctx.arc(sx, sy, 30 + this.waspCount * 5, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    drawKid(ctx, x, y, color, rotation) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(rotation);
+
+        // Body
+        ctx.fillStyle = color;
+        ctx.fillRect(-6, 0, 12, 18);
+
+        // Head
+        ctx.fillStyle = '#f5d5c8';
+        ctx.beginPath();
+        ctx.arc(0, -5, 8, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Legs
+        ctx.fillStyle = '#4a4a5a';
+        ctx.fillRect(-5, 18, 4, 10);
+        ctx.fillRect(1, 18, 4, 10);
+
+        ctx.restore();
+    }
+
+    roundRect(ctx, x, y, w, h, r) {
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.lineTo(x + w - r, y);
+        ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+        ctx.lineTo(x + w, y + h - r);
+        ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+        ctx.lineTo(x + r, y + h);
+        ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+        ctx.lineTo(x, y + r);
+        ctx.quadraticCurveTo(x, y, x + r, y);
+        ctx.closePath();
+    }
+}
+
+class TreeWithCat {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.catY = y - 140; // Cat stuck high up
+        this.catSaved = false;
+        this.catDescending = false;
+        this.silkPath = null;
+    }
+
+    attachSilk(silk) {
+        this.silkPath = silk;
+        this.catDescending = true;
+    }
+
+    update() {
+        if (this.catDescending && this.silkPath) {
+            // Cat walks down the silk
+            if (this.catY < GROUND_Y - 20) {
+                this.catY += 0.8;
+            } else {
+                this.catSaved = true;
+                this.catDescending = false;
+            }
+        }
+    }
+
+    draw(ctx, cx, cy, frame) {
+        const sx = this.x - cx;
+        const sy = this.y - cy;
+
+        // Tree trunk
+        ctx.fillStyle = '#6b5344';
+        ctx.fillRect(sx - 15, sy - 180, 30, 180);
+
+        // Tree bark texture
+        ctx.strokeStyle = '#5a4535';
+        ctx.lineWidth = 1;
+        for (let i = 0; i < 8; i++) {
+            ctx.beginPath();
+            ctx.moveTo(sx - 12 + (i % 3) * 8, sy - 170 + i * 20);
+            ctx.lineTo(sx - 10 + (i % 3) * 8, sy - 150 + i * 20);
+            ctx.stroke();
+        }
+
+        // Foliage (multiple layers)
+        const foliageColors = ['#4a7c59', '#5d8a66', '#6b9b70'];
+        for (let layer = 0; layer < 3; layer++) {
+            ctx.fillStyle = foliageColors[layer];
+            const yOff = layer * -20;
+            const size = 70 - layer * 10;
+
+            ctx.beginPath();
+            ctx.arc(sx, sy - 200 + yOff, size, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.arc(sx - 35, sy - 170 + yOff, size * 0.7, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.arc(sx + 35, sy - 175 + yOff, size * 0.65, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // Branch for cat
+        ctx.fillStyle = '#6b5344';
+        ctx.fillRect(sx, sy - 150, 50, 8);
+
+        // Cat
+        const catX = sx + 35;
+        const catY = this.catY - cy;
+
+        if (!this.catSaved) {
+            // Cat body
+            ctx.fillStyle = '#f5a623';
+            ctx.beginPath();
+            ctx.ellipse(catX, catY, 12, 8, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Cat head
+            ctx.beginPath();
+            ctx.arc(catX + 10, catY - 3, 7, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Ears
+            ctx.beginPath();
+            ctx.moveTo(catX + 6, catY - 9);
+            ctx.lineTo(catX + 9, catY - 15);
+            ctx.lineTo(catX + 12, catY - 9);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(catX + 11, catY - 9);
+            ctx.lineTo(catX + 14, catY - 14);
+            ctx.lineTo(catX + 17, catY - 8);
+            ctx.fill();
+
+            // Eyes
+            ctx.fillStyle = '#2a2a2a';
+            ctx.beginPath();
+            ctx.arc(catX + 8, catY - 4, 1.5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(catX + 13, catY - 4, 1.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Tail
+            ctx.strokeStyle = '#f5a623';
+            ctx.lineWidth = 3;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(catX - 10, catY);
+            ctx.quadraticCurveTo(catX - 18, catY - 15, catX - 12, catY - 20);
+            ctx.stroke();
+
+            // Meow indicator if not saved
+            if (!this.catDescending) {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                ctx.beginPath();
+                ctx.ellipse(catX + 25, catY - 15, 20, 12, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#2c3e50';
+                ctx.font = '10px DM Sans';
+                ctx.textAlign = 'center';
+                ctx.fillText('Meow!', catX + 25, catY - 12);
+            }
+        } else {
+            // Happy cat on ground
+            const groundCatX = sx + 20;
+            const groundCatY = GROUND_Y - cy - 10;
+
+            ctx.fillStyle = '#f5a623';
+            ctx.beginPath();
+            ctx.ellipse(groundCatX, groundCatY, 10, 7, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.arc(groundCatX + 8, groundCatY - 2, 6, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Happy eyes (closed)
+            ctx.strokeStyle = '#2a2a2a';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.arc(groundCatX + 6, groundCatY - 3, 2, 0.2, Math.PI - 0.2);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(groundCatX + 11, groundCatY - 3, 2, 0.2, Math.PI - 0.2);
+            ctx.stroke();
+
+            // Heart
+            ctx.fillStyle = '#e74c3c';
+            ctx.font = '12px sans-serif';
+            ctx.fillText('♥', groundCatX + 18, groundCatY - 10);
+        }
+    }
+}
+
+// ============== ENVIRONMENT ==============
+class Building {
+    constructor(x, w, h, color, details = {}) {
+        this.x = x;
+        this.w = w;
+        this.h = h;
+        this.color = color;
+        this.details = details;
+    }
+
+    draw(ctx, cx, cy) {
+        const sx = this.x - cx;
+        const sy = GROUND_Y - cy - this.h;
+
+        // Building shadow
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+        ctx.fillRect(sx + 10, sy + 10, this.w, this.h);
+
+        // Main building
+        ctx.fillStyle = this.color;
+        ctx.fillRect(sx, sy, this.w, this.h);
+
+        // Windows
+        const windowRows = Math.floor(this.h / 50);
+        const windowCols = Math.floor(this.w / 40);
+
+        for (let row = 0; row < windowRows; row++) {
+            for (let col = 0; col < windowCols; col++) {
+                const wx = sx + 15 + col * 40;
+                const wy = sy + 20 + row * 50;
+
+                // Window frame
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                ctx.fillRect(wx, wy, 22, 30);
+
+                // Window glass
+                ctx.fillStyle = 'rgba(135, 206, 235, 0.4)';
+                ctx.fillRect(wx + 2, wy + 2, 18, 26);
+
+                // Window divider
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+                ctx.fillRect(wx + 10, wy + 2, 2, 26);
+            }
+        }
+
+        // Roof detail
+        ctx.fillStyle = this.details.roofColor || '#5a5a6a';
+        ctx.fillRect(sx - 5, sy - 8, this.w + 10, 10);
+
+        // Door
+        if (this.details.hasDoor) {
+            ctx.fillStyle = '#5a4a3a';
+            ctx.fillRect(sx + this.w/2 - 15, sy + this.h - 50, 30, 50);
+            ctx.fillStyle = '#d4af37';
+            ctx.beginPath();
+            ctx.arc(sx + this.w/2 + 8, sy + this.h - 25, 3, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+}
+
+class Tree {
+    constructor(x, size = 1) {
+        this.x = x;
+        this.size = size;
+    }
+
+    draw(ctx, cx, cy) {
+        const sx = this.x - cx;
+        const sy = GROUND_Y - cy;
+        const s = this.size;
+
+        // Trunk shadow
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
+        ctx.beginPath();
+        ctx.ellipse(sx + 5, sy, 15 * s, 5, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Trunk
+        ctx.fillStyle = '#6b5344';
+        ctx.fillRect(sx - 8 * s, sy - 80 * s, 16 * s, 80 * s);
+
+        // Foliage
+        ctx.fillStyle = '#5d8a66';
+        ctx.beginPath();
+        ctx.arc(sx, sy - 100 * s, 40 * s, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#4a7c59';
+        ctx.beginPath();
+        ctx.arc(sx - 25 * s, sy - 85 * s, 30 * s, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(sx + 25 * s, sy - 90 * s, 28 * s, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+
+class Bench {
+    constructor(x) {
+        this.x = x;
+    }
+
+    draw(ctx, cx, cy) {
+        const sx = this.x - cx;
+        const sy = GROUND_Y - cy;
+
+        // Legs
+        ctx.fillStyle = '#3a3a3a';
+        ctx.fillRect(sx, sy - 25, 5, 25);
+        ctx.fillRect(sx + 55, sy - 25, 5, 25);
+
+        // Seat
+        ctx.fillStyle = '#8b7355';
+        ctx.fillRect(sx - 5, sy - 30, 70, 8);
+
+        // Back
+        ctx.fillRect(sx - 5, sy - 55, 70, 5);
+        ctx.fillRect(sx - 5, sy - 45, 70, 5);
+    }
+}
+
+// ============== MAIN GAME CLASS ==============
+class Game {
+    constructor() {
+        this.taylor = new Taylor(100, GROUND_Y - 60);
+        this.bugs = [];
+        this.silkRopes = [];
+        this.buildings = [];
+        this.trees = [];
+        this.benches = [];
+        this.structures = []; // For collision
+
+        // Interactables
+        this.fightingKids = null;
+        this.treeWithCat = null;
+
+        // Mission state
+        this.kidsCalmed = false;
+        this.catSaved = false;
+        this.swarmCount = 0;
+
+        // Silk aiming
+        this.aimingsilk = false;
+        this.silkStart = null;
+
+        // Wasp sending
+        this.sendingWasps = false;
+
+        this.initLevel();
+        this.spawnBugs();
+    }
+
+    initLevel() {
+        // Buildings (background layer)
+        this.buildings.push(new Building(50, 120, 200, '#d4c4b0', { hasDoor: true, roofColor: '#7a6a5a' }));
+        this.buildings.push(new Building(200, 100, 160, '#c9b99a', { roofColor: '#6a5a4a' }));
+        this.buildings.push(new Building(350, 140, 220, '#e8dcc8', { hasDoor: true, roofColor: '#8a7a6a' }));
+        this.buildings.push(new Building(550, 90, 140, '#d9c9b9', { roofColor: '#7a6a5a' }));
+        this.buildings.push(new Building(700, 160, 240, '#c4b4a4', { hasDoor: true, roofColor: '#6a5a4a' }));
+        this.buildings.push(new Building(920, 110, 180, '#ddd0c0', { roofColor: '#8a7a6a' }));
+        this.buildings.push(new Building(1100, 130, 200, '#cfc0b0', { hasDoor: true, roofColor: '#7a6a5a' }));
+        this.buildings.push(new Building(1300, 100, 150, '#e5d8c8', { roofColor: '#6a5a4a' }));
+        this.buildings.push(new Building(1480, 150, 230, '#d0c0b0', { hasDoor: true, roofColor: '#8a7a6a' }));
+        this.buildings.push(new Building(1700, 120, 190, '#c8b8a8', { roofColor: '#7a6a5a' }));
+        this.buildings.push(new Building(1900, 140, 210, '#dcd0c0', { hasDoor: true, roofColor: '#6a5a4a' }));
+        this.buildings.push(new Building(2100, 95, 155, '#d5c5b5', { roofColor: '#8a7a6a' }));
+        this.buildings.push(new Building(2280, 135, 205, '#c0b0a0', { hasDoor: true, roofColor: '#7a6a5a' }));
+        this.buildings.push(new Building(2480, 115, 175, '#e0d0c0', { roofColor: '#6a5a4a' }));
+        this.buildings.push(new Building(2650, 145, 225, '#d8c8b8', { hasDoor: true, roofColor: '#8a7a6a' }));
+        this.buildings.push(new Building(2850, 125, 195, '#ccc0b0', { roofColor: '#7a6a5a' }));
+
+        // Trees
+        this.trees.push(new Tree(180, 0.9));
+        this.trees.push(new Tree(480, 1.1));
+        this.trees.push(new Tree(680, 0.85));
+        this.trees.push(new Tree(1050, 1.0));
+        this.trees.push(new Tree(1580, 0.95));
+        this.trees.push(new Tree(1850, 1.05));
+        this.trees.push(new Tree(2200, 0.9));
+        this.trees.push(new Tree(2500, 1.0));
+        this.trees.push(new Tree(2750, 0.88));
+        this.trees.push(new Tree(3000, 1.02));
+
+        // Benches
+        this.benches.push(new Bench(250));
+        this.benches.push(new Bench(600));
+        this.benches.push(new Bench(1200));
+        this.benches.push(new Bench(1700));
+        this.benches.push(new Bench(2300));
+        this.benches.push(new Bench(2900));
+
+        // Mission objects
+        this.fightingKids = new FightingKids(850, GROUND_Y - 28);
+        this.treeWithCat = new TreeWithCat(1400, GROUND_Y);
+
+        // Collision structures (benches)
+        for (const bench of this.benches) {
+            this.structures.push({ x: bench.x - 5, y: GROUND_Y - 30, w: 70, h: 8 });
+        }
+    }
+
+    spawnBugs() {
+        const types = ['fly', 'fly', 'fly', 'wasp', 'spider', 'fly'];
+
+        for (let i = 0; i < 60; i++) {
+            const x = 50 + Math.random() * (WORLD_WIDTH - 100);
+            const y = GROUND_Y - 20 - Math.random() * 150;
+            const type = types[Math.floor(Math.random() * types.length)];
+            this.bugs.push(new Bug(x, y, type));
+        }
+    }
+
+    handlePowerClick(worldX, worldY) {
+        if (currentPower === 'silk') {
+            if (!this.silkStart) {
+                // First click - anchor start
+                this.silkStart = { x: worldX, y: worldY };
+            } else {
+                // Second click - create rope
+                const silk = new SilkRope(
+                    this.silkStart.x, this.silkStart.y,
+                    worldX, worldY,
+                    15
+                );
+                this.silkRopes.push(silk);
+
+                // Check if near tree with cat
+                if (this.treeWithCat && !this.treeWithCat.catSaved) {
+                    const catX = this.treeWithCat.x + 35;
+                    const catY = this.treeWithCat.catY;
+
+                    // Check if silk connects tree area to ground
+                    const nearCat = dist(this.silkStart.x, this.silkStart.y, catX, catY) < 60 ||
+                                   dist(worldX, worldY, catX, catY) < 60;
+                    const touchesGround = this.silkStart.y > GROUND_Y - 50 || worldY > GROUND_Y - 50;
+
+                    if (nearCat && touchesGround) {
+                        this.treeWithCat.attachSilk(silk);
+                    }
+                }
+
+                this.silkStart = null;
+            }
+        } else if (currentPower === 'wasps') {
+            // Send wasps to clicked location
+            let waspsSent = 0;
+            for (const bug of this.bugs) {
+                if (bug.type === 'wasp' && bug.following && waspsSent < 3) {
+                    // Send wasp to location
+                    bug.targetX = worldX;
+                    bug.targetY = worldY;
+                    bug.following = false; // Temporarily unfollowed
+                    waspsSent++;
+
+                    // Check if near fighting kids
+                    if (this.fightingKids && !this.fightingKids.calmed) {
+                        if (dist(worldX, worldY, this.fightingKids.x, this.fightingKids.y) < 50) {
+                            setTimeout(() => this.fightingKids.addWasp(), 500);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    update() {
+        // Update Taylor
+        this.taylor.update(this.structures);
+
+        // Update bugs
+        for (const bug of this.bugs) {
+            bug.update(this.taylor);
+        }
+
+        // Update silk ropes
+        for (const silk of this.silkRopes) {
+            silk.update();
+        }
+
+        // Update interactables
+        if (this.treeWithCat) {
+            this.treeWithCat.update();
+            this.catSaved = this.treeWithCat.catSaved;
+        }
+
+        if (this.fightingKids) {
+            this.kidsCalmed = this.fightingKids.calmed;
+        }
+
+        // Count swarm
+        this.swarmCount = this.bugs.filter(b => b.following).length;
+
+        // Camera follow
+        const targetX = this.taylor.x - CANVAS_WIDTH / 2 + this.taylor.w / 2;
+        camera.x = lerp(camera.x, targetX, 0.06);
+        camera.x = clamp(camera.x, 0, WORLD_WIDTH - CANVAS_WIDTH);
+
+        // Mission check
+        const mission = missions[missionIndex];
+        if (mission && mission.check(this) && !missionComplete) {
+            missionComplete = true;
+            showSuccess();
+            setTimeout(() => {
+                missionIndex++;
+                missionComplete = false;
+                hideSuccess();
+                updateMissionUI();
+            }, 2000);
+        }
+    }
+
+    render() {
+        ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+        // Sky gradient
+        const skyGrad = ctx.createLinearGradient(0, 0, 0, CANVAS_HEIGHT);
+        skyGrad.addColorStop(0, '#87CEEB');
+        skyGrad.addColorStop(0.5, '#B0E0F0');
+        skyGrad.addColorStop(1, '#E8F4F8');
+        ctx.fillStyle = skyGrad;
+        ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+        // Sun
+        ctx.beginPath();
+        ctx.arc(750, 80, 50, 0, Math.PI * 2);
+        const sunGrad = ctx.createRadialGradient(750, 80, 0, 750, 80, 60);
+        sunGrad.addColorStop(0, 'rgba(255, 250, 220, 1)');
+        sunGrad.addColorStop(0.5, 'rgba(255, 245, 200, 0.8)');
+        sunGrad.addColorStop(1, 'rgba(255, 240, 180, 0)');
+        ctx.fillStyle = sunGrad;
+        ctx.fill();
+
+        // Clouds
+        this.drawClouds();
+
+        // Background buildings
+        for (const building of this.buildings) {
+            building.draw(ctx, camera.x * 0.6, 0);
+        }
+
+        // Trees (behind characters)
+        for (const tree of this.trees) {
+            tree.draw(ctx, camera.x, camera.y);
+        }
+
+        // Ground
+        const groundGrad = ctx.createLinearGradient(0, GROUND_Y - camera.y, 0, CANVAS_HEIGHT);
+        groundGrad.addColorStop(0, '#90a868');
+        groundGrad.addColorStop(0.1, '#7a9858');
+        groundGrad.addColorStop(1, '#6a8848');
+        ctx.fillStyle = groundGrad;
+        ctx.fillRect(0, GROUND_Y - camera.y, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+        // Sidewalk
+        ctx.fillStyle = '#c8c0b0';
+        ctx.fillRect(-camera.x, GROUND_Y - camera.y - 20, WORLD_WIDTH, 25);
+        ctx.fillStyle = '#b8b0a0';
+        ctx.fillRect(-camera.x, GROUND_Y - camera.y - 20, WORLD_WIDTH, 3);
+
+        // Benches
+        for (const bench of this.benches) {
+            bench.draw(ctx, camera.x, camera.y);
+        }
+
+        // Tree with cat
+        if (this.treeWithCat) {
+            this.treeWithCat.draw(ctx, camera.x, camera.y, frame);
+        }
+
+        // Silk ropes
+        for (const silk of this.silkRopes) {
+            silk.draw(ctx, camera.x, camera.y);
+        }
+
+        // Silk aiming line
+        if (this.silkStart && currentPower === 'silk') {
+            ctx.beginPath();
+            ctx.moveTo(this.silkStart.x - camera.x, this.silkStart.y - camera.y);
+            ctx.lineTo(mouseX, mouseY);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([8, 8]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        // Fighting kids
+        if (this.fightingKids) {
+            this.fightingKids.draw(ctx, camera.x, camera.y, frame);
+        }
+
+        // Bugs
+        for (const bug of this.bugs) {
+            bug.draw(ctx, camera.x, camera.y, frame);
+        }
+
+        // Taylor
+        this.taylor.draw(ctx, camera.x, camera.y);
+    }
+
+    drawClouds() {
+        const cloudPositions = [
+            { x: 100, y: 60, s: 1 },
+            { x: 350, y: 90, s: 0.7 },
+            { x: 600, y: 50, s: 0.9 },
+            { x: 850, y: 100, s: 0.6 },
+        ];
+
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+
+        for (const cloud of cloudPositions) {
+            const cx = (cloud.x - camera.x * 0.1) % (CANVAS_WIDTH + 200) - 50;
+            const cy = cloud.y;
+            const s = cloud.s;
+
+            ctx.beginPath();
+            ctx.arc(cx, cy, 30 * s, 0, Math.PI * 2);
+            ctx.arc(cx + 25 * s, cy - 10 * s, 25 * s, 0, Math.PI * 2);
+            ctx.arc(cx + 50 * s, cy, 28 * s, 0, Math.PI * 2);
+            ctx.arc(cx + 25 * s, cy + 10 * s, 22 * s, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+}
+
+// ============== UI FUNCTIONS ==============
+function updateMissionUI() {
+    const mission = missions[missionIndex];
+    if (mission) {
+        document.getElementById('mission-text').textContent = mission.text;
+        document.getElementById('mission-hint').textContent = mission.hint;
+    }
+}
+
+function updateSwarmUI(count, max = 60) {
+    document.getElementById('swarm-count').textContent = count;
+    document.getElementById('swarm-fill').style.width = (count / max * 100) + '%';
+}
+
+function showSuccess() {
+    document.getElementById('success-overlay').classList.add('show');
+}
+
+function hideSuccess() {
+    document.getElementById('success-overlay').classList.remove('show');
+}
+
+function setActivePower(power) {
+    currentPower = currentPower === power ? null : power;
+
+    document.querySelectorAll('.power-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.power === currentPower);
+    });
+
+    // Reset silk aiming
+    if (power !== 'silk') {
+        game.silkStart = null;
+    }
+}
+
+// ============== INPUT HANDLERS ==============
+document.addEventListener('keydown', (e) => {
+    if (!keys[e.code]) {
+        keysJustPressed.add(e.code);
+    }
+    keys[e.code] = true;
+
+    // Power hotkeys
+    if (e.code === 'KeyQ') setActivePower('silk');
+    if (e.code === 'KeyW' && !keys['Space']) setActivePower('wasps');
+    if (e.code === 'KeyE') setActivePower('scout');
+
+    if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) {
+        e.preventDefault();
+    }
+});
+
+document.addEventListener('keyup', (e) => {
+    keys[e.code] = false;
+});
+
+canvas.addEventListener('mousemove', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    mouseX = e.clientX - rect.left;
+    mouseY = e.clientY - rect.top;
+});
+
+canvas.addEventListener('mousedown', (e) => {
+    mouseDown = true;
+    mouseClicked = true;
+
+    if (currentPower) {
+        const worldX = mouseX + camera.x;
+        const worldY = mouseY + camera.y;
+        game.handlePowerClick(worldX, worldY);
+    }
+});
+
+canvas.addEventListener('mouseup', () => {
+    mouseDown = false;
+});
+
+// Power button clicks
+document.querySelectorAll('.power-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        setActivePower(btn.dataset.power);
+    });
+});
+
+// ============== GAME LOOP ==============
+let game;
+
+function gameLoop() {
+    frame++;
+
+    game.update();
+    game.render();
+
+    // Update UI
+    updateSwarmUI(game.swarmCount);
+
+    // Clear just-pressed keys
+    keysJustPressed.clear();
+    mouseClicked = false;
+
+    requestAnimationFrame(gameLoop);
+}
+
+// Start game
+game = new Game();
+updateMissionUI();
+gameLoop();
     </script>
 </body>
 </html>
