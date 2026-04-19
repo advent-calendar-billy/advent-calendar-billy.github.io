@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Decision Tree — Where Will You Go?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+:root {
+  --parchment: #fbf3df;
+  --parchment-dark: #ecdfc3;
+  --parchment-deep: #d9c8a0;
+  --ink: #2f2422;
+  --ink-light: #7a6a66;
+  --ink-muted: #a69a96;
+  --accent: #a34f3a;
+  --stamp-blue: #2e5b66;
+  --stamp-green: #4a7051;
+  --nature: #5a7a4a;
+  --culture: #8b5a7a;
+  --food: #b87142;
+  --spa: #5a8899;
+  --font-display: 'Caveat', cursive;
+  --font-hand: 'Patrick Hand', cursive;
+  --font-prose: ui-serif, Georgia, 'Times New Roman', serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-hand);
+  background: var(--parchment);
+  color: var(--ink);
+  padding: 2rem 1.5rem 4rem;
+  font-size: 15px;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+.wrap { max-width: 1200px; margin: 0 auto; }
+
+h1 {
+  font-family: var(--font-display);
+  font-size: 2.8rem;
+  color: var(--ink);
+  text-align: center;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.subtitle {
+  font-family: var(--font-prose);
+  text-align: center;
+  color: var(--ink-light);
+  font-size: 0.95rem;
+  margin: 0.3rem auto 2rem;
+  max-width: 640px;
+}
+.subtitle a { color: var(--stamp-blue); }
+
+/* Controls */
+.controls {
+  background: #fff;
+  border: 1px solid var(--parchment-dark);
+  border-radius: 10px;
+  padding: 1.2rem 1.4rem;
+  margin-bottom: 1.2rem;
+  box-shadow: 0 2px 8px rgba(60,47,47,0.06);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.9rem 1.2rem;
+}
+.ctrl {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.ctrl-label {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--ink-muted);
+}
+.ctrl-label .hard {
+  margin-left: 0.3rem;
+  color: var(--accent);
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+}
+.ctrl select {
+  font-family: var(--font-hand);
+  font-size: 1rem;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid var(--parchment-deep);
+  border-radius: 6px;
+  background: var(--parchment);
+  color: var(--ink);
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path fill='%232f2422' d='M6 7L0 1h12z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 0.7rem center;
+  padding-right: 1.8rem;
+}
+.ctrl select:focus { outline: 2px solid var(--stamp-blue); outline-offset: 1px; }
+
+/* Stats strip */
+.stats {
+  background: linear-gradient(135deg, #eef3e9, #f5f1e1);
+  border-left: 3px solid var(--stamp-green);
+  border-radius: 6px;
+  padding: 0.7rem 1.1rem;
+  margin-bottom: 1.5rem;
+  font-family: var(--font-prose);
+  font-size: 0.92rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 1.8rem;
+  align-items: baseline;
+}
+.stats strong { color: var(--stamp-green); font-weight: 600; }
+.stats .stat-num { font-family: var(--font-mono); color: var(--ink); }
+
+/* Tree */
+.tree-root {
+  background: #fff;
+  border: 1px solid var(--parchment-dark);
+  border-radius: 10px;
+  padding: 1.4rem 1.6rem;
+  box-shadow: 0 3px 10px rgba(60,47,47,0.06);
+  font-family: var(--font-prose);
+  font-size: 0.94rem;
+}
+
+.vibe-group { margin-bottom: 1.8rem; }
+.vibe-group:last-child { margin-bottom: 0; }
+
+.vibe-head {
+  font-family: var(--font-display);
+  font-size: 1.65rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  padding: 0.25rem 0.8rem;
+  border-radius: 4px;
+  display: inline-block;
+  color: #fff;
+  letter-spacing: 0.01em;
+}
+.vibe-group[data-vibe="nature"]  .vibe-head { background: var(--nature);  }
+.vibe-group[data-vibe="culture"] .vibe-head { background: var(--culture); }
+.vibe-group[data-vibe="food"]    .vibe-head { background: var(--food);    }
+.vibe-group[data-vibe="spa"]     .vibe-head { background: var(--spa);     }
+
+.vibe-count {
+  font-family: var(--font-hand);
+  font-size: 0.85rem;
+  margin-left: 0.6rem;
+  color: var(--ink-muted);
+}
+
+/* Sub-tree list */
+ul.tree, ul.tree ul { list-style: none; padding-left: 1.4rem; margin: 0; }
+ul.tree > li { position: relative; padding: 0.15rem 0; }
+ul.tree > li.subvibe { margin-top: 0.55rem; }
+ul.tree > li.subvibe:first-child { margin-top: 0.2rem; }
+ul.tree ul li { position: relative; padding: 0.12rem 0 0.12rem 1.2rem; }
+
+/* L-shape connectors */
+ul.tree ul li::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0;
+  width: 0.8em; height: 0.7em;
+  border-left: 1px solid var(--parchment-deep);
+  border-bottom: 1px solid var(--parchment-deep);
+  border-bottom-left-radius: 4px;
+}
+ul.tree ul li::after {
+  content: '';
+  position: absolute;
+  left: 0; top: 0.7em;
+  height: calc(100% - 0.7em);
+  border-left: 1px solid var(--parchment-deep);
+}
+ul.tree ul li:last-child::after { display: none; }
+
+.subvibe-label {
+  font-family: var(--font-hand);
+  font-weight: 600;
+  color: var(--ink);
+  font-size: 1rem;
+}
+
+.leaf {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 0.6rem;
+  align-items: baseline;
+  padding-right: 0.4rem;
+}
+.leaf-micro {
+  color: var(--ink-light);
+  font-family: var(--font-prose);
+  font-size: 0.9rem;
+  font-style: italic;
+}
+.leaf-arrow { color: var(--ink-muted); font-family: var(--font-mono); font-size: 0.8rem; padding: 0 0.2rem; }
+.leaf-winner {
+  font-weight: 600;
+  color: var(--stamp-blue);
+  font-family: var(--font-prose);
+}
+.leaf-winner.none { color: var(--ink-muted); font-weight: 400; font-style: italic; }
+.leaf-score {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  background: var(--parchment);
+  color: var(--ink-light);
+  padding: 0.05rem 0.45rem;
+  border-radius: 3px;
+  border: 1px solid var(--parchment-deep);
+  min-width: 34px;
+  text-align: center;
+}
+.leaf-tied {
+  font-family: var(--font-hand);
+  font-size: 0.78rem;
+  color: var(--accent);
+  margin-left: 0.4rem;
+}
+
+/* Hover row */
+.leaf-row:hover .leaf-winner { color: var(--accent); }
+.leaf-row:hover .leaf-score { background: #fff; border-color: var(--accent); }
+
+/* Empty-leaf treatment */
+.leaf-row.empty .leaf-winner { color: var(--ink-muted); }
+.leaf-row.empty .leaf-score { opacity: 0.3; }
+
+/* Reference / help */
+.reference {
+  margin-top: 2.5rem;
+  padding: 1.2rem 1.4rem;
+  background: rgba(255,255,255,0.45);
+  border: 1px dashed var(--parchment-deep);
+  border-radius: 8px;
+  font-family: var(--font-prose);
+  font-size: 0.88rem;
+  color: var(--ink-light);
+  line-height: 1.55;
+}
+.reference h2 {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  color: var(--stamp-blue);
+  margin-bottom: 0.5rem;
+}
+.reference p { margin-bottom: 0.5rem; }
+.reference code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  background: var(--parchment-dark);
+  padding: 0.05rem 0.35rem;
+  border-radius: 3px;
+}
+.reference .scoring-grid {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.25rem 1rem;
+  margin: 0.5rem 0;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+}
+
+@media (max-width: 700px) {
+  body { padding: 1.2rem 0.8rem 3rem; }
+  h1 { font-size: 2.2rem; }
+  .tree-root { padding: 1rem 0.8rem; }
+  ul.tree, ul.tree ul { padding-left: 1rem; }
+  .leaf { grid-template-columns: 1fr; gap: 0.1rem; }
+  .leaf-arrow { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Decision Tree</h1>
+<p class="subtitle">
+  How your answers flip the recommendation. The first two columns are hard filters; everything else is soft scoring (max 17 pts). Change the fixed answers to see the ripple. Back to <a href="index.html">the quiz</a>.
+</p>
+
+<div class="controls" id="controls"></div>
+
+<div class="stats" id="stats"></div>
+
+<div class="tree-root" id="tree-root"></div>
+
+<div class="reference">
+  <h2>How scoring works</h2>
+  <p>Two phases:</p>
+  <p><strong>1. Hard filter</strong> — a destination must match your days (<code>p.days</code>) and distance (<code>p.dist</code>) or it's eliminated. No score, no consideration.</p>
+  <p><strong>2. Soft scoring</strong> — points added on the surviving pool. Highest total wins; ties shuffle.</p>
+  <div class="scoring-grid">
+    <span>Q3 vibe match</span><span>+3  on <code>p.vibes</code></span>
+    <span>Q3b sub-vibe</span><span>+3  on <code>p.subVibes</code></span>
+    <span>Q3c micro-vibe</span><span>+3  on <code>PROPOSAL_TAGS</code></span>
+    <span>Q4 morning</span><span>+2  on <code>p.vibes</code></span>
+    <span>Pace</span><span>+2  on <code>PROPOSAL_TAGS</code></span>
+    <span>Physicality</span><span>+2  on <code>PROPOSAL_TAGS</code></span>
+    <span>Budget</span><span>+2  exact match on <code>p.budget</code></span>
+    <span>Q6 hidden gems</span><span>render-only (sorts highlights)</span>
+    <span>max</span><span>17</span>
+  </div>
+  <p>Q6 has <em>no effect on the tree</em> — it changes which highlights get spotlit in the proposal card, not which destination wins. It's a control here for completeness.</p>
+</div>
+
+</div><!-- /.wrap -->
+
+<script src="data.js"></script>
+<script>
+// ============================================================
+// Scoring engine — duplicated from index.html (same logic).
+// ============================================================
+function scoreDestinations(answers) {
+  const days = answers[1];
+  const dist = answers[2];
+  const vibe = answers[3];
+  const subVibe = answers["3b"];
+  const microVibe = answers["3c"];
+  const morning = answers[4];
+  const pace = answers.pace;
+  const phys = answers.phys;
+  const budget = answers[5];
+
+  const primaryVibes = Q3_VIBE_MAP[vibe] || [];
+  const secondaryVibes = Q4_VIBE_MAP[morning] || [];
+  const microTargets = microVibe ? (Q3C_VIBE_MAP[microVibe] || []) : [];
+  const paceTargets = pace ? (Q_PACE_MAP[pace] || []) : [];
+  const physTargets = phys ? (Q_PHYS_MAP[phys] || []) : [];
+
+  const scored = PROPOSALS.map(p => {
+    if (!p.days.includes(days) || p.dist !== dist) return { proposal: p, score: -1 };
+
+    let score = 0;
+    const pTags = PROPOSAL_TAGS[p.id] || [];
+    if (p.vibes.some(v => primaryVibes.includes(v))) score += 3;
+    if (subVibe && p.subVibes) {
+      const t = Q3B_VIBE_MAP[subVibe] || [];
+      if (p.subVibes.some(v => t.includes(v))) score += 3;
+    }
+    if (microTargets.length && pTags.some(t => microTargets.includes(t))) score += 3;
+    if (p.vibes.some(v => secondaryVibes.includes(v))) score += 2;
+    if (paceTargets.length && pTags.some(t => paceTargets.includes(t))) score += 2;
+    if (physTargets.length && pTags.some(t => physTargets.includes(t))) score += 2;
+    if (p.budget === budget) score += 2;
+    return { proposal: p, score };
+  }).filter(s => s.score >= 0);
+
+  scored.sort((a, b) => b.score - a.score);
+  return scored;
+}
+
+// ============================================================
+// Tree structure — read from QUESTIONS in data.js.
+// ============================================================
+function getQ3Options()       { return QUESTIONS.find(q => q.id === 3).options; }
+function getQ3bForQ3(v)       {
+  const q = QUESTIONS.find(qq => qq.id === "3b" && qq.condition && qq.condition.value === v);
+  return q ? q.options : [];
+}
+function getQ3cForQ3b(v)      {
+  const q = QUESTIONS.find(qq => qq.id === "3c" && qq.condition && qq.condition.value === v);
+  return q ? q.options : [];
+}
+
+// ============================================================
+// Controls — render + state.
+// ============================================================
+const controls = {
+  1:    { label: "Days",        hard: true,  options: [["3","3 days"],["4","4 days"]], default: "4" },
+  2:    { label: "Distance",    hard: true,  options: [["germany","Germany"],["neighbor","Neighbor"],["flight","Flight"]], default: "germany" },
+  4:    { label: "Morning",     hard: false, options: [["hike_morning","Early hike"],["brunch_morning","Brunch"],["museum_morning","Museum early"],["roomservice_morning","Room service"]], default: "brunch_morning" },
+  pace: { label: "Pace",        hard: false, options: [["chill","Chill"],["balanced","Balanced"],["packed","Packed"]], default: "balanced" },
+  phys: { label: "Physicality", hard: false, options: [["low","Low"],["moderate","Moderate"],["heavy","Heavy"]], default: "moderate" },
+  5:    { label: "Budget",      hard: false, options: [["lean","Lean"],["comfortable","Comfortable"],["splurge","Splurge"]], default: "comfortable" },
+  6:    { label: "Q6",          hard: false, options: [["normal","Classics"],["easter","Hidden gems"]], default: "normal" }
+};
+
+function renderControls() {
+  const host = document.getElementById('controls');
+  host.innerHTML = Object.entries(controls).map(([key, c]) => `
+    <div class="ctrl">
+      <label class="ctrl-label" for="ctl-${key}">${c.label}${c.hard ? '<span class="hard">hard filter</span>' : ''}</label>
+      <select id="ctl-${key}" data-key="${key}">
+        ${c.options.map(([v, label]) => `<option value="${v}"${v === c.default ? ' selected' : ''}>${label}</option>`).join('')}
+      </select>
+    </div>
+  `).join('');
+  host.querySelectorAll('select').forEach(sel => {
+    sel.addEventListener('change', render);
+  });
+}
+
+function readAnswers() {
+  const a = {};
+  for (const [key, c] of Object.entries(controls)) {
+    const el = document.getElementById('ctl-' + key);
+    let v = el ? el.value : c.default;
+    // coerce days to number to match PROPOSAL.days
+    if (key === "1") v = Number(v);
+    a[key] = v;
+  }
+  return a;
+}
+
+// ============================================================
+// Build tree + render
+// ============================================================
+function optionLabel(opts, value) {
+  const o = opts.find(oo => oo.value === value);
+  return o ? o.label : value;
+}
+
+const VIBE_ICONS = { nature: "🌿", culture: "🏛️", food: "🍞", spa: "🧖" };
+
+function render() {
+  const base = readAnswers();
+  const q3Options = getQ3Options();
+
+  // Stats: how many destinations are eligible overall for this hard-filter combo
+  const eligible = PROPOSALS.filter(p => p.days.includes(base[1]) && p.dist === base[2]);
+  const allWinners = {};
+  let leafCount = 0, emptyCount = 0;
+
+  // Build tree nodes
+  const groups = q3Options.map(q3 => {
+    const q3bOpts = getQ3bForQ3(q3.value);
+    const subGroups = q3bOpts.map(q3b => {
+      const q3cOpts = getQ3cForQ3b(q3b.value);
+      const leaves = q3cOpts.map(q3c => {
+        const answers = { ...base, 3: q3.value, "3b": q3b.value, "3c": q3c.value };
+        const scored = scoreDestinations(answers);
+        leafCount++;
+        if (scored.length === 0) { emptyCount++; return { q3c, winner: null, tied: 0, score: null }; }
+        const topScore = scored[0].score;
+        const tied = scored.filter(s => s.score === topScore);
+        const winner = tied[0].proposal;
+        allWinners[winner.name] = (allWinners[winner.name] || 0) + 1;
+        return { q3c, winner, tied: tied.length, score: topScore };
+      });
+      return { q3b, leaves };
+    });
+    return { q3, subGroups };
+  });
+
+  // Stats line
+  const uniqueWinners = Object.keys(allWinners).length;
+  const topWinnerEntry = Object.entries(allWinners).sort((a,b) => b[1]-a[1])[0];
+  const topWinnerStr = topWinnerEntry ? `${topWinnerEntry[0]} (${topWinnerEntry[1]} paths)` : "—";
+  document.getElementById('stats').innerHTML = `
+    <span><strong>Eligible pool:</strong> <span class="stat-num">${eligible.length}</span> destinations</span>
+    <span><strong>Paths shown:</strong> <span class="stat-num">${leafCount}</span></span>
+    <span><strong>Unique winners:</strong> <span class="stat-num">${uniqueWinners}</span></span>
+    <span><strong>Most common winner:</strong> ${topWinnerStr}</span>
+    ${emptyCount ? `<span style="color: var(--accent);"><strong>Empty leaves:</strong> <span class="stat-num">${emptyCount}</span></span>` : ''}
+  `;
+
+  // Tree
+  const treeHtml = groups.map(g => {
+    const leafTotal = g.subGroups.reduce((s, sg) => s + sg.leaves.length, 0);
+    const q3WinnersForGroup = {};
+    g.subGroups.forEach(sg => sg.leaves.forEach(l => { if (l.winner) q3WinnersForGroup[l.winner.name] = true; }));
+    const uniqHere = Object.keys(q3WinnersForGroup).length;
+
+    return `
+      <div class="vibe-group" data-vibe="${g.q3.value}">
+        <h2 class="vibe-head">${VIBE_ICONS[g.q3.value] || ''} ${g.q3.value.toUpperCase()}</h2>
+        <span class="vibe-count">${leafTotal} paths · ${uniqHere} unique winner${uniqHere === 1 ? '' : 's'}</span>
+        <ul class="tree">
+          ${g.subGroups.map(sg => `
+            <li class="subvibe">
+              <span class="subvibe-label">${optionLabel(getQ3bForQ3(g.q3.value), sg.q3b.value)}</span>
+              <ul>
+                ${sg.leaves.map(leaf => {
+                  const winnerHtml = leaf.winner
+                    ? `<span class="leaf-winner">${leaf.winner.name}</span>${leaf.tied > 1 ? `<span class="leaf-tied">+${leaf.tied - 1} tied</span>` : ''}`
+                    : '<span class="leaf-winner none">no eligible match</span>';
+                  const scoreHtml = leaf.score !== null ? `<span class="leaf-score">${leaf.score} pts</span>` : '<span class="leaf-score">—</span>';
+                  return `
+                    <li class="leaf-row${leaf.winner ? '' : ' empty'}">
+                      <div class="leaf">
+                        <span class="leaf-micro">${leaf.q3c.label}</span>
+                        <span class="leaf-arrow">→</span>
+                        <span>${winnerHtml} ${scoreHtml}</span>
+                      </div>
+                    </li>`;
+                }).join('')}
+              </ul>
+            </li>
+          `).join('')}
+        </ul>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('tree-root').innerHTML = treeHtml;
+}
+
+// ============================================================
+// Init
+// ============================================================
+renderControls();
+render();
+</script>
+</body>
+</html>

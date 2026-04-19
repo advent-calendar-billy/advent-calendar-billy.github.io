@@ -1,0 +1,2561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Where Will You Go?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   Where Will You Go? — V2 Styles
+   Travel-journal aesthetic, refined. Muted terracotta + deep teal.
+   Handwritten display type (Caveat, Patrick Hand) + ui-serif for prose.
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* Paper */
+  --parchment:       #fbf3df;
+  --parchment-dark:  #ecdfc3;
+  --parchment-deep:  #d9c8a0;
+
+  /* Ink */
+  --ink:         #2f2422;
+  --ink-light:   #7a6a66;
+  --ink-muted:   #a69a96;
+
+  /* Accents (muted, grown-up) */
+  --accent:      #a34f3a;  /* terracotta */
+  --accent-soft: #c26b52;
+  --stamp-blue:  #2e5b66;  /* deep teal replacing navy */
+  --stamp-green: #4a7051;  /* sage */
+  --stamp-red:   #8c4432;
+  --gold:        #b88847;
+
+  /* Backgrounds */
+  --tag-bg:      #f0e4c9;
+  --spotlight:   #fbeac4;
+  --spotlight-edge: #e8c98a;
+
+  /* Shadows (warm, layered) */
+  --shadow-1: 0 1px 2px rgba(60,47,47,0.06), 0 1px 1px rgba(60,47,47,0.04);
+  --shadow-2: 0 2px 6px rgba(60,47,47,0.08), 0 1px 2px rgba(60,47,47,0.05);
+  --shadow-3: 0 8px 24px rgba(60,47,47,0.10), 0 2px 4px rgba(60,47,47,0.06);
+
+  /* Typography */
+  --font-display: 'Caveat', cursive;
+  --font-hand:    'Patrick Hand', cursive;
+  --font-prose:   ui-serif, Georgia, 'Iowan Old Style', 'Times New Roman', serif;
+
+  /* Motion */
+  --ease-out:     cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-soft:    cubic-bezier(0.4, 0.1, 0.3, 1);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-hand);
+  background:
+    radial-gradient(1200px 800px at 20% -10%, rgba(255,230,170,0.18), transparent 60%),
+    radial-gradient(900px 700px at 110% 110%, rgba(180,150,110,0.10), transparent 60%),
+    var(--parchment);
+  color: var(--ink);
+  min-height: 100vh;
+  overflow-x: hidden;
+  font-size: 17px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ---------- Screens ---------- */
+.screen {
+  display: none;
+  min-height: 100vh;
+  padding: 2.5rem 1rem 4rem;
+  animation: fadeIn 0.5s var(--ease-out);
+}
+.screen.active {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- Progress bar ---------- */
+.progress-bar {
+  position: fixed; top: 0; left: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--stamp-blue), var(--stamp-green), var(--accent));
+  transition: width 0.5s var(--ease-out);
+  z-index: 100;
+}
+
+/* ---------- Welcome (minimalist Feliz cumple! screen) ---------- */
+#welcome { text-align: center; gap: 1.6rem; }
+.welcome-sticker {
+  width: clamp(120px, 22vw, 180px);
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 6px 16px rgba(60,47,47,0.18));
+  animation: stickerPop 0.7s cubic-bezier(0.18, 1.2, 0.3, 1.1) both;
+}
+@keyframes stickerPop {
+  0%   { opacity: 0; transform: scale(0.7) translateY(16px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+#welcome h1 {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 9vw, 5rem);
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  animation: fadeIn 0.6s ease 0.2s both;
+}
+#welcome .btn-start {
+  animation: fadeIn 0.6s ease 0.45s both;
+}
+
+/* ---------- Postcard (quiz question card) ---------- */
+.postcard {
+  background: #fff;
+  border: 1px solid var(--parchment-dark);
+  border-radius: 10px;
+  box-shadow: var(--shadow-3);
+  max-width: 560px;
+  width: 100%;
+  padding: 2.25rem 2rem 1.75rem;
+  position: relative;
+  text-align: center;
+}
+.postcard::before {
+  /* subtle circular postmark — concentric rings suggest a stamped mail mark */
+  content: '';
+  position: absolute; top: 12px; right: 12px;
+  width: 54px; height: 54px;
+  border-radius: 50%;
+  opacity: 0.16;
+  transform: rotate(-8deg);
+  background:
+    radial-gradient(circle, transparent 12px, var(--stamp-blue) 12px, var(--stamp-blue) 13px, transparent 13px),
+    radial-gradient(circle, transparent 20px, var(--stamp-blue) 20px, var(--stamp-blue) 21px, transparent 21px),
+    radial-gradient(circle, transparent 25px, var(--stamp-blue) 25px, var(--stamp-blue) 26px, transparent 26px);
+}
+.postcard h2 {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 4vw, 2.1rem);
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 1.3rem;
+  line-height: 1.15;
+}
+.q-number {
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 0.7rem;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.24em;
+  margin-bottom: 0.35rem;
+  font-weight: 600;
+}
+.q-kind {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  margin-bottom: 0.3rem;
+  letter-spacing: 0.02em;
+  font-weight: 600;
+}
+.q-kind.commitment {
+  /* "I choose" — this decides it. Terracotta to signal consequence. */
+  color: var(--accent);
+}
+.q-kind.preference {
+  /* "I prefer" — a lean, not a lock. Muted + italic. */
+  color: var(--ink-light);
+  font-style: italic;
+  font-weight: 500;
+}
+
+/* ---------- Answer buttons ---------- */
+.answers { display: flex; flex-direction: column; gap: 0.6rem; width: 100%; margin-top: 0.4rem; }
+.answer-btn {
+  font-family: var(--font-hand);
+  font-size: 1.05rem;
+  padding: 0.9rem 1.1rem;
+  border: 1px solid var(--parchment-deep);
+  border-radius: 6px;
+  background: var(--parchment);
+  color: var(--ink);
+  cursor: pointer;
+  transition: all 0.2s var(--ease-out);
+  text-align: left;
+  line-height: 1.35;
+}
+.answer-btn:hover:not(:disabled) {
+  border-color: var(--stamp-blue);
+  background: #fff;
+  transform: translateX(4px);
+  box-shadow: var(--shadow-2);
+}
+.answer-btn:active:not(:disabled) { transform: translateX(4px) scale(0.99); }
+
+/* V2-C: display label + match-count chip side-by-side */
+.answer-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+}
+.answer-label { flex: 1; }
+.answer-chip {
+  font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.18rem 0.55rem;
+  border-radius: 3px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.answer-chip.ok {
+  background: rgba(74, 112, 81, 0.12);
+  color: var(--stamp-green);
+}
+.answer-chip.zero {
+  background: rgba(163, 79, 58, 0.14);
+  color: var(--accent);
+}
+.answer-chip.weak {
+  background: rgba(184, 136, 71, 0.15);
+  color: var(--gold);
+  font-style: italic;
+  letter-spacing: 0.08em;
+}
+.answer-chip.skip {
+  background: rgba(122, 106, 102, 0.12);
+  color: var(--ink-light);
+  font-style: italic;
+  letter-spacing: 0.08em;
+}
+
+/* Selected state for multi-select options */
+.answer-btn.selected {
+  border-color: var(--accent);
+  background: #fff;
+  box-shadow: inset 0 0 0 1px var(--accent), var(--shadow-2);
+}
+.answer-btn.selected .answer-label {
+  color: var(--accent);
+  font-weight: 600;
+}
+.answer-btn.selected .answer-label::before {
+  content: '\2713\00a0';  /* ✓ */
+  color: var(--accent);
+  font-weight: 700;
+  margin-right: 0.15em;
+}
+
+/* Multi-select helper text below options */
+.multi-hint {
+  font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-size: 0.72rem;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  text-align: center;
+  margin-top: 0.8rem;
+  margin-bottom: 0.3rem;
+  font-weight: 600;
+}
+
+/* Continue button for multi-select questions */
+.btn-continue {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 700;
+  padding: 0.65rem 1.8rem;
+  border: 2px solid var(--stamp-blue);
+  border-radius: 8px;
+  background: var(--stamp-blue);
+  color: #fff;
+  cursor: pointer;
+  margin-top: 0.4rem;
+  width: 100%;
+  transition: all 0.2s var(--ease-out);
+  letter-spacing: 0.02em;
+  box-shadow: var(--shadow-1);
+}
+.btn-continue:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-2);
+}
+.btn-continue:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  background: var(--parchment);
+  color: var(--ink-muted);
+  border-color: var(--parchment-deep);
+}
+
+/* Dead-end: disabled, muted, strikethrough label */
+.answer-btn.dead-end,
+.answer-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  background: var(--parchment);
+}
+.answer-btn.dead-end .answer-label {
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+  color: var(--ink-muted);
+}
+.answer-btn.dead-end:hover {
+  transform: none;
+  border-color: var(--parchment-deep);
+  background: var(--parchment);
+  box-shadow: none;
+}
+
+/* ---------- Start button ---------- */
+.btn-start {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  padding: 0.7rem 2.3rem;
+  border: 2px solid var(--accent);
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s var(--ease-out);
+  letter-spacing: 0.02em;
+  box-shadow: var(--shadow-2);
+}
+.btn-start:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent-soft);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-3);
+}
+
+/* ---------- Reveal / stamp ---------- */
+#reveal { text-align: center; gap: 0.8rem; position: relative; }
+#reveal::before,
+#reveal::after {
+  /* sparse decorative flight-path dots to fill the desktop void */
+  content: '';
+  position: absolute;
+  width: 32vw; max-width: 420px; height: 1px;
+  background-image: radial-gradient(circle, var(--parchment-deep) 1px, transparent 1.5px);
+  background-size: 14px 1px;
+  background-repeat: repeat-x;
+  opacity: 0.7;
+  pointer-events: none;
+}
+#reveal::before { top: 38%; left: 0; transform: rotate(-4deg); }
+#reveal::after  { top: 56%; right: 0; transform: rotate(4deg); }
+.stamp-container { position: relative; display: inline-block; padding: 0.6rem 1rem 1rem; }
+.passport-stamp {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(2.4rem, 7vw, 4.2rem);
+  color: var(--stamp-blue);
+  border: 5px solid var(--stamp-blue);
+  border-radius: 10px;
+  padding: 1rem 2.4rem;
+  display: inline-block;
+  transform: rotate(-5deg);
+  animation: stampIn 0.7s var(--ease-out) forwards;
+  opacity: 0;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  position: relative;
+  /* ink-bleed feel */
+  filter: drop-shadow(0 0 0.5px rgba(46,91,102,0.6));
+}
+.passport-stamp::after {
+  content: 'APPROVED';
+  position: absolute;
+  bottom: -14px; right: -22px;
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--stamp-green);
+  border: 2px solid var(--stamp-green);
+  border-radius: 50%;
+  padding: 0.35rem 0.6rem;
+  transform: rotate(12deg);
+  letter-spacing: 1.5px;
+  background: rgba(255,252,240,0.7);
+}
+@keyframes stampIn {
+  0%   { opacity: 0; transform: rotate(-5deg) scale(2.6); }
+  55%  { opacity: 1; transform: rotate(-5deg) scale(0.92); }
+  100% { opacity: 1; transform: rotate(-5deg) scale(1); }
+}
+.reveal-subtitle {
+  font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-size: 0.85rem;
+  color: var(--ink-muted);
+  animation: fadeIn 0.6s ease 0.4s both;
+  text-transform: uppercase;
+  letter-spacing: 0.28em;
+  font-weight: 600;
+}
+.reveal-country {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  color: var(--stamp-green);
+  animation: fadeIn 0.6s ease 0.55s both;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.reveal-nudge {
+  margin-top: 0.6rem;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  animation: fadeIn 0.6s ease 0.8s both;
+}
+#reveal .btn-start {
+  animation: fadeIn 0.6s ease 0.7s both !important;
+}
+
+/* ---------- Proposal card ---------- */
+#proposal-section {
+  padding: 1rem 1rem 4rem;
+  animation: fadeIn 0.5s var(--ease-out);
+  width: 100%;
+  display: flex; justify-content: center;
+}
+.proposal-card {
+  background: #fff;
+  border: 1px solid var(--parchment-dark);
+  border-radius: 12px;
+  box-shadow: var(--shadow-3);
+  max-width: 680px;
+  width: 100%;
+  margin: 1rem auto;
+  padding: 0 0 2rem;
+  position: relative;
+  overflow: hidden;
+}
+.proposal-card > h3,
+.proposal-card > .proposal-country,
+.proposal-card > .pitch,
+.proposal-card > .surprise-card,
+.proposal-card > .section-title,
+.proposal-card > .transport,
+.proposal-card > .highlight-list,
+.proposal-card > .info-block,
+.proposal-card > .best-time,
+.proposal-card > .weekend-2026,
+.proposal-card > .coffee-card,
+.proposal-card > .sweet-tour-card,
+.proposal-card > .ruin-card,
+.proposal-card > .subsections,
+.proposal-card > .budget-table,
+.proposal-card > .vibe-tags,
+.proposal-card > .itinerary-section { margin-left: 1.75rem; margin-right: 1.75rem; }
+
+.proposal-card h3 {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.05;
+  margin-top: 1.2rem;
+  margin-bottom: 0.2rem;
+  letter-spacing: -0.01em;
+}
+.proposal-country {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  color: var(--stamp-green);
+  margin-bottom: 0.9rem;
+  letter-spacing: 0.03em;
+}
+.proposal-card .pitch {
+  font-family: var(--font-prose);
+  font-size: 1.02rem;
+  color: var(--ink);
+  margin-bottom: 1.3rem;
+  line-height: 1.65;
+}
+.proposal-card .section-title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--stamp-blue);
+  margin: 1.3rem auto 0.4rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px dashed var(--parchment-deep);
+  letter-spacing: 0.01em;
+}
+.proposal-card .transport {
+  background: var(--parchment);
+  border-radius: 6px;
+  padding: 0.8rem 1rem;
+  margin: 0.4rem auto;
+  font-family: var(--font-prose);
+  font-size: 0.98rem;
+  line-height: 1.5;
+}
+
+/* Highlights & spotlight */
+.highlight-list { list-style: none; padding: 0; }
+.highlight-list li {
+  padding: 0.65rem 0.2rem;
+  border-bottom: 1px dotted var(--parchment-deep);
+  font-family: var(--font-prose);
+  font-size: 0.98rem;
+  line-height: 1.5;
+  display: block;
+  position: relative;
+}
+.highlight-list li:last-child { border-bottom: none; }
+.highlight-list li strong { color: var(--stamp-blue); font-weight: 600; }
+
+.highlight-list li.spotlit {
+  background: linear-gradient(90deg, var(--spotlight) 0%, rgba(251,234,196,0.25) 100%);
+  border-left: 4px solid var(--accent);
+  padding-left: 0.85rem;
+  padding-right: 0.5rem;
+  margin: 0.3rem -0.2rem 0.3rem -0.7rem;
+  border-radius: 3px 8px 8px 3px;
+}
+.highlight-list li.spotlit strong { color: var(--accent); }
+.spotlight-chip {
+  display: inline-block;
+  margin-right: 0.5rem;
+  margin-left: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--accent);
+  padding: 0.15rem 0.55rem;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  vertical-align: 0.15em;
+}
+
+/* Hidden-gem highlight treatment (Q6 "hidden gems" answer).
+   Active = user picked hidden gems; highlight leads the list with its own chip.
+   Dormant = user picked classics; hidden entries still render but softer/italic. */
+.hidden-chip {
+  display: inline-block;
+  margin-right: 0.5rem;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--stamp-blue);
+  padding: 0.15rem 0.55rem 0.15rem 0.5rem;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  vertical-align: 0.15em;
+  white-space: nowrap;
+}
+.highlight-list li.hidden-active {
+  background: linear-gradient(90deg, #dfeaed 0%, rgba(223,234,237,0.2) 100%);
+  border-left: 4px solid var(--stamp-blue);
+  padding-left: 0.85rem;
+  padding-right: 0.5rem;
+  margin: 0.3rem -0.2rem 0.3rem -0.7rem;
+  border-radius: 3px 8px 8px 3px;
+}
+.highlight-list li.hidden-active strong { color: var(--stamp-blue); }
+.highlight-list li.hidden-dormant {
+  color: var(--ink-light);
+}
+.highlight-list li.hidden-dormant strong { color: var(--ink-light); font-weight: 500; font-style: italic; }
+
+/* Info blocks, budget, vibe tags */
+.info-block {
+  background: var(--parchment);
+  border-radius: 6px;
+  padding: 0.8rem 1rem;
+  margin: 0.4rem auto;
+  font-family: var(--font-prose);
+  font-size: 0.96rem;
+  line-height: 1.55;
+}
+.budget-table {
+  width: calc(100% - 3.5rem);
+  margin: 0.4rem 1.75rem;
+  border-collapse: collapse;
+  font-family: var(--font-prose);
+  font-size: 0.95rem;
+}
+.budget-table td {
+  padding: 0.5rem 0.4rem;
+  border-bottom: 1px dotted var(--parchment-deep);
+}
+.budget-table td:last-child { text-align: right; font-weight: 600; }
+.budget-table tr:last-child td { border-bottom: none; font-weight: 700; color: var(--accent); }
+.vibe-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 1rem; }
+.vibe-tag {
+  background: var(--tag-bg);
+  border-radius: 16px;
+  padding: 0.25rem 0.75rem;
+  font-family: var(--font-hand);
+  font-size: 0.86rem;
+  color: var(--ink-light);
+  border: 1px solid transparent;
+}
+
+.best-time {
+  background: linear-gradient(135deg, #eef3e9, #f5f1e1);
+  border-radius: 6px;
+  padding: 0.85rem 1rem;
+  margin: 0.4rem auto;
+  font-family: var(--font-prose);
+  font-size: 0.96rem;
+  border-left: 3px solid var(--stamp-green);
+  line-height: 1.55;
+}
+.best-time-main { color: var(--ink); }
+.best-time-2026 {
+  margin-top: 0.55rem;
+  padding-top: 0.55rem;
+  border-top: 1px dashed rgba(74, 112, 81, 0.35);
+  font-size: 0.92rem;
+  color: var(--ink-light);
+}
+.best-time-year {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--stamp-green);
+  letter-spacing: 0.03em;
+}
+
+/* Surprise fact, coffee, weekend, sweet, ruin */
+.surprise-card {
+  background: linear-gradient(135deg, #f4e4d2, #fbf0e0);
+  border-radius: 8px;
+  padding: 0.95rem 1.1rem;
+  margin: 0.8rem auto;
+  border-left: 3px solid var(--accent);
+  font-family: var(--font-prose);
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+.flexible-note {
+  background: rgba(122, 106, 102, 0.08);
+  border: 1px dashed var(--parchment-deep);
+  border-radius: 6px;
+  padding: 0.6rem 0.9rem;
+  margin: 0.8rem auto;
+  font-family: var(--font-prose);
+  font-size: 0.85rem;
+  color: var(--ink-light);
+  font-style: italic;
+  line-height: 1.5;
+}
+.proposal-card > .flexible-note { margin-left: 1.75rem; margin-right: 1.75rem; }
+@media (max-width: 640px) {
+  .proposal-card > .flexible-note { margin-left: 1.1rem; margin-right: 1.1rem; }
+}
+.surprise-card .surprise-label {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 0.25rem;
+  letter-spacing: 0.03em;
+}
+
+/* Secondary enrichment sections: plain prose with italic label, no boxed card.
+   Tiers the density so the proposal reads as layered rather than a wall of cards. */
+.subsections {
+  margin: 0.2rem auto 0.6rem;
+  padding: 0.2rem 0;
+}
+.proposal-card > .subsections { margin-left: 1.75rem; margin-right: 1.75rem; }
+.subsection {
+  font-family: var(--font-prose);
+  font-size: 0.96rem;
+  line-height: 1.6;
+  color: var(--ink);
+  padding: 0.4rem 0;
+  border-bottom: 1px dotted var(--parchment-deep);
+}
+.subsection:last-child { border-bottom: none; }
+.subsection-label {
+  font-family: var(--font-hand);
+  font-weight: 600;
+  color: var(--stamp-blue);
+  font-style: italic;
+  margin-right: 0.3rem;
+  letter-spacing: 0.01em;
+}
+.subsection strong { color: var(--ink); font-weight: 600; }
+.subsection em { color: var(--ink-light); font-style: italic; }
+.subsection-detail {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.85rem;
+  color: var(--ink-light);
+  font-style: italic;
+}
+
+/* (legacy coffee-card retained in case other code references it, but
+   Tastes-on-the-Ground now uses .subsection) */
+.coffee-card {
+  background: linear-gradient(135deg, #ece1d4, #f7ecd9);
+  border-radius: 8px;
+  padding: 0.8rem 1rem;
+  margin: 0.4rem auto;
+  border-left: 3px solid #8c6954;
+  font-family: var(--font-prose);
+  font-size: 0.95rem;
+}
+.coffee-card .coffee-name { font-weight: 600; color: #4e342e; }
+
+.weekend-2026 {
+  background: linear-gradient(135deg, #dfeaed, #e6ebe9);
+  border-radius: 8px;
+  padding: 0.8rem 1rem;
+  margin: 0.4rem auto;
+  border-left: 3px solid var(--stamp-blue);
+  font-family: var(--font-prose);
+  font-size: 0.95rem;
+}
+.weekend-2026 .weekend-dates {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--stamp-blue);
+}
+
+.sweet-tour-card {
+  background: linear-gradient(135deg, #f6e3d3, #fbeac4);
+  border-radius: 8px;
+  padding: 0.9rem 1.1rem;
+  margin: 0.4rem auto;
+  border-left: 3px solid var(--accent);
+  font-family: var(--font-prose);
+  font-size: 0.95rem;
+}
+.sweet-tour-card strong { display: block; color: var(--accent); font-size: 1.05rem; margin-bottom: 0.3rem; }
+.sweet-tour-card p { margin-bottom: 0.5rem; line-height: 1.55; }
+.sweet-tour-meta { display: flex; flex-wrap: wrap; gap: 0.75rem; font-size: 0.85rem; color: var(--ink-light); }
+.sweet-tour-meta span { white-space: nowrap; }
+
+.ruin-card {
+  background: linear-gradient(135deg, #e9e2d0, #f2e7cb);
+  border-radius: 8px;
+  padding: 0.9rem 1.1rem;
+  margin: 0.4rem auto;
+  border-left: 3px solid var(--stamp-blue);
+  font-family: var(--font-prose);
+  font-size: 0.95rem;
+}
+.ruin-card strong { font-size: 1.05rem; color: var(--stamp-blue); }
+.ruin-card .ruin-type {
+  font-family: var(--font-hand);
+  font-size: 0.82rem;
+  color: var(--ink-light);
+  font-style: italic;
+  margin-left: 0.4rem;
+}
+.ruin-card p { margin-top: 0.35rem; line-height: 1.55; }
+
+/* Hotels — three tiers, clearly labelled. Base pick is the default; treat
+   and smart are optional alternates. Each renders as a row with a small
+   tier kicker above and the option text (plus optional inline thumb) below. */
+.hotels-stack { display: flex; flex-direction: column; gap: 0.55rem; }
+.hotel-row {
+  padding: 0.7rem 0.95rem;
+  border-radius: 6px;
+  background: var(--parchment);
+  border-left: 3px solid var(--parchment-deep);
+  font-family: var(--font-prose);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+.hotel-row.hotel-base  { border-left-color: var(--stamp-blue); }
+.hotel-row.hotel-treat { border-left-color: var(--accent); background: linear-gradient(135deg, #f4e4d2, #fbf0e0); }
+.hotel-row.hotel-smart { border-left-color: var(--stamp-green); background: linear-gradient(135deg, #eef3e9, #f5f1e1); }
+.hotel-tier {
+  font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--ink-muted);
+  margin-bottom: 0.25rem;
+}
+.hotel-row.hotel-base  .hotel-tier { color: var(--stamp-blue); }
+.hotel-row.hotel-treat .hotel-tier { color: var(--accent); }
+.hotel-row.hotel-smart .hotel-tier { color: var(--stamp-green); }
+.hotel-body { color: var(--ink); }
+.hotel-row .inline-thumb { margin-top: 0.4rem; }
+
+/* Weird bars card — one entry per venue, stacked */
+.bars-card {
+  background: linear-gradient(135deg, #e7dccd, #efe7d2);
+  border-radius: 8px;
+  padding: 0.9rem 1.1rem;
+  margin: 0.4rem auto;
+  border-left: 3px solid var(--stamp-blue);
+  font-family: var(--font-prose);
+  font-size: 0.95rem;
+}
+.bar-item { padding: 0.5rem 0; border-bottom: 1px dotted rgba(46,91,102,0.25); }
+.bar-item:first-child { padding-top: 0; }
+.bar-item:last-child { padding-bottom: 0; border-bottom: none; }
+.bar-name { font-weight: 600; color: var(--stamp-blue); margin-bottom: 0.15rem; }
+.bar-addr { font-family: var(--font-hand); font-size: 0.85rem; color: var(--ink-light); font-weight: 400; font-style: italic; }
+.bar-desc { color: var(--ink); line-height: 1.5; }
+.proposal-card > .bars-card { margin-left: 1.75rem; margin-right: 1.75rem; }
+@media (max-width: 640px) {
+  .proposal-card > .bars-card { margin-left: 1.1rem; margin-right: 1.1rem; }
+}
+
+/* ---------- Gallery ---------- */
+.gallery-hero {
+  position: relative;
+  margin: 0 0 0;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  border-radius: 12px 12px 0 0;
+  background: var(--parchment-dark);
+}
+.gallery-hero img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.gallery-hero figcaption {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  padding: 0.9rem 1.25rem 0.7rem;
+  background: linear-gradient(to top, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0) 100%);
+  color: #fff;
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 0.75rem;
+  pointer-events: none;
+}
+.gallery-country {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.35);
+}
+.gallery-credit {
+  font-family: var(--font-prose);
+  font-size: 0.72rem;
+  opacity: 0.85;
+  text-align: right;
+  line-height: 1.3;
+  max-width: 55%;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+.gallery-thumbs {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.8rem 1.75rem 0.2rem;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+.gallery-thumb {
+  flex: 0 0 auto;
+  width: 110px;
+  height: 74px;
+  border: 1px solid var(--parchment-deep);
+  border-radius: 6px;
+  overflow: hidden;
+  padding: 0;
+  cursor: pointer;
+  background: var(--parchment);
+  transition: transform 0.2s var(--ease-out), box-shadow 0.2s var(--ease-out), border-color 0.2s;
+}
+.gallery-thumb img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.gallery-thumb:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-2);
+  border-color: var(--stamp-blue);
+}
+
+/* Gallery lightbox overlay */
+.gallery-lightbox {
+  position: fixed; inset: 0;
+  background: rgba(47, 36, 34, 0.88);
+  display: none;
+  align-items: center; justify-content: center;
+  z-index: 200;
+  padding: 2rem;
+  cursor: pointer;
+  animation: fadeIn 0.25s ease;
+}
+.gallery-lightbox.open { display: flex; }
+.gallery-lightbox img {
+  max-width: 92vw; max-height: 80vh;
+  border-radius: 6px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+.gallery-lightbox .lightbox-caption {
+  position: absolute; left: 0; right: 0; bottom: 1.5rem;
+  text-align: center;
+  color: #fff;
+  font-family: var(--font-prose);
+  font-size: 0.9rem;
+  padding: 0 1.5rem;
+  opacity: 0.88;
+}
+.gallery-lightbox .lightbox-credit {
+  position: absolute; left: 0; right: 0; bottom: 0.6rem;
+  text-align: center;
+  color: rgba(255,255,255,0.6);
+  font-family: var(--font-prose);
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  padding: 0 1.5rem;
+}
+
+/* ---------- Inline thumb (click to open lightbox) ---------- */
+.inline-thumb {
+  display: inline-block;
+  padding: 0;
+  margin: 0 0.35rem 0.25rem 0;
+  width: 78px;
+  height: 78px;
+  border: 1px solid var(--parchment-deep);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--parchment);
+  cursor: zoom-in;
+  vertical-align: middle;
+  transition: transform 0.2s var(--ease-out), box-shadow 0.2s var(--ease-out), border-color 0.2s;
+  flex-shrink: 0;
+}
+.inline-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.inline-thumb:hover {
+  transform: translateY(-1px) scale(1.03);
+  box-shadow: var(--shadow-2);
+  border-color: var(--stamp-blue);
+}
+.inline-thumb:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* Highlights: thumbnail sits inline, at the end of the text */
+.highlight-list li .inline-thumb { margin-left: 0.4rem; }
+/* Cards (ruin / sweet-tour / bars): thumbnail in a row with content */
+.ruin-card .inline-thumb,
+.sweet-tour-card .inline-thumb,
+.bars-card .inline-thumb,
+.subsection .inline-thumb { margin-top: 0.4rem; }
+
+/* ---------- Itinerary ---------- */
+.itinerary-section { margin: 1rem 1.75rem 0; }
+.itinerary-toggle {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--stamp-blue);
+  background: none;
+  border: 1px dashed var(--parchment-deep);
+  border-radius: 8px;
+  padding: 0.65rem 1.2rem;
+  width: 100%;
+  text-align: center;
+  transition: all 0.2s var(--ease-out);
+}
+.itinerary-toggle:hover { border-color: var(--stamp-blue); background: rgba(255,255,255,0.6); }
+.itinerary-content { display: none; margin-top: 0.8rem; }
+.itinerary-content.open { display: block; }
+.itinerary-day {
+  background: #fff;
+  border: 1px solid var(--parchment-dark);
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+  margin-bottom: 0.8rem;
+}
+.itinerary-day h5 {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--stamp-green);
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.02em;
+}
+.itinerary-block {
+  display: grid;
+  grid-template-columns: 3.5rem 1fr;
+  gap: 0.3rem 0.5rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px dotted var(--parchment-deep);
+  font-family: var(--font-prose);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+.itinerary-block:last-child { border-bottom: none; }
+.itinerary-time {
+  font-family: 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 0.82rem;
+  color: var(--stamp-blue);
+  font-weight: 600;
+  padding-top: 0.1rem;
+}
+.itinerary-note {
+  font-size: 0.82rem;
+  color: var(--ink-light);
+  grid-column: 2;
+  font-style: italic;
+}
+
+/* ---------- Combo trips ---------- */
+.combo-section { margin: 1.5rem auto 0; max-width: 680px; width: 100%; padding: 0 1rem; }
+.combo-card {
+  background: #fff;
+  border: 1px solid var(--parchment-dark);
+  border-radius: 8px;
+  padding: 0.8rem 1.1rem;
+  margin-bottom: 0.55rem;
+  box-shadow: var(--shadow-1);
+}
+.combo-card h5 {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  color: var(--stamp-blue);
+  margin-bottom: 0.15rem;
+  font-weight: 700;
+}
+.combo-card p { font-family: var(--font-prose); font-size: 0.92rem; color: var(--ink-light); line-height: 1.5; }
+
+/* ---------- Runners-up ---------- */
+.runners-up { max-width: 680px; width: 100%; margin: 1.5rem auto; padding: 0 1rem; }
+.runners-toggle {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  cursor: pointer;
+  color: var(--stamp-blue);
+  background: rgba(255,255,255,0.45);
+  border: 1px dashed var(--parchment-deep);
+  border-radius: 8px;
+  padding: 0.8rem 1.5rem;
+  width: 100%;
+  text-align: center;
+  transition: all 0.2s var(--ease-out);
+}
+.runners-toggle:hover { border-color: var(--stamp-blue); background: #fff; }
+.runners-list { display: none; margin-top: 1rem; }
+.runners-list.open { display: block; }
+
+.runner-card {
+  background: #fff;
+  border: 1px solid var(--parchment-dark);
+  border-radius: 10px;
+  padding: 1.2rem;
+  margin-bottom: 1rem;
+  box-shadow: var(--shadow-2);
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 1.1rem;
+  align-items: start;
+}
+.runner-thumb {
+  aspect-ratio: 3/2;
+  overflow: hidden;
+  border-radius: 6px;
+  background: var(--parchment-dark);
+  margin: 0;
+}
+.runner-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.runner-body { min-width: 0; }
+.runner-card h4 {
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+  line-height: 1.1;
+}
+.runner-country {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1rem;
+  color: var(--stamp-green);
+  margin-left: 0.35rem;
+}
+.runner-card .pitch {
+  font-family: var(--font-prose);
+  font-size: 0.95rem;
+  color: var(--ink-light);
+  margin-bottom: 0.5rem;
+  line-height: 1.55;
+}
+.runner-card .transport {
+  font-family: var(--font-prose);
+  font-size: 0.88rem;
+  background: var(--parchment);
+  border-radius: 5px;
+  padding: 0.45rem 0.7rem;
+}
+
+/* ---------- Restart ---------- */
+.restart-btn {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  padding: 0.55rem 1.8rem;
+  border: 1px dashed var(--ink-muted);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ink-light);
+  cursor: pointer;
+  margin: 2rem auto;
+  display: block;
+  transition: all 0.2s var(--ease-out);
+}
+.restart-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ---------- Credits footer ---------- */
+.credits-footer {
+  max-width: 680px;
+  margin: 1rem auto 3rem;
+  padding: 0 1rem;
+  text-align: center;
+  font-family: var(--font-prose);
+  font-size: 0.82rem;
+  color: var(--ink-muted);
+  line-height: 1.5;
+}
+.credits-footer a { color: var(--stamp-blue); text-decoration: none; border-bottom: 1px dotted var(--stamp-blue); }
+
+/* ============================================================
+   Inline SVG cat — mood-driven via class on .cat-svg root
+   ============================================================ */
+.cat-card {
+  position: fixed;
+  bottom: 0.75rem;
+  right: 0.75rem;
+  width: 76px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  z-index: 50;
+  user-select: none;
+  opacity: 0.82;
+  transition: opacity 0.3s var(--ease-out);
+  filter: drop-shadow(0 2px 4px rgba(60,47,47,0.12));
+}
+.cat-card:hover { opacity: 1; }
+.cat-svg { width: 100%; height: auto; display: block; }
+.cat-label {
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  color: var(--ink-muted);
+  letter-spacing: 0.05em;
+  min-height: 1em;
+  margin-top: -0.1rem;
+}
+
+/* Hide all mood part variants by default */
+.cat-svg .eyes-normal,
+.cat-svg .eyes-closed,
+.cat-svg .eyes-star,
+.cat-svg .eyes-hearts,
+.cat-svg .eyes-shocked,
+.cat-svg .mouth-neutral,
+.cat-svg .mouth-smile,
+.cat-svg .mouth-open,
+.cat-svg .acc-zzz,
+.cat-svg .acc-sparkles,
+.cat-svg .acc-hearts,
+.cat-svg .acc-question { display: none; }
+
+/* Per-mood: show the right parts */
+.cat-svg.idle     .eyes-normal,
+.cat-svg.idle     .mouth-neutral,
+.cat-svg.happy    .eyes-closed,
+.cat-svg.happy    .mouth-smile,
+.cat-svg.excited  .eyes-star,
+.cat-svg.excited  .mouth-smile,
+.cat-svg.excited  .acc-sparkles,
+.cat-svg.dreamy   .eyes-hearts,
+.cat-svg.dreamy   .mouth-smile,
+.cat-svg.dreamy   .acc-hearts,
+.cat-svg.sleepy   .eyes-closed,
+.cat-svg.sleepy   .mouth-neutral,
+.cat-svg.sleepy   .acc-zzz,
+.cat-svg.shocked  .eyes-shocked,
+.cat-svg.shocked  .mouth-open,
+.cat-svg.thinking .eyes-normal,
+.cat-svg.thinking .mouth-neutral,
+.cat-svg.thinking .acc-question { display: initial; }
+
+/* Blink on idle / thinking */
+@keyframes blink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  94% { transform: scaleY(0.05); }
+  96% { transform: scaleY(1); }
+}
+.cat-svg.idle .eyes-normal circle,
+.cat-svg.thinking .eyes-normal circle {
+  transform-origin: 50% 58%;
+  animation: blink 5s infinite;
+}
+
+/* Sparkles — twinkle */
+@keyframes twinkle {
+  0%, 100% { opacity: 0.35; transform: scale(0.85); }
+  50%      { opacity: 1;    transform: scale(1.15); }
+}
+.cat-svg.excited .acc-sparkles .spk {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: twinkle 1.2s ease-in-out infinite;
+}
+.cat-svg.excited .acc-sparkles .spk2 { animation-delay: 0.3s; }
+.cat-svg.excited .acc-sparkles .spk3 { animation-delay: 0.6s; }
+.cat-svg.excited .acc-sparkles .spk4 { animation-delay: 0.9s; }
+
+/* Hearts drift up */
+@keyframes heartFloat {
+  0%   { opacity: 0; transform: translateY(4px); }
+  30%  { opacity: 1; transform: translateY(0); }
+  70%  { opacity: 1; transform: translateY(-6px); }
+  100% { opacity: 0; transform: translateY(-12px); }
+}
+.cat-svg.dreamy .acc-hearts path {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: heartFloat 2.4s ease-in-out infinite;
+}
+.cat-svg.dreamy .acc-hearts .heart2 { animation-delay: 1.2s; }
+
+/* Z's float up */
+@keyframes zFloat {
+  0%   { opacity: 0; transform: translateY(6px); }
+  25%  { opacity: 1; transform: translateY(0); }
+  75%  { opacity: 1; transform: translateY(-4px); }
+  100% { opacity: 0; transform: translateY(-10px); }
+}
+.cat-svg.sleepy .acc-zzz text {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: zFloat 2.4s ease-in-out infinite;
+}
+.cat-svg.sleepy .acc-zzz .zzz2 { animation-delay: 0.8s; }
+.cat-svg.sleepy .acc-zzz .zzz3 { animation-delay: 1.6s; }
+
+/* Thinking — ? tilts */
+@keyframes qTilt {
+  0%, 100% { transform: rotate(-4deg); }
+  50%      { transform: rotate(4deg); }
+}
+.cat-svg.thinking .acc-question text {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: qTilt 2s ease-in-out infinite;
+}
+
+/* Subtle card-level mood motion */
+@keyframes catSway { 0%,100% { transform: rotate(0); } 50% { transform: rotate(1.5deg); } }
+@keyframes catBounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+@keyframes catBreathe { 0%,100% { transform: scaleY(1); } 50% { transform: scaleY(1.01); } }
+@keyframes catWiggle { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-2px); } 75% { transform: translateX(2px); } }
+
+.cat-card:has(.cat-svg.happy)    .cat-svg { animation: catSway 1.4s ease-in-out infinite; transform-origin: bottom center; }
+.cat-card:has(.cat-svg.excited)  .cat-svg { animation: catBounce 0.55s ease-in-out infinite; }
+.cat-card:has(.cat-svg.sleepy)   .cat-svg { animation: catBreathe 3s ease-in-out infinite; transform-origin: bottom center; }
+.cat-card:has(.cat-svg.shocked)  .cat-svg { animation: catWiggle 0.2s ease 4; }
+.cat-card:has(.cat-svg.dreamy)   .cat-svg { animation: catBreathe 4s ease-in-out infinite; transform-origin: bottom center; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 640px) {
+  body { font-size: 16px; }
+  .postcard { padding: 1.6rem 1.2rem 1.3rem; }
+  .proposal-card > h3,
+  .proposal-card > .proposal-country,
+  .proposal-card > .pitch,
+  .proposal-card > .surprise-card,
+  .proposal-card > .section-title,
+  .proposal-card > .transport,
+  .proposal-card > .highlight-list,
+  .proposal-card > .info-block,
+  .proposal-card > .best-time,
+  .proposal-card > .weekend-2026,
+  .proposal-card > .coffee-card,
+  .proposal-card > .sweet-tour-card,
+  .proposal-card > .ruin-card,
+  .proposal-card > .subsections,
+  .proposal-card > .budget-table,
+  .proposal-card > .vibe-tags,
+  .proposal-card > .itinerary-section { margin-left: 1.1rem; margin-right: 1.1rem; }
+  .budget-table { width: calc(100% - 2.2rem); margin: 0.4rem 1.1rem; }
+  .itinerary-section { margin: 1rem 1.1rem 0; }
+  .gallery-thumbs { padding: 0.7rem 1.1rem 0.2rem; }
+  .cat-card { width: 80px; bottom: 0.6rem; right: 0.6rem; padding: 0.25rem; }
+  .passport-stamp { font-size: 2rem; padding: 0.8rem 1.6rem; letter-spacing: 2px; }
+  .runner-card { grid-template-columns: 1fr; }
+  .runner-thumb { aspect-ratio: 16/9; }
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+  .passport-stamp { opacity: 1; transform: rotate(-5deg); }
+  .cat-svg *, .cat-svg { animation: none !important; }
+  .answer-btn:hover, .runners-toggle:hover, .itinerary-toggle:hover, .restart-btn:hover, .btn-start:hover,
+  .gallery-thumb:hover { transform: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar" style="width: 0%"></div>
+
+<!-- WELCOME SCREEN -->
+<div class="screen active" id="welcome">
+  <img class="welcome-sticker" id="welcome-sticker" src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f382.svg" alt="">
+  <h1>Feliz cumple!</h1>
+  <button class="btn-start" onclick="startQuiz()">Empezar</button>
+</div>
+
+<!-- QUESTION SCREENS (generated by JS) -->
+<div class="screen" id="q-screen">
+  <div class="postcard" id="q-card">
+    <div class="q-number" id="q-number"></div>
+    <div class="q-kind" id="q-kind"></div>
+    <h2 id="q-text"></h2>
+    <div class="answers" id="q-answers"></div>
+  </div>
+</div>
+
+<!-- REVEAL SCREEN -->
+<div class="screen" id="reveal">
+  <p class="reveal-subtitle">Your destination</p>
+  <div class="stamp-container">
+    <div class="passport-stamp" id="stamp-name"></div>
+  </div>
+  <p class="reveal-country" id="stamp-country"></p>
+  <button class="btn-start" style="margin-top:1.2rem;" onclick="showProposal()">Tell Me More!</button>
+</div>
+
+<!-- PROPOSAL SCREEN -->
+<div class="screen" id="proposal-screen">
+  <div id="proposal-section"></div>
+  <div class="runners-up" id="runners-up">
+    <button class="runners-toggle" id="runners-toggle" onclick="toggleRunners()">See Other Options</button>
+    <div class="runners-list" id="runners-list"></div>
+  </div>
+  <div class="combo-section" id="combo-section" style="display:none;">
+    <div class="section-title" style="text-align:center;font-size:1.3rem;margin-bottom:0.8rem;">Combine Your Trip</div>
+    <div id="combo-list"></div>
+  </div>
+  <button class="restart-btn" onclick="restart()">Start Over</button>
+</div>
+
+<!-- LIGHTBOX overlay for inline thumbs -->
+<div class="gallery-lightbox" id="lightbox" role="dialog" aria-hidden="true">
+  <img id="lightbox-img" src="" alt="">
+  <div class="lightbox-caption" id="lightbox-caption"></div>
+  <div class="lightbox-credit" id="lightbox-credit"></div>
+</div>
+
+<!-- SVG CAT -->
+<div class="cat-card" id="cat-card" aria-hidden="true">
+  <svg class="cat-svg idle" id="cat-svg" viewBox="0 0 120 140" xmlns="http://www.w3.org/2000/svg">
+    <!-- soft shadow -->
+    <ellipse cx="60" cy="128" rx="34" ry="3.5" fill="rgba(60,47,47,0.10)"/>
+
+    <!-- body (sitting, peeks below head) -->
+    <path class="cat-body" d="M28 120 Q25 95 40 85 Q60 78 80 85 Q95 95 92 120 Q88 128 60 128 Q32 128 28 120 Z"
+          stroke="#3c2f2f" stroke-width="2.2" fill="#fff" stroke-linejoin="round"/>
+    <!-- front paws -->
+    <ellipse class="cat-paw" cx="46" cy="124" rx="7" ry="4" fill="#fff" stroke="#3c2f2f" stroke-width="1.6"/>
+    <ellipse class="cat-paw" cx="74" cy="124" rx="7" ry="4" fill="#fff" stroke="#3c2f2f" stroke-width="1.6"/>
+
+    <!-- ears (behind head for stacking) -->
+    <g class="cat-ears" stroke="#3c2f2f" stroke-width="2.2" stroke-linejoin="round">
+      <path d="M32 52 L24 22 L52 42 Z" fill="#fff"/>
+      <path d="M88 52 L96 22 L68 42 Z" fill="#fff"/>
+      <path d="M35 44 L31 28 L44 38 Z" fill="#e8b0a8" stroke="none"/>
+      <path d="M85 44 L89 28 L76 38 Z" fill="#e8b0a8" stroke="none"/>
+    </g>
+
+    <!-- head -->
+    <circle cx="60" cy="58" r="36" fill="#fff" stroke="#3c2f2f" stroke-width="2.2"/>
+
+    <!-- Eye variants -->
+    <g class="eyes-normal">
+      <circle cx="48" cy="58" r="3.5" fill="#3c2f2f"/>
+      <circle cx="72" cy="58" r="3.5" fill="#3c2f2f"/>
+      <circle cx="49" cy="56.5" r="1" fill="#fff"/>
+      <circle cx="73" cy="56.5" r="1" fill="#fff"/>
+    </g>
+    <g class="eyes-closed">
+      <path d="M42 58 Q48 62 54 58" fill="none" stroke="#3c2f2f" stroke-width="2.4" stroke-linecap="round"/>
+      <path d="M66 58 Q72 62 78 58" fill="none" stroke="#3c2f2f" stroke-width="2.4" stroke-linecap="round"/>
+    </g>
+    <g class="eyes-star">
+      <path d="M48 52 L49.5 57 L54 57 L50.3 60 L52 65 L48 62 L44 65 L45.7 60 L42 57 L46.5 57 Z" fill="#d98f4a"/>
+      <path d="M72 52 L73.5 57 L78 57 L74.3 60 L76 65 L72 62 L68 65 L69.7 60 L66 57 L70.5 57 Z" fill="#d98f4a"/>
+    </g>
+    <g class="eyes-hearts">
+      <path d="M48 62 C44 58, 40 58, 40 54 C40 50, 44 50, 48 54 C52 50, 56 50, 56 54 C56 58, 52 58, 48 62 Z" fill="#c26b52"/>
+      <path d="M72 62 C68 58, 64 58, 64 54 C64 50, 68 50, 72 54 C76 50, 80 50, 80 54 C80 58, 76 58, 72 62 Z" fill="#c26b52"/>
+    </g>
+    <g class="eyes-shocked">
+      <circle cx="48" cy="58" r="5" fill="#fff" stroke="#3c2f2f" stroke-width="2.4"/>
+      <circle cx="72" cy="58" r="5" fill="#fff" stroke="#3c2f2f" stroke-width="2.4"/>
+      <circle cx="48" cy="58" r="2" fill="#3c2f2f"/>
+      <circle cx="72" cy="58" r="2" fill="#3c2f2f"/>
+    </g>
+
+    <!-- Nose -->
+    <path d="M57 70 L63 70 L60 73.5 Z" fill="#e8b0a8" stroke="#3c2f2f" stroke-width="1"/>
+
+    <!-- Mouth variants -->
+    <g class="mouth-neutral">
+      <path d="M60 73.5 Q56 76 53 75" fill="none" stroke="#3c2f2f" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M60 73.5 Q64 76 67 75" fill="none" stroke="#3c2f2f" stroke-width="1.8" stroke-linecap="round"/>
+    </g>
+    <g class="mouth-smile">
+      <path d="M60 73.5 Q55 80 48 77" fill="none" stroke="#3c2f2f" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M60 73.5 Q65 80 72 77" fill="none" stroke="#3c2f2f" stroke-width="1.8" stroke-linecap="round"/>
+    </g>
+    <g class="mouth-open">
+      <ellipse cx="60" cy="78" rx="3.5" ry="4.5" fill="#e8b0a8" stroke="#3c2f2f" stroke-width="1.5"/>
+    </g>
+
+    <!-- Whiskers -->
+    <g stroke="#3c2f2f" stroke-width="0.8" stroke-linecap="round" opacity="0.55">
+      <line x1="28" y1="64" x2="42" y2="65"/>
+      <line x1="28" y1="70" x2="42" y2="70"/>
+      <line x1="78" y1="65" x2="92" y2="64"/>
+      <line x1="78" y1="70" x2="92" y2="70"/>
+    </g>
+
+    <!-- Accessories -->
+    <g class="acc-zzz" font-family="'Caveat', cursive" font-weight="700" fill="#6b5b5b">
+      <text class="zzz1" x="92" y="28" font-size="14">z</text>
+      <text class="zzz2" x="100" y="18" font-size="16">Z</text>
+      <text class="zzz3" x="108" y="8" font-size="13">z</text>
+    </g>
+    <g class="acc-sparkles" fill="#d98f4a" font-weight="700">
+      <text class="spk spk1" x="14" y="22" font-size="16">&#x2726;</text>
+      <text class="spk spk2" x="96" y="24" font-size="14">&#x2727;</text>
+      <text class="spk spk3" x="12" y="82" font-size="12">&#x2726;</text>
+      <text class="spk spk4" x="100" y="86" font-size="14">&#x2727;</text>
+    </g>
+    <g class="acc-hearts" fill="#c26b52">
+      <path class="heart1" d="M16 30 C12 26 8 26 8 22 C8 18 12 18 16 22 C20 18 24 18 24 22 C24 26 20 26 16 30 Z"/>
+      <path class="heart2" d="M102 26 C98 22 94 22 94 18 C94 14 98 14 102 18 C106 14 110 14 110 18 C110 22 106 22 102 26 Z" opacity="0.8"/>
+    </g>
+    <g class="acc-question" font-family="'Caveat', cursive" font-weight="700" fill="#2e5b66">
+      <text x="94" y="30" font-size="22">?</text>
+    </g>
+  </svg>
+  <div class="cat-label" id="cat-label"></div>
+</div>
+
+<script src="data.js"></script>
+<script>
+// (PROPOSALS, QUESTIONS, Q3_VIBE_MAP, Q3B_VIBE_MAP, Q3C_VIBE_MAP, Q4_VIBE_MAP,
+//  Q_PACE_MAP, Q_PHYS_MAP, PROPOSAL_TAGS, HIDDEN_GEMS, SWEET_TOURS,
+//  RUINS_AND_CASTLES, GALLERIES loaded from data.js)
+
+// ============================================================
+// STATE
+// ============================================================
+let answers = {};
+let currentQ = 0;
+
+// ============================================================
+// CAT (inline SVG, class-driven state machine)
+// ============================================================
+// All mood parts live in the SVG; we swap root class to show/hide them.
+// CSS handles the micro-animations (blink, sparkle float, zzz, heart rise).
+const CAT_LABELS = {
+  idle: "", happy: "purr~", excited: "!", dreamy: "", sleepy: "zzz", shocked: "!?", thinking: ""
+};
+let catCurrentState = 'idle';
+let catSleepyTimeout = null;
+
+function setCat(state) {
+  const svg = document.getElementById('cat-svg');
+  const label = document.getElementById('cat-label');
+  if (!svg) return;
+  svg.setAttribute('class', 'cat-svg ' + state);
+  label.textContent = CAT_LABELS[state] || '';
+  catCurrentState = state;
+
+  // Sleepy timeout: if Fede takes too long during the quiz, the cat dozes off.
+  if (catSleepyTimeout) { clearTimeout(catSleepyTimeout); catSleepyTimeout = null; }
+  if (state !== 'sleepy' && currentQ > 0 && currentQ < QUESTIONS.length) {
+    catSleepyTimeout = setTimeout(() => {
+      if (catCurrentState !== 'sleepy') setCat('sleepy');
+    }, 18000);
+  }
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById(id);
+  el.classList.remove('active');
+  void el.offsetWidth; // force reflow for re-animation
+  el.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Condition check that understands both single and array-valued answers.
+// If committed answer is an array, the condition is satisfied when the
+// array includes the required value (multi-Q3 → fire Q3b for each vibe).
+function _conditionMet(q) {
+  if (!q.condition) return true;
+  const committed = answers[q.condition.questionId];
+  if (committed === undefined) return false;
+  if (Array.isArray(committed)) return committed.includes(q.condition.value);
+  return committed === q.condition.value;
+}
+
+// Total visible questions is dynamic now — Q3 multi-select fires Q3b per
+// selected vibe, so the denominator isn't fixed at 10.
+function getTotalVisibleQuestions() {
+  let count = 0;
+  for (const q of QUESTIONS) {
+    if (_conditionMet(q)) count++;
+  }
+  return count;
+}
+
+function getVisibleQuestionNumber() {
+  let count = 0;
+  for (let i = 0; i < currentQ; i++) {
+    if (_conditionMet(QUESTIONS[i])) count++;
+  }
+  return count + 1;
+}
+
+function updateProgress(visibleNum) {
+  const total = Math.max(getTotalVisibleQuestions(), 1);
+  const pct = ((visibleNum - 1) / total) * 100;
+  document.getElementById('progressBar').style.width = pct + '%';
+}
+
+// ============================================================
+// QUIZ FLOW
+// ============================================================
+function startQuiz() {
+  currentQ = 0;
+  answers = {};
+  setCat('idle');
+  showQuestion();
+}
+
+function showQuestion() {
+  // Skip conditional questions whose condition is not met (handles multi-
+  // select: answer may be an array — check `.includes(condition.value)`).
+  while (currentQ < QUESTIONS.length) {
+    if (_conditionMet(QUESTIONS[currentQ])) break;
+    currentQ++;
+  }
+
+  // Auto-skip: if the user's answers so far narrow to a single destination
+  // (either no other destination passes hard filters, or only one matches
+  // every committed preference), further questions can't change the outcome
+  // — jump straight to reveal.
+  if (countHardEligible() === 1) { doReveal(); return; }
+  const strongOne = countStrongEligible();
+  if (strongOne === 1 && hasAnyCommitment()) { doReveal(); return; }
+
+  // Auto-skip uninformative questions — where no option narrows the pool
+  // further than the "egal / no preference" baseline. Asking these just
+  // feels wasted; picking any option wouldn't visibly change the count.
+  // Never skips hard commitments (Q1 days, Q2 distance) — those are trip
+  // decisions, not filters.
+  while (currentQ < QUESTIONS.length) {
+    const q = QUESTIONS[currentQ];
+    if (q.id === 1 || q.id === 2) break;
+    if (!isUninformative(q)) break;
+    currentQ++;
+    while (currentQ < QUESTIONS.length && !_conditionMet(QUESTIONS[currentQ])) currentQ++;
+  }
+  if (currentQ >= QUESTIONS.length) { doReveal(); return; }
+
+  if (currentQ >= QUESTIONS.length) {
+    doReveal();
+    return;
+  }
+  const q = QUESTIONS[currentQ];
+  const visibleNum = getVisibleQuestionNumber();
+  updateProgress(visibleNum);
+  document.getElementById('q-number').textContent = 'Question ' + visibleNum + ' of ' + getTotalVisibleQuestions();
+  const kindEl = document.getElementById('q-kind');
+  const isCommitment = (q.id === 1 || q.id === 2);
+  kindEl.textContent = isCommitment ? 'I choose\u2026' : 'I prefer\u2026';
+  kindEl.className = 'q-kind ' + (isCommitment ? 'commitment' : 'preference');
+  document.getElementById('q-text').textContent = q.text;
+
+  const isMulti = MULTI_SELECT_IDS.has(q.id);
+  const container = document.getElementById('q-answers');
+
+  // Re-render whenever a multi-select toggle happens; single-select auto-advances.
+  function renderOptions() {
+    container.innerHTML = '';
+    q.options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'answer-btn';
+
+      const feas = feasibilityForOption(q, opt.value, answers);
+
+      // Is this option currently selected?
+      let selected = false;
+      if (isMulti) {
+        if (opt.value === "_skip") {
+          selected = answers[q.id] === "_skip" || (Array.isArray(answers[q.id]) && answers[q.id].includes("_skip"));
+        } else {
+          const cur = _vals(answers[q.id]);
+          selected = cur.includes(opt.value);
+        }
+      }
+      if (selected) btn.classList.add('selected');
+
+      // Label + chip
+      const labelSpan = document.createElement('span');
+      labelSpan.className = 'answer-label';
+      labelSpan.textContent = opt.label;
+      btn.appendChild(labelSpan);
+
+      const chip = document.createElement('span');
+      chip.className = 'answer-chip';
+      if (opt.value === "_skip") {
+        // Egal = no further filtering on this question. Label as "N remain"
+        // (not "N matches") so the count reads as the unchanged baseline,
+        // not a widened pool. The specific options narrow further; this one
+        // keeps the pool as-is.
+        chip.textContent = feas.strongCount + ' remain';
+        chip.classList.add('skip');
+      } else if (feas.hardCount === 0) {
+        chip.textContent = '0 matches';
+        chip.classList.add('zero');
+        btn.classList.add('dead-end');
+        btn.disabled = true;
+        btn.title = feas.reason || 'No destinations match your current answers.';
+      } else if (feas.strongCount === 0) {
+        chip.textContent = 'trade-off';
+        chip.classList.add('weak');
+        btn.title = 'This answer is honored \u2014 but no destination satisfies every one of your preferences. Expect to give on one or two (e.g. morning style, pace, or budget).';
+      } else {
+        chip.textContent = feas.strongCount + (feas.strongCount === 1 ? ' match' : ' matches');
+        chip.classList.add('ok');
+      }
+      btn.appendChild(chip);
+
+      btn.addEventListener('click', () => {
+        if (btn.disabled) return;
+        if (isMulti) {
+          toggleMulti(q, opt.value);
+          setCat(opt.cat);
+          renderOptions();
+        } else {
+          answers[q.id] = opt.value;
+          setCat(opt.cat);
+          currentQ++;
+          setTimeout(() => showQuestion(), 350);
+        }
+      });
+      container.appendChild(btn);
+    });
+
+    // Multi-select: append a Continue button below the options
+    if (isMulti) {
+      const cur = _vals(answers[q.id]);
+      const egalActive = answers[q.id] === "_skip" || (Array.isArray(answers[q.id]) && answers[q.id].includes("_skip"));
+      const canContinue = cur.length > 0 || egalActive;
+
+      const hint = document.createElement('div');
+      hint.className = 'multi-hint';
+      if (!canContinue) {
+        hint.textContent = 'Pick one or more \u2014 or \u201cEs ist mir egal\u201d to pass.';
+      } else if (egalActive) {
+        hint.textContent = 'You\u2019re flexible on this one.';
+      } else {
+        hint.textContent = cur.length === 1 ? '1 option selected' : `${cur.length} options selected`;
+      }
+      container.appendChild(hint);
+
+      const contBtn = document.createElement('button');
+      contBtn.className = 'btn-continue';
+      contBtn.textContent = 'Continue \u2192';
+      if (!canContinue) { contBtn.disabled = true; }
+      contBtn.addEventListener('click', () => {
+        if (contBtn.disabled) return;
+        currentQ++;
+        setTimeout(() => showQuestion(), 250);
+      });
+      container.appendChild(contBtn);
+    }
+  }
+
+  renderOptions();
+  showScreen('q-screen');
+}
+
+// Toggle a multi-select option in/out of answers[q.id].
+// "Es ist mir egal" (_skip) on unconditional questions is a mutually-exclusive
+// mode flag. On conditional screens (per-vibe Q3b/Q3c when Q3 is multi-select),
+// clicking egal only clears THIS screen's values so the other vibe's picks
+// aren't wiped.
+function toggleMulti(q, optValue) {
+  const cur = Array.isArray(answers[q.id]) ? answers[q.id].slice() : [];
+  const thisScreenValues = q.options.map(o => o.value).filter(v => v !== "_skip");
+
+  if (optValue === "_skip") {
+    if (q.condition) {
+      // Per-vibe Q3b/Q3c: drop only this screen's own values.
+      const next = cur.filter(v => v !== "_skip" && !thisScreenValues.includes(v));
+      answers[q.id] = next.length === 0 ? undefined : next;
+    } else {
+      const egalActive = cur.includes("_skip") || answers[q.id] === "_skip";
+      answers[q.id] = egalActive ? undefined : ["_skip"];
+    }
+    return;
+  }
+
+  const real = cur.filter(v => v !== "_skip");
+  if (real.includes(optValue)) {
+    const next = real.filter(v => v !== optValue);
+    answers[q.id] = next.length === 0 ? undefined : next;
+  } else {
+    answers[q.id] = [...real, optValue];
+  }
+}
+
+// ============================================================
+// FEASIBILITY — two levels:
+//   hardCount  = destinations surviving hard filters (days, dist) + Q3 vibe.
+//                If 0 → dead-end, button disabled.
+//   strongCount = destinations that ALSO satisfy every committed soft signal
+//                 (Q3b, Q3c, Q4 morning, pace, phys, budget). This is what
+//                 we display so each answer visibly narrows the count.
+// ============================================================
+function feasibilityForOption(q, optValue, committed) {
+  // Multi-select probe: always INCLUDE this option in the tentative selection.
+  // Semantic: "if this option ends up in your final selection, how many
+  // destinations match?". Stable across already-selected and not-selected
+  // options — a selected option's chip doesn't change when re-rendered.
+  let probeVal;
+  if (MULTI_SELECT_IDS.has(q.id) && optValue !== "_skip") {
+    const current = _vals(committed[q.id]);
+    probeVal = current.includes(optValue) ? current : [...current, optValue];
+    if (probeVal.length === 0) probeVal = undefined;
+  } else {
+    probeVal = optValue;
+  }
+  const probe = { ...committed, [q.id]: probeVal };
+
+  const daysVals = _vals(probe[1]);
+  const distVals = _vals(probe[2]);
+  const vibeVals = _vals(probe[3]);
+  const subVals = _vals(probe["3b"]);
+  const microVals = _vals(probe["3c"]);
+  const mornVals = _vals(probe[4]);
+  const paceVals = _vals(probe.pace);
+  const physVals = _vals(probe.phys);
+  const budgetVals = _vals(probe[5]);
+
+  const vT = unionTargets(Q3_VIBE_MAP, vibeVals);
+  const subT = unionTargets(Q3B_VIBE_MAP, subVals);
+  const microT = unionTargets(Q3C_VIBE_MAP, microVals);
+  const mornT = unionTargets(Q4_VIBE_MAP, mornVals);
+  const paceT = unionTargets(Q_PACE_MAP, paceVals);
+  const physT = unionTargets(Q_PHYS_MAP, physVals);
+
+  let hard = 0, strong = 0;
+  for (const p of PROPOSALS) {
+    // Hard filters (multi-select union: any selected value matches)
+    if (daysVals.length && !daysVals.some(d => p.days.includes(d))) continue;
+    if (distVals.length && !distVals.includes(p.dist)) continue;
+    if (vibeVals.length && !p.vibes.some(v => vT.includes(v))) continue;
+    hard++;
+
+    // Soft signals: every committed non-skip signal must land
+    const pTags = PROPOSAL_TAGS[p.id] || [];
+    if (subT.length && !(p.subVibes && p.subVibes.some(v => subT.includes(v)))) continue;
+    if (microT.length && !pTags.some(t => microT.includes(t))) continue;
+    if (mornT.length && !p.vibes.some(v => mornT.includes(v))) continue;
+    if (paceT.length && !pTags.some(t => paceT.includes(t))) continue;
+    if (physT.length && !pTags.some(t => physT.includes(t))) continue;
+    if (budgetVals.length && !budgetVals.includes(p.budget)) continue;
+    strong++;
+  }
+
+  let reason = '';
+  if (hard === 0) {
+    const parts = [];
+    if (daysVals.length) parts.push(daysVals.join('/') + ' days');
+    if (distVals.length) parts.push(distVals.map(d => d === 'germany' ? 'Germany' : d).join(' or '));
+    if (vibeVals.length) parts.push(vibeVals.join('/'));
+    reason = parts.length
+      ? 'No destinations match: ' + parts.join(' + ') + '. Try a different answer.'
+      : 'No destinations match your answers.';
+  }
+
+  return { hardCount: hard, strongCount: strong, reason };
+}
+
+// ============================================================
+// SCORING ENGINE
+// ============================================================
+// V2-C: treat "_skip" as "no signal — no filter, no scoring". Any answer
+// equal to "_skip" (the "I'm flexible" opt-out) is treated as absent.
+function _v(x) {
+  if (x === undefined || x === null || x === "_skip") return undefined;
+  if (Array.isArray(x)) {
+    const eff = x.filter(v => v !== "_skip");
+    return eff.length === 0 ? undefined : (eff.length === 1 ? eff[0] : eff);
+  }
+  return x;
+}
+// V2-D multi-select: return the effective list of values (drops _skip, wraps
+// single into an array). Used by scoring + feasibility when a signal may be
+// a singleton or a multi-selection.
+function _vals(x) {
+  if (x === undefined || x === null) return [];
+  const arr = Array.isArray(x) ? x : [x];
+  return arr.filter(v => v !== "_skip");
+}
+// Union the target tags across all selected values of a multi-select answer.
+// Never duplicates. Returns [] if nothing selected.
+function unionTargets(map, vals) {
+  const out = new Set();
+  for (const v of vals) {
+    const t = map[v] || [];
+    for (const x of t) out.add(x);
+  }
+  return [...out];
+}
+// Count destinations still eligible under current hard filters + primary
+// vibe. When this drops to 1, further soft preferences can't narrow
+// anything — we auto-skip to reveal. Mirrors feasibilityForOption's "hard" pass.
+function countHardEligible() {
+  const daysVals = _vals(answers[1]);
+  const distVals = _vals(answers[2]);
+  const vibeVals = _vals(answers[3]);
+  const vT = unionTargets(Q3_VIBE_MAP, vibeVals);
+  let n = 0;
+  for (const p of PROPOSALS) {
+    if (daysVals.length && !daysVals.some(d => p.days.includes(d))) continue;
+    if (distVals.length && !distVals.includes(p.dist)) continue;
+    if (vibeVals.length && !p.vibes.some(v => vT.includes(v))) continue;
+    n++;
+  }
+  return n;
+}
+
+// Count destinations satisfying every committed (non-skip) signal.
+// Mirrors feasibilityForOption's "strong" pass.
+function countStrongEligible() {
+  const daysVals = _vals(answers[1]);
+  const distVals = _vals(answers[2]);
+  const vibeVals = _vals(answers[3]);
+  const subVals = _vals(answers["3b"]);
+  const microVals = _vals(answers["3c"]);
+  const mornVals = _vals(answers[4]);
+  const paceVals = _vals(answers.pace);
+  const physVals = _vals(answers.phys);
+  const budgetVals = _vals(answers[5]);
+
+  const vT = unionTargets(Q3_VIBE_MAP, vibeVals);
+  const subT = unionTargets(Q3B_VIBE_MAP, subVals);
+  const microT = unionTargets(Q3C_VIBE_MAP, microVals);
+  const mornT = unionTargets(Q4_VIBE_MAP, mornVals);
+  const paceT = unionTargets(Q_PACE_MAP, paceVals);
+  const physT = unionTargets(Q_PHYS_MAP, physVals);
+
+  let n = 0;
+  for (const p of PROPOSALS) {
+    if (daysVals.length && !daysVals.some(d => p.days.includes(d))) continue;
+    if (distVals.length && !distVals.includes(p.dist)) continue;
+    if (vibeVals.length && !p.vibes.some(v => vT.includes(v))) continue;
+    const pTags = PROPOSAL_TAGS[p.id] || [];
+    if (subT.length && !(p.subVibes && p.subVibes.some(v => subT.includes(v)))) continue;
+    if (microT.length && !pTags.some(t => microT.includes(t))) continue;
+    if (mornT.length && !p.vibes.some(v => mornT.includes(v))) continue;
+    if (paceT.length && !pTags.some(t => paceT.includes(t))) continue;
+    if (physT.length && !pTags.some(t => physT.includes(t))) continue;
+    if (budgetVals.length && !budgetVals.includes(p.budget)) continue;
+    n++;
+  }
+  return n;
+}
+
+// Has the user committed at least one non-skip value anywhere? Used as a
+// guard before auto-skipping on strongCount === 1 — avoid firing on the
+// degenerate case where no real signal is committed.
+function hasAnyCommitment() {
+  for (const k of [1, 2, 3, "3b", "3c", 4, "pace", "phys", 5]) {
+    if (_vals(answers[k]).length > 0) return true;
+  }
+  return false;
+}
+
+// True if no real option on this question narrows the pool below baseline
+// (the count user would see on "Es ist mir egal"). In that case the
+// question visibly does nothing — skip it rather than ask Fede to
+// micro-choose between three options that all show the same count.
+function isUninformative(q) {
+  if (!q || !q.options) return false;
+  const baseline = feasibilityForOption(q, "_skip", answers).strongCount;
+  for (const opt of q.options) {
+    if (opt.value === "_skip") continue;
+    const feas = feasibilityForOption(q, opt.value, answers);
+    if (feas.strongCount < baseline) return false;  // this option narrows
+  }
+  return true;
+}
+
+// Every question is multi-select. Egal already proves the system handles
+// "no constraint" per question; multi-select is just the middle ground
+// between "one specific value" and "none". For Q1 (days) and Q2 (distance)
+// a multi-select means "I'm open to any of these"; for Q3 (vibe) it fires
+// the conditional Q3b/Q3c for EACH selected vibe in turn — the condition
+// checker below uses `includes` on array answers so this just works.
+const MULTI_SELECT_IDS = new Set([1, 2, 3, "3b", "3c", 4, "pace", "phys", 5, 6]);
+
+function scoreDestinations() {
+  const daysVals = _vals(answers[1]);        // multi — union in hard filter
+  const distVals = _vals(answers[2]);        // multi — union in hard filter
+  const vibeVals = _vals(answers[3]);        // multi — union targets
+  const subVibeVals = _vals(answers["3b"]);
+  const microVibeVals = _vals(answers["3c"]);
+  const morningVals = _vals(answers[4]);
+  const paceVals = _vals(answers.pace);
+  const physVals = _vals(answers.phys);
+  const budgetVals = _vals(answers[5]);
+
+  const primaryVibes = unionTargets(Q3_VIBE_MAP, vibeVals);
+  const subTargets = unionTargets(Q3B_VIBE_MAP, subVibeVals);
+  const microTargets = unionTargets(Q3C_VIBE_MAP, microVibeVals);
+  const secondaryVibes = unionTargets(Q4_VIBE_MAP, morningVals);
+  const paceTargets = unionTargets(Q_PACE_MAP, paceVals);
+  const physTargets = unionTargets(Q_PHYS_MAP, physVals);
+
+  let scored = PROPOSALS.map(p => {
+    let score = 0;
+    let eligible = true;
+
+    // Hard filters (multi-select: any selected value matches)
+    if (daysVals.length && !daysVals.some(d => p.days.includes(d))) eligible = false;
+    if (distVals.length && !distVals.includes(p.dist)) eligible = false;
+    if (!eligible) return { proposal: p, score: -1 };
+
+    const pTags = PROPOSAL_TAGS[p.id] || [];
+
+    // Q3 primary vibe +3 (on p.vibes, multi: union)
+    if (primaryVibes.length && p.vibes.some(v => primaryVibes.includes(v))) score += 3;
+
+    // Q3b sub-vibe refinement +3 (multi)
+    if (subTargets.length && p.subVibes && p.subVibes.some(v => subTargets.includes(v))) score += 3;
+
+    // Q3c micro-vibe +3 (multi, on PROPOSAL_TAGS)
+    if (microTargets.length && pTags.some(t => microTargets.includes(t))) score += 3;
+
+    // Q4 morning-derived vibes +2 (multi, on p.vibes)
+    if (secondaryVibes.length && p.vibes.some(v => secondaryVibes.includes(v))) score += 2;
+
+    // Pace +2 (multi, on PROPOSAL_TAGS)
+    if (paceTargets.length && pTags.some(t => paceTargets.includes(t))) score += 2;
+
+    // Physicality +2 (multi, on PROPOSAL_TAGS)
+    if (physTargets.length && pTags.some(t => physTargets.includes(t))) score += 2;
+
+    // Budget alignment +2 (multi — any selected budget matches)
+    if (budgetVals.length && budgetVals.includes(p.budget)) score += 2;
+
+    // Q6 ("hidden gems" vs "classics") no longer affects destination scoring.
+    // In V2-B, every destination has hidden-gem highlights within it; the
+    // answer drives highlight sort order + chip, not destination selection.
+    // See renderProposalCard.
+
+    return { proposal: p, score };
+  });
+
+  // Filter out ineligible
+  scored = scored.filter(s => s.score >= 0);
+
+  // Sort descending
+  scored.sort((a, b) => b.score - a.score);
+
+  // Tiebreaker: shuffle among tied top scores
+  if (scored.length > 1) {
+    const topScore = scored[0].score;
+    const tied = scored.filter(s => s.score === topScore);
+    if (tied.length > 1) {
+      // Fisher-Yates on tied items
+      for (let i = tied.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [tied[i], tied[j]] = [tied[j], tied[i]];
+      }
+      scored = [...tied, ...scored.filter(s => s.score < topScore)];
+    }
+  }
+
+  return scored;
+}
+
+// ============================================================
+// REVEAL
+// ============================================================
+function doReveal() {
+  document.getElementById('progressBar').style.width = '100%';
+  const results = scoreDestinations();
+  window._results = results;
+
+  if (results.length === 0) {
+    // Fallback: show all with best guess
+    window._results = PROPOSALS.map(p => ({ proposal: p, score: 0 }));
+  }
+
+  const top = results[0].proposal;
+  document.getElementById('stamp-name').textContent = top.name;
+  document.getElementById('stamp-country').textContent = top.country;
+  setCat('excited');
+  showScreen('reveal');
+}
+
+// Resolve an inline image src path. Each destination has a folder
+// images/{id}-{slug}/; the img field stores just a file name or a full
+// relative path. Accept both shapes.
+function inlineImgSrc(p, img) {
+  if (!img || !img.file) return '';
+  if (img.file.startsWith('images/')) return img.file;
+  const gallery = GALLERIES[p.id];
+  const slug = gallery && gallery.slug ? gallery.slug : '';
+  return `images/${p.id}-${slug}/${img.file}`;
+}
+
+// Inline thumbnail — small clickable image that opens the lightbox.
+function inlineThumb(p, img) {
+  if (!img || !img.file) return '';
+  const src = inlineImgSrc(p, img);
+  const cap = (img.caption || '').replace(/"/g, '&quot;');
+  const cred = (img.credit || '').replace(/"/g, '&quot;');
+  return `<button class="inline-thumb" data-src="${src}" data-caption="${cap}" data-credit="${cred}" aria-label="${cap || 'photo'}"><img src="${src}" alt="${cap}" loading="lazy"></button>`;
+}
+
+// Lightbox: opened when user clicks any `.inline-thumb` in the proposal card.
+function openLightbox(src, caption, credit) {
+  const lb = document.getElementById('lightbox');
+  const img = document.getElementById('lightbox-img');
+  const cap = document.getElementById('lightbox-caption');
+  const cred = document.getElementById('lightbox-credit');
+  if (!lb || !img) return;
+  img.src = src;
+  img.alt = caption || '';
+  cap.textContent = caption || '';
+  cred.textContent = credit || '';
+  lb.classList.add('open');
+  lb.setAttribute('aria-hidden', 'false');
+}
+function closeLightbox() {
+  const lb = document.getElementById('lightbox');
+  if (!lb) return;
+  lb.classList.remove('open');
+  lb.setAttribute('aria-hidden', 'true');
+  const img = document.getElementById('lightbox-img');
+  if (img) img.src = '';
+}
+// Event delegation for any `.inline-thumb` click inside the document.
+document.addEventListener('click', (e) => {
+  const thumb = e.target.closest && e.target.closest('.inline-thumb');
+  if (thumb) {
+    e.preventDefault();
+    openLightbox(thumb.getAttribute('data-src'), thumb.getAttribute('data-caption'), thumb.getAttribute('data-credit'));
+    return;
+  }
+  const lb = document.getElementById('lightbox');
+  if (lb && lb.classList.contains('open') && (e.target === lb || e.target.id === 'lightbox-img')) {
+    closeLightbox();
+  }
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeLightbox();
+});
+
+// Gallery: click a thumbnail → swap it into the hero position.
+// Keeps the thumb strip clickable; the current hero thumb gets a "selected"
+// ring so the gallery stays coherent.
+function wireGallerySwap() {
+  const heroImg = document.getElementById('gallery-hero-img');
+  const heroCredit = document.getElementById('gallery-hero-credit');
+  if (!heroImg) return;
+
+  const thumbs = document.querySelectorAll('.gallery-thumb');
+  thumbs.forEach(thumb => {
+    thumb.addEventListener('click', () => {
+      const newSrc = thumb.getAttribute('data-src');
+      const newCaption = thumb.getAttribute('data-caption') || '';
+      const newCredit = thumb.getAttribute('data-credit') || '';
+
+      // Swap hero <-> thumb (preserves the full gallery — user can click back).
+      const currentSrc = heroImg.getAttribute('src');
+      const currentCaption = heroImg.getAttribute('data-caption') || heroImg.getAttribute('alt') || '';
+      const currentCredit = heroCredit ? heroCredit.textContent : '';
+
+      const thumbImg = thumb.querySelector('img');
+      thumb.setAttribute('data-src', currentSrc);
+      thumb.setAttribute('data-caption', currentCaption);
+      thumb.setAttribute('data-credit', currentCredit);
+      if (thumbImg) { thumbImg.setAttribute('src', currentSrc); thumbImg.setAttribute('alt', currentCaption); }
+
+      heroImg.setAttribute('src', newSrc);
+      heroImg.setAttribute('alt', newCaption);
+      heroImg.setAttribute('data-caption', newCaption);
+      if (heroCredit) heroCredit.textContent = newCredit;
+    });
+  });
+}
+
+function showProposal() {
+  const results = window._results;
+  const top = results[0].proposal;
+
+  document.getElementById('proposal-section').innerHTML = renderProposalCard(top, true);
+  wireGallerySwap();
+
+  // Runners-up
+  const runnersContainer = document.getElementById('runners-list');
+  runnersContainer.innerHTML = '';
+  const runners = results.slice(1, 3);
+  if (runners.length === 0) {
+    document.getElementById('runners-up').style.display = 'none';
+  } else {
+    document.getElementById('runners-up').style.display = 'block';
+    document.getElementById('runners-toggle').textContent = 'See Other Options (' + runners.length + ')';
+    runners.forEach(r => {
+      runnersContainer.innerHTML += renderRunnerCard(r.proposal);
+    });
+  }
+
+  // Combo trips: show combos that include the top result
+  const comboSection = document.getElementById('combo-section');
+  const comboList = document.getElementById('combo-list');
+  const relevantCombos = COMBO_TRIPS.filter(c => c.ids.includes(top.id));
+  if (relevantCombos.length > 0) {
+    comboSection.style.display = 'block';
+    comboList.innerHTML = relevantCombos.map(c => {
+      const otherIds = c.ids.filter(id => id !== top.id);
+      const otherNames = otherIds.map(id => PROPOSALS.find(p => p.id === id)?.name || '').join(' + ');
+      return `<div class="combo-card"><h5>${c.theme}</h5><p>Combine with <strong>${otherNames}</strong> — ${c.description}</p></div>`;
+    }).join('');
+  } else {
+    comboSection.style.display = 'none';
+  }
+
+  setCat('dreamy');
+  showScreen('proposal-screen');
+}
+
+// ============================================================
+// USER TAG BUNDLE & HIGHLIGHT AUTO-TAGGING
+// ============================================================
+// The "spotlight" feature: highlights whose semantic tags overlap the user's
+// answer-derived tag bundle get bolder treatment. Kept narrow (Q3b+Q3c+Q6)
+// on purpose so ~1-2 highlights per proposal get spotlit, not all four.
+function computeUserTagBundle() {
+  const bundle = new Set();
+  // Q3b sub-vibe (broad but still purposeful)
+  (Q3B_VIBE_MAP[answers["3b"]] || []).forEach(t => bundle.add(t));
+  // Q3c micro-vibe (specific — the main driver)
+  (Q3C_VIBE_MAP[answers["3c"]] || []).forEach(t => bundle.add(t));
+  // Q6 hidden-gems intent
+  if (answers[6] === 'easter') bundle.add('hidden');
+  return bundle;
+}
+
+function computeHighlightTags(text) {
+  const t = text.toLowerCase();
+  const tags = new Set();
+  if (/(ruin|fortress|burg\b|schloss|festung|veste|stiftskirche|gravensteen|kehlstein)/.test(t)) { tags.add('hilltop-ruins'); tags.add('fortress'); tags.add('ruins'); }
+  if (/(hilltop|on the hill|overlooking|schlossberg|toompea|montjuic|on a hill)/.test(t)) tags.add('hilltop-castle');
+  if (/(trail|hike|trek|ridge|summit|peak|km\)|malerweg|tour du|bastei|brocken|schauinsland|8 km|5 km|4 km|3 km)/.test(t)) tags.add('trekking');
+  if (/(steep|climb|ladder|stairway|hiking-heavy)/.test(t)) tags.add('hiking-heavy');
+  if (/(marzipan)/.test(t)) { tags.add('marzipan'); tags.add('sweets'); tags.add('pastries'); }
+  if (/(chocolat|ganache|goldhelm|niederegger|kalev)/.test(t)) { tags.add('chocolate'); tags.add('sweets'); }
+  if (/(pastry|patis|cornetto|nata|rogal|bougatsa|praline|kanel|baumkuchen|schwarzw|torte|cake|gingerbread|lebkuchen|wafer)/.test(t)) { tags.add('pastries'); tags.add('sweets'); }
+  if (/(coffee|espresso|roaster|barista|cafe|caf\u00e9|kaffeehaus)/.test(t)) { tags.add('coffee'); tags.add('roastery'); }
+  if (/(ramen|sushi|japanese|washoku|tonkotsu)/.test(t)) tags.add('ramen');
+  if (/(museum|gallery|library|panorama|altarpiece|chagall|bauhaus|van eyck|goethe|schiller|wartburg)/.test(t)) tags.add('museums');
+  if (/(goethe|schiller|h\u00f6lderlin|literary|bookshop|library)/.test(t)) tags.add('literary');
+  if (/(art|painting|baroque|resid|fresco|\u00b0 painting)/.test(t)) tags.add('art');
+  if (/(unesco|memorial|historic|medieval)/.test(t)) tags.add('culture');
+  if (/(buchenwald|memorial|wwii|world war|jewish|holocaust|nazi)/.test(t)) { tags.add('memorial'); tags.add('wwii'); tags.add('history_deep'); }
+  if (/(byzantin|roman|ancient|plague column)/.test(t)) tags.add('ancient');
+  if (/(cliff|chalk|steilufer|bastei.*194)/.test(t)) { tags.add('cliffs'); tags.add('cliff-walk'); }
+  if (/(lake|see\b|k\u00f6nigssee|reichenau|mainau)/.test(t)) { tags.add('lakeside'); tags.add('gardens'); }
+  if (/(beach|bay|coast|hanseatic|baltic|sea\b|harbor|hafen|fjord|pier|sopot|binz)/.test(t)) { tags.add('coastal'); tags.add('maritime'); }
+  if (/(cathedral|church|kirche|dom\b|basilica|synagog|monaster|cloister|konigskapelle|reichenau)/.test(t)) { tags.add('cathedrals'); tags.add('sacred'); }
+  if (/(bridge|br\u00fccke|gate|tower|turm|wall|stone bridge|philosophenweg|steinerne)/.test(t)) tags.add('architecture');
+  if (/(bath|thermal|spa|sauna|hot spring|colonnade|becherovka|mineral)/.test(t)) { tags.add('spa'); tags.add('thermal'); tags.add('indulgence'); }
+  if (/(wine|bouchon|vineyard|tasting|cellar|port wine|wein)/.test(t)) tags.add('wine');
+  if (/(beer|brau|schlenker|rauchbier|pilsner|bock)/.test(t)) tags.add('beer');
+  if (/(market|markt|halle|mercato)/.test(t)) tags.add('markets');
+  if (/(gondola|cable car|schauinsland|seilbahn|jenner|eagle|kehlstein)/.test(t)) { tags.add('viewpoint'); tags.add('cable-car'); }
+  if (/(garden|flower|mainau|planten)/.test(t)) tags.add('gardens');
+  if (/(steam train|rasender|brockenbahn)/.test(t)) tags.add('steam-train');
+  if (/(cozy|cobblestone|half-timber|fachwerk)/.test(t)) tags.add('cozy');
+  if (/(boat|punt|ferry|stocherkahn)/.test(t)) tags.add('boat');
+  if (/(fountain)/.test(t)) tags.add('fountains');
+  if (/(street art|mural|studio)/.test(t)) tags.add('street-art');
+  return tags;
+}
+
+function isSpotlit(highlightText, userBundle) {
+  if (userBundle.size === 0) return false;
+  const tags = computeHighlightTags(highlightText);
+  for (const t of tags) if (userBundle.has(t)) return true;
+  return false;
+}
+
+// ============================================================
+// RENDER CARDS
+// ============================================================
+function renderProposalCard(p, isMain) {
+  const userBundle = computeUserTagBundle();
+
+  let budgetRows = p.budgetTable.map((row, i) => {
+    const isLast = i === p.budgetTable.length - 1;
+    return `<tr${isLast ? ' style="font-weight:700"' : ''}><td>${row[0]}</td><td>${row[1]}</td></tr>`;
+  }).join('');
+
+  // Highlights: each entry may have { hidden: true } flag. When user picked
+  // "hidden gems" in Q6, hidden ones sort to the top and get a distinct chip.
+  // Otherwise, classic highlights sort first and hidden entries render softer.
+  const preferHidden = answers[6] === 'easter';
+  const sortedHighlights = [...p.highlights].sort((a, b) => {
+    const ah = a.hidden ? 1 : 0;
+    const bh = b.hidden ? 1 : 0;
+    return preferHidden ? (bh - ah) : (ah - bh);
+  });
+
+  let highlightItems = sortedHighlights.map(h => {
+    const spot = isSpotlit(h.text, userBundle);
+    const title = h.text.split(' \u2014 ')[0];
+    const rest = h.text.includes(' \u2014 ') ? ' \u2014 ' + h.text.split(' \u2014 ').slice(1).join(' \u2014 ') : '';
+
+    const isHidden = !!h.hidden;
+    const hiddenActive = isHidden && preferHidden;      // the featured case
+    const hiddenDormant = isHidden && !preferHidden;    // kept in list, softer
+
+    let chip = '';
+    let cls = '';
+    if (hiddenActive) { chip = '<span class="hidden-chip">\ud83d\udddd hidden gem</span>'; cls = 'spotlit hidden-active'; }
+    else if (spot) { chip = '<span class="spotlight-chip">for you</span>'; cls = 'spotlit'; }
+    else if (hiddenDormant) { cls = 'hidden-dormant'; }
+
+    const thumb = inlineThumb(p, h.img);
+    return `<li${cls ? ` class="${cls}"` : ''}>${h.icon} ${chip}<strong>${title}</strong>${rest}${thumb}</li>`;
+  }).join('');
+
+  // Gallery: hero + 2-3 supporting. GALLERIES entry has { slug, photos: [...] }.
+  const gallery = GALLERIES[p.id];
+  let galleryHtml = '';
+  if (gallery && gallery.photos && gallery.photos.length > 0) {
+    const basePath = `images/${p.id}-${gallery.slug}`;
+    const hero = gallery.photos[0];
+    const supporting = gallery.photos.slice(1);
+    let thumbsHtml = '';
+    if (supporting.length > 0) {
+      thumbsHtml = `<div class="gallery-thumbs">${supporting.map((g, i) =>
+        `<button class="gallery-thumb" data-src="${basePath}/${g.file}" data-caption="${(g.caption||'').replace(/"/g,'&quot;')}" data-credit="${(g.credit||'').replace(/"/g,'&quot;')}" aria-label="${g.caption||'photo'}"><img src="${basePath}/${g.file}" alt="${g.caption||''}" loading="lazy"></button>`
+      ).join('')}</div>`;
+    }
+    galleryHtml = `
+      <figure class="gallery-hero">
+        <img id="gallery-hero-img" src="${basePath}/${hero.file}" alt="${hero.caption||p.name}" data-caption="${(hero.caption||'').replace(/"/g,'&quot;')}" loading="eager">
+        <figcaption>
+          <span class="gallery-country">${p.country}</span>
+          <span class="gallery-credit" id="gallery-hero-credit">${hero.credit || ''}</span>
+        </figcaption>
+      </figure>
+      ${thumbsHtml}
+    `;
+  }
+
+  // Enrichment: sweet tour (surfaced if user leans sweet)
+  const sweet = SWEET_TOURS[p.id];
+  let sweetHtml = '';
+  if (sweet && (userBundle.has('sweets') || userBundle.has('chocolate') || userBundle.has('pastries') || userBundle.has('cakes'))) {
+    sweetHtml = `
+      <div class="section-title">\ud83c\udf6c Sweet Tour Pick</div>
+      <div class="sweet-tour-card">
+        <strong>${sweet.name}</strong>
+        <p>${sweet.description}</p>
+        <div class="sweet-tour-meta"><span>\u23f1\ufe0f ${sweet.duration}</span><span>${sweet.bookingNote}</span></div>
+        ${inlineThumb(p, sweet.img)}
+      </div>`;
+  }
+
+  // Enrichment: ruins / hilltop castle (surfaced if user leans ruins/hilltop)
+  const ruin = RUINS_AND_CASTLES[p.id];
+  let ruinHtml = '';
+  if (ruin && (userBundle.has('hilltop-ruins') || userBundle.has('hilltop-castle') || userBundle.has('fortress') || userBundle.has('ruins'))) {
+    ruinHtml = `
+      <div class="section-title">\ud83c\udff0 Ruin / Fortress Pick</div>
+      <div class="ruin-card">
+        <strong>${ruin.name}</strong> <span class="ruin-type">(${ruin.type})</span>
+        <p>${ruin.description}</p>
+        ${inlineThumb(p, ruin.img)}
+      </div>`;
+  }
+
+  // Enrichment: weird cocktail bars (surfaced when user picks cocktail Q3b/Q3c)
+  const bars = (typeof WEIRD_BARS !== 'undefined' && WEIRD_BARS[p.id]) || [];
+  let barsHtml = '';
+  if (bars.length && (userBundle.has('cocktails') || userBundle.has('weird-bars') || userBundle.has('mixology'))) {
+    const items = bars.map(b => `
+      <div class="bar-item">
+        <div class="bar-name">\ud83c\udf78 ${b.name}${b.address ? ` <span class="bar-addr">${b.address}</span>` : ''}</div>
+        <div class="bar-desc">${b.description}</div>
+      </div>`).join('');
+    barsHtml = `
+      <div class="section-title">Weird Bars Pick${bars.length > 1 ? 's' : ''}</div>
+      <div class="bars-card">${items}</div>`;
+  }
+
+  let vibeBadges = p.vibeTags.map(t => `<span class="vibe-tag">${t}</span>`).join('');
+
+  // Enrichment: surprise fact
+  const surprise = SURPRISE_FACTS[p.id];
+  let surpriseHtml = '';
+  if (surprise) {
+    surpriseHtml = `
+      <div class="surprise-card">
+        <div class="surprise-label">Did you know?</div>
+        ${surprise}
+      </div>`;
+  }
+
+  // Secondary enrichments render as plain prose sub-sections (icon + italic label + body),
+  // not boxed cards — the reviewer flagged too-many-look-alike cards as "flat density".
+
+  // Coffee (secondary)
+  const coffee = VERIFIED_COFFEE[p.id];
+  let coffeeHtml = '';
+  if (coffee) {
+    const addr = coffee.address ? ` <em>(${coffee.address})</em>` : '';
+    const note = coffee.note ? ` — <em>${coffee.note}</em>` : '';
+    coffeeHtml = `<p class="subsection"><span class="subsection-label">\u2615 Coffee</span> <strong>${coffee.name}</strong>${addr} — ${coffee.order}${note}${inlineThumb(p, coffee.img)}</p>`;
+  }
+
+  // Pastry (secondary; always has data in p.pastry)
+  const pastryV = VERIFIED_PASTRY[p.id];
+  let pastryHtml = '';
+  if (pastryV) {
+    const addr = pastryV.address ? ` <em>(${pastryV.address})</em>` : '';
+    pastryHtml = `<p class="subsection"><span class="subsection-label">\ud83c\udf70 Pastry & Sweets</span> <strong>${pastryV.name}</strong>${addr} — ${pastryV.item}${inlineThumb(p, pastryV.img)}<br><span class="subsection-detail">${p.pastry}</span></p>`;
+  } else if (p.pastry) {
+    pastryHtml = `<p class="subsection"><span class="subsection-label">\ud83c\udf70 Pastry & Sweets</span> ${p.pastry}</p>`;
+  }
+
+  // Japanese (secondary) — suppress entirely when the note says "None..." and there's no verified venue
+  const jpn = VERIFIED_JAPANESE[p.id];
+  let japaneseHtml = '';
+  const japaneseNoneText = p.japanese && /^none\b/i.test(p.japanese.trim());
+  if (jpn) {
+    const addr = jpn.address ? ` <em>(${jpn.address})</em>` : '';
+    const note = jpn.note ? ` — <em>${jpn.note}</em>` : '';
+    japaneseHtml = `<p class="subsection"><span class="subsection-label">\ud83c\udf5c Japanese</span> <strong>${jpn.name}</strong>${addr} — ${jpn.order}${note}${inlineThumb(p, jpn.img)}</p>`;
+  } else if (p.japanese && !japaneseNoneText) {
+    japaneseHtml = `<p class="subsection"><span class="subsection-label">\ud83c\udf5c Japanese</span> ${p.japanese}</p>`;
+  }
+
+  // Where to Stay — up to 3 clearly-labelled options. Each can optionally
+  // carry an img + inline thumb. Base pick (p.hotel) is always shown; the
+  // other two (treat / smart) surface when data exists.
+  const hotels = VERIFIED_HOTELS[p.id] || {};
+  const hotelRows = [];
+  // Base pick (always present)
+  hotelRows.push({ tier: 'Base pick', tierClass: 'base', text: p.hotel, img: hotels.baseImg });
+  // Treat yourself (luxury upgrade) — value can be string or object
+  if (hotels.treat) {
+    const treat = typeof hotels.treat === 'object' ? hotels.treat : { text: hotels.treat };
+    hotelRows.push({ tier: 'Treat yourself', tierClass: 'treat', text: treat.text, img: treat.img });
+  }
+  // Smart value (budget option)
+  if (hotels.smart) {
+    const smart = typeof hotels.smart === 'object' ? hotels.smart : { text: hotels.smart };
+    hotelRows.push({ tier: 'Smart value', tierClass: 'smart', text: smart.text, img: smart.img });
+  }
+  const hotelHtml = `
+    <div class="hotels-stack">
+      ${hotelRows.map(h => `
+        <div class="hotel-row hotel-${h.tierClass}">
+          <div class="hotel-tier">${h.tier}</div>
+          <div class="hotel-body">${h.text}${inlineThumb(p, h.img)}</div>
+        </div>
+      `).join('')}
+    </div>`;
+
+  // Best time + 2026 pick merged into one unit (the reviewer flagged two
+  // stacked boxes as "forgot to delete one"). 2026 is an inset.
+  const weekend = BEST_WEEKENDS_2026[p.id];
+  const bestTimeHtml = `
+    <div class="best-time">
+      <p class="best-time-main">${p.bestTime}</p>
+      ${weekend ? `<div class="best-time-2026"><span class="best-time-year">${weekend.dates}, 2026</span> — ${weekend.why}</div>` : ''}
+    </div>`;
+
+  // Enrichment: itinerary
+  const itin = ITINERARIES[p.id];
+  let itineraryHtml = '';
+  if (itin) {
+    let daysHtml = itin.days.map(day => {
+      let blocksHtml = day.blocks.map(b => `
+        <div class="itinerary-block">
+          <span class="itinerary-time">${b.time}</span>
+          <span>${b.plan}</span>
+          <span class="itinerary-note">${b.note}</span>
+        </div>
+      `).join('');
+      return `<div class="itinerary-day"><h5>${day.label}</h5>${blocksHtml}</div>`;
+    }).join('');
+
+    itineraryHtml = `
+      <div class="itinerary-section">
+        <div class="section-title">Sample Itinerary</div>
+        <button class="itinerary-toggle" onclick="this.nextElementSibling.classList.toggle('open'); this.textContent = this.nextElementSibling.classList.contains('open') ? 'Hide Itinerary' : 'Show Day-by-Day Plan';">Show Day-by-Day Plan</button>
+        <div class="itinerary-content">${daysHtml}</div>
+      </div>`;
+  }
+
+  // Safety net (V2-C): when Fede was flexible on the primary vibe, the
+  // feasibility guarantee doesn't apply. Flag this honestly instead of
+  // pretending the destination is a strong match.
+  const flexibleVibe = answers[3] === "_skip";
+  const flexibleNote = flexibleVibe
+    ? `<div class="flexible-note">You said you were flexible on vibe \u2014 this is our best overall pick from your constraints, not a strong vibe match.</div>`
+    : '';
+
+  return `
+    <div class="proposal-card">
+      ${galleryHtml}
+      <h3>${p.name}</h3>
+      <p class="proposal-country">${p.country}</p>
+      ${flexibleNote}
+      ${surpriseHtml}
+      <p class="pitch">${p.pitch}</p>
+
+      <div class="section-title">How to Get There</div>
+      <div class="transport">${p.transport}</div>
+
+      <div class="section-title">Must-Do Highlights</div>
+      <ul class="highlight-list">${highlightItems}</ul>
+
+      ${ruinHtml}
+      ${sweetHtml}
+      ${barsHtml}
+
+      <div class="section-title">Where to Stay</div>
+      ${hotelHtml}
+
+      ${(coffeeHtml || pastryHtml || japaneseHtml) ? `
+        <div class="section-title">Tastes on the Ground</div>
+        <div class="subsections">
+          ${coffeeHtml}
+          ${pastryHtml}
+          ${japaneseHtml}
+        </div>
+      ` : ''}
+
+      <div class="section-title">Best Time to Go</div>
+      ${bestTimeHtml}
+
+      <div class="section-title">Budget Estimate</div>
+      <table class="budget-table">${budgetRows}</table>
+
+      <div class="vibe-tags">${vibeBadges}</div>
+      ${itineraryHtml}
+    </div>
+  `;
+}
+
+function renderRunnerCard(p) {
+  let vibeBadges = p.vibeTags.map(t => `<span class="vibe-tag">${t}</span>`).join('');
+  const weekend = BEST_WEEKENDS_2026[p.id];
+  const surprise = SURPRISE_FACTS[p.id];
+  const coffee = VERIFIED_COFFEE[p.id];
+  const gallery = GALLERIES[p.id];
+  let thumbHtml = '';
+  if (gallery && gallery.photos && gallery.photos.length > 0) {
+    const basePath = `images/${p.id}-${gallery.slug}`;
+    thumbHtml = `<figure class="runner-thumb"><img src="${basePath}/${gallery.photos[0].file}" alt="${p.name}" loading="lazy"></figure>`;
+  }
+  let extras = '';
+  if (weekend) extras += `<div style="margin-top:0.3rem;font-size:0.9rem;"><strong>2026 pick:</strong> ${weekend.dates} — ${weekend.why}</div>`;
+  if (coffee) extras += `<div style="margin-top:0.3rem;font-size:0.9rem;">\u2615 <strong>${coffee.name}</strong>${coffee.address ? ' (' + coffee.address + ')' : ''}</div>`;
+  if (surprise) extras += `<div style="margin-top:0.4rem;font-size:0.85rem;color:var(--accent);font-style:italic;">"${surprise.length > 120 ? surprise.slice(0, 120) + '...' : surprise}"</div>`;
+  return `
+    <div class="runner-card">
+      ${thumbHtml}
+      <div class="runner-body">
+        <h4>${p.name} <span class="runner-country">${p.country}</span></h4>
+        <p class="pitch">${p.pitch}</p>
+        <div class="transport">${p.transport}</div>
+        <div style="margin-top:0.5rem;font-size:0.95rem;"><strong>Stay:</strong> ${p.hotel}</div>
+        <div style="margin-top:0.3rem;font-size:0.95rem;"><strong>Best time:</strong> ${p.bestTime}</div>
+        ${extras}
+        <div class="vibe-tags" style="margin-top:0.6rem;">${vibeBadges}</div>
+      </div>
+    </div>
+  `;
+}
+
+// ============================================================
+// RUNNERS TOGGLE
+// ============================================================
+function toggleRunners() {
+  const list = document.getElementById('runners-list');
+  const btn = document.getElementById('runners-toggle');
+  list.classList.toggle('open');
+  btn.textContent = list.classList.contains('open') ? 'Hide Other Options' : 'See Other Options';
+}
+
+// ============================================================
+// RESTART
+// ============================================================
+function restart() {
+  answers = {};
+  currentQ = 0;
+  document.getElementById('progressBar').style.width = '0%';
+  document.getElementById('runners-list').classList.remove('open');
+  setCat('idle');
+  showScreen('welcome');
+}
+
+// ============================================================
+// INIT
+// ============================================================
+setCat('idle');
+</script>
+</body>
+</html>
