@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#FAF6EE">
+<title>Scout — Búsqueda de los Tesoros</title>
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #FAF6EE;
+  --paper-2: #F3ECDC;
+  --ink: #2A2520;
+  --ink-soft: #3D3631;
+  --accent: #C58A3A;
+  --accent-deep: #8B5C18;
+  --muted: #7A6F60;
+  --line: rgba(42,37,32,0.10);
+  --success: #5A7A4F;
+  --warn: #B44632;
+  --shadow: 0 1px 2px rgba(42,37,32,0.04), 0 6px 18px rgba(42,37,32,0.06);
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body {
+  margin: 0; background: var(--paper); color: var(--ink);
+  font: 16px/1.55 Inter, system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+body { padding-bottom: 96px; }
+h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 500; letter-spacing: 0.005em; }
+
+header.hero {
+  padding: 24px 18px 16px;
+  padding-top: max(env(safe-area-inset-top), 16px);
+  background: linear-gradient(180deg, var(--paper-2) 0%, var(--paper) 100%);
+  border-bottom: 1px solid var(--line);
+}
+header.hero h1 { margin: 0 0 4px; font-size: 1.65rem; line-height: 1.1; }
+header.hero .sub { font-style: italic; color: var(--muted); margin: 0; font-family: 'Fraunces', serif; }
+
+.toolbar {
+  padding: 10px 18px;
+  background: rgba(250,246,238,0.95);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line);
+  display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+  font-size: 0.9rem;
+  position: sticky; top: 0; z-index: 5;
+}
+.toolbar .summary { font-family: 'Fraunces', serif; flex: 1; min-width: 0; }
+.toolbar .summary b { color: var(--accent); font-weight: 500; }
+.toolbar button {
+  font: inherit; font-size: 0.85rem; font-weight: 500;
+  padding: 7px 12px; border-radius: 8px;
+  border: 1px solid var(--line);
+  background: transparent; color: var(--ink);
+  cursor: pointer; min-height: 36px;
+}
+.toolbar button:hover { background: rgba(42,37,32,0.06); }
+.toolbar .gps {
+  font-size: 0.78rem; color: var(--muted);
+  padding: 4px 9px; border-radius: 99px;
+  background: rgba(42,37,32,0.04);
+  white-space: nowrap;
+}
+.toolbar .gps.on { color: var(--success); background: rgba(90,122,79,0.12); }
+.toolbar .gps.err { color: var(--warn); background: rgba(180,70,50,0.10); }
+
+main { padding: 14px 14px 0; max-width: 760px; margin: 0 auto; }
+
+.stop {
+  background: #FFFCF5;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  margin-bottom: 14px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.stop[data-status="ok"] { border-color: var(--success); }
+.stop[data-status="fix"] { border-color: var(--warn); }
+
+.stop-head {
+  padding: 14px 16px;
+  display: flex; gap: 14px; align-items: flex-start;
+  cursor: pointer;
+  user-select: none; -webkit-user-select: none;
+}
+.stop-head:hover { background: rgba(42,37,32,0.02); }
+.stop-num {
+  font-family: 'Fraunces', serif; font-weight: 600; font-size: 1.1rem;
+  color: var(--accent); flex-shrink: 0; min-width: 26px;
+}
+.stop-meta { flex: 1; min-width: 0; }
+.stop-meta h2 { margin: 0 0 3px; font-size: 1.05rem; line-height: 1.2; }
+.stop-meta .area {
+  font-size: 0.75rem; color: var(--muted); letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin: 0;
+}
+.stop-status-icon {
+  flex-shrink: 0; font-size: 1.15rem; line-height: 1.2;
+  font-family: 'Fraunces', serif;
+}
+.stop[data-status="ok"] .stop-status-icon { color: var(--success); }
+.stop[data-status="fix"] .stop-status-icon { color: var(--warn); }
+.stop[data-status="pending"] .stop-status-icon { color: var(--muted); }
+
+.stop-body {
+  padding: 0 16px 16px;
+  display: none;
+  border-top: 1px solid var(--line);
+}
+.stop.is-open .stop-body { display: block; }
+
+.stop-section {
+  padding: 14px 0 4px;
+  border-top: 1px solid var(--line);
+}
+.stop-section:first-child { border-top: none; padding-top: 14px; }
+.stop-section h3 {
+  font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.16em;
+  color: var(--muted); margin: 0 0 10px; font-family: 'Inter', sans-serif; font-weight: 600;
+}
+
+dl { margin: 0; }
+.info-row { display: flex; gap: 12px; margin: 5px 0; font-size: 0.92rem; }
+.info-row dt { color: var(--muted); min-width: 84px; flex-shrink: 0; }
+.info-row dd { margin: 0; flex: 1; min-width: 0; word-break: break-word; }
+.info-row code {
+  background: rgba(197,138,58,0.14); padding: 1px 6px;
+  border-radius: 4px; font-size: 0.86rem;
+  font-family: 'Inter', monospace;
+}
+
+.clue-text {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  color: var(--ink-soft);
+  padding: 10px 14px;
+  background: rgba(197,138,58,0.06);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 6px 6px 0;
+  margin: 8px 0 0;
+}
+
+.test-pwd { display: flex; gap: 8px; margin: 10px 0 0; }
+.test-pwd input {
+  flex: 1; min-width: 0; font: inherit; font-size: 16px;
+  padding: 9px 12px; border-radius: 8px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,0.7);
+}
+.test-pwd input:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: transparent; }
+.test-pwd button {
+  font: inherit; font-size: 0.88rem; font-weight: 500;
+  padding: 9px 14px; border-radius: 8px;
+  border: 1px solid var(--accent); background: var(--accent); color: var(--paper);
+  cursor: pointer; flex-shrink: 0; min-height: 40px;
+}
+
+.test-result {
+  margin-top: 10px; padding: 8px 12px;
+  border-radius: 6px; font-size: 0.88rem;
+  min-height: 1.2em;
+}
+.test-result:empty { display: none; }
+.test-result.ok { background: rgba(90,122,79,0.12); color: var(--success); }
+.test-result.fail { background: rgba(180,70,50,0.10); color: var(--warn); }
+.test-result.proc { background: rgba(197,138,58,0.10); color: var(--accent-deep); }
+.test-result code { background: rgba(255,255,255,0.7); padding: 1px 5px; border-radius: 3px; font-size: 0.84rem; }
+
+.face-test { margin-top: 4px; }
+.face-test label.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 9px 14px; border-radius: 8px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,0.7);
+  cursor: pointer; font-size: 0.88rem; font-weight: 500;
+  min-height: 40px;
+}
+.face-test label.btn:hover { background: rgba(42,37,32,0.04); }
+.face-test .preview {
+  margin-top: 10px; max-height: 240px; border-radius: 8px;
+  overflow: hidden; border: 1px solid var(--line);
+}
+.face-test .preview:empty { display: none; }
+.face-test .preview img { width: 100%; max-height: 240px; object-fit: cover; display: block; }
+.face-test + .face-test { margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--line); }
+
+.reveal-toggle {
+  background: none; border: none; cursor: pointer;
+  color: var(--muted); font-size: 0.85rem; text-decoration: underline;
+  text-underline-offset: 3px; padding: 4px 0;
+  font-family: 'Fraunces', serif; font-style: italic;
+}
+.reveal-toggle:hover { color: var(--ink-soft); }
+.reveal-content { display: none; margin-top: 8px; }
+.reveal-content.is-shown { display: block; }
+
+.status-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.status-row label {
+  flex: 1; min-width: 110px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 9px 10px; border-radius: 8px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,0.5);
+  cursor: pointer; font-size: 0.88rem;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  user-select: none; -webkit-user-select: none;
+}
+.status-row input { display: none; }
+.status-row label.is-active[data-val="ok"] {
+  background: rgba(90,122,79,0.15); border-color: var(--success); color: var(--success);
+}
+.status-row label.is-active[data-val="fix"] {
+  background: rgba(180,70,50,0.10); border-color: var(--warn); color: var(--warn);
+}
+.status-row label.is-active[data-val="pending"] {
+  background: rgba(42,37,32,0.06); border-color: var(--ink-soft); color: var(--ink-soft);
+}
+
+.notes-input {
+  width: 100%;
+  font: inherit; font-size: 0.92rem;
+  padding: 10px 12px; border-radius: 8px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,0.7);
+  resize: vertical; min-height: 80px;
+  font-family: 'Inter', sans-serif;
+}
+.notes-input:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: transparent; }
+
+.stop-actions { display: flex; gap: 14px; flex-wrap: wrap; font-size: 0.86rem; }
+.stop-actions a {
+  color: var(--accent-deep); text-decoration: none;
+  border-bottom: 1px solid rgba(197,138,58,0.4);
+  padding-bottom: 1px;
+}
+.stop-actions a:hover { border-bottom-color: var(--accent-deep); }
+
+.muted { color: var(--muted); }
+
+.summary-bar {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 20;
+  background: rgba(42,37,32,0.96);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  color: var(--paper); padding: 12px 18px;
+  padding-bottom: max(env(safe-area-inset-bottom), 12px);
+  display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+  box-shadow: 0 -4px 16px rgba(0,0,0,0.22);
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.summary-bar .stat { font-family: 'Fraunces', serif; }
+.summary-bar .stat b { color: var(--accent); font-weight: 500; font-size: 1.15rem; font-variant-numeric: tabular-nums; }
+.summary-bar .stat .lbl { color: rgba(250,246,238,0.7); margin-left: 5px; font-size: 0.84rem; }
+.summary-bar .spacer { flex: 1; }
+.summary-bar button {
+  font: inherit; font-size: 0.82rem; font-weight: 500;
+  padding: 8px 12px; border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.20);
+  background: transparent; color: var(--paper);
+  cursor: pointer; min-height: 36px;
+}
+.summary-bar button:hover { background: rgba(255,255,255,0.08); }
+.summary-bar button.primary { background: var(--accent); border-color: var(--accent); }
+.summary-bar button.primary:hover { background: var(--accent-deep); border-color: var(--accent-deep); }
+
+@media (max-width: 480px) {
+  header.hero { padding: 18px 14px 14px; }
+  header.hero h1 { font-size: 1.35rem; }
+  .toolbar { padding: 8px 14px; gap: 8px; }
+  main { padding: 10px 12px 0; }
+  .stop-head { padding: 12px 14px; }
+  .stop-meta h2 { font-size: 0.98rem; }
+  .stop-body { padding: 0 14px 14px; }
+  .summary-bar { padding: 10px 14px; gap: 8px; }
+  .summary-bar .stat .lbl { display: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <h1>Scout</h1>
+  <p class="sub">Búsqueda de los Tesoros — validación en campo</p>
+</header>
+
+<div class="toolbar">
+  <span class="summary"><b id="okCount">0</b><span class="muted"> / </span><span id="totalCount">0</span> validados</span>
+  <span id="gps" class="gps">GPS off</span>
+  <button id="expandAll">Abrir todo</button>
+</div>
+
+<main id="stops"></main>
+
+<div class="summary-bar">
+  <span class="stat"><b id="okCount2">0</b><span class="lbl">ok</span></span>
+  <span class="stat"><b id="fixCount">0</b><span class="lbl">fix</span></span>
+  <span class="stat"><b id="pendingCount">0</b><span class="lbl">pendiente</span></span>
+  <span class="spacer"></span>
+  <button type="button" id="exportBtn" class="primary">↓ Export JSON</button>
+  <button type="button" id="copyBtn">⎘ Copy</button>
+  <button type="button" id="clearBtn">Clear</button>
+</div>
+
+<script type="module">
+import { HUNT } from '../data.js';
+import { detectFaces, hasSmile, summarize, ensureFaceModels } from '../faces.js';
+
+const STATE_KEY = 'tesoros-scout-v1';
+let state = {};
+try { state = JSON.parse(localStorage.getItem(STATE_KEY) || '{}'); } catch { state = {}; }
+
+function entryFor(id) {
+  if (!state[id]) state[id] = { status: 'pending', notes: '', selfieTest: null, smileTest: null };
+  return state[id];
+}
+function save() {
+  localStorage.setItem(STATE_KEY, JSON.stringify(state));
+  refreshSummary();
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function normalize(s) {
+  return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^\p{L}\p{N}]/gu, '');
+}
+function answerMatches(input, stop) {
+  const candidates = [stop.answer, ...(stop.altAnswers || [])];
+  const n = normalize(input);
+  if (!n) return false;
+  return candidates.some(c => normalize(c) === n);
+}
+function haversineKm(a, b) {
+  const toRad = (d) => d * Math.PI / 180;
+  const R = 6371;
+  const dLat = toRad(b[0] - a[0]);
+  const dLng = toRad(b[1] - a[1]);
+  const x = Math.sin(dLat/2)**2 + Math.cos(toRad(a[0])) * Math.cos(toRad(b[0])) * Math.sin(dLng/2)**2;
+  return 2 * R * Math.asin(Math.sqrt(x));
+}
+function fmtDist(km) {
+  if (km < 0.1) return Math.round(km * 1000) + ' m';
+  if (km < 10) return km.toFixed(2) + ' km';
+  return Math.round(km) + ' km';
+}
+
+let currentPos = null;
+const gpsEl = document.getElementById('gps');
+if ('geolocation' in navigator) {
+  gpsEl.textContent = 'GPS pidiendo permiso…';
+  navigator.geolocation.watchPosition(
+    pos => {
+      currentPos = [pos.coords.latitude, pos.coords.longitude];
+      gpsEl.textContent = `GPS · ±${Math.round(pos.coords.accuracy)}m`;
+      gpsEl.classList.add('on');
+      gpsEl.classList.remove('err');
+      updateAllDistances();
+    },
+    () => { gpsEl.textContent = 'GPS denegado'; gpsEl.classList.add('err'); },
+    { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 }
+  );
+} else {
+  gpsEl.textContent = 'GPS no disponible';
+  gpsEl.classList.add('err');
+}
+
+function updateAllDistances() {
+  document.querySelectorAll('.stop[data-id]').forEach(card => {
+    const id = card.dataset.id;
+    const stop = HUNT.stops.find(s => s.id === id);
+    if (!stop) return;
+    const distEl = card.querySelector('.dist-value');
+    if (distEl) distEl.textContent = currentPos ? fmtDist(haversineKm(currentPos, stop.coord)) : '—';
+  });
+}
+
+function buildCard(stop, idx) {
+  const e = entryFor(stop.id);
+  const num = String(idx + 1).padStart(2, '0');
+  const typeLabel = stop.type === 'taste' ? 'Sabor' : 'Vista';
+  const pwdType = stop.passwordType || 'text';
+
+  const expectedBlock = pwdType === 'photo-smile'
+    ? `<dd>foto-smile · acepta cualquier foto con una sonrisa detectada</dd>`
+    : `<dd><code>${escapeHtml(stop.answer || '')}</code>${stop.altAnswers && stop.altAnswers.length ? ' · alt: ' + stop.altAnswers.map(a => `<code>${escapeHtml(a)}</code>`).join(' ') : ''}</dd>`;
+
+  const card = document.createElement('article');
+  card.className = 'stop';
+  card.dataset.id = stop.id;
+  card.dataset.status = e.status;
+  card.innerHTML = `
+    <header class="stop-head">
+      <span class="stop-num">${num}</span>
+      <div class="stop-meta">
+        <h2>${escapeHtml(stop.name)}</h2>
+        <p class="area">${typeLabel} · ${pwdType} · ${stop.lang}</p>
+      </div>
+      <span class="stop-status-icon">${e.status === 'ok' ? '✓' : (e.status === 'fix' ? '⚠' : '○')}</span>
+    </header>
+    <div class="stop-body">
+      <section class="stop-section">
+        <h3>info</h3>
+        <dl>
+          <div class="info-row"><dt>Coords</dt><dd>${stop.coord[0].toFixed(5)}, ${stop.coord[1].toFixed(5)}</dd></div>
+          <div class="info-row"><dt>Distancia</dt><dd class="dist-value">${currentPos ? fmtDist(haversineKm(currentPos, stop.coord)) : '—'}</dd></div>
+          <div class="info-row"><dt>Círculo</dt><dd>radio ${stop.circle.radius} m · offset [${stop.circle.offset[0]}, ${stop.circle.offset[1]}]</dd></div>
+        </dl>
+        <p class="clue-text">${escapeHtml(stop.clue)}</p>
+      </section>
+
+      <section class="stop-section">
+        <h3>contraseña</h3>
+        <button type="button" class="reveal-toggle">mostrar respuesta esperada</button>
+        <div class="reveal-content">
+          <dl><div class="info-row"><dt>Esperada</dt>${expectedBlock}</div></dl>
+        </div>
+        ${pwdType === 'text' ? `
+          <div class="test-pwd">
+            <input type="text" placeholder="Probar password..." class="pwd-input"
+              autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"/>
+            <button type="button" class="pwd-test-btn">Probar</button>
+          </div>
+          <div class="test-result pwd-result"></div>
+        ` : `
+          <p class="muted" style="margin: 10px 0 0; font-size: 0.88rem">El pwd se valida abajo subiendo una foto con sonrisa.</p>
+        `}
+      </section>
+
+      <section class="stop-section">
+        <h3>${pwdType === 'photo-smile' ? 'tests de cámara · selfie + smile' : 'test de cámara · selfie (≥2 caras)'}</h3>
+        <div class="face-test">
+          <label class="btn">
+            <input type="file" accept="image/*" capture="user" hidden class="selfie-input"/>
+            <span>Probar selfie (≥2 caras)</span>
+          </label>
+          <div class="test-result selfie-result"></div>
+          <div class="preview selfie-preview"></div>
+        </div>
+        ${pwdType === 'photo-smile' ? `
+          <div class="face-test">
+            <label class="btn">
+              <input type="file" accept="image/*" capture="environment" hidden class="smile-input"/>
+              <span>Probar foto sonriente</span>
+            </label>
+            <div class="test-result smile-result"></div>
+            <div class="preview smile-preview"></div>
+          </div>
+        ` : ''}
+      </section>
+
+      <section class="stop-section">
+        <h3>estado</h3>
+        <div class="status-row">
+          <label data-val="pending"><input type="radio" name="status-${escapeHtml(stop.id)}" value="pending"/>○ pendiente</label>
+          <label data-val="ok"><input type="radio" name="status-${escapeHtml(stop.id)}" value="ok"/>✓ validado</label>
+          <label data-val="fix"><input type="radio" name="status-${escapeHtml(stop.id)}" value="fix"/>⚠ necesita fix</label>
+        </div>
+      </section>
+
+      <section class="stop-section">
+        <h3>notas de scout</h3>
+        <textarea class="notes-input" placeholder="lo que viste en el lugar…"></textarea>
+      </section>
+
+      <section class="stop-section">
+        <div class="stop-actions">
+          <a href="https://www.google.com/maps/?q=${stop.coord[0]},${stop.coord[1]}" target="_blank" rel="noopener">→ Google Maps</a>
+          <a href="https://maps.apple.com/?ll=${stop.coord[0]},${stop.coord[1]}&q=${encodeURIComponent(stop.name)}" target="_blank" rel="noopener">→ Apple Maps</a>
+          <a href="https://www.google.com/maps/dir/?api=1&destination=${stop.coord[0]},${stop.coord[1]}" target="_blank" rel="noopener">→ Direcciones</a>
+        </div>
+      </section>
+    </div>
+  `;
+
+  // expand toggle
+  card.querySelector('.stop-head').addEventListener('click', () => {
+    card.classList.toggle('is-open');
+  });
+
+  // reveal answer toggle
+  const revealBtn = card.querySelector('.reveal-toggle');
+  revealBtn.addEventListener('click', () => {
+    const content = card.querySelector('.reveal-content');
+    content.classList.toggle('is-shown');
+    revealBtn.textContent = content.classList.contains('is-shown') ? 'ocultar respuesta' : 'mostrar respuesta esperada';
+  });
+
+  // text pwd test
+  if (pwdType === 'text') {
+    const pwdBtn = card.querySelector('.pwd-test-btn');
+    const pwdInput = card.querySelector('.pwd-input');
+    const pwdResult = card.querySelector('.pwd-result');
+    const tryPwd = () => {
+      const v = pwdInput.value;
+      const ok = answerMatches(v, stop);
+      const norm = normalize(v);
+      const expectedNorm = normalize(stop.answer);
+      pwdResult.className = 'test-result ' + (ok ? 'ok' : 'fail');
+      pwdResult.innerHTML = ok
+        ? `✓ Aceptada · normalizada a <code>${escapeHtml(norm)}</code>`
+        : `✗ No coincide · entraste <code>${escapeHtml(norm) || '(vacío)'}</code> · esperada <code>${escapeHtml(expectedNorm)}</code>`;
+    };
+    pwdBtn.addEventListener('click', tryPwd);
+    pwdInput.addEventListener('keydown', ev => { if (ev.key === 'Enter') { ev.preventDefault(); tryPwd(); } });
+  }
+
+  // selfie test
+  const selfieInput = card.querySelector('.selfie-input');
+  const selfieResult = card.querySelector('.selfie-result');
+  const selfiePreview = card.querySelector('.selfie-preview');
+  selfieInput.addEventListener('change', async ev => {
+    const f = ev.target.files && ev.target.files[0];
+    if (!f) return;
+    selfieResult.className = 'test-result proc';
+    selfieResult.textContent = 'Cargando modelos + analizando…';
+    const url = URL.createObjectURL(f);
+    selfiePreview.innerHTML = `<img src="${url}" alt="">`;
+    try {
+      await ensureFaceModels();
+      const detections = await detectFaces(f);
+      const sum = summarize(detections);
+      const ok = sum.faces >= 2;
+      selfieResult.className = 'test-result ' + (ok ? 'ok' : 'fail');
+      selfieResult.innerHTML = ok
+        ? `✓ ${sum.faces} caras · más feliz: ${(sum.happiest * 100).toFixed(0)}%`
+        : `✗ Solo ${sum.faces} cara${sum.faces === 1 ? '' : 's'} (necesito ≥2)`;
+      e.selfieTest = { faces: sum.faces, happiest: sum.happiest, ok, at: Date.now() };
+      save();
+    } catch (err) {
+      selfieResult.className = 'test-result fail';
+      selfieResult.textContent = '✗ Error: ' + err.message;
+    }
+    ev.target.value = '';
+  });
+
+  // smile test (photo-smile only)
+  if (pwdType === 'photo-smile') {
+    const smileInput = card.querySelector('.smile-input');
+    const smileResult = card.querySelector('.smile-result');
+    const smilePreview = card.querySelector('.smile-preview');
+    smileInput.addEventListener('change', async ev => {
+      const f = ev.target.files && ev.target.files[0];
+      if (!f) return;
+      smileResult.className = 'test-result proc';
+      smileResult.textContent = 'Cargando modelos + analizando…';
+      const url = URL.createObjectURL(f);
+      smilePreview.innerHTML = `<img src="${url}" alt="">`;
+      try {
+        await ensureFaceModels();
+        const detections = await detectFaces(f);
+        const sum = summarize(detections);
+        const ok = hasSmile(detections);
+        smileResult.className = 'test-result ' + (ok ? 'ok' : 'fail');
+        smileResult.innerHTML = ok
+          ? `✓ Sonrisa detectada · ${(sum.happiest * 100).toFixed(0)}%`
+          : sum.faces === 0
+            ? `✗ No detecté ninguna cara`
+            : `✗ Vi ${sum.faces} cara${sum.faces === 1 ? '' : 's'} pero ninguna sonriendo (max ${(sum.happiest * 100).toFixed(0)}%)`;
+        e.smileTest = { faces: sum.faces, happiest: sum.happiest, ok, at: Date.now() };
+        save();
+      } catch (err) {
+        smileResult.className = 'test-result fail';
+        smileResult.textContent = '✗ Error: ' + err.message;
+      }
+      ev.target.value = '';
+    });
+  }
+
+  // status radio
+  card.querySelectorAll(`input[type=radio][name="status-${stop.id}"]`).forEach(r => {
+    if (r.value === e.status) r.checked = true;
+    r.addEventListener('change', () => {
+      e.status = r.value;
+      card.dataset.status = e.status;
+      card.querySelector('.stop-status-icon').textContent = e.status === 'ok' ? '✓' : (e.status === 'fix' ? '⚠' : '○');
+      paintStatusRow(card, e.status);
+      save();
+    });
+  });
+  paintStatusRow(card, e.status);
+
+  // notes
+  const notes = card.querySelector('.notes-input');
+  notes.value = e.notes || '';
+  notes.addEventListener('input', () => {
+    e.notes = notes.value;
+    save();
+  });
+
+  return card;
+}
+
+function paintStatusRow(card, status) {
+  card.querySelectorAll('.status-row label').forEach(lbl => {
+    lbl.classList.toggle('is-active', lbl.dataset.val === status);
+  });
+}
+
+const stopsContainer = document.getElementById('stops');
+HUNT.stops.forEach((stop, i) => {
+  stopsContainer.appendChild(buildCard(stop, i));
+});
+
+function refreshSummary() {
+  const total = HUNT.stops.length;
+  let ok = 0, fix = 0, pending = 0;
+  HUNT.stops.forEach(s => {
+    const e = state[s.id];
+    if (!e || e.status === 'pending') pending++;
+    else if (e.status === 'ok') ok++;
+    else if (e.status === 'fix') fix++;
+  });
+  document.getElementById('totalCount').textContent = total;
+  document.getElementById('okCount').textContent = ok;
+  document.getElementById('okCount2').textContent = ok;
+  document.getElementById('fixCount').textContent = fix;
+  document.getElementById('pendingCount').textContent = pending;
+}
+refreshSummary();
+
+// expand all
+let allOpen = false;
+document.getElementById('expandAll').addEventListener('click', () => {
+  allOpen = !allOpen;
+  document.querySelectorAll('.stop').forEach(c => c.classList.toggle('is-open', allOpen));
+  document.getElementById('expandAll').textContent = allOpen ? 'Cerrar todo' : 'Abrir todo';
+});
+
+// export
+function buildExport() {
+  return {
+    exportedAt: new Date().toISOString(),
+    title: HUNT.title,
+    stops: HUNT.stops.map((s, i) => ({
+      idx: i + 1,
+      id: s.id,
+      name: s.name,
+      coord: s.coord,
+      passwordType: s.passwordType || 'text',
+      ...(state[s.id] || { status: 'pending', notes: '' })
+    }))
+  };
+}
+document.getElementById('exportBtn').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(buildExport(), null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'scout-' + new Date().toISOString().slice(0, 10) + '.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+});
+document.getElementById('copyBtn').addEventListener('click', async ev => {
+  const txt = JSON.stringify(buildExport(), null, 2);
+  const btn = ev.currentTarget;
+  const orig = btn.textContent;
+  try {
+    await navigator.clipboard.writeText(txt);
+    btn.textContent = '✓ Copied';
+  } catch {
+    btn.textContent = '✗ Failed';
+  }
+  setTimeout(() => { btn.textContent = orig; }, 1600);
+});
+document.getElementById('clearBtn').addEventListener('click', () => {
+  if (!confirm('¿Borrar todo el estado de scout?')) return;
+  state = {};
+  localStorage.removeItem(STATE_KEY);
+  location.reload();
+});
+
+// preload face models when idle (cellular friendly)
+const warm = () => ensureFaceModels().catch(() => {});
+if ('requestIdleCallback' in window) requestIdleCallback(warm, { timeout: 5000 });
+else setTimeout(warm, 3000);
+</script>
+
+</body>
+</html>
