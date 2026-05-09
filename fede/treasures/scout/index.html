@@ -194,24 +194,15 @@ dl { margin: 0; }
 .ref-image {
   position: relative;
   margin: 0 -16px 0;
-  height: 180px;
+  height: 200px;
   background: linear-gradient(135deg, #F3ECDC 0%, #E8DDC4 100%);
   overflow: hidden;
-  display: flex; align-items: center; justify-content: center;
 }
 .ref-image img {
   width: 100%; height: 100%;
   object-fit: cover; display: block;
-  opacity: 0; transition: opacity 0.4s;
 }
-.ref-image img.loaded { opacity: 1; }
-.ref-image .ref-placeholder {
-  position: absolute; inset: 0;
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'Fraunces', serif; font-style: italic;
-  color: var(--muted); font-size: 0.9rem;
-}
-.ref-image img.loaded ~ .ref-placeholder { display: none; }
+.ref-image img:not([src]) { opacity: 0; }
 
 .route-hint {
   background: rgba(197,138,58,0.08);
@@ -348,20 +339,6 @@ dl { margin: 0; }
 import { HUNT } from '../data.js';
 import { detectFaces, hasSmile, summarize, ensureFaceModels } from '../faces.js';
 
-// Wikipedia article titles for reference images, keyed by stop id.
-// Used by the JSONP loader below to fetch a thumbnail for each stop.
-const WIKI_TITLES = {
-  '01': 'Edgar Allan Poe Square',
-  '02': 'Steaming Tea Kettle',
-  '03': 'Faneuil Hall',
-  '04': 'Boston Stone',
-  '05': 'Christopher Columbus Waterfront Park',
-  '06': 'Hammond Castle',
-  '07': "Gloucester Fisherman's Memorial",
-  '08': 'Rocky Neck Historic District',
-  '09': 'Halibut Point State Park'
-};
-
 const STATE_KEY = 'tesoros-scout-v1';
 let state = {};
 try { state = JSON.parse(localStorage.getItem(STATE_KEY) || '{}'); } catch { state = {}; }
@@ -455,9 +432,8 @@ function buildCard(stop, idx) {
       <span class="stop-status-icon">${e.status === 'ok' ? '✓' : (e.status === 'fix' ? '⚠' : '○')}</span>
     </header>
     <div class="stop-body">
-      <div class="ref-image" data-wiki="${escapeHtml(WIKI_TITLES[stop.id] || stop.name)}">
-        <img class="ref-img" alt="">
-        <div class="ref-placeholder">cargando referencia…</div>
+      <div class="ref-image">
+        <img class="ref-img" loading="lazy" alt="referencia: ${escapeHtml(stop.name)}" src="refs/${escapeHtml(stop.id)}.jpg" onerror="this.style.display='none'">
       </div>
 
       <section class="stop-section">
@@ -733,36 +709,7 @@ const warm = () => ensureFaceModels().catch(() => {});
 if ('requestIdleCallback' in window) requestIdleCallback(warm, { timeout: 5000 });
 else setTimeout(warm, 3000);
 
-// ============ reference images via Wikipedia JSONP ============
-let cbN = 0;
-function loadWikiThumb(wrap, title) {
-  const img = wrap.querySelector('img.ref-img');
-  if (!img || !title) return;
-  const cbName = '__wt' + (cbN++);
-  let s;
-  window[cbName] = function(data) {
-    try {
-      const pages = data && data.query && data.query.pages;
-      if (!pages) return;
-      const p = pages[Object.keys(pages)[0]];
-      const src = p && p.thumbnail && p.thumbnail.source;
-      if (!src) return;
-      img.onload = () => img.classList.add('loaded');
-      img.src = src;
-    } finally {
-      try { delete window[cbName]; } catch (e) { window[cbName] = undefined; }
-      if (s && s.parentNode) s.parentNode.removeChild(s);
-    }
-  };
-  const url = 'https://en.wikipedia.org/w/api.php?action=query&format=json&prop=pageimages&piprop=thumbnail&pithumbsize=720&redirects=1&origin=*&titles='
-    + encodeURIComponent(title) + '&callback=' + cbName;
-  s = document.createElement('script');
-  s.src = url; s.async = true;
-  document.head.appendChild(s);
-}
-document.querySelectorAll('.ref-image[data-wiki]').forEach(wrap => {
-  loadWikiThumb(wrap, wrap.dataset.wiki);
-});
+// reference images are static files at scout/refs/{id}.jpg
 </script>
 
 </body>
