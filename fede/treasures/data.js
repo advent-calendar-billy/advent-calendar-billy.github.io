@@ -24,18 +24,23 @@
     reward: {
       title: "Boston Light",
       body:  "El faro más antiguo de Estados Unidos.",
-      food:  null                    // null on sight stops; { place, order, priceUSD } on taste stops
+      food:  null
     }
   }
 
-  For passwordType: "photo-smile" stops:
-    - omit `answer` and `altAnswers`
-    - the lock is satisfied by a photo containing ≥1 smiling face
-
   -----------------------------------------------------------------
-  Current draft (Billy's picks from May 2026 conversation):
-   01–05: Day 1 — Thursday evening, walking from Beacon Hill
-   06–09: Day 2 — Saturday, Cape Ann day-trip (commuter rail)
+  Order matches the suggested walking route:
+   Day 1 — from Park St, Thursday evening:
+     01 Edgar Allan Poe statue       (SW corner of Common, ~5 min)
+     02 Steaming Tea Kettle          (N to City Hall Plaza, ~10 min)
+     03 Faneuil Hall grasshopper     (E next door, ~1 min)
+     04 Boston Stone                 (N just past Faneuil, ~1 min)
+     05 Christopher Columbus Park    (E to the Greenway, finale at night)
+   Day 2 — from Gloucester station, Saturday:
+     06 Hammond Castle               (Uber south)
+     07 Gloucester Fisherman's Memorial  (back to downtown)
+     08 Rocky Neck Art Colony        (E from downtown — photo-smile pwd)
+     09 Halibut Point State Park     (commuter rail to Rockport, then walk)
   -----------------------------------------------------------------
 */
 
@@ -43,22 +48,22 @@ export const HUNT = {
   title: "Búsqueda de los Tesoros",
   subtitle: "para Fede",
   stops: [
-    // ============ Day 1 — Thursday evening, walking from Beacon Hill ============
+    // ============ Day 1 — Thursday evening, walking from Park St ============
 
     {
       id: "01",
       type: "sight",
       lang: "es",
-      name: "Boston Stone",
-      coord: [42.3611, -71.0566],
-      circle: { radius: 200, offset: [0.0008, -0.0006] },
-      clue: "Detrás de Faneuil Hall, en la pared de ladrillo de un edificio en Marshall Street, hay una piedra esférica que durante un siglo fue el origen oficial para todas las distancias 'desde Boston'. ¿Qué año tiene grabado?",
+      name: "Edgar Allan Poe statue",
+      coord: [42.3535, -71.0660],
+      circle: { radius: 220, offset: [-0.0006, -0.0008] },
+      clue: "En la esquina de Charles & Boylston, Poe camina furioso alejándose de Boston (la odiaba). Detrás suyo vuela un cuervo y de su valija caen libros. Uno es su primer libro de poemas, impreso en Boston cuando tenía 18 años. ¿Cómo se titula? (una palabra alcanza)",
       passwordType: "text",
-      answer: "1737",
-      altAnswers: ["mil setecientos treinta y siete"],
+      answer: "tamerlane",
+      altAnswers: ["tamerlán", "tamerlane and other poems"],
       reward: {
-        title: "Boston Stone",
-        body: "Durante 100 años fue el punto cero de Boston — toda distancia 'desde Boston' se medía desde acá. La leyenda dice que la esfera era una piedra de molino que un par de mercaderes encontraron y le pusieron fecha falsa para venderla.",
+        title: "Poe Returning to Boston (2014)",
+        body: "Poe nació acá en 1809 pero detestaba Boston — llamaba 'frogpondians' a sus habitantes. 'Tamerlane and Other Poems' (1827) fue su primer libro, impreso anónimamente. Solo se conocen 12 ejemplares en el mundo.",
         food: null
       }
     },
@@ -103,16 +108,16 @@ export const HUNT = {
       id: "04",
       type: "sight",
       lang: "es",
-      name: "Edgar Allan Poe statue",
-      coord: [42.3535, -71.0660],
-      circle: { radius: 220, offset: [-0.0006, -0.0008] },
-      clue: "En la esquina de Charles & Boylston, Poe camina furioso alejándose de Boston (la odiaba). Detrás suyo vuela un cuervo y de su valija caen libros. Uno es su primer libro de poemas, impreso en Boston cuando tenía 18 años. ¿Cómo se titula? (una palabra alcanza)",
+      name: "Boston Stone",
+      coord: [42.3611, -71.0566],
+      circle: { radius: 200, offset: [0.0008, -0.0006] },
+      clue: "Detrás de Faneuil Hall, en la pared de ladrillo de un edificio en Marshall Street, hay una piedra esférica que durante un siglo fue el origen oficial para todas las distancias 'desde Boston'. ¿Qué año tiene grabado?",
       passwordType: "text",
-      answer: "tamerlane",
-      altAnswers: ["tamerlán", "tamerlane and other poems"],
+      answer: "1737",
+      altAnswers: ["mil setecientos treinta y siete"],
       reward: {
-        title: "Poe Returning to Boston (2014)",
-        body: "Poe nació acá en 1809 pero detestaba Boston — llamaba 'frogpondians' a sus habitantes. 'Tamerlane and Other Poems' (1827) fue su primer libro, impreso anónimamente. Solo se conocen 12 ejemplares en el mundo.",
+        title: "Boston Stone",
+        body: "Durante 100 años fue el punto cero de Boston — toda distancia 'desde Boston' se medía desde acá. La leyenda dice que la esfera era una piedra de molino que un par de mercaderes encontraron y le pusieron fecha falsa para venderla.",
         food: null
       }
     },
@@ -130,7 +135,7 @@ export const HUNT = {
       altAnswers: ["mil novecientos ochenta y siete"],
       reward: {
         title: "Rose Kennedy Rose Garden",
-        body: "Dedicado el 22 de julio de 1987. Las 104 rosas son los 104 años de Rose Fitzgerald Kennedy (1890–1995), madre de JFK. También honra a las Gold Star Mothers. De noche la pérgola se ilumina de azul.",
+        body: "Dedicado en julio de 1987. Las 104 rosas son los 104 años de Rose Fitzgerald Kennedy (1890–1995), madre de JFK. También honra a las Gold Star Mothers. De noche la pérgola se ilumina de azul.",
         food: null
       }
     },

@@ -7,7 +7,7 @@ import {
   clearAllPhotos
 } from './storage.js';
 import { exportZip } from './export.js';
-import { detectFaces, hasSmile, summarize, ensureFaceModels } from './faces.js';
+import { detectFaces, hasSmile, summarize, ensureFaceModels, SMILE_THRESHOLD } from './faces.js';
 
 const TEST_MODE = new URLSearchParams(location.search).has('test');
 if (TEST_MODE) {
@@ -288,7 +288,7 @@ async function refreshLocksFromStorage(stop) {
   }
   if (stop.passwordType === 'photo-smile') {
     const pwdRec = await loadPwdPhoto(stop.id);
-    if (pwdRec && (pwdRec.happiest || 0) >= 0.65) {
+    if (pwdRec && (pwdRec.happiest || 0) >= SMILE_THRESHOLD) {
       activeLocks.pwdValid = true;
       setLockUI('lock-pwd', 'valid', '✓ Sonrisa detectada');
       showLockThumb('lock-pwd', pwdRec.blob);

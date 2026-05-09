@@ -24,6 +24,12 @@ export function ensureFaceModels() {
   if (_ready) return _ready;
   _ready = (async () => {
     await loadScript(FACEAPI_SRC);
+    // Wait for the TF.js backend before loading models — otherwise some
+    // environments (headless Chrome --disable-gpu, older WebViews) throw
+    // "highest priority backend 'wasm' has not yet been initialized".
+    if (faceapi.tf && typeof faceapi.tf.ready === 'function') {
+      await faceapi.tf.ready();
+    }
     await Promise.all([
       faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
       faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL)
@@ -53,7 +59,11 @@ export function countFaces(detections) {
   return detections.length;
 }
 
-export function hasSmile(detections, threshold = 0.65) {
+// Smile threshold tuned with real-photo validation: Clinton's clear smile
+// scored 0.636 in face-api, so 0.65 was rejecting genuine smiles. 0.55 keeps
+// neutral faces (~0.14) clearly out while accepting natural smiles.
+export const SMILE_THRESHOLD = 0.55;
+export function hasSmile(detections, threshold = SMILE_THRESHOLD) {
   return detections.some(d => (d.expressions && d.expressions.happy) >= threshold);
 }
 
