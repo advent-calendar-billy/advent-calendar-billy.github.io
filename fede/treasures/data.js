@@ -57,10 +57,10 @@ export const HUNT = {
       name: "Edgar Allan Poe statue",
       coord: [42.3535, -71.0660],
       circle: { radius: 220, offset: [-0.0006, -0.0008] },
-      clue: "En la esquina de Charles & Boylston, Poe camina furioso alejándose de Boston (la odiaba). Detrás suyo vuela un cuervo y de su valija caen libros. Uno es su primer libro de poemas, impreso en Boston cuando tenía 18 años. ¿Cómo se titula? (una palabra alcanza)",
+      clue: "Hay un corazón en Beacon Hill. ¿Sobre qué descansa?",
       passwordType: "text",
-      answer: "tamerlane",
-      altAnswers: ["tamerlán", "tamerlane and other poems"],
+      answer: "libros",
+      altAnswers: ["libro", "books", "book"],
       reward: {
         title: "Poe Returning to Boston (2014)",
         body: "Poe nació acá en 1809 pero detestaba Boston — llamaba 'frogpondians' a sus habitantes. 'Tamerlane and Other Poems' (1827) fue su primer libro, impreso anónimamente. Solo se conocen 12 ejemplares en el mundo.",
