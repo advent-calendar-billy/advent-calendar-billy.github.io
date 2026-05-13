@@ -265,26 +265,29 @@ function ensureAudio() {
   return audioCtx;
 }
 
-function beep(freq = 880, durMs = 60, gain = 0.18) {
+function beep(freq = 880, durMs = 110, gain = 0.4) {
   const ctx = audioCtx;
   if (!ctx) return;
   const t0 = ctx.currentTime;
   const osc = ctx.createOscillator();
   const g = ctx.createGain();
-  osc.type = 'sine';
+  osc.type = 'triangle';
   osc.frequency.value = freq;
   g.gain.setValueAtTime(0, t0);
-  g.gain.linearRampToValueAtTime(gain, t0 + 0.005);
-  g.gain.linearRampToValueAtTime(0, t0 + durMs / 1000);
+  g.gain.linearRampToValueAtTime(gain, t0 + 0.008);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + durMs / 1000);
   osc.connect(g).connect(ctx.destination);
   osc.start(t0);
   osc.stop(t0 + durMs / 1000 + 0.02);
 }
 
 function foundCue() {
-  beep(1320, 80, 0.22);
-  setTimeout(() => beep(1760, 90, 0.22), 110);
+  beep(1320, 120, 0.5);
+  setTimeout(() => beep(1760, 140, 0.5), 130);
 }
+
+// quiet "armed" tick when sonar is on but target is out of range
+function armedTick() { beep(440, 50, 0.18); }
 
 function clearSonarTimer() {
   if (sonarTimer) { clearTimeout(sonarTimer); sonarTimer = null; }
@@ -300,9 +303,10 @@ function scheduleNextBeep() {
   const d = distanceToActive();
   const interval = sonarInterval(d);
   if (interval == null) {
-    // out of range: poll again in 1.5s in case we move closer
+    // out of range: quiet "armed" tick every 3s so the user knows it's on
     foundForStopId = null;
-    sonarTimer = setTimeout(scheduleNextBeep, 1500);
+    armedTick();
+    sonarTimer = setTimeout(scheduleNextBeep, 3000);
     return;
   }
   if (interval === 0) {
@@ -325,7 +329,9 @@ function setSonar(on) {
   if (btn) btn.setAttribute('aria-pressed', on ? 'true' : 'false');
   if (on) {
     if (!ensureAudio()) return;
-    scheduleNextBeep();
+    // confirmation beep: also unblocks iOS audio in the same gesture
+    beep(660, 80, 0.3);
+    setTimeout(scheduleNextBeep, 200);
   } else {
     clearSonarTimer();
     foundForStopId = null;
