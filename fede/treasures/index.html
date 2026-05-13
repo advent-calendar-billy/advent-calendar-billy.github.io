@@ -22,10 +22,18 @@
     </div>
     <div class="hdr-progress" id="progressLabel" aria-live="polite"></div>
   </header>
+  <div id="debugBanner" class="debug-banner" hidden></div>
 
   <main>
     <section class="map-wrap" aria-label="Mapa de Boston">
       <div id="map"></div>
+      <button id="sonarToggle" class="sonar-btn" type="button" aria-pressed="false" aria-label="Sonar" title="Sonar">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="2"/>
+          <path d="M12 5.5a6.5 6.5 0 0 1 6.5 6.5"/>
+          <path d="M12 8.5a3.5 3.5 0 0 1 3.5 3.5"/>
+        </svg>
+      </button>
     </section>
 
     <section id="cluePanel" class="clue-panel" aria-live="polite"></section>

@@ -149,23 +149,244 @@ function focusActiveStop() {
   map.flyTo(offsetCenter(stop), Math.max(map.getZoom(), 15), { duration: 0.5 });
 }
 
-// you-are-here
-let meMarker = null;
+// ---------- position source (real GPS or debug-pin override) ----------
+const DEBUG_KEY = 'tesoros:debug';
+let realPos = null;     // [lat, lng] from GPS
+let fakePos = null;     // [lat, lng] from debug-pin drag
+let debugMode = localStorage.getItem(DEBUG_KEY) === '1';
+let meMarker = null;    // L.circleMarker (normal) OR L.marker (debug, draggable)
+let meMarkerKind = null; // 'real' | 'debug'
+
+function currentPos() { return debugMode ? fakePos : realPos; }
+
+function makeRealMarker(ll) {
+  return L.circleMarker(ll, {
+    radius: 7, color: '#2A2520', weight: 2,
+    fillColor: '#FAF6EE', fillOpacity: 1, className: 'me-dot'
+  });
+}
+
+function makeDebugMarker(ll) {
+  const icon = L.divIcon({
+    className: 'debug-pin',
+    html: '<span class="debug-pin-dot"></span>',
+    iconSize: [22, 22], iconAnchor: [11, 11]
+  });
+  const m = L.marker(ll, { icon, draggable: true, autoPan: true });
+  m.on('drag dragend', () => {
+    const p = m.getLatLng();
+    fakePos = [p.lat, p.lng];
+    refreshDebugBanner();
+  });
+  return m;
+}
+
+function updateMeMarker() {
+  const ll = currentPos();
+  const desired = debugMode ? 'debug' : 'real';
+  if (meMarker && meMarkerKind !== desired) {
+    meMarker.remove();
+    meMarker = null;
+    meMarkerKind = null;
+  }
+  if (!ll) {
+    if (meMarker) { meMarker.remove(); meMarker = null; meMarkerKind = null; }
+    return;
+  }
+  if (!meMarker) {
+    meMarker = (desired === 'debug') ? makeDebugMarker(ll) : makeRealMarker(ll);
+    meMarker.addTo(map);
+    meMarkerKind = desired;
+  } else {
+    meMarker.setLatLng(ll);
+  }
+}
+
 if ('geolocation' in navigator) {
   navigator.geolocation.watchPosition(
     pos => {
-      const ll = [pos.coords.latitude, pos.coords.longitude];
-      if (!meMarker) {
-        meMarker = L.circleMarker(ll, {
-          radius: 7, color: '#2A2520', weight: 2,
-          fillColor: '#FAF6EE', fillOpacity: 1, className: 'me-dot'
-        }).addTo(map);
-      } else { meMarker.setLatLng(ll); }
+      realPos = [pos.coords.latitude, pos.coords.longitude];
+      if (!debugMode) updateMeMarker();
     },
     () => {},
     { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 }
   );
 }
+
+// ---------- distance + sonar ----------
+function haversine(a, b) {
+  const R = 6371000;
+  const toRad = d => d * Math.PI / 180;
+  const dLat = toRad(b[0] - a[0]);
+  const dLng = toRad(b[1] - a[1]);
+  const lat1 = toRad(a[0]);
+  const lat2 = toRad(b[0]);
+  const h = Math.sin(dLat / 2) ** 2 + Math.sin(dLng / 2) ** 2 * Math.cos(lat1) * Math.cos(lat2);
+  return 2 * R * Math.asin(Math.min(1, Math.sqrt(h)));
+}
+
+function activeStopCoord() {
+  const idx = state.activeIndex;
+  if (idx < 0) return null;
+  return HUNT.stops[idx].coord;
+}
+
+function distanceToActive() {
+  const here = currentPos();
+  const target = activeStopCoord();
+  if (!here || !target) return null;
+  return haversine(here, target);
+}
+
+const SONAR_MAX_M = 600;
+const SONAR_FOUND_M = 5;
+const SONAR_MIN_INTERVAL = 140;
+const SONAR_MAX_INTERVAL = 2500;
+
+function sonarInterval(d) {
+  if (d == null || d >= SONAR_MAX_M) return null;
+  if (d < SONAR_FOUND_M) return 0; // sentinel: trigger "found"
+  const ms = SONAR_MIN_INTERVAL * Math.pow(d / SONAR_FOUND_M, 0.62);
+  return Math.max(SONAR_MIN_INTERVAL, Math.min(SONAR_MAX_INTERVAL, ms));
+}
+
+let audioCtx = null;
+let sonarOn = false;
+let sonarTimer = null;
+let foundForStopId = null; // stop id we last fired the "found" cue for
+
+function ensureAudio() {
+  if (!audioCtx) {
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return null;
+    audioCtx = new Ctx();
+  }
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+function beep(freq = 880, durMs = 60, gain = 0.18) {
+  const ctx = audioCtx;
+  if (!ctx) return;
+  const t0 = ctx.currentTime;
+  const osc = ctx.createOscillator();
+  const g = ctx.createGain();
+  osc.type = 'sine';
+  osc.frequency.value = freq;
+  g.gain.setValueAtTime(0, t0);
+  g.gain.linearRampToValueAtTime(gain, t0 + 0.005);
+  g.gain.linearRampToValueAtTime(0, t0 + durMs / 1000);
+  osc.connect(g).connect(ctx.destination);
+  osc.start(t0);
+  osc.stop(t0 + durMs / 1000 + 0.02);
+}
+
+function foundCue() {
+  beep(1320, 80, 0.22);
+  setTimeout(() => beep(1760, 90, 0.22), 110);
+}
+
+function clearSonarTimer() {
+  if (sonarTimer) { clearTimeout(sonarTimer); sonarTimer = null; }
+}
+
+function scheduleNextBeep() {
+  clearSonarTimer();
+  refreshDebugBanner();
+  if (!sonarOn) return;
+  if (document.hidden) return;
+  const stopId = HUNT.stops[state.activeIndex]?.id;
+  if (!stopId) return; // hunt complete
+  const d = distanceToActive();
+  const interval = sonarInterval(d);
+  if (interval == null) {
+    // out of range: poll again in 1.5s in case we move closer
+    foundForStopId = null;
+    sonarTimer = setTimeout(scheduleNextBeep, 1500);
+    return;
+  }
+  if (interval === 0) {
+    if (foundForStopId !== stopId) {
+      foundForStopId = stopId;
+      foundCue();
+    }
+    sonarTimer = setTimeout(scheduleNextBeep, 1200);
+    return;
+  }
+  // back in range — re-arm "found" so re-entering triggers it again
+  if (foundForStopId === stopId) foundForStopId = null;
+  beep();
+  sonarTimer = setTimeout(scheduleNextBeep, interval);
+}
+
+function setSonar(on) {
+  sonarOn = on;
+  const btn = document.getElementById('sonarToggle');
+  if (btn) btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  if (on) {
+    if (!ensureAudio()) return;
+    scheduleNextBeep();
+  } else {
+    clearSonarTimer();
+    foundForStopId = null;
+  }
+}
+
+document.getElementById('sonarToggle')?.addEventListener('click', () => setSonar(!sonarOn));
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) clearSonarTimer();
+  else if (sonarOn) scheduleNextBeep();
+});
+
+// ---------- debug mode ----------
+const debugBanner = document.getElementById('debugBanner');
+
+function refreshDebugBanner() {
+  if (!debugBanner) return;
+  if (!debugMode) { debugBanner.hidden = true; debugBanner.textContent = ''; return; }
+  const d = distanceToActive();
+  const dStr = d == null ? '—' : (d < 1000 ? `${d.toFixed(0)} m` : `${(d / 1000).toFixed(2)} km`);
+  debugBanner.hidden = false;
+  debugBanner.textContent = `DEBUG · drag pin · ${dStr}`;
+}
+
+function debugStartingPos() {
+  const idx = state.activeIndex;
+  if (idx >= 0) return offsetCenter(HUNT.stops[idx]);
+  const c = map.getCenter();
+  return [c.lat, c.lng];
+}
+
+function setDebugMode(on) {
+  debugMode = on;
+  localStorage.setItem(DEBUG_KEY, on ? '1' : '0');
+  if (on) {
+    if (!fakePos) fakePos = debugStartingPos();
+    updateMeMarker();
+    if (meMarker && meMarkerKind === 'debug') map.panTo(fakePos, { animate: true });
+  } else {
+    updateMeMarker();
+  }
+  refreshDebugBanner();
+  // re-evaluate sonar cadence under the new position source
+  if (sonarOn) scheduleNextBeep();
+}
+
+window.addEventListener('keydown', e => {
+  if (e.key !== '6') return;
+  if (e.target && (e.target.matches?.('input, textarea') || e.target.isContentEditable)) return;
+  setDebugMode(!debugMode);
+});
+
+// initial state at boot: if debug was persisted on, activate it
+if (debugMode) {
+  // defer to next tick so renderMap/state.activeIndex are ready
+  queueMicrotask(() => setDebugMode(true));
+}
+
+// keep banner distance live even when sonar is off
+setInterval(() => { if (debugMode) refreshDebugBanner(); }, 1000);
 
 // ---------- clue panel ----------
 const cluePanel = document.getElementById('cluePanel');
