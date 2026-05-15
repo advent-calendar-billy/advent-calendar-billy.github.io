@@ -96,12 +96,22 @@ let debugMode = localStorage.getItem(DEBUG_KEY) === '1';
 
 function currentPos() { return realPos; }
 
+let gpsErr = null; // last geolocation error message (shown in radar status when no fix yet)
+
 if ('geolocation' in navigator) {
   navigator.geolocation.watchPosition(
-    pos => { realPos = [pos.coords.latitude, pos.coords.longitude]; },
-    () => {},
+    pos => { realPos = [pos.coords.latitude, pos.coords.longitude]; gpsErr = null; },
+    err => {
+      const msg = err.code === err.PERMISSION_DENIED ? 'permiso denegado'
+                : err.code === err.POSITION_UNAVAILABLE ? 'gps no disponible'
+                : err.code === err.TIMEOUT ? 'gps tardando…'
+                : 'error de gps';
+      gpsErr = msg;
+    },
     { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 }
   );
+} else {
+  gpsErr = 'gps no soportado';
 }
 
 // ---------- distance / bearing ----------
@@ -175,7 +185,7 @@ function updateRadar() {
   if (!here) {
     radarBlip.style.display = 'none';
     blipBearingDeg = null;
-    radarStatus.textContent = 'esperando posición…';
+    radarStatus.textContent = gpsErr ? `gps · ${gpsErr}` : 'esperando posición…';
     return;
   }
   if (!target) {
