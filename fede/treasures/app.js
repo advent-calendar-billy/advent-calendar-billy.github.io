@@ -408,20 +408,12 @@ function renderProgressLabel() {
 }
 
 function renderClue() {
+  clearFinaleBlobs();
   renderProgressLabel();
   const idx = state.activeIndex;
 
   if (idx < 0) {
-    cluePanel.innerHTML = `
-      <article class="clue-card done">
-        <h2>${escapeHtml(HUNT.finale.title)}</h2>
-        <p>${escapeHtml(HUNT.finale.body)}</p>
-        <div class="actions">
-          <button class="btn primary" id="openFinaleBtn">Ver galería</button>
-        </div>
-      </article>
-    `;
-    document.getElementById('openFinaleBtn').addEventListener('click', openFinale);
+    renderFinale();
     updateRadar();
     return;
   }
@@ -517,7 +509,7 @@ function renderClue() {
     renderClue();
     updateRadar();
   });
-  document.getElementById('galleryBtn').addEventListener('click', () => openFinale());
+  document.getElementById('galleryBtn').addEventListener('click', () => renderFinale());
 
   // pre-fill the answer in debug mode so the user can just click Resolver
   if (debugMode && pwdType !== 'photo-smile') {
@@ -715,31 +707,44 @@ function showRewardThen(stop, then) {
 }
 
 // ---------- finale ----------
-async function openFinale() {
-  const dlg = document.getElementById('finaleDialog');
+const finaleBlobUrls = [];
+function clearFinaleBlobs() {
+  while (finaleBlobUrls.length) URL.revokeObjectURL(finaleBlobUrls.pop());
+}
 
-  const photoUrls = [];
+function renderFinale() {
+  renderProgressLabel();
+  cluePanel.innerHTML = `
+    <article class="clue-card done">
+      <h2>${escapeHtml(HUNT.finale.title)}</h2>
+      <p>${escapeHtml(HUNT.finale.body)}</p>
+      <div class="gallery" id="finaleGallery"><p class="muted">cargando fotos…</p></div>
+    </article>
+  `;
+  fillFinaleGallery();
+}
+
+async function fillFinaleGallery() {
+  clearFinaleBlobs();
   const tiles = [];
   const addTile = (src, extra = '') => {
     const i = tiles.length;
     tiles.push(`<figure class="pic${extra}" style="--i:${i}"><img src="${src}" alt="" loading="lazy" onerror="this.closest('figure').remove()"></figure>`);
   };
 
-  const selfieIds = await listSelfieIds();
-  for (const id of selfieIds) {
+  for (const id of await listSelfieIds()) {
     const rec = await loadSelfie(id);
     if (rec) {
       const url = URL.createObjectURL(rec.blob);
-      photoUrls.push(url);
+      finaleBlobUrls.push(url);
       addTile(url, ' pic-game');
     }
   }
-  const pwdIds = await listPwdPhotoIds();
-  for (const id of pwdIds) {
+  for (const id of await listPwdPhotoIds()) {
     const rec = await loadPwdPhoto(id);
     if (rec) {
       const url = URL.createObjectURL(rec.blob);
-      photoUrls.push(url);
+      finaleBlobUrls.push(url);
       addTile(url, ' pic-game');
     }
   }
@@ -747,26 +752,11 @@ async function openFinale() {
     addTile(`pics/${encodeURIComponent(fname)}`);
   }
 
-  const tilesHtml = tiles.length
+  const gallery = document.getElementById('finaleGallery');
+  if (!gallery) return;
+  gallery.innerHTML = tiles.length
     ? tiles.join('')
     : '<p class="muted">Sin fotos guardadas.</p>';
-
-  dlg.innerHTML = `
-    <article class="finale-content">
-      <h2>${escapeHtml(HUNT.finale.title)}</h2>
-      <p>${escapeHtml(HUNT.finale.body)}</p>
-      <div class="gallery">${tilesHtml}</div>
-      <div class="actions">
-        <button class="btn ghost" id="closeFinaleBtn">Cerrar</button>
-      </div>
-    </article>
-  `;
-
-  document.getElementById('closeFinaleBtn').addEventListener('click', () => dlg.close());
-
-  if (typeof dlg.showModal === 'function') dlg.showModal();
-  else dlg.setAttribute('open', '');
-  dlg.addEventListener('close', () => photoUrls.forEach(u => URL.revokeObjectURL(u)), { once: true });
 }
 
 // ---------- preload face models when idle ----------
