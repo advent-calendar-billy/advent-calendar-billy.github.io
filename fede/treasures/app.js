@@ -6,7 +6,6 @@ import {
   savePwdPhoto, loadPwdPhoto, listPwdPhotoIds,
   clearAllPhotos
 } from './storage.js';
-import { exportZip } from './export.js';
 import { detectFaces, hasSmile, summarize, ensureFaceModels, SMILE_THRESHOLD } from './faces.js';
 
 const TEST_MODE = new URLSearchParams(location.search).has('test');
@@ -705,35 +704,33 @@ function showRewardThen(stop, then) {
 async function openFinale() {
   const dlg = document.getElementById('finaleDialog');
 
-  // game photos (Fede's successful captures: selfies + smile-pwd photos)
   const photoUrls = [];
   const tiles = [];
+  const addTile = (src, extra = '') => {
+    const i = tiles.length;
+    tiles.push(`<figure class="pic${extra}" style="--i:${i}"><img src="${src}" alt="" loading="lazy" onerror="this.closest('figure').remove()"></figure>`);
+  };
 
   const selfieIds = await listSelfieIds();
   for (const id of selfieIds) {
     const rec = await loadSelfie(id);
-    const meta = HUNT.stops.find(s => s.id === id);
-    if (rec && meta) {
+    if (rec) {
       const url = URL.createObjectURL(rec.blob);
       photoUrls.push(url);
-      tiles.push(`<figure><img src="${url}" alt=""><figcaption>${escapeHtml(meta.name)}</figcaption></figure>`);
+      addTile(url, ' pic-game');
     }
   }
   const pwdIds = await listPwdPhotoIds();
   for (const id of pwdIds) {
     const rec = await loadPwdPhoto(id);
-    const meta = HUNT.stops.find(s => s.id === id);
-    if (rec && meta) {
+    if (rec) {
       const url = URL.createObjectURL(rec.blob);
       photoUrls.push(url);
-      tiles.push(`<figure><img src="${url}" alt=""><figcaption>${escapeHtml(meta.name)} · regalo</figcaption></figure>`);
+      addTile(url, ' pic-game');
     }
   }
-
-  // pre-existing pics from pics/ folder (Billy & Fede's older memories)
   for (const fname of HUNT.finale.pics || []) {
-    const safe = encodeURIComponent(fname);
-    tiles.push(`<figure class="pic-old"><img src="pics/${safe}" alt="" loading="lazy" onerror="this.closest('figure').style.display='none'"></figure>`);
+    addTile(`pics/${encodeURIComponent(fname)}`);
   }
 
   const tilesHtml = tiles.length
@@ -746,15 +743,11 @@ async function openFinale() {
       <p>${escapeHtml(HUNT.finale.body)}</p>
       <div class="gallery">${tilesHtml}</div>
       <div class="actions">
-        <button class="btn primary" id="zipBtn"><span class="ic">${ICON.send}</span><span>Enviar a Billy</span></button>
         <button class="btn ghost" id="closeFinaleBtn">Cerrar</button>
       </div>
     </article>
   `;
 
-  document.getElementById('zipBtn').addEventListener('click', async () => {
-    try { await exportZip(); } catch (e) { alert('No se pudo crear el zip: ' + e.message); }
-  });
   document.getElementById('closeFinaleBtn').addEventListener('click', () => dlg.close());
 
   if (typeof dlg.showModal === 'function') dlg.showModal();

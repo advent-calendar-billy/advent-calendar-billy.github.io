@@ -647,24 +647,62 @@ dialog.finale::backdrop {
 
 .gallery {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-  margin: 20px 0;
+  grid-template-columns: repeat(auto-fill, minmax(68px, 1fr));
+  gap: 4px;
+  margin: 18px 0;
 }
-.gallery figure { margin: 0; }
-.gallery img {
-  width: 100%;
+.gallery .pic {
+  margin: 0;
+  position: relative;
+  overflow: hidden;
+  border-radius: 6px;
   aspect-ratio: 1;
-  object-fit: cover;
-  border-radius: 10px;
-  display: block;
-  border: 1px solid var(--line);
+  background: var(--paper-2);
+  cursor: zoom-in;
+  opacity: 0;
+  transform: scale(0.86) translateY(6px);
+  animation: pic-in 0.5s cubic-bezier(.2, .8, .3, 1) both;
+  animation-delay: calc(var(--i, 0) * 22ms);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, z-index 0s 0.25s;
 }
-.gallery figcaption {
-  font-size: 0.78rem;
-  color: var(--muted);
-  margin-top: 5px;
-  letter-spacing: 0.01em;
+.gallery .pic img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.35s ease, filter 0.35s ease;
+}
+.gallery .pic.pic-game::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 0; height: 0;
+  border-style: solid;
+  border-width: 0 12px 12px 0;
+  border-color: transparent var(--accent) transparent transparent;
+  opacity: 0.85;
+  pointer-events: none;
+}
+.gallery .pic:hover,
+.gallery .pic:focus-within {
+  transform: scale(1.04);
+  z-index: 3;
+  box-shadow: 0 6px 18px rgba(42, 37, 32, 0.35);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, z-index 0s 0s;
+}
+.gallery .pic:hover img,
+.gallery .pic:focus-within img {
+  transform: scale(1.12);
+  filter: brightness(1.06) saturate(1.06);
+}
+@keyframes pic-in {
+  from { opacity: 0; transform: scale(0.86) translateY(6px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gallery .pic { animation-duration: 1ms; }
+  .gallery .pic:hover { transform: none; }
+  .gallery .pic:hover img { transform: none; filter: none; }
 }
 
 .actions {
