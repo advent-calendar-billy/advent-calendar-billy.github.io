@@ -193,7 +193,6 @@ main {
   letter-spacing: 0.14em;
 }
 
-.radar-sweep { transform-box: fill-box; }
 .radar-sweep-line {
   stroke: rgba(200, 255, 220, 0.95);
   stroke-width: 0.9;
