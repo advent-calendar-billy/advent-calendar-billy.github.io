@@ -14,6 +14,9 @@ if (TEST_MODE) {
   clearProgress();
   await clearAllPhotos();
 }
+if (new URLSearchParams(location.search).has('debug')) {
+  localStorage.setItem('tesoros:debug', '1');
+}
 
 // ---------- helpers ----------
 function escapeHtml(s) {
@@ -86,134 +89,22 @@ function persist() {
 // per-stop lock validation, lives only while a clue is rendered
 let activeLocks = null;
 
-// ---------- map ----------
-const map = L.map('map', { zoomControl: true, attributionControl: true, scrollWheelZoom: true });
-L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-  subdomains: 'abcd', maxZoom: 20
-}).addTo(map);
-
-const stopLayers = new Map();
-function pinIcon(label, solved) {
-  return L.divIcon({
-    className: 'pin-icon',
-    html: `<span class="pin-num${solved ? ' is-solved' : ''}">${escapeHtml(label)}</span>`,
-    iconSize: [28, 28], iconAnchor: [14, 14]
-  });
-}
-function offsetCenter(stop) {
-  return [stop.coord[0] + stop.circle.offset[0], stop.coord[1] + stop.circle.offset[1]];
-}
-
-function renderMap() {
-  for (const layer of stopLayers.values()) {
-    if (layer.circle) layer.circle.remove();
-    if (layer.marker) layer.marker.remove();
-  }
-  stopLayers.clear();
-  const bounds = [];
-  HUNT.stops.forEach((stop, i) => {
-    const isSolved = state.solvedIds.has(stop.id);
-    const isActive = i === state.activeIndex;
-    if (isSolved) {
-      const marker = L.marker(stop.coord, {
-        icon: pinIcon(String(i + 1), true), keyboard: false, title: stop.name
-      }).addTo(map);
-      marker.on('click', () => map.flyTo(stop.coord, 16, { duration: 0.5 }));
-      stopLayers.set(stop.id, { marker });
-      bounds.push(stop.coord);
-    } else {
-      const center = offsetCenter(stop);
-      const className = `mystery${isActive ? ' is-active' : ''}`;
-      const circle = L.circle(center, {
-        radius: stop.circle.radius, className,
-        color: '#C58A3A', weight: 2,
-        opacity: isActive ? 0.85 : 0.55,
-        fillColor: '#C58A3A', fillOpacity: isActive ? 0.22 : 0.12,
-        dashArray: isActive ? '0' : '5 6', interactive: false
-      }).addTo(map);
-      stopLayers.set(stop.id, { circle });
-      const latPad = stop.circle.radius / 111000;
-      const lngPad = stop.circle.radius / (111000 * Math.cos(center[0] * Math.PI / 180));
-      bounds.push([center[0] + latPad, center[1] + lngPad]);
-      bounds.push([center[0] - latPad, center[1] - lngPad]);
-    }
-  });
-  if (bounds.length) map.fitBounds(bounds, { padding: [40, 40], maxZoom: 16, animate: false });
-}
-
-function focusActiveStop() {
-  const idx = state.activeIndex;
-  if (idx < 0) return;
-  const stop = HUNT.stops[idx];
-  map.flyTo(offsetCenter(stop), Math.max(map.getZoom(), 15), { duration: 0.5 });
-}
-
-// ---------- position source (real GPS or debug-pin override) ----------
+// ---------- position source (real GPS or debug override) ----------
 const DEBUG_KEY = 'tesoros:debug';
 let realPos = null;     // [lat, lng] from GPS
-let fakePos = null;     // [lat, lng] from debug-pin drag
 let debugMode = localStorage.getItem(DEBUG_KEY) === '1';
-let meMarker = null;    // L.circleMarker (normal) OR L.marker (debug, draggable)
-let meMarkerKind = null; // 'real' | 'debug'
 
-function currentPos() { return debugMode ? fakePos : realPos; }
-
-function makeRealMarker(ll) {
-  return L.circleMarker(ll, {
-    radius: 7, color: '#2A2520', weight: 2,
-    fillColor: '#FAF6EE', fillOpacity: 1, className: 'me-dot'
-  });
-}
-
-function makeDebugMarker(ll) {
-  const icon = L.divIcon({
-    className: 'debug-pin',
-    html: '<span class="debug-pin-dot"></span>',
-    iconSize: [22, 22], iconAnchor: [11, 11]
-  });
-  const m = L.marker(ll, { icon, draggable: true, autoPan: true });
-  m.on('drag dragend', () => {
-    const p = m.getLatLng();
-    fakePos = [p.lat, p.lng];
-    refreshDebugBanner();
-  });
-  return m;
-}
-
-function updateMeMarker() {
-  const ll = currentPos();
-  const desired = debugMode ? 'debug' : 'real';
-  if (meMarker && meMarkerKind !== desired) {
-    meMarker.remove();
-    meMarker = null;
-    meMarkerKind = null;
-  }
-  if (!ll) {
-    if (meMarker) { meMarker.remove(); meMarker = null; meMarkerKind = null; }
-    return;
-  }
-  if (!meMarker) {
-    meMarker = (desired === 'debug') ? makeDebugMarker(ll) : makeRealMarker(ll);
-    meMarker.addTo(map);
-    meMarkerKind = desired;
-  } else {
-    meMarker.setLatLng(ll);
-  }
-}
+function currentPos() { return realPos; }
 
 if ('geolocation' in navigator) {
   navigator.geolocation.watchPosition(
-    pos => {
-      realPos = [pos.coords.latitude, pos.coords.longitude];
-      if (!debugMode) updateMeMarker();
-    },
+    pos => { realPos = [pos.coords.latitude, pos.coords.longitude]; },
     () => {},
     { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 }
   );
 }
 
-// ---------- distance + sonar ----------
+// ---------- distance / bearing ----------
 function haversine(a, b) {
   const R = 6371000;
   const toRad = d => d * Math.PI / 180;
@@ -223,6 +114,16 @@ function haversine(a, b) {
   const lat2 = toRad(b[0]);
   const h = Math.sin(dLat / 2) ** 2 + Math.sin(dLng / 2) ** 2 * Math.cos(lat1) * Math.cos(lat2);
   return 2 * R * Math.asin(Math.min(1, Math.sqrt(h)));
+}
+
+function bearingRad(from, to) {
+  const toRad = d => d * Math.PI / 180;
+  const lat1 = toRad(from[0]);
+  const lat2 = toRad(to[0]);
+  const dLng = toRad(to[1] - from[1]);
+  const y = Math.sin(dLng) * Math.cos(lat2);
+  const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLng);
+  return Math.atan2(y, x); // 0 = north, clockwise
 }
 
 function activeStopCoord() {
@@ -238,6 +139,118 @@ function distanceToActive() {
   return haversine(here, target);
 }
 
+// ---------- radar ----------
+const RADAR_MAX_M = 600;       // matches sonar range
+const RADAR_INNER_R = 14;      // px in SVG units: inside this is "very close"
+const RADAR_EDGE_R = 96;       // px in SVG units: clamp blip to this radius if out of range
+
+const radarBlip = document.getElementById('radarBlip');
+const radarBlipHalo = radarBlip?.querySelector('.radar-blip-halo');
+const radarStatus = document.getElementById('radarStatus');
+const radarSweep = document.getElementById('radarSweep');
+
+let blipBearingDeg = null;       // 0 = north, clockwise — last computed bearing in screen coords
+let blipDistance = null;         // metres
+let blipOutOfRange = false;
+let blipFound = false;
+
+function fmtDist(m) {
+  if (m == null) return '—';
+  if (m < 1000) return `${Math.round(m)} m`;
+  return `${(m / 1000).toFixed(2)} km`;
+}
+
+function updateRadar() {
+  const idx = state.activeIndex;
+  const here = currentPos();
+  const target = activeStopCoord();
+
+  if (idx < 0) {
+    // hunt complete
+    radarBlip.style.display = 'none';
+    blipBearingDeg = null;
+    radarStatus.textContent = '· objetivo alcanzado ·';
+    return;
+  }
+  if (!here) {
+    radarBlip.style.display = 'none';
+    blipBearingDeg = null;
+    radarStatus.textContent = 'esperando posición…';
+    return;
+  }
+  if (!target) {
+    radarBlip.style.display = 'none';
+    radarStatus.textContent = '';
+    return;
+  }
+
+  const d = haversine(here, target);
+  const b = bearingRad(here, target); // radians, 0 = north
+  const bDeg = (b * 180 / Math.PI + 360) % 360;
+  blipBearingDeg = bDeg;
+  blipDistance = d;
+  blipOutOfRange = d > RADAR_MAX_M;
+  blipFound = d < 5;
+
+  // scale distance to radar radius. Out of range → clamp to edge.
+  let r;
+  if (blipOutOfRange) {
+    r = RADAR_EDGE_R;
+  } else {
+    const t = Math.max(0, Math.min(1, d / RADAR_MAX_M));
+    // ease-out so near targets don't all stack at center
+    r = RADAR_INNER_R + (RADAR_EDGE_R - RADAR_INNER_R) * Math.pow(t, 0.85);
+  }
+
+  const rad = b; // 0 = north (up)
+  const x = Math.sin(rad) * r;
+  const y = -Math.cos(rad) * r;
+
+  radarBlip.setAttribute('transform', `translate(${x.toFixed(2)} ${y.toFixed(2)})`);
+  radarBlip.style.display = '';
+  radarBlip.classList.toggle('edge', blipOutOfRange);
+  radarBlip.classList.toggle('found', blipFound);
+
+  // status text under radar
+  const stop = HUNT.stops[idx];
+  const num = String(idx + 1).padStart(2, '0');
+  if (blipFound) {
+    radarStatus.textContent = `· ${num} · LLEGASTE ·`;
+  } else if (blipOutOfRange) {
+    radarStatus.textContent = `parada ${num} · ${fmtDist(d)} · fuera del radar`;
+  } else {
+    radarStatus.textContent = `parada ${num} · ${fmtDist(d)}`;
+  }
+}
+
+// rAF loop drives blip-glow based on sweep angle and updates from GPS
+function radarTick(t) {
+  // sweep angle is driven by SMIL <animateTransform>, period 4s.
+  const sweepDeg = ((t / 4000) * 360) % 360;
+  if (blipBearingDeg != null && radarBlipHalo) {
+    const diff = Math.min(
+      Math.abs(blipBearingDeg - sweepDeg),
+      360 - Math.abs(blipBearingDeg - sweepDeg)
+    );
+    // glow window: 0..45 degrees behind the sweep → bright; otherwise dim
+    const behind = ((sweepDeg - blipBearingDeg + 360) % 360);
+    const window = 60;
+    let glow;
+    if (behind <= window) {
+      glow = 1 - behind / window;
+    } else {
+      glow = 0.15;
+    }
+    radarBlipHalo.style.setProperty('--blip-glow', (0.25 + glow * 0.75).toFixed(3));
+  }
+  requestAnimationFrame(radarTick);
+}
+requestAnimationFrame(radarTick);
+
+// poll GPS-based radar update at a steady cadence even when GPS is quiet
+setInterval(updateRadar, 600);
+
+// ---------- sonar ----------
 const SONAR_MAX_M = 600;
 const SONAR_FOUND_M = 5;
 const SONAR_MIN_INTERVAL = 140;
@@ -253,7 +266,7 @@ function sonarInterval(d) {
 let audioCtx = null;
 let sonarOn = false;
 let sonarTimer = null;
-let foundForStopId = null; // stop id we last fired the "found" cue for
+let foundForStopId = null;
 
 function ensureAudio() {
   if (!audioCtx) {
@@ -286,7 +299,6 @@ function foundCue() {
   setTimeout(() => beep(1760, 140, 0.5), 130);
 }
 
-// quiet "armed" tick when sonar is on but target is out of range
 function armedTick() { beep(440, 50, 0.18); }
 
 function clearSonarTimer() {
@@ -299,11 +311,10 @@ function scheduleNextBeep() {
   if (!sonarOn) return;
   if (document.hidden) return;
   const stopId = HUNT.stops[state.activeIndex]?.id;
-  if (!stopId) return; // hunt complete
+  if (!stopId) return;
   const d = distanceToActive();
   const interval = sonarInterval(d);
   if (interval == null) {
-    // out of range: quiet "armed" tick every 3s so the user knows it's on
     foundForStopId = null;
     armedTick();
     sonarTimer = setTimeout(scheduleNextBeep, 3000);
@@ -317,7 +328,6 @@ function scheduleNextBeep() {
     sonarTimer = setTimeout(scheduleNextBeep, 1200);
     return;
   }
-  // back in range — re-arm "found" so re-entering triggers it again
   if (foundForStopId === stopId) foundForStopId = null;
   beep();
   sonarTimer = setTimeout(scheduleNextBeep, interval);
@@ -329,7 +339,6 @@ function setSonar(on) {
   if (btn) btn.setAttribute('aria-pressed', on ? 'true' : 'false');
   if (on) {
     if (!ensureAudio()) return;
-    // confirmation beep: also unblocks iOS audio in the same gesture
     beep(660, 80, 0.3);
     setTimeout(scheduleNextBeep, 200);
   } else {
@@ -352,30 +361,15 @@ function refreshDebugBanner() {
   if (!debugBanner) return;
   if (!debugMode) { debugBanner.hidden = true; debugBanner.textContent = ''; return; }
   const d = distanceToActive();
-  const dStr = d == null ? '—' : (d < 1000 ? `${d.toFixed(0)} m` : `${(d / 1000).toFixed(2)} km`);
   debugBanner.hidden = false;
-  debugBanner.textContent = `DEBUG · drag pin · ${dStr}`;
-}
-
-function debugStartingPos() {
-  const idx = state.activeIndex;
-  if (idx >= 0) return offsetCenter(HUNT.stops[idx]);
-  const c = map.getCenter();
-  return [c.lat, c.lng];
+  debugBanner.textContent = `DEBUG · ${fmtDist(d)}`;
 }
 
 function setDebugMode(on) {
   debugMode = on;
   localStorage.setItem(DEBUG_KEY, on ? '1' : '0');
-  if (on) {
-    if (!fakePos) fakePos = debugStartingPos();
-    updateMeMarker();
-    if (meMarker && meMarkerKind === 'debug') map.panTo(fakePos, { animate: true });
-  } else {
-    updateMeMarker();
-  }
+  document.body.classList.toggle('is-debug', on);
   refreshDebugBanner();
-  // re-evaluate sonar cadence under the new position source
   if (sonarOn) scheduleNextBeep();
 }
 
@@ -385,13 +379,10 @@ window.addEventListener('keydown', e => {
   setDebugMode(!debugMode);
 });
 
-// initial state at boot: if debug was persisted on, activate it
 if (debugMode) {
-  // defer to next tick so renderMap/state.activeIndex are ready
   queueMicrotask(() => setDebugMode(true));
 }
 
-// keep banner distance live even when sonar is off
 setInterval(() => { if (debugMode) refreshDebugBanner(); }, 1000);
 
 // ---------- clue panel ----------
@@ -422,6 +413,7 @@ function renderClue() {
       </article>
     `;
     document.getElementById('openFinaleBtn').addEventListener('click', openFinale);
+    updateRadar();
     return;
   }
 
@@ -452,12 +444,17 @@ function renderClue() {
           inputmode="text" enterkeyhint="go" />
       </div>`;
 
+  const debugAnswer = pwdType === 'photo-smile'
+    ? 'foto sonriente'
+    : [stop.answer, ...(stop.altAnswers || [])].join(' · ');
+
   cluePanel.innerHTML = `
     <article class="clue-card" data-stop="${escapeHtml(stop.id)}" data-pwd-type="${pwdType}">
       <header class="clue-head">
         <span class="chip${typeClass}">${typeLabel}</span>
       </header>
       <p class="clue-text" lang="${escapeHtml(stop.lang)}">${escapeHtml(stop.clue)}</p>
+      <p class="debug-answer" aria-hidden="true">key: <span>${escapeHtml(debugAnswer)}</span></p>
 
       <div class="lock lock-selfie" data-state="empty">
         <label class="lock-trigger" for="selfieInput">
@@ -476,6 +473,7 @@ function renderClue() {
       <button type="button" class="btn primary submit-btn" id="submitBtn">Resolver</button>
       <p id="answerHelp" class="answer-help" aria-live="polite"></p>
       <button type="button" class="link-btn" id="giveUpBtn">no me sale</button>
+      <button type="button" class="link-btn skip-btn" id="skipBtn">skip (debug) ▸</button>
     </article>
   `;
 
@@ -502,8 +500,10 @@ function renderClue() {
   document.getElementById('giveUpBtn').addEventListener('click', () => {
     if (confirm('¿Revelar la respuesta y avanzar?')) onSolve(stop, true);
   });
+  document.getElementById('skipBtn').addEventListener('click', () => onSolve(stop, true));
 
   refreshLocksFromStorage(stop);
+  updateRadar();
 }
 
 async function refreshLocksFromStorage(stop) {
@@ -662,9 +662,7 @@ function onSolve(stop, withHelp) {
   if (withHelp) state.solvedWithHelp.add(stop.id);
   persist();
   showRewardThen(stop, () => {
-    renderMap();
     renderClue();
-    focusActiveStop();
   });
 }
 
@@ -696,23 +694,47 @@ function showRewardThen(stop, then) {
 // ---------- finale ----------
 async function openFinale() {
   const dlg = document.getElementById('finaleDialog');
-  const ids = await listSelfieIds();
-  const items = [];
-  for (const id of ids) {
+
+  // game photos (Fede's successful captures: selfies + smile-pwd photos)
+  const photoUrls = [];
+  const tiles = [];
+
+  const selfieIds = await listSelfieIds();
+  for (const id of selfieIds) {
     const rec = await loadSelfie(id);
     const meta = HUNT.stops.find(s => s.id === id);
-    if (rec && meta) items.push({ id, name: meta.name, blob: rec.blob });
+    if (rec && meta) {
+      const url = URL.createObjectURL(rec.blob);
+      photoUrls.push(url);
+      tiles.push(`<figure><img src="${url}" alt=""><figcaption>${escapeHtml(meta.name)}</figcaption></figure>`);
+    }
   }
-  const photoUrls = items.map(p => URL.createObjectURL(p.blob));
-  const tiles = items.length
-    ? items.map((p, i) => `<figure><img src="${photoUrls[i]}" alt=""><figcaption>${escapeHtml(p.name)}</figcaption></figure>`).join('')
+  const pwdIds = await listPwdPhotoIds();
+  for (const id of pwdIds) {
+    const rec = await loadPwdPhoto(id);
+    const meta = HUNT.stops.find(s => s.id === id);
+    if (rec && meta) {
+      const url = URL.createObjectURL(rec.blob);
+      photoUrls.push(url);
+      tiles.push(`<figure><img src="${url}" alt=""><figcaption>${escapeHtml(meta.name)} · regalo</figcaption></figure>`);
+    }
+  }
+
+  // pre-existing pics from pics/ folder (Billy & Fede's older memories)
+  for (const fname of HUNT.finale.pics || []) {
+    const safe = encodeURIComponent(fname);
+    tiles.push(`<figure class="pic-old"><img src="pics/${safe}" alt="" loading="lazy" onerror="this.closest('figure').style.display='none'"></figure>`);
+  }
+
+  const tilesHtml = tiles.length
+    ? tiles.join('')
     : '<p class="muted">Sin fotos guardadas.</p>';
 
   dlg.innerHTML = `
     <article class="finale-content">
       <h2>${escapeHtml(HUNT.finale.title)}</h2>
       <p>${escapeHtml(HUNT.finale.body)}</p>
-      <div class="gallery">${tiles}</div>
+      <div class="gallery">${tilesHtml}</div>
       <div class="actions">
         <button class="btn primary" id="zipBtn"><span class="ic">${ICON.send}</span><span>Enviar a Billy</span></button>
         <button class="btn ghost" id="closeFinaleBtn">Cerrar</button>
@@ -738,5 +760,6 @@ if (!TEST_MODE) {
 }
 
 // ---------- boot ----------
-renderMap();
+if (debugMode) document.body.classList.add('is-debug');
 renderClue();
+updateRadar();

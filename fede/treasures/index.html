@@ -10,8 +10,7 @@
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -25,8 +24,55 @@
   <div id="debugBanner" class="debug-banner" hidden></div>
 
   <main>
-    <section class="map-wrap" aria-label="Mapa de Boston">
-      <div id="map"></div>
+    <section class="radar-wrap" aria-label="Radar">
+      <div class="radar-stage">
+        <svg id="radar" class="radar" viewBox="-110 -110 220 220" aria-hidden="true">
+          <defs>
+            <radialGradient id="radarBg" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="rgba(40,255,120,0.22)"/>
+              <stop offset="55%" stop-color="rgba(10,180,60,0.08)"/>
+              <stop offset="100%" stop-color="rgba(0,30,15,0)"/>
+            </radialGradient>
+            <radialGradient id="blipGlow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="rgba(200,255,210,1)"/>
+              <stop offset="45%" stop-color="rgba(60,235,120,0.55)"/>
+              <stop offset="100%" stop-color="rgba(60,235,120,0)"/>
+            </radialGradient>
+            <radialGradient id="sweepGrad" cx="0" cy="0" r="100" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="rgba(160,255,190,0.85)"/>
+              <stop offset="55%" stop-color="rgba(50,230,110,0.22)"/>
+              <stop offset="100%" stop-color="rgba(50,230,110,0)"/>
+            </radialGradient>
+          </defs>
+
+          <circle r="100" fill="url(#radarBg)"/>
+          <circle r="100" class="radar-ring outer"/>
+          <circle r="75" class="radar-ring"/>
+          <circle r="50" class="radar-ring"/>
+          <circle r="25" class="radar-ring"/>
+          <line x1="-100" y1="0" x2="100" y2="0" class="radar-cross"/>
+          <line x1="0" y1="-100" x2="0" y2="100" class="radar-cross"/>
+          <text x="0" y="-88" class="radar-card" text-anchor="middle">N</text>
+          <text x="92" y="3" class="radar-card" text-anchor="middle">E</text>
+          <text x="0" y="98" class="radar-card" text-anchor="middle">S</text>
+          <text x="-92" y="3" class="radar-card" text-anchor="middle">W</text>
+
+          <g id="radarSweep" class="radar-sweep">
+            <path d="M 0 0 L 0 -100 A 100 100 0 0 1 70.71 -70.71 Z" fill="url(#sweepGrad)"/>
+            <line x1="0" y1="0" x2="0" y2="-100" class="radar-sweep-line"/>
+            <animateTransform attributeName="transform" type="rotate" from="0 0 0" to="360 0 0" dur="4s" repeatCount="indefinite"/>
+          </g>
+
+          <g id="radarBlip" class="radar-blip" style="display:none">
+            <circle r="20" class="radar-blip-halo" fill="url(#blipGlow)"/>
+            <circle r="5" class="radar-blip-core"/>
+          </g>
+
+          <circle r="2.6" class="radar-me"/>
+        </svg>
+        <div class="radar-status" id="radarStatus">esperando posición…</div>
+      </div>
+
       <button id="sonarToggle" class="sonar-btn" type="button" aria-pressed="false" aria-label="Sonar" title="Sonar">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <circle cx="12" cy="12" r="2"/>
@@ -41,7 +87,6 @@
 
   <dialog id="finaleDialog" class="finale" aria-label="Galería final"></dialog>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="https://unpkg.com/jszip@3.10.1/dist/jszip.min.js"></script>
   <script type="module" src="app.js"></script>
 </body>
