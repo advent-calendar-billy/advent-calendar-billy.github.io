@@ -482,7 +482,8 @@ function renderClue() {
       <button type="button" class="btn primary submit-btn" id="submitBtn">Resolver</button>
       <p id="answerHelp" class="answer-help" aria-live="polite"></p>
       <button type="button" class="link-btn" id="giveUpBtn">no me sale</button>
-      <button type="button" class="link-btn skip-btn" id="skipBtn">skip (debug) ▸</button>
+      <button type="button" class="link-btn skip-btn" id="skipBtn">skip ▸</button>
+      <button type="button" class="link-btn skip-btn" id="galleryBtn">galería ▸</button>
     </article>
   `;
 
@@ -509,7 +510,20 @@ function renderClue() {
   document.getElementById('giveUpBtn').addEventListener('click', () => {
     if (confirm('¿Revelar la respuesta y avanzar?')) onSolve(stop, true);
   });
-  document.getElementById('skipBtn').addEventListener('click', () => onSolve(stop, true));
+  document.getElementById('skipBtn').addEventListener('click', () => {
+    state.solvedIds.add(stop.id);
+    state.solvedWithHelp.add(stop.id);
+    persist();
+    renderClue();
+    updateRadar();
+  });
+  document.getElementById('galleryBtn').addEventListener('click', () => openFinale());
+
+  // pre-fill the answer in debug mode so the user can just click Resolver
+  if (debugMode && pwdType !== 'photo-smile') {
+    const input = document.getElementById('answerInput');
+    if (input) input.value = stop.answer || '';
+  }
 
   refreshLocksFromStorage(stop);
   updateRadar();
