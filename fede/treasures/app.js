@@ -162,7 +162,7 @@ const RADAR_EDGE_R = 96;       // SVG units: out-of-range blip clamps here
 const radarBlip = document.getElementById('radarBlip');
 const radarBlipHalo = radarBlip?.querySelector('.radar-blip-halo');
 const radarStatus = document.getElementById('radarStatus');
-const radarCards = document.getElementById('radarCards');
+const radarForward = document.getElementById('radarForward');
 
 // blip in absolute (north-up) coordinates; screen position computed each frame
 let blipBearingAbs = null;       // 0 = north, clockwise
@@ -266,27 +266,32 @@ function updateRadar() {
   radarStatus.textContent = s;
 }
 
-// rAF loop: rotate cardinals to true north, position the blip in screen-frame,
-// and drive blip-halo brightness as the sweep passes over it.
+// rAF loop: position blip at true bearing (north-up), rotate the "facing"
+// arrow with the phone's heading, and brighten the halo as the sweep passes.
+// The radar disc itself never rotates — N stays at the top.
 function radarTick(t) {
-  if (heading != null && radarCards) {
-    radarCards.setAttribute('transform', `rotate(${(-heading).toFixed(1)})`);
+  if (radarForward) {
+    if (heading != null) {
+      radarForward.style.display = '';
+      radarForward.setAttribute('transform', `rotate(${heading.toFixed(1)})`);
+    } else {
+      radarForward.style.display = 'none';
+    }
   }
 
   const sweepDeg = ((t / 4000) * 360) % 360;
 
   if (blipBearingAbs != null && radarBlip.style.display !== 'none') {
-    const screenBearingDeg = (blipBearingAbs - (heading || 0) + 360) % 360;
     const r = blipRadiusPx();
     if (r != null) {
-      const rad = screenBearingDeg * Math.PI / 180;
+      const rad = blipBearingAbs * Math.PI / 180;
       const x = Math.sin(rad) * r;
       const y = -Math.cos(rad) * r;
       radarBlip.setAttribute('transform', `translate(${x.toFixed(2)} ${y.toFixed(2)})`);
     }
     if (radarBlipHalo) {
-      // sweep is also in screen coords; light up when it just passed the blip
-      const behind = (sweepDeg - screenBearingDeg + 360) % 360;
+      // sweep and blip are both in absolute (north-up) frame
+      const behind = (sweepDeg - blipBearingAbs + 360) % 360;
       const win = 60;
       const glow = behind <= win ? (1 - behind / win) : 0.15;
       radarBlipHalo.style.setProperty('--blip-glow', (0.25 + glow * 0.75).toFixed(3));

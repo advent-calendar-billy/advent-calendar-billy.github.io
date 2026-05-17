@@ -72,7 +72,9 @@
             <text x="0" y="98" class="radar-card" text-anchor="middle">S</text>
             <text x="-92" y="3" class="radar-card" text-anchor="middle">W</text>
           </g>
-          <polygon class="radar-forward" points="0,-104 -4,-98 4,-98"/>
+          <g id="radarForward" class="radar-forward-wrap" style="display:none">
+            <polygon class="radar-forward" points="0,-104 -5,-94 5,-94"/>
+          </g>
 
           <g id="radarSweep" class="radar-sweep">
             <path d="M 0 0 L 0 -100 A 100 100 0 0 1 70.71 -70.71 Z" fill="url(#sweepGrad)"/>
