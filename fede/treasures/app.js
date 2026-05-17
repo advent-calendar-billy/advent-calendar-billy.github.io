@@ -396,6 +396,13 @@ function setSonar(on) {
 document.getElementById('sonarToggle')?.addEventListener('click', () => { requestCompass(); setSonar(!sonarOn); });
 document.getElementById('radar')?.addEventListener('click', requestCompass);
 
+document.getElementById('restartBtn')?.addEventListener('click', async () => {
+  if (!confirm('¿Borrar todo el progreso y las fotos y empezar de cero?')) return;
+  clearProgress();
+  await clearAllPhotos();
+  location.reload();
+});
+
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) clearSonarTimer();
   else if (sonarOn) scheduleNextBeep();

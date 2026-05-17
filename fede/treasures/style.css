@@ -199,6 +199,13 @@ main {
   color: var(--muted);
 }
 
+.hdr-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
 .hdr-progress {
   font-family: 'Fraunces', Georgia, serif;
   font-size: 0.88rem;
@@ -206,6 +213,29 @@ main {
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
+.hdr-version {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.62rem;
+  font-weight: 400;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  margin-left: 4px;
+  vertical-align: 2px;
+}
+.hdr-restart {
+  background: none;
+  border: none;
+  font: inherit;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 2px 4px;
+  text-transform: uppercase;
+  border-radius: 4px;
+}
+.hdr-restart:hover { color: rgba(180, 70, 50, 0.9); background: rgba(180, 70, 50, 0.06); }
 
 /* ---------- radar ---------- */
 .radar-wrap {
