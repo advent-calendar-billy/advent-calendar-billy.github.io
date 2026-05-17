@@ -93,7 +93,9 @@ const DEBUG_KEY = 'tesoros:debug';
 let realPos = null;     // [lat, lng] from GPS
 let debugMode = localStorage.getItem(DEBUG_KEY) === '1';
 
-function currentPos() { return realPos; }
+let spoofPos = null;            // [lat, lng] set by the debug GPS spoofer
+let spoofActive = false;        // when true, currentPos returns spoofPos
+function currentPos() { return (spoofActive && spoofPos) ? spoofPos : realPos; }
 
 let gpsErr = null; // last geolocation error message (shown in radar status when no fix yet)
 
@@ -150,23 +152,72 @@ function distanceToActive() {
 
 // ---------- radar ----------
 const RADAR_MAX_M = 600;       // matches sonar range
-const RADAR_INNER_R = 14;      // px in SVG units: inside this is "very close"
-const RADAR_EDGE_R = 96;       // px in SVG units: clamp blip to this radius if out of range
+const RADAR_INNER_R = 14;      // SVG units: closer than this stacks at center
+const RADAR_EDGE_R = 96;       // SVG units: out-of-range blip clamps here
 
 const radarBlip = document.getElementById('radarBlip');
 const radarBlipHalo = radarBlip?.querySelector('.radar-blip-halo');
 const radarStatus = document.getElementById('radarStatus');
-const radarSweep = document.getElementById('radarSweep');
+const radarCards = document.getElementById('radarCards');
 
-let blipBearingDeg = null;       // 0 = north, clockwise — last computed bearing in screen coords
+// blip in absolute (north-up) coordinates; screen position computed each frame
+let blipBearingAbs = null;       // 0 = north, clockwise
 let blipDistance = null;         // metres
 let blipOutOfRange = false;
 let blipFound = false;
+
+// device heading, smoothed; null when no compass available
+let heading = null;
+let compassRequested = false;
+
+function attachCompass() {
+  if (typeof DeviceOrientationEvent === 'undefined') return;
+  if ('ondeviceorientationabsolute' in window) {
+    window.addEventListener('deviceorientationabsolute', onOrientation);
+  }
+  window.addEventListener('deviceorientation', onOrientation);
+}
+
+function requestCompass() {
+  if (compassRequested) return;
+  compassRequested = true;
+  if (typeof DeviceOrientationEvent === 'undefined') return;
+  if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+    DeviceOrientationEvent.requestPermission()
+      .then(s => { if (s === 'granted') attachCompass(); })
+      .catch(() => {});
+  } else {
+    attachCompass();
+  }
+}
+
+function onOrientation(e) {
+  let h;
+  if (typeof e.webkitCompassHeading === 'number') {
+    h = e.webkitCompassHeading;
+  } else if (typeof e.alpha === 'number') {
+    h = (360 - e.alpha) % 360;
+  } else {
+    return;
+  }
+  if (heading == null) { heading = h; return; }
+  let diff = h - heading;
+  if (diff > 180) diff -= 360;
+  if (diff < -180) diff += 360;
+  heading = (heading + diff * 0.18 + 360) % 360;
+}
 
 function fmtDist(m) {
   if (m == null) return '—';
   if (m < 1000) return `${Math.round(m)} m`;
   return `${(m / 1000).toFixed(2)} km`;
+}
+
+function blipRadiusPx() {
+  if (blipDistance == null) return null;
+  if (blipOutOfRange) return RADAR_EDGE_R;
+  const t = Math.max(0, Math.min(1, blipDistance / RADAR_MAX_M));
+  return RADAR_INNER_R + (RADAR_EDGE_R - RADAR_INNER_R) * Math.pow(t, 0.85);
 }
 
 function updateRadar() {
@@ -175,15 +226,14 @@ function updateRadar() {
   const target = activeStopCoord();
 
   if (idx < 0) {
-    // hunt complete
     radarBlip.style.display = 'none';
-    blipBearingDeg = null;
+    blipBearingAbs = null;
     radarStatus.textContent = '· objetivo alcanzado ·';
     return;
   }
   if (!here) {
     radarBlip.style.display = 'none';
-    blipBearingDeg = null;
+    blipBearingAbs = null;
     radarStatus.textContent = gpsErr ? `gps · ${gpsErr}` : 'esperando posición…';
     return;
   }
@@ -193,65 +243,52 @@ function updateRadar() {
     return;
   }
 
-  const d = haversine(here, target);
-  const b = bearingRad(here, target); // radians, 0 = north
-  const bDeg = (b * 180 / Math.PI + 360) % 360;
-  blipBearingDeg = bDeg;
-  blipDistance = d;
-  blipOutOfRange = d > RADAR_MAX_M;
-  blipFound = d < 5;
+  blipDistance = haversine(here, target);
+  const b = bearingRad(here, target);
+  blipBearingAbs = (b * 180 / Math.PI + 360) % 360;
+  blipOutOfRange = blipDistance > RADAR_MAX_M;
+  blipFound = blipDistance < 5;
 
-  // scale distance to radar radius. Out of range → clamp to edge.
-  let r;
-  if (blipOutOfRange) {
-    r = RADAR_EDGE_R;
-  } else {
-    const t = Math.max(0, Math.min(1, d / RADAR_MAX_M));
-    // ease-out so near targets don't all stack at center
-    r = RADAR_INNER_R + (RADAR_EDGE_R - RADAR_INNER_R) * Math.pow(t, 0.85);
-  }
-
-  const rad = b; // 0 = north (up)
-  const x = Math.sin(rad) * r;
-  const y = -Math.cos(rad) * r;
-
-  radarBlip.setAttribute('transform', `translate(${x.toFixed(2)} ${y.toFixed(2)})`);
   radarBlip.style.display = '';
   radarBlip.classList.toggle('edge', blipOutOfRange);
   radarBlip.classList.toggle('found', blipFound);
 
-  // status text under radar
-  const stop = HUNT.stops[idx];
   const num = String(idx + 1).padStart(2, '0');
-  if (blipFound) {
-    radarStatus.textContent = `· ${num} · LLEGASTE ·`;
-  } else if (blipOutOfRange) {
-    radarStatus.textContent = `parada ${num} · ${fmtDist(d)} · fuera del radar`;
-  } else {
-    radarStatus.textContent = `parada ${num} · ${fmtDist(d)}`;
-  }
+  let s;
+  if (blipFound) s = `· ${num} · LLEGASTE ·`;
+  else if (blipOutOfRange) s = `parada ${num} · ${fmtDist(blipDistance)} · fuera del radar`;
+  else s = `parada ${num} · ${fmtDist(blipDistance)}`;
+  if (heading != null) s += ` · ${Math.round(heading)}°`;
+  radarStatus.textContent = s;
 }
 
-// rAF loop drives blip-glow based on sweep angle and updates from GPS
+// rAF loop: rotate cardinals to true north, position the blip in screen-frame,
+// and drive blip-halo brightness as the sweep passes over it.
 function radarTick(t) {
-  // sweep angle is driven by SMIL <animateTransform>, period 4s.
-  const sweepDeg = ((t / 4000) * 360) % 360;
-  if (blipBearingDeg != null && radarBlipHalo) {
-    const diff = Math.min(
-      Math.abs(blipBearingDeg - sweepDeg),
-      360 - Math.abs(blipBearingDeg - sweepDeg)
-    );
-    // glow window: 0..45 degrees behind the sweep → bright; otherwise dim
-    const behind = ((sweepDeg - blipBearingDeg + 360) % 360);
-    const window = 60;
-    let glow;
-    if (behind <= window) {
-      glow = 1 - behind / window;
-    } else {
-      glow = 0.15;
-    }
-    radarBlipHalo.style.setProperty('--blip-glow', (0.25 + glow * 0.75).toFixed(3));
+  if (heading != null && radarCards) {
+    radarCards.setAttribute('transform', `rotate(${(-heading).toFixed(1)})`);
   }
+
+  const sweepDeg = ((t / 4000) * 360) % 360;
+
+  if (blipBearingAbs != null && radarBlip.style.display !== 'none') {
+    const screenBearingDeg = (blipBearingAbs - (heading || 0) + 360) % 360;
+    const r = blipRadiusPx();
+    if (r != null) {
+      const rad = screenBearingDeg * Math.PI / 180;
+      const x = Math.sin(rad) * r;
+      const y = -Math.cos(rad) * r;
+      radarBlip.setAttribute('transform', `translate(${x.toFixed(2)} ${y.toFixed(2)})`);
+    }
+    if (radarBlipHalo) {
+      // sweep is also in screen coords; light up when it just passed the blip
+      const behind = (sweepDeg - screenBearingDeg + 360) % 360;
+      const win = 60;
+      const glow = behind <= win ? (1 - behind / win) : 0.15;
+      radarBlipHalo.style.setProperty('--blip-glow', (0.25 + glow * 0.75).toFixed(3));
+    }
+  }
+
   requestAnimationFrame(radarTick);
 }
 requestAnimationFrame(radarTick);
@@ -356,7 +393,8 @@ function setSonar(on) {
   }
 }
 
-document.getElementById('sonarToggle')?.addEventListener('click', () => setSonar(!sonarOn));
+document.getElementById('sonarToggle')?.addEventListener('click', () => { requestCompass(); setSonar(!sonarOn); });
+document.getElementById('radar')?.addEventListener('click', requestCompass);
 
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) clearSonarTimer();
@@ -380,7 +418,131 @@ function setDebugMode(on) {
   document.body.classList.toggle('is-debug', on);
   refreshDebugBanner();
   if (sonarOn) scheduleNextBeep();
+  if (on) ensureGpsSpoofer();
+  else hideGpsSpoofer();
 }
+
+// ---------- debug GPS spoofer (lazy-loaded Leaflet, debug-only) ----------
+const gpsSpoofEl = document.getElementById('gpsSpoof');
+const gpsSpoofMapEl = document.getElementById('gpsSpoofMap');
+const gpsSpoofInfoEl = document.getElementById('gpsSpoofInfo');
+const gpsSpoofToggleBtn = document.getElementById('gpsSpoofToggle');
+const gpsSpoofJumpBtn = document.getElementById('gpsSpoofJump');
+const gpsSpoofCollapseBtn = document.getElementById('gpsSpoofCollapse');
+
+let spoofMap = null;
+let spoofMarker = null;
+let leafletLoading = null;
+
+function loadLeaflet() {
+  if (window.L) return Promise.resolve();
+  if (leafletLoading) return leafletLoading;
+  leafletLoading = new Promise((resolve, reject) => {
+    const css = document.createElement('link');
+    css.rel = 'stylesheet';
+    css.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+    css.integrity = 'sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=';
+    css.crossOrigin = '';
+    document.head.appendChild(css);
+    const s = document.createElement('script');
+    s.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+    s.integrity = 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=';
+    s.crossOrigin = '';
+    s.onload = () => resolve();
+    s.onerror = () => reject(new Error('leaflet load failed'));
+    document.head.appendChild(s);
+  });
+  return leafletLoading;
+}
+
+function spoofStartingPos() {
+  const target = activeStopCoord();
+  if (target) return [target[0] + 0.0008, target[1] + 0.0009]; // ~100m offset
+  return [42.3601, -71.0589]; // Boston Common fallback
+}
+
+function updateSpoofInfo() {
+  if (!gpsSpoofInfoEl) return;
+  if (!spoofPos) {
+    gpsSpoofInfoEl.textContent = 'arrastrá el pin';
+    return;
+  }
+  const [lat, lng] = spoofPos;
+  const d = distanceToActive();
+  const dStr = d == null ? '—' : fmtDist(d);
+  gpsSpoofInfoEl.textContent = `${lat.toFixed(5)}, ${lng.toFixed(5)} · ${dStr}`;
+}
+
+function setSpoofActive(on) {
+  spoofActive = on;
+  if (gpsSpoofToggleBtn) {
+    gpsSpoofToggleBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    gpsSpoofToggleBtn.textContent = on ? 'desactivar' : 'activar';
+  }
+  if (sonarOn) scheduleNextBeep();
+  updateRadar();
+}
+
+async function ensureGpsSpoofer() {
+  if (!gpsSpoofEl) return;
+  gpsSpoofEl.hidden = false;
+  if (spoofMap) return;
+  try { await loadLeaflet(); } catch { return; }
+  if (spoofMap) return;
+  const start = spoofStartingPos();
+  spoofPos = start;
+  spoofMap = L.map(gpsSpoofMapEl, { zoomControl: true, attributionControl: true })
+    .setView(start, 15);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; OSM &copy; CARTO',
+    subdomains: 'abcd', maxZoom: 19
+  }).addTo(spoofMap);
+  const icon = L.divIcon({
+    className: 'gps-spoof-pin-wrap',
+    html: '<div class="gps-spoof-pin"></div>',
+    iconSize: [18, 18], iconAnchor: [9, 9]
+  });
+  spoofMarker = L.marker(start, { icon, draggable: true, autoPan: true }).addTo(spoofMap);
+  const sync = () => {
+    const p = spoofMarker.getLatLng();
+    spoofPos = [p.lat, p.lng];
+    updateSpoofInfo();
+    updateRadar();
+    if (sonarOn) scheduleNextBeep();
+  };
+  spoofMarker.on('drag', sync);
+  spoofMarker.on('dragend', sync);
+  spoofMap.on('click', (e) => {
+    spoofMarker.setLatLng(e.latlng);
+    sync();
+  });
+  updateSpoofInfo();
+}
+
+function hideGpsSpoofer() {
+  if (gpsSpoofEl) gpsSpoofEl.hidden = true;
+  if (spoofActive) setSpoofActive(false);
+}
+
+gpsSpoofToggleBtn?.addEventListener('click', () => setSpoofActive(!spoofActive));
+gpsSpoofJumpBtn?.addEventListener('click', () => {
+  if (!spoofMap || !spoofMarker) return;
+  const target = activeStopCoord();
+  if (!target) return;
+  const here = [target[0] + 0.0008, target[1] + 0.0009];
+  spoofMarker.setLatLng(here);
+  spoofMap.setView(here, Math.max(spoofMap.getZoom(), 15));
+  spoofPos = here;
+  updateSpoofInfo();
+  updateRadar();
+  if (sonarOn) scheduleNextBeep();
+});
+gpsSpoofCollapseBtn?.addEventListener('click', () => {
+  gpsSpoofEl?.classList.toggle('is-collapsed');
+  if (spoofMap && !gpsSpoofEl?.classList.contains('is-collapsed')) {
+    setTimeout(() => spoofMap.invalidateSize(), 50);
+  }
+});
 
 window.addEventListener('keydown', e => {
   if (e.key !== '6') return;

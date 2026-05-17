@@ -12,6 +12,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <!-- leaflet is only used by the debug GPS spoofer (loaded lazily by app.js) -->
 </head>
 <body>
   <header class="hdr">
@@ -22,6 +23,16 @@
     <div class="hdr-progress" id="progressLabel" aria-live="polite"></div>
   </header>
   <div id="debugBanner" class="debug-banner" hidden></div>
+  <div id="gpsSpoof" class="gps-spoof" hidden>
+    <div class="gps-spoof-head">
+      <span>SPOOF GPS</span>
+      <button type="button" id="gpsSpoofToggle" class="gps-spoof-btn" aria-pressed="false">activar</button>
+      <button type="button" id="gpsSpoofJump" class="gps-spoof-btn" title="ir a la parada activa">↺ parada</button>
+      <button type="button" id="gpsSpoofCollapse" class="gps-spoof-btn" title="minimizar">—</button>
+    </div>
+    <div id="gpsSpoofMap" class="gps-spoof-map"></div>
+    <div id="gpsSpoofInfo" class="gps-spoof-info">arrastrá el pin</div>
+  </div>
 
   <main>
     <section class="radar-wrap" aria-label="Radar">
@@ -52,10 +63,13 @@
           <circle r="25" class="radar-ring"/>
           <line x1="-100" y1="0" x2="100" y2="0" class="radar-cross"/>
           <line x1="0" y1="-100" x2="0" y2="100" class="radar-cross"/>
-          <text x="0" y="-88" class="radar-card" text-anchor="middle">N</text>
-          <text x="92" y="3" class="radar-card" text-anchor="middle">E</text>
-          <text x="0" y="98" class="radar-card" text-anchor="middle">S</text>
-          <text x="-92" y="3" class="radar-card" text-anchor="middle">W</text>
+          <g id="radarCards">
+            <text x="0" y="-88" class="radar-card is-north" text-anchor="middle">N</text>
+            <text x="92" y="3" class="radar-card" text-anchor="middle">E</text>
+            <text x="0" y="98" class="radar-card" text-anchor="middle">S</text>
+            <text x="-92" y="3" class="radar-card" text-anchor="middle">W</text>
+          </g>
+          <polygon class="radar-forward" points="0,-104 -4,-98 4,-98"/>
 
           <g id="radarSweep" class="radar-sweep">
             <path d="M 0 0 L 0 -100 A 100 100 0 0 1 70.71 -70.71 Z" fill="url(#sweepGrad)"/>
