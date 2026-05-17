@@ -13,8 +13,10 @@ if (TEST_MODE) {
   clearProgress();
   await clearAllPhotos();
 }
-if (new URLSearchParams(location.search).has('debug')) {
-  localStorage.setItem('tesoros:debug', '1');
+{
+  const _p = new URLSearchParams(location.search);
+  if (_p.has('debug')) localStorage.setItem('tesoros:debug', '1');
+  if (_p.has('nodebug')) localStorage.setItem('tesoros:debug', '0');
 }
 
 // ---------- helpers ----------
@@ -91,7 +93,9 @@ let activeLocks = null;
 // ---------- position source (real GPS or debug override) ----------
 const DEBUG_KEY = 'tesoros:debug';
 let realPos = null;     // [lat, lng] from GPS
-let debugMode = localStorage.getItem(DEBUG_KEY) === '1';
+// debug mode is ON by default during pre-launch development.
+// to ship: change this to `=== '1'` (off unless explicitly enabled) before sharing with Fede.
+let debugMode = localStorage.getItem(DEBUG_KEY) !== '0';
 
 let spoofPos = null;            // [lat, lng] set by the debug GPS spoofer
 let spoofActive = false;        // when true, currentPos returns spoofPos
