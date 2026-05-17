@@ -180,6 +180,22 @@ main {
   border: 2px solid #FAF6EE;
   box-shadow: 0 0 0 2px rgba(255, 140, 80, 0.45), 0 2px 6px rgba(0, 0, 0, 0.4);
 }
+.gps-spoof-stop-wrap { background: transparent; border: none; }
+.gps-spoof-stop {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(120, 255, 160, 0.92);
+  color: #052712;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid #052712;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+}
 
 .hdr-title h1 {
   font-family: 'Fraunces', Georgia, serif;

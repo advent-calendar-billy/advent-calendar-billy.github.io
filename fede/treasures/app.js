@@ -510,6 +510,19 @@ async function ensureGpsSpoofer() {
     iconSize: [18, 18], iconAnchor: [9, 9]
   });
   spoofMarker = L.marker(start, { icon, draggable: true, autoPan: true }).addTo(spoofMap);
+
+  // plot every stop as a small reference marker so the user can sanity-check coords
+  HUNT.stops.forEach((stop, i) => {
+    const stopIcon = L.divIcon({
+      className: 'gps-spoof-stop-wrap',
+      html: `<div class="gps-spoof-stop">${i + 1}</div>`,
+      iconSize: [18, 18], iconAnchor: [9, 9]
+    });
+    L.marker(stop.coord, { icon: stopIcon, interactive: true, title: stop.name })
+      .addTo(spoofMap)
+      .bindTooltip(`${i + 1}. ${stop.name}`, { direction: 'top', offset: [0, -8] });
+  });
+
   const sync = () => {
     const p = spoofMarker.getLatLng();
     spoofPos = [p.lat, p.lng];

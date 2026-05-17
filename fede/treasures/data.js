@@ -55,7 +55,7 @@ export const HUNT = {
       type: "sight",
       lang: "es",
       name: "Edgar Allan Poe statue",
-      coord: [42.3535, -71.0660],
+      coord: [42.3523, -71.0674],
       circle: { radius: 220, offset: [-0.0006, -0.0008] },
       clue: "Hay un corazón en Beacon Hill. ¿Sobre qué descansa?",
       passwordType: "text",
