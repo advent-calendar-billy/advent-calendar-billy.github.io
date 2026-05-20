@@ -231,7 +231,8 @@ export const HUNT = {
       "16.jpeg", "17.jpeg", "18.jpeg", "19.jpeg", "20.jpeg",
       "21.jpeg", "22.jpeg", "23.jpeg", "24.jpeg", "25.jpeg",
       "26.jpeg", "27.jpeg", "28.jpeg", "29.jpeg", "30.jpeg",
-      "31.jpeg", "32.jpeg", "33.jpeg", "34.jpeg", "35.jpeg"
+      "31.jpeg", "32.jpeg", "33.jpeg", "34.jpeg", "35.jpeg",
+      "36.jpeg", "37.jpeg", "38.jpeg", "39.jpeg", "40.jpeg"
     ]
   }
 };
