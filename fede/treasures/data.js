@@ -77,7 +77,7 @@ export const HUNT = {
       name: "Steaming Tea Kettle",
       coord: [42.3593, -71.0592],
       circle: { radius: 220, offset: [-0.0007, 0.0008] },
-      clue: "En Government Center, un viejo amigo de tus tardes de té echa vapor desde 1873. ¿Cuántos galones dice contener?",
+      clue: "En Government Center, algo que tenemos en Berlin echa vapor desde 1873. ¿Cuántos galones dice contener?",
       passwordType: "text",
       answer: "227",
       altAnswers: ["doscientos veintisiete", "227 gallons"],
