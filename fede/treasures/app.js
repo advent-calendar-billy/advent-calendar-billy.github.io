@@ -1071,10 +1071,12 @@ function clearFinaleBlobs() {
 
 function renderFinale() {
   renderProgressLabel();
+  const titleHtml = HUNT.finale.title ? `<h2>${escapeHtml(HUNT.finale.title)}</h2>` : '';
+  const bodyHtml  = HUNT.finale.body  ? `<p>${escapeHtml(HUNT.finale.body)}</p>`   : '';
   cluePanel.innerHTML = `
     <article class="clue-card done">
-      <h2>${escapeHtml(HUNT.finale.title)}</h2>
-      <p>${escapeHtml(HUNT.finale.body)}</p>
+      ${titleHtml}
+      ${bodyHtml}
       <div class="gallery" id="finaleGallery"><p class="muted">cargando fotos…</p></div>
     </article>
   `;

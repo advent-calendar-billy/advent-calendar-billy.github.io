@@ -222,8 +222,8 @@ export const HUNT = {
     }
   ],
   finale: {
-    title: "Encontraste todos los tesoros",
-    body: "Mis tesoros son nuestros momentos juntos (hagamos más fotos!)",
+    title: "Mis tesoros son nuestros momentos juntos",
+    body: "",
     pics: [
       "01.jpeg", "02.jpeg", "03.jpeg", "04.jpeg", "05.jpeg",
       "06.jpeg", "07.jpeg", "08.jpeg", "09.jpeg", "10.jpeg",
