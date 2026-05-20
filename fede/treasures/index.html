@@ -10,7 +10,7 @@
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=IM+Fell+English+SC&family=Inter:wght@400;500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <!-- leaflet is only used by the debug GPS spoofer (loaded lazily by app.js) -->
 </head>
@@ -34,62 +34,118 @@
       <button type="button" id="gpsSpoofCollapse" class="gps-spoof-btn" title="minimizar">—</button>
     </div>
     <div id="gpsSpoofMap" class="gps-spoof-map"></div>
-    <div id="gpsSpoofInfo" class="gps-spoof-info">arrastrá el pin</div>
+    <div class="gps-spoof-heading">
+      <label for="gpsSpoofHeading">rumbo</label>
+      <input id="gpsSpoofHeading" type="range" min="0" max="359" value="0">
+      <span id="gpsSpoofHeadingVal">0°</span>
+    </div>
+    <div id="gpsSpoofInfo" class="gps-spoof-info">arrastrá el pin · ← → cambia objetivo</div>
   </div>
 
   <main>
-    <section class="radar-wrap" aria-label="Radar">
-      <div class="radar-stage">
-        <svg id="radar" class="radar" viewBox="-110 -110 220 220" aria-hidden="true">
+    <section class="compass-wrap" aria-label="Brújula">
+      <div class="compass-stage">
+        <svg id="compass" class="compass-svg" viewBox="-150 -150 300 300" aria-hidden="true">
           <defs>
-            <radialGradient id="radarBg" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stop-color="rgba(40,255,120,0.22)"/>
-              <stop offset="55%" stop-color="rgba(10,180,60,0.08)"/>
-              <stop offset="100%" stop-color="rgba(0,30,15,0)"/>
+            <radialGradient id="paperFace" cx="50%" cy="42%" r="65%">
+              <stop offset="0%"  stop-color="#f5e9c8"/>
+              <stop offset="55%" stop-color="#dac79a"/>
+              <stop offset="100%" stop-color="#9a8556"/>
             </radialGradient>
-            <radialGradient id="blipGlow" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stop-color="rgba(200,255,210,1)"/>
-              <stop offset="45%" stop-color="rgba(60,235,120,0.55)"/>
-              <stop offset="100%" stop-color="rgba(60,235,120,0)"/>
+            <radialGradient id="brassBezel" cx="50%" cy="50%" r="50%">
+              <stop offset="80%"  stop-color="#7a5a2a"/>
+              <stop offset="92%"  stop-color="#d9b06a"/>
+              <stop offset="100%" stop-color="#4a2e10"/>
             </radialGradient>
-            <radialGradient id="sweepGrad" cx="0" cy="0" r="100" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stop-color="rgba(160,255,190,0.85)"/>
-              <stop offset="55%" stop-color="rgba(50,230,110,0.22)"/>
-              <stop offset="100%" stop-color="rgba(50,230,110,0)"/>
+            <radialGradient id="brassOuter" cx="50%" cy="50%" r="50%">
+              <stop offset="86%"  stop-color="#2a190c"/>
+              <stop offset="94%"  stop-color="#8a6535"/>
+              <stop offset="100%" stop-color="#1c0f06"/>
             </radialGradient>
+            <radialGradient id="glassShine" cx="35%" cy="28%" r="55%">
+              <stop offset="0%"   stop-color="#ffffff" stop-opacity="0.42"/>
+              <stop offset="35%"  stop-color="#ffffff" stop-opacity="0.10"/>
+              <stop offset="70%"  stop-color="#ffffff" stop-opacity="0"/>
+            </radialGradient>
+            <radialGradient id="glassShadow" cx="62%" cy="78%" r="55%">
+              <stop offset="0%"  stop-color="#000000" stop-opacity="0.22"/>
+              <stop offset="60%" stop-color="#000000" stop-opacity="0.04"/>
+              <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+            </radialGradient>
+            <linearGradient id="needleRed" x1="0" y1="-100" x2="0" y2="0" gradientUnits="userSpaceOnUse">
+              <stop offset="0%"  stop-color="#c83a30"/>
+              <stop offset="60%" stop-color="#9c2a22"/>
+              <stop offset="100%" stop-color="#5a1410"/>
+            </linearGradient>
+            <linearGradient id="needlePale" x1="0" y1="0" x2="0" y2="100" gradientUnits="userSpaceOnUse">
+              <stop offset="0%"   stop-color="#f8efd5"/>
+              <stop offset="55%"  stop-color="#e2d2a8"/>
+              <stop offset="100%" stop-color="#8a7748"/>
+            </linearGradient>
+            <pattern id="specks" width="6" height="6" patternUnits="userSpaceOnUse">
+              <rect width="6" height="6" fill="transparent"/>
+              <circle cx="1.4" cy="2.1" r="0.35" fill="#7a5a2a" opacity="0.15"/>
+              <circle cx="4.6" cy="4.9" r="0.25" fill="#3a2412" opacity="0.10"/>
+            </pattern>
           </defs>
 
-          <circle r="100" fill="url(#radarBg)"/>
-          <circle r="100" class="radar-ring outer"/>
-          <circle r="75" class="radar-ring"/>
-          <circle r="50" class="radar-ring"/>
-          <circle r="25" class="radar-ring"/>
-          <line x1="-100" y1="0" x2="100" y2="0" class="radar-cross"/>
-          <line x1="0" y1="-100" x2="0" y2="100" class="radar-cross"/>
-          <g id="radarCards">
-            <text x="0" y="-88" class="radar-card is-north" text-anchor="middle">N</text>
-            <text x="92" y="3" class="radar-card" text-anchor="middle">E</text>
-            <text x="0" y="98" class="radar-card" text-anchor="middle">S</text>
-            <text x="-92" y="3" class="radar-card" text-anchor="middle">W</text>
-          </g>
-          <g id="radarForward" class="radar-forward-wrap" style="display:none">
-            <polygon class="radar-forward" points="0,-104 -5,-94 5,-94"/>
+          <circle r="146" fill="url(#brassOuter)"/>
+          <circle r="138" fill="url(#brassBezel)"/>
+          <circle r="125" fill="none" stroke="#3a2412" stroke-width="1.4"/>
+          <circle r="123" fill="none" stroke="#d9b06a" stroke-width="0.6" opacity="0.55"/>
+          <g id="rivets"></g>
+          <circle r="122" fill="url(#paperFace)"/>
+          <circle r="122" fill="url(#specks)"/>
+
+          <g id="faceRose">
+            <g id="ticks"></g>
+            <g id="rose">
+              <g><polygon points="0,-95 8,-12 0,0 -8,-12" fill="#efe3c5" stroke="#3a2412" stroke-width="0.6"/><polygon points="0,-95 8,-12 0,0" fill="#c9b58a" opacity="0.85"/></g>
+              <g transform="rotate(90)"><polygon points="0,-95 8,-12 0,0 -8,-12" fill="#efe3c5" stroke="#3a2412" stroke-width="0.6"/><polygon points="0,-95 8,-12 0,0" fill="#c9b58a" opacity="0.85"/></g>
+              <g transform="rotate(180)"><polygon points="0,-95 8,-12 0,0 -8,-12" fill="#efe3c5" stroke="#3a2412" stroke-width="0.6"/><polygon points="0,-95 8,-12 0,0" fill="#c9b58a" opacity="0.85"/></g>
+              <g transform="rotate(270)"><polygon points="0,-95 8,-12 0,0 -8,-12" fill="#efe3c5" stroke="#3a2412" stroke-width="0.6"/><polygon points="0,-95 8,-12 0,0" fill="#c9b58a" opacity="0.85"/></g>
+              <g transform="rotate(45)"><polygon points="0,-66 5,-10 0,0 -5,-10" fill="#dac79a" stroke="#3a2412" stroke-width="0.5"/><polygon points="0,-66 5,-10 0,0" fill="#a08c5e" opacity="0.7"/></g>
+              <g transform="rotate(135)"><polygon points="0,-66 5,-10 0,0 -5,-10" fill="#dac79a" stroke="#3a2412" stroke-width="0.5"/><polygon points="0,-66 5,-10 0,0" fill="#a08c5e" opacity="0.7"/></g>
+              <g transform="rotate(225)"><polygon points="0,-66 5,-10 0,0 -5,-10" fill="#dac79a" stroke="#3a2412" stroke-width="0.5"/><polygon points="0,-66 5,-10 0,0" fill="#a08c5e" opacity="0.7"/></g>
+              <g transform="rotate(315)"><polygon points="0,-66 5,-10 0,0 -5,-10" fill="#dac79a" stroke="#3a2412" stroke-width="0.5"/><polygon points="0,-66 5,-10 0,0" fill="#a08c5e" opacity="0.7"/></g>
+              <circle r="14" fill="#3a2412" opacity="0.55"/>
+              <circle r="14" fill="none" stroke="#d9b06a" stroke-width="0.8" opacity="0.7"/>
+            </g>
+            <g font-family="'Cinzel', serif" font-weight="600" fill="#3a2412">
+              <text x="0" y="-108" font-size="18" text-anchor="middle">N</text>
+              <text x="108" y="6" font-size="15" text-anchor="middle">E</text>
+              <text x="0" y="118" font-size="15" text-anchor="middle">S</text>
+              <text x="-108" y="6" font-size="15" text-anchor="middle">W</text>
+            </g>
+            <g font-family="'IM Fell English SC', serif" font-style="italic" fill="#7d6a40" font-size="9">
+              <text x="78" y="-72" text-anchor="middle">NE</text>
+              <text x="80" y="80" text-anchor="middle">SE</text>
+              <text x="-78" y="80" text-anchor="middle">SW</text>
+              <text x="-80" y="-72" text-anchor="middle">NW</text>
+            </g>
           </g>
 
-          <g id="radarSweep" class="radar-sweep">
-            <path d="M 0 0 L 0 -100 A 100 100 0 0 1 70.71 -70.71 Z" fill="url(#sweepGrad)"/>
-            <line x1="0" y1="0" x2="0" y2="-100" class="radar-sweep-line"/>
-            <animateTransform attributeName="transform" type="rotate" from="0 0 0" to="360 0 0" dur="4s" repeatCount="indefinite"/>
+          <g id="compassForward">
+            <polygon points="0,-130 -7,-118 7,-118" fill="#e6b43c" stroke="#5a3a10" stroke-width="0.6"/>
           </g>
 
-          <g id="radarBlip" class="radar-blip" style="display:none">
-            <circle r="20" class="radar-blip-halo" fill="url(#blipGlow)"/>
-            <circle r="5" class="radar-blip-core"/>
+          <g id="needleRotor" style="display:none">
+            <g id="needle">
+              <polygon points="0,-96 -7,-12 0,4 7,-12" fill="url(#needleRed)" stroke="#3a0f0a" stroke-width="0.6"/>
+              <polygon points="0,-96 0,4 -1.5,-12" fill="#ffffff" opacity="0.18"/>
+              <polygon points="0,96 -7,12 0,-4 7,12" fill="url(#needlePale)" stroke="#5a4427" stroke-width="0.6"/>
+              <polygon points="0,96 0,-4 -1.5,12" fill="#ffffff" opacity="0.25"/>
+            </g>
+            <circle r="7" fill="#1a0f08" stroke="#d9b06a" stroke-width="1.2"/>
+            <circle r="3.2" fill="#d9b06a"/>
+            <circle r="1.4" fill="#fff4cc"/>
           </g>
 
-          <circle r="2.6" class="radar-me"/>
+          <circle r="122" fill="url(#glassShadow)"/>
+          <circle r="122" fill="url(#glassShine)"/>
+          <circle r="122" fill="none" stroke="#2a190c" stroke-width="2" opacity="0.32"/>
         </svg>
-        <div class="radar-status" id="radarStatus">esperando posición…</div>
+        <div class="compass-status" id="compassStatus">esperando posición…</div>
       </div>
 
       <button id="sonarToggle" class="sonar-btn" type="button" aria-pressed="false" aria-label="Sonar" title="Sonar">

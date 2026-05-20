@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Compass preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=IM+Fell+English+SC&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<style>
+  :root {
+    --wood-1: #2b1d12;
+    --wood-2: #1a0f08;
+    --brass-hi: #d9b06a;
+    --brass-mid: #8a6535;
+    --brass-lo: #3a2412;
+    --paper-1: #efe3c5;
+    --paper-2: #c9b58a;
+    --paper-3: #7d6a40;
+    --ink: #3a2412;
+    --needle-red: #9c2a22;
+    --needle-red-dark: #5a1410;
+    --needle-pale: #f3ecd5;
+    --needle-pale-shadow: #b8a878;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0;
+    min-height: 100dvh;
+    background:
+      radial-gradient(ellipse at 30% 20%, rgba(120,80,40,0.18) 0%, transparent 55%),
+      radial-gradient(ellipse at 70% 90%, rgba(60,30,10,0.5) 0%, transparent 65%),
+      repeating-linear-gradient(95deg, var(--wood-1) 0px, var(--wood-1) 22px, var(--wood-2) 22px, var(--wood-2) 44px),
+      var(--wood-1);
+    color: var(--paper-1);
+    font-family: 'Inter', system-ui, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 24px 16px 40px;
+    gap: 24px;
+  }
+
+  header { text-align: center; }
+  header h1 {
+    font-family: 'IM Fell English SC', serif;
+    font-weight: 400;
+    font-size: 1.4rem;
+    letter-spacing: 0.08em;
+    margin: 0;
+    color: var(--paper-2);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+  }
+  header p {
+    font-family: 'IM Fell English SC', serif;
+    font-style: italic;
+    font-size: 0.92rem;
+    margin: 4px 0 0;
+    color: var(--paper-3);
+  }
+
+  .compass-wrap {
+    position: relative;
+    width: min(86vmin, 460px);
+    aspect-ratio: 1 / 1;
+    filter: drop-shadow(0 20px 38px rgba(0,0,0,0.55)) drop-shadow(0 4px 6px rgba(0,0,0,0.4));
+  }
+  .compass-svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  /* slow drifting wobble — feels like a compass on a moving deck */
+  #needle {
+    transform-origin: 0 0;
+    transform-box: view-box;
+    animation: needle-wobble 5.5s ease-in-out infinite;
+  }
+  @keyframes needle-wobble {
+    0%, 100% { rotate: -0.6deg; }
+    50%      { rotate:  0.6deg; }
+  }
+  /* outer wrapper holds the "target" rotation set by JS; needle does the wobble inside */
+  #needleRotor {
+    transition: transform 0.85s cubic-bezier(.34, 1.32, .42, .98);
+    transform-origin: 0 0;
+    transform-box: view-box;
+  }
+  /* compass face rotates with -heading so N stays at true north in the world */
+  #faceRose {
+    transition: transform 0.35s cubic-bezier(.25, 1, .35, 1);
+    transform-origin: 0 0;
+    transform-box: view-box;
+  }
+  /* a tiny glint that drifts opposite to the face, to keep "the rose floats on liquid" feel */
+  #forwardTab {
+    filter: drop-shadow(0 0 5px rgba(255, 200, 80, 0.7));
+  }
+
+  .readout {
+    font-family: 'IM Fell English SC', serif;
+    text-align: center;
+    color: var(--paper-2);
+    letter-spacing: 0.05em;
+  }
+  .readout .dist {
+    font-size: 1.3rem;
+    color: var(--paper-1);
+    text-shadow: 0 0 12px rgba(220,180,90,0.35);
+  }
+  .readout .bearing {
+    font-size: 0.85rem;
+    color: var(--paper-3);
+    margin-top: 2px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .panel {
+    width: min(420px, 92vw);
+    background: rgba(10,6,3,0.55);
+    border: 1px solid rgba(217,176,106,0.18);
+    border-radius: 10px;
+    padding: 14px 16px;
+    backdrop-filter: blur(3px);
+  }
+  .panel h2 {
+    font-family: 'IM Fell English SC', serif;
+    font-size: 0.82rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--paper-3);
+    margin: 0 0 10px;
+  }
+  .ctl {
+    display: grid;
+    grid-template-columns: 80px 1fr 60px;
+    gap: 10px;
+    align-items: center;
+    margin: 6px 0;
+    font-size: 0.85rem;
+    color: var(--paper-2);
+  }
+  .ctl input[type=range] {
+    accent-color: var(--brass-hi);
+  }
+  .ctl .val {
+    font-variant-numeric: tabular-nums;
+    color: var(--paper-1);
+    text-align: right;
+    font-family: 'IM Fell English SC', serif;
+  }
+  .btn-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .b {
+    font: inherit;
+    font-size: 0.78rem;
+    padding: 6px 10px;
+    background: linear-gradient(180deg, #4a341f 0%, #2c1c0d 100%);
+    border: 1px solid rgba(217,176,106,0.4);
+    border-radius: 6px;
+    color: var(--paper-1);
+    cursor: pointer;
+    font-family: 'IM Fell English SC', serif;
+    letter-spacing: 0.06em;
+  }
+  .b:hover { background: linear-gradient(180deg, #5a4127 0%, #392511 100%); }
+  .b.is-on { background: linear-gradient(180deg, #b8843a 0%, #7a521e 100%); color: #1a0f08; border-color: rgba(255,220,130,0.7); }
+
+  .hint {
+    font-family: 'IM Fell English SC', serif;
+    font-style: italic;
+    color: var(--paper-3);
+    text-align: center;
+    max-width: 420px;
+    line-height: 1.4;
+    font-size: 0.85rem;
+  }
+
+  /* ----- simulator (map + heading) ----- */
+  #simMap {
+    width: 100%;
+    height: 240px;
+    border-radius: 8px;
+    background: #1a0f08;
+    margin: 8px 0;
+    /* keep the map tiles warmer to match the parchment vibe */
+    filter: sepia(0.18) saturate(0.92) brightness(0.96);
+  }
+  #simMap .leaflet-control-attribution { font-size: 8px; opacity: 0.7; }
+  .me-pin {
+    background: transparent; border: none;
+  }
+  .me-pin-dot {
+    width: 20px; height: 20px; border-radius: 50%;
+    background: rgba(220, 80, 60, 0.95);
+    border: 2px solid #efe3c5;
+    box-shadow: 0 0 0 2px rgba(220, 80, 60, 0.5), 0 2px 6px rgba(0,0,0,0.5);
+    cursor: grab;
+    position: relative;
+  }
+  .me-pin-dot::after {
+    /* heading wedge — sized + rotated by JS */
+    content: '';
+    position: absolute;
+    left: 50%; top: 50%;
+    width: 0; height: 0;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-bottom: 26px solid rgba(220, 200, 80, 0.85);
+    transform: translate(-50%, -100%) rotate(0deg);
+    transform-origin: 50% 100%;
+    pointer-events: none;
+    filter: drop-shadow(0 0 3px rgba(255, 220, 100, 0.6));
+  }
+  .me-pin-dot:active { cursor: grabbing; }
+  .stop-pin {
+    background: transparent; border: none;
+  }
+  .stop-pin-mark {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: rgba(110, 200, 130, 0.95);
+    color: #052712;
+    font-family: 'IM Fell English SC', serif;
+    font-weight: 700;
+    font-size: 11px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1.5px solid #052712;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.45);
+  }
+  .stop-pin-mark.is-target {
+    background: rgba(230, 180, 60, 0.95);
+    border-color: #5a3a10;
+    box-shadow: 0 0 0 3px rgba(230, 180, 60, 0.3), 0 1px 3px rgba(0,0,0,0.45);
+  }
+
+  .heading-wheel {
+    display: flex; align-items: center; gap: 12px;
+    margin-top: 8px;
+  }
+  .heading-wheel svg { width: 56px; height: 56px; flex-shrink: 0; }
+  .heading-wheel .heading-needle {
+    transform-origin: 28px 28px;
+    transition: transform 0.15s linear;
+  }
+  .heading-wheel-text {
+    flex: 1;
+    font-family: 'IM Fell English SC', serif;
+    color: var(--paper-2);
+    font-size: 0.85rem;
+  }
+  .heading-wheel-text .big {
+    font-size: 1.2rem;
+    color: var(--paper-1);
+    font-variant-numeric: tabular-nums;
+    margin-right: 6px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>· La Brújula ·</h1>
+  <p>apunta a lo que más querés</p>
+</header>
+
+<div class="compass-wrap">
+  <svg class="compass-svg" viewBox="-150 -150 300 300" aria-hidden="true">
+    <defs>
+      <!-- aged paper face -->
+      <radialGradient id="paperFace" cx="50%" cy="42%" r="65%">
+        <stop offset="0%"  stop-color="#f5e9c8"/>
+        <stop offset="55%" stop-color="#dac79a"/>
+        <stop offset="100%" stop-color="#9a8556"/>
+      </radialGradient>
+
+      <!-- brass bezel: warm metal ring -->
+      <radialGradient id="brassBezel" cx="50%" cy="50%" r="50%">
+        <stop offset="80%"  stop-color="#7a5a2a"/>
+        <stop offset="92%"  stop-color="#d9b06a"/>
+        <stop offset="100%" stop-color="#4a2e10"/>
+      </radialGradient>
+
+      <!-- brass outer rim shadow -->
+      <radialGradient id="brassOuter" cx="50%" cy="50%" r="50%">
+        <stop offset="86%"  stop-color="#2a190c"/>
+        <stop offset="94%"  stop-color="#8a6535"/>
+        <stop offset="100%" stop-color="#1c0f06"/>
+      </radialGradient>
+
+      <!-- glass dome highlight -->
+      <radialGradient id="glassShine" cx="35%" cy="28%" r="55%">
+        <stop offset="0%"   stop-color="#ffffff" stop-opacity="0.42"/>
+        <stop offset="35%"  stop-color="#ffffff" stop-opacity="0.10"/>
+        <stop offset="70%"  stop-color="#ffffff" stop-opacity="0"/>
+      </radialGradient>
+
+      <!-- darker shadow at bottom of dome (depth) -->
+      <radialGradient id="glassShadow" cx="62%" cy="78%" r="55%">
+        <stop offset="0%"  stop-color="#000000" stop-opacity="0.22"/>
+        <stop offset="60%" stop-color="#000000" stop-opacity="0.04"/>
+        <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+      </radialGradient>
+
+      <!-- needle gradients: red (north / target) and pale ivory (south) -->
+      <linearGradient id="needleRed" x1="0" y1="-100" x2="0" y2="0" gradientUnits="userSpaceOnUse">
+        <stop offset="0%"  stop-color="#c83a30"/>
+        <stop offset="60%" stop-color="#9c2a22"/>
+        <stop offset="100%" stop-color="#5a1410"/>
+      </linearGradient>
+      <linearGradient id="needlePale" x1="0" y1="0" x2="0" y2="100" gradientUnits="userSpaceOnUse">
+        <stop offset="0%"   stop-color="#f8efd5"/>
+        <stop offset="55%"  stop-color="#e2d2a8"/>
+        <stop offset="100%" stop-color="#8a7748"/>
+      </linearGradient>
+
+      <!-- inner subtle face texture, very faint specks -->
+      <pattern id="specks" width="6" height="6" patternUnits="userSpaceOnUse">
+        <rect width="6" height="6" fill="transparent"/>
+        <circle cx="1.4" cy="2.1" r="0.35" fill="#7a5a2a" opacity="0.15"/>
+        <circle cx="4.6" cy="4.9" r="0.25" fill="#3a2412" opacity="0.10"/>
+      </pattern>
+
+      <!-- 8-point compass rose star -->
+      <symbol id="rosePoint" viewBox="-10 -100 20 200">
+        <polygon points="0,-92 4,-4 0,0 -4,-4" fill="#3a2412" opacity="0.85"/>
+        <polygon points="0,-92 4,-4 0,0" fill="#5a3a1c" opacity="0.6"/>
+      </symbol>
+    </defs>
+
+    <!-- outer wooden shadow ring -->
+    <circle r="146" fill="url(#brassOuter)"/>
+
+    <!-- brass bezel -->
+    <circle r="138" fill="url(#brassBezel)"/>
+    <!-- bezel inner ring -->
+    <circle r="125" fill="none" stroke="#3a2412" stroke-width="1.4"/>
+    <circle r="123" fill="none" stroke="#d9b06a" stroke-width="0.6" opacity="0.55"/>
+
+    <!-- decorative rivets along bezel: 12 of them -->
+    <g id="rivets"></g>
+
+    <!-- face paper -->
+    <circle r="122" fill="url(#paperFace)"/>
+    <circle r="122" fill="url(#specks)"/>
+
+    <!-- rotating face: cardinals + ticks + rose star spin together with -heading
+         so N stays pointing at true north in the world (the real Jack Sparrow trick) -->
+    <g id="faceRose">
+    <g id="ticks"></g>
+
+    <!-- 8-point star compass rose at center -->
+    <g id="rose">
+      <!-- main 4 long points (N, E, S, W) -->
+      <g>
+        <polygon points="0,-95 8,-12 0,0 -8,-12" fill="#efe3c5" stroke="#3a2412" stroke-width="0.6"/>
+        <polygon points="0,-95 8,-12 0,0" fill="#c9b58a" opacity="0.85"/>
+      </g>
+      <g transform="rotate(90)">
+        <polygon points="0,-95 8,-12 0,0 -8,-12" fill="#efe3c5" stroke="#3a2412" stroke-width="0.6"/>
+        <polygon points="0,-95 8,-12 0,0" fill="#c9b58a" opacity="0.85"/>
+      </g>
+      <g transform="rotate(180)">
+        <polygon points="0,-95 8,-12 0,0 -8,-12" fill="#efe3c5" stroke="#3a2412" stroke-width="0.6"/>
+        <polygon points="0,-95 8,-12 0,0" fill="#c9b58a" opacity="0.85"/>
+      </g>
+      <g transform="rotate(270)">
+        <polygon points="0,-95 8,-12 0,0 -8,-12" fill="#efe3c5" stroke="#3a2412" stroke-width="0.6"/>
+        <polygon points="0,-95 8,-12 0,0" fill="#c9b58a" opacity="0.85"/>
+      </g>
+      <!-- 4 short diagonal points (NE, SE, SW, NW) -->
+      <g transform="rotate(45)">
+        <polygon points="0,-66 5,-10 0,0 -5,-10" fill="#dac79a" stroke="#3a2412" stroke-width="0.5"/>
+        <polygon points="0,-66 5,-10 0,0" fill="#a08c5e" opacity="0.7"/>
+      </g>
+      <g transform="rotate(135)">
+        <polygon points="0,-66 5,-10 0,0 -5,-10" fill="#dac79a" stroke="#3a2412" stroke-width="0.5"/>
+        <polygon points="0,-66 5,-10 0,0" fill="#a08c5e" opacity="0.7"/>
+      </g>
+      <g transform="rotate(225)">
+        <polygon points="0,-66 5,-10 0,0 -5,-10" fill="#dac79a" stroke="#3a2412" stroke-width="0.5"/>
+        <polygon points="0,-66 5,-10 0,0" fill="#a08c5e" opacity="0.7"/>
+      </g>
+      <g transform="rotate(315)">
+        <polygon points="0,-66 5,-10 0,0 -5,-10" fill="#dac79a" stroke="#3a2412" stroke-width="0.5"/>
+        <polygon points="0,-66 5,-10 0,0" fill="#a08c5e" opacity="0.7"/>
+      </g>
+      <!-- center inset ring -->
+      <circle r="14" fill="#3a2412" opacity="0.55"/>
+      <circle r="14" fill="none" stroke="#d9b06a" stroke-width="0.8" opacity="0.7"/>
+    </g>
+
+    <!-- cardinal letters -->
+    <g font-family="'Cinzel', serif" font-weight="600" fill="#3a2412">
+      <text x="0" y="-108" font-size="18" text-anchor="middle">N</text>
+      <text x="108" y="6" font-size="15" text-anchor="middle">E</text>
+      <text x="0" y="118" font-size="15" text-anchor="middle">S</text>
+      <text x="-108" y="6" font-size="15" text-anchor="middle">W</text>
+    </g>
+    <!-- intercardinals (smaller, italic, faded) -->
+    <g font-family="'IM Fell English SC', serif" font-style="italic" fill="#7d6a40" font-size="9">
+      <text x="78" y="-72" text-anchor="middle">NE</text>
+      <text x="80" y="80" text-anchor="middle">SE</text>
+      <text x="-78" y="80" text-anchor="middle">SW</text>
+      <text x="-80" y="-72" text-anchor="middle">NW</text>
+    </g>
+    </g> <!-- /#faceRose -->
+
+    <!-- "forward" tab fixed at the top of the screen — shows which way the phone is pointing -->
+    <g id="forwardTab">
+      <polygon points="0,-130 -7,-118 7,-118" fill="#e6b43c" stroke="#5a3a10" stroke-width="0.6"/>
+    </g>
+
+    <!-- the needle (rotor wrapper for JS-driven target rotation, then needle does the gentle wobble) -->
+    <g id="needleRotor">
+      <g id="needle">
+        <!-- red north tip — the side pointing AT the target -->
+        <polygon points="0,-96 -7,-12 0,4 7,-12"
+          fill="url(#needleRed)" stroke="#3a0f0a" stroke-width="0.6"/>
+        <!-- center highlight on red half -->
+        <polygon points="0,-96 0,4 -1.5,-12" fill="#ffffff" opacity="0.18"/>
+        <!-- pale south tip -->
+        <polygon points="0,96 -7,12 0,-4 7,12"
+          fill="url(#needlePale)" stroke="#5a4427" stroke-width="0.6"/>
+        <polygon points="0,96 0,-4 -1.5,12" fill="#ffffff" opacity="0.25"/>
+      </g>
+      <!-- needle pivot cap -->
+      <circle r="7" fill="#1a0f08" stroke="#d9b06a" stroke-width="1.2"/>
+      <circle r="3.2" fill="#d9b06a"/>
+      <circle r="1.4" fill="#fff4cc"/>
+    </g>
+
+    <!-- glass dome shadow (under highlight) -->
+    <circle r="122" fill="url(#glassShadow)"/>
+    <!-- glass dome highlight: subtle reflection in upper-left -->
+    <circle r="122" fill="url(#glassShine)"/>
+
+    <!-- inner shadow vignette -->
+    <circle r="122" fill="none" stroke="#2a190c" stroke-width="2" opacity="0.32"/>
+  </svg>
+</div>
+
+<div class="readout">
+  <div class="dist" id="dist">≈ 167 m</div>
+  <div class="bearing">rumbo <span id="bearing">0°</span></div>
+</div>
+
+<div class="panel">
+  <h2>Simulador</h2>
+  <p style="margin:0 0 6px; font-family:'IM Fell English SC',serif; font-style:italic; color:var(--paper-3); font-size:0.82rem;">
+    Arrastrá el pin rojo para moverte. Girá la rueda para cambiar el rumbo del teléfono. El objetivo (en oro) es Poe.
+  </p>
+  <div id="simMap"></div>
+
+  <div class="ctl">
+    <label for="heading">rumbo teléfono</label>
+    <input id="heading" type="range" min="0" max="359" value="0">
+    <span class="val" id="headingVal">0°</span>
+  </div>
+
+  <div class="heading-wheel">
+    <svg viewBox="0 0 56 56" aria-hidden="true">
+      <circle cx="28" cy="28" r="24" fill="#1a0f08" stroke="#d9b06a" stroke-width="1.2" opacity="0.8"/>
+      <text x="28" y="11" text-anchor="middle" font-family="'Cinzel',serif" font-size="8" fill="#d9b06a">N</text>
+      <polygon class="heading-needle" points="28,8 24,28 28,24 32,28" fill="#e6b43c" stroke="#5a3a10" stroke-width="0.4"/>
+      <circle cx="28" cy="28" r="2" fill="#d9b06a"/>
+    </svg>
+    <div class="heading-wheel-text">
+      <span class="big" id="headingBig">0°</span>
+      <span id="headingFace">mira al norte</span>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="b" data-stop="01">objetivo 1 · Poe</button>
+    <button class="b" data-stop="02">2 · Tetera</button>
+    <button class="b" data-stop="03">3 · Faneuil</button>
+    <button class="b" data-stop="04">4 · Boston Stone</button>
+    <button class="b" data-stop="05">5 · Columbus</button>
+    <button class="b" id="rotateBtn">girar 45°</button>
+  </div>
+
+  <p class="hint">cuando la punta roja apunta hacia arriba (al frente del teléfono), caminá derecho. si apunta a la izquierda, girá a la izquierda. si baja, das la espalda al tesoro.</p>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+  // build tick marks: 72 ticks (every 5°), longer every 15°, longer still every 30°.
+  const ticksG = document.getElementById('ticks');
+  for (let i = 0; i < 72; i++) {
+    const angle = i * 5;
+    const isMajor = angle % 30 === 0;
+    const isMid = angle % 15 === 0;
+    const r1 = 122;
+    const r2 = isMajor ? 108 : isMid ? 113 : 117;
+    const x1 = Math.sin(angle * Math.PI / 180) * r1;
+    const y1 = -Math.cos(angle * Math.PI / 180) * r1;
+    const x2 = Math.sin(angle * Math.PI / 180) * r2;
+    const y2 = -Math.cos(angle * Math.PI / 180) * r2;
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', x1.toFixed(2));
+    line.setAttribute('y1', y1.toFixed(2));
+    line.setAttribute('x2', x2.toFixed(2));
+    line.setAttribute('y2', y2.toFixed(2));
+    line.setAttribute('stroke', '#3a2412');
+    line.setAttribute('stroke-width', isMajor ? 1.4 : isMid ? 1 : 0.7);
+    line.setAttribute('opacity', isMajor ? 0.9 : isMid ? 0.7 : 0.45);
+    ticksG.appendChild(line);
+  }
+  // degree numbers every 30° (skipping cardinals which already have letters)
+  const cardinalAngles = new Set([0, 90, 180, 270]);
+  for (let a = 0; a < 360; a += 30) {
+    if (cardinalAngles.has(a)) continue;
+    const x = Math.sin(a * Math.PI / 180) * 99;
+    const y = -Math.cos(a * Math.PI / 180) * 99 + 3.5;
+    const txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    txt.setAttribute('x', x.toFixed(2));
+    txt.setAttribute('y', y.toFixed(2));
+    txt.setAttribute('font-family', "'IM Fell English SC', serif");
+    txt.setAttribute('font-size', 9);
+    txt.setAttribute('text-anchor', 'middle');
+    txt.setAttribute('fill', '#5a4427');
+    txt.textContent = a;
+    ticksG.appendChild(txt);
+  }
+
+  // build rivets on the bezel
+  const rivetsG = document.getElementById('rivets');
+  for (let i = 0; i < 12; i++) {
+    const a = i * 30 + 15;
+    const x = Math.sin(a * Math.PI / 180) * 131;
+    const y = -Math.cos(a * Math.PI / 180) * 131;
+    const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    c.setAttribute('cx', x.toFixed(2));
+    c.setAttribute('cy', y.toFixed(2));
+    c.setAttribute('r', 2.2);
+    c.setAttribute('fill', '#2a190c');
+    c.setAttribute('stroke', '#d9b06a');
+    c.setAttribute('stroke-width', 0.5);
+    rivetsG.appendChild(c);
+
+    const h = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    h.setAttribute('cx', (x - 0.6).toFixed(2));
+    h.setAttribute('cy', (y - 0.6).toFixed(2));
+    h.setAttribute('r', 0.7);
+    h.setAttribute('fill', '#ffe7a8');
+    h.setAttribute('opacity', 0.7);
+    rivetsG.appendChild(h);
+  }
+
+  // ---- simulator (map + heading) ----
+  const STOPS = [
+    { id: '01', name: 'Edgar Allan Poe statue', coord: [42.3523, -71.0674] },
+    { id: '02', name: 'Steaming Tea Kettle',    coord: [42.3593, -71.0592] },
+    { id: '03', name: 'Faneuil Hall grasshopper', coord: [42.3600, -71.0547] },
+    { id: '04', name: 'Boston Stone',           coord: [42.3619, -71.0567] },
+    { id: '05', name: 'Christopher Columbus Park', coord: [42.3611, -71.0521] },
+  ];
+
+  function haversine(a, b) {
+    const R = 6371000;
+    const toRad = d => d * Math.PI / 180;
+    const dLat = toRad(b[0] - a[0]);
+    const dLng = toRad(b[1] - a[1]);
+    const lat1 = toRad(a[0]);
+    const lat2 = toRad(b[0]);
+    const h = Math.sin(dLat / 2) ** 2 + Math.sin(dLng / 2) ** 2 * Math.cos(lat1) * Math.cos(lat2);
+    return 2 * R * Math.asin(Math.min(1, Math.sqrt(h)));
+  }
+  function bearingDeg(from, to) {
+    const toRad = d => d * Math.PI / 180;
+    const lat1 = toRad(from[0]); const lat2 = toRad(to[0]);
+    const dLng = toRad(to[1] - from[1]);
+    const y = Math.sin(dLng) * Math.cos(lat2);
+    const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLng);
+    return ((Math.atan2(y, x) * 180 / Math.PI) + 360) % 360;
+  }
+  function fmtDist(m) {
+    if (m < 1000) return `≈ ${Math.round(m)} m`;
+    return `≈ ${(m / 1000).toFixed(2)} km`;
+  }
+  function facing(h) {
+    h = ((h % 360) + 360) % 360;
+    if (h < 22.5 || h >= 337.5) return 'mira al norte';
+    if (h < 67.5)  return 'mira al noreste';
+    if (h < 112.5) return 'mira al este';
+    if (h < 157.5) return 'mira al sureste';
+    if (h < 202.5) return 'mira al sur';
+    if (h < 247.5) return 'mira al suroeste';
+    if (h < 292.5) return 'mira al oeste';
+    return 'mira al noroeste';
+  }
+
+  const needleRotor = document.getElementById('needleRotor');
+  const faceRose = document.getElementById('faceRose');
+  const distEl = document.getElementById('dist');
+  const bearingEl = document.getElementById('bearing');
+  const headingInput = document.getElementById('heading');
+  const headingVal = document.getElementById('headingVal');
+  const headingBig = document.getElementById('headingBig');
+  const headingFace = document.getElementById('headingFace');
+  const headingNeedle = document.querySelector('.heading-needle');
+
+  let needleRot = 0;     // accumulated screen rotation of needle (for short-path animation)
+  let faceRot = 0;       // accumulated screen rotation of the face
+  let myPos = [42.3540, -71.0700]; // start slightly NW of Poe so the needle has a clear direction
+  let heading = 0;
+  let targetIdx = 0;
+
+  function shortestStep(current, target) {
+    target = ((target % 360) + 360) % 360;
+    let delta = target - (((current % 360) + 360) % 360);
+    if (delta > 180) delta -= 360;
+    if (delta < -180) delta += 360;
+    return current + delta;
+  }
+
+  function recompute() {
+    const target = STOPS[targetIdx];
+    const dist = haversine(myPos, target.coord);
+    const abs = bearingDeg(myPos, target.coord);
+    // Real Jack Sparrow:
+    //   face rotates by -heading (so N stays pinned to true north in the world)
+    //   needle rotates by (abs bearing - heading) (so red tip is at the target's spot on the rose)
+    const needleScreen = (abs - heading + 360) % 360;
+    const faceScreen   = (-heading + 360) % 360;
+
+    needleRot = shortestStep(needleRot, needleScreen);
+    faceRot   = shortestStep(faceRot,   faceScreen);
+    needleRotor.setAttribute('transform', `rotate(${needleRot.toFixed(1)})`);
+    faceRose.setAttribute('transform',    `rotate(${faceRot.toFixed(1)})`);
+
+    distEl.textContent = dist < 5 ? '· llegaste ·' : fmtDist(dist);
+    bearingEl.textContent = `${Math.round(abs)}° (objetivo)`;
+
+    headingBig.textContent = `${Math.round(heading)}°`;
+    headingFace.textContent = facing(heading);
+    headingNeedle.setAttribute('transform', `rotate(${heading.toFixed(1)} 28 28)`);
+  }
+
+  // build the map
+  const map = L.map('simMap', { zoomControl: true, attributionControl: true })
+    .setView([42.3580, -71.0620], 14);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; OSM &copy; CARTO', subdomains: 'abcd', maxZoom: 19
+  }).addTo(map);
+
+  // me marker (draggable)
+  const meIcon = L.divIcon({
+    className: 'me-pin',
+    html: '<div class="me-pin-dot" id="meDot"></div>',
+    iconSize: [20, 20], iconAnchor: [10, 10],
+  });
+  const meMarker = L.marker(myPos, { icon: meIcon, draggable: true, autoPan: true }).addTo(map);
+  meMarker.on('drag', e => { const p = e.target.getLatLng(); myPos = [p.lat, p.lng]; recompute(); });
+  meMarker.on('dragend', e => { const p = e.target.getLatLng(); myPos = [p.lat, p.lng]; recompute(); });
+  map.on('click', e => { meMarker.setLatLng(e.latlng); myPos = [e.latlng.lat, e.latlng.lng]; recompute(); });
+
+  // stop markers
+  const stopMarkers = STOPS.map((s, i) => {
+    const icon = L.divIcon({
+      className: 'stop-pin',
+      html: `<div class="stop-pin-mark" data-idx="${i}">${i + 1}</div>`,
+      iconSize: [18, 18], iconAnchor: [9, 9],
+    });
+    const m = L.marker(s.coord, { icon }).addTo(map);
+    m.bindTooltip(`${i + 1}. ${s.name}`, { direction: 'top', offset: [0, -8] });
+    m.on('click', () => setTarget(i));
+    return m;
+  });
+  function setTarget(i) {
+    targetIdx = i;
+    // update marker classes
+    stopMarkers.forEach((m, idx) => {
+      const el = m.getElement()?.querySelector('.stop-pin-mark');
+      if (el) el.classList.toggle('is-target', idx === targetIdx);
+    });
+    recompute();
+  }
+  setTarget(0);
+
+  // heading slider keeps the me-pin wedge in sync
+  function setHeading(h) {
+    heading = ((h % 360) + 360) % 360;
+    headingInput.value = heading;
+    headingVal.textContent = `${Math.round(heading)}°`;
+    // me-pin wedge points where the phone faces
+    const dot = document.getElementById('meDot');
+    if (dot) dot.style.setProperty('--h', `${heading}deg`);
+    // also actually rotate the ::after wedge via inline style on the dot
+    if (dot) dot.style.transform = '';
+    if (dot) dot.querySelector ? null : null;
+    // since we can't style ::after via inline transform, set a CSS custom property and use it
+    if (dot) dot.style.setProperty('--heading', `${heading}deg`);
+    recompute();
+  }
+  headingInput.addEventListener('input', e => setHeading(+e.target.value));
+
+  // stop-target buttons
+  document.querySelectorAll('.b[data-stop]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.stop;
+      const i = STOPS.findIndex(s => s.id === id);
+      if (i >= 0) setTarget(i);
+    });
+  });
+  document.getElementById('rotateBtn').addEventListener('click', () => setHeading(heading + 45));
+
+  // need to rotate the wedge via a stylesheet rule since ::after can't take inline styles
+  const style = document.createElement('style');
+  style.textContent = `.me-pin-dot::after { transform: translate(-50%, -100%) rotate(var(--heading, 0deg)); }`;
+  document.head.appendChild(style);
+
+  setHeading(0);
+  recompute();
+</script>
+
+</body>
+</html>

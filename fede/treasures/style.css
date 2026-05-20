@@ -59,29 +59,29 @@ main {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 52px;
-  height: 52px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
-  background: rgba(8, 28, 18, 0.85);
-  color: rgba(160, 255, 190, 0.95);
-  border: 1.5px solid rgba(120, 255, 160, 0.55);
+  background: linear-gradient(180deg, #5a3f1a 0%, #2a190c 100%);
+  color: rgba(240, 220, 170, 0.95);
+  border: 1.5px solid rgba(217, 176, 106, 0.65);
   cursor: pointer;
   padding: 0;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.55), inset 0 0 8px rgba(60, 230, 130, 0.15);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.55), inset 0 0 6px rgba(217, 176, 106, 0.18);
   transition: color 0.2s, background 0.2s, transform 0.1s;
 }
-.sonar-btn svg { width: 26px; height: 26px; stroke-width: 1.8; }
+.sonar-btn svg { width: 24px; height: 24px; stroke-width: 1.8; }
 .sonar-btn:hover { transform: scale(1.04); }
 .sonar-btn:active { transform: scale(0.96); }
 .sonar-btn[aria-pressed="true"] {
-  color: #061B0F;
-  background: rgba(160, 255, 190, 0.95);
-  border-color: rgba(220, 255, 230, 0.9);
+  color: #1a0f08;
+  background: linear-gradient(180deg, #f0c870 0%, #b8843a 100%);
+  border-color: rgba(255, 230, 160, 0.9);
   animation: sonarPulse 1.4s ease-in-out infinite;
 }
 @keyframes sonarPulse {
-  0%, 100% { box-shadow: 0 2px 12px rgba(0, 0, 0, 0.55), 0 0 0 0 rgba(120, 255, 160, 0.0); }
-  50% { box-shadow: 0 2px 12px rgba(0, 0, 0, 0.55), 0 0 0 14px rgba(120, 255, 160, 0.25); }
+  0%, 100% { box-shadow: 0 2px 12px rgba(0, 0, 0, 0.55), 0 0 0 0 rgba(240, 200, 120, 0.0); }
+  50% { box-shadow: 0 2px 12px rgba(0, 0, 0, 0.55), 0 0 0 14px rgba(240, 200, 120, 0.25); }
 }
 
 .debug-banner {
@@ -172,6 +172,17 @@ main {
   font-variant-numeric: tabular-nums;
   border-top: 1px solid rgba(120, 255, 160, 0.2);
 }
+.gps-spoof-heading {
+  display: grid;
+  grid-template-columns: 60px 1fr 50px;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-top: 1px solid rgba(120, 255, 160, 0.2);
+  font-size: 0.7rem;
+}
+.gps-spoof-heading input { accent-color: rgba(255, 220, 120, 0.95); }
+.gps-spoof-heading span { font-variant-numeric: tabular-nums; text-align: right; }
 .gps-spoof-pin {
   width: 18px;
   height: 18px;
@@ -253,124 +264,68 @@ main {
 }
 .hdr-restart:hover { color: rgba(180, 70, 50, 0.9); background: rgba(180, 70, 50, 0.06); }
 
-/* ---------- radar ---------- */
-.radar-wrap {
+/* ---------- compass ---------- */
+.compass-wrap {
   position: relative;
   width: 100%;
-  height: 52vh;
   min-height: 320px;
   background:
-    radial-gradient(ellipse at center, #0c2316 0%, #051409 65%, #000 100%);
+    radial-gradient(ellipse at 30% 20%, rgba(120,80,40,0.18) 0%, transparent 55%),
+    radial-gradient(ellipse at 70% 90%, rgba(60,30,10,0.5) 0%, transparent 65%),
+    repeating-linear-gradient(95deg, #2b1d12 0px, #2b1d12 22px, #1a0f08 22px, #1a0f08 44px),
+    #2b1d12;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 18px;
+  padding: 22px 18px 32px;
   overflow: hidden;
 }
-.radar-stage {
+.compass-stage {
   position: relative;
   width: min(70vh, 92%);
   aspect-ratio: 1 / 1;
   max-width: 460px;
+  filter: drop-shadow(0 18px 32px rgba(0,0,0,0.55)) drop-shadow(0 4px 6px rgba(0,0,0,0.4));
 }
-.radar {
+.compass-svg {
   width: 100%;
   height: 100%;
   display: block;
-  filter: drop-shadow(0 0 18px rgba(60, 230, 130, 0.22));
 }
-
-.radar-ring {
-  fill: none;
-  stroke: rgba(80, 230, 140, 0.30);
-  stroke-width: 0.45;
+#needle {
+  transform-origin: 0 0;
+  transform-box: view-box;
+  animation: needle-wobble 5.5s ease-in-out infinite;
 }
-.radar-ring.outer {
-  stroke: rgba(140, 255, 180, 0.62);
-  stroke-width: 1.1;
+@keyframes needle-wobble {
+  0%, 100% { rotate: -0.6deg; }
+  50%      { rotate:  0.6deg; }
 }
-.radar-cross {
-  stroke: rgba(80, 230, 140, 0.22);
-  stroke-width: 0.4;
-  stroke-dasharray: 2 3;
+#needleRotor {
+  transition: transform 0.85s cubic-bezier(.34, 1.32, .42, .98);
+  transform-origin: 0 0;
+  transform-box: view-box;
 }
-.radar-card {
-  fill: rgba(140, 255, 180, 0.78);
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.14em;
+#faceRose {
+  transition: transform 0.35s cubic-bezier(.25, 1, .35, 1);
+  transform-origin: 0 0;
+  transform-box: view-box;
 }
-.radar-card.is-north {
-  fill: rgba(220, 255, 230, 0.95);
-  font-weight: 600;
-  font-size: 12px;
+#compassForward {
+  filter: drop-shadow(0 0 5px rgba(255, 200, 80, 0.7));
 }
-.radar-forward-wrap {
-  transition: transform 0.12s linear;
-}
-.radar-forward {
-  fill: rgba(255, 220, 120, 0.95);
-  filter: drop-shadow(0 0 5px rgba(255, 200, 80, 0.9));
-}
-
-.radar-sweep-line {
-  stroke: rgba(200, 255, 220, 0.95);
-  stroke-width: 0.9;
-}
-
-.radar-me {
-  fill: #FFFFFF;
-  filter: drop-shadow(0 0 4px rgba(180, 255, 200, 0.85));
-}
-
-.radar-blip {
-  transition: opacity 0.4s ease;
-}
-.radar-blip-halo {
-  opacity: var(--blip-glow, 0.45);
-  transition: opacity 0.08s linear;
-}
-.radar-blip-core {
-  fill: #DCFFE3;
-  filter: drop-shadow(0 0 7px rgba(140, 255, 180, 1));
-  animation: blip-breathe 1.4s ease-in-out infinite;
-}
-@keyframes blip-breathe {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.18); }
-}
-.radar-blip-core { transform-origin: center; transform-box: fill-box; }
-
-.radar-blip.edge .radar-blip-core {
-  animation: blip-edge-breathe 0.9s ease-in-out infinite;
-}
-@keyframes blip-edge-breathe {
-  0%, 100% { transform: scale(0.9); opacity: 0.85; }
-  50% { transform: scale(1.05); opacity: 1; }
-}
-
-.radar-blip.found .radar-blip-core {
-  animation: blip-found 0.5s ease-in-out infinite;
-}
-@keyframes blip-found {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.5); }
-}
-
-.radar-status {
+.compass-status {
   position: absolute;
-  bottom: -2px;
+  bottom: -22px;
   left: 50%;
   transform: translateX(-50%);
-  color: rgba(140, 255, 180, 0.78);
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.74rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  color: rgba(220, 200, 150, 0.85);
+  font-family: 'IM Fell English SC', serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
   text-align: center;
   white-space: nowrap;
   pointer-events: none;
-  text-shadow: 0 0 6px rgba(60, 230, 130, 0.55);
 }
 
 /* ---------- clue panel ---------- */

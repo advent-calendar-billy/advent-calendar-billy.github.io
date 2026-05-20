@@ -70,10 +70,14 @@ function downscale(file, maxEdge, quality) {
 
 // ---------- state ----------
 const initial = loadProgress();
+// debug-only navigation override: when set, state.activeIndex returns this
+// instead of being derived from solvedIds. -1 = gallery, 0..N-1 = stop index.
+let debugActiveOverride = null;
 const state = {
   solvedIds: new Set(initial.solvedIds),
   solvedWithHelp: new Set(initial.solvedWithHelp),
   get activeIndex() {
+    if (debugActiveOverride !== null) return debugActiveOverride;
     for (let i = 0; i < HUNT.stops.length; i++) {
       if (!this.solvedIds.has(HUNT.stops[i].id)) return i;
     }
@@ -101,7 +105,7 @@ let spoofPos = null;            // [lat, lng] set by the debug GPS spoofer
 let spoofActive = false;        // when true, currentPos returns spoofPos
 function currentPos() { return (spoofActive && spoofPos) ? spoofPos : realPos; }
 
-let gpsErr = null; // last geolocation error message (shown in radar status when no fix yet)
+let gpsErr = null; // last geolocation error message (shown in the compass status line when no fix yet)
 
 if ('geolocation' in navigator) {
   navigator.geolocation.watchPosition(
@@ -154,26 +158,27 @@ function distanceToActive() {
   return haversine(here, target);
 }
 
-// ---------- radar ----------
-const RADAR_MAX_M = 600;       // matches sonar range
-const RADAR_INNER_R = 14;      // SVG units: closer than this stacks at center
-const RADAR_EDGE_R = 96;       // SVG units: out-of-range blip clamps here
+// ---------- compass ----------
+const needleRotor = document.getElementById('needleRotor');
+const faceRose = document.getElementById('faceRose');
+const compassStatus = document.getElementById('compassStatus');
 
-const radarBlip = document.getElementById('radarBlip');
-const radarBlipHalo = radarBlip?.querySelector('.radar-blip-halo');
-const radarStatus = document.getElementById('radarStatus');
-const radarForward = document.getElementById('radarForward');
-
-// blip in absolute (north-up) coordinates; screen position computed each frame
-let blipBearingAbs = null;       // 0 = north, clockwise
-let blipDistance = null;         // metres
-let blipOutOfRange = false;
-let blipFound = false;
+// last computed target bearing/distance (in absolute world coords)
+let targetBearingAbs = null;     // 0 = north, clockwise
+let targetDistance = null;       // metres
+let targetFound = false;
 
 // device heading, smoothed; null when no compass available
-let heading = null;
-let compassRequested = false;
+let realHeading = null;          // from device orientation
+let spoofHeading = null;         // from the debug heading slider; overrides realHeading when set
+function effectiveHeading() {
+  return spoofHeading != null ? spoofHeading : (realHeading != null ? realHeading : 0);
+}
+function haveHeading() {
+  return spoofHeading != null || realHeading != null;
+}
 
+let compassRequested = false;
 function attachCompass() {
   if (typeof DeviceOrientationEvent === 'undefined') return;
   if ('ondeviceorientationabsolute' in window) {
@@ -181,7 +186,6 @@ function attachCompass() {
   }
   window.addEventListener('deviceorientation', onOrientation);
 }
-
 function requestCompass() {
   if (compassRequested) return;
   compassRequested = true;
@@ -194,7 +198,6 @@ function requestCompass() {
     attachCompass();
   }
 }
-
 function onOrientation(e) {
   let h;
   if (typeof e.webkitCompassHeading === 'number') {
@@ -204,11 +207,11 @@ function onOrientation(e) {
   } else {
     return;
   }
-  if (heading == null) { heading = h; return; }
-  let diff = h - heading;
+  if (realHeading == null) { realHeading = h; return; }
+  let diff = h - realHeading;
   if (diff > 180) diff -= 360;
   if (diff < -180) diff += 360;
-  heading = (heading + diff * 0.18 + 360) % 360;
+  realHeading = (realHeading + diff * 0.18 + 360) % 360;
 }
 
 function fmtDist(m) {
@@ -217,92 +220,140 @@ function fmtDist(m) {
   return `${(m / 1000).toFixed(2)} km`;
 }
 
-function blipRadiusPx() {
-  if (blipDistance == null) return null;
-  if (blipOutOfRange) return RADAR_EDGE_R;
-  const t = Math.max(0, Math.min(1, blipDistance / RADAR_MAX_M));
-  return RADAR_INNER_R + (RADAR_EDGE_R - RADAR_INNER_R) * Math.pow(t, 0.85);
-}
-
 function updateRadar() {
   const idx = state.activeIndex;
   const here = currentPos();
   const target = activeStopCoord();
 
   if (idx < 0) {
-    radarBlip.style.display = 'none';
-    blipBearingAbs = null;
-    radarStatus.textContent = '· objetivo alcanzado ·';
+    if (needleRotor) needleRotor.style.display = 'none';
+    targetBearingAbs = null;
+    compassStatus.textContent = '· encontraste todos los tesoros ·';
     return;
   }
   if (!here) {
-    radarBlip.style.display = 'none';
-    blipBearingAbs = null;
-    radarStatus.textContent = gpsErr ? `gps · ${gpsErr}` : 'esperando posición…';
+    if (needleRotor) needleRotor.style.display = 'none';
+    targetBearingAbs = null;
+    compassStatus.textContent = gpsErr ? `gps · ${gpsErr}` : 'esperando posición…';
     return;
   }
   if (!target) {
-    radarBlip.style.display = 'none';
-    radarStatus.textContent = '';
+    if (needleRotor) needleRotor.style.display = 'none';
+    compassStatus.textContent = '';
     return;
   }
 
-  blipDistance = haversine(here, target);
+  targetDistance = haversine(here, target);
   const b = bearingRad(here, target);
-  blipBearingAbs = (b * 180 / Math.PI + 360) % 360;
-  blipOutOfRange = blipDistance > RADAR_MAX_M;
-  blipFound = blipDistance < 5;
+  targetBearingAbs = (b * 180 / Math.PI + 360) % 360;
+  targetFound = targetDistance < 5;
 
-  radarBlip.style.display = '';
-  radarBlip.classList.toggle('edge', blipOutOfRange);
-  radarBlip.classList.toggle('found', blipFound);
+  if (needleRotor) needleRotor.style.display = '';
 
   const num = String(idx + 1).padStart(2, '0');
   let s;
-  if (blipFound) s = `· ${num} · LLEGASTE ·`;
-  else if (blipOutOfRange) s = `parada ${num} · ${fmtDist(blipDistance)} · fuera del radar`;
-  else s = `parada ${num} · ${fmtDist(blipDistance)}`;
-  if (heading != null) s += ` · ${Math.round(heading)}°`;
-  radarStatus.textContent = s;
+  if (targetFound) s = `· ${num} · llegaste ·`;
+  else s = `parada ${num} · ${fmtDist(targetDistance)}`;
+  if (haveHeading()) s += ` · ${Math.round(effectiveHeading())}°`;
+  compassStatus.textContent = s;
 }
 
-// rAF loop: position blip at true bearing (north-up), rotate the "facing"
-// arrow with the phone's heading, and brighten the halo as the sweep passes.
-// The radar disc itself never rotates — N stays at the top.
-function radarTick(t) {
-  if (radarForward) {
-    if (heading != null) {
-      radarForward.style.display = '';
-      radarForward.setAttribute('transform', `rotate(${heading.toFixed(1)})`);
-    } else {
-      radarForward.style.display = 'none';
-    }
-  }
-
-  const sweepDeg = ((t / 4000) * 360) % 360;
-
-  if (blipBearingAbs != null && radarBlip.style.display !== 'none') {
-    const r = blipRadiusPx();
-    if (r != null) {
-      const rad = blipBearingAbs * Math.PI / 180;
-      const x = Math.sin(rad) * r;
-      const y = -Math.cos(rad) * r;
-      radarBlip.setAttribute('transform', `translate(${x.toFixed(2)} ${y.toFixed(2)})`);
-    }
-    if (radarBlipHalo) {
-      // sweep and blip are both in absolute (north-up) frame
-      const behind = (sweepDeg - blipBearingAbs + 360) % 360;
-      const win = 60;
-      const glow = behind <= win ? (1 - behind / win) : 0.15;
-      radarBlipHalo.style.setProperty('--blip-glow', (0.25 + glow * 0.75).toFixed(3));
-    }
-  }
-
-  requestAnimationFrame(radarTick);
+// rAF loop: rotate the rose face by -heading (so N points to true world-north),
+// rotate the needle by (bearing - heading) (so red tip points at the target).
+// Both transitions are CSS-driven; we just update the target transforms here.
+let needleRotAcc = 0;
+let faceRotAcc = 0;
+function shortestStep(current, target) {
+  target = ((target % 360) + 360) % 360;
+  let delta = target - (((current % 360) + 360) % 360);
+  if (delta > 180) delta -= 360;
+  if (delta < -180) delta += 360;
+  return current + delta;
 }
-requestAnimationFrame(radarTick);
+function compassTick() {
+  const h = haveHeading() ? effectiveHeading() : 0;
 
-// poll GPS-based radar update at a steady cadence even when GPS is quiet
+  // face: rotate by -heading so the N label tracks true north in the world
+  const faceTarget = (-h + 360) % 360;
+  faceRotAcc = shortestStep(faceRotAcc, faceTarget);
+  if (faceRose) faceRose.setAttribute('transform', `rotate(${faceRotAcc.toFixed(1)})`);
+
+  // needle: rotate to (bearing - heading) so red tip lands on the target's spot
+  if (targetBearingAbs != null && needleRotor && needleRotor.style.display !== 'none') {
+    const needleTarget = (targetBearingAbs - h + 360) % 360;
+    needleRotAcc = shortestStep(needleRotAcc, needleTarget);
+    needleRotor.setAttribute('transform', `rotate(${needleRotAcc.toFixed(1)})`);
+  }
+
+  requestAnimationFrame(compassTick);
+}
+requestAnimationFrame(compassTick);
+
+// build tick marks + degree numbers (only the rotating-face stuff; runs once at boot)
+(function buildCompassDecorations() {
+  const ticks = document.getElementById('ticks');
+  const SVG = 'http://www.w3.org/2000/svg';
+  if (ticks) {
+    for (let i = 0; i < 72; i++) {
+      const a = i * 5;
+      const isMajor = a % 30 === 0;
+      const isMid = a % 15 === 0;
+      const r1 = 122;
+      const r2 = isMajor ? 108 : isMid ? 113 : 117;
+      const x1 = Math.sin(a * Math.PI / 180) * r1;
+      const y1 = -Math.cos(a * Math.PI / 180) * r1;
+      const x2 = Math.sin(a * Math.PI / 180) * r2;
+      const y2 = -Math.cos(a * Math.PI / 180) * r2;
+      const ln = document.createElementNS(SVG, 'line');
+      ln.setAttribute('x1', x1.toFixed(2)); ln.setAttribute('y1', y1.toFixed(2));
+      ln.setAttribute('x2', x2.toFixed(2)); ln.setAttribute('y2', y2.toFixed(2));
+      ln.setAttribute('stroke', '#3a2412');
+      ln.setAttribute('stroke-width', isMajor ? 1.4 : isMid ? 1 : 0.7);
+      ln.setAttribute('opacity', isMajor ? 0.9 : isMid ? 0.7 : 0.45);
+      ticks.appendChild(ln);
+    }
+    const card = new Set([0, 90, 180, 270]);
+    for (let a = 0; a < 360; a += 30) {
+      if (card.has(a)) continue;
+      const x = Math.sin(a * Math.PI / 180) * 99;
+      const y = -Math.cos(a * Math.PI / 180) * 99 + 3.5;
+      const t = document.createElementNS(SVG, 'text');
+      t.setAttribute('x', x.toFixed(2));
+      t.setAttribute('y', y.toFixed(2));
+      t.setAttribute('font-family', "'IM Fell English SC', serif");
+      t.setAttribute('font-size', 9);
+      t.setAttribute('text-anchor', 'middle');
+      t.setAttribute('fill', '#5a4427');
+      t.textContent = a;
+      ticks.appendChild(t);
+    }
+  }
+  const rivets = document.getElementById('rivets');
+  if (rivets) {
+    for (let i = 0; i < 12; i++) {
+      const a = i * 30 + 15;
+      const x = Math.sin(a * Math.PI / 180) * 131;
+      const y = -Math.cos(a * Math.PI / 180) * 131;
+      const c = document.createElementNS(SVG, 'circle');
+      c.setAttribute('cx', x.toFixed(2));
+      c.setAttribute('cy', y.toFixed(2));
+      c.setAttribute('r', 2.2);
+      c.setAttribute('fill', '#2a190c');
+      c.setAttribute('stroke', '#d9b06a');
+      c.setAttribute('stroke-width', 0.5);
+      rivets.appendChild(c);
+      const h = document.createElementNS(SVG, 'circle');
+      h.setAttribute('cx', (x - 0.6).toFixed(2));
+      h.setAttribute('cy', (y - 0.6).toFixed(2));
+      h.setAttribute('r', 0.7);
+      h.setAttribute('fill', '#ffe7a8');
+      h.setAttribute('opacity', 0.7);
+      rivets.appendChild(h);
+    }
+  }
+})();
+
+// poll GPS-based bearing/distance update at a steady cadence even when GPS is quiet
 setInterval(updateRadar, 600);
 
 // ---------- sonar ----------
@@ -403,7 +454,7 @@ function setSonar(on) {
 }
 
 document.getElementById('sonarToggle')?.addEventListener('click', () => { requestCompass(); setSonar(!sonarOn); });
-document.getElementById('radar')?.addEventListener('click', requestCompass);
+document.getElementById('compass')?.addEventListener('click', requestCompass);
 
 document.getElementById('restartBtn')?.addEventListener('click', async () => {
   if (!confirm('¿Borrar todo el progreso y las fotos y empezar de cero?')) return;
@@ -553,6 +604,14 @@ function hideGpsSpoofer() {
   if (spoofActive) setSpoofActive(false);
 }
 
+const gpsSpoofHeadingInput = document.getElementById('gpsSpoofHeading');
+const gpsSpoofHeadingVal = document.getElementById('gpsSpoofHeadingVal');
+gpsSpoofHeadingInput?.addEventListener('input', e => {
+  const v = +e.target.value;
+  spoofHeading = v;
+  if (gpsSpoofHeadingVal) gpsSpoofHeadingVal.textContent = `${v}°`;
+});
+
 gpsSpoofToggleBtn?.addEventListener('click', () => setSpoofActive(!spoofActive));
 gpsSpoofJumpBtn?.addEventListener('click', () => {
   if (!spoofMap || !spoofMarker) return;
@@ -574,9 +633,26 @@ gpsSpoofCollapseBtn?.addEventListener('click', () => {
 });
 
 window.addEventListener('keydown', e => {
-  if (e.key !== '6') return;
   if (e.target && (e.target.matches?.('input, textarea') || e.target.isContentEditable)) return;
-  setDebugMode(!debugMode);
+  if (e.key === '6') {
+    setDebugMode(!debugMode);
+    return;
+  }
+  if (!debugMode) return;
+  if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+    e.preventDefault();
+    const N = HUNT.stops.length;
+    const cur = state.activeIndex; // -1 (gallery) or 0..N-1
+    let next;
+    if (e.key === 'ArrowRight') {
+      next = cur === -1 ? 0 : (cur === N - 1 ? -1 : cur + 1);
+    } else {
+      next = cur === -1 ? N - 1 : (cur === 0 ? -1 : cur - 1);
+    }
+    debugActiveOverride = next;
+    renderClue();
+    updateRadar();
+  }
 });
 
 if (debugMode) {
@@ -697,10 +773,14 @@ function renderClue() {
     state.solvedIds.add(stop.id);
     state.solvedWithHelp.add(stop.id);
     persist();
+    debugActiveOverride = null;
     renderClue();
     updateRadar();
   });
-  document.getElementById('galleryBtn').addEventListener('click', () => renderFinale());
+  document.getElementById('galleryBtn').addEventListener('click', () => {
+    debugActiveOverride = -1;
+    renderClue();
+  });
 
   // pre-fill the answer in debug mode so the user can just click Resolver
   if (debugMode && pwdType !== 'photo-smile') {
@@ -867,6 +947,7 @@ function onSolve(stop, withHelp) {
   state.solvedIds.add(stop.id);
   if (withHelp) state.solvedWithHelp.add(stop.id);
   persist();
+  debugActiveOverride = null; // resume normal flow after solving
   showRewardThen(stop, () => {
     renderClue();
   });

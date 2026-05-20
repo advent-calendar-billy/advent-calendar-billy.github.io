@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Radar preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<style>
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    min-height: 100dvh;
+    background:
+      radial-gradient(ellipse at center, #0c2316 0%, #051409 65%, #000 100%);
+    color: rgba(220, 255, 230, 0.95);
+    font-family: 'Inter', system-ui, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px 40px;
+    gap: 20px;
+  }
+  header { text-align: center; }
+  header h1 {
+    font-family: 'Share Tech Mono', monospace;
+    font-weight: 400;
+    font-size: 1rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(140, 255, 180, 0.92);
+    margin: 0;
+  }
+  header p {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.78rem;
+    margin: 4px 0 0;
+    color: rgba(140, 255, 180, 0.55);
+  }
+
+  .radar-stage {
+    position: relative;
+    width: min(70vmin, 460px);
+    aspect-ratio: 1 / 1;
+  }
+  .radar {
+    width: 100%; height: 100%; display: block;
+    filter: drop-shadow(0 0 18px rgba(60, 230, 130, 0.22));
+  }
+  .radar-ring { fill: none; stroke: rgba(80, 230, 140, 0.30); stroke-width: 0.45; }
+  .radar-ring.outer { stroke: rgba(140, 255, 180, 0.62); stroke-width: 1.1; }
+  .radar-cross { stroke: rgba(80, 230, 140, 0.22); stroke-width: 0.4; stroke-dasharray: 2 3; }
+  .radar-card {
+    fill: rgba(140, 255, 180, 0.78);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+  }
+  .radar-card.is-north { fill: rgba(220, 255, 230, 0.95); font-weight: 600; font-size: 12px; }
+  .radar-sweep-line { stroke: rgba(200, 255, 220, 0.95); stroke-width: 0.9; }
+  .radar-me { fill: #fff; filter: drop-shadow(0 0 4px rgba(180, 255, 200, 0.85)); }
+  .radar-blip-halo { opacity: var(--blip-glow, 0.45); transition: opacity 0.08s linear; }
+  .radar-blip-core {
+    fill: #DCFFE3;
+    filter: drop-shadow(0 0 7px rgba(140, 255, 180, 1));
+    animation: blip-breathe 1.4s ease-in-out infinite;
+    transform-origin: center;
+    transform-box: fill-box;
+  }
+  @keyframes blip-breathe { 0%,100% { transform: scale(1); } 50% { transform: scale(1.18); } }
+  .radar-blip.edge .radar-blip-core { animation: blip-edge-breathe 0.9s ease-in-out infinite; }
+  @keyframes blip-edge-breathe { 0%,100% { transform: scale(0.9); opacity: 0.85; } 50% { transform: scale(1.05); opacity: 1; } }
+  .radar-forward { fill: rgba(255, 220, 120, 0.95); filter: drop-shadow(0 0 5px rgba(255, 200, 80, 0.9)); }
+  .radar-status {
+    position: absolute; bottom: -2px; left: 50%; transform: translateX(-50%);
+    color: rgba(140, 255, 180, 0.78);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.74rem; letter-spacing: 0.14em; text-transform: uppercase;
+    white-space: nowrap;
+    text-shadow: 0 0 6px rgba(60, 230, 130, 0.55);
+  }
+
+  .panel {
+    width: min(460px, 92vw);
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(120, 255, 160, 0.25);
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .panel h2 {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(140, 255, 180, 0.85);
+    margin: 0 0 8px;
+  }
+  #simMap {
+    width: 100%; height: 230px; border-radius: 6px; background: #0a1810; margin: 6px 0;
+  }
+  .ctl {
+    display: grid; grid-template-columns: 100px 1fr 70px; gap: 10px; align-items: center;
+    margin: 6px 0; font-size: 0.82rem;
+  }
+  .ctl .val { text-align: right; font-family: 'Share Tech Mono', monospace; }
+  .btn-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .b {
+    font: inherit; font-size: 0.74rem;
+    padding: 4px 8px;
+    background: rgba(0, 30, 18, 0.85);
+    color: rgba(220, 255, 230, 0.95);
+    border: 1px solid rgba(120, 255, 160, 0.45);
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'Share Tech Mono', monospace;
+    letter-spacing: 0.06em;
+  }
+  .me-pin { background: transparent; border: none; }
+  .me-pin-dot {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: rgba(220, 80, 60, 0.95);
+    border: 2px solid #efe3c5;
+    box-shadow: 0 0 0 2px rgba(220, 80, 60, 0.5);
+  }
+  .stop-pin { background: transparent; border: none; }
+  .stop-pin-mark {
+    width: 16px; height: 16px; border-radius: 50%;
+    background: rgba(120, 255, 160, 0.92);
+    color: #052712; font-family: 'Share Tech Mono', monospace; font-size: 10px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1.5px solid #052712;
+  }
+  .stop-pin-mark.is-target { background: rgba(230, 180, 60, 0.95); border-color: #5a3a10; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>· RADAR · preview ·</h1>
+  <p>diseño original — guardado por si volvemos</p>
+</header>
+
+<div class="radar-stage">
+  <svg class="radar" viewBox="-110 -110 220 220" aria-hidden="true">
+    <defs>
+      <radialGradient id="radarBg" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="rgba(40,255,120,0.22)"/>
+        <stop offset="55%" stop-color="rgba(10,180,60,0.08)"/>
+        <stop offset="100%" stop-color="rgba(0,30,15,0)"/>
+      </radialGradient>
+      <radialGradient id="blipGlow" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="rgba(200,255,210,1)"/>
+        <stop offset="45%" stop-color="rgba(60,235,120,0.55)"/>
+        <stop offset="100%" stop-color="rgba(60,235,120,0)"/>
+      </radialGradient>
+      <radialGradient id="sweepGrad" cx="0" cy="0" r="100" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stop-color="rgba(160,255,190,0.85)"/>
+        <stop offset="55%" stop-color="rgba(50,230,110,0.22)"/>
+        <stop offset="100%" stop-color="rgba(50,230,110,0)"/>
+      </radialGradient>
+    </defs>
+    <circle r="100" fill="url(#radarBg)"/>
+    <circle r="100" class="radar-ring outer"/>
+    <circle r="75" class="radar-ring"/>
+    <circle r="50" class="radar-ring"/>
+    <circle r="25" class="radar-ring"/>
+    <line x1="-100" y1="0" x2="100" y2="0" class="radar-cross"/>
+    <line x1="0" y1="-100" x2="0" y2="100" class="radar-cross"/>
+    <text x="0" y="-88" class="radar-card is-north" text-anchor="middle">N</text>
+    <text x="92" y="3" class="radar-card" text-anchor="middle">E</text>
+    <text x="0" y="98" class="radar-card" text-anchor="middle">S</text>
+    <text x="-92" y="3" class="radar-card" text-anchor="middle">W</text>
+    <g id="radarForward" style="display:none">
+      <polygon class="radar-forward" points="0,-104 -5,-94 5,-94"/>
+    </g>
+    <g id="radarSweep">
+      <path d="M 0 0 L 0 -100 A 100 100 0 0 1 70.71 -70.71 Z" fill="url(#sweepGrad)"/>
+      <line x1="0" y1="0" x2="0" y2="-100" class="radar-sweep-line"/>
+      <animateTransform attributeName="transform" type="rotate" from="0 0 0" to="360 0 0" dur="4s" repeatCount="indefinite"/>
+    </g>
+    <g id="radarBlip" class="radar-blip" style="display:none">
+      <circle r="20" class="radar-blip-halo" fill="url(#blipGlow)"/>
+      <circle r="5" class="radar-blip-core"/>
+    </g>
+    <circle r="2.6" class="radar-me"/>
+  </svg>
+  <div class="radar-status" id="radarStatus">esperando posición…</div>
+</div>
+
+<div class="panel">
+  <h2>Simulator</h2>
+  <div id="simMap"></div>
+  <div class="ctl">
+    <label for="heading">heading</label>
+    <input id="heading" type="range" min="0" max="359" value="0">
+    <span class="val" id="headingVal">0°</span>
+  </div>
+  <div class="btn-row">
+    <button class="b" data-stop="01">01 Poe</button>
+    <button class="b" data-stop="02">02 Tetera</button>
+    <button class="b" data-stop="03">03 Faneuil</button>
+    <button class="b" data-stop="04">04 Boston Stone</button>
+    <button class="b" data-stop="05">05 Columbus</button>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+  const STOPS = [
+    { id: '01', name: 'Edgar Allan Poe statue', coord: [42.3523, -71.0674] },
+    { id: '02', name: 'Steaming Tea Kettle',    coord: [42.3593, -71.0592] },
+    { id: '03', name: 'Faneuil Hall grasshopper', coord: [42.3600, -71.0547] },
+    { id: '04', name: 'Boston Stone',           coord: [42.3619, -71.0567] },
+    { id: '05', name: 'Christopher Columbus Park', coord: [42.3611, -71.0521] },
+  ];
+  const RADAR_MAX_M = 600, RADAR_INNER_R = 14, RADAR_EDGE_R = 96;
+  function haversine(a, b) {
+    const R = 6371000, toRad = d => d * Math.PI / 180;
+    const dLat = toRad(b[0]-a[0]), dLng = toRad(b[1]-a[1]);
+    const lat1 = toRad(a[0]), lat2 = toRad(b[0]);
+    const h = Math.sin(dLat/2)**2 + Math.sin(dLng/2)**2 * Math.cos(lat1)*Math.cos(lat2);
+    return 2*R*Math.asin(Math.min(1, Math.sqrt(h)));
+  }
+  function bearingDeg(from, to) {
+    const toRad = d => d * Math.PI / 180;
+    const lat1 = toRad(from[0]), lat2 = toRad(to[0]);
+    const dLng = toRad(to[1]-from[1]);
+    const y = Math.sin(dLng) * Math.cos(lat2);
+    const x = Math.cos(lat1)*Math.sin(lat2) - Math.sin(lat1)*Math.cos(lat2)*Math.cos(dLng);
+    return ((Math.atan2(y, x) * 180 / Math.PI) + 360) % 360;
+  }
+  function fmtDist(m) { return m < 1000 ? `${Math.round(m)} m` : `${(m/1000).toFixed(2)} km`; }
+
+  const blip = document.getElementById('radarBlip');
+  const blipHalo = blip.querySelector('.radar-blip-halo');
+  const fwd = document.getElementById('radarForward');
+  const statusEl = document.getElementById('radarStatus');
+  const headingInput = document.getElementById('heading');
+  const headingVal = document.getElementById('headingVal');
+  let myPos = [42.3540, -71.0700], heading = 0, targetIdx = 0;
+  let blipBearingAbs = null, blipDist = null, blipEdge = false;
+
+  function blipRadius() {
+    if (blipEdge) return RADAR_EDGE_R;
+    const t = Math.max(0, Math.min(1, blipDist / RADAR_MAX_M));
+    return RADAR_INNER_R + (RADAR_EDGE_R - RADAR_INNER_R) * Math.pow(t, 0.85);
+  }
+  function recompute() {
+    const t = STOPS[targetIdx];
+    blipDist = haversine(myPos, t.coord);
+    blipBearingAbs = bearingDeg(myPos, t.coord);
+    blipEdge = blipDist > RADAR_MAX_M;
+    blip.style.display = '';
+    blip.classList.toggle('edge', blipEdge);
+    fwd.style.display = '';
+    fwd.setAttribute('transform', `rotate(${heading})`);
+    statusEl.textContent = `${(targetIdx+1).toString().padStart(2,'0')} · ${fmtDist(blipDist)} · ${Math.round(heading)}°`;
+  }
+  function tick(t) {
+    if (blipBearingAbs != null) {
+      const r = blipRadius();
+      const rad = blipBearingAbs * Math.PI / 180;
+      blip.setAttribute('transform', `translate(${(Math.sin(rad)*r).toFixed(1)} ${(-Math.cos(rad)*r).toFixed(1)})`);
+      const sweep = ((t/4000)*360) % 360;
+      const behind = (sweep - blipBearingAbs + 360) % 360;
+      const win = 60;
+      const glow = behind <= win ? (1 - behind/win) : 0.15;
+      blipHalo.style.setProperty('--blip-glow', (0.25 + glow*0.75).toFixed(3));
+    }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+
+  // map
+  const map = L.map('simMap').setView([42.358, -71.062], 14);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; OSM &copy; CARTO', subdomains: 'abcd', maxZoom: 19
+  }).addTo(map);
+  const me = L.marker(myPos, {
+    icon: L.divIcon({ className: 'me-pin', html: '<div class="me-pin-dot"></div>', iconSize: [18,18], iconAnchor: [9,9] }),
+    draggable: true,
+  }).addTo(map);
+  me.on('drag dragend', e => { const p = e.target.getLatLng(); myPos = [p.lat, p.lng]; recompute(); });
+  map.on('click', e => { me.setLatLng(e.latlng); myPos = [e.latlng.lat, e.latlng.lng]; recompute(); });
+  const stopMarkers = STOPS.map((s,i) => L.marker(s.coord, {
+    icon: L.divIcon({ className: 'stop-pin', html: `<div class="stop-pin-mark">${i+1}</div>`, iconSize: [16,16], iconAnchor: [8,8] })
+  }).addTo(map).on('click', () => setTarget(i)));
+  function setTarget(i) {
+    targetIdx = i;
+    stopMarkers.forEach((m, idx) => { const el = m.getElement()?.querySelector('.stop-pin-mark'); if (el) el.classList.toggle('is-target', idx === targetIdx); });
+    recompute();
+  }
+  setTarget(0);
+
+  headingInput.addEventListener('input', e => { heading = +e.target.value; headingVal.textContent = `${heading}°`; recompute(); });
+  document.querySelectorAll('.b[data-stop]').forEach(btn => btn.addEventListener('click', () => {
+    const i = STOPS.findIndex(s => s.id === btn.dataset.stop);
+    if (i >= 0) setTarget(i);
+  }));
+  recompute();
+</script>
+</body>
+</html>
