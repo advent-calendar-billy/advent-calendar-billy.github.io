@@ -221,6 +221,14 @@ function fmtDist(m) {
 }
 
 function updateRadar() {
+  // Re-render the clue panel if the lock-state flipped (entered or left Cape Ann).
+  const wantsLock = shouldShowDay2Lock();
+  const hasLock = !!document.querySelector('.clue-card.day-lock');
+  if (wantsLock !== hasLock) {
+    renderClue();
+    return;
+  }
+
   const idx = state.activeIndex;
   const here = currentPos();
   const target = activeStopCoord();
@@ -229,6 +237,18 @@ function updateRadar() {
     if (needleRotor) needleRotor.style.display = 'none';
     targetBearingAbs = null;
     compassStatus.textContent = '· encontraste todos los tesoros ·';
+    return;
+  }
+  if (wantsLock) {
+    if (needleRotor) needleRotor.style.display = 'none';
+    targetBearingAbs = null;
+    const n = nearestDay2();
+    compassStatus.textContent = n ? `bloqueado · ${fmtDist(n.d)} a ${n.stop.name.split(/[ ,]/)[0]}` : 'bloqueado · llegá a Cape Ann';
+    // also refresh the live distance in the lock card itself
+    const lockDist = document.querySelector('.day-lock .lock-dist');
+    if (lockDist && n) {
+      lockDist.innerHTML = `<span class="lock-num">${fmtDist(n.d)}</span> hasta ${escapeHtml(n.stop.name)}`;
+    }
     return;
   }
   if (!here) {
@@ -667,11 +687,70 @@ const progressLabel = document.getElementById('progressLabel');
 
 function renderProgressLabel() {
   const total = HUNT.stops.length;
-  if (state.activeIndex < 0) {
+  const idx = state.activeIndex;
+  if (idx < 0) {
     progressLabel.textContent = `${total} de ${total}`;
-  } else {
-    progressLabel.textContent = `Parada ${state.activeIndex + 1} de ${total}`;
+    return;
   }
+  const stop = HUNT.stops[idx];
+  if (typeof stop.day === 'number') {
+    const dayStops = HUNT.stops.filter(s => s.day === stop.day);
+    const posInDay = dayStops.findIndex(s => s.id === stop.id) + 1;
+    progressLabel.textContent = `Día ${stop.day} · ${posInDay} de ${dayStops.length}`;
+  } else {
+    progressLabel.textContent = `Parada ${idx + 1} de ${total}`;
+  }
+}
+
+// ---------- day-2 location lock ----------
+const DAY2_UNLOCK_RADIUS_M = 5000; // ~5 km from any day-2 stop = "arrived in Cape Ann"
+
+function day2Stops() { return HUNT.stops.filter(s => s.day === 2); }
+function day1Complete() {
+  return HUNT.stops.filter(s => s.day === 1).every(s => state.solvedIds.has(s.id));
+}
+function nearestDay2() {
+  const here = currentPos();
+  if (!here) return null;
+  let best = null;
+  for (const s of day2Stops()) {
+    const d = haversine(here, s.coord);
+    if (!best || d < best.d) best = { stop: s, d };
+  }
+  return best;
+}
+function day2UnlockedByLocation() {
+  const n = nearestDay2();
+  return n != null && n.d <= DAY2_UNLOCK_RADIUS_M;
+}
+function shouldShowDay2Lock() {
+  // Locked when day-1 is done, day-2 hasn't started, and Fede isn't in Cape Ann yet.
+  // Debug arrow-key navigation bypasses this (debugActiveOverride !== null).
+  if (debugActiveOverride !== null) return false;
+  if (!day1Complete()) return false;
+  const idx = state.activeIndex;
+  if (idx < 0) return false;
+  const stop = HUNT.stops[idx];
+  if (stop.day !== 2) return false;
+  return !day2UnlockedByLocation();
+}
+
+function renderDay2Lock() {
+  const n = nearestDay2();
+  const here = currentPos();
+  const distLine = here && n
+    ? `<p class="lock-dist"><span class="lock-num">${fmtDist(n.d)}</span> hasta ${escapeHtml(n.stop.name)}</p>`
+    : `<p class="lock-dist">esperando posición…</p>`;
+  cluePanel.innerHTML = `
+    <article class="clue-card day-lock">
+      <div class="lock-mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" width="36" height="36"><path d="M9 14V11a7 7 0 0 1 14 0v3M7 14h18a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V16a2 2 0 0 1 2-2zm9 5v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <h2>Día 2 · Cape Ann</h2>
+      <p class="lock-body">El próximo tesoro se desbloquea cuando llegues.<br>Nos vemos el sábado, en Gloucester.</p>
+      ${distLine}
+    </article>
+  `;
 }
 
 function renderClue() {
@@ -681,6 +760,12 @@ function renderClue() {
 
   if (idx < 0) {
     renderFinale();
+    updateRadar();
+    return;
+  }
+
+  if (shouldShowDay2Lock()) {
+    renderDay2Lock();
     updateRadar();
     return;
   }

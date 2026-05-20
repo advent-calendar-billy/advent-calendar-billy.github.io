@@ -52,6 +52,7 @@ export const HUNT = {
 
     {
       id: "01",
+      day: 1,
       type: "sight",
       lang: "es",
       name: "Edgar Allan Poe statue",
@@ -70,12 +71,13 @@ export const HUNT = {
 
     {
       id: "02",
+      day: 1,
       type: "sight",
       lang: "es",
       name: "Steaming Tea Kettle",
       coord: [42.3593, -71.0592],
       circle: { radius: 220, offset: [-0.0007, 0.0008] },
-      clue: "Cerca del ayuntamiento, algo de cobre lleva más de un siglo echando vapor sobre la vereda. ¿Cuántos galones dice contener?",
+      clue: "En Government Center, un viejo amigo de tus tardes de té echa vapor desde 1873. ¿Cuántos galones dice contener?",
       passwordType: "text",
       answer: "227",
       altAnswers: ["doscientos veintisiete", "227 gallons"],
@@ -88,12 +90,13 @@ export const HUNT = {
 
     {
       id: "03",
+      day: 1,
       type: "sight",
       lang: "es",
       name: "El saltamontes de Faneuil Hall",
       coord: [42.3600, -71.0547],
       circle: { radius: 200, offset: [0.0008, 0.0007] },
-      clue: "Encima del mercado más viejo del barrio, algo dorado lleva posado desde 1742. ¿Qué es?",
+      clue: "En la cúpula de Faneuil Hall, algo dorado vigila desde 1742. ¿Qué es?",
       passwordType: "text",
       answer: "saltamontes",
       altAnswers: ["grasshopper", "langosta"],
@@ -106,6 +109,7 @@ export const HUNT = {
 
     {
       id: "04",
+      day: 1,
       type: "sight",
       lang: "es",
       name: "Boston Stone",
@@ -124,6 +128,7 @@ export const HUNT = {
 
     {
       id: "05",
+      day: 1,
       type: "sight",
       lang: "es",
       name: "Christopher Columbus Park",
@@ -144,6 +149,7 @@ export const HUNT = {
 
     {
       id: "06",
+      day: 2,
       type: "sight",
       lang: "es",
       name: "Hammond Castle",
@@ -162,6 +168,7 @@ export const HUNT = {
 
     {
       id: "07",
+      day: 2,
       type: "sight",
       lang: "es",
       name: "Gloucester Fisherman's Memorial",
@@ -180,6 +187,7 @@ export const HUNT = {
 
     {
       id: "08",
+      day: 2,
       type: "taste",
       lang: "es",
       name: "Rocky Neck Art Colony",
@@ -196,6 +204,7 @@ export const HUNT = {
 
     {
       id: "09",
+      day: 2,
       type: "sight",
       lang: "es",
       name: "Halibut Point State Park",
