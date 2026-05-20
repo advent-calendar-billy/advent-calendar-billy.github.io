@@ -1116,7 +1116,32 @@ async function fillFinaleGallery() {
   gallery.innerHTML = tiles.length
     ? tiles.join('')
     : '<p class="muted">Sin fotos guardadas.</p>';
+
+  // tap to zoom
+  gallery.addEventListener('click', e => {
+    const img = e.target.closest('.pic img');
+    if (img && img.src) openLightbox(img.src);
+  });
 }
+
+// ---------- lightbox ----------
+const lightboxEl = document.getElementById('lightbox');
+const lightboxImg = document.getElementById('lightboxImg');
+function openLightbox(src) {
+  if (!lightboxEl || !lightboxImg) return;
+  lightboxImg.src = src;
+  lightboxEl.hidden = false;
+  lightboxEl.setAttribute('aria-hidden', 'false');
+}
+function closeLightbox() {
+  if (!lightboxEl) return;
+  lightboxEl.hidden = true;
+  lightboxEl.setAttribute('aria-hidden', 'true');
+  if (lightboxImg) lightboxImg.removeAttribute('src');
+}
+lightboxEl?.addEventListener('click', closeLightbox);
+document.getElementById('lightboxClose')?.addEventListener('click', e => { e.stopPropagation(); closeLightbox(); });
+window.addEventListener('keydown', e => { if (!lightboxEl?.hidden && e.key === 'Escape') closeLightbox(); });
 
 // ---------- preload face models when idle ----------
 if (!TEST_MODE) {
