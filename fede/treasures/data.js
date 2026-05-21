@@ -96,7 +96,7 @@ export const HUNT = {
       name: "El saltamontes de Faneuil Hall",
       coord: [42.3600, -71.0547],
       circle: { radius: 200, offset: [0.0008, 0.0007] },
-      clue: "En una cúpula, un animal dorado vigila desde 1742. ¿Qué es?",
+      clue: "En una cúpula, un animal dorado vigila el mercado desde 1742. ¿Qué es?",
       passwordType: "text",
       answer: "saltamontes",
       altAnswers: ["grasshopper", "langosta"],
