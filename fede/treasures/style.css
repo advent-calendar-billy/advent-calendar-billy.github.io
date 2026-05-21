@@ -123,7 +123,7 @@ main {
 .gps-spoof {
   position: fixed;
   right: 10px;
-  bottom: 10px;
+  top: 56px;
   z-index: 60;
   width: 260px;
   background: rgba(8, 28, 18, 0.96);
