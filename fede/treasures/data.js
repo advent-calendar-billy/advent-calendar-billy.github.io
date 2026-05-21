@@ -115,7 +115,7 @@ export const HUNT = {
       name: "Boston Stone",
       coord: [42.3619, -71.0567],
       circle: { radius: 200, offset: [0.0008, -0.0006] },
-      clue: "Hay una piedra empotrada en un muro de ladrillo. ¿Qué año tiene grabado?",
+      clue: "Una piedra empotrada en un muro de ladrillo fue el punto cero de la ciudad. ¿Qué año tiene grabado?",
       passwordType: "text",
       answer: "1737",
       altAnswers: ["mil setecientos treinta y siete"],
