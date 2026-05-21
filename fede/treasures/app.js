@@ -13,11 +13,11 @@ if (TEST_MODE) {
   clearProgress();
   await clearAllPhotos();
 }
-{
-  const _p = new URLSearchParams(location.search);
-  if (_p.has('debug')) localStorage.setItem('tesoros:debug', '1');
-  if (_p.has('nodebug')) localStorage.setItem('tesoros:debug', '0');
-}
+// debug off for shipping; ?debug or pressing '6' opt-in (in-session only)
+const DEBUG_FROM_URL = new URLSearchParams(location.search).has('debug');
+// one-time cleanup: an earlier build defaulted debug ON and persisted it.
+// clear that flag so existing testers don't accidentally play with cheats on.
+localStorage.removeItem('tesoros:debug');
 
 // ---------- helpers ----------
 function escapeHtml(s) {
@@ -95,11 +95,10 @@ function persist() {
 let activeLocks = null;
 
 // ---------- position source (real GPS or debug override) ----------
-const DEBUG_KEY = 'tesoros:debug';
+const DEBUG_KEY = 'tesoros:debug'; // kept for reference / future migrations; not read anymore
 let realPos = null;     // [lat, lng] from GPS
-// debug mode is ON by default during pre-launch development.
-// to ship: change this to `=== '1'` (off unless explicitly enabled) before sharing with Fede.
-let debugMode = localStorage.getItem(DEBUG_KEY) !== '0';
+// debug is off in production; opt in with ?debug URL param or '6' key toggle (in-session only)
+let debugMode = DEBUG_FROM_URL;
 
 let spoofPos = null;            // [lat, lng] set by the debug GPS spoofer
 let spoofActive = false;        // when true, currentPos returns spoofPos
@@ -501,7 +500,7 @@ function refreshDebugBanner() {
 
 function setDebugMode(on) {
   debugMode = on;
-  localStorage.setItem(DEBUG_KEY, on ? '1' : '0');
+  // intentionally NOT persisted to localStorage — debug toggles only live for this session
   document.body.classList.toggle('is-debug', on);
   refreshDebugBanner();
   if (sonarOn) scheduleNextBeep();
