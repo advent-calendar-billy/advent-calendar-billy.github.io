@@ -94,7 +94,7 @@ export const HUNT = {
       type: "sight",
       lang: "es",
       name: "El saltamontes de Faneuil Hall",
-      coord: [42.3600, -71.0547],
+      coord: [42.3600, -71.0562],
       circle: { radius: 200, offset: [0.0008, 0.0007] },
       clue: "En una cúpula, un animal dorado vigila el mercado desde 1742. ¿Qué es?",
       passwordType: "text",
