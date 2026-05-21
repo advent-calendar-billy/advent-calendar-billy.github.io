@@ -180,10 +180,15 @@ function haveHeading() {
 let compassRequested = false;
 function attachCompass() {
   if (typeof DeviceOrientationEvent === 'undefined') return;
+  // Prefer absolute orientation (Android Chrome) — `deviceorientation`'s alpha is
+  // relative to the page-load orientation, not true north, so we ignore it on Android.
+  // iOS doesn't expose deviceorientationabsolute; it uses webkitCompassHeading on the
+  // regular deviceorientation event (which IS compass-aligned).
   if ('ondeviceorientationabsolute' in window) {
     window.addEventListener('deviceorientationabsolute', onOrientation);
+  } else {
+    window.addEventListener('deviceorientation', onOrientation);
   }
-  window.addEventListener('deviceorientation', onOrientation);
 }
 function requestCompass() {
   if (compassRequested) return;
@@ -201,7 +206,10 @@ function onOrientation(e) {
   let h;
   if (typeof e.webkitCompassHeading === 'number') {
     h = e.webkitCompassHeading;
-  } else if (typeof e.alpha === 'number') {
+  } else if (typeof e.alpha === 'number' && e.absolute) {
+    // Only trust alpha when the platform marks the reading as absolute (i.e. earth-fixed
+    // frame). Relative orientation drifts and gives a "compass" pinned to whatever way
+    // the phone happened to be facing at page load — wrong.
     h = (360 - e.alpha) % 360;
   } else {
     return;
