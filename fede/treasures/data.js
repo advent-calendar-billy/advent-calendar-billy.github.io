@@ -134,7 +134,7 @@ export const HUNT = {
       name: "Armenian Heritage Park",
       coord: [42.3611, -71.0532],
       circle: { radius: 200, offset: [0.0007, -0.0008] },
-      clue: "Un patrón circular tallado en el césped, con un chorro de agua en el centro. ¿Cómo se llama esa figura?",
+      clue: "Un camino se enrosca en el césped hacia un chorro de agua. ¿Cómo se llama esa figura?",
       passwordType: "text",
       answer: "laberinto",
       altAnswers: ["labyrinth", "laberinto de cesped", "el laberinto", "labyrinthus"],
