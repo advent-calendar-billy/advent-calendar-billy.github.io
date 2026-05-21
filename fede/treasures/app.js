@@ -824,7 +824,6 @@ function renderClue() {
 
       <button type="button" class="btn primary submit-btn" id="submitBtn">Resolver</button>
       <p id="answerHelp" class="answer-help" aria-live="polite"></p>
-      <button type="button" class="link-btn" id="giveUpBtn">no me sale</button>
       <button type="button" class="link-btn skip-btn" id="skipBtn">skip ▸</button>
       <button type="button" class="link-btn skip-btn" id="galleryBtn">galería ▸</button>
     </article>
@@ -850,9 +849,6 @@ function renderClue() {
   }
 
   document.getElementById('submitBtn').addEventListener('click', () => attemptSubmit(stop));
-  document.getElementById('giveUpBtn').addEventListener('click', () => {
-    if (confirm('¿Revelar la respuesta y avanzar?')) onSolve(stop, true);
-  });
   document.getElementById('skipBtn').addEventListener('click', () => {
     state.solvedIds.add(stop.id);
     state.solvedWithHelp.add(stop.id);
