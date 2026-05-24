@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Día 2 · Cape Ann · plan de caminata</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    background: #FAF6EE;
+    color: #2A2520;
+    font-family: 'Inter', system-ui, sans-serif;
+    line-height: 1.55;
+  }
+  main { max-width: 880px; margin: 0 auto; padding: 28px 22px 80px; }
+  h1 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 500;
+    font-size: 1.6rem;
+    margin: 0 0 4px;
+  }
+  .sub {
+    color: #7A6F60;
+    font-style: italic;
+    font-family: 'Fraunces', serif;
+    font-size: 0.96rem;
+    margin: 0 0 22px;
+  }
+  h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 1.18rem;
+    margin: 28px 0 8px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(42, 37, 32, 0.10);
+  }
+  h3 {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: #7A6F60;
+    margin: 16px 0 6px;
+  }
+
+  /* leg cards */
+  .leg {
+    border: 1px solid rgba(42, 37, 32, 0.10);
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin: 14px 0;
+    background: #fff;
+  }
+  .leg-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+  .leg-name {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 1.06rem;
+  }
+  .leg-meta {
+    font-size: 0.78rem;
+    color: #7A6F60;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+  .verdict {
+    display: inline-block;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 99px;
+    margin-right: 8px;
+    vertical-align: 2px;
+  }
+  .v-good { background: rgba(90,122,79,0.16); color: #3a5530; }
+  .v-mixed { background: rgba(197,138,58,0.18); color: #6e4a14; }
+  .v-bad  { background: rgba(180,70,50,0.16); color: #6f2110; }
+  .leg p { margin: 6px 0 8px; }
+  .leg ul { margin: 6px 0 8px; padding-left: 20px; }
+  .leg .links {
+    display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;
+    font-size: 0.86rem;
+  }
+  .leg .links a {
+    display: inline-block;
+    padding: 5px 10px;
+    border: 1px solid rgba(42, 37, 32, 0.25);
+    border-radius: 6px;
+    color: #2A2520;
+    text-decoration: none;
+    background: #F7EFD9;
+  }
+  .leg .links a:hover { background: #FFF1CC; }
+
+  /* options table */
+  .opts {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0 24px;
+    font-size: 0.92rem;
+    background: #fff;
+    border: 1px solid rgba(42, 37, 32, 0.10);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .opts th, .opts td {
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid rgba(42, 37, 32, 0.06);
+    vertical-align: top;
+  }
+  .opts th {
+    background: rgba(197, 138, 58, 0.08);
+    font-weight: 600;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #7A6F60;
+  }
+  .opts td .tag {
+    display: inline-block;
+    font-size: 0.74rem;
+    padding: 1px 7px;
+    border-radius: 99px;
+    margin-right: 4px;
+    font-variant-numeric: tabular-nums;
+  }
+  .tag.uber { background: rgba(40, 100, 200, 0.12); color: #1a4a8c; }
+  .tag.walk { background: rgba(90, 122, 79, 0.14); color: #3a5530; }
+  .opts tr.is-rec td { background: rgba(90, 122, 79, 0.06); }
+  .opts tr.is-rec td:first-child::after {
+    content: 'recomendada';
+    display: inline-block;
+    margin-left: 6px;
+    font-size: 0.7rem;
+    color: #3a5530;
+    letter-spacing: 0.08em;
+  }
+</style>
+</head>
+<body>
+<main>
+
+<h1>Día 2 · Cape Ann · plan de caminata</h1>
+<p class="sub">Cada tramo con foto/preview + minutos. Mirá las opciones al final.</p>
+
+<h2>Tramos en orden</h2>
+
+<div class="leg">
+  <div class="leg-head"><span class="leg-name">A · Gloucester station → Hammond Castle</span><span class="leg-meta">~6.5 km · ~1 h 25 caminando · ~10 min Uber</span></div>
+  <p><span class="verdict v-bad">aburrido</span> Salida del tren, dos kilómetros por Washington/Western Ave (parte urbana grim — talleres, supermercados, ruidoso). Recién después de pasar Stage Fort empieza la costa.</p>
+  <div class="links">
+    <a href="https://www.google.com/maps/dir/Gloucester+station,+Gloucester,+MA/Hammond+Castle+Museum,+80+Hesperus+Ave,+Gloucester,+MA/@42.6,-70.685,14z" target="_blank">📍 Google Maps directions</a>
+    <a href="https://www.google.com/maps/@42.6135,-70.6713,3a,75y" target="_blank">👁 Street view (Washington St, primera parte)</a>
+    <a href="https://www.google.com/maps/place/Hammond+Castle+Museum/@42.5853,-70.6925,15z" target="_blank">🏰 Hammond Castle</a>
+  </div>
+</div>
+
+<div class="leg">
+  <div class="leg-head"><span class="leg-name">A-bis · Gloucester station → Magnolia village (Uber corto) → Hammond Castle (a pie)</span><span class="leg-meta">Uber ~7 min · luego ~25 min caminando</span></div>
+  <p><span class="verdict v-good">+coastal</span> Alternativa: Uber CORTO hasta la entrada de Magnolia (Norman Ave / Hesperus Ave) — donde empieza la parte linda. Después caminás Hesperus Ave hasta Hammond Castle (~25 min) pasando por Norman's Woe (la roca del poema de Longfellow "The Wreck of the Hesperus"). Esto te da el tramo más bonito desde el inicio.</p>
+  <div class="links">
+    <a href="https://www.google.com/maps/dir/Gloucester+station,+MA/Magnolia+Village,+Gloucester,+MA/" target="_blank">📍 Uber leg (Gloucester station → Magnolia village)</a>
+    <a href="https://www.google.com/maps/dir/Magnolia+Village,+Gloucester,+MA/Hammond+Castle+Museum,+80+Hesperus+Ave,+Gloucester,+MA/" target="_blank">🚶 Walking leg (Magnolia → Hammond)</a>
+    <a href="https://www.google.com/maps/place/Norman's+Woe/@42.582,-70.690,15z" target="_blank">🌊 Norman's Woe en el medio</a>
+  </div>
+</div>
+
+<div class="leg">
+  <div class="leg-head"><span class="leg-name">B · Hammond Castle → Fisherman's Memorial</span><span class="leg-meta">~6 km · ~1 h 20 caminando</span></div>
+  <p><span class="verdict v-good">muy lindo</span> Tramo principal a pie del día. Hesperus Ave → Western Ave → Stage Fort Park → Stacy Boulevard. Vista al océano casi todo el trayecto, mansiones de Magnolia, el parque histórico de la primera colonia (Stage Fort, 1623), y termina en el monumento de bronce frente al mar (la respuesta al clue 07).</p>
+  <div class="links">
+    <a href="https://www.google.com/maps/dir/Hammond+Castle+Museum,+80+Hesperus+Ave,+Gloucester,+MA/Gloucester+Fisherman's+Memorial+Cenotaph,+Gloucester,+MA/" target="_blank">📍 Google Maps directions</a>
+    <a href="https://www.google.com/maps/place/Stage+Fort+Park/@42.6075,-70.6781,16z" target="_blank">🏞 Stage Fort Park (~midpoint)</a>
+    <a href="https://www.google.com/maps/place/Stacy+Boulevard,+Gloucester,+MA/@42.6095,-70.674,17z" target="_blank">🌊 Stacy Boulevard (final tramo)</a>
+  </div>
+</div>
+
+<div class="leg">
+  <div class="leg-head"><span class="leg-name">C · Fisherman's Memorial → Rocky Neck</span><span class="leg-meta">~1.2 km · ~15 min</span></div>
+  <p><span class="verdict v-good">corto y lindo</span> Cruzás Gloucester downtown por la rambla del puerto, después el causeway a Rocky Neck. Botes, galerías empiezan a aparecer. Imposible aburrirse en 15 min.</p>
+  <div class="links">
+    <a href="https://www.google.com/maps/dir/Gloucester+Fisherman's+Memorial+Cenotaph,+Gloucester,+MA/Rocky+Neck+Art+Colony,+Gloucester,+MA/" target="_blank">📍 Google Maps directions</a>
+  </div>
+</div>
+
+<div class="leg">
+  <div class="leg-head"><span class="leg-name">D · Rocky Neck → Motif No. 1 (Rockport)</span><span class="leg-meta">~8 km · ~1 h 45 caminando · ~15 min Uber</span></div>
+  <p><span class="verdict v-bad">aburrido</span> Por Eastern Ave / Route 127 — el tramo es mayormente interior (Lanesville, Pigeon Cove), barrios residenciales con árboles, casi sin vista al mar. No es feo pero es largo y monótono. 1 h 45 de caminata sin gran recompensa visual hasta llegar a Rockport.</p>
+  <div class="links">
+    <a href="https://www.google.com/maps/dir/Rocky+Neck+Art+Colony,+Gloucester,+MA/Motif+Number+1,+Bradley+Wharf,+Rockport,+MA/" target="_blank">📍 Google Maps directions</a>
+    <a href="https://www.google.com/maps/@42.6396,-70.6500,3a,75y" target="_blank">👁 Street view (Eastern Ave, midway)</a>
+  </div>
+</div>
+
+<div class="leg">
+  <div class="leg-head"><span class="leg-name">E · Motif No. 1 → Rockport station</span><span class="leg-meta">~700 m · ~10 min</span></div>
+  <p><span class="verdict v-good">encantador</span> Por Bearskin Neck (callecita de tiendas y galerías, costera, llena de carácter), después subida corta a la estación. Cierre cómodo y bonito.</p>
+  <div class="links">
+    <a href="https://www.google.com/maps/dir/Motif+Number+1,+Bradley+Wharf,+Rockport,+MA/Rockport+station,+MA/" target="_blank">📍 Google Maps directions</a>
+    <a href="https://www.google.com/maps/place/Bearskin+Neck,+Rockport,+MA/@42.6605,-70.6155,17z" target="_blank">🐠 Bearskin Neck</a>
+  </div>
+</div>
+
+<h2>Opciones de transporte</h2>
+
+<table class="opts">
+  <thead>
+    <tr><th>Plan</th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>Total caminando</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>1. Todo a pie</strong><br><small>masoquista mode</small></td>
+      <td><span class="tag walk">85 min</span></td>
+      <td><span class="tag walk">80 min</span></td>
+      <td><span class="tag walk">15 min</span></td>
+      <td><span class="tag walk">105 min</span></td>
+      <td><span class="tag walk">10 min</span></td>
+      <td>~4 h 55</td>
+    </tr>
+    <tr>
+      <td><strong>2. Uber al castle, walk el resto</strong></td>
+      <td><span class="tag uber">10 min</span></td>
+      <td><span class="tag walk">80 min</span></td>
+      <td><span class="tag walk">15 min</span></td>
+      <td><span class="tag walk">105 min</span></td>
+      <td><span class="tag walk">10 min</span></td>
+      <td>~3 h 30</td>
+    </tr>
+    <tr class="is-rec">
+      <td><strong>3. Uber a Magnolia + Uber a Motif</strong><br><small>uber sólo lo aburrido</small></td>
+      <td colspan="1"><span class="tag uber">7 min</span> + <span class="tag walk">25 min</span></td>
+      <td><span class="tag walk">80 min</span></td>
+      <td><span class="tag walk">15 min</span></td>
+      <td><span class="tag uber">15 min</span></td>
+      <td><span class="tag walk">10 min</span></td>
+      <td>~2 h 10</td>
+    </tr>
+    <tr>
+      <td><strong>4. Uber al castle + Uber a Motif</strong><br><small>menos walking pero te perdés Hesperus</small></td>
+      <td><span class="tag uber">10 min</span></td>
+      <td><span class="tag walk">80 min</span></td>
+      <td><span class="tag walk">15 min</span></td>
+      <td><span class="tag uber">15 min</span></td>
+      <td><span class="tag walk">10 min</span></td>
+      <td>~1 h 45</td>
+    </tr>
+  </tbody>
+</table>
+
+<p style="font-size:0.92rem;">
+<strong>Mi voto: plan 3.</strong> Los dos tramos aburridos (A-urbano + D-suburbano) los hacés en Uber corto. Caminás ~2 h 10 todo costero / urbano lindo / Bearskin. Los Ubers son cortos (~$10–15 cada uno).
+</p>
+
+<p style="font-size:0.92rem; color:#7A6F60; font-style: italic;">
+Notas:<br>
+· El tren commuter Boston ↔ Gloucester / Rockport es ~1 h 5 min a Gloucester, ~1 h 15 a Rockport.<br>
+· La vuelta del día 2 sale de Rockport station, una parada después de Gloucester.<br>
+· Para empezar, agarrás el tren a Gloucester (no a Rockport) — el día arranca en Hammond Castle al sur.<br>
+· Si querés sacar Hammond Castle del recorrido (es la parada que más cuesta), te queda un día más relajado de 3 paradas (Fisherman's, Rocky Neck, Motif) — todo caminable en ~2 h 10 sin Uber.
+</p>
+
+</main>
+</body>
+</html>
