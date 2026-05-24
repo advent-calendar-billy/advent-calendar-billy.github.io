@@ -585,43 +585,6 @@ main {
 }
 body.is-debug .skip-btn { display: inline-block; }
 
-/* GPS-failure escape hatch — always visible, collapsed by default */
-.gps-fallback {
-  margin: 12px 0 4px;
-  border-top: 1px solid rgba(42, 37, 32, 0.10);
-  padding-top: 10px;
-}
-.gps-fallback summary {
-  list-style: none;
-  cursor: pointer;
-  font-size: 0.84rem;
-  color: var(--muted);
-  font-style: italic;
-  user-select: none;
-}
-.gps-fallback summary::-webkit-details-marker { display: none; }
-.gps-fallback summary::before {
-  content: '▸ ';
-  display: inline-block;
-  font-style: normal;
-  transition: transform 0.15s;
-}
-.gps-fallback[open] summary::before { content: '▾ '; }
-.gps-fallback summary:hover { color: var(--ink-soft); }
-.gps-fallback p {
-  font-size: 0.92rem;
-  color: var(--ink-soft);
-  margin: 8px 0;
-  line-height: 1.45;
-}
-.gps-fallback .skip-real {
-  display: block;
-  color: rgba(180, 70, 50, 0.85);
-  text-decoration-color: rgba(180, 70, 50, 0.4);
-  font-size: 0.85rem;
-  margin-top: 2px;
-}
-
 .debug-answer {
   display: none;
   margin: -10px 0 14px;
@@ -889,6 +852,27 @@ body.is-debug .debug-answer { display: block; }
   font-size: 1.06rem;
   font-weight: 600;
   letter-spacing: 0.02em;
+}
+.clue-card.day-lock .lock-override {
+  display: block;
+  margin: 16px auto 0;
+  background: transparent;
+  border: 1px solid rgba(122, 111, 96, 0.35);
+  color: var(--muted);
+  font: inherit;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.74rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
+}
+.clue-card.day-lock .lock-override:hover {
+  color: rgba(180, 70, 50, 0.95);
+  border-color: rgba(180, 70, 50, 0.5);
+  background: rgba(180, 70, 50, 0.05);
 }
 
 .clue-card.done h2 {

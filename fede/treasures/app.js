@@ -722,6 +722,8 @@ function renderProgressLabel() {
 
 // ---------- day-2 location lock ----------
 const DAY2_UNLOCK_RADIUS_M = 5000; // ~5 km from any day-2 stop = "arrived in Cape Ann"
+const DAY2_MANUAL_KEY = 'tesoros:day2-unlocked';
+let day2ManualUnlock = localStorage.getItem(DAY2_MANUAL_KEY) === '1';
 
 function day2Stops() { return HUNT.stops.filter(s => s.day === 2); }
 function day1Complete() {
@@ -744,13 +746,19 @@ function day2UnlockedByLocation() {
 function shouldShowDay2Lock() {
   // Locked when day-1 is done, day-2 hasn't started, and Fede isn't in Cape Ann yet.
   // Debug arrow-key navigation bypasses this (debugActiveOverride !== null).
+  // Manual unlock (user pressed "ya estoy acá") also bypasses, persistently.
   if (debugActiveOverride !== null) return false;
+  if (day2ManualUnlock) return false;
   if (!day1Complete()) return false;
   const idx = state.activeIndex;
   if (idx < 0) return false;
   const stop = HUNT.stops[idx];
   if (stop.day !== 2) return false;
   return !day2UnlockedByLocation();
+}
+function unlockDay2Manually() {
+  day2ManualUnlock = true;
+  try { localStorage.setItem(DAY2_MANUAL_KEY, '1'); } catch {}
 }
 
 function renderDay2Lock() {
@@ -767,8 +775,15 @@ function renderDay2Lock() {
       <h2>Día 2 · Cape Ann</h2>
       <p class="lock-body">El próximo tesoro se desbloquea cuando llegues.<br>Nos vemos el sábado, en Gloucester.</p>
       ${distLine}
+      <button type="button" class="lock-override" id="day2OverrideBtn">ya estoy en Cape Ann · destrabar</button>
     </article>
   `;
+  document.getElementById('day2OverrideBtn')?.addEventListener('click', () => {
+    if (!confirm('¿Destrabar el Día 2 manualmente? (sólo hacelo si el GPS no te detecta en Cape Ann.)')) return;
+    unlockDay2Manually();
+    renderClue();
+    updateRadar();
+  });
 }
 
 function renderClue() {
@@ -831,13 +846,6 @@ function renderClue() {
 
       <button type="button" class="btn primary submit-btn" id="submitBtn">Resolver</button>
       <p id="answerHelp" class="answer-help" aria-live="polite"></p>
-
-      <details class="gps-fallback">
-        <summary>¿no funciona el GPS?</summary>
-        <p>El próximo tesoro es <strong>${escapeHtml(stop.name)}</strong>. Buscalo en Google Maps y andá. Cuando llegues, respondé la pregunta.</p>
-        <button type="button" class="link-btn skip-real" id="skipRealBtn">no llego, saltar esta parada</button>
-      </details>
-
       <button type="button" class="link-btn skip-btn" id="skipBtn">skip ▸</button>
       <button type="button" class="link-btn skip-btn" id="galleryBtn">galería ▸</button>
     </article>
@@ -868,15 +876,6 @@ function renderClue() {
   document.getElementById('galleryBtn').addEventListener('click', () => {
     debugActiveOverride = -1;
     renderClue();
-  });
-  document.getElementById('skipRealBtn').addEventListener('click', () => {
-    if (!confirm(`¿Saltar "${stop.name}" y pasar al próximo tesoro?`)) return;
-    state.solvedIds.add(stop.id);
-    state.solvedWithHelp.add(stop.id);
-    persist();
-    debugActiveOverride = null;
-    renderClue();
-    updateRadar();
   });
 
   // pre-fill the answer in debug mode so the user can just click Resolver
