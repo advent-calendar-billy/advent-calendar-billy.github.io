@@ -174,7 +174,7 @@ export const HUNT = {
       name: "Gloucester Fisherman's Memorial",
       coord: [42.6101, -70.6703],
       circle: { radius: 250, offset: [-0.0007, 0.0009] },
-      clue: "Frente al mar, un hombre de bronce sostiene un timón. La placa cuenta cuándo nació este pueblo. Solo el año.",
+      clue: "¿En qué año fue fundado este pueblo?",
       passwordType: "text",
       answer: "1623",
       altAnswers: ["mil seiscientos veintitres", "mil seiscientos veintitrés"],
@@ -193,7 +193,7 @@ export const HUNT = {
       name: "Rocky Neck Art Colony",
       coord: [42.6056, -70.6574],
       circle: { radius: 300, offset: [0.0009, -0.0008] },
-      clue: "Acá pintaron Hopper, Homer y muchos otros desde hace casi dos siglos. Buscá una pieza chica que creas que a Billy le va a fascinar. La contraseña es una foto de Billy, sonriendo, con el regalo.",
+      clue: "Comprame algo que me guste. La contraseña es una foto mía, sonriendo, con el regalo.",
       passwordType: "photo-smile",
       reward: {
         title: "Rocky Neck",
