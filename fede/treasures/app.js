@@ -652,6 +652,17 @@ gpsSpoofJumpBtn?.addEventListener('click', () => {
   updateRadar();
   if (sonarOn) scheduleNextBeep();
 });
+
+document.getElementById('gpsSpoofCapeAnn')?.addEventListener('click', () => {
+  if (!spoofMap || !spoofMarker) return;
+  const here = [42.6101, -70.6703]; // downtown Gloucester (Fisherman's Memorial)
+  spoofMarker.setLatLng(here);
+  spoofMap.setView(here, 13);
+  spoofPos = here;
+  updateSpoofInfo();
+  updateRadar();
+  if (sonarOn) scheduleNextBeep();
+});
 gpsSpoofCollapseBtn?.addEventListener('click', () => {
   gpsSpoofEl?.classList.toggle('is-collapsed');
   if (spoofMap && !gpsSpoofEl?.classList.contains('is-collapsed')) {
@@ -782,7 +793,7 @@ function renderClue() {
   const typeClass = stop.type === 'taste' ? ' taste' : '';
   const pwdType = stop.passwordType || 'text';
 
-  activeLocks = { selfieValid: false, pwdValid: false, pwdType };
+  activeLocks = { pwdValid: false, pwdType };
 
   const pwdBlock = pwdType === 'photo-smile'
     ? `
@@ -816,18 +827,6 @@ function renderClue() {
       <p class="clue-text" lang="${escapeHtml(stop.lang)}">${escapeHtml(stop.clue)}</p>
       <p class="debug-answer" aria-hidden="true">key: <span>${escapeHtml(debugAnswer)}</span></p>
 
-      <div class="lock lock-selfie" data-state="empty">
-        <label class="lock-trigger" for="selfieInput">
-          <span class="lock-status" aria-hidden="true">○</span>
-          <span class="lock-text">
-            <span class="lock-title">Selfie con Billy</span>
-            <span class="lock-detail">tocá para sacar · necesito ver dos caras</span>
-          </span>
-        </label>
-        <input type="file" accept="image/*" capture="user" id="selfieInput" hidden />
-        <div class="lock-thumb" aria-hidden="true"></div>
-      </div>
-
       ${pwdBlock}
 
       <button type="button" class="btn primary submit-btn" id="submitBtn">Resolver</button>
@@ -836,12 +835,6 @@ function renderClue() {
       <button type="button" class="link-btn skip-btn" id="galleryBtn">galería ▸</button>
     </article>
   `;
-
-  document.getElementById('selfieInput').addEventListener('change', e => {
-    const f = e.target.files && e.target.files[0];
-    if (f) onSelfieFile(f, stop);
-    e.target.value = '';
-  });
 
   if (pwdType === 'photo-smile') {
     document.getElementById('pwdPhotoInput').addEventListener('change', e => {
@@ -881,12 +874,6 @@ function renderClue() {
 }
 
 async function refreshLocksFromStorage(stop) {
-  const selfieRec = await loadSelfie(stop.id);
-  if (selfieRec && (selfieRec.faces || 0) >= 2) {
-    activeLocks.selfieValid = true;
-    setLockUI('lock-selfie', 'valid', `✓ ${selfieRec.faces} caras detectadas`);
-    showLockThumb('lock-selfie', selfieRec.blob);
-  }
   if (stop.passwordType === 'photo-smile') {
     const pwdRec = await loadPwdPhoto(stop.id);
     if (pwdRec && (pwdRec.happiest || 0) >= SMILE_THRESHOLD) {
@@ -916,37 +903,6 @@ function showLockThumb(slotClass, blob) {
   if (prev && prev.src.startsWith('blob:')) URL.revokeObjectURL(prev.src);
   const url = URL.createObjectURL(blob);
   thumb.innerHTML = `<img src="${url}" alt="">`;
-}
-
-async function onSelfieFile(file, stop) {
-  setLockUI('lock-selfie', 'processing', 'Validando selfie…');
-  try {
-    const blob = await downscale(file, 1280, 0.86);
-    if (TEST_MODE) {
-      await saveSelfie(stop.id, blob, { faces: 2, happiest: 0 });
-      activeLocks.selfieValid = true;
-      setLockUI('lock-selfie', 'valid', '✓ test mode (skipped)');
-      showLockThumb('lock-selfie', blob);
-      refreshSubmitButton();
-      return;
-    }
-    const detections = await detectFaces(blob);
-    const sum = summarize(detections);
-    if (sum.faces >= 2) {
-      await saveSelfie(stop.id, blob, sum);
-      activeLocks.selfieValid = true;
-      setLockUI('lock-selfie', 'valid', `✓ ${sum.faces} caras detectadas`);
-      showLockThumb('lock-selfie', blob);
-    } else {
-      activeLocks.selfieValid = false;
-      setLockUI('lock-selfie', 'invalid', `Solo vi ${sum.faces} cara${sum.faces === 1 ? '' : 's'}. Necesito dos. Probá de nuevo.`);
-    }
-  } catch (e) {
-    console.error('selfie error', e);
-    activeLocks.selfieValid = false;
-    setLockUI('lock-selfie', 'invalid', 'Error al validar — ¿hay conexión? Tocá para reintentar.');
-  }
-  refreshSubmitButton();
 }
 
 async function onPwdPhotoFile(file, stop) {
@@ -986,17 +942,14 @@ async function onPwdPhotoFile(file, stop) {
 function refreshSubmitButton() {
   const btn = document.getElementById('submitBtn');
   if (!btn || !activeLocks) return;
-  const ok = activeLocks.selfieValid && activeLocks.pwdValid;
+  // Selfie no longer required. Photo-smile stops still need the smile photo;
+  // text stops are always click-to-validate.
+  const ok = activeLocks.pwdType === 'photo-smile' ? activeLocks.pwdValid : true;
   btn.classList.toggle('is-ready', ok);
 }
 
 function attemptSubmit(stop) {
   const help = document.getElementById('answerHelp');
-  if (!activeLocks.selfieValid) {
-    help.textContent = 'Necesito la selfie con Billy primero.';
-    pulseLock('lock-selfie');
-    return;
-  }
   if (activeLocks.pwdType === 'photo-smile') {
     if (!activeLocks.pwdValid) {
       help.textContent = 'Necesito la foto de Billy sonriendo.';
@@ -1094,14 +1047,9 @@ async function fillFinaleGallery() {
     tiles.push(`<figure class="pic${extra}" style="--i:${i}"><img src="${src}" alt="" loading="lazy" onerror="this.closest('figure').remove()"></figure>`);
   };
 
-  for (const id of await listSelfieIds()) {
-    const rec = await loadSelfie(id);
-    if (rec) {
-      const url = URL.createObjectURL(rec.blob);
-      finaleBlobUrls.push(url);
-      addTile(url, ' pic-game');
-    }
-  }
+  // Selfies are intentionally NOT shown in the gallery — Fede only had to take the
+  // "Billy smiling with the gift" photo (the smile-pwd at stop 08), so that's the
+  // only in-game pic we surface here.
   for (const id of await listPwdPhotoIds()) {
     const rec = await loadPwdPhoto(id);
     if (rec) {
