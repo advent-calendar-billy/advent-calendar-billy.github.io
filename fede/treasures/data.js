@@ -155,7 +155,7 @@ export const HUNT = {
       name: "Hammond Castle",
       coord: [42.5850, -70.6931],
       circle: { radius: 350, offset: [0.0010, 0.0009] },
-      clue: "Sobre el mar, un castillo medieval que no es medieval. Lo levantó un inventor con más de 800 patentes. ¿En qué año empezó?",
+      clue: "Un inventor con más de 800 patentes se construyó acá su casa. ¿En qué año empezó?",
       passwordType: "text",
       answer: "1929",
       altAnswers: ["mil novecientos veintinueve"],
