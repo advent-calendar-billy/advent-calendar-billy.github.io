@@ -207,16 +207,16 @@ export const HUNT = {
       day: 2,
       type: "sight",
       lang: "es",
-      name: "Halibut Point State Park",
-      coord: [42.6917, -70.6291],
-      circle: { radius: 350, offset: [-0.0008, 0.0008] },
-      clue: "Al final del camino, un pozo profundo lleno de agua de lluvia te espera en lo alto de un acantilado. ¿Cómo se llamaba? (dos palabras en inglés)",
+      name: "Motif No. 1",
+      coord: [42.6592, -70.6148],
+      circle: { radius: 200, offset: [-0.0008, 0.0008] },
+      clue: "Un edificio rojo sobre el muelle es, supuestamente, el más pintado de toda América. ¿Cómo se llama? (dos palabras y un número)",
       passwordType: "text",
-      answer: "babson farm",
-      altAnswers: ["babson"],
+      answer: "motif no 1",
+      altAnswers: ["motif number 1", "motif 1", "motif no. 1", "motif number one", "motif one"],
       reward: {
-        title: "Babson Farm Quarry",
-        body: "Cuando operaba (1840s–1929), de acá salía granito para todo USA — incluido el monumento de Bunker Hill. Hoy es un pozo de 60 pies lleno de agua de lluvia, en la cima de un acantilado oceánico. Spare and dramatic.",
+        title: "Motif No. 1",
+        body: "Una choza de pescadores roja, en Bradley Wharf. Construida en 1884, destruida por la nevada del '78 y reconstruida idéntica el mismo año. Lester Hornby, un pintor de los 1880s, la llamó su 'motif number 1' — el sujeto preferido — y el apodo quedó. Apareció en sellos postales, propagandas y cuadros de medio mundo. \"The most painted and photographed building in America\", supuestamente.",
         food: null
       }
     }
