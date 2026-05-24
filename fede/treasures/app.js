@@ -831,6 +831,13 @@ function renderClue() {
 
       <button type="button" class="btn primary submit-btn" id="submitBtn">Resolver</button>
       <p id="answerHelp" class="answer-help" aria-live="polite"></p>
+
+      <details class="gps-fallback">
+        <summary>¿no funciona el GPS?</summary>
+        <p>El próximo tesoro es <strong>${escapeHtml(stop.name)}</strong>. Buscalo en Google Maps y andá. Cuando llegues, respondé la pregunta.</p>
+        <button type="button" class="link-btn skip-real" id="skipRealBtn">no llego, saltar esta parada</button>
+      </details>
+
       <button type="button" class="link-btn skip-btn" id="skipBtn">skip ▸</button>
       <button type="button" class="link-btn skip-btn" id="galleryBtn">galería ▸</button>
     </article>
@@ -861,6 +868,15 @@ function renderClue() {
   document.getElementById('galleryBtn').addEventListener('click', () => {
     debugActiveOverride = -1;
     renderClue();
+  });
+  document.getElementById('skipRealBtn').addEventListener('click', () => {
+    if (!confirm(`¿Saltar "${stop.name}" y pasar al próximo tesoro?`)) return;
+    state.solvedIds.add(stop.id);
+    state.solvedWithHelp.add(stop.id);
+    persist();
+    debugActiveOverride = null;
+    renderClue();
+    updateRadar();
   });
 
   // pre-fill the answer in debug mode so the user can just click Resolver
