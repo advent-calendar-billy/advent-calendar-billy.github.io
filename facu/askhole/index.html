@@ -470,8 +470,18 @@ const CARDS = [
 ];
 
 let currentIndex = 0;
-let shuffledOrder = CARDS.map((_, i) => i);
 let isAnimating = false;
+
+function buildShuffled() {
+  const arr = CARDS.map((_, i) => i);
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+let shuffledOrder = buildShuffled();
 
 function getCurrentCard() {
   return CARDS[shuffledOrder[currentIndex]];
@@ -525,12 +535,7 @@ function prevCard() {
 }
 
 function shuffleCards() {
-  const arr = CARDS.map((_, i) => i);
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  shuffledOrder = arr;
+  shuffledOrder = buildShuffled();
   currentIndex = 0;
   renderCard();
 }
