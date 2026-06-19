@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>El trabajo de Guillermo en Wayfair — Junio 2026</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Georgia, 'Times New Roman', serif;
+      background: #faf8f5;
+      color: #2c2c2c;
+      line-height: 1.9;
+      font-size: 20px;
+    }
+
+    header {
+      background: #7b3f9e;
+      color: white;
+      padding: 14px 24px;
+      font-size: 14px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .hero {
+      background: #1a0a2e;
+      color: white;
+      padding: 60px 24px 50px;
+      text-align: center;
+    }
+
+    .hero .tag {
+      display: inline-block;
+      background: #7b3f9e;
+      color: white;
+      font-size: 13px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 3px;
+      margin-bottom: 24px;
+    }
+
+    .hero h1 {
+      font-size: clamp(26px, 5vw, 46px);
+      font-weight: 700;
+      line-height: 1.25;
+      max-width: 820px;
+      margin: 0 auto 20px;
+    }
+
+    .hero .lead {
+      font-size: clamp(17px, 2.5vw, 22px);
+      color: #d0bfea;
+      max-width: 680px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    .meta {
+      text-align: center;
+      padding: 18px 24px;
+      font-size: 14px;
+      color: #888;
+      border-bottom: 1px solid #e8e2d9;
+      letter-spacing: 0.04em;
+    }
+
+    article {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 50px 24px 80px;
+    }
+
+    h2 {
+      font-size: clamp(21px, 3vw, 28px);
+      color: #1a0a2e;
+      margin: 52px 0 18px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #7b3f9e;
+      line-height: 1.3;
+    }
+
+    p {
+      margin-bottom: 22px;
+      color: #333;
+    }
+
+    .highlight-box {
+      background: #f0eaf9;
+      border-left: 5px solid #7b3f9e;
+      padding: 22px 26px;
+      margin: 36px 0;
+      border-radius: 0 8px 8px 0;
+    }
+
+    .highlight-box p {
+      margin: 0;
+      font-style: italic;
+      color: #3d1f5e;
+      font-size: 1.05em;
+    }
+
+    .highlight-box .attribution {
+      margin-top: 12px;
+      font-style: normal;
+      font-size: 0.85em;
+      color: #7b3f9e;
+      font-weight: bold;
+    }
+
+    .stat-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 36px 0;
+    }
+
+    .stat-card {
+      flex: 1 1 180px;
+      background: #1a0a2e;
+      color: white;
+      border-radius: 10px;
+      padding: 24px 20px;
+      text-align: center;
+    }
+
+    .stat-card .number {
+      font-size: clamp(36px, 6vw, 52px);
+      font-weight: 800;
+      color: #c89ef0;
+      line-height: 1;
+      display: block;
+    }
+
+    .stat-card .label {
+      font-size: 14px;
+      color: #d0bfea;
+      margin-top: 8px;
+      line-height: 1.4;
+    }
+
+    figure {
+      margin: 40px 0;
+    }
+
+    figure img {
+      width: 100%;
+      border-radius: 8px;
+      display: block;
+      border: 1px solid #e0d8cc;
+    }
+
+    figcaption {
+      font-size: 14px;
+      color: #888;
+      text-align: center;
+      margin-top: 10px;
+      line-height: 1.5;
+    }
+
+    .author-box {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      background: white;
+      border: 1px solid #e8e2d9;
+      border-radius: 10px;
+      padding: 22px;
+      margin: 48px 0;
+    }
+
+    .author-box img {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #7b3f9e;
+      flex-shrink: 0;
+    }
+
+    .author-box .info strong {
+      display: block;
+      font-size: 18px;
+      color: #1a0a2e;
+    }
+
+    .author-box .info span {
+      font-size: 15px;
+      color: #666;
+    }
+
+    .sources {
+      margin-top: 60px;
+      padding-top: 24px;
+      border-top: 1px solid #e8e2d9;
+      font-size: 14px;
+      color: #888;
+    }
+
+    .sources a {
+      color: #7b3f9e;
+      word-break: break-all;
+    }
+
+    @media (max-width: 500px) {
+      body { font-size: 18px; }
+      .stat-row { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+<header>Noticias de tecnología · Junio 2026</header>
+
+<div class="hero">
+  <span class="tag">Trabajo de Guillermo</span>
+  <h1>Cómo Guillermo y su equipo hicieron meses de trabajo en solo tres días</h1>
+  <p class="lead">
+    Con ayuda de inteligencia artificial, el equipo de Wayfair probó 110 formas distintas
+    de mejorar su sistema en tres días, y logró reducir los costos un 94%.
+  </p>
+</div>
+
+<div class="meta">
+  15 de junio de 2026 &nbsp;·&nbsp; Wayfair &amp; Cursor &nbsp;·&nbsp; Basado en artículos publicados por ambas empresas
+</div>
+
+<article>
+
+  <div class="author-box">
+    <img
+      src="https://cdn.aboutwayfair.com/dims4/default/f9e4b52/2147483647/strip/true/crop/200x200+0+40/resize/100x100!/quality/90/?url=https%3A%2F%2Fcdn.aboutwayfair.com%2F17%2Fb4%2F6cb68fc74954852f571b5ec40fc9%2Fheadshot-guillermo-mosse-1.jpeg"
+      alt="Guillermo Mosse"
+    />
+    <div class="info">
+      <strong>Guillermo Mosse</strong>
+      <span>Científico Senior de Machine Learning, Wayfair</span>
+    </div>
+  </div>
+
+  <h2>¿Qué es Wayfair y en qué trabaja Guillermo?</h2>
+
+  <p>
+    Wayfair es una tienda online muy grande —como un Mercado Libre, pero solo de muebles y
+    cosas para el hogar— que opera en Estados Unidos. Tiene millones de productos: sillas,
+    mesas, sofás, lámparas, y mucho más.
+  </p>
+
+  <p>
+    Guillermo trabaja en el equipo de inteligencia artificial de Wayfair. Su trabajo consiste
+    en crear programas que ayuden a la empresa a entender y organizar mejor sus productos.
+  </p>
+
+  <h2>El problema: etiquetas incorrectas en millones de productos</h2>
+
+  <figure>
+    <img
+      src="https://cdn.aboutwayfair.com/dims4/default/c2f621f/2147483647/strip/true/crop/2048x1021+0+0/resize/800x399!/format/jpg/quality/90/?url=https%3A%2F%2Fcdn.aboutwayfair.com%2Fd3%2F5b%2F712784f54cd8bd09a52551682772%2F03-product-tag-validation-illustration.png"
+      alt="Sistema de validación de etiquetas de productos"
+    />
+    <figcaption>Así funciona el sistema que revisa las etiquetas de los productos.</figcaption>
+  </figure>
+
+  <p>
+    Cada producto en Wayfair tiene más de 47.000 tipos de etiquetas posibles: el material
+    del que está hecho, el color, el estilo, para qué habitación sirve, si viene armado o hay
+    que armarlo, etc. Esas etiquetas son muy importantes porque ayudan a los clientes a
+    encontrar lo que buscan.
+  </p>
+
+  <p>
+    El problema es que muchas etiquetas están mal puestas o incompletas. Guillermo y su equipo
+    crearon un programa con inteligencia artificial para revisar si las etiquetas son correctas,
+    comparándolas con las fotos y la descripción de cada producto.
+  </p>
+
+  <p>
+    El programa funcionaba bien, pero tenía un costo muy alto: revisar un millón de productos
+    iba a costar alrededor de <strong>400.000 dólares</strong>. Era demasiado caro para usarlo
+    a gran escala.
+  </p>
+
+  <div class="highlight-box">
+    <p>
+      "Nuestro objetivo era hacer que el sistema fuera lo suficientemente económico como para
+      usarlo en uno de los catálogos de productos para el hogar más grandes del mundo."
+    </p>
+    <span class="attribution">— Guillermo Mosse</span>
+  </div>
+
+  <h2>La solución: usar inteligencia artificial para trabajar más rápido</h2>
+
+  <p>
+    Para mejorar el programa, el equipo tenía que probar muchas combinaciones distintas:
+    diferentes modelos de IA, distintas formas de hacer las preguntas, diferentes maneras de
+    analizar las imágenes. Hacerlo a mano hubiera tomado <strong>varios meses</strong>.
+  </p>
+
+  <p>
+    En diciembre de 2025, Guillermo y cuatro colegas usaron una herramienta llamada
+    <strong>Cursor</strong> —una especie de asistente inteligente para programadores— para
+    automatizar todo ese proceso. En lugar de hacer cada prueba a mano, le describían una idea
+    a Cursor y él solo se encargaba de programarla, ejecutarla y mostrar los resultados.
+  </p>
+
+  <div class="highlight-box">
+    <p>
+      "La parte lenta de la investigación es construir y evaluar cada experimento a mano.
+      Automatizamos ese ciclo y dejamos que Cursor implemente y ejecute cada experimento,
+      así lo que hubiera tomado meses entró en cuatro días."
+    </p>
+    <span class="attribution">— Guillermo Mosse</span>
+  </div>
+
+  <figure>
+    <img
+      src="https://ptht05hbb1ssoooe.public.blob.vercel-storage.com/assets/blog/validating-product-attribute-data-light-2.png"
+      alt="Investigadores de Wayfair validando datos con Cursor"
+    />
+    <figcaption>El equipo de Wayfair trabajando con Cursor durante el sprint de experimentos.</figcaption>
+  </figure>
+
+  <h2>Los resultados: 110 experimentos en tres días</h2>
+
+  <div class="stat-row">
+    <div class="stat-card">
+      <span class="number">5</span>
+      <span class="label">científicos en el equipo</span>
+    </div>
+    <div class="stat-card">
+      <span class="number">110</span>
+      <span class="label">variantes distintas probadas</span>
+    </div>
+    <div class="stat-card">
+      <span class="number">3</span>
+      <span class="label">días que duró el experimento</span>
+    </div>
+    <div class="stat-card">
+      <span class="number">94%</span>
+      <span class="label">reducción de costos</span>
+    </div>
+  </div>
+
+  <p>
+    El equipo probó más de 110 combinaciones distintas en solo tres días. Algunas ideas que
+    probaron: usar distintos modelos de IA, agrupar varias preguntas en una sola consulta,
+    simplificar las instrucciones al programa, y mejorar qué fotos del producto se analizaban.
+  </p>
+
+  <figure>
+    <img
+      src="https://cdn.aboutwayfair.com/dims4/default/ef832ce/2147483647/strip/true/crop/2048x1330+0+0/resize/800x520!/format/jpg/quality/90/?url=https%3A%2F%2Fcdn.aboutwayfair.com%2F22%2Fb3%2F78e9bd9f47f1b9a18ab913a1d24a%2F04-december-hackathon-cost-index.png"
+      alt="Gráfico de reducción de costos en diciembre"
+    />
+    <figcaption>Los 110 sistemas probados en el experimento de diciembre. Los más baratos y precisos están abajo a la derecha.</figcaption>
+  </figure>
+
+  <p>
+    La combinación ganadora logró reducir el costo en un <strong>94%</strong>. Lo que antes
+    iba a costar 400.000 dólares pasó a costar alrededor de 24.000 dólares. Y la precisión
+    del programa se mantuvo prácticamente igual.
+  </p>
+
+  <h2>Cómo funciona Cursor: como tener un asistente que nunca para</h2>
+
+  <figure>
+    <img
+      src="https://ptht05hbb1ssoooe.public.blob.vercel-storage.com/assets/blog/delegating-experiment-execution-to-cursor-light-2.png"
+      alt="Delegando experimentos a Cursor"
+    />
+    <figcaption>Cursor ejecuta los experimentos solo, incluso cuando los investigadores están en reuniones o viajando.</figcaption>
+  </figure>
+
+  <p>
+    Una ventaja importante de Cursor es que puede seguir trabajando aunque el investigador
+    no esté frente a la computadora. Guillermo podía describir una idea, cerrar la laptop,
+    ir a una reunión o viajar en colectivo, y al volver ya tenía los resultados listos.
+  </p>
+
+  <div class="highlight-box">
+    <p>
+      "Normalmente, cerrar la laptop interrumpe el experimento. Cursor me permite ir a una
+      reunión o al pizarrón a pensar ideas mientras sus agentes en la nube siguen trabajando,
+      lo que nos permitió hacer experimentos las 24 horas."
+    </p>
+    <span class="attribution">— Guillermo Mosse</span>
+  </div>
+
+  <p>
+    Cada investigador podía tener más de 20 experimentos corriendo al mismo tiempo. Cursor
+    se encargaba de organizar el código, ejecutar las pruebas y publicar los resultados en
+    un panel compartido donde todo el equipo podía ver el avance.
+  </p>
+
+  <div class="highlight-box">
+    <p>
+      "Cursor cambió el límite de 'cuánto tiempo va a llevar construir esto' a 'cuál es
+      la próxima idea que vale la pena probar'. Ese es un lugar mucho mejor para que
+      un científico ponga su atención."
+    </p>
+    <span class="attribution">— Omer Lang, Científico Senior de Machine Learning</span>
+  </div>
+
+  <h2>Cómo armaron el sistema para que funcione solo</h2>
+
+  <figure>
+    <img
+      src="https://cdn.aboutwayfair.com/dims4/default/910d466/2147483647/strip/true/crop/1512x612+0+0/resize/800x324!/format/jpg/quality/90/?url=https%3A%2F%2Fcdn.aboutwayfair.com%2Fb1%2Fbb%2F57f09ffc40c69781e8704c5b7b91%2F06-hackathon-framework-diagram.png"
+      alt="Diagrama del framework de experimentación"
+    />
+    <figcaption>El sistema que armó el equipo para poder comparar experimentos de forma confiable.</figcaption>
+  </figure>
+
+  <p>
+    Antes de empezar a probar ideas, el equipo armó una especie de "laboratorio" digital:
+    definieron exactamente cómo medir si algo funciona bien o mal, armaron un conjunto de
+    productos de prueba, y crearon un proceso repetible para comparar resultados de forma justa.
+  </p>
+
+  <p>
+    Con ese laboratorio listo, cada nueva idea podía probarse rápidamente y compararse con
+    todas las anteriores. Los investigadores se enfocaron en pensar ideas; Cursor se encargaba
+    de todo lo demás.
+  </p>
+
+  <h2>Marzo de 2026: lo hicieron de nuevo, y fue aún mejor</h2>
+
+  <p>
+    Tres meses después, en marzo de 2026, el equipo repitió el proceso tomando como punto
+    de partida el mejor resultado de diciembre. Esta vez también participó un ingeniero
+    junior que nunca había trabajado con ese sistema antes —y aun así pudo contribuir desde
+    el primer día.
+  </p>
+
+  <p>
+    Probaron nuevas ideas: usar inteligencia artificial para simplificar las definiciones de
+    las etiquetas, analizar varias fotos del mismo producto juntas (incluso sacadas de videos),
+    y técnicas de optimización inspiradas en la biología.
+  </p>
+
+  <figure>
+    <img
+      src="https://cdn.aboutwayfair.com/dims4/default/dbdf97a/2147483647/strip/true/crop/1180x520+0+0/resize/800x353!/format/jpg/quality/90/?url=https%3A%2F%2Fcdn.aboutwayfair.com%2F22%2Fe9%2F63dbee4847c4858cc5b03554a1b5%2F01-march-definition-compression.png"
+      alt="Compresión de definiciones con IA"
+    />
+    <figcaption>En marzo usaron IA para resumir definiciones largas en reglas simples y claras.</figcaption>
+  </figure>
+
+  <figure>
+    <img
+      src="https://cdn.aboutwayfair.com/dims4/default/7acac9c/2147483647/strip/true/crop/1280x1280+0+0/resize/800x800!/format/jpg/quality/90/?url=https%3A%2F%2Fcdn.aboutwayfair.com%2Fe2%2F82%2Fd8e963b54f808578e8345d067f0b%2F02-stitched-video-grid-chair.jpg"
+      alt="Grilla de imágenes tomadas de un video de producto"
+    />
+    <figcaption>El equipo combinó fotogramas de videos de productos para analizar mejor cómo está armada una silla, por ejemplo.</figcaption>
+  </figure>
+
+  <figure>
+    <img
+      src="https://cdn.aboutwayfair.com/dims4/default/5cde047/2147483647/strip/true/crop/2048x1283+0+0/resize/800x501!/format/jpg/quality/90/?url=https%3A%2F%2Fcdn.aboutwayfair.com%2F9d%2Fa1%2F3e1f7b5042f88b862350d661fb6f%2F05-march-hackathon-cost-index.png"
+      alt="Gráfico de resultados de marzo"
+    />
+    <figcaption>Los resultados del experimento de marzo: 142 variantes probadas. El equipo logró reducir el costo otro 90%.</figcaption>
+  </figure>
+
+  <p>
+    El resultado de marzo fue impresionante: lograron reducir el costo un <strong>90% más</strong>
+    sobre el ya muy bajo costo de diciembre. En total, el costo pasó de 400.000 dólares a una
+    fracción mínima de eso.
+  </p>
+
+  <div class="stat-row">
+    <div class="stat-card">
+      <span class="number">142</span>
+      <span class="label">experimentos en marzo</span>
+    </div>
+    <div class="stat-card">
+      <span class="number">−90%</span>
+      <span class="label">costo adicional reducido</span>
+    </div>
+    <div class="stat-card">
+      <span class="number">24/7</span>
+      <span class="label">experimentos corriendo</span>
+    </div>
+  </div>
+
+  <figure>
+    <img
+      src="https://ptht05hbb1ssoooe.public.blob.vercel-storage.com/assets/blog/march-validating-product-attribute-data-light-2.png"
+      alt="Sprint de experimentos de marzo en Wayfair"
+    />
+    <figcaption>El equipo durante el sprint de marzo de 2026, con más experimentos y nuevas ideas.</figcaption>
+  </figure>
+
+  <h2>Lo que aprendieron</h2>
+
+  <p>
+    El equipo destacó tres aprendizajes importantes de toda esta experiencia:
+  </p>
+
+  <p>
+    <strong>1. Primero hay que preparar el laboratorio.</strong> Antes de probar ideas,
+    hay que definir bien cómo medir si algo funciona. Sin eso, es imposible comparar
+    resultados de forma confiable.
+  </p>
+
+  <p>
+    <strong>2. Cada experimento bien hecho facilita el siguiente.</strong> Una vez que el
+    sistema para probar ideas está armado, cada nueva ronda es más fácil y rápida que la anterior.
+  </p>
+
+  <p>
+    <strong>3. La IA no reemplaza al científico, lo potencia.</strong> Cursor hacía el trabajo
+    repetitivo; Guillermo y su equipo se dedicaban a pensar las ideas. Esa combinación fue
+    lo que hizo posible hacer el trabajo de meses en solo días.
+  </p>
+
+  <div class="highlight-box">
+    <p>
+      "Esta nueva forma de hacer investigación —comprimir meses de exploración en días—
+      es lo que queremos seguir desarrollando."
+    </p>
+    <span class="attribution">— Guillermo Mosse</span>
+  </div>
+
+  <div class="sources">
+    <strong>Fuentes originales (en inglés):</strong><br />
+    · <a href="https://cursor.com/blog/wayfair">cursor.com/blog/wayfair</a><br />
+    · <a href="https://www.aboutwayfair.com/careers/tech-blog/how-we-used-ai-as-a-lab-assistant-to-run-110-experiments-in-three-days-and-cut-projected-tag-validation-cost-by-94">aboutwayfair.com — tech blog</a>
+  </div>
+
+</article>
+</body>
+</html>
