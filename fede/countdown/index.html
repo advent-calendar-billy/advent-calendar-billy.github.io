@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>~*~ Countdown 2 Fede ~*~</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="starfield" id="starfield" aria-hidden="true"></div>
+<div class="scanlines" aria-hidden="true"></div>
+
+<div class="page">
+
+  <main>
+    <h1 class="title">
+      <span class="title-line1">T-MINUS TO</span>
+      <span class="title-line2">FEDE</span>
+    </h1>
+
+    <section class="clock-panel" aria-label="Countdown timer">
+      <div class="clock-bezel">
+        <div class="clock-screws">
+          <span></span><span></span><span></span><span></span>
+        </div>
+        <div class="clock-display" id="clockDisplay">
+          <div class="clock-segment">
+            <span class="clock-num" id="numDays">00</span>
+            <span class="clock-label">DAYS</span>
+          </div>
+          <span class="clock-colon">:</span>
+          <div class="clock-segment">
+            <span class="clock-num" id="numHours">00</span>
+            <span class="clock-label">HRS</span>
+          </div>
+          <span class="clock-colon">:</span>
+          <div class="clock-segment">
+            <span class="clock-num" id="numMinutes">00</span>
+            <span class="clock-label">MIN</span>
+          </div>
+          <span class="clock-colon">:</span>
+          <div class="clock-segment">
+            <span class="clock-num" id="numSeconds">00</span>
+            <span class="clock-label">SEC</span>
+          </div>
+          <div class="clock-segment clock-segment-cs">
+            <span class="clock-num clock-num-cs" id="numCentis">00</span>
+            <span class="clock-label">CS/100</span>
+          </div>
+        </div>
+        <div class="clock-target" id="clockTarget">TARGET LOCK: FRI 07&#8226;24&#8226;2026 &middot; 5:30 PM BOSTON TIME</div>
+      </div>
+    </section>
+
+    <section class="facts-panel" aria-label="Fun facts">
+      <div class="facts-body">
+
+        <div id="lockedView" class="locked-view">
+          <p class="locked-copy">this panel is locked.<br>enter the password to reveal our fun facts &amp; add your own.</p>
+          <form id="unlockForm" class="unlock-form" autocomplete="off">
+            <input type="password" id="passwordInput" class="retro-input" placeholder="PASSWORD" autocomplete="off">
+            <button type="submit" class="retro-button">UNLOCK</button>
+          </form>
+          <p class="locked-error" id="lockedError"></p>
+        </div>
+
+        <div id="unlockedView" class="unlocked-view" hidden>
+          <div class="ticker-frame">
+            <div class="ticker-slide" id="tickerSlide">
+              <p class="ticker-text" id="tickerText">loading fun facts...</p>
+            </div>
+            <canvas class="ticker-canvas" id="tickerCanvas" aria-hidden="true"></canvas>
+          </div>
+          <div class="ticker-status" id="tickerStatus"></div>
+
+          <form id="addFactForm" class="add-fact-form" autocomplete="off">
+            <input type="text" id="newFactInput" class="retro-input retro-input-wide" placeholder="add a new fun fact..." maxlength="160" autocomplete="off">
+            <button type="submit" class="retro-button" id="addFactButton">ADD</button>
+          </form>
+          <p class="add-fact-status" id="addFactStatus"></p>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.8.6/jsrsasign-all-min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
