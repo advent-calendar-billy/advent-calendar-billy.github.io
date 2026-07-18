@@ -1,0 +1,65 @@
+/* Flor — the whole page is the flower. */
+html, body { height: 100%; overflow: hidden; }
+body { background: #171418; }
+
+#sky {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(120% 90% at 50% 10%, var(--sky-top, #ffe9d6) 0%, transparent 70%),
+    linear-gradient(180deg, var(--sky-mid, #f7c9b2) 0%, var(--sky-low, #e2947f) 100%);
+  transition: opacity 3s ease;
+  opacity: var(--sky-alpha, 1);
+}
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(120% 100% at 50% 45%, transparent 55%, rgba(20, 10, 14, var(--vignette, 0.12)) 100%);
+  transition: background 2s ease;
+}
+
+#scene {
+  position: fixed;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  height: 100%;
+  max-width: 100vw;
+}
+
+.headGroup { transition: transform 4s cubic-bezier(0.35, 0, 0.25, 1); }
+.swayGroup {
+  transform-origin: 200px 560px;
+  animation: sway var(--sway-s, 7s) ease-in-out infinite alternate;
+}
+@keyframes sway {
+  from { transform: rotate(-1.6deg); }
+  to { transform: rotate(1.8deg); }
+}
+
+.petal {
+  transition: opacity 0.4s;
+  transform-box: fill-box;
+  transform-origin: 50% 95%;
+}
+.petal.gone { opacity: 0; }
+
+.falling {
+  animation: fall var(--fall-s, 5s) cubic-bezier(0.3, 0.05, 0.6, 1) forwards;
+}
+@keyframes fall {
+  0%   { transform: translate(0, 0) rotate(0deg); }
+  30%  { transform: translate(var(--dx1, 20px), 34%) rotate(var(--r1, 40deg)); }
+  60%  { transform: translate(var(--dx2, -14px), 66%) rotate(var(--r2, -30deg)); }
+  100% { transform: translate(var(--dx3, 26px), var(--floor, 92%)) rotate(var(--r3, 70deg)); }
+}
+
+.critical .headGroup { animation: tremble 2.6s ease-in-out infinite; }
+@keyframes tremble {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 2px; }
+}
+
+#scene, #sky { filter: saturate(var(--sat, 1)) brightness(var(--bri, 1)); transition: filter 4s ease; }

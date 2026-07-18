@@ -1,0 +1,140 @@
+/* CAM 07 — security monitor. */
+html, body { height: 100%; overflow: hidden; }
+body { background: #000; color: #cfe8cf; font-family: 'Courier New', ui-monospace, monospace; }
+
+/* boot */
+#boot {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #050705;
+}
+#boot[hidden] { display: none; }
+.bootInner { text-align: center; }
+.bootTitle { letter-spacing: 0.35em; color: #6f8f6f; margin-bottom: 30px; font-size: 14px; }
+#bootBtn {
+  background: none;
+  border: 1px solid #4f6f4f;
+  color: #b9dcb9;
+  font-family: inherit;
+  font-size: 15px;
+  letter-spacing: 0.2em;
+  padding: 16px 34px;
+}
+#bootBtn:hover { background: rgba(110, 160, 110, 0.12); }
+
+/* monitor */
+#monitor { position: fixed; inset: 0; }
+#monitor[hidden] { display: none; }
+#frame {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.55) contrast(1.12) brightness(0.94);
+}
+#frame.swap { animation: swap 0.5s steps(3); }
+@keyframes swap {
+  0% { filter: saturate(0.1) contrast(2.2) brightness(1.6); transform: translateX(2px); }
+  60% { filter: saturate(0.3) contrast(1.6) brightness(0.6); transform: translateX(-3px); }
+}
+
+/* no signal */
+#noSignal { position: absolute; inset: 0; }
+#noSignal[hidden] { display: none; }
+.staticNoise {
+  position: absolute;
+  inset: 0;
+  background-image: repeating-conic-gradient(#1a1a1a 0% 0.004%, #3d3d3d 0.004% 0.008%, #0c0c0c 0.008% 0.012%);
+  animation: staticJitter 0.18s steps(2) infinite;
+}
+@keyframes staticJitter { 50% { transform: translate(-6px, 4px) scale(1.02); } }
+.nsLabel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.7);
+  padding: 12px 26px;
+  letter-spacing: 0.3em;
+  font-size: 20px;
+  color: #dedede;
+}
+
+/* overlay */
+#overlay { position: absolute; inset: 0; pointer-events: none; }
+.ovTop, .ovBottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  padding: 16px 20px;
+  font-size: clamp(13px, 2.2vw, 19px);
+  text-shadow: 0 0 6px rgba(0, 0, 0, 0.9);
+  letter-spacing: 0.12em;
+}
+.ovTop { top: 0; }
+.ovBottom { bottom: 0; }
+.rec { display: flex; align-items: center; gap: 8px; color: #ff5b4d; }
+.rec i {
+  width: 0.7em;
+  height: 0.7em;
+  border-radius: 50%;
+  background: #ff3b30;
+  animation: blink 1.3s steps(1) infinite;
+}
+@keyframes blink { 50% { opacity: 0.1; } }
+#timestamp { font-variant-numeric: tabular-nums; }
+
+.scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(180deg, transparent 0 2px, rgba(0, 0, 0, 0.16) 2px 4px);
+}
+.grain {
+  position: absolute;
+  inset: -60px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.10'/%3E%3C/svg%3E");
+  animation: grainShift 0.4s steps(4) infinite;
+}
+@keyframes grainShift {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(-18px, 12px); }
+  50% { transform: translate(14px, -20px); }
+  75% { transform: translate(-10px, -8px); }
+}
+#tear {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 46px;
+  top: -60px;
+  background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.08) 45%, rgba(0,0,0,0.35) 55%, transparent);
+  mix-blend-mode: screen;
+}
+#tear.go { animation: tearMove 0.6s linear; }
+@keyframes tearMove { from { top: -8%; } to { top: 105%; } }
+
+/* end cards */
+#endCard {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.88);
+}
+#endCard[hidden] { display: none; }
+.endInner {
+  border: 1px solid #5c5c5c;
+  padding: 40px 54px;
+  text-align: center;
+  font-size: clamp(17px, 3vw, 26px);
+  letter-spacing: 0.18em;
+  line-height: 2;
+  color: #e6e6e6;
+  background: #0b0b0b;
+  white-space: pre-line;
+}

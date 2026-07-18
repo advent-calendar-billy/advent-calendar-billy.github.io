@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="robots" content="noindex">
+<title>Sala de control</title>
+<link rel="stylesheet" href="../shared/base.css">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header id="statusStrip">
+  <div class="pill" id="pillHealth" title="estado de conexión"></div>
+  <div class="pill" id="pillHappiness">FLOR --</div>
+  <div class="pill" id="pillTenfa">10FA --</div>
+  <div class="pill" id="pillCctv">CCTV --</div>
+  <button id="stealthBtn" type="button">RELOJ</button>
+</header>
+
+<main>
+  <details id="secTenfa" open>
+    <summary>10FA</summary>
+    <div class="pendingCard" id="pendingCard" hidden>
+      <div class="pendingTitle" id="pendingTitle"></div>
+      <div class="pendingAnswer" id="pendingAnswer"></div>
+      <div class="verdictRow">
+        <button class="big approve" id="btnApprove" type="button">APROBAR</button>
+        <button class="big reject" id="btnReject" type="button">RECHAZAR</button>
+      </div>
+    </div>
+    <div class="quiet" id="noPending">Sin factores pendientes.</div>
+    <div class="banner" id="completeBanner" hidden>
+      Transferencia cancelada.
+      <button class="big" id="btnExitLine" type="button">ENVIAR MENSAJE FINAL</button>
+    </div>
+  </details>
+
+  <details id="secGrindr">
+    <summary>CHAT</summary>
+    <div class="row">
+      <button class="big" id="btnReveal" type="button">REVELAR HISTORIAL</button>
+      <button class="ghost" id="btnHide" type="button">ocultar</button>
+    </div>
+    <div class="scriptNext">
+      <div class="quiet" id="nextPreview"></div>
+      <div class="row">
+        <button class="big" id="btnSendNext" type="button">ENVIAR SIGUIENTE</button>
+        <button class="ghost" id="btnSkipNext" type="button">saltear</button>
+      </div>
+    </div>
+    <div class="audioList" id="audioList"></div>
+    <form id="freeForm" class="freeForm">
+      <select id="freeSender">
+        <option value="maxim">maxim</option>
+        <option value="billy">billy</option>
+      </select>
+      <input id="freeText" type="text" placeholder="mensaje suelto..." autocomplete="off">
+      <button class="ghost" type="submit">enviar</button>
+    </form>
+  </details>
+
+  <details id="secFlor">
+    <summary>FLOR</summary>
+    <div class="row">
+      <button class="big kiss" id="btnKiss" type="button">+ BESO</button>
+    </div>
+    <div class="row sliderRow">
+      <input type="range" id="levelSlider" min="0" max="100" value="100">
+      <span id="sliderVal">100</span>
+      <button class="ghost" id="btnSetLevel" type="button">fijar</button>
+    </div>
+    <div class="row">
+      <button class="mid" id="btnHold" type="button">RETENER CRÍTICO</button>
+      <button class="mid" id="btnResume" type="button">REANUDAR</button>
+    </div>
+    <div class="row">
+      <button class="mid" id="btnPause" type="button">PAUSA</button>
+      <button class="mid danger" id="btnFlatline" type="button">FLATLINE</button>
+    </div>
+  </details>
+
+  <details id="secCctv">
+    <summary>CCTV</summary>
+    <div class="row">
+      <button class="mid" id="btnCctvStart" type="button">INICIAR</button>
+      <button class="mid" id="btnCctvPause" type="button">PAUSA</button>
+      <button class="mid" id="btnCctvAdvance" type="button">AVANZAR</button>
+    </div>
+    <div class="frameGrid" id="frameGrid"></div>
+    <div class="row">
+      <button class="mid danger" id="btnCctvFailure" type="button">FALLA</button>
+      <button class="mid" id="btnCctvGetaway" type="button">FUGA</button>
+      <button class="ghost" id="btnCctvReset" type="button">reset</button>
+    </div>
+  </details>
+
+  <details id="secReset">
+    <summary>Partida</summary>
+    <button class="mid danger" id="btnResetGame" type="button">REINICIAR PARTIDA</button>
+    <div class="quiet">Restaura todo el estado y borra los mensajes en vivo del chat.</div>
+  </details>
+</main>
+
+<div class="toast" id="toast" hidden></div>
+
+<div id="stealth" hidden>
+  <div class="clockTime" id="clockTime">00:00</div>
+  <div class="clockDate" id="clockDate"></div>
+  <div class="stealthDot" id="stealthDot" hidden></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.8.6/jsrsasign-all-min.js"></script>
+<script src="../shared/config.js"></script>
+<script src="../shared/sheets.js"></script>
+<script src="../10fa/factors.js"></script>
+<script src="script-data.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

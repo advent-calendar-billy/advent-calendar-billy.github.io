@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>CAM 07</title>
+<link rel="stylesheet" href="../shared/base.css">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="boot">
+  <div class="bootInner">
+    <div class="bootTitle">SISTEMA DE MONITOREO</div>
+    <button id="bootBtn" type="button">INICIAR MONITOREO</button>
+  </div>
+</div>
+
+<div id="monitor" hidden>
+  <img id="frame" alt="">
+  <div id="noSignal" hidden>
+    <div class="staticNoise"></div>
+    <div class="nsLabel">SIN SEÑAL</div>
+  </div>
+
+  <div id="overlay">
+    <div class="ovTop">
+      <span class="rec"><i></i>REC</span>
+      <span id="camLabel">CAM 07 — AZOTEA</span>
+    </div>
+    <div class="ovBottom">
+      <span id="timestamp">--/--/---- --:--:--</span>
+    </div>
+    <div class="scanlines"></div>
+    <div class="grain"></div>
+    <div id="tear"></div>
+  </div>
+
+  <div id="endCard" hidden>
+    <div class="endInner" id="endInner"></div>
+  </div>
+</div>
+
+<audio id="sting" src="../audio/sting.wav" preload="auto"></audio>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.8.6/jsrsasign-all-min.js"></script>
+<script src="../shared/config.js"></script>
+<script src="../shared/sheets.js"></script>
+<script src="../shared/fullscreen.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

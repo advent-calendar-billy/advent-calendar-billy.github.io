@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Verificación Reforzada</title>
+<link rel="stylesheet" href="../shared/base.css">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header id="bankBar">
+  <div class="brand">
+    <span class="logoMark"></span>
+    <span class="brandName" id="brandName"></span>
+    <span class="brandTag" id="brandTag"></span>
+  </div>
+  <div class="secure">
+    <svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M8 10 V7.5 a4 4 0 0 1 8 0 V10" fill="none" stroke="currentColor" stroke-width="1.7"/></svg>
+    Conexión segura
+  </div>
+</header>
+
+<main>
+  <section id="panel">
+    <div class="panelHead">
+      <h1>Verificación Reforzada</h1>
+      <p class="sub">Su cuenta fue bloqueada preventivamente por actividad inusual. Complete los diez factores de verificación para recuperar el acceso y cancelar operaciones pendientes.</p>
+      <div class="stepper" id="stepper"></div>
+      <div class="stepLabel" id="stepLabel"></div>
+    </div>
+    <div id="factorCard"></div>
+  </section>
+
+  <aside id="adCol"></aside>
+</main>
+
+<footer id="legal">
+  Meridian Federal N.A. Operaciones sujetas a verificación. La entidad no se responsabiliza por daños emocionales derivados del proceso. Cód. de soporte AV-407.
+</footer>
+
+<div id="doneOverlay" hidden>
+  <div class="doneCard">
+    <div class="doneCheck">
+      <svg viewBox="0 0 24 24"><path d="M5 12.5 L10 17.5 L19 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <h2>Transferencia cancelada</h2>
+    <p>La operación pendiente fue anulada y su cuenta restablecida.</p>
+    <p class="ref" id="doneRef"></p>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.8.6/jsrsasign-all-min.js"></script>
+<script src="../shared/config.js"></script>
+<script src="../shared/sheets.js"></script>
+<script src="../shared/fullscreen.js"></script>
+<script src="factors.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
