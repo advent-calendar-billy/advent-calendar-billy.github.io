@@ -4,7 +4,7 @@
 const ESC_CONFIG = {
   PASSWORD: 'maxim',
   CREDENTIALS_FILE: '../escaperoom_credentials.hex',
-  SPREADSHEET_ID: 'PENDING_SHEET_ID',
+  SPREADSHEET_ID: '1TtUoVFoDkGY-ep2lLPChw41vAb1UwDwDtfVFBXd_gRk',
   POLL_MS: 4000,
 
   STATE_RANGE: 'state!A2:B15',
