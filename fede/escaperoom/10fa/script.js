@@ -1,8 +1,26 @@
 /* Verificación Reforzada — sequential factor engine. */
 
 const card = document.getElementById('factorCard');
+
+/* ---------- bank chrome ---------- */
 document.getElementById('brandName').textContent = BANK.name;
-document.getElementById('brandTag').textContent = BANK.tagline;
+document.getElementById('userChip').textContent = BANK.holder;
+document.getElementById('acctMask').textContent = BANK.accountMask;
+document.getElementById('tAmount').textContent = TRANSFER.amount;
+document.getElementById('tDest').textContent = 'Destino: ' + TRANSFER.dest;
+document.getElementById('tStatus').textContent = TRANSFER.status;
+document.getElementById('helpPhone').textContent = BANK.supportPhone;
+(() => {
+  const y = new Date(Date.now() - 86400000);
+  document.getElementById('lastLogin').textContent =
+    'Último acceso: ' + y.toLocaleDateString('es-AR', { day: 'numeric', month: 'short' }) +
+    ', 21:14\nDispositivo reconocido';
+  document.getElementById('footLegal').textContent =
+    BANK.name + ' N.A. Todos los derechos reservados. Miembro FDIC. Prestamista de igualdad ' +
+    'de oportunidades. Las operaciones en línea están sujetas a verificación y pueden demorar. ' +
+    'La entidad no se responsabiliza por daños emocionales derivados del proceso de verificación. ' +
+    'Cód. de soporte ' + BANK.supportCode + '.';
+})();
 
 let idx = parseInt(localStorage.getItem('esc_10fa_idx') || '0', 10);
 let lastNonce = parseInt(localStorage.getItem('esc_10fa_nonce') || '0', 10);
@@ -41,15 +59,14 @@ ADS.forEach((ad) => {
   adCol.appendChild(box);
 });
 
-/* ---------- stepper ---------- */
+/* ---------- steps rail ---------- */
 function renderStepper() {
-  const stepper = document.getElementById('stepper');
-  stepper.innerHTML = '';
-  FACTORS.forEach((_, i) => {
-    const dot = elh('i');
-    if (i < idx) dot.className = 'done';
-    else if (i === idx) dot.className = 'now';
-    stepper.appendChild(dot);
+  const rail = document.getElementById('stepsRail');
+  rail.innerHTML = '';
+  FACTORS.forEach((f, i) => {
+    const li = elh('li', i < idx ? 'done' : i === idx ? 'now' : '');
+    li.append(elh('span', 'dot'), document.createTextNode(f.title));
+    rail.appendChild(li);
   });
   document.getElementById('stepLabel').textContent =
     idx < FACTORS.length ? 'Factor ' + (idx + 1) + ' de ' + FACTORS.length : 'Verificación completa';
@@ -66,7 +83,13 @@ function pass() {
   idx += 1;
   persist();
   if (idx >= FACTORS.length) return complete();
-  renderFactor();
+  /* brief bank-grade processing shim between factors */
+  renderStepper();
+  card.innerHTML = '';
+  const shim = elh('div', 'processing');
+  shim.append(elh('div', 'pbar', '<i></i>'), elh('div', '', 'Factor verificado. Cargando el siguiente paso...'));
+  card.appendChild(shim);
+  setTimeout(renderFactor, 700);
 }
 
 function fail(factor, msg) {

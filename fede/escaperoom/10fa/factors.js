@@ -8,6 +8,16 @@ const BANK = {
   name: 'Meridian Federal',            /* PLACEHOLDER brand */
   tagline: 'Banca en línea',
   supportCode: 'AV-407',
+  holder: 'PLACEHOLDER TITULAR',       /* account holder shown in the top bar */
+  accountMask: '•••• 4821',            /* PLACEHOLDER */
+  supportPhone: '(000) 000-0000',      /* PLACEHOLDER — the number Fede must call (phone tree) */
+};
+
+/* The operation Fede is racing to cancel. Amount is canon (IOU 400K). */
+const TRANSFER = {
+  amount: 'USD 400.000,00',
+  dest: 'PLACEHOLDER — cuenta destino',
+  status: 'EN PROCESO',
 };
 
 /* PLACEHOLDER ads — late-stage-capitalism genre, Billy rewrites. */

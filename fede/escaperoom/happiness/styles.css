@@ -46,16 +46,6 @@ body::after {
 }
 .petal.gone { opacity: 0; }
 
-.falling {
-  animation: fall var(--fall-s, 5s) cubic-bezier(0.3, 0.05, 0.6, 1) forwards;
-}
-@keyframes fall {
-  0%   { transform: translate(0, 0) rotate(0deg); }
-  30%  { transform: translate(var(--dx1, 20px), 34%) rotate(var(--r1, 40deg)); }
-  60%  { transform: translate(var(--dx2, -14px), 66%) rotate(var(--r2, -30deg)); }
-  100% { transform: translate(var(--dx3, 26px), var(--floor, 92%)) rotate(var(--r3, 70deg)); }
-}
-
 .critical .headGroup { animation: tremble 2.6s ease-in-out infinite; }
 @keyframes tremble {
   0%, 100% { translate: 0 0; }

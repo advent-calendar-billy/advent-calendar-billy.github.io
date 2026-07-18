@@ -161,8 +161,6 @@ $('freeForm').addEventListener('submit', (e) => {
 });
 
 /* FLOR */
-$('levelSlider').addEventListener('input', () => { $('sliderVal').textContent = $('levelSlider').value; });
-
 function writeHappiness(level, mode) {
   return ES.setStateBlock('happiness_level', [
     Math.round(Math.max(0, Math.min(100, level))),
@@ -178,8 +176,18 @@ $('btnKiss').addEventListener('click', (e) =>
     await ES.logEvent('consola', 'beso');
   }, 'beso registrado'));
 
-$('btnSetLevel').addEventListener('click', (e) =>
-  guarded(e.target, () => writeHappiness(num($('levelSlider').value, 100), state.happiness_mode === 'paused' ? 'paused' : 'normal'), 'nivel fijado'));
+$('btnPetal').addEventListener('click', (e) =>
+  guarded(e.target, async () => {
+    const s = await ES.readState();
+    const eff = effectiveHappiness(s);
+    if (eff <= 0) return;
+    /* drop exactly one petal: land just below the next 10-point threshold */
+    const target = Math.max(0, (Math.ceil(eff / 10) - 1) * 10);
+    const mode = s.happiness_mode === 'flatline' ? 'flatline'
+      : (s.happiness_mode === 'paused' ? 'paused' : s.happiness_mode || 'paused');
+    await writeHappiness(target, mode);
+    await ES.logEvent('consola', 'petalo', String(target));
+  }, 'pétalo suelto'));
 
 $('btnHold').addEventListener('click', (e) =>
   guarded(e.target, async () => {

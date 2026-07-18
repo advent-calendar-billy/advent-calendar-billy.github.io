@@ -4,40 +4,110 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex">
-<title>Verificación Reforzada</title>
+<title>Verificación Reforzada — Banca en línea</title>
 <link rel="stylesheet" href="../shared/base.css">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-<header id="bankBar">
-  <div class="brand">
-    <span class="logoMark"></span>
-    <span class="brandName" id="brandName"></span>
-    <span class="brandTag" id="brandTag"></span>
-  </div>
-  <div class="secure">
-    <svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M8 10 V7.5 a4 4 0 0 1 8 0 V10" fill="none" stroke="currentColor" stroke-width="1.7"/></svg>
-    Conexión segura
+<header id="topnav">
+  <div class="navInner">
+    <div class="brand">
+      <span class="logoMark" aria-hidden="true"></span>
+      <span class="brandName" id="brandName"></span>
+    </div>
+    <nav class="navLinks">
+      <a href="#" class="navA">Cuentas</a>
+      <a href="#" class="navA">Transferencias</a>
+      <a href="#" class="navA">Pagos</a>
+      <a href="#" class="navA">Inversiones</a>
+      <a href="#" class="navA navActive">Centro de seguridad</a>
+    </nav>
+    <div class="navRight">
+      <span class="userChip" id="userChip"></span>
+      <a href="#" class="logout">Cerrar sesión</a>
+    </div>
   </div>
 </header>
 
+<div id="alertBar">
+  <div class="alertInner">
+    <span class="alertIcon" aria-hidden="true">!</span>
+    <span><b>Actividad inusual detectada.</b> Su cuenta fue bloqueada preventivamente y las operaciones salientes quedaron suspendidas hasta completar la verificación reforzada.</span>
+  </div>
+</div>
+
+<div class="crumbs">
+  <a href="#">Inicio</a> <span>›</span> <a href="#">Centro de seguridad</a> <span>›</span> <b>Verificación Reforzada</b>
+</div>
+
 <main>
-  <section id="panel">
-    <div class="panelHead">
-      <h1>Verificación Reforzada</h1>
-      <p class="sub">Su cuenta fue bloqueada preventivamente por actividad inusual. Complete los diez factores de verificación para recuperar el acceso y cancelar operaciones pendientes.</p>
-      <div class="stepper" id="stepper"></div>
-      <div class="stepLabel" id="stepLabel"></div>
+  <aside id="railCol">
+    <div class="railBox">
+      <div class="railTitle">Verificación Reforzada</div>
+      <ol id="stepsRail"></ol>
     </div>
-    <div id="factorCard"></div>
+  </aside>
+
+  <section id="centerCol">
+    <div class="acctCard">
+      <div class="acctTop">
+        <div>
+          <div class="acctLabel">Cuenta corriente <span id="acctMask"></span></div>
+          <div class="acctBalance">USD ••••••<span class="lockTag">BLOQUEADA</span></div>
+        </div>
+        <div class="lastLogin" id="lastLogin"></div>
+      </div>
+      <div class="transferRow">
+        <div>
+          <div class="tLabel">Transferencia pendiente</div>
+          <div class="tAmount" id="tAmount"></div>
+          <div class="tDest" id="tDest"></div>
+        </div>
+        <span class="tStatus" id="tStatus"></span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panelHead">
+        <h1>Verificación de identidad</h1>
+        <div class="stepLabel" id="stepLabel"></div>
+      </div>
+      <div id="factorCard"></div>
+    </div>
   </section>
 
-  <aside id="adCol"></aside>
+  <aside id="rightCol">
+    <div class="helpBox">
+      <div class="helpTitle">¿Necesita asistencia?</div>
+      <p>Nuestro centro de atención puede verificar su identidad telefónicamente.</p>
+      <div class="helpPhone" id="helpPhone"></div>
+      <p class="helpHours">Lun a vie, 8 a 20 h ET</p>
+    </div>
+    <div id="adCol"></div>
+  </aside>
 </main>
 
-<footer id="legal">
-  Meridian Federal N.A. Operaciones sujetas a verificación. La entidad no se responsabiliza por daños emocionales derivados del proceso. Cód. de soporte AV-407.
+<footer id="siteFoot">
+  <div class="footCols">
+    <div>
+      <div class="fHead">Productos</div>
+      <a href="#">Cuentas</a><a href="#">Tarjetas</a><a href="#">Préstamos</a><a href="#">Hipotecas</a>
+    </div>
+    <div>
+      <div class="fHead">Seguridad</div>
+      <a href="#">Centro de seguridad</a><a href="#">Reportar fraude</a><a href="#">Verificación reforzada</a>
+    </div>
+    <div>
+      <div class="fHead">La entidad</div>
+      <a href="#">Quiénes somos</a><a href="#">Sucursales</a><a href="#">Prensa</a><a href="#">Carreras</a>
+    </div>
+    <div>
+      <div class="fHead">Legales</div>
+      <a href="#">Términos de uso</a><a href="#">Privacidad</a><a href="#">Accesibilidad</a>
+    </div>
+  </div>
+  <div class="footLegal" id="footLegal"></div>
 </footer>
 
 <div id="doneOverlay" hidden>
