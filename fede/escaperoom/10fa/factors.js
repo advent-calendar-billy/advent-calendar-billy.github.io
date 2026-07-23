@@ -81,7 +81,7 @@ const TERMS_CLAUSES = [
   'El solicitante autoriza el débito automático de las comisiones de mantenimiento sobre la cuenta asociada.',
   'El solicitante declara haber leído la totalidad de los presentes términos, lo cual es falso.',
   'El solicitante acepta que la presente operación se rige por la legislación aplicable y se somete a la jurisdicción de los tribunales competentes.',
-  'El solicitante acepta desarrollar una adicción al casino de grado moderado a severo.',
+  'El solicitante acepta tener una adicción al casino de grado moderado a severo.',
   'El solicitante reconoce que la entidad no garantiza la disponibilidad ininterrumpida de los servicios en línea.',
   'El solicitante acepta que la información provista podrá ser compartida con los organismos de control conforme a la normativa vigente.',
   'El solicitante se compromete a actualizar sus datos de contacto ante cualquier modificación.',
