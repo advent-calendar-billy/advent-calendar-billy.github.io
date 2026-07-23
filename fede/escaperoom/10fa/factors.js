@@ -16,32 +16,58 @@ const BANK = {
 /* The operation Fede is racing to cancel. Amount is canon (IOU 400K). */
 const TRANSFER = {
   amount: 'USD 400.000,00',
-  dest: 'PLACEHOLDER — cuenta destino',
+  dest: 'Maxim S.',                    /* Billy, Jul 23 */
   status: 'EN PROCESO',
 };
 
-/* PLACEHOLDER ads — late-stage-capitalism genre, Billy rewrites. */
+/* Ads — ad1 from Billy (tarjeta con descuentos a Japón); ad2/ad3 camp, Claude. */
 const ADS = [
-  { head: '¿Fundido?', body: 'PLACEHOLDER de publicidad — préstamo instantáneo.', cta: 'Pedir ya' },
-  { head: 'PLACEHOLDER', body: 'Segundo anuncio de ejemplo para chequear el estilo.', cta: 'Ver más' },
-  { head: 'PLACEHOLDER', body: 'Tercer anuncio de ejemplo.', cta: 'Aplicar' },
+  { head: '¿Japón te llama?', body: 'Tarjeta Sakura Platinum: 40% off en vuelos a Tokio y ramen ilimitado en el lounge. Sin límite de gastos, sin límite de vos.', cta: 'Pedir la mía' },
+  { head: '¿Arrugas de estrés financiero?', body: 'Financiá tu bótox en 12 cuotas sin interés. Porque la crisis no tiene por qué notarse en la frente.', cta: 'Congelar gesto' },
+  { head: 'Invertí con el corazón', body: 'MaximCoin: la única cripto que sube cuando la mirás con deseo. Resultados no garantizados; emociones, sí.', cta: 'Minar amor' },
 ];
 
+/* Emotion selector — reframed per Billy (Jul 23): relación abierta, así que
+   NO va por el desamor sino por el pánico financiero. Solo ok:true pasa. */
 const EMOTIONS = [
-  /* PLACEHOLDER — expandir a ~40. Solo la marcada con ok:true pasa. */
   { label: 'CONFORME' },
   { label: 'RAZONABLEMENTE PREOCUPADO' },
-  { label: 'TRAICIONADO PERO ESPERANZADO', ok: true },
+  { label: 'CON MIEDO A PERDER DINERO', ok: true },
   { label: 'FURIOSO CON DIGNIDAD' },
-  { label: 'NOSTÁLGICO SIN MOTIVO' },
-  { label: 'ILUSIONADO CONTRA TODA EVIDENCIA' },
-  { label: 'SERENO (FALSO)' },
-  { label: 'DESPECHADO PRODUCTIVO' },
-  { label: 'VULNERABLE PERO ELEGANTE' },
+  { label: 'ESTAFADO PERO FABULOSO' },
+  { label: 'POBRE PERO ELEGANTE' },
   { label: 'OPTIMISTA FINANCIERO' },
   { label: 'EN NEGACIÓN ACTIVA' },
-  { label: 'DOLIDO PERO PRESENTABLE' },
+  { label: 'PREOCUPADO POR MIS AHORROS' },
+  { label: 'INDIGNADO CON ESTILO' },
+  { label: 'SÓLIDO, PERO LÍQUIDO NO' },
+  { label: 'CALCULANDO PÉRDIDAS' },
+  { label: 'SERENO (FALSO)' },
+  { label: 'DRAMÁTICO PERO SOLVENTE' },
+  { label: 'VANIDOSO EN CRISIS' },
+  { label: 'APEGADO A MIS BIENES' },
+  { label: 'MODERADAMENTE ARRUINADO' },
+  { label: 'DIGNO ANTE LA BANCARROTA' },
+  { label: 'CON LA TARJETA AL LÍMITE' },
+  { label: 'ESPIRITUALMENTE RICO' },
+  { label: 'CODICIOSO PERO SENSIBLE' },
+  { label: 'ANSIOSO POR EL DÓLAR' },
+  { label: 'MELODRAMÁTICO FINANCIERO' },
+  { label: 'ORGULLOSO Y ENDEUDADO' },
+  { label: 'TENSO PERO BRONCEADO' },
+  { label: 'PARANOICO CON MOTIVO' },
+  { label: 'RESIGNADO A MEDIAS' },
+  { label: 'HISTÉRICO PERO PRESENTABLE' },
 ];
+
+/* T&C clauses (Billy, Jul 23). FINE renders in tiny type, near-illegible. */
+const TERMS_CLAUSES = [
+  'El titular declara ser una persona sumamente linda, con músculos visibles y nivel avanzado de bouldering.',
+  'El solicitante acepta desarrollar, a partir de la fecha, una adicción al casino de grado moderado a severo.',
+  'El solicitante reconoce que el titular siempre tuvo razón.',
+  'El solicitante renuncia a todo reclamo estético sobre el titular.',
+];
+const TERMS_FINE = 'El solicitante acepta tener hijos.';
 
 const FACTORS = [
   {

@@ -11,7 +11,7 @@ const DEFAULT_INTERVAL_S = 900; /* 15 min per frame */
 /* End cards are content — Billy edits. FONDOS line is bible-approved. */
 const END_CARDS = {
   failure: 'FONDOS TRANSFERIDOS\nGRACIAS POR SU PREFERENCIA',
-  getaway: 'PLACEHOLDER — placa final de fuga',
+  getaway: 'FELICIDADES\nSACRIFICASTE MI HÍGADO\nPERO SALVASTE LA PLATA',
 };
 
 /* Fake clock: the timestamp starts at this wall-clock time on boot and ticks. */

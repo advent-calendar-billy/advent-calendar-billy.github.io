@@ -241,11 +241,22 @@ const WIDGETS = {
 
   terms(f, mount) {
     const box = elh('div', 'termsBox');
-    /* PLACEHOLDER legalese — Billy rewrites at will. */
+    const real = (typeof TERMS_CLAUSES !== 'undefined') ? TERMS_CLAUSES : [];
+    const filler = 'El titular declara comprender y aceptar los alcances de la presente cláusula, ' +
+      'sus anexos, apéndices y consecuencias afectivas.';
     for (let i = 1; i <= 28; i++) {
-      box.appendChild(elh('p', '', '<b>Cláusula ' + i + '.</b> Texto de ejemplo de términos y condiciones. ' +
-        'El titular declara comprender y aceptar los alcances de la presente cláusula, ' +
-        'sus anexos, apéndices y consecuencias afectivas.'));
+      /* sprinkle the real camp clauses among the filler */
+      const realIdx = [3, 9, 16, 22].indexOf(i);
+      const text = realIdx >= 0 && real[realIdx] ? real[realIdx] : filler;
+      box.appendChild(elh('p', '', '<b>Cláusula ' + i + '.</b> ' + text));
+    }
+    if (typeof TERMS_FINE !== 'undefined') {
+      /* the fine-print clause: deliberately tiny and near-illegible */
+      const fine = elh('p', '', '<b>Cláusula 29.</b> ' + TERMS_FINE);
+      fine.style.fontSize = '5px';
+      fine.style.color = '#aaa';
+      fine.style.lineHeight = '1.1';
+      box.appendChild(fine);
     }
     const check = elh('label', 'termsCheck');
     const cb = document.createElement('input');
