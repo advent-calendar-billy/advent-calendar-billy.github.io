@@ -8,9 +8,9 @@ const BANK = {
   name: 'Chase',                       /* locked (Billy, Jul 21) */
   tagline: 'Banca en línea',
   supportCode: 'AV-407',
-  holder: 'PLACEHOLDER TITULAR',       /* account holder shown in the top bar */
-  accountMask: '•••• 4821',            /* PLACEHOLDER */
-  supportPhone: '(000) 000-0000',      /* PLACEHOLDER — the number Fede must call (phone tree) */
+  holder: 'G Mosse',                   /* account holder shown in the top bar (Billy, Jul 23) */
+  accountMask: '•••• 4821',
+  supportPhone: 'La entidad lo llamará.',  /* the bank calls YOU (Bland via console + daemon) */
 };
 
 /* The operation Fede is racing to cancel. Amount is canon (IOU 400K). */
@@ -89,15 +89,8 @@ const FACTORS = [
     id: 'password', type: 'answer', input: 'password',
     title: 'Credencial del titular',
     prompt: 'Ingrese la contraseña de su cuenta.',
-    hash: 'ca5f4d55e7492b56c1b85fd5ed45fadd25edf91e111899049829f55df546f9ac', /* PLACEHOLDER: contrasena-placeholder */
+    hash: 'a351028868cadf39b4d6f993efe2c4e443a8e150dbe06f7a9d59897b04c737d2', /* set by Billy (steam mirror) */
     errorMsg: 'Contraseña incorrecta.',
-  },
-  {
-    id: 'code', type: 'answer', input: 'text',
-    title: 'Código de verificación',
-    prompt: 'Ingrese el código enviado a su teléfono registrado.',
-    hash: '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', /* PLACEHOLDER: 123456 */
-    errorMsg: 'Código inválido o vencido.',
   },
   {
     id: 'voice', type: 'attest',
@@ -119,8 +112,10 @@ const FACTORS = [
   {
     id: 'higado', type: 'billy',
     title: 'Verificación biométrica de órgano',
-    prompt: 'Coloque un (1) hígado humano refrigerado sobre el sensor e inicie el escaneo.',
-    button: 'INICIAR ESCANEO',
+    prompt: 'VERIFICACIÓN FINAL. Para autorizar la cancelación, deposite un (1) hígado humano ' +
+      'refrigerado en el cesto de residuos y tome una (1) fotografía como constancia. ' +
+      'Un operador validará la imagen. El órgano no será restituido.',
+    button: 'INICIAR VERIFICACIÓN',
     errorMsg: 'Órgano no reconocido o a temperatura inadecuada.',
   },
 ];

@@ -120,6 +120,12 @@ function verdict(kind) {
 $('btnApprove').addEventListener('click', () => verdict('approve'));
 $('btnReject').addEventListener('click', () => verdict('reject'));
 
+$('btnCall').addEventListener('click', (e) =>
+  guarded(e.target, async () => {
+    await ES.setState('call_requested', String(Date.now()));
+    await ES.logEvent('consola', 'llamada_solicitada');
+  }, 'llamada solicitada — suena en ~15s'));
+
 $('btnExitLine').addEventListener('click', (e) =>
   guarded(e.target, () => sendChat(EXIT_LINE), 'mensaje final enviado'));
 

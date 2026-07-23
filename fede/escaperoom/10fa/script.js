@@ -360,7 +360,9 @@ function startVerifying(f, mount) {
   const wrap = elh('div', 'verifying');
   if (f.id === 'higado') wrap.appendChild(elh('div', 'scanZone'));
   else wrap.appendChild(elh('div', 'spinner'));
-  wrap.appendChild(elh('div', 'fPrompt', 'Verificando. No retire el elemento del sensor.'));
+  wrap.appendChild(elh('div', 'fPrompt', f.id === 'higado'
+    ? 'Validando constancia fotográfica. No recupere el residuo.'
+    : 'Verificando. Aguarde.'));
   mount.appendChild(wrap);
   ES.setStateBlock('tenfa_pending', [f.id, '—']).catch(() => {
     waitingFactor = null;
