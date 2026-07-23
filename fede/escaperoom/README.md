@@ -19,6 +19,7 @@ credential pattern used by every page here.
 | `10fa/` | "Verificación Reforzada" bank-verification app, Chase-style chrome |
 | `consola/` | Billy's one-handed director console (stealth clock mode included) |
 | `buscaminas/` | Fully functional classic Minesweeper (decoy app on the desktop; opens as a native program window, not IE) |
+| `youtube/` | 2008-era YouTube replica with a single video (the FNG lockpicking tutorial) and canned comments |
 | `shared/` | Common Sheets client, config, fullscreen button |
 | `audio/`, `video/` | Media assets referenced by the pages above |
 
