@@ -248,6 +248,54 @@ const WIDGETS = {
     mount.append(val, slider, grid, btn);
   },
 
+  phonecall(f, mount) {
+    /* password-gated "call me" trigger (writes call_requested; the laptop daemon
+       dials Billy's phone). The password (Billy's birthday) stops random abuse. */
+    const callBox = elh('div', 'callBox');
+    const pw = elh('input', 'fInput');
+    pw.type = 'password';
+    pw.placeholder = 'clave';
+    pw.autocomplete = 'off';
+    const callBtn = elh('button', 'primary', 'Llamarme');
+    const callMsg = elh('div', 'callMsg');
+    const requestCall = async () => {
+      const norm = pw.value.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const h = await sha256(norm);
+      if (h !== f.callHash) { callMsg.textContent = 'Clave incorrecta.'; return; }
+      callBtn.disabled = true;
+      callMsg.textContent = 'Solicitando la llamada... atienda su teléfono en unos segundos.';
+      try {
+        await ES.setState('call_requested', String(Date.now()));
+        ES.logEvent('10fa', 'call_requested');
+      } catch (e) {
+        callMsg.textContent = 'No se pudo solicitar la llamada. Reintente.';
+        callBtn.disabled = false;
+        return;
+      }
+      setTimeout(() => { callBtn.disabled = false; callMsg.textContent += ' (Puede reintentar.)'; }, 25000);
+    };
+    callBtn.addEventListener('click', requestCall);
+    pw.addEventListener('keydown', (e) => { if (e.key === 'Enter') requestCall(); });
+    callBox.append(pw, callBtn);
+    mount.append(callBox, callMsg);
+
+    /* code entry (the code the phone tree dictates at the end) */
+    const codeLabel = elh('div', 'fPrompt', 'Ingrese el código que le dictaron por teléfono:');
+    codeLabel.style.marginTop = '14px';
+    const input = elh('input', 'fInput');
+    input.type = 'text';
+    input.autocomplete = 'off';
+    const btn = elh('button', 'primary', 'Verificar');
+    const submit = async () => {
+      const h = await sha256(normalize(input.value));
+      if (h === f.hash) pass();
+      else fail(f);
+    };
+    btn.addEventListener('click', submit);
+    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') submit(); });
+    mount.append(codeLabel, input, btn);
+  },
+
   party(f, mount) {
     const wrap = elh('div', 'partyForm');
     const inputs = [];

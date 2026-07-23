@@ -163,10 +163,11 @@ const FACTORS = [
     prompt: 'Dibuje un corazón roto en el recuadro para certificar la operación.',
   },
   {
-    id: 'phonecode', type: 'answer', input: 'text',
-    title: 'Código de verificación telefónica',
-    prompt: 'La entidad lo llamó y le dictó un código al finalizar la llamada. Ingréselo para continuar.',
+    id: 'phonecode', type: 'widget', widget: 'phonecall',
+    title: 'Verificación telefónica',
+    prompt: 'Solicite la llamada de verificación. La entidad lo llamará y le dictará un código; ingréselo para continuar.',
     hash: 'e25e05d04ff54c16624763307af74c8fb90bcf8f14acfb8dfee49c92df8a0796', /* 40719 — dicho por el árbol Bland */
+    callHash: 'f5095cd644fbe157a3ebc71d3e3212530f58e6d8a88c400c811314f217278c59', /* 2111 (cumple 21/11) — evita abuso público */
     errorMsg: 'Código inválido. Complete la verificación telefónica para obtenerlo.',
   },
   {
