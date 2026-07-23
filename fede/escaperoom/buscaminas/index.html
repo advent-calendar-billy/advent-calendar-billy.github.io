@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Buscaminas</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="app">
+  <div id="menuBar">
+    <span class="menuTop" id="menuJuego">Juego</span>
+    <span class="menuTop" id="menuAyuda">Ayuda</span>
+  </div>
+
+  <div id="menuJuegoDrop" class="drop" hidden>
+    <div class="dItem" data-act="nuevo">Nuevo<span class="dKey">F2</span></div>
+    <div class="dSep"></div>
+    <div class="dItem" data-diff="principiante">Principiante</div>
+    <div class="dItem" data-diff="intermedio">Intermedio</div>
+    <div class="dItem" data-diff="experto">Experto</div>
+  </div>
+  <div id="menuAyudaDrop" class="drop" hidden>
+    <div class="dItem disabled">Temas de Ayuda<span class="dKey">F1</span></div>
+    <div class="dSep"></div>
+    <div class="dItem disabled">Acerca de Buscaminas...</div>
+  </div>
+
+  <div id="frame">
+    <div id="statusPanel">
+      <div class="led" id="ledMines">010</div>
+      <button id="face" type="button" aria-label="nuevo juego"></button>
+      <div class="led" id="ledTime">000</div>
+    </div>
+    <div id="board"></div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

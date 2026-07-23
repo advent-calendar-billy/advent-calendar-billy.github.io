@@ -1,0 +1,127 @@
+/* Buscaminas — the 2000s one. Gray face, hard bevels, LED counters. */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: #d4d0c8; overflow: hidden; }
+body {
+  font-family: Tahoma, 'MS Sans Serif', Verdana, sans-serif;
+  font-size: 11px;
+  user-select: none;
+  cursor: default;
+}
+#app { display: inline-block; }
+
+/* menu */
+#menuBar { display: flex; padding: 1px 2px; background: #d4d0c8; }
+.menuTop { padding: 2px 8px 3px; }
+.menuTop:hover, .menuTop.open { background: #0a246a; color: #fff; }
+.drop {
+  position: absolute;
+  z-index: 20;
+  min-width: 150px;
+  background: #d4d0c8;
+  box-shadow: inset -1px -1px 0 #404040, inset 1px 1px 0 #fff,
+              inset -2px -2px 0 #808080, inset 2px 2px 0 #efede7,
+              2px 2px 5px rgba(0, 0, 0, 0.35);
+  padding: 3px;
+}
+.drop[hidden] { display: none; }
+.dItem { display: flex; justify-content: space-between; gap: 20px; padding: 4px 18px 4px 22px; position: relative; }
+.dItem:hover:not(.disabled) { background: #0a246a; color: #fff; }
+.dItem.disabled { color: #808080; }
+.dItem.checked::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  width: 8px;
+  height: 5px;
+  border-left: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(-45deg);
+}
+.dKey { color: inherit; opacity: 0.75; }
+.dSep { height: 1px; margin: 3px 2px; background: #808080; border-bottom: 1px solid #fff; }
+
+/* frame */
+#frame {
+  margin: 0 0 0 0;
+  padding: 9px;
+  background: #d4d0c8;
+  border-top: 3px solid #fff;
+  border-left: 3px solid #fff;
+  border-right: 3px solid #808080;
+  border-bottom: 3px solid #808080;
+  display: inline-block;
+}
+#statusPanel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 6px;
+  margin-bottom: 9px;
+  border-top: 2px solid #808080;
+  border-left: 2px solid #808080;
+  border-right: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+}
+.led {
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  font-size: 21px;
+  line-height: 1;
+  letter-spacing: 2px;
+  color: #ff0000;
+  background: #000;
+  padding: 2px 3px 1px;
+  border-top: 1px solid #808080;
+  border-left: 1px solid #808080;
+  border-right: 1px solid #fff;
+  border-bottom: 1px solid #fff;
+  text-shadow: 0 0 2px rgba(255, 60, 60, 0.8);
+}
+#face {
+  width: 26px;
+  height: 26px;
+  padding: 1px;
+  background: #d4d0c8;
+  border: none;
+  box-shadow: inset -1px -1px 0 #404040, inset 1px 1px 0 #fff,
+              inset -2px -2px 0 #808080, inset 2px 2px 0 #efede7;
+}
+#face:active { box-shadow: inset 1px 1px 0 #404040, inset -1px -1px 0 #fff; }
+#face svg { width: 100%; height: 100%; display: block; }
+
+/* board */
+#board {
+  display: grid;
+  border-top: 3px solid #808080;
+  border-left: 3px solid #808080;
+  border-right: 3px solid #fff;
+  border-bottom: 3px solid #fff;
+}
+.cell {
+  width: 16px;
+  height: 16px;
+  font-weight: bold;
+  font-size: 11px;
+  line-height: 14px;
+  text-align: center;
+  background: #d4d0c8;
+  box-shadow: inset -2px -2px 0 #808080, inset 2px 2px 0 #fff;
+}
+.cell.open {
+  box-shadow: none;
+  border-top: 1px solid #808080;
+  border-left: 1px solid #808080;
+}
+.cell.boom { background: #ff0000; }
+.cell svg { width: 100%; height: 100%; display: block; }
+.cell.q { color: #000; }
+
+.n1 { color: #0000ff; }
+.n2 { color: #008000; }
+.n3 { color: #ff0000; }
+.n4 { color: #000080; }
+.n5 { color: #800000; }
+.n6 { color: #008080; }
+.n7 { color: #000000; }
+.n8 { color: #808080; }

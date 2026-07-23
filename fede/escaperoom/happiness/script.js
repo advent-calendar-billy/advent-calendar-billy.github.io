@@ -215,9 +215,11 @@ function apply(instant) {
   const lvl = effective();
   const target = Math.max(0, Math.min(PETALS, Math.ceil(lvl / 10)));
 
-  if (shownPetals === null) shownPetals = target;
-
-  if (target < shownPetals) {
+  if (shownPetals === null) {
+    /* first render: materialize the CURRENT state — missing petals start
+       already fallen (resting on the ground), consistent with the palette */
+    for (let i = PETALS - 1; i >= target; i--) detachPetal(i, true);
+  } else if (target < shownPetals) {
     /* stagger multiple simultaneous losses so they read as individual petals */
     let delay = 0;
     for (let i = shownPetals - 1; i >= target; i--) {

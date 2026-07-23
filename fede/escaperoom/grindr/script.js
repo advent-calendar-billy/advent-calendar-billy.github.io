@@ -15,6 +15,32 @@ let revealed = false;
 let exitLineSeen = false;
 let currentAudio = null;
 
+/* Fede can write; Maxim never answers. Sent messages flip to "Visto" after a
+   random 5s–3min, and sometimes get a flame reaction a bit after that.
+   Timing survives refresh via localStorage. */
+const META_KEY = 'esc_grindr_meta';
+let meta = (() => {
+  try { return JSON.parse(localStorage.getItem(META_KEY)) || {}; } catch (_) { return {}; }
+})();
+const saveMeta = () => localStorage.setItem(META_KEY, JSON.stringify(meta));
+
+const SEEN_MIN_MS = 30000;
+const SEEN_MAX_MS = 240000;
+const FIRE_CHANCE = 0.25;
+
+/* Fede can double-tap any message to like it himself (real Grindr behavior:
+   flame in the upper-left corner; both liked = two flames). */
+const LIKES_KEY = 'esc_grindr_selflikes';
+let selfLikes = (() => {
+  try { return JSON.parse(localStorage.getItem(LIKES_KEY)) || {}; } catch (_) { return {}; }
+})();
+const saveLikes = () => localStorage.setItem(LIKES_KEY, JSON.stringify(selfLikes));
+
+function nowHM() {
+  const d = new Date();
+  return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+}
+
 document.getElementById('profileName').textContent = PROFILE.name;
 document.getElementById('profileMeta').textContent = PROFILE.meta;
 
@@ -92,6 +118,7 @@ function renderRow(row, opts = {}) {
 
   const bubble = document.createElement('div');
   bubble.className = 'msg ' + (sender === 'billy' ? 'out' : 'in');
+  bubble.dataset.id = id;
   if (opts.delay) bubble.style.animationDelay = opts.delay + 'ms';
 
   if (type === 'audio') buildVoice(bubble, content);
@@ -147,6 +174,10 @@ async function sync() {
     rendered.clear();
     thread.innerHTML = '';
     exitLineSeen = false;
+    meta = {};
+    saveMeta();
+    selfLikes = {};
+    saveLikes();
     setOnline(true);
   }
 
@@ -162,10 +193,90 @@ async function sync() {
   }
 }
 
+/* ---------- sending ---------- */
+const sendForm = document.getElementById('sendForm');
+const sendInput = document.getElementById('sendInput');
+const sendBtn = document.getElementById('sendBtn');
+const micBtn = document.getElementById('micBtn');
+
+sendInput.addEventListener('input', () => {
+  const has = !!sendInput.value.trim();
+  sendBtn.hidden = !has;
+  micBtn.style.display = has ? 'none' : '';
+});
+
+sendForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const text = sendInput.value.trim();
+  if (!text) return;
+  const id = 'f' + Date.now();
+  const ts = nowHM();
+  meta[id] = {
+    sent: Date.now(),
+    seenMs: SEEN_MIN_MS + Math.floor(Math.random() * (SEEN_MAX_MS - SEEN_MIN_MS)),
+    fireMs: Math.random() < FIRE_CHANCE ? 4000 + Math.floor(Math.random() * 26000) : 0,
+  };
+  saveMeta();
+  sendInput.value = '';
+  sendInput.dispatchEvent(new Event('input'));
+  renderRow([id, 'billy', 'text', text, ts]);
+  updateStatus();
+  ES.appendRow('grindr', [id, 'billy', 'text', text, ts, 'live']).catch(() => {});
+  ES.logEvent('grindr', 'fede_msg', text.slice(0, 60));
+});
+
+/* ---------- seen status + flame reactions ---------- */
+const statusEl = document.createElement('div');
+statusEl.className = 'msgStatus';
+
+function setFlames(bubble, count) {
+  let r = bubble.querySelector('.reaction');
+  if (!count) {
+    if (r) { r.remove(); bubble.classList.remove('hasReaction'); }
+    return;
+  }
+  if (!r) {
+    r = document.createElement('span');
+    r.className = 'reaction';
+    bubble.appendChild(r);
+    bubble.classList.add('hasReaction');
+  }
+  const fires = '🔥'.repeat(count);
+  if (r.textContent !== fires) r.textContent = fires;
+}
+
+function updateStatus() {
+  const now = Date.now();
+  let last = null; /* newest sent message that we have meta for */
+  rendered.forEach((bubble, id) => {
+    const m = meta[id];
+    if (m && (!last || m.sent > meta[last].sent)) last = id;
+    const maximFire = m && m.fireMs && now >= m.sent + m.seenMs + m.fireMs ? 1 : 0;
+    setFlames(bubble, maximFire + (selfLikes[id] ? 1 : 0));
+  });
+  if (!last) { statusEl.remove(); return; }
+  const m = meta[last];
+  statusEl.textContent = now >= m.sent + m.seenMs ? 'Visto' : 'Enviado';
+  const bubble = rendered.get(last);
+  if (bubble.nextSibling !== statusEl) bubble.after(statusEl);
+}
+setInterval(updateStatus, 1000);
+
+/* double-tap to like, on any bubble */
+thread.addEventListener('dblclick', (e) => {
+  const bubble = e.target.closest('.msg');
+  if (!bubble || !bubble.dataset.id) return;
+  const id = bubble.dataset.id;
+  if (selfLikes[id]) delete selfLikes[id];
+  else selfLikes[id] = 1;
+  saveLikes();
+  updateStatus();
+});
+
 (async () => {
   try {
     await ES.init();
-    ES.poll(ESC_CONFIG.POLL_MS, sync);
+    ES.poll(ESC_CONFIG.POLL_MS, () => sync().then(updateStatus));
   } catch (e) {
     console.error('chat sin conexión', e);
   }

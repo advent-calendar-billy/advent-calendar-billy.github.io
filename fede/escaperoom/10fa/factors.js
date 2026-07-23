@@ -5,7 +5,7 @@
    - Emotion list, T&C text, ad copy and the phone target are PLACEHOLDERS. */
 
 const BANK = {
-  name: 'Meridian Federal',            /* PLACEHOLDER brand */
+  name: 'Chase',                       /* locked (Billy, Jul 21) */
   tagline: 'Banca en línea',
   supportCode: 'AV-407',
   holder: 'PLACEHOLDER TITULAR',       /* account holder shown in the top bar */
@@ -62,7 +62,7 @@ const FACTORS = [
     id: 'captcha', type: 'widget', widget: 'captcha',
     title: 'Identificación visual del sospechoso',
     prompt: 'Seleccione todas las imágenes donde aparece el sospechoso.',
-    images: 9, correct: [0, 3, 7],       /* PLACEHOLDER — indices of img/captcha/c1..9.jpg */
+    images: 9, correct: [5],             /* c6.jpg = Maxim (white tank, smoothie) */
     errorMsg: 'Selección incorrecta. El sospechoso permanece sin identificar.',
   },
   {

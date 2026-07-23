@@ -162,11 +162,65 @@ body {
   background: var(--surface);
   border-top: 1px solid #000;
 }
-.inputFake {
+#sendForm {
   flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   background: #262626;
-  color: #7c7c80;
   border-radius: 20px;
-  padding: 10px 16px;
+  padding: 3px 4px 3px 16px;
+}
+#sendInput {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--ink);
   font-size: 15px;
+  padding: 7px 0;
+}
+#sendInput::placeholder { color: #7c7c80; }
+#sendBtn {
+  width: 34px;
+  height: 34px;
+  flex: none;
+  border: none;
+  border-radius: 50%;
+  background: var(--yellow);
+  color: #141414;
+  padding: 7px;
+}
+#sendBtn[hidden] { display: none; }
+#sendBtn svg { width: 100%; height: 100%; display: block; }
+
+/* delivery status under the last outgoing message */
+.msgStatus {
+  align-self: flex-end;
+  color: var(--dim);
+  font-size: 11.5px;
+  margin: 1px 6px 2px 0;
+}
+
+/* chat reaction: flame(s) in the UPPER-LEFT corner of the message (like the
+   real app: double-tap = like; both liked = two flames) */
+.msg { position: relative; }
+.msg.hasReaction { margin-top: 12px; }
+.reaction {
+  position: absolute;
+  top: -11px;
+  left: -6px;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 5px;
+  border-radius: 11px;
+  background: #262626;
+  border: 2px solid var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  letter-spacing: -2px;
+  animation: pop 0.28s cubic-bezier(0.2, 0.9, 0.3, 1.2);
 }
