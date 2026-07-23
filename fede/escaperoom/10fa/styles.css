@@ -325,13 +325,28 @@ main {
 /* phone slider */
 .phoneVal {
   font-family: 'Courier New', monospace;
-  font-size: 17px;
+  font-size: 20px;
   font-weight: bold;
   border: 2px inset #efede7;
   background: #fff;
-  display: inline-block;
-  padding: 3px 10px;
+  display: block;
+  padding: 4px 10px;
   margin-bottom: 10px;
+  letter-spacing: 1px;
+}
+.phoneSlider { display: block; width: 100%; max-width: 420px; margin-bottom: 12px; }
+.phoneGrid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 3px;
+  max-width: 420px;
+  margin-bottom: 12px;
+}
+.phoneGrid .nudge {
+  min-width: 0;
+  padding: 4px 0;
+  font-size: 10px;
+  font-weight: bold;
 }
 .phoneRow { display: flex; align-items: center; gap: 7px; margin-bottom: 12px; }
 .phoneRow input[type='range'] { flex: 1; max-width: 340px; }

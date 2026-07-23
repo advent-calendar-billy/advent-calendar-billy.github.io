@@ -25,7 +25,6 @@ document.getElementById('helpPhone').textContent = BANK.supportPhone;
 let idx = parseInt(localStorage.getItem('esc_10fa_idx') || '0', 10);
 let lastNonce = parseInt(localStorage.getItem('esc_10fa_nonce') || '0', 10);
 let waitingFactor = null;   /* id of factor in VERIFYING state */
-let firstHoldAttempt = localStorage.getItem('esc_10fa_held') !== '1';
 
 /* ---------- utils ---------- */
 function normalize(s) {
@@ -182,7 +181,6 @@ const WIDGETS = {
       clearInterval(timer);
       timer = null;
       if (reached) {
-        localStorage.setItem('esc_10fa_held', '1');
         pass();
       } else {
         bar.style.width = '0%';
@@ -197,12 +195,7 @@ const WIDGETS = {
       timer = setInterval(() => {
         const s = (Date.now() - t0) / 1000;
         bar.style.width = Math.min(100, (s / f.seconds) * 100) + '%';
-        if (firstHoldAttempt && s >= f.slipAt) {
-          firstHoldAttempt = false;
-          stop(false);            /* the bank "loses" the reading at second 9 */
-        } else if (s >= f.seconds) {
-          stop(true);
-        }
+        if (s >= f.seconds) stop(true);
       }, 90);
     });
     btn.addEventListener('pointerup', () => stop((Date.now() - t0) / 1000 >= f.seconds));
@@ -211,32 +204,48 @@ const WIDGETS = {
   },
 
   phoneslider(f, mount) {
-    const max = Math.pow(10, f.digits) - 1;
-    const val = elh('div', 'phoneVal', '0'.padStart(f.digits, '0'));
-    const row = elh('div', 'phoneRow');
-    const minus = elh('button', 'nudge', '−');
+    const digits = f.digits || 10;
+    const max = Math.pow(10, digits) - 1;
+    let v = 0;
+    const clamp = (n) => Math.max(0, Math.min(max, n));
+
+    const val = elh('div', 'phoneVal', '');
+    const show = () => {
+      val.textContent = String(v).padStart(digits, '0').replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
+      slider.value = String(v);
+    };
+
+    /* coarse slider (steps of a million just for flinging into the ballpark) */
     const slider = document.createElement('input');
     slider.type = 'range';
+    slider.className = 'phoneSlider';
     slider.min = '0';
     slider.max = String(max);
+    slider.step = '1000000';
     slider.value = '0';
-    const plus = elh('button', 'nudge', '+');
-    row.append(minus, slider, plus);
+    slider.addEventListener('input', () => { v = clamp(+slider.value); show(); });
 
-    const show = () => {
-      val.textContent = String(slider.value).padStart(f.digits, '0').replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
-    };
-    slider.addEventListener('input', show);
-    minus.addEventListener('click', () => { slider.value = String(Math.max(0, +slider.value - 1)); show(); });
-    plus.addEventListener('click', () => { slider.value = String(Math.min(max, +slider.value + 1)); show(); });
+    /* place-value nudge grid: reach any exact number in ≈(sum of digits) taps */
+    const mags = [1000000000, 100000000, 10000000, 1000000, 100000, 10000, 1000, 100, 10, 1];
+    const label = (m) => (m >= 1e9 ? (m / 1e9) + 'MM' : m >= 1e6 ? (m / 1e6) + 'M' : m >= 1e3 ? (m / 1e3) + 'k' : String(m));
+    const grid = elh('div', 'phoneGrid');
+    ['+', '−'].forEach((sign) => {
+      mags.forEach((m) => {
+        const b = elh('button', 'nudge', sign + label(m));
+        b.type = 'button';
+        b.addEventListener('click', () => { v = clamp(v + (sign === '+' ? m : -m)); show(); });
+        grid.appendChild(b);
+      });
+    });
+
     show();
 
     const btn = elh('button', 'primary', 'Confirmar número');
     btn.addEventListener('click', () => {
-      if (f.expected === null || +slider.value === f.expected) pass();
+      if (f.expected == null || v === f.expected) pass();
       else fail(f, 'El número no coincide con el registrado.');
     });
-    mount.append(val, row, btn);
+    mount.append(val, slider, grid, btn);
   },
 
   terms(f, mount) {
@@ -393,8 +402,6 @@ async function syncState() {
     lastNonce = 0;
     localStorage.setItem('esc_10fa_nonce', '0');
     localStorage.setItem('esc_10fa_idx', '0');
-    localStorage.removeItem('esc_10fa_held');
-    firstHoldAttempt = true;
     document.getElementById('doneOverlay').hidden = true;
     renderFactor();
     return;

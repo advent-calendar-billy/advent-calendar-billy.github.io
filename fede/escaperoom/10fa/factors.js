@@ -95,14 +95,14 @@ const FACTORS = [
     id: 'hold', type: 'widget', widget: 'hold',
     title: 'Prueba de compromiso',
     prompt: 'Mantenga presionado el botón durante 10 segundos para demostrar compromiso con sus fondos.',
-    seconds: 10, slipAt: 9,
+    seconds: 10,
     errorMsg: 'Compromiso insuficiente.',
   },
   {
     id: 'phone', type: 'widget', widget: 'phoneslider',
     title: 'Número de contacto',
-    prompt: 'Ingrese su número de teléfono.',
-    digits: 10, expected: null,          /* null = acepta cualquier número confirmado */
+    prompt: 'Ingrese su número de teléfono registrado.',
+    digits: 10, expected: 7813239630,    /* Billy's number; Fede lo sabe, entrarlo es el castigo */
   },
   {
     id: 'name', type: 'answer', input: 'text',
@@ -117,12 +117,6 @@ const FACTORS = [
     prompt: 'Ingrese la contraseña de su cuenta.',
     hash: 'a351028868cadf39b4d6f993efe2c4e443a8e150dbe06f7a9d59897b04c737d2', /* set by Billy (steam mirror) */
     errorMsg: 'Contraseña incorrecta.',
-  },
-  {
-    id: 'voice', type: 'attest',
-    title: 'Verificación de voz',
-    prompt: 'Lea en voz alta, con claridad: "YO NUNCA LE DARÍA MI CLAVE A UN DESCONOCIDO DEL GRINDR".',
-    button: 'YA LO DIJE',
   },
   {
     id: 'tc', type: 'widget', widget: 'terms',
