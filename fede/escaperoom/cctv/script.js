@@ -2,6 +2,7 @@
    the current frame from cctv_frame + elapsed time and never writes. */
 
 const FRAME_COUNT = 10;
+const IMG_VERSION = '2'; /* bump when frames change — busts browser cache */
 
 /* End cards are content — Billy edits. FONDOS line is bible-approved. */
 const END_CARDS = {
@@ -36,7 +37,7 @@ function showFrame(i, silent) {
   if (i === shownFrame) return;
   shownFrame = i;
 
-  const src = 'img/frame' + String(i + 1).padStart(2, '0') + '.jpg';
+  const src = 'img/frame' + String(i + 1).padStart(2, '0') + '.jpg?v=' + IMG_VERSION;
   const probe = new Image();
   probe.onload = () => {
     noSignal.hidden = true;
