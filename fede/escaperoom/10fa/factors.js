@@ -23,8 +23,8 @@ const TRANSFER = {
 /* Ads — ad1 from Billy (tarjeta con descuentos a Japón); ad2/ad3 camp, Claude. */
 const ADS = [
   { head: '¿Japón te llama?', body: 'Tarjeta Sakura Platinum: 40% off en vuelos a Tokio y ramen ilimitado en el lounge. Sin límite de gastos, sin límite de vos.', cta: 'Pedir la mía' },
-  { head: '¿Arrugas de estrés financiero?', body: 'Financiá tu bótox en 12 cuotas sin interés. Porque la crisis no tiene por qué notarse en la frente.', cta: 'Congelar gesto' },
-  { head: 'Invertí con el corazón', body: 'MaximCoin: la única cripto que sube cuando la mirás con deseo. Resultados no garantizados; emociones, sí.', cta: 'Minar amor' },
+  { head: 'Paraguas Eclipse Total', body: 'Bloquea el 100% de la luz solar y te cubre el cuerpo ENTERO, de la cabeza a los pies. Oscuridad garantizada al mediodía. La sombra es un derecho.', cta: 'Comprar oscuridad' },
+  { head: '¿Viajero frecuente? Obtenga descuento en vuelos*', body: '*El asiento está en el baño.', cta: 'Reservar' },
 ];
 
 /* Emotion selector — reframed per Billy (Jul 23): relación abierta, así que
