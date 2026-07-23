@@ -136,6 +136,13 @@ const FACTORS = [
     prompt: 'Dibuje un corazón roto en el recuadro para certificar la operación.',
   },
   {
+    id: 'phonecode', type: 'answer', input: 'text',
+    title: 'Código de verificación telefónica',
+    prompt: 'La entidad lo llamó y le dictó un código al finalizar la llamada. Ingréselo para continuar.',
+    hash: 'e25e05d04ff54c16624763307af74c8fb90bcf8f14acfb8dfee49c92df8a0796', /* 40719 — dicho por el árbol Bland */
+    errorMsg: 'Código inválido. Complete la verificación telefónica para obtenerlo.',
+  },
+  {
     id: 'higado', type: 'billy',
     title: 'Verificación biométrica de órgano',
     prompt: 'VERIFICACIÓN FINAL. Para autorizar la cancelación, deposite un (1) hígado humano ' +
