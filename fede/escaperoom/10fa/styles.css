@@ -352,6 +352,12 @@ main {
 .phoneRow input[type='range'] { flex: 1; max-width: 340px; }
 .nudge { min-width: 26px; padding: 2px 0; font-weight: bold; }
 
+/* party (identificación de las partes) */
+.partyForm { display: flex; flex-direction: column; gap: 12px; margin-bottom: 12px; max-width: 420px; }
+.partyRow { display: flex; flex-direction: column; gap: 3px; }
+.partyLabel { font-size: 11px; font-weight: bold; color: #333; }
+.partyRow .fInput { width: 100%; }
+
 /* terms */
 .termsBox {
   height: 190px;

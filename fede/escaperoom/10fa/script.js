@@ -248,6 +248,27 @@ const WIDGETS = {
     mount.append(val, slider, grid, btn);
   },
 
+  party(f, mount) {
+    const wrap = elh('div', 'partyForm');
+    const inputs = [];
+    f.fields.forEach((fld) => {
+      const row = elh('label', 'partyRow');
+      row.appendChild(elh('span', 'partyLabel', fld.label));
+      const inp = elh('input', 'fInput');
+      inp.type = 'text';
+      inp.autocomplete = 'off';
+      row.appendChild(inp);
+      inputs.push(inp);
+      wrap.appendChild(row);
+    });
+    const btn = elh('button', 'primary', 'Continuar');
+    btn.addEventListener('click', () => {
+      if (inputs.every((i) => i.value.trim())) pass();   /* no se valida el contenido */
+      else fail(f, f.errorMsg || 'Complete los campos.');
+    });
+    mount.append(wrap, btn);
+  },
+
   terms(f, mount) {
     const box = elh('div', 'termsBox');
     const clauses = (typeof TERMS_CLAUSES !== 'undefined') ? TERMS_CLAUSES : [];

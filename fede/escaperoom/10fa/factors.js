@@ -60,34 +60,33 @@ const EMOTIONS = [
   { label: 'HISTÉRICO PERO PRESENTABLE' },
 ];
 
-/* T&C clauses — the full set (camp legalese, self-serving to el titular / trampas
-   para el solicitante). Billy's originals + Claude, all distinct. The last one
-   echoes the closing checkbox. TERMS_FINE renders in tiny near-illegible type. */
+/* T&C clauses — TODAS en primera del "solicitante" (Fede firma). ~80% legalese
+   bancario aburrido y realista, ~20% chistes enterrados entre el relleno (rinde
+   más leerlo). La última engancha con el checkbox de cierre. TERMS_FINE va chico. */
 const TERMS_CLAUSES = [
-  'El titular declara ser una persona sumamente linda, con músculos visibles y nivel avanzado de bouldering.',
-  'El solicitante acepta desarrollar, a partir de la fecha, una adicción al casino de grado moderado a severo.',
+  'El solicitante declara que los datos consignados en el presente formulario son veraces, exactos y completos.',
+  'El solicitante acepta que las operaciones cursadas a través de los canales electrónicos quedan sujetas a verificación y podrán demorar hasta su acreditación definitiva.',
+  'El solicitante autoriza a la entidad a registrar, conservar y auditar la presente sesión con fines de seguridad y prevención del fraude.',
+  'El solicitante reconoce haber sido informado de los riesgos asociados al uso de canales digitales, incluyendo el phishing y la suplantación de identidad.',
+  'El solicitante acepta recibir notificaciones, resúmenes y comunicaciones contractuales por medios electrónicos, renunciando a su envío en soporte papel.',
+  'El solicitante se obliga a mantener la confidencialidad de sus credenciales y a no divulgarlas a terceros bajo ninguna circunstancia.',
+  'El solicitante considera que el titular es una persona sumamente linda, con músculos visibles y nivel avanzado de bouldering.',
+  'El solicitante acepta los cargos, comisiones, aranceles e impuestos vigentes, así como sus eventuales modificaciones conforme al tarifario publicado.',
+  'El solicitante declara conocer que la entidad no solicita claves, códigos ni datos de tarjeta por teléfono, correo electrónico o mensajería.',
+  'El solicitante acepta que la entidad podrá suspender preventivamente operaciones ante la detección de actividad inusual, sin responsabilidad alguna.',
+  'El solicitante manifiesta que los fondos involucrados provienen de actividades lícitas y se compromete a acreditar su origen cuando le sea requerido.',
+  'El solicitante acepta que las grabaciones de las comunicaciones telefónicas constituyen prueba suficiente en caso de controversia.',
   'El solicitante reconoce que el titular siempre tuvo razón, incluso retroactivamente.',
-  'El solicitante renuncia a todo reclamo estético sobre el titular.',
-  'El solicitante se compromete a elogiar el peinado del titular al menos una vez por día hábil.',
-  'El titular podrá cambiar de opinión sin previo aviso y sin que ello constituya incoherencia.',
-  'Toda discusión se resolverá a favor de quien llore primero.',
-  'El solicitante acepta que "ya casi llego" constituye una unidad de tiempo válida y vinculante.',
-  'El titular se reserva el derecho de admisión sobre sus propios sentimientos.',
-  'El solicitante declara haber leído estos términos, lo cual es falso.',
-  'El solicitante acepta que la palabra "bien", dicha por el titular, puede significar lo contrario.',
-  'Las velas aromáticas del titular no se tocan, no se huelen y no se comentan.',
-  'El solicitante se compromete a fingir sorpresa ante anécdotas ya escuchadas.',
-  'El titular no será responsable por decisiones tomadas mientras se veía particularmente atractivo.',
-  'El solicitante acepta cargar las bolsas del supermercado en su totalidad, sin excepción.',
-  'Toda planta que muera quedará bajo responsabilidad emocional del solicitante.',
-  'El solicitante reconoce que el titular canta bien, aunque la evidencia sugiera lo contrario.',
-  'El titular podrá interrumpir cualquier película para explicar quién es cada actor.',
-  'El lado izquierdo de la cama es propiedad inalienable del titular.',
-  'Toda mención al ex del titular será penada con silencio de hasta cuarenta y ocho horas.',
-  'El solicitante sostendrá conversaciones sobre astrología con seriedad forense.',
-  'El titular podrá adquirir velas, plantas o cerámicas sin justificación presupuestaria.',
-  'El solicitante acepta que "no quiero nada para mi cumpleaños" es una trampa.',
+  'El solicitante reconoce que las tasas informadas tienen carácter estimativo y pueden variar según las condiciones del mercado.',
+  'El solicitante autoriza el débito automático de las comisiones de mantenimiento sobre la cuenta asociada.',
+  'El solicitante declara haber leído la totalidad de los presentes términos, lo cual es falso.',
+  'El solicitante acepta que la presente operación se rige por la legislación aplicable y se somete a la jurisdicción de los tribunales competentes.',
+  'El solicitante acepta desarrollar una adicción al casino de grado moderado a severo.',
+  'El solicitante reconoce que la entidad no garantiza la disponibilidad ininterrumpida de los servicios en línea.',
+  'El solicitante acepta que la información provista podrá ser compartida con los organismos de control conforme a la normativa vigente.',
+  'El solicitante se compromete a actualizar sus datos de contacto ante cualquier modificación.',
   'El solicitante libera al titular de toda responsabilidad por el hígado faltante.',
+  'El solicitante acepta que la falta de objeción dentro de los treinta días corridos implica su conformidad con los presentes términos.',
   'El solicitante acepta que este trámite es, en parte, su culpa.',
 ];
 const TERMS_FINE = 'El solicitante acepta tener hijos.';
@@ -122,9 +121,20 @@ const FACTORS = [
     errorMsg: 'Compromiso insuficiente.',
   },
   {
+    id: 'party', type: 'widget', widget: 'party',
+    title: 'Identificación de las partes',
+    prompt: 'Antes de continuar, identifique a las partes de esta operación. ' +
+      'Estos datos se utilizarán en el resto del proceso.',
+    fields: [
+      { key: 'titular', label: 'Nombre del TITULAR de la cuenta' },
+      { key: 'solicitante', label: 'Nombre del SOLICITANTE' },
+    ],
+    errorMsg: 'Complete ambos campos para continuar.',
+  },
+  {
     id: 'phone', type: 'widget', widget: 'phoneslider',
     title: 'Número de contacto',
-    prompt: 'Ingrese su número de teléfono registrado.',
+    prompt: 'Ingrese el número de teléfono del titular.',
     digits: 10, expected: 7813239630,    /* Billy's number; Fede lo sabe, entrarlo es el castigo */
   },
   {
