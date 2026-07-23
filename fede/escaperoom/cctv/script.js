@@ -1,8 +1,12 @@
 /* CAM 07 — rooftop feed. The console is the only writer; this page derives
-   the current frame from cctv_frame + elapsed time and never writes. */
+   the current frame from cctv_frame + elapsed time and never writes.
+   Default behavior: LOOPS through the 10 frames (wrapping) every 15 minutes,
+   with no console intervention needed. The console can still pause, jump to a
+   frame (switch), reset, or fire failure/getaway. */
 
 const FRAME_COUNT = 10;
 const IMG_VERSION = '2'; /* bump when frames change — busts browser cache */
+const DEFAULT_INTERVAL_S = 900; /* 15 min per frame */
 
 /* End cards are content — Billy edits. FONDOS line is bible-approved. */
 const END_CARDS = {
@@ -26,11 +30,15 @@ let booted = false;
 function num(v, fb) { const n = parseFloat(v); return Number.isFinite(n) ? n : fb; }
 
 function derivedFrame(now = Date.now()) {
-  if (!state) return 0;
+  /* no sheet yet: loop anyway from boot */
+  if (!state) {
+    return Math.floor((now - CAM_START.getTime()) / (DEFAULT_INTERVAL_S * 1000)) % FRAME_COUNT;
+  }
   const frame = num(state.cctv_frame, 0);
-  if (state.cctv_mode !== 'running') return frame;
-  const interval = Math.max(1, num(state.cctv_interval_s, 360)) * 1000;
-  return Math.min(FRAME_COUNT - 1, frame + Math.floor((now - num(state.cctv_frame_ts, now)) / interval));
+  if (state.cctv_mode === 'paused') return frame % FRAME_COUNT;
+  const interval = Math.max(1, num(state.cctv_interval_s, DEFAULT_INTERVAL_S)) * 1000;
+  const anchor = num(state.cctv_frame_ts, now);
+  return (frame + Math.floor((now - anchor) / interval)) % FRAME_COUNT;
 }
 
 function showFrame(i, silent) {

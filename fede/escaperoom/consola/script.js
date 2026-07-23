@@ -36,10 +36,11 @@ function effectiveHappiness(s, now = Date.now()) {
 }
 
 function derivedCctvFrame(s, now = Date.now()) {
+  /* mirrors the cctv page: loops every 15 min by default; only 'paused' freezes */
   const frame = num(s.cctv_frame, 0);
-  if (s.cctv_mode !== 'running') return frame;
-  const interval = Math.max(1, num(s.cctv_interval_s, 360)) * 1000;
-  return Math.min(9, frame + Math.floor((now - num(s.cctv_frame_ts, now)) / interval));
+  if (s.cctv_mode === 'paused') return frame % 10;
+  const interval = Math.max(1, num(s.cctv_interval_s, 900)) * 1000;
+  return (frame + Math.floor((now - num(s.cctv_frame_ts, now)) / interval)) % 10;
 }
 
 function factorTitle(id) {
@@ -216,7 +217,7 @@ function writeCctv(mode, frame, intervalS) {
     mode,
     frame,
     Date.now(),
-    intervalS !== undefined ? intervalS : Math.max(1, num(state.cctv_interval_s, 360)),
+    intervalS !== undefined ? intervalS : Math.max(1, num(state.cctv_interval_s, 900)),
   ]);
 }
 
@@ -225,8 +226,8 @@ $('btnCctvStart').addEventListener('click', (e) =>
 $('btnCctvPause').addEventListener('click', (e) =>
   guarded(e.target, () => writeCctv('paused', derivedCctvFrame(state)), 'cctv pausado'));
 $('btnCctvAdvance').addEventListener('click', (e) =>
-  guarded(e.target, () => writeCctv(state.cctv_mode === 'running' ? 'running' : 'paused',
-    Math.min(9, derivedCctvFrame(state) + 1)), 'frame adelantado'));
+  guarded(e.target, () => writeCctv(state.cctv_mode === 'paused' ? 'paused' : 'running',
+    (derivedCctvFrame(state) + 1) % 10), 'frame adelantado'));
 $('btnCctvFailure').addEventListener('click', (e) =>
   guarded(e.target, () => ES.setState('cctv_mode', 'failure'), 'FALLA'));
 $('btnCctvGetaway').addEventListener('click', (e) =>
@@ -252,7 +253,7 @@ $('btnResetGame').addEventListener('click', (e) =>
       ['100'], [String(now)], ['paused'], ['2'],
       ['hidden'],
       ['0'], [''], [''], [''], ['0'],
-      ['idle'], ['0'], [String(now)], ['360'],
+      ['idle'], ['0'], [String(now)], ['900'],
     ]);
     /* wipe live chat rows (keep header + backstory) */
     const rows = await ES.getValues('grindr!A2:F1000');
