@@ -60,12 +60,35 @@ const EMOTIONS = [
   { label: 'HISTÉRICO PERO PRESENTABLE' },
 ];
 
-/* T&C clauses (Billy, Jul 23). FINE renders in tiny type, near-illegible. */
+/* T&C clauses — the full set (camp legalese, self-serving to el titular / trampas
+   para el solicitante). Billy's originals + Claude, all distinct. The last one
+   echoes the closing checkbox. TERMS_FINE renders in tiny near-illegible type. */
 const TERMS_CLAUSES = [
   'El titular declara ser una persona sumamente linda, con músculos visibles y nivel avanzado de bouldering.',
   'El solicitante acepta desarrollar, a partir de la fecha, una adicción al casino de grado moderado a severo.',
-  'El solicitante reconoce que el titular siempre tuvo razón.',
+  'El solicitante reconoce que el titular siempre tuvo razón, incluso retroactivamente.',
   'El solicitante renuncia a todo reclamo estético sobre el titular.',
+  'El solicitante se compromete a elogiar el peinado del titular al menos una vez por día hábil.',
+  'El titular podrá cambiar de opinión sin previo aviso y sin que ello constituya incoherencia.',
+  'Toda discusión se resolverá a favor de quien llore primero.',
+  'El solicitante acepta que "ya casi llego" constituye una unidad de tiempo válida y vinculante.',
+  'El titular se reserva el derecho de admisión sobre sus propios sentimientos.',
+  'El solicitante declara haber leído estos términos, lo cual es falso.',
+  'El solicitante acepta que la palabra "bien", dicha por el titular, puede significar lo contrario.',
+  'Las velas aromáticas del titular no se tocan, no se huelen y no se comentan.',
+  'El solicitante se compromete a fingir sorpresa ante anécdotas ya escuchadas.',
+  'El titular no será responsable por decisiones tomadas mientras se veía particularmente atractivo.',
+  'El solicitante acepta cargar las bolsas del supermercado en su totalidad, sin excepción.',
+  'Toda planta que muera quedará bajo responsabilidad emocional del solicitante.',
+  'El solicitante reconoce que el titular canta bien, aunque la evidencia sugiera lo contrario.',
+  'El titular podrá interrumpir cualquier película para explicar quién es cada actor.',
+  'El lado izquierdo de la cama es propiedad inalienable del titular.',
+  'Toda mención al ex del titular será penada con silencio de hasta cuarenta y ocho horas.',
+  'El solicitante sostendrá conversaciones sobre astrología con seriedad forense.',
+  'El titular podrá adquirir velas, plantas o cerámicas sin justificación presupuestaria.',
+  'El solicitante acepta que "no quiero nada para mi cumpleaños" es una trampa.',
+  'El solicitante libera al titular de toda responsabilidad por el hígado faltante.',
+  'El solicitante acepta que este trámite es, en parte, su culpa.',
 ];
 const TERMS_FINE = 'El solicitante acepta tener hijos.';
 
