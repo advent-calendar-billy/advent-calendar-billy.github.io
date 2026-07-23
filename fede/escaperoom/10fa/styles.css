@@ -353,8 +353,9 @@ main {
 .nudge { min-width: 26px; padding: 2px 0; font-weight: bold; }
 
 /* phonecall (llamarme + código) */
-.callBox { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
-.callBox .fInput { width: 140px; }
+.callBox { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; flex-wrap: wrap; }
+.bdayLabel { font-size: 12px; font-weight: bold; color: #333; }
+.callBox .fInput { width: auto; }
 .callMsg { font-size: 12px; color: var(--navy); min-height: 16px; }
 
 /* party (identificación de las partes) */

@@ -167,7 +167,7 @@ const FACTORS = [
     title: 'Verificación telefónica',
     prompt: 'Solicite la llamada de verificación. La entidad lo llamará y le dictará un código; ingréselo para continuar.',
     hash: 'e25e05d04ff54c16624763307af74c8fb90bcf8f14acfb8dfee49c92df8a0796', /* 40719 — dicho por el árbol Bland */
-    callHash: 'f5095cd644fbe157a3ebc71d3e3212530f58e6d8a88c400c811314f217278c59', /* 2111 (cumple 21/11) — evita abuso público */
+    callHash: '3958de59a1ae60b4330e99d6a5b791897717cdd2347260d0f71df22d60b01062', /* MMDD "1121" = 21 nov, cumple del titular (ignora el año) — evita abuso público */
     errorMsg: 'Código inválido. Complete la verificación telefónica para obtenerlo.',
   },
   {

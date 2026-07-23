@@ -252,16 +252,16 @@ const WIDGETS = {
     /* password-gated "call me" trigger (writes call_requested; the laptop daemon
        dials Billy's phone). The password (Billy's birthday) stops random abuse. */
     const callBox = elh('div', 'callBox');
+    const bdayLabel = elh('span', 'bdayLabel', 'Cumpleaños del titular:');
     const pw = elh('input', 'fInput');
-    pw.type = 'password';
-    pw.placeholder = 'clave';
-    pw.autocomplete = 'off';
+    pw.type = 'date';
     const callBtn = elh('button', 'primary', 'Llamarme');
     const callMsg = elh('div', 'callMsg');
     const requestCall = async () => {
-      const norm = pw.value.toLowerCase().replace(/[^a-z0-9]/g, '');
-      const h = await sha256(norm);
-      if (h !== f.callHash) { callMsg.textContent = 'Clave incorrecta.'; return; }
+      if (!pw.value) { callMsg.textContent = 'Elija una fecha.'; return; }
+      const [, mm, dd] = pw.value.split('-');   /* YYYY-MM-DD → MMDD, ignora el año */
+      const h = await sha256(mm + dd);
+      if (h !== f.callHash) { callMsg.textContent = 'Fecha incorrecta.'; return; }
       callBtn.disabled = true;
       callMsg.textContent = 'Solicitando la llamada... atienda su teléfono en unos segundos.';
       try {
@@ -276,7 +276,7 @@ const WIDGETS = {
     };
     callBtn.addEventListener('click', requestCall);
     pw.addEventListener('keydown', (e) => { if (e.key === 'Enter') requestCall(); });
-    callBox.append(pw, callBtn);
+    callBox.append(bdayLabel, pw, callBtn);
     mount.append(callBox, callMsg);
 
     /* code entry (the code the phone tree dictates at the end) */
