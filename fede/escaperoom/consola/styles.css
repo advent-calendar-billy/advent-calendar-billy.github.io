@@ -1,3 +1,25 @@
+/* game map (shared render from ../shared/game-map.js) */
+.mapTools { display: flex; gap: 10px; align-items: center; margin-bottom: 6px; }
+#mapWrap { background: #fdfcfa; border: 1px solid var(--line); border-radius: 8px;
+  height: 320px; overflow: hidden; touch-action: none; }
+#mapSvg { width: 100%; height: 100%; display: block; }
+.dnode rect { cursor: pointer; }
+.dnode text { pointer-events: none; }
+.dnode .dt { font-size: 11.5px; font-weight: 600; }
+.dnode .ds { font-size: 9.5px; }
+.dnode.sel rect { stroke: #111; stroke-width: 2.6; }
+#mapDetail.depDetail { margin-top: 8px; background: #fff; color: #222;
+  border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font-size: 13px; }
+#mapDetail h3 { font-size: 15px; margin: 0 0 4px; color: #222; }
+#mapDetail .badge { font-family: ui-monospace, monospace; font-size: 10px; padding: 2px 7px;
+  border-radius: 20px; font-weight: 700; margin-left: 6px; white-space: nowrap; }
+#mapDetail .idea { margin: 6px 0 4px; line-height: 1.45; }
+#mapDetail .todo { background: #fbeaf0; border-left: 3px solid #d4537e; padding: 8px 10px;
+  border-radius: 0 6px 6px 0; }
+#mapDetail .todo.ready { background: #eaf6f0; border-left-color: #1d9e75; }
+#mapDetail .rel { color: #666; font-size: 12px; margin-top: 6px; }
+#mapDetail .jump { display: none; }
+
 /* Sala de control — one-handed, high contrast, big targets. */
 :root {
   --bg: #101114;

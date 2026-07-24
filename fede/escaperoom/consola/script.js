@@ -337,6 +337,15 @@ function tickClock() {
 setInterval(tickClock, 5000);
 tickClock();
 
+/* ---------- game map (shared with produccion.html) ---------- */
+(function () {
+  const svg = $('mapSvg');
+  if (!svg || !window.GameMap) return;
+  GameMap.render({ svg: svg, detail: $('mapDetail') });
+  const z = GameMap.enableZoom(svg);
+  $('btnMapReset').addEventListener('click', () => z.reset());
+})();
+
 /* Local re-render between polls so FLOR/CCTV pills stay live. */
 setInterval(render, 1000);
 
