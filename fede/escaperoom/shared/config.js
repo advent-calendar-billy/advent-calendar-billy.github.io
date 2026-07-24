@@ -7,7 +7,7 @@ const ESC_CONFIG = {
   SPREADSHEET_ID: '1TtUoVFoDkGY-ep2lLPChw41vAb1UwDwDtfVFBXd_gRk',
   POLL_MS: 4000,
 
-  STATE_RANGE: 'state!A2:B16',
+  STATE_RANGE: 'state!A2:B17',
   /* Row numbers inside the `state` tab (column B holds the value). */
   STATE_ROWS: {
     happiness_level: 2,
@@ -25,5 +25,6 @@ const ESC_CONFIG = {
     cctv_frame_ts: 14,       /* epoch ms when current frame started */
     cctv_interval_s: 15,     /* seconds per frame */
     call_requested: 16,      /* timestamp → the laptop daemon fires the Bland call */
+    tenfa_cmd: 17,           /* console→bank command: skip:<n> | complete:<n> | reset:<n> */
   },
 };

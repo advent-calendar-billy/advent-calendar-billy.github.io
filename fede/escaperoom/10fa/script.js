@@ -24,6 +24,7 @@ document.getElementById('helpPhone').textContent = BANK.supportPhone;
 
 let idx = parseInt(localStorage.getItem('esc_10fa_idx') || '0', 10);
 let lastNonce = parseInt(localStorage.getItem('esc_10fa_nonce') || '0', 10);
+let lastCmdNonce = parseInt(localStorage.getItem('esc_10fa_cmd') || '0', 10);
 let waitingFactor = null;   /* id of factor in VERIFYING state */
 
 /* ---------- utils ---------- */
@@ -458,6 +459,37 @@ function startVerifying(f, mount) {
 /* ---------- verdict + remote-reset polling ---------- */
 async function syncState() {
   const state = await ES.readState();
+
+  /* console commands: skip / complete / reset (cheatcodes + reset banco) */
+  const cm = /^(skip|complete|reset):(\d+)$/.exec(state.tenfa_cmd || '');
+  if (cm) {
+    const cnonce = parseInt(cm[2], 10);
+    if (cnonce > lastCmdNonce) {
+      lastCmdNonce = cnonce;
+      localStorage.setItem('esc_10fa_cmd', String(cnonce));
+      waitingFactor = null;
+      if (cm[1] === 'reset') {
+        idx = 0; lastNonce = 0;
+        localStorage.setItem('esc_10fa_nonce', '0');
+        localStorage.setItem('esc_10fa_idx', '0');
+        localStorage.removeItem('esc_10fa_held');
+        document.getElementById('doneOverlay').hidden = true;
+        ES.setStateBlock('tenfa_pending', ['', '']).catch(() => {});
+        renderFactor();
+      } else if (cm[1] === 'skip') {
+        idx = Math.min(idx + 1, FACTORS.length);
+        persist();
+        ES.setStateBlock('tenfa_pending', ['', '']).catch(() => {});
+        if (idx >= FACTORS.length) complete(); else renderFactor();
+      } else if (cm[1] === 'complete') {
+        idx = FACTORS.length;
+        persist();
+        ES.setStateBlock('tenfa_pending', ['', '']).catch(() => {});
+        complete();
+      }
+      return;
+    }
+  }
 
   /* remote reset from the console */
   if (state.tenfa_current === '0' && idx > 0 && !state.tenfa_pending && state.tenfa_complete === '0') {

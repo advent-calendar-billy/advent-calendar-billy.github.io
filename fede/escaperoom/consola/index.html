@@ -34,12 +34,14 @@
       Transferencia cancelada.
       <button class="big" id="btnExitLine" type="button">ENVIAR MENSAJE FINAL</button>
     </div>
-  </details>
-
-  <details id="secLlamada">
-    <summary>LLAMADA</summary>
-    <button class="big" id="btnCall" type="button">DISPARAR LLAMADA DEL BANCO</button>
-    <div class="quiet">La llama el daemon de la laptop (planning/call_daemon.py) al teléfono configurado ahí. Corre el daemon antes de la partida.</div>
+    <div class="row">
+      <button class="mid danger" id="btnResetBank" type="button">REINICIAR BANCO</button>
+    </div>
+    <div class="row">
+      <button class="ghost" id="btnBankSkip" type="button">cheat: saltear factor</button>
+      <button class="ghost" id="btnBankComplete" type="button">cheat: completar banco</button>
+    </div>
+    <div class="quiet">Reiniciar banco borra el progreso del 10FA (y saca "transferencia cancelada"). Los cheats fuerzan el avance por si Fede se traba.</div>
   </details>
 
   <details id="secGrindr">

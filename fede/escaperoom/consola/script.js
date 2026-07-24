@@ -120,11 +120,22 @@ function verdict(kind) {
 $('btnApprove').addEventListener('click', () => verdict('approve'));
 $('btnReject').addEventListener('click', () => verdict('reject'));
 
-$('btnCall').addEventListener('click', (e) =>
+/* bank reset + cheatcodes (write tenfa_cmd; the bank app acts on it) */
+function bankCmd(kind) {
+  return ES.setState('tenfa_cmd', kind + ':' + Date.now());
+}
+$('btnResetBank').addEventListener('click', (e) =>
   guarded(e.target, async () => {
-    await ES.setState('call_requested', String(Date.now()));
-    await ES.logEvent('consola', 'llamada_solicitada');
-  }, 'llamada solicitada — suena en ~15s'));
+    await ES.setStateBlock('tenfa_current', ['0', '', '', '', '0']); /* current,pending,answer,verdict,complete */
+    await bankCmd('reset');
+    state.tenfa_complete = '0';
+    state.tenfa_pending = '';
+    render();
+  }, 'banco reiniciado'));
+$('btnBankSkip').addEventListener('click', (e) =>
+  guarded(e.target, () => bankCmd('skip'), 'factor salteado'));
+$('btnBankComplete').addEventListener('click', (e) =>
+  guarded(e.target, () => bankCmd('complete'), 'banco completado'));
 
 $('btnExitLine').addEventListener('click', (e) =>
   guarded(e.target, () => sendChat(EXIT_LINE), 'mensaje final enviado'));
@@ -255,12 +266,16 @@ $('btnResetGame').addEventListener('click', (e) =>
   guarded(e.target, async () => {
     if (!confirm('¿Reiniciar TODA la partida?')) return;
     const now = Date.now();
-    await ES.updateValues('state!B2:B15', [
+    await ES.updateValues('state!B2:B17', [
       ['100'], [String(now)], ['paused'], ['2'],
       ['hidden'],
       ['0'], [''], [''], [''], ['0'],
       ['idle'], ['0'], [String(now)], ['900'],
+      ['0'],                      /* call_requested */
+      ['reset:' + now],           /* tenfa_cmd → forces the bank app to reset */
     ]);
+    state.tenfa_complete = '0'; state.tenfa_pending = '';
+    render();
     /* wipe live chat rows (keep header + backstory) */
     const rows = await ES.getValues('grindr!A2:F1000');
     const firstLive = rows.findIndex((r) => r[5] === 'live');
