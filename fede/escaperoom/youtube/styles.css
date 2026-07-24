@@ -54,6 +54,13 @@ a:hover { text-decoration: underline; }
   width: 100%; max-width: 640px;
 }
 #player video { width: 100%; display: block; }
+#ytControls { display: flex; gap: 4px; padding: 4px; background: #1a1a1a; border-top: 1px solid #333; }
+#ytControls button {
+  font: 12px Arial, sans-serif; color: #eee; background: #333;
+  border: 1px solid #555; border-radius: 2px; padding: 3px 12px; cursor: pointer;
+}
+#ytControls button:hover { background: #444; }
+#ytControls #ytPlay { flex: 1; }
 
 #infoBar {
   max-width: 640px; display: flex; justify-content: space-between;
@@ -109,6 +116,10 @@ a:hover { text-decoration: underline; }
 .comment.op .user { color: #c4302b; }
 
 #commentBox { max-width: 640px; padding: 12px 2px 30px; font-size: 12px; }
+#commentBox #cName {
+  display: block; width: 220px; max-width: 100%; margin: 6px 0 0; font: 12px Arial, sans-serif;
+  border: 1px solid #999; padding: 4px;
+}
 #commentBox textarea {
   display: block; width: 100%; margin: 6px 0; font: 12px Arial, sans-serif;
   border: 1px solid #999; padding: 4px;

@@ -34,17 +34,18 @@ const COMMENTS = [
 ];
 
 const RELATED = [
-  { t: 'Cómo funciona un candado por dentro (animación)', u: 'FisicaParaTodos', v: '312.554', d: '4:12' },
-  { t: 'Top 10 candados que NADIE puede abrir', u: 'seguridadTOTAL', v: '1.204.881', d: '9:58' },
-  { t: 'Mi colección de ganzúas (parte 3)', u: 'ganzua_master88', v: '8.113', d: '12:44' },
-  { t: 'Abrir un candado con una lata de gaseosa (REAL)', u: 'trucos_caseros_ar', v: '2.877.410', d: '3:05' },
-  { t: 'FNG vs candado de $200 - quién gana?', u: 'CovertInstruments', v: '95.230', d: '7:31' },
-  { t: 'ASMR - picking de cerraduras 1 hora sin hablar', u: 'quiet_picks', v: '44.902', d: '58:20' },
-  { t: 'Por qué tu candado de valija no sirve de nada', u: 'viajero_paranoico', v: '561.008', d: '6:47' },
+  { t: 'Cómo abrir el corazón de un hombre (tutorial paso a paso)', u: 'divaDIY', v: '892.104', d: '5:33' },
+  { t: 'GRWM para robar un banco 💅', u: 'iconic_thief', v: '2.104.667', d: '8:12' },
+  { t: 'Me robaron el hígado en una cita de Grindr (STORYTIME)', u: 'suerte_la_mia', v: '1.556.203', d: '14:20' },
+  { t: 'ASMR: te abro el cajón de la ropa interior susurrando', u: 'quiet_picks', v: '703.918', d: '41:08' },
+  { t: 'Reaccionando a mi ex abriendo MI caja fuerte', u: 'dramaHD', v: '445.010', d: '11:47' },
+  { t: 'Intenté picar un candado con uñas de gel (terminó MAL)', u: 'las_unias_de_wanda', v: '1.203.556', d: '6:02' },
+  { t: 'POV: sos el candado y él tiene las ganzúas', u: 'thirst_traps_ok', v: '98.441', d: '2:15' },
 ];
 
 const cWrap = document.getElementById('comments');
-COMMENTS.forEach((c) => {
+
+function commentNode(c) {
   const div = document.createElement('div');
   div.className = 'comment' + (c.op ? ' op' : '');
   const votes = c.up >= 0 ? '+' + c.up : String(c.up);
@@ -58,7 +59,33 @@ COMMENTS.forEach((c) => {
     '</div>';
   div.querySelector('.user').textContent = c.u;
   div.querySelector('.cText').textContent = c.t;
-  cWrap.appendChild(div);
+  return div;
+}
+
+/* user comments persist in localStorage (survive refresh) */
+const YT_KEY = 'esc_yt_comments';
+function loadMine() {
+  try { return JSON.parse(localStorage.getItem(YT_KEY)) || []; } catch (e) { return []; }
+}
+function renderComments() {
+  const mine = loadMine();
+  cWrap.innerHTML = '';
+  mine.forEach((c) => cWrap.appendChild(commentNode(c)));   /* newest of mine on top */
+  COMMENTS.forEach((c) => cWrap.appendChild(commentNode(c)));
+  document.getElementById('commentsCount').textContent =
+    'Comentarios de texto (' + (COMMENTS.length + mine.length) + ')';
+}
+renderComments();
+
+document.getElementById('cPost').addEventListener('click', () => {
+  const text = document.getElementById('cText').value.trim();
+  if (!text) return;
+  const name = document.getElementById('cName').value.trim() || 'usuario' + Math.floor(Math.random() * 900 + 100);
+  const mine = loadMine();
+  mine.unshift({ u: name, ago: 'hace un momento', t: text, up: 0 });
+  localStorage.setItem(YT_KEY, JSON.stringify(mine));
+  document.getElementById('cText').value = '';
+  renderComments();
 });
 
 const rWrap = document.getElementById('related');
@@ -72,3 +99,13 @@ RELATED.forEach((r) => {
   div.querySelector('.relTitle').textContent = r.t;
   rWrap.appendChild(div);
 });
+
+/* video: play/pause + skip forward/back (native scrubber can be finicky) */
+(function () {
+  const v = document.getElementById('ytVideo');
+  if (!v) return;
+  const seek = (d) => { v.currentTime = Math.max(0, Math.min((v.duration || 1e9), v.currentTime + d)); };
+  document.getElementById('ytBack').addEventListener('click', () => seek(-10));
+  document.getElementById('ytFwd').addEventListener('click', () => seek(10));
+  document.getElementById('ytPlay').addEventListener('click', () => { v.paused ? v.play() : v.pause(); });
+})();

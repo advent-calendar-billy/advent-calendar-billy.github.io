@@ -36,7 +36,12 @@
     <h1 id="vTitle">FNG Lock Pick Set - Tutorial para principiantes (Covert Instruments)</h1>
 
     <div id="player">
-      <video controls preload="metadata" src="../video/fng_tutorial.mp4"></video>
+      <video id="ytVideo" controls preload="metadata" src="../video/fng_tutorial.mp4"></video>
+      <div id="ytControls">
+        <button type="button" id="ytBack">&#9194; -10s</button>
+        <button type="button" id="ytPlay">&#9654;&#10074;&#10074;</button>
+        <button type="button" id="ytFwd">+10s &#9193;</button>
+      </div>
     </div>
 
     <div id="infoBar">
@@ -68,14 +73,15 @@
     </div>
 
     <div id="commentsHead">
-      <h2>Comentarios de texto (14)</h2>
+      <h2 id="commentsCount">Comentarios de texto (14)</h2>
       <div class="quietTxt">Opciones: <a href="#">Ver todos los comentarios</a></div>
     </div>
     <div id="comments"></div>
     <div id="commentBox">
       <b>Comentar este video</b>
-      <textarea rows="3"></textarea>
-      <button type="button">Publicar comentario</button>
+      <input type="text" id="cName" placeholder="tu nombre de usuario" autocomplete="off">
+      <textarea id="cText" rows="3"></textarea>
+      <button type="button" id="cPost">Publicar comentario</button>
     </div>
   </div>
 

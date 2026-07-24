@@ -24,7 +24,7 @@ const TRANSFER = {
 const ADS = [
   { head: '¿Japón te llama?', body: 'Tarjeta Sakura Platinum: 40% off en vuelos a Tokio y ramen ilimitado en el lounge. Sin límite de gastos, sin límite de vos.', cta: 'Pedir la mía' },
   { head: 'Paraguas Eclipse Total', body: 'Bloquea el 100% de la luz solar y te cubre el cuerpo ENTERO, de la cabeza a los pies. Oscuridad garantizada al mediodía. La sombra es un derecho.', cta: 'Comprar oscuridad' },
-  { head: '¿Viajero frecuente? Obtenga descuento en vuelos*', body: '*El asiento está en el baño.', cta: 'Reservar' },
+  { head: '¿Viajero frecuente? Obtenga descuento en vuelos con nuestros pasajes Ultra Basic*', body: '*El asiento está en el baño.', cta: 'Reservar' },
 ];
 
 /* Emotion selector — reframed per Billy (Jul 23): relación abierta, así que
