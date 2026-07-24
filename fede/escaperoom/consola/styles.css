@@ -1,3 +1,11 @@
+/* claves — reference cheat-sheet for the operator */
+.claves { display: flex; flex-direction: column; gap: 2px; }
+.claves > div { display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
+  padding: 8px 10px; border-bottom: 1px solid var(--line); }
+.claves b { color: var(--dim); font-weight: 500; font-size: 13px; }
+.claves span { color: var(--accent); font-weight: 700; font-size: 18px;
+  font-family: ui-monospace, monospace; letter-spacing: 1px; white-space: nowrap; }
+
 /* game map (shared render from ../shared/game-map.js) */
 .mapTools { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; flex-wrap: wrap; }
 .mapTools button { width: auto; padding: 6px 16px; font-size: 17px; margin: 0; }

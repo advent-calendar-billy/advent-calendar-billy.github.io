@@ -148,7 +148,7 @@ const FACTORS = [
     id: 'password', type: 'answer', input: 'password',
     title: 'Credencial del titular',
     prompt: 'Ingrese la contraseña de su cuenta.',
-    hash: 'a351028868cadf39b4d6f993efe2c4e443a8e150dbe06f7a9d59897b04c737d2', /* set by Billy (steam mirror) */
+    hash: '2af4dd48399a5cf64c23fc7933e11aaf6171d80001b4b1377498ae6056b1acbf', /* 380 — steam mirror (Billy, Jul 24) */
     errorMsg: 'Contraseña incorrecta.',
   },
   {
