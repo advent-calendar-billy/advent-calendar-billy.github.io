@@ -34,13 +34,11 @@ const COMMENTS = [
 ];
 
 const RELATED = [
-  { t: 'Cómo abrir el corazón de un hombre (tutorial paso a paso)', u: 'divaDIY', v: '892.104', d: '5:33' },
-  { t: 'GRWM para robar un banco 💅', u: 'iconic_thief', v: '2.104.667', d: '8:12' },
-  { t: 'Me robaron el hígado en una cita de Grindr (STORYTIME)', u: 'suerte_la_mia', v: '1.556.203', d: '14:20' },
-  { t: 'ASMR: te abro el cajón de la ropa interior susurrando', u: 'quiet_picks', v: '703.918', d: '41:08' },
-  { t: 'Reaccionando a mi ex abriendo MI caja fuerte', u: 'dramaHD', v: '445.010', d: '11:47' },
-  { t: 'Intenté picar un candado con uñas de gel (terminó MAL)', u: 'las_unias_de_wanda', v: '1.203.556', d: '6:02' },
-  { t: 'POV: sos el candado y él tiene las ganzúas', u: 'thirst_traps_ok', v: '98.441', d: '2:15' },
+  { t: 'Cómo saber si tu novio te armó un escape room (señales)', u: 'relaciones_hoy', v: '412.556', d: '9:14' },
+  { t: 'Cómo crear YouTubes con estética del año 2010', u: 'nostalgia_core', v: '1.203.887', d: '12:47' },
+  { t: 'Escape rooms caseros: cuando tu pareja tiene demasiado tiempo libre', u: 'DIY_parejas', v: '88.301', d: '7:33' },
+  { t: 'Cómo limpiar una casa en tan solo 15 minutos con agua y servilletas', u: 'trucos_de_hogar', v: '3.402.119', d: '4:58' },
+  { t: 'Tier list: mejores chocolaterías de Beacon Hill', u: 'boston_foodie', v: '22.084', d: '15:20' },
 ];
 
 const cWrap = document.getElementById('comments');
