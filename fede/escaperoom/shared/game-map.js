@@ -174,35 +174,64 @@ window.GameMap = (function () {
     if (onSelect) onSelect(n);
   }
 
+  /* touch-first pan/zoom: 1 finger = pan, 2 fingers = pinch zoom, wheel = zoom,
+     plus zoomIn/zoomOut for on-screen +/- buttons (mobile without a wheel). */
   function enableZoom(svg) {
     let vb = svg.getAttribute('viewBox').split(' ').map(Number);
     const base = [...vb];
     const set = () => svg.setAttribute('viewBox', vb.join(' '));
     svg.style.cursor = 'grab'; svg.style.touchAction = 'none';
-    svg.addEventListener('wheel', e => {
-      e.preventDefault();
+
+    const clientVb = (cx, cy) => {
       const r = svg.getBoundingClientRect();
-      const mx = vb[0] + (e.clientX - r.left) / r.width * vb[2];
-      const my = vb[1] + (e.clientY - r.top) / r.height * vb[3];
-      const f = e.deltaY < 0 ? 0.85 : 1.18;
-      const nw = Math.min(base[2] * 1.3, Math.max(base[2] * 0.12, vb[2] * f));
+      return [vb[0] + (cx - r.left) / r.width * vb[2], vb[1] + (cy - r.top) / r.height * vb[3]];
+    };
+    function zoomAt(cx, cy, f) {
+      const [mx, my] = clientVb(cx, cy);
+      const nw = Math.min(base[2] * 1.3, Math.max(base[2] * 0.10, vb[2] * f));
       const nh = nw * base[3] / base[2];
       vb[0] = mx - (mx - vb[0]) * (nw / vb[2]);
       vb[1] = my - (my - vb[1]) * (nh / vb[3]);
       vb[2] = nw; vb[3] = nh; set();
-    }, { passive: false });
-    let drag = null;
-    svg.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY, vb: [...vb] }; svg.setPointerCapture(e.pointerId); svg.style.cursor = 'grabbing'; });
-    svg.addEventListener('pointermove', e => {
-      if (!drag) return;
-      const r = svg.getBoundingClientRect();
-      vb[0] = drag.vb[0] - (e.clientX - drag.x) / r.width * drag.vb[2];
-      vb[1] = drag.vb[1] - (e.clientY - drag.y) / r.height * drag.vb[3];
-      set();
+    }
+    const center = () => { const r = svg.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; };
+
+    svg.addEventListener('wheel', e => { e.preventDefault(); zoomAt(e.clientX, e.clientY, e.deltaY < 0 ? 0.85 : 1.18); }, { passive: false });
+
+    const pts = new Map();
+    let pinch = 0;
+    svg.addEventListener('pointerdown', e => {
+      svg.setPointerCapture(e.pointerId);
+      pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      svg.style.cursor = 'grabbing';
+      if (pts.size === 2) { const p = [...pts.values()]; pinch = Math.hypot(p[0].x - p[1].x, p[0].y - p[1].y); }
     });
-    const end = () => { drag = null; svg.style.cursor = 'grab'; };
-    svg.addEventListener('pointerup', end); svg.addEventListener('pointercancel', end);
-    return { reset() { vb = [...base]; set(); } };
+    svg.addEventListener('pointermove', e => {
+      const prev = pts.get(e.pointerId);
+      if (!prev) return;
+      pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (pts.size >= 2) {
+        const p = [...pts.values()];
+        const dist = Math.hypot(p[0].x - p[1].x, p[0].y - p[1].y);
+        const mid = [(p[0].x + p[1].x) / 2, (p[0].y + p[1].y) / 2];
+        if (pinch && dist) zoomAt(mid[0], mid[1], pinch / dist);
+        pinch = dist;
+      } else {
+        const r = svg.getBoundingClientRect();
+        vb[0] -= (e.clientX - prev.x) / r.width * vb[2];
+        vb[1] -= (e.clientY - prev.y) / r.height * vb[3];
+        set();
+      }
+    });
+    const up = e => { pts.delete(e.pointerId); if (pts.size < 2) pinch = 0; if (!pts.size) svg.style.cursor = 'grab'; };
+    svg.addEventListener('pointerup', up);
+    svg.addEventListener('pointercancel', up);
+
+    return {
+      reset() { vb = [...base]; set(); },
+      zoomIn() { const [cx, cy] = center(); zoomAt(cx, cy, 0.7); },
+      zoomOut() { const [cx, cy] = center(); zoomAt(cx, cy, 1.43); },
+    };
   }
 
   return { CHAIN, NODES, render, select, enableZoom };

@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex">
 <title>Sala de control</title>
 <link rel="stylesheet" href="../shared/base.css">
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles.css?v=2">
 </head>
 <body>
 
@@ -102,8 +102,10 @@
   <details id="secMapa">
     <summary>MAPA</summary>
     <div class="mapTools">
-      <button class="ghost" id="btnMapReset" type="button">reset zoom</button>
-      <span class="quiet">rueda = zoom · arrastrar = mover</span>
+      <button class="mid" id="btnMapOut" type="button">−</button>
+      <button class="mid" id="btnMapIn" type="button">+</button>
+      <button class="ghost" id="btnMapReset" type="button">reset</button>
+      <span class="quiet">pellizcá o usá +/− · arrastrá para mover</span>
     </div>
     <div id="mapWrap"><svg id="mapSvg" xmlns="http://www.w3.org/2000/svg"></svg></div>
     <div id="mapDetail" class="depDetail">Tocá un nodo del mapa.</div>
@@ -128,8 +130,8 @@
 <script src="../shared/config.js"></script>
 <script src="../shared/sheets.js"></script>
 <script src="../10fa/factors.js"></script>
-<script src="../shared/game-map.js"></script>
+<script src="../shared/game-map.js?v=2"></script>
 <script src="script-data.js"></script>
-<script src="script.js"></script>
+<script src="script.js?v=2"></script>
 </body>
 </html>

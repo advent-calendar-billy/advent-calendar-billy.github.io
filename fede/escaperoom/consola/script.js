@@ -344,6 +344,8 @@ tickClock();
   GameMap.render({ svg: svg, detail: $('mapDetail') });
   const z = GameMap.enableZoom(svg);
   $('btnMapReset').addEventListener('click', () => z.reset());
+  $('btnMapIn').addEventListener('click', () => z.zoomIn());
+  $('btnMapOut').addEventListener('click', () => z.zoomOut());
 })();
 
 /* Local re-render between polls so FLOR/CCTV pills stay live. */
