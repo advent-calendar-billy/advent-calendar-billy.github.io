@@ -297,6 +297,66 @@ const WIDGETS = {
     mount.append(codeLabel, input, btn);
   },
 
+  organphoto(f, mount) {
+    /* Fede takes a photo of the liver-in-the-trash with the laptop camera
+       (file-upload fallback). Sending it triggers the same operator-approval
+       flow (startVerifying) → Billy approves from the console = the choice. */
+    const cam = elh('div', 'organCam');
+    const video = document.createElement('video');
+    video.autoplay = true; video.playsInline = true; video.muted = true;
+    video.className = 'organView'; video.hidden = true;
+    const preview = document.createElement('img'); preview.className = 'organView'; preview.hidden = true;
+    const canvas = document.createElement('canvas'); canvas.style.display = 'none';
+    cam.append(video, preview, canvas);
+
+    const msg = elh('div', 'organMsg', '');
+    const row = elh('div', 'organBtns');
+    const startBtn = elh('button', 'primary', 'Encender cámara');
+    const capBtn = elh('button', 'primary', 'Capturar'); capBtn.hidden = true;
+    const retryBtn = elh('button', 'ghost', 'Sacar otra'); retryBtn.hidden = true;
+    const sendBtn = elh('button', 'primary', 'Enviar constancia'); sendBtn.hidden = true;
+    const fileLabel = elh('label', 'organFile', 'o subir una foto');
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file'; fileInput.accept = 'image/*'; fileInput.style.display = 'none';
+    fileLabel.appendChild(fileInput);
+    row.append(startBtn, capBtn, retryBtn, sendBtn, fileLabel);
+
+    let stream = null;
+    const stopCam = () => { if (stream) { stream.getTracks().forEach((t) => t.stop()); stream = null; } };
+    const captured = () => {
+      video.hidden = true; preview.hidden = false;
+      startBtn.hidden = true; capBtn.hidden = true; retryBtn.hidden = false; sendBtn.hidden = false;
+    };
+
+    startBtn.addEventListener('click', async () => {
+      msg.textContent = '';
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        video.srcObject = stream; video.hidden = false; preview.hidden = true;
+        startBtn.hidden = true; capBtn.hidden = false; retryBtn.hidden = true; sendBtn.hidden = true;
+      } catch (e) {
+        msg.textContent = 'No se pudo acceder a la cámara. Usá "o subir una foto".';
+      }
+    });
+    capBtn.addEventListener('click', () => {
+      const w = video.videoWidth || 640, h = video.videoHeight || 480;
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(video, 0, 0, w, h);
+      preview.src = canvas.toDataURL('image/jpeg', 0.8);
+      stopCam(); captured();
+    });
+    retryBtn.addEventListener('click', () => startBtn.click());
+    fileInput.addEventListener('change', () => {
+      const file = fileInput.files[0]; if (!file) return;
+      const r = new FileReader();
+      r.onload = () => { preview.src = r.result; stopCam(); captured(); };
+      r.readAsDataURL(file);
+    });
+    sendBtn.addEventListener('click', () => { stopCam(); startVerifying(f, mount); });
+
+    mount.append(cam, msg, row);
+  },
+
   party(f, mount) {
     const wrap = elh('div', 'partyForm');
     const inputs = [];

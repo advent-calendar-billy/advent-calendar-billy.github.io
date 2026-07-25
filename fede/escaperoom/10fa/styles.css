@@ -358,6 +358,13 @@ main {
 .callBox .fInput { width: auto; }
 .callMsg { font-size: 12px; color: var(--navy); min-height: 16px; }
 
+/* organphoto (foto del hígado, cámara de la laptop) */
+.organCam { margin: 8px 0; }
+.organView { display: block; width: 380px; max-width: 100%; border: 2px inset #efede7; background: #000; }
+.organBtns { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+.organMsg { color: var(--alert-red); font-size: 12px; min-height: 14px; }
+.organFile { font-size: 12px; color: var(--navy); cursor: pointer; text-decoration: underline; }
+
 /* party (identificación de las partes) */
 .partyForm { display: flex; flex-direction: column; gap: 12px; margin-bottom: 12px; max-width: 420px; }
 .partyRow { display: flex; flex-direction: column; gap: 3px; }

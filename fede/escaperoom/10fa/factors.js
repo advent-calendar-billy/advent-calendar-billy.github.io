@@ -171,12 +171,11 @@ const FACTORS = [
     errorMsg: 'Código inválido. Complete la verificación telefónica para obtenerlo.',
   },
   {
-    id: 'higado', type: 'billy',
+    id: 'higado', type: 'widget', widget: 'organphoto',
     title: 'Verificación biométrica de órgano',
     prompt: 'VERIFICACIÓN FINAL. Para autorizar la cancelación, deposite un (1) hígado humano ' +
-      'refrigerado en el cesto de residuos y tome una (1) fotografía como constancia. ' +
-      'Un operador validará la imagen. El órgano no será restituido.',
-    button: 'INICIAR VERIFICACIÓN',
+      'refrigerado en el cesto de residuos y tome una (1) fotografía como constancia con la cámara ' +
+      'de este equipo. Un operador validará la imagen. El órgano no será restituido.',
     errorMsg: 'Órgano no reconocido o a temperatura inadecuada.',
   },
 ];
