@@ -14,17 +14,20 @@ const NODES = [
   { id:'a_getdiary', x:1, y:1, c:'diary', t:'act', label:'Fede saca el diario', sub:'del buzón', deps:['vicky'],
     idea:'Guiado por el video de Vicky, Fede va al buzón y encuentra el diario cerrado con llave. Es un blocker duro: adentro está el orden de los patos.',
     todo:'RUNTIME. FÍSICO: dejá el diario cerrado en el buzón.' },
-  { id:'diarykey', x:0, y:2, c:'diary', t:'thing', label:'Llave del diario', sub:'bajo el peluche de HK', deps:['a_decode'],
+  { id:'diarykey', x:0, y:2, c:'diary', t:'thing', label:'Llave del diario', sub:'abre el diario', deps:['a_decode'],
+    hide:'bajo el peluche de HK',
     idea:'La llave del diario está debajo de tu peluche de Hollow Knight. Los imanes (LONG KISS → SILKSONG = HK2) apuntan ahí.',
     todo:'DECIDIDO: bajo el peluche de HK. FÍSICO: dejala ahí.', sec:'lugares' },
   { id:'a_opendiary', x:1, y:3, c:'diary', t:'act', label:'Fede abre el diario', sub:'lee la prosa de patos', deps:['a_getdiary','diarykey'],
     idea:'Con el diario y su llave, Fede lo abre y lee tu prosa insufriblemente erótica sobre los patos. La innuendo codifica el orden de llegada (Tim primero, etc.).',
     todo:'LISTO: el diario ya está escrito (CAGIE). Texto en el Doc "sala de escape" / pestaña Patitos.', sec:'diario' },
   // --- tub (PrEP → baño; sin flor ni testamento) ---
-  { id:'plug', x:2, y:0, c:'tub', t:'thing', label:'Tapón de la bañera', sub:'en el ajedrez',
+  { id:'plug', x:2, y:0, c:'tub', t:'thing', label:'Tapón de la bañera', sub:'para la bañera',
+    hide:'dentro del ajedrez',
     idea:'Maxim se llevó el tapón "para que no te ahogues, tan considerado". Fede lo encuentra dentro de tu tablero de ajedrez.',
     todo:'DECIDIDO: dentro del ajedrez. FÍSICO: ponelo ahí.', sec:'lugares' },
   { id:'vase', x:3, y:0, c:'tub', t:'thing', label:'Florero verde', sub:'flota la PrEP',
+    hide:'PrEP en pajita, dentro del florero',
     idea:'Estás paranoico y necesitás una pastilla PrEP "por las dudas". Está sellada en un pedazo de pajita dentro del florero verde; el aire la hace flotar. Fede llena el florero de agua hasta que sube.',
     todo:'ARMÁS: pastilla en pajita sellada, florero pegado al mostrador con masilla. Probar que flote en un vaso.' },
   { id:'a_filltub', x:3, y:2, c:'tub', t:'act', label:'Fede llena la bañera', sub:'tapón + PrEP → "un baño"', deps:['plug','vase'],
@@ -37,16 +40,19 @@ const NODES = [
     idea:'El orden de llegada (del diario) leído como los números de los patos da el PIN del teléfono: 4-2-5-1-3. Es la llave del factor telefónico.',
     todo:'LISTO: el árbol de Bland ya usa 4-2-5-1-3.', sec:'patos' },
   // --- liver lane (una sola cerradura) ---
-  { id:'acrylickey', x:2, y:2, c:'test', t:'thing', label:'Llave del candado', sub:'en un condón abierto',
+  { id:'acrylickey', x:2, y:2, c:'test', t:'thing', label:'Llave del candado', sub:'abre el candado',
+    hide:'en un paquete de condón abierto',
     idea:'La llave del único candado está dentro de un paquete de condón abierto (la dejás ahí). Lugar difícil/incómodo de revisar: la ruta alternativa al picking.',
     todo:'DECIDIDO: dentro de un paquete de condón abierto. FÍSICO: dejá la llave ahí.', sec:'lugares' },
-  { id:'picks', x:5, y:2, c:'test', t:'thing', label:'Púas FNG', sub:'entre otras herramientas',
+  { id:'picks', x:5, y:2, c:'test', t:'thing', label:'Púas FNG', sub:'pican el candado',
+    hide:'entre herramientas irrelevantes',
     idea:'El set de púas FNG para picar el único candado. Van mezcladas con herramientas irrelevantes, así que Fede tiene que reconocer cuáles sirven. Lugar fácil; la dificultad está en usarlas.',
     todo:'DECIDIDO: mezcladas con herramientas irrelevantes. FÍSICO: armá el set con distractores.', sec:'lugares' },
   { id:'a_padlock', x:5, y:3, c:'test', t:'act', label:'Fede abre el candado', sub:'púas O llave', deps:['picks','acrylickey'],
     idea:'El candado acrílico sella la bolsa del hígado — es la ÚNICA cerradura del juego. Fede elige UNA ruta: picarlo con las púas (fáciles de encontrar, difícil de usar; lo coacheás desde el toallero) o abrir con la llave (escondida difícil). Nunca abre las esposas.',
     todo:'FÍSICO: candado acrílico sellando la bolsa del hígado.' },
   { id:'liver', x:5, y:4, c:'test', t:'act', label:'Fede guarda el hígado', sub:'al freezer', deps:['a_padlock'],
+    hide:'hígado: bolsa en el placard + candado · señuelos: bajo el sillón · a la vista · bajo un bowl en la alacena',
     idea:'Fede saca el hígado (la mejor pieza del set Lansian) y lo guarda en el freezer, a salvo... por ahora. Los otros órganos son señuelos repartidos.',
     todo:'DECIDÍS: los escondites de los órganos señuelo (me los pasás). FÍSICO: bolsa colgada en el placard.', sec:'lugares' },
   // --- 10FA: los factores reales (fila 1) ---
@@ -54,6 +60,7 @@ const NODES = [
     idea:'El banco pide "seleccione al sospechoso" en una grilla 3×3 de tipos igual de camp. Fede reconoce a Maxim porque lo vio en el CCTV.',
     todo:'LISTO: grilla instalada, la respuesta es la ficha 6.' },
   { id:'gym', x:1, y:5, c:'hub', t:'thing', label:'Factor: nombre', sub:'REAL · carnet John Greed',
+    hide:'carnet bajo el mousepad',
     idea:'El banco pide el nombre legal del sospechoso: Maxim Sekuestrov, que sale del carnet del gimnasio John Greed.',
     todo:'LISTO: carnet en el Doc. FÍSICO: va bajo el mousepad.' },
   { id:'mirror', x:2, y:5, c:'hub', t:'thing', label:'Factor: contraseña', sub:'REAL · espejo empañado',
@@ -103,7 +110,7 @@ const NODES = [
 /* ---------- shared game dependency map (produccion.html + consola) ---------- */
 window.GameMap = (function () {
   const SVGNS = 'http://www.w3.org/2000/svg';
-  const NW = 138, NH = 50, GAPX = 22, GAPY = 34, PADX = 14, PADY = 14;
+  const NW = 138, NH = 58, GAPX = 22, GAPY = 34, PADX = 14, PADY = 14;
   const byId = Object.fromEntries(NODES.map(n => [n.id, n]));
   const nx = n => PADX + n.x * (NW + GAPX);
   const ny = n => PADY + n.y * (NH + GAPY);
@@ -144,10 +151,18 @@ window.GameMap = (function () {
         fill: st === 'ready' ? '#E4F6EE' : (isAct ? '#ffffff' : fill(n.c)),
         stroke: st === 'ready' ? '#1D9E75' : CHAIN[n.c], 'stroke-width': isAct ? 1.3 : 1 });
       if (isAct) rect.setAttribute('stroke-dasharray', '4 3');
-      const t1 = el('text', { x: nx(n) + NW / 2, y: ny(n) + 21, 'text-anchor': 'middle', class: 'dt', fill: ink(n.c) }); t1.textContent = n.label;
-      const t2 = el('text', { x: nx(n) + NW / 2, y: ny(n) + 37, 'text-anchor': 'middle', class: 'ds', fill: CHAIN[n.c] }); t2.textContent = n.sub;
+      const y1 = n.hide ? 19 : 24, y2 = n.hide ? 34 : 40;
+      const t1 = el('text', { x: nx(n) + NW / 2, y: ny(n) + y1, 'text-anchor': 'middle', class: 'dt', fill: ink(n.c) }); t1.textContent = n.label;
+      const t2 = el('text', { x: nx(n) + NW / 2, y: ny(n) + y2, 'text-anchor': 'middle', class: 'ds', fill: CHAIN[n.c] }); t2.textContent = n.sub;
       const dot = el('circle', { cx: nx(n) + NW - 12, cy: ny(n) + 12, r: 4, fill: DOT[st] });
       g.append(rect, t1, t2, dot);
+      if (n.hide) {
+        const short = n.hide.length > 30 ? n.hide.slice(0, 29) + '…' : n.hide;
+        const t3 = el('text', { x: nx(n) + NW / 2, y: ny(n) + 49, 'text-anchor': 'middle',
+          'font-size': 8.5, 'font-style': 'italic', 'font-family': "'Public Sans',sans-serif", fill: '#1D9E75' });
+        t3.textContent = '▾ ' + short;
+        g.appendChild(t3);
+      }
       g.addEventListener('click', () => select(n.id, svg, detail, statusFn, opts.onSelect));
       svg.appendChild(g);
     });
@@ -164,6 +179,7 @@ window.GameMap = (function () {
     if (detail) detail.innerHTML =
       '<h3>' + n.label + '<span class="badge" style="background:' + badge[1] + ';color:' + badge[2] + '">' + badge[0] + '</span></h3>' +
       '<div class="idea">' + n.idea + '</div>' +
+      (n.hide ? '<div class="rel" style="margin-top:6px;padding:6px 10px;background:#eaf6f0;border-left:3px solid #1D9E75;border-radius:0 6px 6px 0;color:#0f5a44"><b>Escondite:</b> ' + n.hide + '</div>' : '') +
       '<div class="todo' + (st === 'ready' ? ' ready' : '') + '">' + n.todo + '</div>' +
       (deps.length ? '<div class="rel"><b>Necesita antes:</b> ' + deps.join(' · ') + '</div>' : '') +
       (unlocks.length ? '<div class="rel"><b>Desbloquea:</b> ' + unlocks.join(' · ') + '</div>' : '') +
@@ -196,12 +212,19 @@ window.GameMap = (function () {
     svg.addEventListener('wheel', e => { e.preventDefault(); zoomAt(e.clientX, e.clientY, e.deltaY < 0 ? 0.85 : 1.18); }, { passive: false });
 
     const pts = new Map();
-    let pinch = 0;
+    let pinch = 0, dragging = false, down = null;
     svg.addEventListener('pointerdown', e => {
-      svg.setPointerCapture(e.pointerId);
       pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
-      svg.style.cursor = 'grabbing';
-      if (pts.size === 2) { const p = [...pts.values()]; pinch = Math.hypot(p[0].x - p[1].x, p[0].y - p[1].y); }
+      if (pts.size === 2) {
+        /* second finger → pinch: capture both so the gesture is smooth */
+        for (const id of pts.keys()) { try { svg.setPointerCapture(id); } catch (err) { /* noop */ } }
+        const p = [...pts.values()]; pinch = Math.hypot(p[0].x - p[1].x, p[0].y - p[1].y);
+        dragging = true;
+      } else {
+        /* first pointer: DON'T capture yet — capturing here would steal the
+           click from the node and break node selection. Wait for real drag. */
+        down = { x: e.clientX, y: e.clientY, id: e.pointerId };
+      }
     });
     svg.addEventListener('pointermove', e => {
       const prev = pts.get(e.pointerId);
@@ -214,13 +237,24 @@ window.GameMap = (function () {
         if (pinch && dist) zoomAt(mid[0], mid[1], pinch / dist);
         pinch = dist;
       } else {
+        if (!dragging && down) {
+          if (Math.hypot(e.clientX - down.x, e.clientY - down.y) < 5) return; /* still a tap */
+          dragging = true;
+          try { svg.setPointerCapture(e.pointerId); } catch (err) { /* noop */ }
+          svg.style.cursor = 'grabbing';
+        }
+        if (!dragging) return;
         const r = svg.getBoundingClientRect();
         vb[0] -= (e.clientX - prev.x) / r.width * vb[2];
         vb[1] -= (e.clientY - prev.y) / r.height * vb[3];
         set();
       }
     });
-    const up = e => { pts.delete(e.pointerId); if (pts.size < 2) pinch = 0; if (!pts.size) svg.style.cursor = 'grab'; };
+    const up = e => {
+      pts.delete(e.pointerId);
+      if (pts.size < 2) pinch = 0;
+      if (!pts.size) { svg.style.cursor = 'grab'; dragging = false; down = null; }
+    };
     svg.addEventListener('pointerup', up);
     svg.addEventListener('pointercancel', up);
 
