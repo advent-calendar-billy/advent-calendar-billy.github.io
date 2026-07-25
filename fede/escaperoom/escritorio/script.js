@@ -14,8 +14,6 @@ const APPS = [
     url: '../board/',     fakeUrl: 'http://www.consorcioenlinea.com.ar/cartelera/index.php?ed=1247' },
   { id: 'grindr',    label: 'Grindr Web',              icon: 'grindr',
     url: '../grindr/',    fakeUrl: 'https://web.grindr.com/chat' },
-  { id: 'felicidad', label: 'Compañero de Felicidad',  icon: 'flower',
-    url: '../happiness/', fakeUrl: 'http://localhost:8420/companero' },
   { id: 'youtube',   label: 'YouTube',                 icon: 'youtube',
     url: '../youtube/',   fakeUrl: 'http://www.youtube.com/watch?v=4o645IYFQDU' },
   { id: 'buscaminas', label: 'Buscaminas',             icon: 'mine',

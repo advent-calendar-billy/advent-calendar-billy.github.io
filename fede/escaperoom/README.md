@@ -13,7 +13,7 @@ credential pattern used by every page here.
 |---|---|
 | `escritorio/` | **Fede's entry point**: Windows 2000 desktop replica. Every player page opens from its "Acceso directo" icons inside a maximized IE-style window (fake URL bar, taskbar, Inicio menu). App list/labels/fake URLs: `APPS` at the top of `escritorio/script.js`. `?open=<id>` pre-opens an app |
 | `grindr/` | Faithful Grindr-style chat replica; empty until the console reveals the backstory |
-| `happiness/` | The flower — petals fall with real gravity/wind physics as the level drains |
+| `happiness/` | RETIRED (Jul 24) — was the happiness flower; the tub is now triggered by the PrEP pill instead |
 | `cctv/` | Rooftop security-camera feed, 10-frame slideshow with CCTV overlay |
 | `board/` | Static condo bulletin board; one post is the real clue |
 | `10fa/` | "Verificación Reforzada" bank-verification app, Chase-style chrome |

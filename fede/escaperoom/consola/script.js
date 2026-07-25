@@ -23,18 +23,6 @@ function num(v, fallback = 0) {
   return Number.isFinite(n) ? n : fallback;
 }
 
-function effectiveHappiness(s, now = Date.now()) {
-  const level = num(s.happiness_level, 100);
-  const rate = num(s.happiness_rate, 2);
-  const anchor = num(s.happiness_anchor_ts, now);
-  const mode = s.happiness_mode || 'paused';
-  if (mode === 'flatline') return 0;
-  if (mode === 'paused') return Math.max(0, Math.min(100, level));
-  const eff = level - (rate * (now - anchor)) / 60000;
-  if (mode === 'hold_critical') return Math.max(8, Math.min(100, eff));
-  return Math.max(0, Math.min(100, eff));
-}
-
 function derivedCctvFrame(s, now = Date.now()) {
   /* mirrors the cctv page: loops every 15 min by default; only 'paused' freezes */
   const frame = num(s.cctv_frame, 0);
@@ -66,8 +54,6 @@ async function guarded(btn, fn, okMsg) {
 
 /* ---------- render ---------- */
 function render() {
-  const eff = Math.round(effectiveHappiness(state));
-  $('pillHappiness').textContent = 'FLOR ' + eff + (state.happiness_mode === 'normal' ? '↓' : ' ' + (state.happiness_mode || ''));
   $('pillCctv').textContent = 'CCTV ' + (state.cctv_mode || '--') + ' #' + (derivedCctvFrame(state) + 1);
 
   const pending = state.tenfa_pending || '';
@@ -178,55 +164,7 @@ $('freeForm').addEventListener('submit', (e) => {
   }, 'enviado');
 });
 
-/* FLOR */
-function writeHappiness(level, mode) {
-  return ES.setStateBlock('happiness_level', [
-    Math.round(Math.max(0, Math.min(100, level))),
-    Date.now(),
-    mode,
-  ]);
-}
-
-$('btnKiss').addEventListener('click', (e) =>
-  guarded(e.target, async () => {
-    const s = await ES.readState();
-    await writeHappiness(effectiveHappiness(s) + 10, 'normal');
-    await ES.logEvent('consola', 'beso');
-  }, 'beso registrado'));
-
-$('btnPetal').addEventListener('click', (e) =>
-  guarded(e.target, async () => {
-    const s = await ES.readState();
-    const eff = effectiveHappiness(s);
-    if (eff <= 0) return;
-    /* drop exactly one petal: land just below the next 10-point threshold */
-    const target = Math.max(0, (Math.ceil(eff / 10) - 1) * 10);
-    const mode = s.happiness_mode === 'flatline' ? 'flatline'
-      : (s.happiness_mode === 'paused' ? 'paused' : s.happiness_mode || 'paused');
-    await writeHappiness(target, mode);
-    await ES.logEvent('consola', 'petalo', String(target));
-  }, 'pétalo suelto'));
-
-$('btnHold').addEventListener('click', (e) =>
-  guarded(e.target, async () => {
-    const s = await ES.readState();
-    await writeHappiness(effectiveHappiness(s), 'hold_critical');
-  }, 'retenido en crítico'));
-
-$('btnResume').addEventListener('click', (e) =>
-  guarded(e.target, async () => {
-    const s = await ES.readState();
-    await writeHappiness(effectiveHappiness(s), 'normal');
-  }, 'drenando'));
-
-$('btnPause').addEventListener('click', (e) =>
-  guarded(e.target, async () => {
-    const s = await ES.readState();
-    await writeHappiness(effectiveHappiness(s), 'paused');
-  }, 'pausado'));
-
-$('btnFlatline').addEventListener('click', (e) =>
-  guarded(e.target, () => ES.setState('happiness_mode', 'flatline'), 'flatline'));
+/* FLOR removed (Jul 24): the tub is now triggered by giving Billy the PrEP pill. */
 
 /* CCTV */
 function writeCctv(mode, frame, intervalS) {
