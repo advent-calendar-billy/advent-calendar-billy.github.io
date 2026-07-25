@@ -184,9 +184,9 @@ $('btnCctvAdvance').addEventListener('click', (e) =>
   guarded(e.target, () => writeCctv(state.cctv_mode === 'paused' ? 'paused' : 'running',
     (derivedCctvFrame(state) + 1) % 10), 'frame adelantado'));
 $('btnCctvFailure').addEventListener('click', (e) =>
-  guarded(e.target, () => ES.setState('cctv_mode', 'failure'), 'FALLA'));
+  guarded(e.target, () => ES.setState('cctv_mode', 'failure'), 'eligió el hígado'));
 $('btnCctvGetaway').addEventListener('click', (e) =>
-  guarded(e.target, () => writeCctv('getaway', 9), 'fuga'));
+  guarded(e.target, () => writeCctv('getaway', 9), 'eligió la plata'));
 $('btnCctvReset').addEventListener('click', (e) =>
   guarded(e.target, () => writeCctv('idle', 0), 'cctv reseteado'));
 
