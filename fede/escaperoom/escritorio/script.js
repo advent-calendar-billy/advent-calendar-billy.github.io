@@ -10,7 +10,7 @@ const APPS = [
     url: '../10fa/',      fakeUrl: 'https://www.chase.com/seguridad/verificacion.asp' },
   { id: 'cctv',      label: 'Monitoreo del edificio',  icon: 'cam',
     url: '../cctv/',      fakeUrl: 'http://192.168.0.107/cam07/live.htm' },
-  { id: 'cartelera', label: 'Cartelera del consorcio', icon: 'board',
+  { id: 'cartelera', label: 'Cartelera del consorcio', icon: 'board', deleted: true,
     url: '../board/',     fakeUrl: 'http://www.consorcioenlinea.com.ar/cartelera/index.php?ed=1247' },
   { id: 'grindr',    label: 'Grindr Web',              icon: 'grindr',
     url: '../grindr/',    fakeUrl: 'https://web.grindr.com/chat' },
@@ -20,10 +20,11 @@ const APPS = [
     url: '../buscaminas/', program: true, w: 190, h: 276 },
 ];
 
-/* Decorative, locked system icons (removable: empty the array). */
+/* System icons. mipc opens a (decorative) drives window; papelera opens the
+   Recycle Bin, which is where the deleted "Cartelera del consorcio" now lives. */
 const SYSTEM_ICONS = [
-  { id: 'mipc',     label: 'Mi PC',                  icon: 'mypc' },
-  { id: 'papelera', label: 'Papelera de reciclaje',  icon: 'trash' },
+  { id: 'mipc',     label: 'Mi PC',                  icon: 'mypc',  sys: 'mipc' },
+  { id: 'papelera', label: 'Papelera de reciclaje',  icon: 'trash', sys: 'papelera' },
 ];
 
 const LOCKED_MSG = 'Esta operación se canceló debido a restricciones vigentes en este equipo. ' +
@@ -45,6 +46,11 @@ const ICONS = {
   page: '<svg viewBox="0 0 16 16"><rect x="2.5" y="1.5" width="9" height="13" fill="#fff" stroke="#607080"/><path d="M11.5 1.5 L13.5 3.5 L11.5 3.5 Z" fill="#c0ccd8" stroke="#607080"/><path d="M4.5 5 H10 M4.5 7 H10 M4.5 9 H10 M4.5 11 H8" stroke="#8fa0b0"/></svg>',
   globe: '<svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.4" fill="#bfe0f2" stroke="#1f66c0"/><path d="M8 1.6 V14.4 M1.6 8 H14.4 M3 4.2 C6 6 10 6 13 4.2 M3 11.8 C6 10 10 10 13 11.8" fill="none" stroke="#1f66c0" stroke-width="0.9"/></svg>',
   arrow: '<svg viewBox="0 0 8 8"><path d="M1 7 L1 3 C1 1.6 2 1 3.2 1 L5 1 L5 0 L7.4 1.9 L5 3.8 L5 2.8 L3.4 2.8 C2.7 2.8 2.4 3.2 2.4 3.9 L2.4 7 Z" fill="#000"/></svg>',
+  hdd: '<svg viewBox="0 0 32 32"><rect x="3" y="9" width="26" height="15" rx="2" fill="#c9c4bb" stroke="#404040"/><rect x="3" y="9" width="26" height="8" rx="2" fill="#dcd8d0"/><rect x="6" y="19" width="14" height="2" fill="#9a948a"/><rect x="6" y="22" width="10" height="1.6" fill="#9a948a"/><circle cx="24" cy="21" r="1.6" fill="#2f9e50"/><rect x="10" y="25" width="12" height="3" fill="#c9c4bb" stroke="#404040"/></svg>',
+  floppy: '<svg viewBox="0 0 32 32"><path d="M5 5 H24 L28 9 V27 H5 Z" fill="#2f3d6b" stroke="#1a2340"/><rect x="9" y="5" width="12" height="8" fill="#c9c4bb"/><rect x="16" y="6" width="3" height="6" fill="#4a5a8a"/><rect x="9" y="16" width="15" height="9" fill="#e6e3db"/><rect x="11" y="18" width="11" height="1.4" fill="#9a948a"/><rect x="11" y="20.5" width="11" height="1.4" fill="#9a948a"/></svg>',
+  cd: '<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="12" fill="#cfd6dc" stroke="#808080"/><circle cx="16" cy="16" r="12" fill="none" stroke="#a9b6c2" stroke-width="1"/><path d="M16 4 A12 12 0 0 1 27 12 L21 15 A6 6 0 0 0 16 10 Z" fill="#bfe0f2" opacity="0.7"/><circle cx="16" cy="16" r="4" fill="#eef1f4" stroke="#808080"/><circle cx="16" cy="16" r="1.6" fill="#8a9098"/></svg>',
+  ctrl: '<svg viewBox="0 0 32 32"><rect x="4" y="6" width="24" height="20" rx="2" fill="#d4d0c8" stroke="#404040"/><circle cx="11" cy="14" r="3.2" fill="#3a6ea5"/><rect x="17" y="11" width="8" height="2.4" fill="#808080"/><rect x="17" y="15" width="8" height="2.4" fill="#808080"/><circle cx="21" cy="21" r="3.2" fill="#c8a814"/></svg>',
+  folderIcon: '<svg viewBox="0 0 32 32"><path d="M3 8 H13 L16 11 H29 V25 H3 Z" fill="#f6d873" stroke="#a98a2a"/><path d="M3 8 H13 L16 11 H29 V13 H3 Z" fill="#fce9a8"/></svg>',
 };
 
 const iconsHost = document.getElementById('icons');
@@ -65,16 +71,31 @@ function showDialog(title, text) {
 document.getElementById('dlgOk').addEventListener('click', () => { document.getElementById('dlgShade').hidden = true; });
 document.getElementById('dlgClose').addEventListener('click', () => { document.getElementById('dlgShade').hidden = true; });
 
-/* ---------- desktop icons ---------- */
-function makeIcon(app, locked) {
+/* ---------- desktop icons (absolute, draggable, persisted) ---------- */
+let suppressDeselect = false;          /* guards the "click clears selection" after a drag */
+const ICON_POS_KEY = 'esc_desk_icons';
+const ICON_W = 82, ICON_ROW = 76, ICON_COL = 92, ICON_PAD = 6;
+
+function selectOnly(el) {
+  document.querySelectorAll('.dIcon.sel').forEach((n) => n.classList.remove('sel'));
+  if (el) { el.classList.add('sel'); el.focus(); }
+}
+
+function openIcon(app) {
+  if (app.sys) openSpecial(app.sys);
+  else openApp(app.id);
+}
+
+function makeIcon(app) {
   const d = document.createElement('div');
   d.className = 'dIcon';
   d.tabIndex = 0;
+  d.dataset.iid = app.id;
 
   const art = document.createElement('div');
   art.className = 'art';
   art.innerHTML = ICONS[app.icon] || ICONS.page;
-  if (!locked) {
+  if (!app.sys) {                       /* shortcut overlay only on launchable apps */
     const lnk = document.createElement('span');
     lnk.className = 'lnk';
     lnk.innerHTML = ICONS.arrow;
@@ -86,20 +107,65 @@ function makeIcon(app, locked) {
   cap.textContent = app.label;
 
   d.append(art, cap);
-  d.addEventListener('click', () => {
-    document.querySelectorAll('.dIcon.sel').forEach((n) => n.classList.remove('sel'));
-    d.classList.add('sel');
+  d.addEventListener('click', () => selectOnly(d));
+  d.addEventListener('dblclick', () => openIcon(app));
+
+  /* drag to reposition — threshold keeps click/dblclick working */
+  d.addEventListener('pointerdown', (e) => {
+    if (e.button !== 0) return;
+    const sx = e.clientX, sy = e.clientY;
+    const l0 = parseInt(d.style.left) || 0, t0 = parseInt(d.style.top) || 0;
+    let dragging = false;
+    const move = (ev) => {
+      if (!dragging && Math.hypot(ev.clientX - sx, ev.clientY - sy) < 4) return;
+      if (!dragging) { dragging = true; selectOnly(d); d.classList.add('dragging'); }
+      const host = iconsHost.getBoundingClientRect();
+      d.style.left = Math.max(0, Math.min(host.width - ICON_W, l0 + ev.clientX - sx)) + 'px';
+      d.style.top = Math.max(0, Math.min(host.height - 40, t0 + ev.clientY - sy)) + 'px';
+    };
+    const up = () => {
+      removeEventListener('pointermove', move);
+      removeEventListener('pointerup', up);
+      if (dragging) { d.classList.remove('dragging'); saveIconPos(); suppressDeselect = true; }
+    };
+    addEventListener('pointermove', move);
+    addEventListener('pointerup', up);
   });
-  d.addEventListener('dblclick', () => {
-    if (locked) showDialog('Restricciones', LOCKED_MSG);
-    else openApp(app.id);
-  });
+
   iconsHost.appendChild(d);
 }
-SYSTEM_ICONS.forEach((a) => makeIcon(a, true));
-APPS.forEach((a) => makeIcon(a, false));
 
-let suppressDeselect = false;
+function defaultLayout() {
+  const els = [...iconsHost.querySelectorAll('.dIcon')];
+  const areaH = iconsHost.clientHeight || (innerHeight - 60);
+  const perCol = Math.max(1, Math.floor((areaH - ICON_PAD) / ICON_ROW));
+  els.forEach((el, i) => {
+    el.style.left = (ICON_PAD + Math.floor(i / perCol) * ICON_COL) + 'px';
+    el.style.top = (ICON_PAD + (i % perCol) * ICON_ROW) + 'px';
+  });
+}
+function saveIconPos() {
+  const pos = {};
+  iconsHost.querySelectorAll('.dIcon').forEach((el) => {
+    pos[el.dataset.iid] = { l: parseInt(el.style.left) || 0, t: parseInt(el.style.top) || 0 };
+  });
+  try { localStorage.setItem(ICON_POS_KEY, JSON.stringify(pos)); } catch (e) { /* ignore */ }
+}
+function restoreIconPos() {
+  defaultLayout();
+  let pos = null;
+  try { pos = JSON.parse(localStorage.getItem(ICON_POS_KEY)); } catch (e) { /* ignore */ }
+  if (!pos) return;
+  iconsHost.querySelectorAll('.dIcon').forEach((el) => {
+    const p = pos[el.dataset.iid];
+    if (p) { el.style.left = p.l + 'px'; el.style.top = p.t + 'px'; }
+  });
+}
+
+SYSTEM_ICONS.forEach(makeIcon);
+APPS.filter((a) => !a.deleted).forEach(makeIcon);
+restoreIconPos();
+
 document.getElementById('desktop').addEventListener('click', (e) => {
   if (suppressDeselect) { suppressDeselect = false; return; }
   if (e.target.id === 'desktop' || e.target.id === 'icons') {
@@ -390,7 +456,7 @@ function closeApp(id) {
 
 /* ---------- start menu ---------- */
 const smItems = document.getElementById('smItems');
-APPS.forEach((app) => {
+APPS.filter((a) => !a.deleted).forEach((app) => {
   const it = document.createElement('div');
   it.className = 'smItem';
   it.innerHTML = (ICONS[app.icon] || ICONS.page) + '<span>' + app.label + '</span>';
@@ -449,3 +515,302 @@ function tick() {
 }
 setInterval(tick, 5000);
 tick();
+
+/* ---------- special system windows (Mi PC, Papelera, Propiedades de Pantalla) ---------- */
+function makeDraggable(w, handle) {
+  handle.style.touchAction = 'none';
+  handle.addEventListener('pointerdown', (e) => {
+    if (e.target.closest('.tbtn')) return;
+    const r = w.getBoundingClientRect();
+    const dx = e.clientX - r.left, dy = e.clientY - r.top;
+    const move = (ev) => {
+      w.style.left = Math.max(-r.width + 60, Math.min(innerWidth - 60, ev.clientX - dx)) + 'px';
+      w.style.top = Math.max(0, Math.min(innerHeight - 60, ev.clientY - dy)) + 'px';
+    };
+    const up = () => { removeEventListener('pointermove', move); removeEventListener('pointerup', up); };
+    addEventListener('pointermove', move);
+    addEventListener('pointerup', up);
+  });
+}
+
+function buildShellWindow(id, titleText, iconKey, bodyNode, opts) {
+  opts = opts || {};
+  const w = document.createElement('div');
+  w.className = 'win raised program';
+  w.dataset.app = id;
+
+  const title = document.createElement('div');
+  title.className = 'titleBar';
+  title.innerHTML = '<span class="tIcon">' + (ICONS[iconKey] || ICONS.page) + '</span>' +
+    '<span class="tText">' + titleText + '</span>';
+  const btnMin = tbtn('<svg viewBox="0 0 10 10"><rect x="1" y="7" width="7" height="2" fill="currentColor"/></svg>', 'Minimizar');
+  const btnClose = tbtn('<svg viewBox="0 0 10 10"><path d="M1.5 1.5 L8.5 8.5 M8.5 1.5 L1.5 8.5" stroke="currentColor" stroke-width="1.6"/></svg>', 'Cerrar');
+  title.append(btnMin, btnClose);
+
+  const body = document.createElement('div');
+  body.className = 'winBody shellBody';
+  body.appendChild(bodyNode);
+
+  const cascade = (Object.keys(wins).length % 6) * 20;
+  w.style.width = (opts.w || 440) + 'px';
+  w.style.height = (opts.h || 320) + 'px';
+  w.style.left = 'max(10px, calc(50% - ' + Math.round((opts.w || 440) / 2) + 'px + ' + cascade + 'px))';
+  w.style.top = (72 + cascade) + 'px';
+
+  makeDraggable(w, title);
+  btnMin.addEventListener('click', () => minimizeApp(id));
+  btnClose.addEventListener('click', () => closeApp(id));
+  w.addEventListener('pointerdown', () => focusApp(id));
+
+  w.append(title, body);
+  return w;
+}
+
+function folderView(items, statusText) {
+  const wrap = document.createElement('div');
+  wrap.className = 'folder';
+  const grid = document.createElement('div');
+  grid.className = 'folderGrid';
+  items.forEach((it) => {
+    const cell = document.createElement('div');
+    cell.className = 'fItem';
+    cell.tabIndex = 0;
+    cell.innerHTML = '<div class="fArt">' + (ICONS[it.icon] || ICONS.page) + '</div>' +
+      '<div class="fCap">' + it.label + '</div>';
+    cell.addEventListener('click', () => {
+      grid.querySelectorAll('.fItem.sel').forEach((n) => n.classList.remove('sel'));
+      cell.classList.add('sel');
+    });
+    cell.addEventListener('dblclick', () => it.open && it.open());
+    grid.appendChild(cell);
+  });
+  const status = document.createElement('div');
+  status.className = 'folderStatus';
+  status.textContent = statusText || (items.length + ' objeto(s)');
+  wrap.append(grid, status);
+  return wrap;
+}
+
+function buildMiPc(id) {
+  const items = [
+    { icon: 'floppy', label: 'Disco de 3½ (A:)', open: () => showDialog('Disco de 3½ (A:)', 'No hay ningún disco en la unidad. Inserte un disco e intente de nuevo.') },
+    { icon: 'hdd', label: 'Disco local (C:)', open: () => showDialog('C:', 'Acceso denegado. No tiene permisos para explorar esta unidad.') },
+    { icon: 'cd', label: 'Unidad de CD (D:)', open: () => showDialog('Unidad de CD (D:)', 'La unidad no está lista. Compruebe que haya un disco insertado.') },
+    { icon: 'ctrl', label: 'Panel de control', open: () => showDialog('Panel de control', 'El administrador del sistema deshabilitó el Panel de control.') },
+  ];
+  return buildShellWindow(id, 'Mi PC', 'mypc', folderView(items, '4 objetos'), { w: 470, h: 300 });
+}
+
+function buildPapelera(id) {
+  const cart = APPS.find((a) => a.id === 'cartelera');
+  const items = cart ? [{ icon: cart.icon, label: cart.label, open: () => openApp('cartelera') }] : [];
+  const status = items.length ? items.length + ' objeto' : 'La Papelera de reciclaje está vacía';
+  return buildShellWindow(id, 'Papelera de reciclaje', 'trash', folderView(items, status), { w: 470, h: 300 });
+}
+
+function buildDisplayProps(id) {
+  const body = document.createElement('div');
+  body.className = 'dispProps';
+  body.innerHTML =
+    '<div class="dispMon"><div class="dispScreen"></div><div class="dispNeck"></div><div class="dispBase"></div></div>' +
+    '<div class="dispRows">' +
+    '<div class="dispRow"><b>Fondo:</b> Colinas</div>' +
+    '<div class="dispRow"><b>Combinación de colores:</b> Windows estándar</div>' +
+    '<div class="dispRow"><b>Resolución de pantalla:</b> 1024 × 768</div>' +
+    '<div class="dispRow"><b>Calidad del color:</b> Color verdadero (32 bits)</div>' +
+    '</div>';
+  return buildShellWindow(id, 'Propiedades de Pantalla', 'mypc', body, { w: 300, h: 320 });
+}
+
+function openSpecial(kind) {
+  const id = 'sys:' + kind;
+  if (wins[id]) { focusApp(id); return; }
+  let el, taskIcon;
+  if (kind === 'mipc') { el = buildMiPc(id); taskIcon = 'mypc'; }
+  else if (kind === 'papelera') { el = buildPapelera(id); taskIcon = 'trash'; }
+  else if (kind === 'display') { el = buildDisplayProps(id); taskIcon = 'mypc'; }
+  else return;
+  winHost.appendChild(el);
+  const tb = document.createElement('button');
+  tb.className = 'taskBtn';
+  tb.type = 'button';
+  tb.innerHTML = ICONS[taskIcon] + '<span>' + el.querySelector('.tText').textContent + '</span>';
+  tb.addEventListener('click', () => {
+    if (wins[id] && !wins[id].el.hidden && wins[id].el === topWin()) minimizeApp(id);
+    else focusApp(id);
+  });
+  taskHost.appendChild(tb);
+  wins[id] = { el, taskBtn: tb };
+  focusApp(id);
+}
+
+/* ---------- desktop right-click context menu ---------- */
+(() => {
+  const desktopEl = document.getElementById('desktop');
+  const menu = document.createElement('div');
+  menu.id = 'ctxMenu';
+  menu.hidden = true;
+  document.body.appendChild(menu);
+  const hide = () => { menu.hidden = true; };
+  addEventListener('click', hide);
+  addEventListener('blur', hide);
+  addEventListener('resize', hide);
+
+  function show(x, y, items) {
+    menu.innerHTML = '';
+    items.forEach((it) => {
+      if (it.sep) { menu.appendChild(Object.assign(document.createElement('div'), { className: 'ctxSep' })); return; }
+      const el = document.createElement('div');
+      el.className = 'ctxItem' + (it.disabled ? ' disabled' : '');
+      el.textContent = it.label;
+      if (!it.disabled) el.addEventListener('click', () => { hide(); it.fn && it.fn(); });
+      menu.appendChild(el);
+    });
+    menu.hidden = false;
+    menu.style.left = Math.min(x, innerWidth - menu.offsetWidth - 4) + 'px';
+    menu.style.top = Math.min(y, innerHeight - menu.offsetHeight - 4) + 'px';
+  }
+
+  desktopEl.addEventListener('contextmenu', (e) => {
+    const icon = e.target.closest('.dIcon');
+    const onDesk = e.target.id === 'desktop' || e.target.id === 'icons';
+    if (!icon && !onDesk) return;       /* over a window → native menu */
+    e.preventDefault();
+    if (icon) {
+      selectOnly(icon);
+      show(e.clientX, e.clientY, [
+        { label: 'Abrir', fn: () => icon.dispatchEvent(new MouseEvent('dblclick', { bubbles: true })) },
+        { sep: true },
+        { label: 'Cortar', disabled: true },
+        { label: 'Crear acceso directo', disabled: true },
+        { label: 'Eliminar', disabled: true },
+        { sep: true },
+        { label: 'Propiedades', disabled: true },
+      ]);
+    } else {
+      show(e.clientX, e.clientY, [
+        { label: 'Actualizar', fn: refreshDesktop },
+        { sep: true },
+        { label: 'Organizar iconos', fn: () => { try { localStorage.removeItem(ICON_POS_KEY); } catch (err) { /* ignore */ } defaultLayout(); } },
+        { label: 'Pegar', disabled: true },
+        { sep: true },
+        { label: 'Propiedades', fn: () => openSpecial('display') },
+      ]);
+    }
+  });
+})();
+
+function refreshDesktop() {
+  iconsHost.style.visibility = 'hidden';
+  setTimeout(() => { iconsHost.style.visibility = ''; }, 70);
+}
+
+/* ---------- keyboard: arrows move selection, Enter opens, type-to-jump ---------- */
+function center(el) { const r = el.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; }
+function nearestIcon(cur, key, icons) {
+  const c = center(cur);
+  let best = null, bestD = Infinity;
+  icons.forEach((ic) => {
+    if (ic === cur) return;
+    const p = center(ic), dx = p.x - c.x, dy = p.y - c.y;
+    let ok = false;
+    if (key === 'ArrowRight') ok = dx > 4 && Math.abs(dy) <= Math.abs(dx) + 44;
+    else if (key === 'ArrowLeft') ok = dx < -4 && Math.abs(dy) <= Math.abs(dx) + 44;
+    else if (key === 'ArrowDown') ok = dy > 4 && Math.abs(dx) <= Math.abs(dy) + 44;
+    else if (key === 'ArrowUp') ok = dy < -4 && Math.abs(dx) <= Math.abs(dy) + 44;
+    if (!ok) return;
+    const dist = dx * dx + dy * dy;
+    if (dist < bestD) { bestD = dist; best = ic; }
+  });
+  return best;
+}
+document.addEventListener('keydown', (e) => {
+  const tag = (e.target.tagName || '').toLowerCase();
+  if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+  if (!startMenu.hidden) return;
+  if (!document.getElementById('dlgShade').hidden) return;
+  if (topWin()) return;                 /* a window is open → let the app own the keys */
+
+  const icons = [...iconsHost.querySelectorAll('.dIcon')];
+  if (!icons.length) return;
+  const cur = iconsHost.querySelector('.dIcon.sel');
+
+  if (e.key === 'Enter') {
+    if (cur) { e.preventDefault(); cur.dispatchEvent(new MouseEvent('dblclick', { bubbles: true })); }
+  } else if (e.key.indexOf('Arrow') === 0) {
+    e.preventDefault();
+    selectOnly(cur ? (nearestIcon(cur, e.key, icons) || cur) : icons[0]);
+  } else if (e.key.length === 1 && /[a-z0-9]/i.test(e.key)) {
+    const k = e.key.toLowerCase();
+    const start = Math.max(0, icons.indexOf(cur));
+    const order = icons.slice(start + 1).concat(icons.slice(0, start + 1));
+    const hit = order.find((ic) => ic.querySelector('.cap').textContent.trim().toLowerCase().startsWith(k));
+    if (hit) selectOnly(hit);
+  }
+});
+
+/* ---------- idle screensaver (Mystify) ---------- */
+(() => {
+  const IDLE_MS = 90000;
+  let timer = null, active = false, raf = 0, cv = null, onResize = null;
+
+  const schedule = () => { clearTimeout(timer); timer = setTimeout(start, IDLE_MS); };
+  const wake = () => { if (active) stop(); schedule(); };
+  ['pointermove', 'pointerdown', 'keydown', 'wheel', 'touchstart'].forEach((ev) =>
+    addEventListener(ev, wake, { passive: true }));
+
+  function start() {
+    if (active || document.hidden) { schedule(); return; }
+    active = true;
+    cv = document.createElement('canvas');
+    cv.id = 'saver';
+    document.body.appendChild(cv);
+    const ctx = cv.getContext('2d');
+    const fit = () => { cv.width = innerWidth; cv.height = innerHeight; };
+    fit();
+    onResize = fit; addEventListener('resize', onResize);
+
+    const shapes = [320, 200].map((hue) => ({
+      hue,
+      pts: Array.from({ length: 4 }, () => ({
+        x: Math.random() * cv.width, y: Math.random() * cv.height,
+        vx: (1 + Math.random() * 2.4) * (Math.random() < 0.5 ? -1 : 1),
+        vy: (1 + Math.random() * 2.4) * (Math.random() < 0.5 ? -1 : 1),
+      })),
+      trail: [],
+    }));
+
+    const step = () => {
+      ctx.fillStyle = 'rgba(0,0,0,0.26)';
+      ctx.fillRect(0, 0, cv.width, cv.height);
+      shapes.forEach((s) => {
+        s.pts.forEach((p) => {
+          p.x += p.vx; p.y += p.vy;
+          if (p.x <= 0 || p.x >= cv.width) { p.vx *= -1; p.x = Math.max(0, Math.min(cv.width, p.x)); }
+          if (p.y <= 0 || p.y >= cv.height) { p.vy *= -1; p.y = Math.max(0, Math.min(cv.height, p.y)); }
+        });
+        s.trail.push(s.pts.map((p) => ({ x: p.x, y: p.y })));
+        if (s.trail.length > 16) s.trail.shift();
+        s.trail.forEach((poly, ti) => {
+          ctx.beginPath();
+          poly.forEach((p, i) => (i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)));
+          ctx.closePath();
+          ctx.strokeStyle = 'hsla(' + s.hue + ',85%,62%,' + (((ti + 1) / s.trail.length) * 0.7) + ')';
+          ctx.lineWidth = 1.6;
+          ctx.stroke();
+        });
+      });
+      raf = requestAnimationFrame(step);
+    };
+    step();
+  }
+
+  function stop() {
+    active = false;
+    cancelAnimationFrame(raf);
+    if (onResize) { removeEventListener('resize', onResize); onResize = null; }
+    if (cv) { cv.remove(); cv = null; }
+  }
+
+  schedule();
+})();

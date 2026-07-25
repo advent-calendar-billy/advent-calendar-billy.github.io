@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2f7bc4"/>
+      <stop offset="0.45" stop-color="#5ea0dd"/>
+      <stop offset="0.8" stop-color="#a9d0ee"/>
+      <stop offset="1" stop-color="#dcecf8"/>
+    </linearGradient>
+    <radialGradient id="sun" cx="0.7" cy="0.28" r="0.5">
+      <stop offset="0" stop-color="#feffe8" stop-opacity="0.85"/>
+      <stop offset="0.4" stop-color="#eef7ff" stop-opacity="0.25"/>
+      <stop offset="1" stop-color="#eef7ff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="hillBack" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8fc24d"/>
+      <stop offset="1" stop-color="#5f9a30"/>
+    </linearGradient>
+    <linearGradient id="hillFront" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7cb63f"/>
+      <stop offset="0.55" stop-color="#5d9a2c"/>
+      <stop offset="1" stop-color="#487d20"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1600" height="1000" fill="url(#sky)"/>
+  <rect width="1600" height="1000" fill="url(#sun)"/>
+
+  <!-- soft clouds -->
+  <g fill="#ffffff" opacity="0.9">
+    <ellipse cx="300" cy="190" rx="150" ry="34"/>
+    <ellipse cx="410" cy="205" rx="110" ry="28"/>
+    <ellipse cx="230" cy="210" rx="90" ry="24"/>
+  </g>
+  <g fill="#ffffff" opacity="0.75">
+    <ellipse cx="1180" cy="150" rx="180" ry="30"/>
+    <ellipse cx="1320" cy="165" rx="120" ry="24"/>
+    <ellipse cx="1060" cy="168" rx="100" ry="22"/>
+  </g>
+  <g fill="#ffffff" opacity="0.6">
+    <ellipse cx="780" cy="120" rx="120" ry="20"/>
+    <ellipse cx="880" cy="132" rx="90" ry="16"/>
+  </g>
+
+  <!-- distant hill -->
+  <path d="M0 640 C 260 560, 560 600, 860 566 C 1120 536, 1360 592, 1600 560 L1600 1000 L0 1000 Z"
+        fill="url(#hillBack)"/>
+  <!-- front hill -->
+  <path d="M0 760 C 340 636, 720 706, 1040 668 C 1300 638, 1460 690, 1600 664 L1600 1000 L0 1000 Z"
+        fill="url(#hillFront)"/>
+  <!-- highlight ridge on the front hill -->
+  <path d="M0 762 C 340 638, 720 708, 1040 670 C 1300 640, 1460 692, 1600 666"
+        fill="none" stroke="#a7d86a" stroke-width="4" opacity="0.5"/>
+</svg>

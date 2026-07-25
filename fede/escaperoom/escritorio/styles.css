@@ -18,7 +18,7 @@
 
 html, body { height: 100%; overflow: hidden; }
 body {
-  background: var(--desktop);
+  background: var(--desktop) url("wallpaper.svg") center center / cover no-repeat fixed;
   font-family: Tahoma, 'MS Sans Serif', Verdana, sans-serif;
   font-size: 11px;
   color: #000;
@@ -45,13 +45,9 @@ body.busy, body.busy * { cursor: wait !important; }
 #icons {
   position: absolute;
   inset: 8px;
-  display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
-  align-content: flex-start;
-  gap: 14px 10px;
 }
 .dIcon {
+  position: absolute;
   width: 82px;
   display: flex;
   flex-direction: column;
@@ -59,6 +55,7 @@ body.busy, body.busy * { cursor: wait !important; }
   gap: 5px;
   padding: 3px 0 2px;
 }
+.dIcon.dragging { opacity: 0.7; z-index: 20; }
 .dIcon .art { position: relative; width: 34px; height: 34px; }
 .dIcon .art svg { width: 34px; height: 34px; image-rendering: pixelated; }
 .dIcon .art .lnk {
@@ -389,3 +386,92 @@ body.busy, body.busy * { cursor: wait !important; }
 
 /* the shared fullscreen toggle, kept extra-discreet over the taskbar */
 .esc-fullscreen { z-index: 800; right: 4px; bottom: 32px; }
+
+/* ---------- right-click context menu ---------- */
+#ctxMenu {
+  position: fixed;
+  z-index: 900;
+  min-width: 160px;
+  padding: 2px;
+  background: var(--face);
+  box-shadow: inset -1px -1px 0 var(--shadow-dark), inset 1px 1px 0 var(--hilite),
+              inset -2px -2px 0 var(--shadow), inset 2px 2px 0 var(--face-light),
+              2px 2px 5px rgba(0, 0, 0, 0.4);
+}
+#ctxMenu[hidden] { display: none; }
+.ctxItem { padding: 4px 22px 4px 22px; }
+.ctxItem:hover:not(.disabled) { background: var(--sel); color: #fff; }
+.ctxItem.disabled { color: var(--shadow); }
+.ctxSep { height: 1px; margin: 3px 2px; background: var(--shadow); border-bottom: 1px solid var(--hilite); }
+
+/* ---------- folder windows (Mi PC, Papelera) ---------- */
+.shellBody { margin: 2px; }
+.folder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  box-shadow: inset 1px 1px 0 var(--shadow-dark), inset -1px -1px 0 var(--hilite),
+              inset 2px 2px 0 var(--shadow), inset -2px -2px 0 var(--face-light);
+}
+.folderGrid {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 6px 4px;
+  padding: 10px;
+  overflow: auto;
+}
+.fItem {
+  width: 84px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 2px;
+  text-align: center;
+  cursor: default;
+}
+.fArt { width: 32px; height: 32px; }
+.fArt svg { width: 32px; height: 32px; image-rendering: pixelated; }
+.fCap { line-height: 1.2; padding: 1px 3px; }
+.fItem.sel .fCap { background: var(--sel); color: #fff; }
+.fItem.sel .fArt { filter: brightness(0.82) saturate(0.8); }
+.folderStatus {
+  height: 18px;
+  display: flex;
+  align-items: center;
+  padding: 0 6px;
+  background: var(--face);
+  box-shadow: inset 1px 1px 0 var(--shadow), inset -1px -1px 0 var(--hilite);
+}
+
+/* ---------- display properties ---------- */
+.dispProps {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 14px;
+  background: var(--face);
+}
+.dispMon { display: flex; flex-direction: column; align-items: center; }
+.dispScreen {
+  width: 148px;
+  height: 100px;
+  border: 4px solid #6c6a63;
+  border-radius: 5px;
+  background: var(--desktop) url("wallpaper.svg") center center / cover no-repeat;
+  box-shadow: inset 0 0 0 1px #000;
+}
+.dispNeck { width: 22px; height: 6px; background: #b7b3aa; }
+.dispBase { width: 64px; height: 8px; background: #b7b3aa; border-radius: 0 0 5px 5px; }
+.dispRows { align-self: stretch; display: flex; flex-direction: column; gap: 5px; }
+.dispRow { font-size: 11px; }
+
+/* ---------- idle screensaver ---------- */
+#saver { position: fixed; inset: 0; z-index: 950; background: #000; }
