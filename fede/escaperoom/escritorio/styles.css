@@ -82,6 +82,16 @@ body.busy, body.busy * { cursor: wait !important; }
 .dIcon.sel .cap { background: var(--sel); text-shadow: none; }
 .dIcon.sel .art { filter: brightness(0.82) saturate(0.8); }
 
+/* rubber-band marquee selection */
+#marquee {
+  position: absolute;
+  z-index: 50;
+  pointer-events: none;
+  border: 1px dotted #ffffff;
+  background: rgba(255, 255, 255, 0.16);
+}
+#marquee[hidden] { display: none; }
+
 /* ---------- windows (maximized IE) ---------- */
 #windows { position: absolute; inset: 0; pointer-events: none; }
 .win {

@@ -99,11 +99,61 @@ function makeIcon(app, locked) {
 SYSTEM_ICONS.forEach((a) => makeIcon(a, true));
 APPS.forEach((a) => makeIcon(a, false));
 
+let suppressDeselect = false;
 document.getElementById('desktop').addEventListener('click', (e) => {
+  if (suppressDeselect) { suppressDeselect = false; return; }
   if (e.target.id === 'desktop' || e.target.id === 'icons') {
     document.querySelectorAll('.dIcon.sel').forEach((n) => n.classList.remove('sel'));
   }
 });
+
+/* ---------- rubber-band (marquee) selection ---------- */
+(() => {
+  const desktopEl = document.getElementById('desktop');
+  const box = document.createElement('div');
+  box.id = 'marquee';
+  box.hidden = true;
+  desktopEl.appendChild(box);
+
+  desktopEl.addEventListener('pointerdown', (e) => {
+    /* only left-drag from empty desktop (never from an icon or a window) */
+    if (e.button !== 0) return;
+    if (e.target.id !== 'desktop' && e.target.id !== 'icons') return;
+
+    const rect = desktopEl.getBoundingClientRect();
+    const x0 = e.clientX - rect.left, y0 = e.clientY - rect.top;
+    const icons = [...document.querySelectorAll('.dIcon')];
+    const additive = e.ctrlKey || e.shiftKey;   /* keep existing selection, like Windows */
+    const already = new Set(additive ? document.querySelectorAll('.dIcon.sel') : []);
+    if (!additive) document.querySelectorAll('.dIcon.sel').forEach((n) => n.classList.remove('sel'));
+    let moved = false;
+
+    const move = (ev) => {
+      const x = ev.clientX - rect.left, y = ev.clientY - rect.top;
+      const L = Math.min(x0, x), T = Math.min(y0, y), W = Math.abs(x - x0), H = Math.abs(y - y0);
+      if (!moved && W < 4 && H < 4) return;
+      moved = true;
+      box.hidden = false;
+      box.style.left = L + 'px'; box.style.top = T + 'px';
+      box.style.width = W + 'px'; box.style.height = H + 'px';
+      const bl = rect.left + L, bt = rect.top + T, br = bl + W, bb = bt + H;
+      icons.forEach((ic) => {
+        const r = ic.getBoundingClientRect();
+        const hit = r.left < br && r.right > bl && r.top < bb && r.bottom > bt;
+        ic.classList.toggle('sel', hit || already.has(ic));
+      });
+    };
+    const up = () => {
+      removeEventListener('pointermove', move);
+      removeEventListener('pointerup', up);
+      box.hidden = true;
+      box.style.width = box.style.height = '0px';
+      if (moved) suppressDeselect = true;   /* don't let the click clear what we just marqueed */
+    };
+    addEventListener('pointermove', move);
+    addEventListener('pointerup', up);
+  });
+})();
 
 /* ---------- program window (title bar only, centered, draggable) ---------- */
 function buildProgramWindow(app) {
