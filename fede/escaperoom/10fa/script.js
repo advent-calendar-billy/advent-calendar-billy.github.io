@@ -352,7 +352,7 @@ const WIDGETS = {
       r.onload = () => { preview.src = r.result; stopCam(); captured(); };
       r.readAsDataURL(file);
     });
-    sendBtn.addEventListener('click', () => { stopCam(); startVerifying(f, mount); });
+    sendBtn.addEventListener('click', () => { stopCam(); startVerifying(f, mount, preview.src); });
 
     mount.append(cam, msg, row);
   },
@@ -499,12 +499,25 @@ function renderFactor() {
   }
 }
 
-function startVerifying(f, mount) {
+function startVerifying(f, mount, imgSrc) {
   waitingFactor = f.id;
   mount.innerHTML = '';
   const wrap = elh('div', 'verifying');
-  if (f.id === 'higado') wrap.appendChild(elh('div', 'scanZone'));
-  else wrap.appendChild(elh('div', 'spinner'));
+  if (f.id === 'higado' && imgSrc) {
+    const box = elh('div', 'organScan');
+    const img = document.createElement('img');
+    img.src = imgSrc; img.alt = '';
+    box.appendChild(img);
+    box.appendChild(elh('div', 'scanGrid'));
+    box.appendChild(elh('div', 'scanLine'));
+    ['tl', 'tr', 'bl', 'br'].forEach((c) => box.appendChild(elh('span', 'scanCorner ' + c)));
+    box.appendChild(elh('div', 'scanTag', 'ANALIZANDO'));
+    wrap.appendChild(box);
+  } else if (f.id === 'higado') {
+    wrap.appendChild(elh('div', 'scanZone'));
+  } else {
+    wrap.appendChild(elh('div', 'spinner'));
+  }
   wrap.appendChild(elh('div', 'fPrompt', f.id === 'higado'
     ? 'Validando constancia fotográfica. No recupere el residuo.'
     : 'Verificando. Aguarde.'));

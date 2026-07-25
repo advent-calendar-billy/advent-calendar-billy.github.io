@@ -440,6 +440,75 @@ main {
   letter-spacing: 3px;
 }
 
+/* organScan — captured photo being "analyzed" (green sweep + reticle) */
+.organScan {
+  position: relative;
+  width: 300px;
+  max-width: 100%;
+  margin: 0 auto 8px;
+  border: 2px inset #efede7;
+  background: #050b06;
+  overflow: hidden;
+  line-height: 0;
+}
+.organScan img {
+  display: block;
+  width: 100%;
+  filter: grayscale(0.35) contrast(1.15) brightness(0.85);
+}
+.organScan .scanGrid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(0deg, rgba(48, 255, 128, 0.10) 0 1px, transparent 1px 4px),
+    repeating-linear-gradient(90deg, rgba(48, 255, 128, 0.07) 0 1px, transparent 1px 22px);
+  mix-blend-mode: screen;
+}
+.organScan .scanLine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #30ff80 30%, #d6ffe6 50%, #30ff80 70%, transparent);
+  box-shadow: 0 0 14px 4px rgba(48, 255, 128, 0.75);
+  animation: scanSweep 2.4s ease-in-out infinite;
+}
+@keyframes scanSweep {
+  0% { top: 3%; }
+  50% { top: 95%; }
+  100% { top: 3%; }
+}
+.organScan .scanCorner {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #30ff80;
+  box-shadow: 0 0 6px rgba(48, 255, 128, 0.6);
+}
+.organScan .scanCorner.tl { top: 6px; left: 6px; border-right: 0; border-bottom: 0; }
+.organScan .scanCorner.tr { top: 6px; right: 6px; border-left: 0; border-bottom: 0; }
+.organScan .scanCorner.bl { bottom: 6px; left: 6px; border-right: 0; border-top: 0; }
+.organScan .scanCorner.br { bottom: 6px; right: 6px; border-left: 0; border-top: 0; }
+.organScan .scanTag {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  font: bold 10px/1 "Courier New", monospace;
+  letter-spacing: 3px;
+  color: #30ff80;
+  text-shadow: 0 0 6px rgba(48, 255, 128, 0.9);
+  background: rgba(0, 0, 0, 0.45);
+  padding: 3px 6px;
+  animation: scanBlink 1s steps(1) infinite;
+}
+@keyframes scanBlink { 50% { opacity: 0.25; } }
+@media (prefers-reduced-motion: reduce) {
+  .organScan .scanLine { animation: none; top: 50%; }
+  .organScan .scanTag { animation: none; }
+}
+
 /* ---------- right rail ---------- */
 .helpBox { background: var(--cell); }
 .helpTitle {
