@@ -163,7 +163,7 @@ function restoreIconPos() {
 }
 
 SYSTEM_ICONS.forEach(makeIcon);
-APPS.filter((a) => !a.deleted).forEach(makeIcon);
+APPS.filter((a) => !a.deleted || (a.id === 'cartelera' && cartelaRestored())).forEach(makeIcon);
 restoreIconPos();
 
 document.getElementById('desktop').addEventListener('click', (e) => {
@@ -582,6 +582,14 @@ function folderView(items, statusText) {
       cell.classList.add('sel');
     });
     cell.addEventListener('dblclick', () => it.open && it.open());
+    cell.addEventListener('contextmenu', (e) => {
+      if (!it.menuItems) return;
+      e.preventDefault();
+      e.stopPropagation();          /* don't also fire the desktop menu */
+      grid.querySelectorAll('.fItem.sel').forEach((n) => n.classList.remove('sel'));
+      cell.classList.add('sel');
+      showCtxMenu(e.clientX, e.clientY, it.menuItems);
+    });
     grid.appendChild(cell);
   });
   const status = document.createElement('div');
@@ -601,11 +609,63 @@ function buildMiPc(id) {
   return buildShellWindow(id, 'Mi PC', 'mypc', folderView(items, '4 objetos'), { w: 470, h: 300 });
 }
 
-function buildPapelera(id) {
+function cartelaRestored() {
+  try { return localStorage.getItem('esc_cartelera_restored') === '1'; } catch (e) { return false; }
+}
+function papeleraItems() {
   const cart = APPS.find((a) => a.id === 'cartelera');
-  const items = cart ? [{ icon: cart.icon, label: cart.label, open: () => openApp('cartelera') }] : [];
+  if (!cart || cartelaRestored()) return [];
+  /* deleted file: double-click can't open it (authentic "restore first" dialog);
+     right-click -> Restaurar puts it back on the desktop, then it opens normally */
+  const mustRestore = () => showDialog('Cartelera del consorcio',
+    'Para usar este elemento, primero debe restaurarlo.');
+  return [{
+    icon: cart.icon,
+    label: cart.label,
+    open: mustRestore,
+    menuItems: [
+      { label: 'Restaurar', fn: restoreCartelera },
+      { sep: true },
+      { label: 'Cortar', disabled: true },
+      { label: 'Eliminar', disabled: true },
+      { sep: true },
+      { label: 'Propiedades', fn: mustRestore },
+    ],
+  }];
+}
+function buildPapeleraBody() {
+  const items = papeleraItems();
   const status = items.length ? items.length + ' objeto' : 'La Papelera de reciclaje está vacía';
-  return buildShellWindow(id, 'Papelera de reciclaje', 'trash', folderView(items, status), { w: 470, h: 300 });
+  return folderView(items, status);
+}
+function buildPapelera(id) {
+  return buildShellWindow(id, 'Papelera de reciclaje', 'trash', buildPapeleraBody(), { w: 470, h: 300 });
+}
+function refreshPapelera() {
+  const w = wins['sys:papelera'];
+  if (!w) return;
+  const body = w.el.querySelector('.shellBody');
+  if (!body) return;
+  body.innerHTML = '';
+  body.appendChild(buildPapeleraBody());
+}
+function nextIconSlot() {
+  const n = iconsHost.querySelectorAll('.dIcon').length;
+  const areaH = iconsHost.clientHeight || (innerHeight - 60);
+  const perCol = Math.max(1, Math.floor((areaH - ICON_PAD) / ICON_ROW));
+  return { l: ICON_PAD + Math.floor(n / perCol) * ICON_COL, t: ICON_PAD + (n % perCol) * ICON_ROW };
+}
+function restoreCartelera() {
+  try { localStorage.setItem('esc_cartelera_restored', '1'); } catch (e) { /* ignore */ }
+  const app = APPS.find((a) => a.id === 'cartelera');
+  if (app && !iconsHost.querySelector('.dIcon[data-iid="cartelera"]')) {
+    const slot = nextIconSlot();
+    makeIcon(app);
+    const el = iconsHost.querySelector('.dIcon[data-iid="cartelera"]');
+    if (el) { el.style.left = slot.l + 'px'; el.style.top = slot.t + 'px'; selectOnly(el); }
+    saveIconPos();
+  }
+  refreshPapelera();
 }
 
 function buildDisplayProps(id) {
@@ -644,61 +704,57 @@ function openSpecial(kind) {
   focusApp(id);
 }
 
-/* ---------- desktop right-click context menu ---------- */
-(() => {
-  const desktopEl = document.getElementById('desktop');
-  const menu = document.createElement('div');
-  menu.id = 'ctxMenu';
-  menu.hidden = true;
-  document.body.appendChild(menu);
-  const hide = () => { menu.hidden = true; };
-  addEventListener('click', hide);
-  addEventListener('blur', hide);
-  addEventListener('resize', hide);
-
-  function show(x, y, items) {
-    menu.innerHTML = '';
-    items.forEach((it) => {
-      if (it.sep) { menu.appendChild(Object.assign(document.createElement('div'), { className: 'ctxSep' })); return; }
-      const el = document.createElement('div');
-      el.className = 'ctxItem' + (it.disabled ? ' disabled' : '');
-      el.textContent = it.label;
-      if (!it.disabled) el.addEventListener('click', () => { hide(); it.fn && it.fn(); });
-      menu.appendChild(el);
-    });
-    menu.hidden = false;
-    menu.style.left = Math.min(x, innerWidth - menu.offsetWidth - 4) + 'px';
-    menu.style.top = Math.min(y, innerHeight - menu.offsetHeight - 4) + 'px';
-  }
-
-  desktopEl.addEventListener('contextmenu', (e) => {
-    const icon = e.target.closest('.dIcon');
-    const onDesk = e.target.id === 'desktop' || e.target.id === 'icons';
-    if (!icon && !onDesk) return;       /* over a window → native menu */
-    e.preventDefault();
-    if (icon) {
-      selectOnly(icon);
-      show(e.clientX, e.clientY, [
-        { label: 'Abrir', fn: () => icon.dispatchEvent(new MouseEvent('dblclick', { bubbles: true })) },
-        { sep: true },
-        { label: 'Cortar', disabled: true },
-        { label: 'Crear acceso directo', disabled: true },
-        { label: 'Eliminar', disabled: true },
-        { sep: true },
-        { label: 'Propiedades', disabled: true },
-      ]);
-    } else {
-      show(e.clientX, e.clientY, [
-        { label: 'Actualizar', fn: refreshDesktop },
-        { sep: true },
-        { label: 'Organizar iconos', fn: () => { try { localStorage.removeItem(ICON_POS_KEY); } catch (err) { /* ignore */ } defaultLayout(); } },
-        { label: 'Pegar', disabled: true },
-        { sep: true },
-        { label: 'Propiedades', fn: () => openSpecial('display') },
-      ]);
-    }
+/* ---------- right-click context menu (desktop + folder items) ---------- */
+const ctxMenuEl = document.createElement('div');
+ctxMenuEl.id = 'ctxMenu';
+ctxMenuEl.hidden = true;
+document.body.appendChild(ctxMenuEl);
+function hideCtxMenu() { ctxMenuEl.hidden = true; }
+function showCtxMenu(x, y, items) {
+  ctxMenuEl.innerHTML = '';
+  items.forEach((it) => {
+    if (it.sep) { ctxMenuEl.appendChild(Object.assign(document.createElement('div'), { className: 'ctxSep' })); return; }
+    const el = document.createElement('div');
+    el.className = 'ctxItem' + (it.disabled ? ' disabled' : '');
+    el.textContent = it.label;
+    if (!it.disabled) el.addEventListener('click', () => { hideCtxMenu(); it.fn && it.fn(); });
+    ctxMenuEl.appendChild(el);
   });
-})();
+  ctxMenuEl.hidden = false;
+  ctxMenuEl.style.left = Math.min(x, innerWidth - ctxMenuEl.offsetWidth - 4) + 'px';
+  ctxMenuEl.style.top = Math.min(y, innerHeight - ctxMenuEl.offsetHeight - 4) + 'px';
+}
+addEventListener('click', hideCtxMenu);
+addEventListener('blur', hideCtxMenu);
+addEventListener('resize', hideCtxMenu);
+
+document.getElementById('desktop').addEventListener('contextmenu', (e) => {
+  const icon = e.target.closest('.dIcon');
+  const onDesk = e.target.id === 'desktop' || e.target.id === 'icons';
+  if (!icon && !onDesk) return;         /* over a window → native menu */
+  e.preventDefault();
+  if (icon) {
+    selectOnly(icon);
+    showCtxMenu(e.clientX, e.clientY, [
+      { label: 'Abrir', fn: () => icon.dispatchEvent(new MouseEvent('dblclick', { bubbles: true })) },
+      { sep: true },
+      { label: 'Cortar', disabled: true },
+      { label: 'Crear acceso directo', disabled: true },
+      { label: 'Eliminar', disabled: true },
+      { sep: true },
+      { label: 'Propiedades', disabled: true },
+    ]);
+  } else {
+    showCtxMenu(e.clientX, e.clientY, [
+      { label: 'Actualizar', fn: refreshDesktop },
+      { sep: true },
+      { label: 'Organizar iconos', fn: () => { try { localStorage.removeItem(ICON_POS_KEY); } catch (err) { /* ignore */ } defaultLayout(); } },
+      { label: 'Pegar', disabled: true },
+      { sep: true },
+      { label: 'Propiedades', fn: () => openSpecial('display') },
+    ]);
+  }
+});
 
 function refreshDesktop() {
   iconsHost.style.visibility = 'hidden';
