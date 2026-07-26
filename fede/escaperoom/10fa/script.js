@@ -110,6 +110,17 @@ function complete() {
   document.getElementById('doneOverlay').hidden = false;
 }
 
+/* The other ending: Fede refuses to sacrifice the liver. The transfer completes,
+   he keeps the organ, and the game ends here (operator runs the CCTV failure beat). */
+function declineLiver() {
+  waitingFactor = null;
+  localStorage.setItem('esc_10fa_end', 'keep');
+  ES.logEvent('10fa', 'declined_higado');
+  document.getElementById('keepRef').textContent =
+    'Ref. ' + Date.now().toString(36).toUpperCase() + '-' + BANK.supportCode;
+  document.getElementById('keepOverlay').hidden = false;
+}
+
 /* ---------- widget renderers ---------- */
 const WIDGETS = {
   dropdown(f, mount) {
@@ -354,7 +365,36 @@ const WIDGETS = {
     });
     sendBtn.addEventListener('click', () => { stopCam(); startVerifying(f, mount, preview.src); });
 
-    mount.append(cam, msg, row);
+    /* the other choice: refuse to sacrifice the organ → the transfer completes.
+       Two-step so it can't be hit by accident, and worded so it reads as THE end. */
+    const decline = elh('div', 'organDecline');
+    decline.append(
+      elh('div', 'organDeclineNote', 'Si no deposita el órgano, la cancelación no se autoriza y la transferencia se completará.'),
+      (function () {
+        const b = elh('button', 'declineBtn', 'No sacrificar el hígado');
+        b.addEventListener('click', () => {
+          stopCam();
+          mount.innerHTML = '';
+          const box = elh('div', 'declineConfirm');
+          box.append(
+            elh('div', 'declineWarn',
+              'Si conserva el hígado, se transferirán ' + TRANSFER.amount + ' a ' + TRANSFER.dest +
+              '. La operación se dará por finalizada y no podrá revertirse.'),
+          );
+          const yes = elh('button', 'declineBtn', 'Conservar el hígado y finalizar');
+          const back = elh('button', 'ghost', 'Volver');
+          yes.addEventListener('click', declineLiver);
+          back.addEventListener('click', () => WIDGETS.organphoto(f, (mount.innerHTML = '', mount)));
+          const brow = elh('div', 'organBtns');
+          brow.append(yes, back);
+          box.appendChild(brow);
+          mount.appendChild(box);
+        });
+        return b;
+      })(),
+    );
+
+    mount.append(cam, msg, row, decline);
   },
 
   party(f, mount) {
@@ -589,7 +629,9 @@ async function syncState() {
         localStorage.setItem('esc_10fa_nonce', '0');
         localStorage.setItem('esc_10fa_idx', '0');
         localStorage.removeItem('esc_10fa_held');
+        localStorage.removeItem('esc_10fa_end');
         document.getElementById('doneOverlay').hidden = true;
+        document.getElementById('keepOverlay').hidden = true;
         ES.setStateBlock('tenfa_pending', ['', '']).catch(() => {});
         renderFactor();
       } else if (cm[1] === 'skip') {
@@ -614,7 +656,9 @@ async function syncState() {
     lastNonce = 0;
     localStorage.setItem('esc_10fa_nonce', '0');
     localStorage.setItem('esc_10fa_idx', '0');
+    localStorage.removeItem('esc_10fa_end');
     document.getElementById('doneOverlay').hidden = true;
+    document.getElementById('keepOverlay').hidden = true;
     renderFactor();
     return;
   }
@@ -640,6 +684,7 @@ async function syncState() {
     await ES.init();
     renderFactor();
     if (idx >= FACTORS.length) complete();
+    if (localStorage.getItem('esc_10fa_end') === 'keep') document.getElementById('keepOverlay').hidden = false;
     ES.poll(ESC_CONFIG.POLL_MS, syncState);
   } catch (e) {
     console.error(e);
