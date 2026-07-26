@@ -245,6 +245,17 @@ main {
 .fPrompt { margin: 0 0 12px; }
 .fInput { width: 240px; max-width: 100%; margin-right: 8px; }
 
+.boxRow { display: flex; gap: 8px; margin-bottom: 12px; }
+.boxInput {
+  width: 38px;
+  height: 46px;
+  margin-right: 0;
+  padding: 0;
+  text-align: center;
+  font-size: 22px;
+  font-weight: bold;
+}
+
 .errorBox {
   margin-top: 12px;
   border: 1px solid var(--alert-red);

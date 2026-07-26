@@ -146,8 +146,9 @@ const FACTORS = [
   },
   {
     id: 'password', type: 'answer', input: 'password',
+    boxes: 3, inputmode: 'numeric',      /* 3-character password → 3 boxes */
     title: 'Credencial del titular',
-    prompt: 'Ingrese la contraseña de su cuenta.',
+    prompt: 'Ingrese la contraseña de su cuenta (3 caracteres).',
     hash: '2af4dd48399a5cf64c23fc7933e11aaf6171d80001b4b1377498ae6056b1acbf', /* 380 — steam mirror (Billy, Jul 24) */
     errorMsg: 'Contraseña incorrecta.',
   },

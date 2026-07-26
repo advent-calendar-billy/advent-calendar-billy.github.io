@@ -474,6 +474,49 @@ function renderFactor() {
 
   if (f.type === 'widget') {
     WIDGETS[f.widget](f, mount);
+  } else if (f.type === 'answer' && f.boxes) {
+    /* segmented input: one box per character, so the length is obvious */
+    const btn = elh('button', 'primary', 'Verificar');
+    const wrap = elh('div', 'boxRow');
+    const boxes = [];
+    const getValue = () => boxes.map((b) => b.value).join('');
+    const submit = async () => {
+      const h = await sha256(normalize(getValue()));
+      if (h === f.hash) pass();
+      else fail(f);                       /* re-renders → clears boxes */
+    };
+    for (let i = 0; i < f.boxes; i++) {
+      const b = elh('input', 'fInput boxInput');
+      b.type = f.input;
+      b.maxLength = 1;
+      b.autocomplete = 'off';
+      b.inputMode = f.inputmode || 'text';
+      b.setAttribute('aria-label', 'Carácter ' + (i + 1));
+      b.addEventListener('focus', () => b.select());
+      b.addEventListener('input', () => {
+        if (b.value.length > 1) b.value = b.value.slice(-1);
+        if (b.value && i < f.boxes - 1) boxes[i + 1].focus();
+      });
+      b.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); submit(); }
+        else if (e.key === 'Backspace' && !b.value && i > 0) {
+          e.preventDefault(); boxes[i - 1].focus(); boxes[i - 1].value = '';
+        } else if (e.key === 'ArrowLeft' && i > 0) { e.preventDefault(); boxes[i - 1].focus(); }
+        else if (e.key === 'ArrowRight' && i < f.boxes - 1) { e.preventDefault(); boxes[i + 1].focus(); }
+      });
+      b.addEventListener('paste', (e) => {
+        const txt = ((e.clipboardData || window.clipboardData).getData('text') || '').trim();
+        if (!txt) return;
+        e.preventDefault();
+        txt.slice(0, f.boxes - i).split('').forEach((c, j) => { boxes[i + j].value = c.slice(-1); });
+        boxes[Math.min(i + txt.length, f.boxes) - 1].focus();
+      });
+      boxes.push(b);
+      wrap.appendChild(b);
+    }
+    btn.addEventListener('click', submit);
+    mount.append(wrap, btn);
+    boxes[0].focus();
   } else if (f.type === 'answer') {
     const input = elh('input', 'fInput');
     input.type = f.input;
