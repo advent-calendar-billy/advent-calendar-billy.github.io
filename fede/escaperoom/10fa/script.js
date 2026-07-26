@@ -121,6 +121,156 @@ function declineLiver() {
   document.getElementById('keepOverlay').hidden = false;
 }
 
+/* The guilt gauntlet the bank throws at Fede when he refuses to sacrifice the
+   liver: 4 beats (interés que corre → motivos → conformidad → presión sostenida),
+   with a live interest ticker climbing throughout, ending clean at declineLiver(). */
+function keepLiverFlow(f, mount) {
+  let amount = 400000 + 1200 + Math.random() * 1800 + Math.random();  /* already over 400k */
+  const fmt = (n) => 'USD ' + n.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  const ticker = elh('div', 'keepTicker', '');
+  document.body.appendChild(ticker);
+  const renderAmt = () => {
+    ticker.textContent = 'Monto en juego: ' + fmt(amount) + ' ↑';
+    const big = document.getElementById('keepBigAmount');
+    if (big) big.textContent = fmt(amount);
+  };
+  renderAmt();
+  const tickInt = setInterval(() => { amount += 0.4 + Math.random() * 2.8; renderAmt(); }, 500);
+  const stopFlow = () => { clearInterval(tickInt); ticker.remove(); };
+
+  function beat1() {
+    mount.innerHTML = '';
+    const box = elh('div', 'keepBeat');
+    const big = elh('div', 'keepAmount', fmt(amount));
+    big.id = 'keepBigAmount';
+    box.append(
+      elh('div', 'keepHead', 'Está por renunciar a sus fondos.'),
+      elh('div', 'keepSub', 'Con los intereses acumulados, el monto ya asciende a:'),
+      big,
+      elh('div', 'keepFoot', 'El monto sigue subiendo.'),
+    );
+    const cont = elh('button', 'declineBtn', 'Continuar con la renuncia');
+    const back = elh('button', 'ghost', 'Volver');
+    cont.addEventListener('click', beat2);
+    back.addEventListener('click', () => { stopFlow(); mount.innerHTML = ''; WIDGETS.organphoto(f, mount); });
+    const brow = elh('div', 'organBtns');
+    brow.append(cont, back);
+    box.appendChild(brow);
+    mount.appendChild(box);
+  }
+
+  function beat2() {
+    mount.innerHTML = '';
+    const box = elh('div', 'keepBeat');
+    box.appendChild(elh('div', 'keepHead', 'Indique el o los motivos de la renuncia:'));
+    const opts = [
+      'Por amor a Billy',
+      'Porque es lo correcto',
+      'Porque tengo hambre',
+      'Porque Maxim es una loca maleducada sin clase',
+    ];
+    const list = elh('div', 'keepChecks');
+    const boxes = [];
+    const cont = elh('button', 'declineBtn', 'Continuar');
+    cont.disabled = true;
+    const update = () => { cont.disabled = !(exCb.checked || boxes.some((b) => b.checked)); };
+    opts.forEach((label) => {
+      const row = elh('label', 'keepCheckRow');
+      const cb = document.createElement('input'); cb.type = 'checkbox';
+      cb.addEventListener('change', () => { if (cb.checked) exCb.checked = false; update(); });
+      row.append(cb, elh('span', '', label));
+      list.appendChild(row); boxes.push(cb);
+    });
+    const exRow = elh('label', 'keepCheckRow');
+    const exCb = document.createElement('input'); exCb.type = 'checkbox';
+    exCb.addEventListener('change', () => { if (exCb.checked) boxes.forEach((b) => (b.checked = false)); update(); });
+    exRow.append(exCb, elh('span', '', 'Prefiero no responder'));
+    list.appendChild(exRow);
+    box.append(list, cont);
+    cont.addEventListener('click', beat3);
+    mount.appendChild(box);
+  }
+
+  function beat3() {
+    mount.innerHTML = '';
+    const box = elh('div', 'keepBeat');
+    box.appendChild(elh('div', 'keepHead', 'Confirme que comprende lo siguiente:'));
+    const items = [
+      'Maxim S. se queda con la totalidad de los fondos.',
+      'Esto fue, en parte, mi culpa.',
+      'No podré reclamar ni arrepentirme más adelante.',
+    ];
+    const list = elh('div', 'keepChecks');
+    const boxes = [];
+    const cont = elh('button', 'declineBtn', 'Confirmar');
+    cont.disabled = true;
+    const update = () => { cont.disabled = !boxes.every((b) => b.checked); };
+    items.forEach((label) => {
+      const row = elh('label', 'keepCheckRow');
+      const cb = document.createElement('input'); cb.type = 'checkbox';
+      cb.addEventListener('change', update);
+      row.append(cb, elh('span', '', label));
+      list.appendChild(row); boxes.push(cb);
+    });
+    box.append(list, cont);
+    cont.addEventListener('click', beat4);
+    mount.appendChild(box);
+  }
+
+  function beat4() {
+    mount.innerHTML = '';
+    const box = elh('div', 'keepBeat');
+    box.appendChild(elh('div', 'keepHead', 'Mantenga presionado para renunciar definitivamente a los fondos.'));
+    const phrases = [
+      '¿Sabía que...? USD 400.000 son unos 300 pasajes a Tokio.',
+      '¿Sabía que...? Son casi 9.000 comidas en Taco Loco.',
+      '¿Sabía que...? Son unos 25 años de alquiler.',
+      '¿Sabía que...? Son más de 130.000 cafés.',
+      'Está poniendo a Billy por encima de la plata.',
+      'Todavía puede soltar el botón.',
+      'Este es el final bueno.',
+    ];
+    const SEG = 2000, total = phrases.length * SEG;
+    const note = elh('div', 'keepNote', phrases[0]);
+    const barWrap = elh('div', 'keepBar');
+    const bar = document.createElement('i');
+    barWrap.appendChild(bar);
+    const btn = elh('button', 'declineBtn keepHold', 'Mantener presionado');
+    box.append(note, barWrap, btn);
+    mount.appendChild(box);
+
+    let raf = 0, startT = 0, held = false;
+    const frame = (t) => {
+      if (!held) return;
+      if (!startT) startT = t;
+      const elapsed = t - startT;
+      const pct = Math.min(1, elapsed / total);
+      bar.style.width = (pct * 100) + '%';
+      note.textContent = phrases[Math.min(phrases.length - 1, Math.floor(elapsed / SEG))];
+      if (pct >= 1) { held = false; stopFlow(); declineLiver(); return; }
+      raf = requestAnimationFrame(frame);
+    };
+    const down = (e) => {
+      e.preventDefault();
+      if (held) return;
+      try { btn.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
+      held = true; startT = 0; btn.classList.add('holding');
+      raf = requestAnimationFrame(frame);
+    };
+    const up = () => {
+      if (!held) return;
+      held = false; cancelAnimationFrame(raf); startT = 0;
+      bar.style.width = '0%'; note.textContent = phrases[0]; btn.classList.remove('holding');
+    };
+    btn.addEventListener('pointerdown', down);
+    btn.addEventListener('pointerup', up);
+    btn.addEventListener('pointercancel', up);
+  }
+
+  beat1();
+}
+
 /* ---------- widget renderers ---------- */
 const WIDGETS = {
   dropdown(f, mount) {
@@ -365,35 +515,15 @@ const WIDGETS = {
     });
     sendBtn.addEventListener('click', () => { stopCam(); startVerifying(f, mount, preview.src); });
 
-    /* the other choice: refuse to sacrifice the organ → the transfer completes.
-       Two-step so it can't be hit by accident, and worded so it reads as THE end. */
+    /* the other choice: refuse to sacrifice the organ. Launches the guilt gauntlet
+       (keepLiverFlow) that ends the game with the transfer going through. */
     const decline = elh('div', 'organDecline');
+    const dbtn = elh('button', 'declineBtn', 'No sacrificar el hígado');
+    dbtn.addEventListener('click', () => { stopCam(); keepLiverFlow(f, mount); });
     decline.append(
       elh('div', 'organDeclineNote', 'Si no deposita el órgano, la cancelación no se autoriza y la transferencia se completará.'),
-      (function () {
-        const b = elh('button', 'declineBtn', 'No sacrificar el hígado');
-        b.addEventListener('click', () => {
-          stopCam();
-          mount.innerHTML = '';
-          const box = elh('div', 'declineConfirm');
-          box.append(
-            elh('div', 'declineWarn',
-              'Si conserva el hígado, se transferirán ' + TRANSFER.amount + ' a ' + TRANSFER.dest +
-              '. La operación se dará por finalizada y no podrá revertirse.'),
-          );
-          const yes = elh('button', 'declineBtn', 'Conservar el hígado y finalizar');
-          const back = elh('button', 'ghost', 'Volver');
-          yes.addEventListener('click', declineLiver);
-          back.addEventListener('click', () => WIDGETS.organphoto(f, (mount.innerHTML = '', mount)));
-          const brow = elh('div', 'organBtns');
-          brow.append(yes, back);
-          box.appendChild(brow);
-          mount.appendChild(box);
-        });
-        return b;
-      })(),
+      dbtn,
     );
-
     mount.append(cam, msg, row, decline);
   },
 

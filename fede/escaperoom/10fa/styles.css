@@ -669,3 +669,46 @@ main {
   cursor: pointer;
 }
 .declineBtn:active { background: #5f1a17; }
+.declineBtn[disabled] { background: #b79a99; border-color: #9a7d7c; cursor: default; }
+
+/* keep-the-liver gauntlet */
+.keepTicker {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  z-index: 60;
+  background: #7a2320;
+  color: #fff;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 6px 11px;
+  border: 1px solid #4d1210;
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4);
+  font-variant-numeric: tabular-nums;
+}
+.keepBeat { text-align: left; }
+.keepHead { font-weight: bold; font-size: 14px; margin-bottom: 8px; }
+.keepSub { font-size: 12px; color: #555; margin-bottom: 4px; }
+.keepAmount {
+  font-size: 26px;
+  font-weight: bold;
+  color: #7a2320;
+  margin: 4px 0;
+  font-variant-numeric: tabular-nums;
+}
+.keepFoot { font-size: 11px; color: #888; margin-bottom: 14px; }
+.keepChecks { display: flex; flex-direction: column; gap: 9px; margin: 10px 0 14px; }
+.keepCheckRow { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; cursor: pointer; }
+.keepCheckRow input { margin-top: 2px; flex-shrink: 0; }
+.keepNote { min-height: 36px; font-size: 13px; margin: 12px 0; }
+.keepBar {
+  height: 14px;
+  background: #fff;
+  border: 1px solid #808080;
+  box-shadow: inset 1px 1px 0 #808080;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.keepBar i { display: block; height: 100%; width: 0; background: #7a2320; }
+.keepHold { user-select: none; touch-action: none; }
+.keepHold.holding { background: #5f1a17; }
