@@ -19,7 +19,7 @@
 - [ ] Early-wave-call bonus chips (call next wave while current still alive)
 - [x] Auto-start toggle for waves (mobile QoL)
 - [ ] Game save: resume mid-room after closing tab (localStorage)
-- [ ] Endless mode after campaign finale (approved)
+- [x] Endless mode: ∞ node on map after clearing room 3 — 50 generated scaling waves
 
 ## TOWERS — approved, not yet built
 - [x] ATM Row — skims fee from enemies walking past; wants dangerous placement
@@ -31,13 +31,13 @@
 - [ ] Capstone towers (design doc has Fountain/Magician/Vault/Don Fortunato — NONE approved yet, re-pitch to user)
 
 ## ENEMIES — approved, not yet built
-- [ ] The Honeymooners — pair, heal each other, survivor rages
+- [x] The Honeymooners — pair, heal each other, survivor rages
 - [x] The Influencer — speed aura for nearby enemies
 - [x] Drunk — staggering walk, hard to hit (dodge chance?)
 - [x] Mojito Guy — first hit spills drink → red, angry, faster
 - [x] Coupon Clipper — visible coupon armor, shreds per hit
 - [ ] The Regular — skips path segments via staff doors
-- [ ] Card Counter (elite) — dodges every Nth projectile
+- [x] Card Counter (elite) — dodges every 4th hit (COUNTED)
 - [ ] Tier-scaling system: earlier bosses become later fodder (approved) — needs stat curves per floor
 - [x] Enemy walk animations (waddle/groove) lost in gameplay port — sprites are static; re-add per-enemy gait
 
