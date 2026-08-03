@@ -61,7 +61,10 @@
 - [x] localStorage campaign save (which room, meta-currency, unlocks)
 
 ## AESTHETIC / JUICE
-- [ ] Per-room decor sets (slot bank, blackjack tables, ropes already exist as style-sample code — port into game rooms)
+- [x] Randomized per-room decor (slot banks, blackjack tables, plants) — doubles as placement obstacles
+- [x] Forked lanes with per-enemy branch RNG (rooms 2-3) + random layout variants (room 1)
+- [x] Rope visual overhaul: bars the lane, marching aura, queue dots + slowed gait on victims
+- [x] Ambient roaming waitress
 - [x] Death animations (poof of chips, grandma drops coin cup)
 - [ ] Hit flashes, knockback wiggle
 - [x] Wave-start banner animation ("WAVE 3 — THE BUS ARRIVES")

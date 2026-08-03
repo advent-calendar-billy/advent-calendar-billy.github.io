@@ -337,6 +337,16 @@
   #slotMsg { font-size: 13.5px; color: #d8cbb0; min-height: 20px; }
   #slotInfo { margin-top: 8px; font-weight: 800; color: var(--gold); font-size: 14px; }
 
+  /* ── ambient decor ── */
+  .decScreen { animation: screenPulse 2s ease-in-out infinite; }
+  @keyframes screenPulse { 0%,100% { opacity: .55; } 50% { opacity: 1; } }
+  .decLeaf {
+    animation: leafSway 3.4s ease-in-out infinite;
+    transform-box: fill-box; transform-origin: 50% 95%;
+  }
+  @keyframes leafSway { 0%,100% { transform: rotate(-2.5deg); } 50% { transform: rotate(2.5deg); } }
+  @keyframes ropeMarch { to { stroke-dashoffset: -16; } }
+
   /* ── enemy gaits ── */
   .gait-waddle, .gait-groove, .gait-lumber, .gait-stagger {
     transform-box: fill-box;
@@ -723,6 +733,65 @@
         <path d="M-26 -8 Q -13 -1 0 -8 M0 -8 Q 13 -1 26 -8" fill="none" stroke="#9c2333" stroke-width="4.5" stroke-linecap="round"/>
       </g>
 
+      <g id="decSlot">
+        <rect x="-21" y="-28" width="46" height="66" rx="7" fill="rgba(40,16,8,.35)"/>
+        <rect x="-24" y="-32" width="46" height="66" rx="7" fill="#7a3f8c" stroke="#3b2415" stroke-width="3.5"/>
+        <path d="M -24 -22 Q -1 -40 22 -22" fill="#e8b64c" stroke="#3b2415" stroke-width="3"/>
+        <rect class="decScreen" x="-18" y="-17" width="34" height="21" rx="3" fill="#1e1a16" stroke="#3b2415" stroke-width="2"/>
+        <rect x="-15" y="-13" width="8" height="14" rx="1.5" fill="#f5ead1"/>
+        <rect x="-5" y="-13" width="8" height="14" rx="1.5" fill="#f5ead1"/>
+        <rect x="5" y="-13" width="8" height="14" rx="1.5" fill="#f5ead1"/>
+        <circle cx="-11" cy="-6" r="2.8" fill="#c9473b"/>
+        <circle cx="-1" cy="-6" r="2.8" fill="#e8b64c"/>
+        <circle cx="9" cy="-6" r="2.8" fill="#2e8b6a"/>
+        <rect x="-14" y="10" width="26" height="7" rx="3.5" fill="#e8b64c" stroke="#3b2415" stroke-width="2"/>
+        <rect x="-8" y="22" width="14" height="5" rx="2.5" fill="#1e1a16" stroke="#3b2415" stroke-width="1.8"/>
+        <line x1="22" y1="-4" x2="30" y2="-14" stroke="#3b2415" stroke-width="3.5"/>
+        <circle cx="31" cy="-16" r="4.5" fill="#c9473b" stroke="#3b2415" stroke-width="2"/>
+      </g>
+
+      <g id="decBJ">
+        <ellipse cx="5" cy="6" rx="62" ry="41" fill="rgba(40,16,8,.35)"/>
+        <ellipse rx="62" ry="41" fill="#8a5a30" stroke="#3b2415" stroke-width="4"/>
+        <ellipse rx="52" ry="32" fill="#2e8b6a" stroke="#3b2415" stroke-width="3"/>
+        <ellipse rx="38" ry="21" fill="none" stroke="#f5ead1" stroke-width="2" opacity=".6"/>
+        <rect x="-30" y="-8" width="13" height="18" rx="2" fill="#f5ead1" stroke="#3b2415" stroke-width="2" transform="rotate(-12 -24 1)"/>
+        <rect x="-12" y="-10" width="13" height="18" rx="2" fill="#f5ead1" stroke="#3b2415" stroke-width="2" transform="rotate(8 -6 -1)"/>
+        <g stroke="#3b2415" stroke-width="1.8">
+          <ellipse cx="22" cy="-6" rx="7" ry="3" fill="#c9473b"/>
+          <ellipse cx="22" cy="-9" rx="7" ry="3" fill="#e8b64c"/>
+          <ellipse cx="34" cy="4" rx="7" ry="3" fill="#2b6cb0"/>
+        </g>
+      </g>
+
+      <g id="decPlant">
+        <ellipse cx="3" cy="26" rx="22" ry="7" fill="rgba(40,16,8,.3)"/>
+        <g class="decLeaf" stroke="#3b2415" stroke-width="2.5" stroke-linejoin="round">
+          <path d="M0 8 C -26 -6 -30 -26 -22 -40 C -9 -30 -3 -14 0 8" fill="#2e7d4f"/>
+          <path d="M2 8 C 28 -4 33 -22 27 -38 C 12 -30 5 -12 2 8" fill="#256b42"/>
+          <path d="M0 9 C -4 -17 0 -33 2 -44 C 9 -30 9 -13 3 9" fill="#35915c"/>
+        </g>
+        <path d="M-18 6 L18 6 L14 30 L-14 30 Z" fill="#d9a94f" stroke="#3b2415" stroke-width="3"/>
+      </g>
+
+      <g id="sprWaitress">
+        <ellipse cx="0" cy="30" rx="16" ry="5" fill="rgba(40,16,8,.3)"/>
+        <path d="M-12 26 Q -14 4 -9 0 L 9 0 Q 14 4 12 26 Q 0 31 -12 26 Z" fill="#1e1a16" stroke="#3b2415" stroke-width="3"/>
+        <path d="M-8 8 L 8 8 L 6 22 L -6 22 Z" fill="#f5ead1" stroke="#3b2415" stroke-width="2.2"/>
+        <path d="M10 -6 Q 18 -10 22 -16" stroke="#1e1a16" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <g transform="translate(25,-19)">
+          <ellipse rx="10" ry="3.5" fill="#8d959f" stroke="#3b2415" stroke-width="2"/>
+          <rect x="-6" y="-8" width="4" height="7" fill="#79e0d2" stroke="#3b2415" stroke-width="1.5"/>
+          <rect x="2" y="-9" width="4" height="8" fill="#e8b64c" stroke="#3b2415" stroke-width="1.5"/>
+        </g>
+        <path d="M-10 -6 Q -15 -2 -15 4" stroke="#1e1a16" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <circle cx="0" cy="-16" r="10.5" fill="#f2b98c" stroke="#3b2415" stroke-width="3"/>
+        <path d="M-10 -20 Q -8 -30 0 -30 Q 8 -30 10 -20 L 10 -16 Q 0 -22 -10 -16 Z" fill="#7c4a22" stroke="#3b2415" stroke-width="2.2"/>
+        <circle cx="0" cy="-30" r="4.5" fill="#7c4a22" stroke="#3b2415" stroke-width="2"/>
+        <circle cx="-3.5" cy="-15" r="1.3" fill="#3b2415"/><circle cx="3.5" cy="-15" r="1.3" fill="#3b2415"/>
+        <path d="M-3 -10 Q 0 -8 3 -10" fill="none" stroke="#3b2415" stroke-width="1.6" stroke-linecap="round"/>
+      </g>
+
       <g id="twATM">
         <rect x="-21" y="-22" width="52" height="60" rx="7" fill="rgba(40,16,8,.35)"/>
         <rect x="-24" y="-26" width="48" height="56" rx="7" fill="#2b4a6f" stroke="#3b2415" stroke-width="4"/>
@@ -788,6 +857,8 @@
       <text x="0" y="-73" text-anchor="middle" font-family="Georgia" font-weight="bold" font-size="13" fill="#3b2415">RESERVE</text>
     </g>
 
+    <!-- ambient floor furniture (randomized per room) -->
+    <g id="decorG"></g>
     <!-- towers -->
     <g id="towersG"></g>
     <!-- drag ghost -->
@@ -888,33 +959,41 @@ const svgEl = (name, attrs, parent) => {
   return n;
 };
 
-/* ══════════ LANE (set per room) ══════════ */
+/* ══════════ LANES (a room may fork into branches) ══════════ */
 const laneEl = $('lanePath');
 const STEP = 4;
-let LANE_LEN = 0, KILL_AT = 0;
-const PTS = [];
-function setLane(d, killOffset) {
-  laneEl.setAttribute('d', d);
+let PATHS = [];
+function setLanes(lanes, killOffset) {
+  PATHS = lanes.map(d => {
+    laneEl.setAttribute('d', d);
+    const len = laneEl.getTotalLength();
+    const pts = [];
+    for (let dd = 0; dd <= len; dd += STEP) {
+      const p = laneEl.getPointAtLength(dd);
+      pts.push([p.x, p.y]);
+    }
+    return { d, len, killAt: len - killOffset, pts };
+  });
   const g = $('laneG');
   g.innerHTML = '';
+  // layer-by-layer across all branches so shadows never sit on top of walkway
   [['rgba(40,16,8,.35)', 52, {transform:'translate(3,5)'}],
    ['#7c4a22', 48, {}],
    ['#d9a94f', 43, {}],
    ['url(#walkway)', 38, {}],
    ['#c9ae76', 38, {'stroke-dasharray':'2 32', opacity:.8}],
    ['#b3934f', 7, {'stroke-dasharray':'6 16', opacity:.35, 'stroke-linecap':'round'}]
-  ].forEach(([stroke,w,extra]) => {
-    svgEl('path', Object.assign({d, stroke, 'stroke-width': w, fill: 'none'}, extra), g);
+  ].forEach(([stroke, w, extra]) => {
+    lanes.forEach(d => {
+      svgEl('path', Object.assign({d, stroke, 'stroke-width': w, fill: 'none'}, extra), g);
+    });
   });
-  LANE_LEN = laneEl.getTotalLength();
-  KILL_AT = LANE_LEN - killOffset;
-  PTS.length = 0;
-  for (let dd = 0; dd <= LANE_LEN; dd += STEP) {
-    const p = laneEl.getPointAtLength(dd);
-    PTS.push([p.x, p.y]);
-  }
 }
-const posAt = dist => PTS[Math.max(0, Math.min(PTS.length - 1, Math.round(dist / STEP)))];
+const posAt = (dist, pi) => {
+  const P = PATHS[pi || 0];
+  return P.pts[Math.max(0, Math.min(P.pts.length - 1, Math.round(dist / STEP)))];
+};
+const posAtE = e => posAt(e.dist, e.pathI);
 
 /* ══════════ DATA ══════════ */
 const ETYPES = {
@@ -981,9 +1060,14 @@ function saveSave() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(SAVE))
 const SAVE = Object.assign({ unlocked: 1, comps: 0 }, loadSave());
 
 const ROOMS = [
-  { name: 'Slots Pit 1', hpMul: 1, chips: 380, entryY: 130, vault: [1046, 470], killOffset: 112,
+  { name: 'Slots Pit 1', hpMul: 1, chips: 380,
     intro: 'Drag towers from the shelf onto the carpet — green means it fits. Hold all five stars and survive 10 waves.',
-    lane: 'M -40 130 C 200 130, 460 130, 620 130 C 740 130, 740 300, 620 300 C 440 300, 300 300, 230 300 C 115 300, 115 470, 230 470 C 430 470, 640 470, 1160 470',
+    variants: [
+      { entryY: 130, vault: [1046, 470], killOffset: 112,
+        lanes: ['M -40 130 C 200 130, 460 130, 620 130 C 740 130, 740 300, 620 300 C 440 300, 300 300, 230 300 C 115 300, 115 470, 230 470 C 430 470, 640 470, 1160 470'] },
+      { entryY: 470, vault: [1046, 130], killOffset: 112,
+        lanes: ['M -40 470 C 200 470, 460 470, 620 470 C 740 470, 740 300, 620 300 C 440 300, 300 300, 230 300 C 115 300, 115 130, 230 130 C 430 130, 640 130, 1160 130'] }
+    ],
     waves: [
       [['retiree',8,1.1]],
       [['retiree',10,.9],['tourist',4,1.5]],
@@ -996,9 +1080,15 @@ const ROOMS = [
       [['grandma',8,1.4],['clipper',6,1.3],['elvis',8,1.0],['influencer',2,9]],
       [['shark',1,0],['grandma',6,1.6],['whale',1,26]]
     ] },
-  { name: 'Slots Pit 2', hpMul: 1.55, chips: 420, entryY: 470, vault: [1046, 130], killOffset: 112,
-    intro: 'The pit runs in reverse tonight — they pour in along the bottom. Two new faces: The Drunk weaves, and Mojito Guy has a temper.',
-    lane: 'M -40 470 C 200 470, 460 470, 620 470 C 740 470, 740 300, 620 300 C 440 300, 300 300, 230 300 C 115 300, 115 130, 230 130 C 430 130, 640 130, 1160 130',
+  { name: 'Slots Pit 2', hpMul: 1.55, chips: 420,
+    intro: 'The corridor FORKS tonight — each guest picks a side on a whim. Cover both, or gamble on one. New faces: The Drunk weaves, Mojito Guy has a temper.',
+    variants: [
+      { entryY: 300, vault: [1046, 300], killOffset: 112,
+        lanes: [
+          'M -40 300 C 80 300, 140 300, 200 300 C 320 300, 300 130, 460 130 C 620 130, 640 220, 720 280 C 780 320, 860 300, 1160 300',
+          'M -40 300 C 80 300, 140 300, 200 300 C 320 300, 300 470, 460 470 C 620 470, 640 380, 720 320 C 780 280, 860 300, 1160 300'
+        ] }
+    ],
     waves: [
       [['retiree',10,.9]],
       [['drunk',6,1.6],['retiree',8,.9]],
@@ -1011,9 +1101,15 @@ const ROOMS = [
       [['mojito',10,.9],['grandma',8,1.2],['influencer',2,9]],
       [['whale',2,18],['grandma',8,1.2],['elvis',10,.8]]
     ] },
-  { name: 'Slots Pit 3', hpMul: 2.3, chips: 460, entryY: 130, vault: [640, 330], killOffset: 30,
-    intro: 'The vault sits exposed in the middle of the floor tonight. Everything the Slots Pit has walks — and the Loan Shark collects at the end.',
-    lane: 'M -40 130 C 300 130, 620 130, 740 210 C 850 280, 850 380, 720 450 C 560 530, 260 530, 180 440 C 120 370, 200 330, 320 330 C 460 330, 560 330, 640 330',
+  { name: 'Slots Pit 3', hpMul: 2.3, chips: 460,
+    intro: 'The vault sits exposed mid-floor and the corridor splits around it. Everything the Slots Pit has walks — and the Loan Shark collects at the end.',
+    variants: [
+      { entryY: 130, vault: [560, 360], killOffset: 30,
+        lanes: [
+          'M -40 130 C 200 130, 360 130, 520 130 C 700 130, 820 200, 820 330 C 820 430, 700 470, 620 430 C 580 410, 560 390, 560 360',
+          'M -40 130 C 120 130, 200 130, 260 150 C 340 180, 300 300, 330 390 C 360 480, 480 500, 530 440 C 555 410, 560 390, 560 360'
+        ] }
+    ],
     waves: [
       [['drunk',8,1.1],['retiree',10,.8]],
       [['clipper',8,1.2],['tourist',10,.6]],
@@ -1047,6 +1143,9 @@ const G = {
   spawners: [],
   seen: {},           // enemy types already introduced
   auto: false,
+  decor: [],
+  ambient: [],
+  variant: { vault: [1046, 470] },
   autoTimer: 0,
   over: false
 };
@@ -1139,16 +1238,22 @@ function placeOK(x, y, r, type) {
   if (x < 30 || x > 1090 || y < 58 || y > 585) return false;
   if (type !== 'rope') {                                 // the rope is a queue barrier: it BELONGS on the lane
     const clr = (24 + r) * (24 + r);                     // lane clearance for everything else
-    for (let i = 0; i < PTS.length; i += 2) {
-      const dx = PTS[i][0] - x, dy = PTS[i][1] - y;
-      if (dx * dx + dy * dy < clr) return false;
+    for (const P of PATHS) {
+      for (let i = 0; i < P.pts.length; i += 2) {
+        const dx = P.pts[i][0] - x, dy = P.pts[i][1] - y;
+        if (dx * dx + dy * dy < clr) return false;
+      }
     }
+  }
+  for (const d of G.decor) {                             // furniture is in the way (varies every room!)
+    const rr = r + d.r + 4, dx = d.x - x, dy = d.y - y;
+    if (dx * dx + dy * dy < rr * rr) return false;
   }
   for (const t of G.towers) {                            // tower collision
     const rr = r + t.r + 4, dx = t.x - x, dy = t.y - y;
     if (dx * dx + dy * dy < rr * rr) return false;
   }
-  const dvx = 1046 - x, dvy = 470 - y;                   // vault clearance
+  const dvx = G.variant.vault[0] - x, dvy = G.variant.vault[1] - y;   // vault clearance
   if (dvx * dvx + dvy * dvy < (r + 62) * (r + 62)) return false;
   return true;
 }
@@ -1233,7 +1338,7 @@ function openSheetForTower(tower) {
       G.chips -= T.up.cost;
       tower.lvl = 2;
       if (tower.type === 'rope') {
-        tower.el.setAttribute('transform', `translate(${x},${y}) scale(${T.scale * 1.15})`);
+        tower.el.setAttribute('transform', `translate(${x},${y}) rotate(${tower.rot}) scale(${T.scale * 1.15})`);
         tower.auraEl.setAttribute('r', tower.range());
       }
       float(x, y - 40, '★ UPGRADED', '#57c26e');
@@ -1280,14 +1385,32 @@ function buildTower(type, x, y) {
     }
   };
   // the rope's slow aura is always visible, so it never looks like it does nothing
+  tower.rot = 0;
   if (type === 'rope') {
+    // if dropped on the lane, rotate so the posts + rope bar the corridor
+    let bd = 1e9, bP = null, bi = 0;
+    for (const P of PATHS) {
+      for (let i = 2; i < P.pts.length - 2; i += 2) {
+        const dx = P.pts[i][0] - x, dy = P.pts[i][1] - y;
+        const d2 = dx * dx + dy * dy;
+        if (d2 < bd) { bd = d2; bP = P; bi = i; }
+      }
+    }
+    if (bd < 42 * 42 && bP) {
+      const a = bP.pts[bi - 2], b = bP.pts[bi + 2];
+      let rot = Math.atan2(b[1] - a[1], b[0] - a[0]) * 180 / Math.PI + 90;
+      if (rot > 90) rot -= 180;
+      if (rot < -90) rot += 180;
+      tower.rot = rot;
+    }
     tower.auraEl = svgEl('circle', {
       cx: x, cy: y, r: tower.range(),
-      fill: 'rgba(156,35,51,.08)', stroke: '#9c2333', 'stroke-width': 2,
-      'stroke-dasharray': '7 9', opacity: .8
+      fill: 'rgba(156,35,51,.08)', stroke: '#9c2333', 'stroke-width': 2.5,
+      'stroke-dasharray': '7 9', opacity: .85
     }, $('towersG'));
+    tower.auraEl.style.animation = 'ropeMarch 1.1s linear infinite';
   }
-  const el = svgEl('g', { transform: `translate(${x},${y}) scale(${T.scale})` }, $('towersG'));
+  const el = svgEl('g', { transform: `translate(${x},${y}) rotate(${tower.rot}) scale(${T.scale})` }, $('towersG'));
   svgEl('use', { href: '#' + T.sprite }, el);
   tower.el = el;
   // stun overlay
@@ -1347,8 +1470,14 @@ function spawnEnemy(type) {
   // tap target
   const tap = svgEl('circle', { r: E.tapR, fill: 'transparent' }, el);
   const hpMax = E.hp * (1 + G.wave * 0.10) * ROOMS[ROOM].hpMul;
+  const slowEl = svgEl('text', {
+    y: -E.scale * 60 - 20, 'text-anchor': 'middle', 'font-size': 14, 'font-weight': 'bold',
+    fill: '#c73a4a', stroke: '#3b2415', 'stroke-width': 2.5, 'paint-order': 'stroke', opacity: 0
+  }, el);
+  slowEl.textContent = '· · ·';
   const enemy = {
-    type, E, el, hpEl, barW,
+    type, E, el, hpEl, barW, gaitG, slowEl,
+    pathI: Math.floor(Math.random() * PATHS.length),
     dist: 0, hp: hpMax, hpMax,
     slowT: 0, stunCd: 0, dead: false,
     armor: E.armor || 0, pips: []
@@ -1379,7 +1508,7 @@ function killEnemy(e, leaked) {
   G.enemies = G.enemies.filter(x => x !== e);
   if (leaked) {
     G.stars = Math.max(0, G.stars - e.E.star);
-    const [vx, vy] = ROOMS[ROOM].vault;
+    const [vx, vy] = G.variant.vault;
     float(vx - 60, vy - 40, '-' + e.E.star + ' ★', '#e05a3a');
     if (e.E.steal) {
       G.chips = Math.max(0, G.chips - e.E.steal);
@@ -1387,7 +1516,7 @@ function killEnemy(e, leaked) {
     }
     if (G.stars <= 0 && !G.over) { updateHUD(); return lose(); }
   } else {
-    const [x, y] = posAt(e.dist);
+    const [x, y] = posAtE(e);
     G.chips += e.E.reward;
     float(x, y - 26, '+' + e.E.reward, '#ffd23f');
     poof(x, y - 8);
@@ -1461,7 +1590,7 @@ function lose() {
 /* ══════════ COMBAT ══════════ */
 function damageEnemy(e, dmg) {
   if (e.E.dodge && Math.random() < e.E.dodge) {
-    const [x, y] = posAt(e.dist);
+    const [x, y] = posAtE(e);
     float(x, y - 28, 'hic!', '#b9d3c5');
     return;
   }
@@ -1473,7 +1602,7 @@ function damageEnemy(e, dmg) {
   }
   if (e.E.enrage && !e.enraged) {
     e.enraged = true;
-    const [x, y] = posAt(e.dist);
+    const [x, y] = posAtE(e);
     float(x, y - 32, 'MY MOJITO!!', '#e05a3a');
     svgEl('circle', { cy: -14, r: 20, fill: 'rgba(224,90,58,.3)', 'pointer-events': 'none' }, e.el);
   }
@@ -1485,7 +1614,7 @@ function damageEnemy(e, dmg) {
 function firstEnemyInRange(t) {
   let best = null;
   for (const e of G.enemies) {
-    const [x, y] = posAt(e.dist);
+    const [x, y] = posAtE(e);
     const dx = x - t.x, dy = y - t.y;
     if (dx * dx + dy * dy <= t.range() * t.range()) {
       if (!best || e.dist > best.dist) best = e;
@@ -1507,7 +1636,7 @@ function fireRoulette(t) {
 function fireDealer(t) {
   const target = firstEnemyInRange(t);
   if (!target) return false;
-  const [tx, ty] = posAt(target.dist);
+  const [tx, ty] = posAtE(target);
   const base = Math.atan2(ty - t.y, tx - t.x);
   const n = t.lvl === 2 ? 5 : 3;
   const dmg = t.lvl === 2 ? 8 : 6;
@@ -1560,7 +1689,7 @@ function update(dt) {
   /* enemies */
   for (const e of [...G.enemies]) {
     let slow = 1;
-    const [ex, ey] = posAt(e.dist);
+    const [ex, ey] = posAtE(e);
     for (const t of G.towers) {
       if (t.type !== 'rope') continue;
       const dx = ex - t.x, dy = ey - t.y;
@@ -1573,14 +1702,17 @@ function update(dt) {
     if (e.E.aura !== 'haste') {
       for (const inf of G.enemies) {
         if (inf.E.aura !== 'haste') continue;
-        const [ix, iy] = posAt(inf.dist);
+        const [ix, iy] = posAtE(inf);
         const dx = ix - ex, dy = iy - ey;
         if (dx * dx + dy * dy < 90 * 90) { boost *= 1.3; break; }
       }
     }
+    const slowed = slow < 1;
+    e.slowEl.setAttribute('opacity', slowed ? 1 : 0);
+    e.gaitG.style.animationDuration = slowed ? '1.1s' : '';
     e.dist += e.E.speed * slow * boost * dt;
-    if (e.dist >= KILL_AT) { killEnemy(e, true); continue; }  // despawn AT the vault door
-    const [x, y] = posAt(e.dist);
+    if (e.dist >= PATHS[e.pathI].killAt) { killEnemy(e, true); continue; }  // despawn AT the vault door
+    const [x, y] = posAtE(e);
     e.el.setAttribute('transform', `translate(${x},${y - 4})`);
     /* grandma tower-tap */
     if (e.E.special === 'stun') {
@@ -1611,7 +1743,7 @@ function update(dt) {
       let n = 0;
       const rr = t.range() * t.range();
       for (const e of G.enemies) {
-        const [x, y] = posAt(e.dist);
+        const [x, y] = posAtE(e);
         const dx = x - t.x, dy = y - t.y;
         if (dx * dx + dy * dy <= rr) n++;
       }
@@ -1627,7 +1759,7 @@ function update(dt) {
       const rr = t.range() * t.range();
       const push = t.lvl === 2 ? 85 : 60;
       for (const e of G.enemies) {
-        const [x, y] = posAt(e.dist);
+        const [x, y] = posAtE(e);
         const dx = x - t.x, dy = y - t.y;
         if (dx * dx + dy * dy <= rr) { e.dist = Math.max(0, e.dist - push); hitAny = true; }
       }
@@ -1649,14 +1781,14 @@ function update(dt) {
         let nb = null, nd = 1e9;
         for (const e of G.enemies) {
           if (p.hitSet.has(e)) continue;
-          const [x, y] = posAt(e.dist);
+          const [x, y] = posAtE(e);
           const d2 = (x - p.x) ** 2 + (y - p.y) ** 2;
           if (d2 < nd) { nd = d2; nb = e; }
         }
         p.target = nb;
         if (!p.target) { p.el.remove(); G.projectiles = G.projectiles.filter(q => q !== p); continue; }
       }
-      const [tx, ty] = posAt(p.target.dist);
+      const [tx, ty] = posAtE(p.target);
       const dx = tx - p.x, dy = ty - p.y;
       const d = Math.hypot(dx, dy);
       const sp = 360 * dt;
@@ -1671,7 +1803,7 @@ function update(dt) {
         let nb = null, nd = 140 * 140;
         for (const e of G.enemies) {
           if (p.hitSet.has(e)) continue;
-          const [x, y] = posAt(e.dist);
+          const [x, y] = posAtE(e);
           const d2 = (x - p.x) ** 2 + (y - p.y) ** 2;
           if (d2 < nd) { nd = d2; nb = e; }
         }
@@ -1693,7 +1825,7 @@ function update(dt) {
       if (p.life <= 0) { p.el.remove(); G.projectiles = G.projectiles.filter(q => q !== p); continue; }
       for (const e of G.enemies) {
         if (p.hitSet.has(e)) continue;
-        const [x, y] = posAt(e.dist);
+        const [x, y] = posAtE(e);
         if ((x - p.x) ** 2 + (y - p.y) ** 2 < 18 * 18) {
           p.hitSet.add(e);
           damageEnemy(e, p.dmg);
@@ -1702,6 +1834,16 @@ function update(dt) {
         }
       }
     }
+  }
+
+  /* ambient staff */
+  for (const w of G.ambient) {
+    const dx = w.tx - w.x, dy = w.ty - w.y;
+    const d = Math.hypot(dx, dy);
+    if (d < 6) { pickAmbientTarget(w); continue; }
+    w.x += dx / d * 26 * dt;
+    w.y += dy / d * 26 * dt;
+    w.el.setAttribute('transform', `translate(${w.x},${w.y}) scale(.62,.52)`);
   }
 
   /* particles */
@@ -1748,11 +1890,14 @@ $('pauseBtn').addEventListener('pointerdown', ev => {
 function initRoom(i) {
   ROOM = i;
   const R = ROOMS[i];
-  setLane(R.lane, R.killOffset);
+  const V = R.variants[Math.floor(Math.random() * R.variants.length)];
+  G.variant = V;
+  setLanes(V.lanes, V.killOffset);
   WAVES = R.waves;
   G.chips = R.chips;
-  $('vaultG').setAttribute('transform', `translate(${R.vault[0]},${R.vault[1]}) scale(.6)`);
-  $('entryG').setAttribute('transform', `translate(0,${R.entryY - 130})`);
+  $('vaultG').setAttribute('transform', `translate(${V.vault[0]},${V.vault[1]}) scale(.6)`);
+  $('entryG').setAttribute('transform', `translate(0,${V.entryY - 130})`);
+  placeDecor();
   $('map').style.display = 'none';
   updateHUD();
   $('startWave').style.display = 'block';
@@ -1783,7 +1928,71 @@ function renderMap() {
   }
 }
 
-/* ══════════ SLOT MACHINE (between floors) ══════════ */
+/* ══════════ AMBIENT DECOR (randomized per room — furniture blocks tower spots) ══════════ */
+function decorSpotOK(x, y, r) {
+  if (x < 70 || x > 1050 || y < 95 || y > 555) return false;
+  const clr = (30 + r) * (30 + r);
+  for (const P of PATHS) {
+    for (let i = 0; i < P.pts.length; i += 2) {
+      const dx = P.pts[i][0] - x, dy = P.pts[i][1] - y;
+      if (dx * dx + dy * dy < clr) return false;
+    }
+  }
+  for (const d of G.decor) {
+    const rr = r + d.r + 14, dx = d.x - x, dy = d.y - y;
+    if (dx * dx + dy * dy < rr * rr) return false;
+  }
+  const dvx = G.variant.vault[0] - x, dvy = G.variant.vault[1] - y;
+  if (dvx * dvx + dvy * dvy < (r + 95) * (r + 95)) return false;
+  return true;
+}
+function placeDecor() {
+  const g = $('decorG');
+  g.innerHTML = '';
+  G.decor = [];
+  G.ambient = [];
+  const KINDS = [
+    { id: 'decSlot', r: 32, min: 2, max: 4 },
+    { id: 'decBJ',   r: 48, min: 1, max: 2 },
+    { id: 'decPlant', r: 24, min: 1, max: 2 }
+  ];
+  for (const k of KINDS) {
+    const n = k.min + Math.floor(Math.random() * (k.max - k.min + 1));
+    for (let i = 0; i < n; i++) {
+      for (let tries = 0; tries < 50; tries++) {
+        const x = 80 + Math.random() * 960, y = 100 + Math.random() * 450;
+        if (!decorSpotOK(x, y, k.r)) continue;
+        const rot = (Math.random() * 14 - 7).toFixed(1);
+        const el = svgEl('g', { transform: `translate(${x.toFixed(0)},${y.toFixed(0)}) rotate(${rot})` }, g);
+        svgEl('use', { href: '#' + k.id }, el);
+        G.decor.push({ x, y, r: k.r });
+        break;
+      }
+    }
+  }
+  // a waitress (or two) works the floor — pure atmosphere
+  const nW = 1 + Math.floor(Math.random() * 2);
+  for (let i = 0; i < nW; i++) {
+    const el = svgEl('g', {}, g);
+    const inner = svgEl('g', { class: 'gait-waddle' }, el);
+    svgEl('use', { href: '#sprWaitress' }, inner);
+    const w = { el, x: 150 + Math.random() * 800, y: 150 + Math.random() * 350, tx: 0, ty: 0 };
+    pickAmbientTarget(w);
+    G.ambient.push(w);
+  }
+}
+function pickAmbientTarget(w) {
+  if (G.decor.length && Math.random() < .7) {
+    const d = G.decor[Math.floor(Math.random() * G.decor.length)];
+    w.tx = d.x + (Math.random() * 90 - 45);
+    w.ty = d.y + (Math.random() * 90 - 45);
+  } else {
+    w.tx = 120 + Math.random() * 880;
+    w.ty = 120 + Math.random() * 400;
+  }
+}
+
+/* ══════════ SLOT MACHINE (between floors) ══════════ *//* ══════════ SLOT MACHINE (between floors) ══════════ */
 const SLOT = { spins: 10, free: 0, bonusWon: 0, spinning: false, COST: 25, CAP: 400 };
 const STRIP = ['🍒','🍒','🍒','🍒','🍋','🍋','🍋','🍋','♦','♦','♦','7','7','★'];
 const pickSym = () => STRIP[Math.floor(Math.random() * STRIP.length)];
@@ -1859,6 +2068,8 @@ $('cashBtn').addEventListener('pointerdown', ev => {
 updateHUD();
 renderMap();
 $('map').style.display = 'flex';
+const roomParam = location.search.match(/room=(\d+)/);
+if (roomParam) initRoom(Math.min(ROOMS.length - 1, Math.max(0, +roomParam[1] - 1)));
 
 /* offline support */
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
@@ -1905,8 +2116,10 @@ if (location.search.includes('slottest')) {
 
 /* dev autotest: ?autotest plays the campaign unattended */
 if (location.search.includes('autotest')) {
-  const cur = document.querySelector('.mapNode.cur');
-  if (cur) cur.dispatchEvent(new Event('pointerdown'));
+  if ($('map').style.display !== 'none') {
+    const cur = document.querySelector('.mapNode.cur');
+    if (cur) cur.dispatchEvent(new Event('pointerdown'));
+  }
   $('modalBtn').dispatchEvent(new Event('click'));
   buildTower('dealer', 430, 212);
   buildTower('roulette', 560, 385);
