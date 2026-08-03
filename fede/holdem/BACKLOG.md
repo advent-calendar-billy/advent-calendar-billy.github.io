@@ -26,7 +26,7 @@
 - [x] Old Shrimp Buffet — lure capped at 5%/20% of the wave + food-poisoning DoT
 - [x] The Waitress — attack-speed aura tower (+25%/40%)
 - [x] Craps Table — periodic AoE cheer knockback
-- [ ] Chip Stack Catapult — spends chips as ammo, late-game dump
+- [x] Chip Stack Catapult — 8/12 chips per lobbed AoE shot
 - [ ] Tower upgrade paths (2 paths each, à la Bloons) instead of single ★ upgrade — big system
 - [ ] Capstone towers (design doc has Fountain/Magician/Vault/Don Fortunato — NONE approved yet, re-pitch to user)
 
@@ -38,14 +38,14 @@
 - [x] Coupon Clipper — visible coupon armor, shreds per hit
 - [x] The Regular — staff-door skips with door-flash fx
 - [x] Card Counter (elite) — dodges every 4th hit (COUNTED)
-- [ ] Tier-scaling system: earlier bosses become later fodder (approved) — needs stat curves per floor
+- [x] Tier-scaling first pass: Auditor returns as wave-8 elite in Room 5
 - [x] Enemy walk animations (waddle/groove) lost in gameplay port — sprites are static; re-add per-enemy gait
 
 ## BOSSES (every 5th room — need ~10 distinct across campaign)
 - [x] The Whale (mini-boss, room 1 wave 5)
 - [x] Loan Shark (room 1 wave 10)
 - [x] The Auditor — boss, freezes priciest tower (UNDER AUDIT), room 4 wave 10
-- [ ] Lady Luck — jinx aura: towers roll minimum damage
+- [x] Lady Luck — boss, jinx aura (towers deal 30% dmg inside), Room 5 finale
 - [ ] 6+ more bosses to brainstorm WITH USER (interview style)
 
 ## CAMPAIGN / META
@@ -55,7 +55,7 @@
       (classic gambling climb + amenity floors, weird floors between blocks)
 - [x] Room progression: fresh build per room, leftover chips → meta-currency (approved)
 - [x] Comps shop v1 on map (Bigger Bankroll, House Discount) — PROVISIONAL, needs user approval
-- [x] Rooms 2-4 built — rooms 5-10 lanes still to design
+- [x] Rooms 2-5 built (Slots Pit block half done incl. spiral finale) — 6-10 pending
 - [ ] Later theme blocks: blackjack rooms, roulette halls, poker room, buffet, pool deck, theater, high-roller suite, vault finale
 - [ ] Branching floors (1 → 2a/2b → 3) — later, approved as eventual
 - [x] localStorage campaign save (which room, meta-currency, unlocks)

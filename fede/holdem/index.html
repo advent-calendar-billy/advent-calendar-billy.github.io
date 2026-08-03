@@ -873,6 +873,37 @@
         <path d="M-4 -25 Q 0 -28 4 -25" fill="none" stroke="#3b2415" stroke-width="2.2" stroke-linecap="round"/>
       </g>
 
+      <g id="sprLady">
+        <ellipse cx="0" cy="52" rx="28" ry="9" fill="rgba(40,16,8,.35)"/>
+        <path d="M-20 46 Q -24 2 -10 -16 L 10 -16 Q 24 2 20 46 Q 0 54 -20 46 Z"
+              fill="#2e8b6a" stroke="#3b2415" stroke-width="4"/>
+        <g fill="#f5ead1">
+          <path d="M-9 8 l 1.6 3.2 3.4.4 -2.5 2.4.6 3.4 -3.1-1.6 -3.1 1.6.6-3.4 -2.5-2.4 3.4-.4 Z"/>
+          <path d="M7 22 l 1.4 2.8 3 .4 -2.2 2.1.5 3 -2.7-1.4 -2.7 1.4.5-3 -2.2-2.1 3-.4 Z"/>
+          <circle cx="4" cy="-2" r="1.6"/><circle cx="-12" cy="30" r="1.6"/>
+        </g>
+        <path d="M-11 -16 Q -20 -8 -24 2" stroke="#7a3f8c" stroke-width="6.5" fill="none" stroke-linecap="round"/>
+        <path d="M11 -16 Q 20 -10 24 -2" stroke="#7a3f8c" stroke-width="6.5" fill="none" stroke-linecap="round"/>
+        <g transform="translate(26,1)" stroke="#3b2415" stroke-width="1.8">
+          <circle cx="-2.5" cy="-2" r="3" fill="#2e7d4f"/><circle cx="2.5" cy="-2" r="3" fill="#2e7d4f"/>
+          <circle cx="0" cy="2.5" r="3" fill="#2e7d4f"/><line x1="0" y1="4" x2="0" y2="9" stroke-width="2"/>
+        </g>
+        <circle cx="0" cy="-34" r="15" fill="#f2b98c" stroke="#3b2415" stroke-width="4"/>
+        <path d="M-15 -38 Q -14 -52 0 -52 Q 15 -52 15 -36 Q 16 -24 10 -20 Q 14 -34 8 -44 Q 2 -50 -8 -46 Q -15 -42 -15 -38 Z"
+              fill="#e8c476" stroke="#3b2415" stroke-width="2.5"/>
+        <g stroke="#3b2415" stroke-width="1.4">
+          <rect x="-19" y="-32" width="6" height="6" rx="1.2" fill="#f5ead1"/>
+          <circle cx="-16" cy="-29" r=".9" fill="#3b2415" stroke="none"/>
+          <rect x="13" y="-32" width="6" height="6" rx="1.2" fill="#f5ead1"/>
+          <circle cx="14.8" cy="-30.5" r=".8" fill="#3b2415" stroke="none"/>
+          <circle cx="17.2" cy="-28.2" r=".8" fill="#3b2415" stroke="none"/>
+        </g>
+        <path d="M-8 -38 Q -5 -40 -2 -38 M2 -38 Q 5 -40 8 -38" fill="none" stroke="#3b2415" stroke-width="1.8"/>
+        <circle cx="-5" cy="-35" r="1.6" fill="#3b2415"/><circle cx="5" cy="-35" r="1.6" fill="#3b2415"/>
+        <circle cx="7" cy="-28" r="1.1" fill="#3b2415"/>
+        <path d="M-4 -26 Q 0 -23 4 -26" fill="none" stroke="#c9473b" stroke-width="2.2" stroke-linecap="round"/>
+      </g>
+
       <g id="decSlot">
         <rect x="-21" y="-28" width="46" height="66" rx="7" fill="rgba(40,16,8,.35)"/>
         <rect x="-24" y="-32" width="46" height="66" rx="7" fill="#7a3f8c" stroke="#3b2415" stroke-width="3.5"/>
@@ -957,6 +988,26 @@
         <rect x="-19" y="3" width="4" height="7" fill="#79e0d2" stroke="#3b2415" stroke-width="1.4"/>
         <rect x="-12" y="2" width="4" height="8" fill="#e8b64c" stroke="#3b2415" stroke-width="1.4"/>
         <g transform="translate(12,-2)"><use href="#sprWaitress"/></g>
+      </g>
+
+      <g id="twCatapult">
+        <ellipse cx="2" cy="28" rx="34" ry="8" fill="rgba(40,16,8,.35)"/>
+        <circle cx="-20" cy="22" r="8" fill="#8a5a30" stroke="#3b2415" stroke-width="3"/>
+        <circle cx="20" cy="22" r="8" fill="#8a5a30" stroke="#3b2415" stroke-width="3"/>
+        <rect x="-30" y="8" width="60" height="14" rx="5" fill="#7c4a22" stroke="#3b2415" stroke-width="3.5"/>
+        <g transform="rotate(-32 0 12)">
+          <rect x="-5" y="-36" width="10" height="48" rx="4" fill="#8a5a30" stroke="#3b2415" stroke-width="3"/>
+          <circle cx="0" cy="-38" r="9" fill="#6b4423" stroke="#3b2415" stroke-width="2.5"/>
+          <g stroke="#3b2415" stroke-width="1.6">
+            <ellipse cx="0" cy="-40" rx="6" ry="2.6" fill="#c9473b"/>
+            <ellipse cx="0" cy="-43" rx="6" ry="2.6" fill="#e8b64c"/>
+          </g>
+        </g>
+        <g stroke="#3b2415" stroke-width="1.8">
+          <ellipse cx="22" cy="6" rx="8" ry="3.4" fill="#2b6cb0"/>
+          <ellipse cx="22" cy="2.5" rx="8" ry="3.4" fill="#c9473b"/>
+          <ellipse cx="22" cy="-1" rx="8" ry="3.4" fill="#e8b64c"/>
+        </g>
       </g>
 
       <g id="twATM">
@@ -1208,6 +1259,9 @@ const ETYPES = {
   auditor: { name:'The Auditor', sprite:'sprAuditor', hp:2600, speed:26, reward:300, star:2, scale:.8, tapR:40, boss:true, audit:true,
     desc:'Everything stops when he opens the briefcase. While he walks, your most expensive tower is UNDER AUDIT — frozen, pending review.',
     stats:'BOSS · DISABLES YOUR PRICIEST TOWER' },
+  lady: { name:'Lady Luck', sprite:'sprLady', hp:3200, speed:24, reward:350, star:2, scale:.8, tapR:40, boss:true, jinx:140,
+    desc:'She blows a kiss and every wheel goes cold. Towers inside her shimmer roll minimum damage while she glides past.',
+    stats:'BOSS · JINX AURA: TOWERS DEAL MIN DAMAGE' },
   whale: { name:'The Whale', sprite:'sprWhale', hp:1050, speed:25, reward:150, star:2, scale:.78, tapR:40, boss:true,
     desc:'Comped everything. Bathrobe, cigar, security detail waved off. Takes a fortune down with him — and pays one out.',
     stats:'MINI-BOSS · VERY TOUGH · BIG BOUNTY' },
@@ -1240,11 +1294,14 @@ const TTYPES = {
     up: { cost:160, menu:'Lures 20% · worse shrimp' } },
   waitress: { name:'The Waitress', sprite:'twWaitress', cost:210, range:130, scale:.62,
     blurb:'Drinks on the house', menu:'Towers +25% speed',
-    up: { cost:170, menu:'+40% attack speed' } }
+    up: { cost:170, menu:'+40% attack speed' } },
+  catapult: { name:'Chip Catapult', sprite:'twCatapult', cost:260, range:200, cd:2.8, scale:.68,
+    blurb:'Throws money at it', menu:'8🪙/shot · big AoE',
+    up: { cost:220, menu:'12🪙/shot · huge AoE' } }
 };
 
 /* footprint radius per tower type (for placement collision) */
-const TOWER_R = { dealer: 34, roulette: 36, rope: 30, cage: 32, atm: 28, craps: 36, buffet: 38, waitress: 30 };
+const TOWER_R = { dealer: 34, roulette: 36, rope: 30, cage: 32, atm: 28, craps: 36, buffet: 38, waitress: 30, catapult: 34 };
 
 /* ══════════ CAMPAIGN ══════════ */
 const SAVE_KEY = 'holdem-save';
@@ -1337,6 +1394,26 @@ const ROOMS = [
       [['tourist',26,.2],['clipper',8,1.0],['honey',4,4]],
       [['whale',2,12],['counter',5,2.0],['mojito',12,.7]],
       [['auditor',1,0],['grandma',10,1.0],['whale',1,30],['regular',8,1.0]]
+    ] },
+  { name: 'Slots Pit 5', hpMul: 3.9, chips: 560,
+    intro: 'The corridor coils around the vault like a spring. Tonight LADY LUCK herself walks the floor — towers inside her shimmer go cold. End of the Slots Pit.',
+    variants: [
+      { entryY: 130, vault: [558, 352], killOffset: 25,
+        lanes: [
+          'M -40 130 C 300 130, 680 130, 830 205 C 935 265, 935 385, 820 450 C 700 505, 400 505, 280 455 C 175 410, 165 320, 260 272 C 350 228, 545 228, 650 278 C 725 315, 725 390, 650 428 C 575 462, 465 455, 428 410 C 398 372, 428 330, 492 326 C 540 323, 558 338, 558 352'
+        ] }
+    ],
+    waves: [
+      [['regular',8,1.2],['drunk',10,.9]],
+      [['clipper',10,.9],['mojito',10,.9]],
+      [['honey',4,4],['tourist',16,.35]],
+      [['counter',6,1.8],['grandma',10,1.0]],
+      [['whale',2,12],['regular',10,1.0]],
+      [['elvis',16,.5],['influencer',3,6]],
+      [['grandma',12,.9],['honey',5,4],['drunk',10,.8]],
+      [['auditor',1,0],['counter',6,1.6],['mojito',12,.7]],
+      [['whale',3,10],['clipper',12,.8],['influencer',3,6]],
+      [['lady',1,0],['shark',1,25],['grandma',12,.9]]
     ] }
 ];
 let ROOM = 0;
@@ -1701,6 +1778,10 @@ function spawnEnemy(type) {
     svgEl('circle', { r: 90, fill: 'rgba(224,90,122,.05)', stroke: '#e05a7a', 'stroke-width': 1.5,
                       'stroke-dasharray': '5 7', opacity: .5 }, el);
   }
+  if (E.jinx) {
+    svgEl('circle', { r: E.jinx, fill: 'rgba(163,133,224,.06)', stroke: '#a385e0', 'stroke-width': 2,
+                      'stroke-dasharray': '4 8', opacity: .6 }, el);
+  }
   const spriteG = svgEl('g', { transform: `scale(${E.scale},${E.scale * .84})` }, el);
   const gaitG = svgEl('g', { class: 'gait-' + (E.gait || (E.boss ? 'lumber' : type === 'elvis' ? 'groove' : 'waddle')) }, spriteG);
   svgEl('use', { href: '#' + E.sprite }, gaitG);
@@ -1903,7 +1984,7 @@ function firstEnemyInRange(t) {
 function fireRoulette(t) {
   const target = firstEnemyInRange(t);
   if (!target) return false;
-  const dmg = t.lvl === 2 ? 18 : 12;
+  const dmg = Math.max(1, Math.round((t.lvl === 2 ? 18 : 12) * (t.jinxed ? .3 : 1)));
   const bounces = t.lvl === 2 ? 4 : 3;
   const el = svgEl('circle', { r: 5, fill: '#fffbe8', stroke: '#3b2415', 'stroke-width': 2 }, $('projG'));
   G.projectiles.push({ kind: 'ball', x: t.x, y: t.y, el, target, dmg, bounces, hitSet: new Set() });
@@ -1916,7 +1997,7 @@ function fireDealer(t) {
   const [tx, ty] = posAtE(target);
   const base = Math.atan2(ty - t.y, tx - t.x);
   const n = t.lvl === 2 ? 5 : 3;
-  const dmg = t.lvl === 2 ? 8 : 6;
+  const dmg = Math.max(1, Math.round((t.lvl === 2 ? 8 : 6) * (t.jinxed ? .3 : 1)));
   for (let i = 0; i < n; i++) {
     const ang = base + (i - (n - 1) / 2) * 0.21;
     const el = svgEl('g', {}, $('projG'));
@@ -2051,6 +2132,17 @@ function update(dt) {
     }
   }
 
+  /* Lady Luck's jinx: towers in her aura roll minimum damage */
+  const jinxers = G.enemies.filter(e => e.E.jinx);
+  for (const t of G.towers) {
+    t.jinxed = false;
+    for (const j of jinxers) {
+      const [jx, jy] = posAtE(j);
+      const dx = jx - t.x, dy = jy - t.y;
+      if (dx * dx + dy * dy <= j.E.jinx * j.E.jinx) { t.jinxed = true; break; }
+    }
+  }
+
   /* the Auditor freezes the priciest tower while he lives */
   let auditTarget = null;
   if (G.enemies.some(e => e.E.audit)) {
@@ -2119,6 +2211,24 @@ function update(dt) {
         float(t.x, t.y - 36, 'SEVEN!', '#ffd23f');
         t.cool = t.lvl === 2 ? 4.5 : TTYPES.craps.cd;
       } else t.cool = .3;
+    } else if (t.type === 'catapult') {
+      const ammo = t.lvl === 2 ? 12 : 8;
+      const target = G.chips >= ammo ? firstEnemyInRange(t) : null;
+      if (target) {
+        G.chips -= ammo;
+        updateHUD();
+        const [tx, ty] = posAtE(target);
+        const el = svgEl('g', {}, $('projG'));
+        svgEl('circle', { r: 7, fill: '#c9473b', stroke: '#3b2415', 'stroke-width': 2 }, el);
+        svgEl('circle', { r: 3, fill: '#f5ead1' }, el);
+        G.projectiles.push({
+          kind: 'lob', x: t.x, y: t.y, sx: t.x, sy: t.y, tx, ty, el,
+          t: 0, dur: .55,
+          dmg: Math.max(1, Math.round((t.lvl === 2 ? 70 : 40) * (t.jinxed ? .3 : 1))),
+          aoe: t.lvl === 2 ? 80 : 60
+        });
+        t.cool = TTYPES.catapult.cd * atkSpeedFactor(t);
+      } else t.cool = .3;
     } else {
       const fired = t.type === 'roulette' ? fireRoulette(t) : fireDealer(t);
       t.cool = fired ? TTYPES[t.type].cd * atkSpeedFactor(t) : 0.1;
@@ -2167,6 +2277,23 @@ function update(dt) {
       }
       p.el.setAttribute('cx', p.x);
       p.el.setAttribute('cy', p.y);
+    } else if (p.kind === 'lob') {
+      p.t += dt;
+      const k = Math.min(1, p.t / p.dur);
+      const x = p.sx + (p.tx - p.sx) * k;
+      const y = p.sy + (p.ty - p.sy) * k - Math.sin(k * Math.PI) * 70;
+      const sc = 1 + Math.sin(k * Math.PI) * .7;
+      p.el.setAttribute('transform', `translate(${x},${y}) scale(${sc})`);
+      if (k >= 1) {
+        poof(p.tx, p.ty);
+        poof(p.tx + 10, p.ty - 6);
+        for (const e of [...G.enemies]) {
+          const [ex2, ey2] = posAtE(e);
+          if ((ex2 - p.tx) ** 2 + (ey2 - p.ty) ** 2 <= p.aoe * p.aoe) damageEnemy(e, p.dmg);
+        }
+        p.el.remove();
+        G.projectiles = G.projectiles.filter(q => q !== p);
+      }
     } else {
       // card
       p.life -= dt;
@@ -2256,7 +2383,7 @@ function makeEndless() {
       const t = pool[Math.floor(Math.random() * pool.length)];
       wave.push([t, 6 + Math.floor(w * 1.2), Math.max(.25, 1.4 - w * .03)]);
     }
-    if (w % 5 === 4) wave.push([w % 10 === 9 ? 'shark' : 'whale', 1 + Math.floor(w / 12), 15]);
+    if (w % 5 === 4) wave.push([w % 15 === 14 ? 'lady' : w % 10 === 9 ? 'shark' : 'whale', 1 + Math.floor(w / 12), 15]);
     if (w > 6 && Math.random() < .4) wave.push(['honey', 2 + Math.floor(w / 8), 5]);
     waves.push(wave);
   }
@@ -2500,8 +2627,8 @@ document.addEventListener('dblclick', e => e.preventDefault());
 /* dev gallery: ?gallery renders every sprite large for visual review */
 if (location.search.includes('gallery')) {
   const ids = ['sprRetiree','sprTourist','sprElvis','sprGrandma','sprClipper','sprInfluencer',
-               'sprDrunk','sprMojito','sprCounter','sprGroom','sprBride','sprRegular','sprWaitress','sprAuditor','sprWhale','sprShark',
-               'twDealer','twRoulette','twRope','twCage','twATM','twCraps','twBuffet','twWaitress','decSlot','decBJ','decPlant'];
+               'sprDrunk','sprMojito','sprCounter','sprGroom','sprBride','sprRegular','sprWaitress','sprAuditor','sprLady','sprWhale','sprShark',
+               'twDealer','twRoulette','twRope','twCage','twATM','twCraps','twBuffet','twWaitress','twCatapult','decSlot','decBJ','decPlant'];
   document.querySelectorAll('#hud,#startWave,#shop,#nextWave,#modal,#map,#slots').forEach(n => n.style.display = 'none');
   G.paused = true; G.over = true;
   const gal = svgEl('g', {}, stageSvg);
