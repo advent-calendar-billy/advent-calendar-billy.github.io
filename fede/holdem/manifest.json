@@ -1,0 +1,12 @@
+{
+  "name": "Hold'Em — Casino Tower Defense",
+  "short_name": "Hold'Em",
+  "start_url": "./index.html",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#072619",
+  "theme_color": "#0b3d2e",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

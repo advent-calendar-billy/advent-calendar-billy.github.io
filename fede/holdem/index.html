@@ -6,6 +6,9 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0b3d2e">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
 <title>HOLD'EM</title>
 <style>
   :root {
@@ -24,7 +27,36 @@
     -webkit-user-select: none;
   }
   #wrap { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; }
-  #stage { width: 100%; height: 100%; display: block; }
+  #stage { width: 100%; height: 100%; display: block; touch-action: none; }
+  #wrap.shake { animation: shake .45s linear; }
+  @keyframes shake {
+    0%,100% { transform: translate(0,0); }
+    20% { transform: translate(-7px,4px); } 40% { transform: translate(6px,-5px); }
+    60% { transform: translate(-5px,-4px); } 80% { transform: translate(4px,5px); }
+  }
+
+  /* ── wave banner ── */
+  #banner {
+    position: fixed; left: 0; right: 0; top: 34%;
+    text-align: center;
+    font-family: Georgia, serif;
+    font-weight: bold;
+    font-size: 46px;
+    letter-spacing: 4px;
+    color: var(--gold);
+    text-shadow: 0 0 20px rgba(232,182,76,.6), 0 3px 0 #6b5218, 0 0 4px #000;
+    pointer-events: none;
+    opacity: 0;
+    z-index: 8;
+  }
+  #banner.show { animation: bannerIn 1.8s ease-out; }
+  @keyframes bannerIn {
+    0% { opacity: 0; transform: scale(.6); }
+    15% { opacity: 1; transform: scale(1.06); }
+    25% { transform: scale(1); }
+    75% { opacity: 1; }
+    100% { opacity: 0; transform: scale(1.02); }
+  }
 
   /* ── top HUD ── */
   #hud {
@@ -209,6 +241,101 @@
   #rotate .ph { font-size: 54px; animation: rot 1.6s ease-in-out infinite; }
   @keyframes rot { 0%,20% { transform: rotate(0); } 60%,100% { transform: rotate(90deg); } }
   @media (orientation: portrait) { #rotate { display: flex; } }
+
+  /* ── campaign map ── */
+  #map {
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 120% 60% at 50% -10%, #14543f 0%, transparent 60%),
+      #072619;
+    display: none;
+    align-items: center; justify-content: center;
+    z-index: 25;
+  }
+  #mapCard { text-align: center; padding: 20px; width: 100%; max-width: 640px; }
+  .mapMarquee {
+    font-family: Georgia, serif;
+    font-weight: bold;
+    font-size: 44px;
+    letter-spacing: 3px;
+    color: var(--gold);
+    text-shadow: 0 0 18px rgba(232,182,76,.5), 0 3px 0 #6b5218;
+  }
+  .mapSub { font-size: 12px; letter-spacing: 4px; color: #9fc4b2; margin-top: 6px; text-transform: uppercase; }
+  #mapComps {
+    display: inline-block;
+    margin: 14px 0;
+    padding: 6px 18px;
+    border: 2px solid var(--gold);
+    border-radius: 999px;
+    color: var(--gold);
+    font-weight: 800;
+    background: rgba(18,16,12,.8);
+  }
+  #mapNodes {
+    display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
+    gap: 4px;
+    margin: 10px 0 16px;
+  }
+  .mapNode {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 17px;
+    border: 3px solid #5a4626;
+    color: #7d6c4a;
+    background: #101511;
+  }
+  .mapNode.cleared { border-color: var(--gold); color: var(--gold); background: #241d10; }
+  .mapNode.cur {
+    border-color: var(--gold); color: #3b2415; background: var(--gold);
+    cursor: pointer;
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.12); } }
+  .mapLink { width: 14px; height: 3px; background: #5a4626; border-radius: 2px; }
+
+  /* ── slot machine ── */
+  #slots {
+    position: fixed; inset: 0;
+    background: rgba(7,20,14,.8);
+    display: none;
+    align-items: center; justify-content: center;
+    z-index: 26;
+    padding: 16px;
+  }
+  #slotCard {
+    background: linear-gradient(180deg, #2a1130, #16081a);
+    border: 3px solid var(--gold);
+    border-radius: 18px;
+    max-width: 430px; width: 100%;
+    padding: 18px 20px 20px;
+    text-align: center;
+    color: var(--cream);
+    box-shadow: 0 0 60px rgba(232,182,76,.3);
+    animation: pop .28s cubic-bezier(.34,1.56,.64,1);
+  }
+  #slotCard h2 {
+    font-family: Georgia, serif;
+    color: #ffd23f;
+    font-size: 30px;
+    letter-spacing: 3px;
+    text-shadow: 0 0 14px rgba(255,210,63,.6);
+    margin: 4px 0 10px;
+  }
+  #reels { display: flex; gap: 10px; justify-content: center; margin: 6px 0 12px; }
+  .reel {
+    width: 74px; height: 84px;
+    background: #f5ead1;
+    border: 3px solid #3b2415;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 44px;
+    box-shadow: inset 0 -14px 18px rgba(0,0,0,.18), inset 0 14px 18px rgba(0,0,0,.18);
+    color: #c9473b;
+  }
+  #slotMsg { font-size: 13.5px; color: #d8cbb0; min-height: 20px; }
+  #slotInfo { margin-top: 8px; font-weight: 800; color: var(--gold); font-size: 14px; }
 
   /* ── enemy gaits ── */
   .gait-waddle, .gait-groove, .gait-lumber, .gait-stagger {
@@ -637,13 +764,13 @@
     <path id="lanePath" d="M -40 130 C 200 130, 460 130, 620 130 C 740 130, 740 300, 620 300 C 440 300, 300 300, 230 300 C 115 300, 115 470, 230 470 C 430 470, 640 470, 1160 470" fill="none" stroke="none"/>
 
     <!-- entrance -->
-    <g stroke="#7c4a22" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <g id="entryG" stroke="#7c4a22" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round">
       <polyline points="10,116 24,130 10,144"/>
       <polyline points="32,116 46,130 32,144"/>
     </g>
 
     <!-- vault -->
-    <g transform="translate(1046,470) scale(.6)">
+    <g id="vaultG" transform="translate(1046,470) scale(.6)">
       <circle r="90" fill="url(#vaultLeak)" id="vaultGlowC"/>
       <rect x="-64" y="-64" width="140" height="128" rx="14" fill="#5c636b" stroke="#3b2415" stroke-width="5"/>
       <rect x="-52" y="-52" width="116" height="104" rx="10" fill="url(#steel)" stroke="#3b2415" stroke-width="4"/>
@@ -692,6 +819,9 @@
 <!-- next-wave preview -->
 <div id="nextWave"></div>
 
+<!-- wave / boss banner -->
+<div id="banner"></div>
+
 <button class="btn primary" id="startWave">DEAL&nbsp;THEM&nbsp;IN&nbsp;▸</button>
 
 <!-- shop bar: drag a tower onto the floor -->
@@ -715,6 +845,32 @@
   </div>
 </div>
 
+<!-- campaign map -->
+<div id="map">
+  <div id="mapCard">
+    <div class="mapMarquee">HOLD'EM</div>
+    <div class="mapSub">SLOTS PIT · FLOOR MAP</div>
+    <div id="mapComps"></div>
+    <div id="mapNodes"></div>
+    <div class="mapSub" style="opacity:.55">…47 more rooms under renovation</div>
+  </div>
+</div>
+
+<!-- between-floor slot machine -->
+<div id="slots">
+  <div id="slotCard">
+    <div class="kind" style="font-size:11px; letter-spacing:3px; color:#b7a98a;">FLOOR CLEARED · HOUSE LOUNGE</div>
+    <h2>LUCKY 7s</h2>
+    <div id="reels"><span class="reel">7</span><span class="reel">♦</span><span class="reel">★</span></div>
+    <div id="slotMsg">Gamble your leftover chips… or bank them as comps.</div>
+    <div id="slotInfo"></div>
+    <div style="display:flex; gap:10px; justify-content:center; margin-top:12px;">
+      <button class="btn primary" id="spinBtn">SPIN · 25</button>
+      <button class="btn" id="cashBtn">CASH OUT ▸</button>
+    </div>
+  </div>
+</div>
+
 <div id="rotate">
   <div class="ph">📱</div>
   <div style="font-size:20px; font-weight:800;">Rotate your phone</div>
@@ -732,10 +888,15 @@ const svgEl = (name, attrs, parent) => {
   return n;
 };
 
-/* ══════════ LANE ══════════ */
-const LANE_D = document.getElementById('lanePath').getAttribute('d');
-(function drawLane(){
+/* ══════════ LANE (set per room) ══════════ */
+const laneEl = $('lanePath');
+const STEP = 4;
+let LANE_LEN = 0, KILL_AT = 0;
+const PTS = [];
+function setLane(d, killOffset) {
+  laneEl.setAttribute('d', d);
   const g = $('laneG');
+  g.innerHTML = '';
   [['rgba(40,16,8,.35)', 52, {transform:'translate(3,5)'}],
    ['#7c4a22', 48, {}],
    ['#d9a94f', 43, {}],
@@ -743,18 +904,15 @@ const LANE_D = document.getElementById('lanePath').getAttribute('d');
    ['#c9ae76', 38, {'stroke-dasharray':'2 32', opacity:.8}],
    ['#b3934f', 7, {'stroke-dasharray':'6 16', opacity:.35, 'stroke-linecap':'round'}]
   ].forEach(([stroke,w,extra]) => {
-    svgEl('path', Object.assign({d: LANE_D, stroke, 'stroke-width': w, fill: 'none'}, extra), g);
+    svgEl('path', Object.assign({d, stroke, 'stroke-width': w, fill: 'none'}, extra), g);
   });
-})();
-
-/* sample the path once */
-const laneEl = $('lanePath');
-const LANE_LEN = laneEl.getTotalLength();
-const STEP = 4;
-const PTS = [];
-for (let d = 0; d <= LANE_LEN; d += STEP) {
-  const p = laneEl.getPointAtLength(d);
-  PTS.push([p.x, p.y]);
+  LANE_LEN = laneEl.getTotalLength();
+  KILL_AT = LANE_LEN - killOffset;
+  PTS.length = 0;
+  for (let dd = 0; dd <= LANE_LEN; dd += STEP) {
+    const p = laneEl.getPointAtLength(dd);
+    PTS.push([p.x, p.y]);
+  }
 }
 const posAt = dist => PTS[Math.max(0, Math.min(PTS.length - 1, Math.round(dist / STEP)))];
 
@@ -816,18 +974,61 @@ const TTYPES = {
 /* footprint radius per tower type (for placement collision) */
 const TOWER_R = { dealer: 34, roulette: 36, rope: 30, cage: 32, atm: 28, craps: 36 };
 
-const WAVES = [
-  [['retiree',8,1.1]],
-  [['retiree',10,.9],['tourist',4,1.5]],
-  [['tourist',8,.35],['retiree',8,1.0]],
-  [['elvis',5,1.7],['tourist',8,.9]],
-  [['whale',1,0],['retiree',12,.8]],
-  [['grandma',4,2.2],['tourist',10,.8],['clipper',3,2.8]],
-  [['elvis',8,1.0],['grandma',4,1.9],['influencer',1,6]],
-  [['tourist',16,.3],['clipper',5,1.6],['influencer',1,10]],
-  [['grandma',8,1.4],['clipper',6,1.3],['elvis',8,1.0],['influencer',2,9]],
-  [['shark',1,0],['grandma',6,1.6],['whale',1,26]]
+/* ══════════ CAMPAIGN ══════════ */
+const SAVE_KEY = 'holdem-save';
+function loadSave() { try { return JSON.parse(localStorage.getItem(SAVE_KEY)) || {}; } catch (e) { return {}; } }
+function saveSave() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(SAVE)); } catch (e) {} }
+const SAVE = Object.assign({ unlocked: 1, comps: 0 }, loadSave());
+
+const ROOMS = [
+  { name: 'Slots Pit 1', hpMul: 1, chips: 380, entryY: 130, vault: [1046, 470], killOffset: 112,
+    intro: 'Drag towers from the shelf onto the carpet — green means it fits. Hold all five stars and survive 10 waves.',
+    lane: 'M -40 130 C 200 130, 460 130, 620 130 C 740 130, 740 300, 620 300 C 440 300, 300 300, 230 300 C 115 300, 115 470, 230 470 C 430 470, 640 470, 1160 470',
+    waves: [
+      [['retiree',8,1.1]],
+      [['retiree',10,.9],['tourist',4,1.5]],
+      [['tourist',8,.35],['retiree',8,1.0]],
+      [['elvis',5,1.7],['tourist',8,.9]],
+      [['whale',1,0],['retiree',12,.8]],
+      [['grandma',4,2.2],['tourist',10,.8],['clipper',3,2.8]],
+      [['elvis',8,1.0],['grandma',4,1.9],['influencer',1,6]],
+      [['tourist',16,.3],['clipper',5,1.6],['influencer',1,10]],
+      [['grandma',8,1.4],['clipper',6,1.3],['elvis',8,1.0],['influencer',2,9]],
+      [['shark',1,0],['grandma',6,1.6],['whale',1,26]]
+    ] },
+  { name: 'Slots Pit 2', hpMul: 1.55, chips: 420, entryY: 470, vault: [1046, 130], killOffset: 112,
+    intro: 'The pit runs in reverse tonight — they pour in along the bottom. Two new faces: The Drunk weaves, and Mojito Guy has a temper.',
+    lane: 'M -40 470 C 200 470, 460 470, 620 470 C 740 470, 740 300, 620 300 C 440 300, 300 300, 230 300 C 115 300, 115 130, 230 130 C 430 130, 640 130, 1160 130',
+    waves: [
+      [['retiree',10,.9]],
+      [['drunk',6,1.6],['retiree',8,.9]],
+      [['tourist',10,.35],['drunk',6,1.4]],
+      [['mojito',6,1.6],['tourist',8,.8]],
+      [['whale',1,0],['drunk',8,1.0]],
+      [['grandma',5,1.9],['mojito',8,1.0],['clipper',4,2.2]],
+      [['elvis',10,.8],['influencer',1,6],['drunk',6,1.2]],
+      [['tourist',18,.28],['clipper',6,1.3],['influencer',1,10]],
+      [['mojito',10,.9],['grandma',8,1.2],['influencer',2,9]],
+      [['whale',2,18],['grandma',8,1.2],['elvis',10,.8]]
+    ] },
+  { name: 'Slots Pit 3', hpMul: 2.3, chips: 460, entryY: 130, vault: [640, 330], killOffset: 30,
+    intro: 'The vault sits exposed in the middle of the floor tonight. Everything the Slots Pit has walks — and the Loan Shark collects at the end.',
+    lane: 'M -40 130 C 300 130, 620 130, 740 210 C 850 280, 850 380, 720 450 C 560 530, 260 530, 180 440 C 120 370, 200 330, 320 330 C 460 330, 560 330, 640 330',
+    waves: [
+      [['drunk',8,1.1],['retiree',10,.8]],
+      [['clipper',8,1.2],['tourist',10,.6]],
+      [['mojito',8,1.1],['elvis',8,.9]],
+      [['grandma',8,1.2],['influencer',2,8]],
+      [['whale',1,0],['mojito',10,.8],['drunk',8,1.0]],
+      [['elvis',14,.6],['influencer',2,7]],
+      [['clipper',10,.9],['grandma',8,1.1],['drunk',8,.9]],
+      [['tourist',24,.22],['influencer',3,7]],
+      [['whale',2,15],['grandma',10,1.0],['mojito',10,.8]],
+      [['shark',1,0],['whale',2,20],['influencer',2,12],['grandma',8,1.2]]
+    ] }
 ];
+let ROOM = 0;
+let WAVES = [];
 
 /* ══════════ STATE ══════════ */
 const G = {
@@ -842,6 +1043,7 @@ const G = {
   towers: [],
   projectiles: [],
   floats: [],
+  parts: [],
   spawners: [],
   seen: {},           // enemy types already introduced
   auto: false,
@@ -860,6 +1062,23 @@ function updateHUD() {
   document.querySelectorAll('#sheetRow .shopItem[data-cost], #shop .shopCard[data-cost]').forEach(b => {
     b.classList.toggle('afford', G.chips >= +b.dataset.cost);
   });
+}
+
+function banner(txt) {
+  const b = $('banner');
+  b.textContent = txt;
+  b.classList.remove('show');
+  void b.offsetWidth;   // restart the animation
+  b.classList.add('show');
+}
+
+function poof(x, y) {
+  for (let i = 0; i < 6; i++) {
+    const a = Math.random() * Math.PI * 2, sp = 60 + Math.random() * 80;
+    const el = svgEl('circle', { r: 3 + Math.random() * 2.5, fill: i % 2 ? '#e8b64c' : '#c9473b',
+                                 stroke: '#3b2415', 'stroke-width': 1.2 }, $('floatG'));
+    G.parts.push({ el, x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 40, t: 0 });
+  }
 }
 
 function float(x, y, txt, color) {
@@ -1127,7 +1346,7 @@ function spawnEnemy(type) {
   const hpEl = svgEl('rect', { x: -barW/2 + 1.5, y: -1.5, width: barW - 3, height: 3, rx: 1.5, fill: '#57c26e' }, barG);
   // tap target
   const tap = svgEl('circle', { r: E.tapR, fill: 'transparent' }, el);
-  const hpMax = E.hp * (1 + G.wave * 0.10);
+  const hpMax = E.hp * (1 + G.wave * 0.10) * ROOMS[ROOM].hpMul;
   const enemy = {
     type, E, el, hpEl, barW,
     dist: 0, hp: hpMax, hpMax,
@@ -1144,6 +1363,12 @@ function spawnEnemy(type) {
     ev.stopPropagation();
     showModal(E.boss ? '⚠ BOSS ⚠' : 'GUEST DOSSIER', E.name, E.sprite, E.desc, E.stats, 'BACK TO THE FLOOR');
   });
+  if (E.boss) {
+    banner(E.name.toUpperCase());
+    $('wrap').classList.remove('shake');
+    void $('wrap').offsetWidth;
+    $('wrap').classList.add('shake');
+  }
   G.enemies.push(enemy);
   return enemy;
 }
@@ -1154,7 +1379,7 @@ function killEnemy(e, leaked) {
   G.enemies = G.enemies.filter(x => x !== e);
   if (leaked) {
     G.stars = Math.max(0, G.stars - e.E.star);
-    const [vx, vy] = [1046, 450];
+    const [vx, vy] = ROOMS[ROOM].vault;
     float(vx - 60, vy - 40, '-' + e.E.star + ' ★', '#e05a3a');
     if (e.E.steal) {
       G.chips = Math.max(0, G.chips - e.E.steal);
@@ -1165,6 +1390,7 @@ function killEnemy(e, leaked) {
     const [x, y] = posAt(e.dist);
     G.chips += e.E.reward;
     float(x, y - 26, '+' + e.E.reward, '#ffd23f');
+    poof(x, y - 8);
   }
   updateHUD();
 }
@@ -1182,6 +1408,7 @@ function startWave() {
       // single-count spawners use their interval as an initial delay (boss staggering)
       type, left: count, interval, timer: count === 1 ? Math.max(interval, si * 1.6) : si * 1.6
     }));
+    banner('WAVE ' + (G.wave + 1));
     updateHUD();
   };
   const chain = types.reduceRight((next, t) => () => introduce(t, next), launch);
@@ -1222,10 +1449,7 @@ function endWave() {
 
 function win() {
   G.over = true;
-  showModal('🎰 FLOOR CLEARED 🎰', 'The House Held', null,
-    'Slots Pit 1 is safe. The vault kept every chip and the reputation board is glowing. ' +
-    'Next: the between-floor slot machine, and Slots Pit 2 — where the grandmas bring friends.',
-    'ROOM 1 / 50 COMPLETE', 'PLAY AGAIN', () => location.reload());
+  openSlots();
 }
 function lose() {
   G.over = true;
@@ -1355,7 +1579,7 @@ function update(dt) {
       }
     }
     e.dist += e.E.speed * slow * boost * dt;
-    if (e.dist >= LANE_LEN - 112) { killEnemy(e, true); continue; }  // despawn AT the vault door
+    if (e.dist >= KILL_AT) { killEnemy(e, true); continue; }  // despawn AT the vault door
     const [x, y] = posAt(e.dist);
     e.el.setAttribute('transform', `translate(${x},${y - 4})`);
     /* grandma tower-tap */
@@ -1480,6 +1704,18 @@ function update(dt) {
     }
   }
 
+  /* particles */
+  for (const p of [...G.parts]) {
+    p.t += dt;
+    p.x += p.vx * dt;
+    p.y += p.vy * dt;
+    p.vy += 160 * dt;
+    p.el.setAttribute('cx', p.x);
+    p.el.setAttribute('cy', p.y);
+    p.el.setAttribute('opacity', Math.max(0, 1 - p.t / .6));
+    if (p.t > .6) { p.el.remove(); G.parts = G.parts.filter(q => q !== p); }
+  }
+
   /* floats */
   for (const f of [...G.floats]) {
     f.t += dt;
@@ -1508,19 +1744,130 @@ $('pauseBtn').addEventListener('pointerdown', ev => {
   $('pauseBtn').textContent = G.paused ? '▶' : '⏸';
 });
 
+/* ══════════ ROOMS / MAP ══════════ */
+function initRoom(i) {
+  ROOM = i;
+  const R = ROOMS[i];
+  setLane(R.lane, R.killOffset);
+  WAVES = R.waves;
+  G.chips = R.chips;
+  $('vaultG').setAttribute('transform', `translate(${R.vault[0]},${R.vault[1]}) scale(.6)`);
+  $('entryG').setAttribute('transform', `translate(0,${R.entryY - 130})`);
+  $('map').style.display = 'none';
+  updateHUD();
+  $('startWave').style.display = 'block';
+  showNextWave();
+  showModal(`ROOM ${i + 1} OF 50 · SLOTS PIT`, R.name, null, R.intro,
+    'TAP ANY GUEST FOR THEIR DOSSIER', 'OPEN THE DOORS');
+}
+
+function renderMap() {
+  $('mapComps').textContent = `🎟 ${SAVE.comps} COMPS`;
+  const holder = $('mapNodes');
+  holder.innerHTML = '';
+  for (let i = 0; i < 10; i++) {
+    const real = i < ROOMS.length;
+    const unlocked = real && i < SAVE.unlocked;
+    const cleared = i < SAVE.unlocked - 1;
+    const b = document.createElement('div');
+    b.className = 'mapNode' + (cleared ? ' cleared' : unlocked ? ' cur' : '');
+    b.textContent = real ? (cleared ? '★' : i + 1) : '?';
+    if (unlocked && !cleared) b.addEventListener('pointerdown', () => initRoom(i));
+    else if (cleared) b.addEventListener('pointerdown', () => initRoom(i));  // replay
+    holder.appendChild(b);
+    if (i < 9) {
+      const c = document.createElement('div');
+      c.className = 'mapLink';
+      holder.appendChild(c);
+    }
+  }
+}
+
+/* ══════════ SLOT MACHINE (between floors) ══════════ */
+const SLOT = { spins: 10, free: 0, bonusWon: 0, spinning: false, COST: 25, CAP: 400 };
+const STRIP = ['🍒','🍒','🍒','🍒','🍋','🍋','🍋','🍋','♦','♦','♦','7','7','★'];
+const pickSym = () => STRIP[Math.floor(Math.random() * STRIP.length)];
+
+function slotInfo(msg) {
+  updateHUD();
+  $('slotInfo').textContent =
+    `CHIPS ${Math.floor(G.chips)} · ` +
+    (SLOT.free > 0 ? `FREE GAMES ${SLOT.free}` : `SPINS LEFT ${SLOT.spins}`);
+  if (msg) $('slotMsg').textContent = msg;
+  const can = !SLOT.spinning && (SLOT.free > 0 || (SLOT.spins > 0 && G.chips >= SLOT.COST));
+  $('spinBtn').style.opacity = can ? 1 : .4;
+  $('spinBtn').textContent = SLOT.free > 0 ? 'SPIN · FREE' : 'SPIN · ' + SLOT.COST;
+}
+function openSlots() {
+  $('slots').style.display = 'flex';
+  slotInfo(`${ROOMS[ROOM].name} cleared! Every 10 chips banks 1 comp.`);
+}
+$('spinBtn').addEventListener('pointerdown', ev => {
+  ev.stopPropagation();
+  if (SLOT.spinning) return;
+  const free = SLOT.free > 0;
+  if (!free && (SLOT.spins <= 0 || G.chips < SLOT.COST)) return;
+  const wasFree = free;
+  if (free) SLOT.free--; else { SLOT.spins--; G.chips -= SLOT.COST; }
+  SLOT.spinning = true;
+  const reels = document.querySelectorAll('#reels .reel');
+  const final = [pickSym(), pickSym(), pickSym()];
+  let t = 0;
+  const iv = setInterval(() => {
+    t += 80;
+    reels.forEach((r, i) => {
+      r.textContent = t < 380 + i * 260 ? pickSym() : final[i];
+    });
+    if (t >= 380 + 2 * 260 + 90) {
+      clearInterval(iv);
+      SLOT.spinning = false;
+      const [a, b, c] = final;
+      let win = 0, msg = 'So close.';
+      if (a === '★' && b === '★' && c === '★') {
+        SLOT.free += 10;
+        msg = '✨ 10 FREE GAMES! ✨';
+      } else if (a === b && b === c) {
+        win = { '7': 500, '♦': 300, '🍒': 200, '🍋': 150 }[a];
+        msg = `THREE OF A KIND! +${win}`;
+      } else if (a === b || b === c || a === c) { win = 25; msg = 'Pair! +25'; }
+      else if (final.includes('🍒')) { win = 10; msg = 'Cherry! +10'; }
+      if (win && wasFree) {  // free-game winnings are hard-capped: no infinite bonus
+        if (SLOT.bonusWon + win > SLOT.CAP) {
+          win = Math.max(0, SLOT.CAP - SLOT.bonusWon);
+          SLOT.free = 0;
+          msg = `House limit! +${win} — bonus over.`;
+        }
+        SLOT.bonusWon += win;
+      }
+      G.chips += win;
+      slotInfo(msg);
+    }
+  }, 80);
+  slotInfo('...');
+});
+$('cashBtn').addEventListener('pointerdown', ev => {
+  ev.stopPropagation();
+  if (SLOT.spinning) return;
+  const comps = Math.floor(G.chips / 10);
+  SAVE.comps += comps;
+  SAVE.unlocked = Math.max(SAVE.unlocked, Math.min(ROOM + 2, ROOMS.length));
+  saveSave();
+  location.reload();
+});
+
 /* ══════════ BOOT ══════════ */
 updateHUD();
-$('startWave').style.display = 'block';
-showNextWave();
-showModal('WELCOME TO THE FLOOR', "HOLD'EM", null,
-  'Guests are marching on the vault. Drag towers from the bottom shelf onto any open carpet — green means it fits. ' +
-  'Hold all five reputation stars and survive 10 waves. Tap any guest mid-round to read their dossier (it politely pauses the game).',
-  'SLOTS PIT · ROOM 1 OF 50', 'OPEN THE DOORS');
+renderMap();
+$('map').style.display = 'flex';
 
 /* offline support */
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   navigator.serviceWorker.register('sw.js').catch(() => {});
 }
+
+/* iOS: no pinch zoom, no double-tap zoom */
+document.addEventListener('gesturestart', e => e.preventDefault());
+document.addEventListener('dblclick', e => e.preventDefault());
 
 /* dev gallery: ?gallery renders every sprite large for visual review */
 if (location.search.includes('gallery')) {
@@ -1541,17 +1888,41 @@ if (location.search.includes('gallery')) {
   });
 }
 
-/* dev autotest: ?autotest builds towers and starts the wave unattended */
+/* dev slottest: jump straight to the slot machine and spin a few times */
+if (location.search.includes('slottest')) {
+  $('modal').style.display = 'none';
+  $('map').style.display = 'none';
+  G.chips = 300;
+  G.paused = true;
+  openSlots();
+  let n = 0;
+  const t = setInterval(() => {
+    if (SLOT.spinning) return;
+    if (n++ < 3) $('spinBtn').dispatchEvent(new Event('pointerdown'));
+    else clearInterval(t);
+  }, 300);
+}
+
+/* dev autotest: ?autotest plays the campaign unattended */
 if (location.search.includes('autotest')) {
+  const cur = document.querySelector('.mapNode.cur');
+  if (cur) cur.dispatchEvent(new Event('pointerdown'));
   $('modalBtn').dispatchEvent(new Event('click'));
   buildTower('dealer', 430, 212);
   buildTower('roulette', 560, 385);
-  G.chips -= 370;
+  buildTower('dealer', 240, 385);
+  buildTower('roulette', 240, 212);
+  buildTower('craps', 700, 385);
+  buildTower('rope', 340, 300);
+  G.towers.forEach(t => { t.lvl = 2; });
   updateHUD();
   const auto = setInterval(() => {
-    if (G.over) return clearInterval(auto);
+    if ($('slots').style.display === 'flex') {
+      if (!SLOT.spinning) $('cashBtn').dispatchEvent(new Event('pointerdown'));
+      return;
+    }
     if ($('modal').style.display === 'flex') $('modalBtn').dispatchEvent(new Event('click'));
-    else if (!G.running) startWave();
+    else if (!G.running && !G.over) startWave();
   }, 400);
   // drive the simulation off timers too (headless rAF doesn't advance under virtual time)
   setInterval(() => update(0.032), 32);
