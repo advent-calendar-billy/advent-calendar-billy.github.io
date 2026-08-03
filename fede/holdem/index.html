@@ -145,6 +145,32 @@
 
   /* ── float layer for TILT!/chips text handled in SVG ── */
 
+  /* ── shop bar (drag towers from here) ── */
+  #shop {
+    position: fixed;
+    left: 10px;
+    bottom: calc(8px + env(safe-area-inset-bottom, 0));
+    display: flex;
+    gap: 8px;
+    z-index: 12;
+  }
+  .shopCard {
+    width: 78px;
+    background: rgba(18,16,12,.88);
+    border: 2px solid #5a4626;
+    border-radius: 12px;
+    text-align: center;
+    padding: 3px 2px 5px;
+    color: var(--cream);
+    touch-action: none;
+    cursor: grab;
+  }
+  .shopCard.afford { border-color: var(--gold); }
+  .shopCard:not(.afford) { opacity: .45; }
+  .shopCard svg { width: 54px; height: 44px; display: block; margin: 0 auto; pointer-events: none; }
+  .shopCard .cost { font-size: 12px; color: var(--gold); font-weight: 800; }
+  .shopCard .nm { font-size: 9.5px; font-weight: 700; color: #d8cbb0; }
+
   /* ── portrait blocker ── */
   #rotate {
     position: fixed; inset: 0;
@@ -440,7 +466,7 @@
 
     <!-- lane -->
     <g id="laneG"></g>
-    <path id="lanePath" d="M -40 130 C 200 130, 460 130, 620 130 C 740 130, 740 290, 620 290 C 440 290, 300 290, 230 290 C 115 290, 115 450, 230 450 C 430 450, 640 450, 1160 450" fill="none" stroke="none"/>
+    <path id="lanePath" d="M -40 130 C 200 130, 460 130, 620 130 C 740 130, 740 300, 620 300 C 440 300, 300 300, 230 300 C 115 300, 115 470, 230 470 C 430 470, 640 470, 1160 470" fill="none" stroke="none"/>
 
     <!-- entrance -->
     <g stroke="#7c4a22" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -449,7 +475,7 @@
     </g>
 
     <!-- vault -->
-    <g transform="translate(1046,450) scale(.6)">
+    <g transform="translate(1046,470) scale(.6)">
       <circle r="90" fill="url(#vaultLeak)" id="vaultGlowC"/>
       <rect x="-64" y="-64" width="140" height="128" rx="14" fill="#5c636b" stroke="#3b2415" stroke-width="5"/>
       <rect x="-52" y="-52" width="116" height="104" rx="10" fill="url(#steel)" stroke="#3b2415" stroke-width="4"/>
@@ -467,10 +493,10 @@
       <text x="0" y="-73" text-anchor="middle" font-family="Georgia" font-weight="bold" font-size="13" fill="#3b2415">RESERVE</text>
     </g>
 
-    <!-- build pads -->
-    <g id="padsG"></g>
     <!-- towers -->
     <g id="towersG"></g>
+    <!-- drag ghost -->
+    <g id="ghostG" pointer-events="none"></g>
     <!-- enemies -->
     <g id="enemiesG"></g>
     <!-- projectiles -->
@@ -495,6 +521,9 @@
 </div>
 
 <button class="btn primary" id="startWave">DEAL&nbsp;THEM&nbsp;IN&nbsp;▸</button>
+
+<!-- shop bar: drag a tower onto the floor -->
+<div id="shop"></div>
 
 <!-- build / tower sheet -->
 <div id="sheet">
@@ -594,11 +623,8 @@ const TTYPES = {
     up: { cost:160, menu:'+100 chips / wave' } }
 };
 
-const PADS = [
-  [180,210],[430,210],[665,210],
-  [330,370],[580,370],[850,370],
-  [900,530]
-];
+/* footprint radius per tower type (for placement collision) */
+const TOWER_R = { dealer: 34, roulette: 36, rope: 30, cage: 32 };
 
 const WAVES = [
   [['retiree',8,1.1]],
@@ -628,7 +654,6 @@ const G = {
   floats: [],
   spawners: [],
   seen: {},           // enemy types already introduced
-  selectedPad: null,
   over: false
 };
 
@@ -639,8 +664,8 @@ function updateHUD() {
   let s = '';
   for (let i = 0; i < 5; i++) s += `<span${i < G.stars ? '' : ' class="off"'}>★</span>`;
   $('stars').innerHTML = s;
-  // keep build-sheet affordability live
-  document.querySelectorAll('#sheetRow .shopItem[data-cost]').forEach(b => {
+  // keep shop-bar + sheet affordability live
+  document.querySelectorAll('#sheetRow .shopItem[data-cost], #shop .shopCard[data-cost]').forEach(b => {
     b.classList.toggle('afford', G.chips >= +b.dataset.cost);
   });
 }
@@ -693,106 +718,133 @@ function introduce(type, then) {
     e.boss ? .9 : 1);
 }
 
-/* ══════════ PADS ══════════ */
-PADS.forEach(([x, y], i) => {
-  const g = svgEl('g', { transform: `translate(${x},${y})`, 'data-pad': i }, $('padsG'));
-  const oct = r => Array.from({length: 8}, (_, k) => {
-    const a = k * Math.PI / 4 + Math.PI / 8;
-    return `${(Math.cos(a) * r).toFixed(1)},${(Math.sin(a) * r).toFixed(1)}`;
-  }).join(' ');
-  svgEl('polygon', { points: oct(34), fill: '#8f2a24', stroke: '#d9a94f', 'stroke-width': 2.5, opacity: .9 }, g);
-  svgEl('polygon', { points: oct(26), fill: 'none', stroke: '#d9a94f', 'stroke-width': 1.5, opacity: .5, 'stroke-dasharray': '4 5' }, g);
-  svgEl('text', { y: 7, 'text-anchor': 'middle', 'font-size': 20, fill: '#d9a94f', opacity: .8 }, g).textContent = '+';
-  g.addEventListener('pointerdown', ev => { ev.stopPropagation(); openSheetForPad(i); });
-});
+/* ══════════ PLACEMENT ══════════ */
+const stageSvg = $('stage');
+function clientToSvg(cx, cy) {
+  const p = new DOMPoint(cx, cy).matrixTransform(stageSvg.getScreenCTM().inverse());
+  return [p.x, p.y];
+}
+function placeOK(x, y, r) {
+  if (x < 30 || x > 1090 || y < 58 || y > 585) return false;
+  const clr = (24 + r) * (24 + r);                       // lane clearance
+  for (let i = 0; i < PTS.length; i += 2) {
+    const dx = PTS[i][0] - x, dy = PTS[i][1] - y;
+    if (dx * dx + dy * dy < clr) return false;
+  }
+  for (const t of G.towers) {                            // tower collision
+    const rr = r + t.r + 4, dx = t.x - x, dy = t.y - y;
+    if (dx * dx + dy * dy < rr * rr) return false;
+  }
+  const dvx = 1046 - x, dvy = 470 - y;                   // vault clearance
+  if (dvx * dvx + dvy * dvy < (r + 62) * (r + 62)) return false;
+  return true;
+}
 
-/* ══════════ SHEET ══════════ */
+/* ══════════ SHOP BAR (drag to place) ══════════ */
+let drag = null;
+(function buildShop(){
+  const bar = $('shop');
+  for (const key in TTYPES) {
+    const T = TTYPES[key];
+    const card = document.createElement('div');
+    card.className = 'shopCard';
+    card.dataset.cost = T.cost;
+    card.innerHTML =
+      `<svg viewBox="-62 -58 124 108"><use href="#${T.sprite}"/></svg>` +
+      `<div class="cost">🪙 ${T.cost}</div><div class="nm">${T.name}</div>`;
+    bar.appendChild(card);
+
+    card.addEventListener('pointerdown', ev => {
+      ev.stopPropagation();
+      ev.preventDefault();
+      if (G.chips < T.cost || G.over) return;
+      card.setPointerCapture(ev.pointerId);
+      const g = svgEl('g', { opacity: .9 }, $('ghostG'));
+      const ring = T.range
+        ? svgEl('circle', { r: T.range, fill: 'rgba(232,182,76,.08)', stroke: '#e8b64c', 'stroke-width': 2, 'stroke-dasharray': '6 8' }, g)
+        : null;
+      const foot = svgEl('circle', { r: TOWER_R[key], fill: 'rgba(87,194,110,.25)', stroke: '#57c26e', 'stroke-width': 2.5 }, g);
+      const sprite = svgEl('g', { transform: `scale(${T.scale})` }, g);
+      svgEl('use', { href: '#' + T.sprite }, sprite);
+      drag = { key, T, g, foot, x: -999, y: -999, ok: false };
+      const [x, y] = clientToSvg(ev.clientX, ev.clientY);
+      moveDrag(x, y);
+    });
+    card.addEventListener('pointermove', ev => {
+      if (!drag || drag.key !== key) return;
+      const [x, y] = clientToSvg(ev.clientX, ev.clientY);
+      moveDrag(x, y);
+    });
+    const drop = ev => {
+      if (!drag || drag.key !== key) return;
+      const d = drag;
+      drag = null;
+      d.g.remove();
+      if (d.ok && G.chips >= d.T.cost) {
+        G.chips -= d.T.cost;
+        buildTower(key, d.x, d.y);
+        updateHUD();
+      }
+    };
+    card.addEventListener('pointerup', drop);
+    card.addEventListener('pointercancel', drop);
+  }
+  function moveDrag(x, y) {
+    drag.x = x; drag.y = y;
+    drag.ok = placeOK(x, y, TOWER_R[drag.key]);
+    drag.g.setAttribute('transform', `translate(${x},${y})`);
+    drag.foot.setAttribute('fill', drag.ok ? 'rgba(87,194,110,.25)' : 'rgba(224,90,58,.35)');
+    drag.foot.setAttribute('stroke', drag.ok ? '#57c26e' : '#e05a3a');
+  }
+})();
+
+/* ══════════ SHEET (tap a placed tower → upgrade / sell) ══════════ */
 function closeSheet() {
   $('sheet').style.display = 'none';
   $('rangePrev').setAttribute('opacity', 0);
-  G.selectedPad = null;
 }
-function openSheetForPad(i) {
-  G.selectedPad = i;
-  $('rangePrev').setAttribute('opacity', 0);
-  const [x, y] = PADS[i];
-  const tower = G.towers.find(t => t.pad === i);
+function openSheetForTower(tower) {
+  const T = TTYPES[tower.type];
+  const { x, y } = tower;
   const row = $('sheetRow');
   row.innerHTML = '';
-  if (!tower) {
-    $('sheetTitle').textContent = 'BUILD ON THIS SPOT';
-    for (const key in TTYPES) {
-      const T = TTYPES[key];
-      const b = document.createElement('div');
-      b.className = 'shopItem' + (G.chips >= T.cost ? ' afford' : '');
-      b.innerHTML = `<div class="nm">${T.name}</div><div class="cost">🪙 ${T.cost}</div><div class="sub">${T.menu}</div>`;
-      b.dataset.cost = T.cost;
-      b.addEventListener('pointerdown', ev => {
-        ev.stopPropagation();
-        if (G.chips < T.cost) return;
-        G.chips -= T.cost;
-        const nt = buildTower(key, i);
-        closeSheet();
-        updateHUD();
-        if (T.range) {   // flash the new tower's real range
-          $('rangePrev').setAttribute('cx', x);
-          $('rangePrev').setAttribute('cy', y);
-          $('rangePrev').setAttribute('r', nt.range());
-          $('rangePrev').setAttribute('opacity', 1);
-          setTimeout(() => $('rangePrev').setAttribute('opacity', 0), 1200);
-        }
-      });
-      // show this tower's range while the finger is on the item
-      if (T.range) {
-        b.addEventListener('pointerenter', () => {
-          $('rangePrev').setAttribute('cx', x);
-          $('rangePrev').setAttribute('cy', y);
-          $('rangePrev').setAttribute('r', T.range);
-          $('rangePrev').setAttribute('opacity', 1);
-        });
-      }
-      row.appendChild(b);
-    }
-  } else {
-    const T = TTYPES[tower.type];
-    $('sheetTitle').textContent = T.name + (tower.lvl > 1 ? ' ★' : '');
-    if (tower.lvl === 1) {
-      const b = document.createElement('div');
-      b.className = 'shopItem' + (G.chips >= T.up.cost ? ' afford' : '');
-      b.dataset.cost = T.up.cost;
-      b.innerHTML = `<div class="nm">UPGRADE ★</div><div class="cost">🪙 ${T.up.cost}</div><div class="sub">${T.up.menu}</div>`;
-      b.addEventListener('pointerdown', ev => {
-        ev.stopPropagation();
-        if (G.chips < T.up.cost) return;
-        G.chips -= T.up.cost;
-        tower.lvl = 2;
-        if (tower.type === 'rope') tower.el.setAttribute('transform',
-          `translate(${x},${y}) scale(${T.scale * 1.15})`);
-        float(x, y - 40, '★ UPGRADED', '#57c26e');
-        closeSheet();
-        updateHUD();
-      });
-      row.appendChild(b);
-    }
-    const s = document.createElement('div');
-    const refund = Math.floor((T.cost + (tower.lvl === 2 ? T.up.cost : 0)) * .7);
-    s.className = 'shopItem afford';
-    s.innerHTML = `<div class="nm">SELL</div><div class="cost">🪙 +${refund}</div><div class="sub">70% back</div>`;
-    s.addEventListener('pointerdown', ev => {
+  $('sheetTitle').textContent = T.name + (tower.lvl > 1 ? ' ★' : '');
+  if (tower.lvl === 1) {
+    const b = document.createElement('div');
+    b.className = 'shopItem' + (G.chips >= T.up.cost ? ' afford' : '');
+    b.dataset.cost = T.up.cost;
+    b.innerHTML = `<div class="nm">UPGRADE ★</div><div class="cost">🪙 ${T.up.cost}</div><div class="sub">${T.up.menu}</div>`;
+    b.addEventListener('pointerdown', ev => {
       ev.stopPropagation();
-      G.chips += refund;
-      tower.el.remove();
-      G.towers = G.towers.filter(t => t !== tower);
+      if (G.chips < T.up.cost) return;
+      G.chips -= T.up.cost;
+      tower.lvl = 2;
+      if (tower.type === 'rope') tower.el.setAttribute('transform',
+        `translate(${x},${y}) scale(${T.scale * 1.15})`);
+      float(x, y - 40, '★ UPGRADED', '#57c26e');
       closeSheet();
       updateHUD();
     });
-    row.appendChild(s);
-    if (T.range) {
-      $('rangePrev').setAttribute('cx', x);
-      $('rangePrev').setAttribute('cy', y);
-      $('rangePrev').setAttribute('r', tower.range());
-      $('rangePrev').setAttribute('opacity', 1);
-    }
+    row.appendChild(b);
+  }
+  const s = document.createElement('div');
+  const refund = Math.floor((T.cost + (tower.lvl === 2 ? T.up.cost : 0)) * .7);
+  s.className = 'shopItem afford';
+  s.innerHTML = `<div class="nm">SELL</div><div class="cost">🪙 +${refund}</div><div class="sub">70% back</div>`;
+  s.addEventListener('pointerdown', ev => {
+    ev.stopPropagation();
+    G.chips += refund;
+    tower.el.remove();
+    G.towers = G.towers.filter(t => t !== tower);
+    closeSheet();
+    updateHUD();
+  });
+  row.appendChild(s);
+  if (T.range) {
+    $('rangePrev').setAttribute('cx', x);
+    $('rangePrev').setAttribute('cy', y);
+    $('rangePrev').setAttribute('r', tower.range());
+    $('rangePrev').setAttribute('opacity', 1);
   }
   $('sheet').style.display = 'block';
 }
@@ -801,13 +853,12 @@ document.addEventListener('pointerdown', ev => {
 });
 
 /* ══════════ TOWERS ══════════ */
-function buildTower(type, pad) {
+function buildTower(type, x, y) {
   const T = TTYPES[type];
-  const [x, y] = PADS[pad];
   const el = svgEl('g', { transform: `translate(${x},${y}) scale(${T.scale})` }, $('towersG'));
-  const u = svgEl('use', { href: '#' + T.sprite }, el);
+  svgEl('use', { href: '#' + T.sprite }, el);
   const tower = {
-    type, pad, x, y, el, lvl: 1, cool: 0, stunUntil: 0,
+    type, x, y, el, r: TOWER_R[type], lvl: 1, cool: 0, stunUntil: 0,
     range() {
       if (type === 'rope') return this.lvl === 2 ? 130 : T.range;
       return T.range;
@@ -821,7 +872,7 @@ function buildTower(type, pad) {
   }, el);
   tower.stunEl.textContent = 'TILT!';
   G.towers.push(tower);
-  el.addEventListener('pointerdown', ev => { ev.stopPropagation(); openSheetForPad(pad); });
+  el.addEventListener('pointerdown', ev => { ev.stopPropagation(); openSheetForTower(tower); });
   return tower;
 }
 
@@ -884,7 +935,7 @@ function killEnemy(e, leaked) {
   G.enemies = G.enemies.filter(x => x !== e);
   if (leaked) {
     G.stars = Math.max(0, G.stars - e.E.star);
-    const [vx, vy] = [1046, 430];
+    const [vx, vy] = [1046, 450];
     float(vx - 60, vy - 40, '-' + e.E.star + ' ★', '#e05a3a');
     if (e.E.steal) {
       G.chips = Math.max(0, G.chips - e.E.steal);
@@ -1160,8 +1211,8 @@ $('pauseBtn').addEventListener('pointerdown', ev => {
 updateHUD();
 $('startWave').style.display = 'block';
 showModal('WELCOME TO THE FLOOR', "HOLD'EM", null,
-  'Guests are marching on the vault. Build towers on the octagon pads, hold all five reputation stars, and survive 10 waves. ' +
-  'Tap any guest mid-round to read their dossier (it politely pauses the game).',
+  'Guests are marching on the vault. Drag towers from the bottom shelf onto any open carpet — green means it fits. ' +
+  'Hold all five reputation stars and survive 10 waves. Tap any guest mid-round to read their dossier (it politely pauses the game).',
   'SLOTS PIT · ROOM 1 OF 50', 'OPEN THE DOORS');
 
 /* offline support */
@@ -1172,8 +1223,8 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
 /* dev autotest: ?autotest builds towers and starts the wave unattended */
 if (location.search.includes('autotest')) {
   $('modalBtn').dispatchEvent(new Event('click'));
-  buildTower('dealer', 1);
-  buildTower('roulette', 4);
+  buildTower('dealer', 430, 212);
+  buildTower('roulette', 560, 385);
   G.chips -= 370;
   updateHUD();
   const auto = setInterval(() => {
