@@ -64,6 +64,10 @@
 - **Boss every 5th room** — needs ~10 distinct bosses or heavy variants across the campaign
 - **Reputation meter**: leaks damage the casino's star rating; at zero stars the room fails
 
+## Comps shop (PROVISIONAL — not yet user-approved)
+- Map screen sells permanent upgrades for comps: Bigger Bankroll (+60 start chips, ×3) and House Discount (towers 5% cheaper, ×2)
+- Placeholder design to make comps mean something; revisit with Billy
+
 ## Economy (approved)
 - **Fresh build per room** (Bloons-style): build from scratch each room with starting chips
 - Leftover chips convert to a **meta-currency** for permanent upgrades between rooms

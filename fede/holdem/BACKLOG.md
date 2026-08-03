@@ -23,8 +23,8 @@
 
 ## TOWERS — approved, not yet built
 - [x] ATM Row — skims fee from enemies walking past; wants dangerous placement
-- [ ] Old Shrimp Buffet — lure capped at 5% of enemies (20% with powerups) + poison stacks
-- [ ] The Waitress — attack-speed aura on a circuit (renamed from Bottle Service)
+- [x] Old Shrimp Buffet — lure capped at 5%/20% of the wave + food-poisoning DoT
+- [x] The Waitress — attack-speed aura tower (+25%/40%)
 - [x] Craps Table — periodic AoE cheer knockback
 - [ ] Chip Stack Catapult — spends chips as ammo, late-game dump
 - [ ] Tower upgrade paths (2 paths each, à la Bloons) instead of single ★ upgrade — big system
@@ -36,7 +36,7 @@
 - [x] Drunk — staggering walk, hard to hit (dodge chance?)
 - [x] Mojito Guy — first hit spills drink → red, angry, faster
 - [x] Coupon Clipper — visible coupon armor, shreds per hit
-- [ ] The Regular — skips path segments via staff doors
+- [x] The Regular — staff-door skips with door-flash fx
 - [x] Card Counter (elite) — dodges every 4th hit (COUNTED)
 - [ ] Tier-scaling system: earlier bosses become later fodder (approved) — needs stat curves per floor
 - [x] Enemy walk animations (waddle/groove) lost in gameplay port — sprites are static; re-add per-enemy gait
@@ -44,7 +44,7 @@
 ## BOSSES (every 5th room — need ~10 distinct across campaign)
 - [x] The Whale (mini-boss, room 1 wave 5)
 - [x] Loan Shark (room 1 wave 10)
-- [ ] The Auditor — disables most expensive tower while alive
+- [x] The Auditor — boss, freezes priciest tower (UNDER AUDIT), room 4 wave 10
 - [ ] Lady Luck — jinx aura: towers roll minimum damage
 - [ ] 6+ more bosses to brainstorm WITH USER (interview style)
 
@@ -54,8 +54,8 @@
 - [x] Campaign map screen — the map is part of the aesthetic; ~50 rooms in theme blocks
       (classic gambling climb + amenity floors, weird floors between blocks)
 - [x] Room progression: fresh build per room, leftover chips → meta-currency (approved)
-- [ ] Meta-currency permanent upgrades shop (design with user)
-- [x] Rooms 2-3 built (reversed serpentine; center-vault hook) — rooms 4-10 lanes still to design
+- [x] Comps shop v1 on map (Bigger Bankroll, House Discount) — PROVISIONAL, needs user approval
+- [x] Rooms 2-4 built — rooms 5-10 lanes still to design
 - [ ] Later theme blocks: blackjack rooms, roulette halls, poker room, buffet, pool deck, theater, high-roller suite, vault finale
 - [ ] Branching floors (1 → 2a/2b → 3) — later, approved as eventual
 - [x] localStorage campaign save (which room, meta-currency, unlocks)

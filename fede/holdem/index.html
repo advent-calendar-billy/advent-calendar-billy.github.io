@@ -205,11 +205,17 @@
     left: 10px;
     bottom: calc(8px + env(safe-area-inset-bottom, 0));
     display: flex;
-    gap: 8px;
+    gap: 7px;
     z-index: 12;
+    max-width: calc(100vw - 210px);
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: none;
   }
+  #shop::-webkit-scrollbar { display: none; }
   .shopCard {
-    width: 78px;
+    flex: 0 0 auto;
+    width: 70px;
     background: rgba(18,16,12,.88);
     border: 2px solid #5a4626;
     border-radius: 12px;
@@ -294,6 +300,20 @@
   }
   @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.12); } }
   .mapLink { width: 14px; height: 3px; background: #5a4626; border-radius: 2px; }
+  #mapShop { margin: 6px 0 14px; }
+  .mapUp {
+    display: inline-block;
+    margin: 4px 6px;
+    padding: 8px 14px;
+    border: 2px solid #5a4626;
+    border-radius: 12px;
+    background: #101511;
+    color: var(--cream);
+    min-width: 170px;
+    text-align: center;
+  }
+  .mapUp.can { border-color: var(--gold); cursor: pointer; }
+  .mapUp:not(.can) { opacity: .6; }
 
   /* ── slot machine ── */
   #slots {
@@ -346,6 +366,8 @@
   }
   @keyframes leafSway { 0%,100% { transform: rotate(-2.5deg); } 50% { transform: rotate(2.5deg); } }
   @keyframes ropeMarch { to { stroke-dashoffset: -16; } }
+  .buffetStink { animation: stinkUp 2.2s ease-in-out infinite; }
+  @keyframes stinkUp { 0%,100% { opacity: .35; transform: translateY(0); } 50% { opacity: .85; transform: translateY(-3px); } }
 
   /* ── enemy gaits ── */
   .gait-waddle, .gait-groove, .gait-lumber, .gait-stagger {
@@ -797,6 +819,60 @@
         <path d="M-3 -21 Q 0 -18 3 -21" fill="none" stroke="#3b2415" stroke-width="1.8"/>
       </g>
 
+      <g id="sprRegular">
+        <ellipse cx="0" cy="36" rx="19" ry="5.5" fill="rgba(40,16,8,.3)"/>
+        <ellipse cx="-7" cy="35" rx="6" ry="4" fill="#8a5a30" stroke="#3b2415" stroke-width="2.5"/>
+        <ellipse cx="7" cy="35" rx="6" ry="4" fill="#8a5a30" stroke="#3b2415" stroke-width="2.5"/>
+        <path d="M-12 30 L -10 2 L 10 2 L 12 30 Q 0 35 -12 30 Z" fill="#5b6a86" stroke="#3b2415" stroke-width="3.5"/>
+        <path d="M-14 4 Q -16 -16 0 -18 Q 16 -16 14 4 Q 0 8 -14 4 Z" fill="#c9a227" stroke="#3b2415" stroke-width="3.5"/>
+        <path d="M-6 -16 L 6 -16 L 5 2 L -5 2 Z" fill="#f5ead1" stroke="#3b2415" stroke-width="2.2"/>
+        <path d="M-4 -16 L 0 -4 L 4 -16" fill="none" stroke="#c9473b" stroke-width="2.2"/>
+        <rect x="-4" y="-5" width="8" height="10" rx="1.5" fill="#f5ead1" stroke="#3b2415" stroke-width="1.8"/>
+        <line x1="-2" y1="-1" x2="2" y2="-1" stroke="#2b6cb0" stroke-width="1.6"/>
+        <line x1="-2" y1="2" x2="2" y2="2" stroke="#8d959f" stroke-width="1.4"/>
+        <path d="M-14 -10 Q -20 -5 -20 2" stroke="#c9a227" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <path d="M14 -10 Q 20 -6 21 -1" stroke="#c9a227" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <g transform="translate(23,3)">
+          <rect x="-4" y="-6" width="8" height="10" rx="1.5" fill="#f5ead1" stroke="#3b2415" stroke-width="2"/>
+          <path d="M4 -4 Q 8 -3 4 0" fill="none" stroke="#3b2415" stroke-width="1.8"/>
+        </g>
+        <circle cx="0" cy="-30" r="12.5" fill="#f2b98c" stroke="#3b2415" stroke-width="3.5"/>
+        <path d="M-12 -33 Q -10 -42 0 -42 Q 10 -42 12 -33 L 16 -30 L -12 -31 Z" fill="#2e5d3a" stroke="#3b2415" stroke-width="2.5"/>
+        <circle cx="-4" cy="-27" r="1.5" fill="#3b2415"/><circle cx="4" cy="-27" r="1.5" fill="#3b2415"/>
+        <path d="M-3 -21 L 3 -21" stroke="#3b2415" stroke-width="1.8"/>
+      </g>
+
+      <g id="sprAuditor">
+        <ellipse cx="0" cy="52" rx="30" ry="9" fill="rgba(40,16,8,.35)"/>
+        <ellipse cx="-11" cy="50" rx="8" ry="5" fill="#1e1a16" stroke="#3b2415" stroke-width="3"/>
+        <ellipse cx="11" cy="50" rx="8" ry="5" fill="#1e1a16" stroke="#3b2415" stroke-width="3"/>
+        <path d="M-22 44 Q -26 -4 -14 -16 L 14 -16 Q 26 -4 22 44 Q 0 50 -22 44 Z" fill="#6e7480" stroke="#3b2415" stroke-width="4"/>
+        <path d="M-7 -14 L 7 -14 L 4 12 Q 0 15 -4 12 Z" fill="#f5ead1" stroke="#3b2415" stroke-width="2.5"/>
+        <path d="M-2 -8 L 2 -8 L 3 12 L -3 12 Z" fill="#c9473b" stroke="#3b2415" stroke-width="1.8"/>
+        <path d="M-14 -16 L -4 2 L -10 24 M14 -16 L 4 2 L 10 24" fill="none" stroke="#3b2415" stroke-width="3"/>
+        <rect x="-16" y="4" width="7" height="9" rx="1.5" fill="#c9473b" stroke="#3b2415" stroke-width="1.8"/>
+        <path d="M14 -6 Q 24 -10 28 -18" stroke="#6e7480" stroke-width="7" fill="none" stroke-linecap="round"/>
+        <g transform="translate(30,-26) rotate(12)">
+          <rect x="-8" y="-11" width="16" height="22" rx="2" fill="#c9a227" stroke="#3b2415" stroke-width="2.5"/>
+          <rect x="-6" y="-8" width="12" height="17" fill="#f5ead1" stroke="#3b2415" stroke-width="1.5"/>
+          <path d="M-4 -4 H4 M-4 0 H4 M-4 4 H2" stroke="#8d959f" stroke-width="1.4"/>
+          <rect x="-4" y="-13" width="8" height="4" rx="1.5" fill="#8d959f" stroke="#3b2415" stroke-width="1.5"/>
+        </g>
+        <path d="M-14 -6 Q -22 0 -24 8" stroke="#6e7480" stroke-width="7" fill="none" stroke-linecap="round"/>
+        <g transform="translate(-26,16)">
+          <rect x="-9" y="-6" width="18" height="14" rx="2.5" fill="#7c4a22" stroke="#3b2415" stroke-width="2.5"/>
+          <rect x="-3" y="-9" width="6" height="4" rx="1.5" fill="#7c4a22" stroke="#3b2415" stroke-width="2"/>
+        </g>
+        <circle cx="0" cy="-34" r="17" fill="#f2b98c" stroke="#3b2415" stroke-width="4"/>
+        <path d="M-17 -34 Q -17 -42 -12 -45 L -12 -34 Z" fill="#8f8a80" stroke="#3b2415" stroke-width="2"/>
+        <path d="M17 -34 Q 17 -42 12 -45 L 12 -34 Z" fill="#8f8a80" stroke="#3b2415" stroke-width="2"/>
+        <circle cx="-5.5" cy="-36" r="4.6" fill="rgba(255,255,255,.5)" stroke="#3b2415" stroke-width="2.2"/>
+        <circle cx="5.5" cy="-36" r="4.6" fill="rgba(255,255,255,.5)" stroke="#3b2415" stroke-width="2.2"/>
+        <line x1="-1" y1="-36" x2="1" y2="-36" stroke="#3b2415" stroke-width="1.8"/>
+        <circle cx="-5.5" cy="-36" r="1.4" fill="#3b2415"/><circle cx="5.5" cy="-36" r="1.4" fill="#3b2415"/>
+        <path d="M-4 -25 Q 0 -28 4 -25" fill="none" stroke="#3b2415" stroke-width="2.2" stroke-linecap="round"/>
+      </g>
+
       <g id="decSlot">
         <rect x="-21" y="-28" width="46" height="66" rx="7" fill="rgba(40,16,8,.35)"/>
         <rect x="-24" y="-32" width="46" height="66" rx="7" fill="#7a3f8c" stroke="#3b2415" stroke-width="3.5"/>
@@ -854,6 +930,33 @@
         <circle cx="0" cy="-30" r="4.5" fill="#7c4a22" stroke="#3b2415" stroke-width="2"/>
         <circle cx="-3.5" cy="-15" r="1.3" fill="#3b2415"/><circle cx="3.5" cy="-15" r="1.3" fill="#3b2415"/>
         <path d="M-3 -10 Q 0 -8 3 -10" fill="none" stroke="#3b2415" stroke-width="1.6" stroke-linecap="round"/>
+      </g>
+
+      <g id="twBuffet">
+        <rect x="-33" y="-16" width="72" height="46" rx="9" fill="rgba(40,16,8,.35)"/>
+        <rect x="-36" y="-20" width="72" height="46" rx="9" fill="#8a5a30" stroke="#3b2415" stroke-width="4"/>
+        <rect x="-29" y="-13" width="58" height="32" rx="6" fill="#f5ead1" stroke="#3b2415" stroke-width="2.5"/>
+        <ellipse cx="-10" cy="3" rx="13" ry="8" fill="#e07b39" stroke="#3b2415" stroke-width="2.5"/>
+        <path d="M-16 0 Q -13 -4 -10 0 M-9 4 Q -6 0 -3 4 M-15 6 Q -12 2 -9 6" fill="none" stroke="#e05a3a" stroke-width="2"/>
+        <circle cx="15" cy="2" r="6.5" fill="#c9473b" stroke="#3b2415" stroke-width="2.2"/>
+        <g class="buffetStink" stroke="#9aa86a" stroke-width="1.8" fill="none" opacity=".8">
+          <path d="M-14 -18 q 3 -4 0 -8 q -3 -4 0 -8"/>
+          <path d="M-4 -20 q 3 -4 0 -8 q -3 -4 0 -8"/>
+          <path d="M6 -18 q 3 -4 0 -8 q -3 -4 0 -8"/>
+        </g>
+        <line x1="-22" y1="-20" x2="-22" y2="-34" stroke="#3b2415" stroke-width="3"/>
+        <line x1="18" y1="-20" x2="18" y2="-34" stroke="#3b2415" stroke-width="3"/>
+        <path d="M-30 -34 L -14 -34 L -18 -42 L -26 -42 Z" fill="#e8b64c" stroke="#3b2415" stroke-width="2.5"/>
+        <path d="M10 -34 L 26 -34 L 22 -42 L 14 -42 Z" fill="#e8b64c" stroke="#3b2415" stroke-width="2.5"/>
+      </g>
+
+      <g id="twWaitress">
+        <ellipse cx="0" cy="28" rx="28" ry="8" fill="rgba(40,16,8,.3)"/>
+        <circle cx="-14" cy="10" r="14" fill="#8a5a30" stroke="#3b2415" stroke-width="3.5"/>
+        <circle cx="-14" cy="10" r="10" fill="#a3703c" stroke="#3b2415" stroke-width="2"/>
+        <rect x="-19" y="3" width="4" height="7" fill="#79e0d2" stroke="#3b2415" stroke-width="1.4"/>
+        <rect x="-12" y="2" width="4" height="8" fill="#e8b64c" stroke="#3b2415" stroke-width="1.4"/>
+        <g transform="translate(12,-2)"><use href="#sprWaitress"/></g>
       </g>
 
       <g id="twATM">
@@ -987,6 +1090,7 @@
     <div class="mapSub">SLOTS PIT · FLOOR MAP</div>
     <div id="mapComps"></div>
     <div id="mapNodes"></div>
+    <div id="mapShop"></div>
     <div class="mapSub" style="opacity:.55">…47 more rooms under renovation</div>
   </div>
 </div>
@@ -1097,6 +1201,13 @@ const ETYPES = {
   honey: { name:'The Honeymooners', sprite:'sprBride', hp:100, speed:50, reward:12, star:1, scale:.56, tapR:32,
     desc:'Just married, deliriously happy, healing each other with every glance. Widow one and the survivor RUNS.',
     stats:'PAIR · HEAL TOGETHER · SURVIVOR RAGES' },
+  regular: { name:'The Regular', sprite:'sprRegular', hp:130, speed:55, reward:16, star:1, scale:.55, tapR:32,
+    skip: { every: 8, dist: 110 },
+    desc:'Thirty years on this floor. He knows every staff door, and he is not above using them to skip the line.',
+    stats:'SKIPS AHEAD VIA STAFF DOORS' },
+  auditor: { name:'The Auditor', sprite:'sprAuditor', hp:2600, speed:26, reward:300, star:2, scale:.8, tapR:40, boss:true, audit:true,
+    desc:'Everything stops when he opens the briefcase. While he walks, your most expensive tower is UNDER AUDIT — frozen, pending review.',
+    stats:'BOSS · DISABLES YOUR PRICIEST TOWER' },
   whale: { name:'The Whale', sprite:'sprWhale', hp:1050, speed:25, reward:150, star:2, scale:.78, tapR:40, boss:true,
     desc:'Comped everything. Bathrobe, cigar, security detail waved off. Takes a fortune down with him — and pays one out.',
     stats:'MINI-BOSS · VERY TOUGH · BIG BOUNTY' },
@@ -1123,17 +1234,25 @@ const TTYPES = {
     up: { cost:150, menu:'+2 chips · wider' } },
   craps: { name:'Craps Table', sprite:'twCraps', cost:240, range:125, cd:6, scale:.7,
     blurb:'Hot-roll knockback', menu:'Shoves crowd back',
-    up: { cost:200, menu:'Faster · stronger' } }
+    up: { cost:200, menu:'Faster · stronger' } },
+  buffet: { name:'Shrimp Buffet', sprite:'twBuffet', cost:190, range:120, scale:.7,
+    blurb:'Week-old shrimp', menu:'Lures 5% · poison',
+    up: { cost:160, menu:'Lures 20% · worse shrimp' } },
+  waitress: { name:'The Waitress', sprite:'twWaitress', cost:210, range:130, scale:.62,
+    blurb:'Drinks on the house', menu:'Towers +25% speed',
+    up: { cost:170, menu:'+40% attack speed' } }
 };
 
 /* footprint radius per tower type (for placement collision) */
-const TOWER_R = { dealer: 34, roulette: 36, rope: 30, cage: 32, atm: 28, craps: 36 };
+const TOWER_R = { dealer: 34, roulette: 36, rope: 30, cage: 32, atm: 28, craps: 36, buffet: 38, waitress: 30 };
 
 /* ══════════ CAMPAIGN ══════════ */
 const SAVE_KEY = 'holdem-save';
 function loadSave() { try { return JSON.parse(localStorage.getItem(SAVE_KEY)) || {}; } catch (e) { return {}; } }
 function saveSave() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(SAVE)); } catch (e) {} }
-const SAVE = Object.assign({ unlocked: 1, comps: 0 }, loadSave());
+const SAVE = Object.assign({ unlocked: 1, comps: 0, upg: {} }, loadSave());
+SAVE.upg = SAVE.upg || {};
+const effCost = T => Math.round(T.cost * (1 - .05 * (SAVE.upg.cheap || 0)));
 
 const ROOMS = [
   { name: 'Slots Pit 1', hpMul: 1, chips: 380,
@@ -1197,6 +1316,27 @@ const ROOMS = [
       [['tourist',24,.22],['influencer',3,7],['honey',4,5]],
       [['whale',2,15],['grandma',10,1.0],['mojito',10,.8]],
       [['shark',1,0],['whale',2,20],['influencer',2,12],['grandma',8,1.2]]
+    ] },
+  { name: 'Slots Pit 4', hpMul: 3.1, chips: 520,
+    intro: 'The pit boss called Corporate. The Regular knows the staff doors, and at the end of the night THE AUDITOR walks the floor — your best tower freezes while he lives.',
+    variants: [
+      { entryY: 470, vault: [1046, 470], killOffset: 112,
+        lanes: [
+          'M -40 470 C 100 470, 160 470, 220 470 C 340 470, 330 300, 500 300 C 670 300, 680 400, 780 450 C 830 475, 900 470, 1160 470',
+          'M -40 470 C 100 470, 160 470, 220 470 C 340 470, 360 500, 520 500 C 680 500, 700 490, 780 478 C 830 470, 900 470, 1160 470'
+        ] }
+    ],
+    waves: [
+      [['retiree',12,.8],['drunk',8,1.1]],
+      [['regular',6,1.7],['tourist',12,.5]],
+      [['clipper',8,1.1],['mojito',8,1.0],['regular',4,2.2]],
+      [['grandma',8,1.1],['honey',3,5],['influencer',2,8]],
+      [['whale',2,14],['regular',8,1.2]],
+      [['counter',5,2.2],['elvis',12,.7],['drunk',10,.8]],
+      [['regular',8,1.0],['grandma',10,1.0],['influencer',2,8]],
+      [['tourist',26,.2],['clipper',8,1.0],['honey',4,4]],
+      [['whale',2,12],['counter',5,2.0],['mojito',12,.7]],
+      [['auditor',1,0],['grandma',10,1.0],['whale',1,30],['regular',8,1.0]]
     ] }
 ];
 let ROOM = 0;
@@ -1216,6 +1356,7 @@ const G = {
   projectiles: [],
   floats: [],
   parts: [],
+  fx: [],
   spawners: [],
   seen: {},           // enemy types already introduced
   auto: false,
@@ -1245,6 +1386,14 @@ function banner(txt) {
   b.classList.remove('show');
   void b.offsetWidth;   // restart the animation
   b.classList.add('show');
+}
+
+function fxDoor([x, y]) {
+  const g = svgEl('g', { transform: `translate(${x},${y - 14})`, opacity: .95 }, $('floatG'));
+  svgEl('rect', { x: -8, y: -14, width: 16, height: 28, rx: 2, fill: '#7c4a22', stroke: '#3b2415', 'stroke-width': 2.5 }, g);
+  svgEl('circle', { cx: 4, cy: 1, r: 1.8, fill: '#e8b64c' }, g);
+  svgEl('rect', { x: -6, y: -12, width: 12, height: 10, rx: 1, fill: 'none', stroke: '#3b2415', 'stroke-width': 1.5 }, g);
+  G.fx.push({ el: g, t: 0, life: .7 });
 }
 
 function poof(x, y) {
@@ -1336,22 +1485,23 @@ function placeOK(x, y, r, type) {
 
 /* ══════════ SHOP BAR (drag to place) ══════════ */
 let drag = null;
-(function buildShop(){
+function buildShop(){
   const bar = $('shop');
+  bar.innerHTML = '';
   for (const key in TTYPES) {
     const T = TTYPES[key];
     const card = document.createElement('div');
     card.className = 'shopCard';
-    card.dataset.cost = T.cost;
+    card.dataset.cost = effCost(T);
     card.innerHTML =
       `<svg viewBox="-62 -58 124 108"><use href="#${T.sprite}"/></svg>` +
-      `<div class="cost">🪙 ${T.cost}</div><div class="nm">${T.name}</div>`;
+      `<div class="cost">🪙 ${effCost(T)}</div><div class="nm">${T.name}</div>`;
     bar.appendChild(card);
 
     card.addEventListener('pointerdown', ev => {
       ev.stopPropagation();
       ev.preventDefault();
-      if (G.chips < T.cost || G.over) return;
+      if (G.chips < effCost(T) || G.over) return;
       card.setPointerCapture(ev.pointerId);
       const g = svgEl('g', { opacity: .9 }, $('ghostG'));
       const ring = T.range
@@ -1374,8 +1524,8 @@ let drag = null;
       const d = drag;
       drag = null;
       d.g.remove();
-      if (d.ok && G.chips >= d.T.cost) {
-        G.chips -= d.T.cost;
+      if (d.ok && G.chips >= effCost(d.T)) {
+        G.chips -= effCost(d.T);
         buildTower(key, d.x, d.y);
         updateHUD();
       }
@@ -1390,7 +1540,8 @@ let drag = null;
     drag.foot.setAttribute('fill', drag.ok ? 'rgba(87,194,110,.25)' : 'rgba(224,90,58,.35)');
     drag.foot.setAttribute('stroke', drag.ok ? '#57c26e' : '#e05a3a');
   }
-})();
+}
+buildShop();
 
 /* ══════════ SHEET (tap a placed tower → upgrade / sell) ══════════ */
 function closeSheet() {
@@ -1496,6 +1647,21 @@ function buildTower(type, x, y) {
     'font-family': 'Avenir Next, Segoe UI, sans-serif'
   }, el);
   tower.stunEl.textContent = 'TILT!';
+  tower.auditEl = svgEl('text', {
+    y: -50 / T.scale, 'text-anchor': 'middle', 'font-size': 22, 'font-weight': 'bold',
+    fill: '#c9a227', stroke: '#3b2415', 'stroke-width': 4, 'paint-order': 'stroke', opacity: 0,
+    'font-family': 'Avenir Next, Segoe UI, sans-serif'
+  }, el);
+  tower.auditEl.textContent = 'UNDER AUDIT';
+  if (type === 'waitress') {
+    tower.auraEl = svgEl('circle', {
+      cx: x, cy: y, r: tower.range(),
+      fill: 'rgba(232,182,76,.05)', stroke: '#e8b64c', 'stroke-width': 2,
+      'stroke-dasharray': '3 9', opacity: .7
+    }, $('towersG'));
+    tower.auraEl.style.animation = 'ropeMarch 1.6s linear infinite';
+    el.parentNode.insertBefore(tower.auraEl, el);
+  }
   G.towers.push(tower);
   el.addEventListener('pointerdown', ev => { ev.stopPropagation(); openSheetForTower(tower); });
   return tower;
@@ -1556,6 +1722,7 @@ function spawnEnemy(type) {
     pathI: Math.floor(Math.random() * PATHS.length),
     dist: 0, hp: hpMax, hpMax,
     slowT: 0, stunCd: 0, dead: false,
+    luredUntil: 0, lureDps: 0, poisonUntil: 0, poisonDps: 0,
     armor: E.armor || 0, pips: []
   };
   for (let i = 0; i < enemy.armor; i++) {
@@ -1628,6 +1795,7 @@ function startWave() {
       // single-count spawners use their interval as an initial delay (boss staggering)
       type, left: count, interval, timer: count === 1 ? Math.max(interval, si * 1.6) : si * 1.6
     }));
+    G.waveCount = WAVES[G.wave].reduce((a, [t, c]) => a + c * (t === 'honey' ? 2 : 1), 0);
     banner('WAVE ' + (G.wave + 1));
     updateHUD();
   };
@@ -1710,6 +1878,16 @@ function damageEnemy(e, dmg) {
   else e.hpEl.setAttribute('width', Math.max(0, (e.barW - 3) * e.hp / e.hpMax));
 }
 
+function atkSpeedFactor(t) {
+  let f = 1;
+  for (const w of G.towers) {
+    if (w.type !== 'waitress' || w === t || w.audited) continue;
+    const r = w.range(), dx = w.x - t.x, dy = w.y - t.y;
+    if (dx * dx + dy * dy <= r * r) f = Math.min(f, w.lvl === 2 ? .6 : .75);
+  }
+  return f;
+}
+
 function firstEnemyInRange(t) {
   let best = null;
   for (const e of G.enemies) {
@@ -1788,10 +1966,27 @@ function update(dt) {
 
   /* enemies */
   for (const e of [...G.enemies]) {
-    let slow = 1;
     const [ex, ey] = posAtE(e);
+    /* pinned at the shrimp buffet */
+    if (e.luredUntil > G.time) {
+      e.hp -= e.lureDps * dt;
+      e.poisonUntil = G.time + 4;
+      e.poisonDps = e.lureDps * .5;
+      if (e.hp <= 0) { killEnemy(e, false); continue; }
+      e.hpEl.setAttribute('width', Math.max(0, (e.barW - 3) * e.hp / e.hpMax));
+      continue;
+    }
+    /* food poisoning lingers */
+    if (e.poisonUntil > G.time) {
+      e.hp -= e.poisonDps * dt;
+      if (e.hp <= 0) { killEnemy(e, false); continue; }
+      e.hpEl.setAttribute('width', Math.max(0, (e.barW - 3) * e.hp / e.hpMax));
+      e.sickT = (e.sickT || 0) + dt;
+      if (e.sickT > 1.4) { e.sickT = 0; float(ex, ey - 30, '🤢', '#9aa86a'); }
+    }
+    let slow = 1;
     for (const t of G.towers) {
-      if (t.type !== 'rope') continue;
+      if (t.type !== 'rope' || t.audited) continue;
       const dx = ex - t.x, dy = ey - t.y;
       if (dx * dx + dy * dy <= t.range() * t.range()) {
         slow = Math.min(slow, t.lvl === 2 ? .45 : .6);
@@ -1824,6 +2019,20 @@ function update(dt) {
         float(x, y - 30, '+♥', '#57c26e');
       }
     }
+    /* the Regular's staff doors */
+    if (e.E.skip) {
+      e.skipT = (e.skipT || 0) + dt;
+      if (e.skipT >= e.E.skip.every) {
+        e.skipT = 0;
+        if (e.dist < PATHS[e.pathI].killAt - 220) {
+          fxDoor(posAtE(e));
+          e.dist += e.E.skip.dist;
+          const [nx, ny] = posAtE(e);
+          fxDoor([nx, ny]);
+          float(nx, ny - 34, 'STAFF ONLY', '#d9a94f');
+        }
+      }
+    }
     /* grandma tower-tap */
     if (e.E.special === 'stun') {
       e.stunCd -= dt;
@@ -1842,13 +2051,46 @@ function update(dt) {
     }
   }
 
+  /* the Auditor freezes the priciest tower while he lives */
+  let auditTarget = null;
+  if (G.enemies.some(e => e.E.audit)) {
+    let best = -1;
+    for (const t of G.towers) {
+      const c = TTYPES[t.type].cost + (t.lvl === 2 ? TTYPES[t.type].up.cost : 0);
+      if (c > best) { best = c; auditTarget = t; }
+    }
+  }
+
   /* towers */
   for (const t of G.towers) {
-    t.stunEl.setAttribute('opacity', G.time < t.stunUntil ? 1 : 0);
-    if (t.type === 'cage' || t.type === 'rope') continue;
+    t.audited = t === auditTarget;
+    t.auditEl.setAttribute('opacity', t.audited ? 1 : 0);
+    t.stunEl.setAttribute('opacity', !t.audited && G.time < t.stunUntil ? 1 : 0);
+    if (t.audited) continue;
+    if (t.type === 'cage' || t.type === 'rope' || t.type === 'waitress') continue;
     if (G.time < t.stunUntil) continue;
     t.cool -= dt;
     if (t.cool > 0) continue;
+    if (t.type === 'buffet') {
+      if (t.lureWave !== G.wave) { t.lureWave = G.wave; t.lures = Math.max(1, Math.floor((G.waveCount || 10) * (t.lvl === 2 ? .2 : .05))); }
+      if (t.lures > 0) {
+        let nb = null, nd = t.range() * t.range();
+        for (const e of G.enemies) {
+          if (e.E.boss || e.luredUntil > G.time) continue;
+          const [x, y] = posAtE(e);
+          const dx = x - t.x, dy = y - t.y, d2 = dx * dx + dy * dy;
+          if (d2 < nd) { nd = d2; nb = e; }
+        }
+        if (nb) {
+          t.lures--;
+          nb.luredUntil = G.time + 2.6;
+          nb.lureDps = t.lvl === 2 ? 15 : 9;
+          float(t.x, t.y - 34, 'FREE SHRIMP!', '#e07b39');
+        }
+      }
+      t.cool = 3;
+      continue;
+    }
     if (t.type === 'atm') {
       let n = 0;
       const rr = t.range() * t.range();
@@ -1879,7 +2121,7 @@ function update(dt) {
       } else t.cool = .3;
     } else {
       const fired = t.type === 'roulette' ? fireRoulette(t) : fireDealer(t);
-      t.cool = fired ? TTYPES[t.type].cd : 0.1;
+      t.cool = fired ? TTYPES[t.type].cd * atkSpeedFactor(t) : 0.1;
     }
   }
 
@@ -1956,6 +2198,13 @@ function update(dt) {
     w.el.setAttribute('transform', `translate(${w.x},${w.y}) scale(.62,.52)`);
   }
 
+  /* fx */
+  for (const f of [...G.fx]) {
+    f.t += dt;
+    f.el.setAttribute('opacity', Math.max(0, .95 * (1 - f.t / f.life)));
+    if (f.t > f.life) { f.el.remove(); G.fx = G.fx.filter(q => q !== f); }
+  }
+
   /* particles */
   for (const p of [...G.parts]) {
     p.t += dt;
@@ -1999,7 +2248,7 @@ $('pauseBtn').addEventListener('pointerdown', ev => {
 /* ══════════ ROOMS / MAP ══════════ */
 function makeEndless() {
   const waves = [];
-  const pool = ['retiree','tourist','drunk','mojito','elvis','clipper','grandma','influencer','counter'];
+  const pool = ['retiree','tourist','drunk','mojito','elvis','clipper','grandma','influencer','counter','regular'];
   for (let w = 0; w < 50; w++) {
     const wave = [];
     const streams = 2 + Math.min(3, Math.floor(w / 6));
@@ -2025,7 +2274,8 @@ function initRoom(i) {
   G.variant = V;
   setLanes(V.lanes, V.killOffset);
   WAVES = R.waves;
-  G.chips = R.chips;
+  G.chips = R.chips + 60 * (SAVE.upg.bank || 0);
+  buildShop();
   $('vaultG').setAttribute('transform', `translate(${V.vault[0]},${V.vault[1]}) scale(.6)`);
   $('entryG').setAttribute('transform', `translate(0,${V.entryY - 130})`);
   placeDecor();
@@ -2058,6 +2308,33 @@ function renderMap() {
       holder.appendChild(c);
     }
   }
+  // comps shop: permanent upgrades (provisional design)
+  const UPG = [
+    { k: 'bank',  name: 'Bigger Bankroll', desc: '+60 starting chips per level', max: 3, cost: l => 25 + l * 15 },
+    { k: 'cheap', name: 'House Discount',  desc: 'towers 5% cheaper per level',  max: 2, cost: l => 40 + l * 20 }
+  ];
+  const shop = $('mapShop');
+  shop.innerHTML = '<div class="mapSub" style="margin-bottom:4px">SPEND COMPS</div>';
+  UPG.forEach(u => {
+    const l = SAVE.upg[u.k] || 0;
+    const maxed = l >= u.max;
+    const c = u.cost(l);
+    const div = document.createElement('div');
+    div.className = 'mapUp' + (!maxed && SAVE.comps >= c ? ' can' : '');
+    div.innerHTML =
+      `<div style="font-weight:800">${u.name} <span style="color:var(--gold)">${'★'.repeat(l)}</span></div>` +
+      `<div style="font-size:11px;color:#b7a98a">${u.desc}</div>` +
+      `<div style="font-size:12.5px;color:var(--gold);font-weight:800">${maxed ? 'MAXED' : '🎟 ' + c}</div>`;
+    if (!maxed) div.addEventListener('pointerdown', () => {
+      if (SAVE.comps < c) return;
+      SAVE.comps -= c;
+      SAVE.upg[u.k] = l + 1;
+      saveSave();
+      renderMap();
+    });
+    shop.appendChild(div);
+  });
+
   // the Endless Pit opens once the (current) campaign is cleared
   const e = document.createElement('div');
   const endlessOpen = SAVE.unlocked > ROOMS.length;
@@ -2223,8 +2500,8 @@ document.addEventListener('dblclick', e => e.preventDefault());
 /* dev gallery: ?gallery renders every sprite large for visual review */
 if (location.search.includes('gallery')) {
   const ids = ['sprRetiree','sprTourist','sprElvis','sprGrandma','sprClipper','sprInfluencer',
-               'sprDrunk','sprMojito','sprCounter','sprGroom','sprBride','sprWaitress','sprWhale','sprShark',
-               'twDealer','twRoulette','twRope','twCage','twATM','twCraps','decSlot','decBJ','decPlant'];
+               'sprDrunk','sprMojito','sprCounter','sprGroom','sprBride','sprRegular','sprWaitress','sprAuditor','sprWhale','sprShark',
+               'twDealer','twRoulette','twRope','twCage','twATM','twCraps','twBuffet','twWaitress','decSlot','decBJ','decPlant'];
   document.querySelectorAll('#hud,#startWave,#shop,#nextWave,#modal,#map,#slots').forEach(n => n.style.display = 'none');
   G.paused = true; G.over = true;
   const gal = svgEl('g', {}, stageSvg);
