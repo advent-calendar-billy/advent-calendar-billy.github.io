@@ -209,6 +209,20 @@
   #rotate .ph { font-size: 54px; animation: rot 1.6s ease-in-out infinite; }
   @keyframes rot { 0%,20% { transform: rotate(0); } 60%,100% { transform: rotate(90deg); } }
   @media (orientation: portrait) { #rotate { display: flex; } }
+
+  /* ── enemy gaits ── */
+  .gait-waddle, .gait-groove, .gait-lumber, .gait-stagger {
+    transform-box: fill-box;
+    transform-origin: 50% 90%;
+  }
+  .gait-waddle  { animation: gWaddle .55s ease-in-out infinite; }
+  .gait-groove  { animation: gGroove .5s ease-in-out infinite; }
+  .gait-lumber  { animation: gLumber .9s ease-in-out infinite; }
+  .gait-stagger { animation: gStagger 1.2s ease-in-out infinite; }
+  @keyframes gWaddle  { 0%,100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
+  @keyframes gGroove  { 0%,100% { transform: rotate(-7deg) translateY(0); } 50% { transform: rotate(7deg) translateY(-3px); } }
+  @keyframes gLumber  { 0%,100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg); } }
+  @keyframes gStagger { 0%,100% { transform: rotate(-8deg) translateX(-2px); } 30% { transform: rotate(5deg); } 65% { transform: rotate(-3deg) translateX(3px); } }
 </style>
 </head>
 <body>
@@ -393,7 +407,7 @@
         <!-- shark head -->
         <path d="M-16 -30 Q -18 -52 0 -56 Q 18 -52 16 -30 Q 10 -22 0 -22 Q -10 -22 -16 -30 Z"
               fill="#8d9fb5" stroke="#3b2415" stroke-width="4"/>
-        <path d="M-3 -56 Q 0 -70 5 -58 Q 2 -56 -3 -56 Z" fill="#8d9fb5" stroke="#3b2415" stroke-width="3"/>
+        <path d="M-6 -55 Q 1 -78 12 -56 Q 3 -60 -6 -55 Z" fill="#8d9fb5" stroke="#3b2415" stroke-width="3"/>
         <path d="M-11 -30 Q 0 -24 11 -30 Q 6 -20 0 -20 Q -6 -20 -11 -30 Z" fill="#f5ead1" stroke="#3b2415" stroke-width="2.5"/>
         <path d="M-9 -29 L -6.5 -24 L -4 -29 L -1.5 -24 L 1 -29 L 3.5 -24 L 6 -29 L 8.5 -24"
               fill="none" stroke="#3b2415" stroke-width="1.8"/>
@@ -441,13 +455,67 @@
         <line x1="24" y1="-34" x2="28" y2="-48" stroke="#3b2415" stroke-width="3.5"/>
         <rect x="23" y="-60" width="11" height="16" rx="2.5" fill="#1e1a16" stroke="#3b2415" stroke-width="2.5"/>
         <rect x="25" y="-57" width="7" height="10" rx="1" fill="#79e0d2"/>
+        <circle cx="0" cy="-31" r="19" fill="none" stroke="#ffd23f" stroke-width="3" opacity=".9" stroke-dasharray="4 5"/>
         <circle cx="0" cy="-30" r="13" fill="#f2b98c" stroke="#3b2415" stroke-width="3.5"/>
         <path d="M-13 -26 Q -18 -48 0 -46 Q 18 -48 13 -26 Q 15 -12 10 -8 Q 12 -22 8 -34 Q 4 -42 -6 -40 Q -12 -38 -13 -26 Z"
               fill="#e8c476" stroke="#3b2415" stroke-width="2.5"/>
-        <circle cx="0" cy="-33" r="17" fill="none" stroke="#ffd23f" stroke-width="2.5" opacity=".85" stroke-dasharray="3 4"/>
         <circle cx="-4.5" cy="-30" r="1.6" fill="#3b2415"/>
         <circle cx="4.5" cy="-30" r="1.6" fill="#3b2415"/>
         <path d="M-4 -23 Q 0 -20 4 -23" fill="none" stroke="#3b2415" stroke-width="1.8" stroke-linecap="round"/>
+      </g>
+
+      <g id="sprDrunk">
+        <ellipse cx="0" cy="36" rx="20" ry="5.5" fill="rgba(40,16,8,.3)"/>
+        <ellipse cx="-8" cy="35" rx="6.5" ry="4" fill="#2e2622" stroke="#3b2415" stroke-width="2.5"/>
+        <ellipse cx="6" cy="36" rx="6.5" ry="4" fill="#2e2622" stroke="#3b2415" stroke-width="2.5"/>
+        <path d="M-13 30 L -10 2 L 10 2 L 15 28 Q 2 34 -13 30 Z" fill="#5b6a86" stroke="#3b2415" stroke-width="3.5"/>
+        <path d="M-14 4 Q -16 -16 0 -18 Q 16 -16 14 4 L 8 6 L 6 -6 L -6 -6 L -8 6 Z"
+              fill="#5b6a86" stroke="#3b2415" stroke-width="3.5"/>
+        <path d="M-6 -6 L 6 -6 L 4 8 L -4 8 Z" fill="#f5ead1" stroke="#3b2415" stroke-width="2.5"/>
+        <path d="M0 -6 L 3 2 L -1 10" fill="none" stroke="#c9473b" stroke-width="3"/>
+        <path d="M14 -12 Q 22 -20 24 -30" stroke="#5b6a86" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <g transform="rotate(24 23 -37)">
+          <rect x="19.5" y="-41" width="8" height="13" rx="2.5" fill="#2e5d3a" stroke="#3b2415" stroke-width="2.5"/>
+          <rect x="22" y="-48" width="3.5" height="8" rx="1.5" fill="#2e5d3a" stroke="#3b2415" stroke-width="2"/>
+          <rect x="20.5" y="-38" width="6" height="5" fill="#e4cf9c" stroke="#3b2415" stroke-width="1.4"/>
+        </g>
+        <path d="M-13 -12 Q -19 -4 -18 2" stroke="#5b6a86" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <g transform="rotate(-9 0 -28)">
+          <circle cx="0" cy="-30" r="13" fill="#f2b98c" stroke="#3b2415" stroke-width="3.5"/>
+          <path d="M-12 -36 Q -6 -46 4 -44 Q 12 -42 12 -36 Q 2 -42 -6 -40 Q -10 -38 -12 -36 Z"
+                fill="#2e2622" stroke="#3b2415" stroke-width="2.5"/>
+          <circle cx="-6" cy="-26" r="3" fill="#e05a7a" opacity=".7"/>
+          <circle cx="7" cy="-26" r="3" fill="#e05a7a" opacity=".7"/>
+          <path d="M-8 -31 L -2 -30 M3 -30 L 9 -31" stroke="#3b2415" stroke-width="2" stroke-linecap="round"/>
+          <path d="M-3 -21 Q 0 -19 3 -22" stroke="#3b2415" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        </g>
+      </g>
+
+      <g id="sprMojito">
+        <ellipse cx="0" cy="36" rx="20" ry="5.5" fill="rgba(40,16,8,.3)"/>
+        <rect x="-11" y="26" width="9" height="10" rx="3.5" fill="#f2b98c" stroke="#3b2415" stroke-width="2.5"/>
+        <rect x="2" y="26" width="9" height="10" rx="3.5" fill="#f2b98c" stroke="#3b2415" stroke-width="2.5"/>
+        <ellipse cx="-6.5" cy="37" rx="7" ry="3.5" fill="#e8b64c" stroke="#3b2415" stroke-width="2.5"/>
+        <ellipse cx="6.5" cy="37" rx="7" ry="3.5" fill="#e8b64c" stroke="#3b2415" stroke-width="2.5"/>
+        <path d="M-13 8 L 13 8 L 11 27 L -11 27 Z" fill="#5aa9a2" stroke="#3b2415" stroke-width="3.5"/>
+        <path d="M-14 -16 L 14 -16 L 13 10 L -13 10 Z" fill="#e07b39" stroke="#3b2415" stroke-width="3.5"/>
+        <g fill="#f5ead1">
+          <circle cx="-7" cy="-9" r="2"/><circle cx="5" cy="-12" r="2"/>
+          <circle cx="8" cy="0" r="2"/><circle cx="-4" cy="2" r="2"/>
+        </g>
+        <path d="M-14 -14 Q -21 -8 -21 -2" stroke="#e07b39" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <path d="M14 -13 Q 21 -12 23 -6" stroke="#e07b39" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <g transform="translate(25,-14)">
+          <path d="M-5 0 L 5 0 L 4 14 L -4 14 Z" fill="rgba(180,230,200,.9)" stroke="#3b2415" stroke-width="2.5"/>
+          <path d="M-4 3 L 4 3 L 3.5 13 L -3.5 13 Z" fill="#7fd8a8"/>
+          <line x1="2" y1="-8" x2="-2" y2="2" stroke="#c9473b" stroke-width="2"/>
+          <circle cx="-3" cy="-2" r="2.5" fill="#2e8b6a" stroke="#3b2415" stroke-width="1.5"/>
+        </g>
+        <circle cx="0" cy="-30" r="13" fill="#f2b98c" stroke="#3b2415" stroke-width="3.5"/>
+        <path d="M-13 -32 Q -10 -44 0 -44 Q 10 -44 13 -32 L 13 -28 Q 0 -34 -13 -28 Z"
+              fill="#7c4a22" stroke="#3b2415" stroke-width="2.5"/>
+        <circle cx="-4.5" cy="-29" r="1.6" fill="#3b2415"/><circle cx="4.5" cy="-29" r="1.6" fill="#3b2415"/>
+        <path d="M-4 -23 Q 0 -19 4 -23" fill="none" stroke="#3b2415" stroke-width="2" stroke-linecap="round"/>
       </g>
 
       <!-- ═══ TOWER SPRITES ═══ -->
@@ -526,6 +594,36 @@
           <ellipse cx="0" cy="1" rx="6" ry="2.6" fill="#d9a94f" stroke="#3b2415" stroke-width="2"/>
         </g>
         <path d="M-26 -8 Q -13 -1 0 -8 M0 -8 Q 13 -1 26 -8" fill="none" stroke="#9c2333" stroke-width="4.5" stroke-linecap="round"/>
+      </g>
+
+      <g id="twATM">
+        <rect x="-21" y="-22" width="52" height="60" rx="7" fill="rgba(40,16,8,.35)"/>
+        <rect x="-24" y="-26" width="48" height="56" rx="7" fill="#2b4a6f" stroke="#3b2415" stroke-width="4"/>
+        <rect x="-17" y="-19" width="34" height="18" rx="3" fill="#79e0d2" stroke="#3b2415" stroke-width="2.5"/>
+        <text x="0" y="-6" text-anchor="middle" font-size="10" font-weight="bold" fill="#0b3d2e" font-family="Georgia">$$$</text>
+        <g fill="#c3c9d2" stroke="#3b2415" stroke-width="1.4">
+          <circle cx="-12" cy="5" r="2.6"/><circle cx="-4" cy="5" r="2.6"/><circle cx="4" cy="5" r="2.6"/>
+          <circle cx="-12" cy="12" r="2.6"/><circle cx="-4" cy="12" r="2.6"/><circle cx="4" cy="12" r="2.6"/>
+        </g>
+        <rect x="-15" y="19" width="30" height="5" rx="2.5" fill="#1e1a16" stroke="#3b2415" stroke-width="2"/>
+        <rect x="12" y="2" width="7" height="13" rx="2" fill="#e8b64c" stroke="#3b2415" stroke-width="2"/>
+      </g>
+
+      <g id="twCraps">
+        <rect x="-37" y="-22" width="84" height="56" rx="14" fill="rgba(40,16,8,.35)"/>
+        <rect x="-40" y="-26" width="80" height="52" rx="14" fill="#8a5a30" stroke="#3b2415" stroke-width="4"/>
+        <rect x="-32" y="-18" width="64" height="36" rx="9" fill="#2e8b6a" stroke="#3b2415" stroke-width="3"/>
+        <path d="M-24 0 H 24" stroke="#f5ead1" stroke-width="1.6" opacity=".5"/>
+        <g transform="translate(-9,-4) rotate(-14)">
+          <rect x="-7" y="-7" width="14" height="14" rx="3" fill="#f5ead1" stroke="#3b2415" stroke-width="2.5"/>
+          <circle r="1.8" fill="#3b2415"/>
+          <circle cx="-3.5" cy="-3.5" r="1.8" fill="#3b2415"/><circle cx="3.5" cy="3.5" r="1.8" fill="#3b2415"/>
+        </g>
+        <g transform="translate(12,2) rotate(12)">
+          <rect x="-7" y="-7" width="14" height="14" rx="3" fill="#f5ead1" stroke="#3b2415" stroke-width="2.5"/>
+          <circle cx="-3.5" cy="-3.5" r="1.8" fill="#3b2415"/><circle cx="3.5" cy="-3.5" r="1.8" fill="#3b2415"/>
+          <circle cx="-3.5" cy="3.5" r="1.8" fill="#3b2415"/><circle cx="3.5" cy="3.5" r="1.8" fill="#3b2415"/>
+        </g>
       </g>
     </defs>
 
@@ -674,6 +772,12 @@ const ETYPES = {
   grandma: { name:'Slot Grandma', sprite:'sprGrandma', hp:120, speed:38, reward:14, star:1, scale:.58, tapR:32, special:'stun',
     desc:'Taps your machines to "make them pay out." A tapped tower jams for a moment — TILT! Keep her at range.',
     stats:'TOUGH · STUNS NEARBY TOWERS' },
+  drunk: { name:'The Drunk', sprite:'sprDrunk', hp:65, speed:47, reward:9, star:1, scale:.55, tapR:32, dodge:.3, gait:'stagger',
+    desc:'Weaves like the floor is moving. A third of everything thrown at him just... misses.',
+    stats:'30% DODGE · UNPREDICTABLE' },
+  mojito: { name:'Mojito Guy', sprite:'sprMojito', hp:85, speed:44, reward:11, star:1, scale:.55, tapR:32, enrage:1.45,
+    desc:'Perfectly happy — until someone spills his mojito. The first hit turns him red, loud, and much faster.',
+    stats:'ENRAGES WHEN FIRST HIT · +45% SPEED' },
   clipper: { name:'Coupon Clipper', sprite:'sprClipper', hp:55, speed:50, reward:12, star:1, scale:.55, tapR:32, armor:4,
     desc:'A fistful of comps absorbs the first hits — watch the coupons shred one by one before she takes a scratch.',
     stats:'ARMORED · 4 COUPONS SOAK 4 HITS' },
@@ -700,11 +804,17 @@ const TTYPES = {
     up: { cost:140, menu:'Slows 55% · wider' } },
   cage: { name:'The Cage', sprite:'twCage', cost:200, scale:.6,
     blurb:'Pays a dividend', menu:'+45 chips / wave',
-    up: { cost:160, menu:'+100 chips / wave' } }
+    up: { cost:160, menu:'+100 chips / wave' } },
+  atm: { name:'ATM Row', sprite:'twATM', cost:170, range:110, scale:.7,
+    blurb:'Convenience fees', menu:'+1 chip/guest/sec',
+    up: { cost:150, menu:'+2 chips · wider' } },
+  craps: { name:'Craps Table', sprite:'twCraps', cost:240, range:125, cd:6, scale:.7,
+    blurb:'Hot-roll knockback', menu:'Shoves crowd back',
+    up: { cost:200, menu:'Faster · stronger' } }
 };
 
 /* footprint radius per tower type (for placement collision) */
-const TOWER_R = { dealer: 34, roulette: 36, rope: 30, cage: 32 };
+const TOWER_R = { dealer: 34, roulette: 36, rope: 30, cage: 32, atm: 28, craps: 36 };
 
 const WAVES = [
   [['retiree',8,1.1]],
@@ -946,6 +1056,7 @@ function buildTower(type, x, y) {
     type, x, y, r: TOWER_R[type], lvl: 1, cool: 0, stunUntil: 0,
     range() {
       if (type === 'rope') return this.lvl === 2 ? 130 : T.range;
+      if (type === 'atm') return this.lvl === 2 ? 135 : T.range;
       return T.range;
     }
   };
@@ -1007,7 +1118,8 @@ function spawnEnemy(type) {
                       'stroke-dasharray': '5 7', opacity: .5 }, el);
   }
   const spriteG = svgEl('g', { transform: `scale(${E.scale},${E.scale * .84})` }, el);
-  svgEl('use', { href: '#' + E.sprite }, spriteG);
+  const gaitG = svgEl('g', { class: 'gait-' + (E.gait || (E.boss ? 'lumber' : type === 'elvis' ? 'groove' : 'waddle')) }, spriteG);
+  svgEl('use', { href: '#' + E.sprite }, gaitG);
   // health bar
   const barW = E.boss ? 46 : 28;
   const barG = svgEl('g', { transform: `translate(0,${-E.scale * 60 - 8})` }, el);
@@ -1048,7 +1160,7 @@ function killEnemy(e, leaked) {
       G.chips = Math.max(0, G.chips - e.E.steal);
       float(vx - 60, vy - 64, '-' + e.E.steal + ' chips!', '#e05a3a');
     }
-    if (G.stars <= 0 && !G.over) return lose();
+    if (G.stars <= 0 && !G.over) { updateHUD(); return lose(); }
   } else {
     const [x, y] = posAt(e.dist);
     G.chips += e.E.reward;
@@ -1124,11 +1236,22 @@ function lose() {
 
 /* ══════════ COMBAT ══════════ */
 function damageEnemy(e, dmg) {
+  if (e.E.dodge && Math.random() < e.E.dodge) {
+    const [x, y] = posAt(e.dist);
+    float(x, y - 28, 'hic!', '#b9d3c5');
+    return;
+  }
   if (e.armor > 0) {
     e.armor--;
     const pip = e.pips.pop();
     if (pip) pip.remove();
     return;
+  }
+  if (e.E.enrage && !e.enraged) {
+    e.enraged = true;
+    const [x, y] = posAt(e.dist);
+    float(x, y - 32, 'MY MOJITO!!', '#e05a3a');
+    svgEl('circle', { cy: -14, r: 20, fill: 'rgba(224,90,58,.3)', 'pointer-events': 'none' }, e.el);
   }
   e.hp -= dmg;
   if (e.hp <= 0) killEnemy(e, false);
@@ -1221,14 +1344,14 @@ function update(dt) {
         slow = Math.min(slow, t.lvl === 2 ? .45 : .6);
       }
     }
-    /* influencer haste aura */
-    let boost = 1;
+    /* influencer haste aura + mojito rage */
+    let boost = e.enraged ? e.E.enrage : 1;
     if (e.E.aura !== 'haste') {
       for (const inf of G.enemies) {
         if (inf.E.aura !== 'haste') continue;
         const [ix, iy] = posAt(inf.dist);
         const dx = ix - ex, dy = iy - ey;
-        if (dx * dx + dy * dy < 90 * 90) { boost = 1.3; break; }
+        if (dx * dx + dy * dy < 90 * 90) { boost *= 1.3; break; }
       }
     }
     e.dist += e.E.speed * slow * boost * dt;
@@ -1259,10 +1382,38 @@ function update(dt) {
     if (t.type === 'cage' || t.type === 'rope') continue;
     if (G.time < t.stunUntil) continue;
     t.cool -= dt;
-    if (t.cool <= 0) {
+    if (t.cool > 0) continue;
+    if (t.type === 'atm') {
+      let n = 0;
+      const rr = t.range() * t.range();
+      for (const e of G.enemies) {
+        const [x, y] = posAt(e.dist);
+        const dx = x - t.x, dy = y - t.y;
+        if (dx * dx + dy * dy <= rr) n++;
+      }
+      if (n) {
+        const amt = n * (t.lvl === 2 ? 2 : 1);
+        G.chips += amt;
+        float(t.x, t.y - 32, '+' + amt, '#57c26e');
+        updateHUD();
+      }
+      t.cool = 1;
+    } else if (t.type === 'craps') {
+      let hitAny = false;
+      const rr = t.range() * t.range();
+      const push = t.lvl === 2 ? 85 : 60;
+      for (const e of G.enemies) {
+        const [x, y] = posAt(e.dist);
+        const dx = x - t.x, dy = y - t.y;
+        if (dx * dx + dy * dy <= rr) { e.dist = Math.max(0, e.dist - push); hitAny = true; }
+      }
+      if (hitAny) {
+        float(t.x, t.y - 36, 'SEVEN!', '#ffd23f');
+        t.cool = t.lvl === 2 ? 4.5 : TTYPES.craps.cd;
+      } else t.cool = .3;
+    } else {
       const fired = t.type === 'roulette' ? fireRoulette(t) : fireDealer(t);
-      if (fired) t.cool = TTYPES[t.type].cd;
-      else t.cool = 0.1;
+      t.cool = fired ? TTYPES[t.type].cd : 0.1;
     }
   }
 
@@ -1369,6 +1520,25 @@ showModal('WELCOME TO THE FLOOR', "HOLD'EM", null,
 /* offline support */
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+
+/* dev gallery: ?gallery renders every sprite large for visual review */
+if (location.search.includes('gallery')) {
+  const ids = ['sprRetiree','sprTourist','sprElvis','sprGrandma','sprClipper','sprInfluencer',
+               'sprDrunk','sprMojito','sprWhale','sprShark',
+               'twDealer','twRoulette','twRope','twCage','twATM','twCraps'];
+  document.querySelectorAll('#hud,#startWave,#shop,#nextWave,#modal').forEach(n => n.style.display = 'none');
+  G.paused = true; G.over = true;
+  const gal = svgEl('g', {}, stageSvg);
+  svgEl('rect', { width: 1120, height: 630, fill: '#0b3d2e' }, gal);
+  ids.forEach((id, i) => {
+    const x = 90 + (i % 8) * 138, y = 140 + Math.floor(i / 8) * 260;
+    svgEl('circle', { cx: x, cy: y, r: 62, fill: 'rgba(0,0,0,.25)' }, gal);
+    const h = svgEl('g', { transform: `translate(${x},${y}) scale(1.15)` }, gal);
+    svgEl('use', { href: '#' + id }, h);
+    svgEl('text', { x, y: y + 92, 'text-anchor': 'middle', 'font-size': 15, fill: '#e8b64c',
+                    'font-weight': 'bold', 'font-family': 'Georgia' }, gal).textContent = id.replace(/^(spr|tw)/, '');
+  });
 }
 
 /* dev autotest: ?autotest builds towers and starts the wave unattended */
