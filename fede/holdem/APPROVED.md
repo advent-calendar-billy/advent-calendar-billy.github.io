@@ -50,6 +50,11 @@
 - **Velvet Rope** — expensive; SLOWS enemies by making them queue politely (not a hard blocker)
 - **Rejected towers:** Eye in the Sky, Dice Roller
 
+## Tower placement (approved)
+- **Free placement, no predefined slots**: drag a tower from the shop bar onto any open floor
+- Valid anywhere off the path as long as towers don't collide with each other (also excluded: the vault, screen edges)
+- Shop bar sits along the bottom edge; green/red footprint shows validity while dragging
+
 ## Combat rules (approved)
 - Towers cannot be destroyed by NPCs
 - NPCs march; they can batter path obstacles (Velvet Rope's bouncer, future walls)

@@ -6,14 +6,18 @@
 ## NOW (current session focus)
 - [x] Free tower placement: drag from shop bar onto any spot off-path, collision-checked (no predefined pads)
 - [ ] Playtest & balance pass on Room 1 with free placement
+- [x] Velvet Rope: placeable ON the lane, always-visible slow aura
+- [x] ×4 speed
+- [x] AUTO wave start toggle
+- [x] Next-wave preview (enemy icons + counts)
 
 ## CORE MECHANICS
 - [ ] Tower placement polish: snap-back animation on invalid drop, subtle grid magnetism (maybe), placement while paused
 - [ ] Tower targeting modes (first/last/strong) — tap tower to cycle? (ask user first)
 - [ ] Sell/upgrade UX: floating mini-menu at the tower instead of bottom sheet? (bottom sheet conflicts with shop bar)
-- [ ] Wave preview: show icons of what's coming next wave
+- [x] Wave preview: show icons of what's coming next wave
 - [ ] Early-wave-call bonus chips (call next wave while current still alive)
-- [ ] Auto-start toggle for waves (mobile QoL)
+- [x] Auto-start toggle for waves (mobile QoL)
 - [ ] Game save: resume mid-room after closing tab (localStorage)
 - [ ] Endless mode after campaign finale (approved)
 
@@ -28,10 +32,10 @@
 
 ## ENEMIES — approved, not yet built
 - [ ] The Honeymooners — pair, heal each other, survivor rages
-- [ ] The Influencer — speed aura for nearby enemies
+- [x] The Influencer — speed aura for nearby enemies
 - [ ] Drunk — staggering walk, hard to hit (dodge chance?)
 - [ ] Mojito Guy — first hit spills drink → red, angry, faster
-- [ ] Coupon Clipper — visible coupon armor, shreds per hit
+- [x] Coupon Clipper — visible coupon armor, shreds per hit
 - [ ] The Regular — skips path segments via staff doors
 - [ ] Card Counter (elite) — dodges every Nth projectile
 - [ ] Tier-scaling system: earlier bosses become later fodder (approved) — needs stat curves per floor
