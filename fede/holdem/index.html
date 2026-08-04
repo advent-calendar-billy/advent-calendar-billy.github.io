@@ -187,6 +187,19 @@
   .shopItem .cost { color: var(--gold); font-weight: 800; font-size: 14px; margin-top: 2px; }
   .shopItem .sub { font-size: 10px; color: #b7a98a; margin-top: 2px; }
   #sheetTitle { text-align: center; color: #b7a98a; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+  .prioRow { display: flex; gap: 6px; align-items: center; justify-content: center; width: 100%; margin-bottom: 4px; }
+  .prioBtn {
+    background: #1d1811;
+    border: 2px solid #5a4626;
+    border-radius: 999px;
+    color: #b7a98a;
+    font-weight: 800;
+    font-size: 10.5px;
+    letter-spacing: 1px;
+    padding: 5px 12px;
+    cursor: pointer;
+  }
+  .prioBtn.on { border-color: var(--gold); color: var(--gold); background: #241d10; }
 
   /* ── modal (infobox / victory / defeat) ── */
   #modal {
@@ -1171,8 +1184,8 @@
         <line x1="0" y1="34" x2="0" y2="6" stroke="#d9a94f" stroke-width="3"/>
         <ellipse cx="0" cy="34" rx="9" ry="3.5" fill="#d9a94f" stroke="#3b2415" stroke-width="2.5"/>
         <rect x="-30" y="-30" width="60" height="38" rx="6" fill="#0f3d2a" stroke="#d9a94f" stroke-width="3"/>
-        <text x="0" y="-16" text-anchor="middle" font-family="Georgia" font-weight="bold" font-size="10" fill="#f5ead1">BLACKJACK</text>
-        <text x="0" y="-4" text-anchor="middle" font-family="Georgia" font-weight="bold" font-size="10" fill="#ffd23f">PAYS 3:2</text>
+        <text x="0" y="-16" text-anchor="middle" font-family="Georgia" font-weight="bold" font-size="10" fill="#f5ead1">ROULETTE</text>
+        <text x="0" y="-4" text-anchor="middle" font-family="Georgia" font-weight="bold" font-size="10" fill="#ffd23f">PAYS 35:1</text>
         <g fill="#e8b64c">
           <circle cx="-24" cy="-24" r="1.6"/><circle cx="24" cy="-24" r="1.6"/>
           <circle cx="-24" cy="2" r="1.6"/><circle cx="24" cy="2" r="1.6"/>
@@ -1841,9 +1854,9 @@ const ROOMS = [
       [['lady',1,0],['whale',3,8],['regular',14,.7]],
       [['shark',1,0],['lady',1,20],['auditor',1,35],['whale',2,12]]
     ] },
-  { name: 'Blackjack Row 1', hpMul: 6.4, chips: 750, block: 1,
+  { name: 'Roulette Hall 1', hpMul: 6.4, chips: 750, block: 1,
     carpet: ['#1e6b4a', '#2a7d58', '#175a3d'],
-    intro: 'A new block: the BLACKJACK ROOMS. Green felt underfoot, the same hungry crowd — and the pit bosses hit harder up here.',
+    intro: 'A new block: the ROULETTE HALLS. Green felt, spinning wheels wall to wall — and the crowd up here bets bigger and hits harder.',
     variants: [
       { entryY: 300, vault: [1046, 300], killOffset: 112,
         lanes: ['M -40 300 C 120 300, 200 170, 360 170 C 520 170, 520 430, 680 430 C 840 430, 900 300, 1160 300'] },
@@ -1862,9 +1875,9 @@ const ROOMS = [
       [['counter',12,.85],['grandma',16,.7],['honey',7,3]],
       [['shark',1,0],['whale',3,8],['influencer',5,4]]
     ] },
-  { name: 'Blackjack Row 2', hpMul: 7.0, chips: 780, block: 1,
+  { name: 'Roulette Hall 2', hpMul: 5.6, chips: 780, block: 1,
     carpet: ['#195e50', '#237060', '#124a3f'],
-    intro: 'The tables run hotter and the corridor splits over the felt. Cover both sides of the pit.',
+    intro: 'The wheels run hotter and the corridor splits over the felt. Cover both sides of the hall.',
     variants: [
       { entryY: 170, vault: [1046, 380], killOffset: 112,
         lanes: [
@@ -1889,9 +1902,9 @@ const ROOMS = [
       [['auditor',2,14],['whale',3,7]],
       [['auditor',2,18],['lady',1,25],['grandma',18,.65]]
     ] },
-  { name: 'Blackjack Row 3', hpMul: 7.7, chips: 810, block: 1,
+  { name: 'Roulette Hall 3', hpMul: 7.2, chips: 810, block: 1,
     carpet: ['#14524d', '#1d635d', '#0e403c'],
-    intro: 'The high-limit pit: one great ring of tables, the vault dead ahead in the middle of it all.',
+    intro: 'The high-limit hall: one great ring around the wheelhouse, the vault dead ahead in the middle of it all.',
     variants: [
       { entryY: 130, vault: [800, 330], killOffset: 25,
         lanes: ['M -40 130 C 240 130, 420 130, 560 160 C 760 200, 820 340, 700 440 C 580 530, 320 500, 240 400 C 170 315, 240 230, 380 250 C 500 268, 560 330, 640 330 C 720 330, 760 330, 800 330'] }
@@ -2223,6 +2236,23 @@ function openSheetForTower(tower) {
   const row = $('sheetRow');
   row.innerHTML = '';
   $('sheetTitle').textContent = `${T.name}${tower.lvl > 1 ? ' ★' : ''} · ${T.blurb}`;
+  if (['dealer', 'roulette', 'catapult'].includes(tower.type)) {
+    const pr = document.createElement('div');
+    pr.className = 'prioRow';
+    [['first', 'FIRST'], ['strong', 'STRONGEST'], ['last', 'LAST']].forEach(([k, lbl]) => {
+      const pb = document.createElement('button');
+      pb.className = 'prioBtn' + (tower.prio === k ? ' on' : '');
+      pb.textContent = lbl;
+      pb.addEventListener('pointerdown', ev => {
+        ev.stopPropagation();
+        tower.prio = k;
+        pr.querySelectorAll('.prioBtn').forEach(x => x.classList.remove('on'));
+        pb.classList.add('on');
+      });
+      pr.appendChild(pb);
+    });
+    row.appendChild(pr);
+  }
   if (tower.lvl === 1) {
     const b = document.createElement('div');
     b.className = 'shopItem' + (G.chips >= T.up.cost ? ' afford' : '');
@@ -2279,7 +2309,7 @@ document.addEventListener('pointerdown', ev => {
 function buildTower(type, x, y) {
   const T = TTYPES[type];
   const tower = {
-    type, x, y, r: TOWER_R[type], lvl: 1, cool: 0, stunUntil: 0,
+    type, x, y, r: TOWER_R[type], lvl: 1, cool: 0, stunUntil: 0, prio: 'first',
     range() {
       if (type === 'rope') return this.lvl === 2 ? 130 : T.range;
       if (type === 'atm') return this.lvl === 2 ? 135 : T.range;
@@ -2534,7 +2564,7 @@ function saveMid() {
   SAVE.mid = {
     room: ROOM, vi: G.vi, wave: G.wave, chips: Math.floor(G.chips),
     stars: G.stars, seen: G.seen,
-    towers: G.towers.map(t => ({ k: t.type, x: Math.round(t.x), y: Math.round(t.y), l: t.lvl }))
+    towers: G.towers.map(t => ({ k: t.type, x: Math.round(t.x), y: Math.round(t.y), l: t.lvl, p: t.prio }))
   };
   saveSave();
 }
@@ -2631,13 +2661,14 @@ function atkSpeedFactor(t) {
 }
 
 function firstEnemyInRange(t) {
-  let best = null;
+  let best = null, bestKey = -Infinity;
+  const prio = t.prio || 'first';
   for (const e of G.enemies) {
     const [x, y] = posAtE(e);
     const dx = x - t.x, dy = y - t.y;
-    if (dx * dx + dy * dy <= t.range() * t.range()) {
-      if (!best || e.dist > best.dist) best = e;
-    }
+    if (dx * dx + dy * dy > t.range() * t.range()) continue;
+    const key = prio === 'strong' ? e.hp : prio === 'last' ? -e.dist : e.dist;
+    if (key > bestKey) { bestKey = key; best = e; }
   }
   return best;
 }
@@ -3166,6 +3197,7 @@ function initRoom(i, resume) {
     for (const tw of M.towers) {
       const t = buildTower(tw.k, tw.x, tw.y);
       t.lvl = tw.l;
+      t.prio = tw.p || 'first';
     }
     updateHUD();
     showNextWave();
@@ -3213,7 +3245,7 @@ function renderMap() {
   holder.innerHTML = '';
   const BLOCKS = [
     { label: 'SLOTS PIT · FLOORS 1–10', start: 0, count: 10 },
-    { label: 'BLACKJACK ROOMS · FLOORS 11–20', start: 10, count: 10 }
+    { label: 'ROULETTE HALLS · FLOORS 11–20', start: 10, count: 10 }
   ];
   for (const blk of BLOCKS) {
     const lbl = document.createElement('div');
@@ -3479,6 +3511,15 @@ if (location.search.includes('gallery')) {
     svgEl('text', { x, y: y + 92, 'text-anchor': 'middle', 'font-size': 15, fill: '#e8b64c',
                     'font-weight': 'bold', 'font-family': 'Georgia' }, gal).textContent = id.replace(/^(spr|tw)/, '');
   });
+}
+
+/* dev sheettest: open a room and pop a tower sheet */
+if (location.search.includes('sheettest')) {
+  initRoom(0);
+  $('modalBtn').dispatchEvent(new Event('click'));
+  const t = buildTower('roulette', 430, 212);
+  openSheetForTower(t);
+  G.paused = true;
 }
 
 /* dev pausetest: open a room and pause immediately */

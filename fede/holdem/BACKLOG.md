@@ -13,7 +13,7 @@
 
 ## CORE MECHANICS
 - [ ] Tower placement polish: snap-back animation on invalid drop, subtle grid magnetism (maybe), placement while paused
-- [ ] Tower targeting modes (first/last/strong) — tap tower to cycle? (ask user first)
+- [x] Per-tower targeting priority (FIRST/STRONGEST/LAST pills in the tower sheet) — Billy approved
 - [ ] Sell/upgrade UX: floating mini-menu at the tower instead of bottom sheet? (bottom sheet conflicts with shop bar)
 - [x] Wave preview: show icons of what's coming next wave
 - [ ] Early-wave-call bonus chips (call next wave while current still alive)
@@ -56,7 +56,7 @@
 - [x] Room progression: fresh build per room, leftover chips → meta-currency (approved)
 - [x] Comps shop v1 on map (Bigger Bankroll, House Discount) — PROVISIONAL, needs user approval
 - [x] Rooms 2-10 built — SLOTS PIT BLOCK COMPLETE (triple-fork R7, forked-serpentine R8, RNG-layout R9, gauntlet R10)
-- [x] Blackjack Rooms block STARTED (rooms 11-13, green felt family, block-aware map) — 14-20 + later blocks (roulette halls, poker room, buffet, pool deck, theater, suite, vault) pending
+- [x] Roulette Halls block (renamed per Billy — Fede doesn’t play blackjack) STARTED (rooms 11-13, green felt family, block-aware map) — 14-20 + later blocks (roulette halls, poker room, buffet, pool deck, theater, suite, vault) pending
 - [ ] Branching floors (1 → 2a/2b → 3) — later, approved as eventual
 - [x] localStorage campaign save (which room, meta-currency, unlocks)
 

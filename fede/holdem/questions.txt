@@ -3,14 +3,22 @@
 1. COMPS SHOP: I built a provisional one on the map (Bigger Bankroll +60 chips ×3 lvls,
    House Discount -5% tower cost ×2 lvls). Keep, retune, or redesign? What SHOULD comps buy?
 
+I'm not sure i get this. is this the shop? Do i also get to buy towers?
+
 2. TARGETING MODES: should towers get first/last/strongest targeting (tap tower to cycle)?
    Classic TD depth vs. touch simplicity. Yes/no?
+
+I shuold be able to choose this priority, per tower (if i tap a tower i should be able to choose the prio)
 
 3. LOUNGE MUSIC: I added a very quiet synthesized chord pad during rooms (mute button kills
    it). Keep, make it richer, or delete?
 
+this is fine for now
+
 4. SLOT MACHINE: after you play it — odds feel right? (25/spin, pairs 25, triples 150-500,
    ★★★ = 10 free games, 400-cap.)
+
+will play tomorrow
 
 5. BLACKJACK ROOMS (floors 11-20): I may start the block tonight with the existing enemy
    roster on green-felt carpets. For the block's NEW faces, pick favorites to develop later:
@@ -20,8 +28,15 @@
    d) The Dealer's Ex (immune while walking past dealer towers — grudge)
    e) Double-Down Danny (randomly doubles speed OR doubles bounty, visible tell)
 
+tbh fede doesn't play blackjack, something slot machine related would be better? or roulette. Or fancy bar
+
+
 6. BOSS ROSTER: we need ~8 more bosses for later blocks. Quick gut-check names to greenlight
    for a future interview: The Pit Boss, The Magician (design doc), House Photographer,
    The Entertainer (headliner), Health Inspector, The Whale's Wife, The Regulator, The Owner.
 
+This sounds fine, for rthe entertainer boss map the song should play (synthesized if needed)
+
 7. Anything you HATED in tonight's screenshots/game? (Carpet colors, sounds, pacing...)
+
+make me an html report with screenshots incl maps and comps and the ability for me to leave quick feedback before each feedback (requiring zero clicks -- basically a text input field below each screenshot)

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hold'Em — Overnight Report</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0b3d2e;
+    color: #f5ead1;
+    font-family: 'Avenir Next', 'Segoe UI', system-ui, sans-serif;
+    padding: 30px 14px 80px;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  h1 {
+    font-family: Georgia, serif;
+    color: #e8b64c;
+    text-align: center;
+    letter-spacing: 2px;
+    text-shadow: 0 0 16px rgba(232,182,76,.5);
+  }
+  .sub { text-align: center; color: #9fc4b2; font-size: 13px; margin: 8px 0 8px; }
+  .note {
+    background: rgba(18,16,12,.6);
+    border: 2px solid #5a4626;
+    border-radius: 12px;
+    padding: 14px 18px;
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 18px 0;
+  }
+  .note b { color: #e8b64c; }
+  .card {
+    background: #101511;
+    border: 2px solid #23392e;
+    border-radius: 14px;
+    overflow: hidden;
+    margin: 26px 0;
+  }
+  .card img { width: 100%; display: block; }
+  .cap { padding: 12px 16px 4px; font-size: 14px; line-height: 1.5; color: #cfe0d6; }
+  .cap b { color: #e8b64c; }
+  textarea {
+    width: calc(100% - 24px);
+    margin: 10px 12px 6px;
+    background: #1d1811;
+    border: 2px solid #5a4626;
+    border-radius: 10px;
+    color: #f5ead1;
+    font-family: inherit;
+    font-size: 14px;
+    padding: 10px 12px;
+    min-height: 44px;
+    resize: vertical;
+  }
+  textarea:focus { outline: none; border-color: #e8b64c; }
+  .st { font-size: 11px; color: #57c26e; padding: 0 14px 12px; height: 24px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>HOLD'EM · OVERNIGHT REPORT</h1>
+  <div class="sub">type under any screenshot — it saves automatically as you type, no clicks needed</div>
+
+  <div class="note">
+    <b>Answering your comps question:</b> there are two separate currencies. <b>Chips</b> are the
+    in-round money — you earn them from kills and spend them DURING a room by dragging towers from the
+    bottom shelf (that's the tower shop). <b>Comps 🎟</b> are the between-rooms currency: leftover chips
+    convert 10:1 when you cash out at the slot machine, and the "SPEND COMPS" cards on the map buy
+    <i>permanent</i> account upgrades (they apply to every future run). So: towers with chips in-game,
+    permanent perks with comps on the map. If that split feels confusing I can rename/redesign it.
+    <br><br>
+    <b>Per your notes tonight I'm also:</b> adding per-tower targeting priority (tap a tower → FIRST /
+    STRONGEST / LAST), and re-theming floors 11-20 from "Blackjack Rooms" to <b>ROULETTE HALLS</b>
+    (Fede-appropriate; same rooms, new name/signage — say the word if you'd rather have the Fancy Bar
+    block first). The Entertainer boss will get his own synthesized song when we build him.
+  </div>
+
+  <div id="cards"></div>
+
+  <div class="note">Anything else — overall vibes, priorities for tomorrow, things to delete:</div>
+  <div class="card"><textarea data-id="overall" placeholder="overall notes…"></textarea><div class="st"></div></div>
+</div>
+
+<script>
+const SHOTS = [
+  ['01-directory.png', '<b>Casino directory (map)</b> — two blocks, YOU ARE HERE, comps wallet + the SPEND COMPS permanent-upgrade cards, AFTER HOURS endless node. Cleared rooms will show your best ★ rating.'],
+  ['02-room1.png', '<b>Room 1 mid-fight</b> — entrance marquee, randomized furniture (it blocks tower placement, so every attempt is a new puzzle), waitresses wandering, health bars only appear once a guest is hurt.'],
+  ['03-betweenwaves.png', '<b>Between waves</b> — next-wave preview (enemy icons + counts) above DEAL THEM IN; shelf cards grey out when you can’t afford them.'],
+  ['04-whale.png', '<b>Boss arrival</b> — name banner + screen shake + the boss HP bar under the HUD; the Whale strolls in through the entrance in his bathrobe.'],
+  ['05-heart.png', '<b>Room 3 (mirrored layout)</b> — the fork wraps the vault in a heart. Each room randomly mirrors between attempts.'],
+  ['06-spiral.png', '<b>Room 5 spiral</b> — the lane coils twice around the exposed vault; drunks dodge with a hic!'],
+  ['07-purple.png', '<b>Room 8</b> — carpets deepen from casino red toward midnight as you descend the block; this is the forked serpentine.'],
+  ['08-endless.png', '<b>The Endless Pit</b> — near-black felt, 50 generated wave sets, Lady Luck showing up on schedule. (Bot died at wave 15 here — the defeat modal in shot is the test bot, not a bug.)'],
+  ['09-blackjack.png', '<b>Floors 11+ (will re-badge as ROULETTE HALLS)</b> — green felt block identity, Card Counters "COUNTED"-dodging on camera.'],
+  ['10-slots.png', '<b>LUCKY 7s intermission</b> — payline legend, win flashes, CASH OUT previews the comps you’d bank.'],
+  ['11-pause.png', '<b>Pause menu</b> — resume / quit to map; progress autosaves every wave (map shows a ▶ resume node).'],
+  ['12-roster.png', '<b>Full cast</b> — every guest, tower and furniture piece in the game today.']
+];
+const holder = document.getElementById('cards');
+SHOTS.forEach(([f, cap]) => {
+  const d = document.createElement('div');
+  d.className = 'card';
+  d.innerHTML = `<img src="report-assets/${f}" loading="lazy">
+    <div class="cap">${cap}</div>
+    <textarea data-id="${f}" placeholder="feedback… (saves as you type)"></textarea>
+    <div class="st"></div>`;
+  holder.appendChild(d);
+});
+
+document.querySelectorAll('textarea').forEach(t => {
+  const id = t.dataset.id;
+  t.value = localStorage.getItem('fb-' + id) || '';
+  let deb;
+  t.addEventListener('input', () => {
+    localStorage.setItem('fb-' + id, t.value);
+    const st = t.parentNode.querySelector('.st');
+    st.textContent = 'saving…';
+    clearTimeout(deb);
+    deb = setTimeout(() => {
+      fetch('http://localhost:8766/fb', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, text: t.value })
+      }).then(() => { st.textContent = 'saved ✓'; })
+        .catch(() => { st.textContent = 'saved locally (server offline) ✓'; });
+    }, 700);
+  });
+});
+</script>
+</body>
+</html>
