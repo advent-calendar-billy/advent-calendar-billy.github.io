@@ -93,6 +93,9 @@
 - [ ] sw.js cache version bump discipline (bump CACHE on every deploy!)
 
 ## BALANCE (living list)
+- [x] Probe data v2 (Aug 3 night): fodder-first openers fixed wave-1 walls in r6-r10; blind bot now
+      reaches r3:w10, r5:w9, r10:w4, endless:w15. R7 triple-fork stays hard for the bot (hub-placement
+      puzzle) — trimmed to 3.4x, needs human validation
 - [x] Probe data (Aug 3): reinvesting bot clears R1 easily, dies at R3 wave-10 gauntlet — softened hpMul ladder lands in the right zone; human playtest still needed
 - [ ] roomPow(): towers gain +16% dmg per room to track the hp curve — crude, replace with real per-room tuning
 - [ ] Room 1 first-pass numbers are guesses — playtest: tower costs, enemy HP curve (+10%/wave), income rates
