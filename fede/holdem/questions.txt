@@ -1,0 +1,27 @@
+# Questions for Billy (answer inline whenever — I'm not blocked on these)
+
+1. COMPS SHOP: I built a provisional one on the map (Bigger Bankroll +60 chips ×3 lvls,
+   House Discount -5% tower cost ×2 lvls). Keep, retune, or redesign? What SHOULD comps buy?
+
+2. TARGETING MODES: should towers get first/last/strongest targeting (tap tower to cycle)?
+   Classic TD depth vs. touch simplicity. Yes/no?
+
+3. LOUNGE MUSIC: I added a very quiet synthesized chord pad during rooms (mute button kills
+   it). Keep, make it richer, or delete?
+
+4. SLOT MACHINE: after you play it — odds feel right? (25/spin, pairs 25, triples 150-500,
+   ★★★ = 10 free games, 400-cap.)
+
+5. BLACKJACK ROOMS (floors 11-20): I may start the block tonight with the existing enemy
+   roster on green-felt carpets. For the block's NEW faces, pick favorites to develop later:
+   a) Pit Boss (elite: escorts a pack, buffs their speed/armor)
+   b) The Splitter (splits into two half-HP copies when killed — blackjack "split")
+   c) Insurance Salesman (shields ONE other enemy completely until he dies)
+   d) The Dealer's Ex (immune while walking past dealer towers — grudge)
+   e) Double-Down Danny (randomly doubles speed OR doubles bounty, visible tell)
+
+6. BOSS ROSTER: we need ~8 more bosses for later blocks. Quick gut-check names to greenlight
+   for a future interview: The Pit Boss, The Magician (design doc), House Photographer,
+   The Entertainer (headliner), Health Inspector, The Whale's Wife, The Regulator, The Owner.
+
+7. Anything you HATED in tonight's screenshots/game? (Carpet colors, sounds, pacing...)
