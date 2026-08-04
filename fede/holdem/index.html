@@ -1261,6 +1261,7 @@
 <div id="modal">
   <div id="modalCard">
     <div class="kind" id="modalKind">NEW GUEST ON THE FLOOR</div>
+    <div class="bulbs">● ● ● ● ● ●</div>
     <h2 id="modalTitle">—</h2>
     <svg id="modalSprite" width="130" height="130" viewBox="-60 -75 120 140"></svg>
     <p id="modalDesc">—</p>
@@ -1762,6 +1763,14 @@ function banner(txt) {
   b.classList.remove('show');
   void b.offsetWidth;   // restart the animation
   b.classList.add('show');
+}
+
+function fxRing(x, y, maxR, color) {
+  const el = svgEl('circle', {
+    cx: x, cy: y, r: 6, fill: 'none',
+    stroke: color || '#f5ead1', 'stroke-width': 4, opacity: .9
+  }, $('floatG'));
+  G.fx.push({ el, t: 0, life: .45, ring: maxR });
 }
 
 function fxDoor([x, y]) {
@@ -2468,6 +2477,7 @@ function update(dt) {
         if (near) {
           near.stunUntil = G.time + 2.5;
           SFX.tilt();
+          float(x, y - 34, 'tap tap tap', '#e08bb0');
           e.stunCd = 6;
         } else e.stunCd = 1;
       }
@@ -2550,6 +2560,7 @@ function update(dt) {
         if (dx * dx + dy * dy <= rr) { e.dist = Math.max(0, e.dist - push); hitAny = true; }
       }
       if (hitAny) {
+        fxRing(t.x, t.y, t.range(), '#ffd23f');
         float(t.x, t.y - 36, 'SEVEN!', '#ffd23f');
         t.cool = t.lvl === 2 ? 4.5 : TTYPES.craps.cd;
       } else t.cool = .3;
@@ -2628,6 +2639,7 @@ function update(dt) {
       const sc = 1 + Math.sin(k * Math.PI) * .7;
       p.el.setAttribute('transform', `translate(${x},${y}) scale(${sc})`);
       if (k >= 1) {
+        fxRing(p.tx, p.ty, p.aoe, '#c9473b');
         poof(p.tx, p.ty);
         poof(p.tx + 10, p.ty - 6);
         for (const e of [...G.enemies]) {
@@ -2682,6 +2694,7 @@ function update(dt) {
   for (const f of [...G.fx]) {
     f.t += dt;
     f.el.setAttribute('opacity', Math.max(0, .95 * (1 - f.t / f.life)));
+    if (f.ring) f.el.setAttribute('r', 6 + (f.ring - 6) * (f.t / f.life));
     if (f.t > f.life) { f.el.remove(); G.fx = G.fx.filter(q => q !== f); }
   }
 
