@@ -18,7 +18,7 @@
 - [x] Wave preview: show icons of what's coming next wave
 - [ ] Early-wave-call bonus chips (call next wave while current still alive)
 - [x] Auto-start toggle for waves (mobile QoL)
-- [ ] Game save: resume mid-room after closing tab (localStorage)
+- [x] Mid-room save/resume: autosaves every wave, map shows a resume node
 - [x] Endless mode: ∞ node on map after clearing room 3 — 50 generated scaling waves
 
 ## TOWERS — approved, not yet built
@@ -55,7 +55,7 @@
       (classic gambling climb + amenity floors, weird floors between blocks)
 - [x] Room progression: fresh build per room, leftover chips → meta-currency (approved)
 - [x] Comps shop v1 on map (Bigger Bankroll, House Discount) — PROVISIONAL, needs user approval
-- [x] Rooms 2-5 built (Slots Pit block half done incl. spiral finale) — 6-10 pending
+- [x] Rooms 2-10 built — SLOTS PIT BLOCK COMPLETE (triple-fork R7, forked-serpentine R8, RNG-layout R9, gauntlet R10)
 - [ ] Later theme blocks: blackjack rooms, roulette halls, poker room, buffet, pool deck, theater, high-roller suite, vault finale
 - [ ] Branching floors (1 → 2a/2b → 3) — later, approved as eventual
 - [x] localStorage campaign save (which room, meta-currency, unlocks)
@@ -70,7 +70,7 @@
 - [x] Wave-start banner animation ("WAVE 3 — THE BUS ARRIVES")
 - [x] Boss intro: screen shake + name plate
 - [ ] Vault door creaks open on leak (visual)
-- [ ] Sound: slot dings, card whips, roulette clacks, grandma "tsk tsk" — WebAudio, all synthesized/embedded (offline!)
+- [x] SFX v1: synthesized WebAudio (cards, balls, kills, leaks, TILT, wave fanfare, boss sting, slot bells) + mute toggle
 - [ ] Music: light lounge loop, boss theme (embedded/synth — offline)
 - [ ] App icon + PWA manifest (installable to home screen)
 - [ ] Title screen with marquee art (reuse style-samples header)

@@ -1100,6 +1100,7 @@
   <div class="pill" id="stars"></div>
   <div class="pill" id="waveLbl">WAVE <b id="waveNum">0</b>/<span id="waveTot">10</span></div>
   <div class="spacer"></div>
+  <button class="btn" id="sndBtn">🔊</button>
   <button class="btn" id="autoBtn">AUTO</button>
   <button class="btn" id="speedBtn">×1</button>
   <button class="btn" id="pauseBtn">⏸</button>
@@ -1414,6 +1415,121 @@ const ROOMS = [
       [['auditor',1,0],['counter',6,1.6],['mojito',12,.7]],
       [['whale',3,10],['clipper',12,.8],['influencer',3,6]],
       [['lady',1,0],['shark',1,25],['grandma',12,.9]]
+    ] },
+  { name: 'Slots Pit 6', hpMul: 4.6, chips: 600,
+    intro: 'The fork is back, and the crowd is meaner. Management sends The Auditor to close the night.',
+    variants: [
+      { entryY: 300, vault: [1046, 430], killOffset: 112,
+        lanes: [
+          'M -40 300 C 60 300, 110 300, 170 300 C 300 300, 280 150, 430 150 C 560 150, 560 240, 620 290 C 660 322, 720 310, 780 330 C 880 365, 900 430, 1160 430',
+          'M -40 300 C 60 300, 110 300, 170 300 C 300 300, 280 450, 430 450 C 560 450, 560 360, 620 310 C 660 280, 720 300, 780 330 C 880 365, 900 430, 1160 430'
+        ] }
+    ],
+    waves: [
+      [['retiree',14,.7],['drunk',10,.9]],
+      [['regular',8,1.2],['clipper',10,.9]],
+      [['honey',5,4],['mojito',12,.7]],
+      [['counter',7,1.6],['tourist',20,.3]],
+      [['whale',2,10],['grandma',10,1.0]],
+      [['elvis',18,.45],['influencer',3,6]],
+      [['grandma',12,.9],['regular',10,.9],['honey',4,4]],
+      [['counter',8,1.4],['clipper',12,.8],['influencer',3,6]],
+      [['whale',3,9],['mojito',14,.6]],
+      [['auditor',1,0],['whale',2,16],['grandma',12,.9],['regular',10,.9]]
+    ] },
+  { name: 'Slots Pit 7', hpMul: 5.4, chips: 630,
+    intro: 'THREE corridors tonight. Every guest picks one on a whim — nowhere is safe to skimp.',
+    variants: [
+      { entryY: 300, vault: [1046, 300], killOffset: 112,
+        lanes: [
+          'M -40 300 C 60 300, 100 300, 160 300 C 300 300, 300 140, 460 140 C 620 140, 620 260, 760 295 C 840 315, 900 300, 1160 300',
+          'M -40 300 C 60 300, 100 300, 160 300 C 320 300, 600 300, 760 300 C 840 300, 900 300, 1160 300',
+          'M -40 300 C 60 300, 100 300, 160 300 C 300 300, 300 460, 460 460 C 620 460, 620 340, 760 305 C 840 285, 900 300, 1160 300'
+        ] }
+    ],
+    waves: [
+      [['drunk',14,.7],['tourist',20,.3]],
+      [['regular',10,1.0],['mojito',12,.7]],
+      [['clipper',14,.7],['honey',5,4]],
+      [['whale',2,9],['counter',8,1.4]],
+      [['auditor',1,0],['grandma',12,.9]],
+      [['elvis',20,.4],['influencer',4,5]],
+      [['honey',6,3.5],['regular',12,.8]],
+      [['whale',3,8],['clipper',14,.7]],
+      [['counter',10,1.1],['grandma',14,.8],['influencer',4,5]],
+      [['auditor',2,20],['whale',2,14],['mojito',16,.5]]
+    ] },
+  { name: 'Slots Pit 8', hpMul: 6.3, chips: 660,
+    intro: 'A long serpentine whose middle run splits in two. Lady Luck herself takes a stroll mid-shift.',
+    variants: [
+      { entryY: 150, vault: [1046, 470], killOffset: 112,
+        lanes: [
+          'M -40 150 C 250 150, 480 150, 620 150 C 740 150, 740 270, 620 270 C 460 270, 330 270, 250 290 C 150 315, 150 440, 260 465 C 420 500, 640 470, 1160 470',
+          'M -40 150 C 250 150, 480 150, 620 150 C 740 150, 740 350, 620 350 C 460 350, 330 350, 250 330 C 150 310, 150 440, 260 465 C 420 500, 640 470, 1160 470'
+        ] }
+    ],
+    waves: [
+      [['retiree',20,.5],['regular',10,1.0]],
+      [['mojito',14,.6],['drunk',14,.7]],
+      [['honey',6,3.5],['counter',9,1.2]],
+      [['whale',2,8],['elvis',20,.4]],
+      [['lady',1,0],['grandma',12,.9]],
+      [['clipper',16,.6],['influencer',4,5]],
+      [['whale',3,8],['regular',12,.8]],
+      [['counter',10,1.0],['honey',6,3.5],['drunk',14,.6]],
+      [['auditor',2,18],['grandma',14,.8]],
+      [['shark',1,0],['auditor',1,25],['whale',2,12],['influencer',4,5]]
+    ] },
+  { name: 'Slots Pit 9', hpMul: 7.3, chips: 690,
+    intro: 'The floor plan changes nightly now. Everything walks, and the bosses walk with them.',
+    variants: [
+      { entryY: 300, vault: [1046, 430], killOffset: 112,
+        lanes: [
+          'M -40 300 C 60 300, 110 300, 170 300 C 300 300, 280 150, 430 150 C 560 150, 560 240, 620 290 C 660 322, 720 310, 780 330 C 880 365, 900 430, 1160 430',
+          'M -40 300 C 60 300, 110 300, 170 300 C 300 300, 280 450, 430 450 C 560 450, 560 360, 620 310 C 660 280, 720 300, 780 330 C 880 365, 900 430, 1160 430'
+        ] },
+      { entryY: 300, vault: [1046, 300], killOffset: 112,
+        lanes: [
+          'M -40 300 C 80 300, 140 300, 200 300 C 320 300, 300 130, 460 130 C 620 130, 640 220, 720 280 C 780 320, 860 300, 1160 300',
+          'M -40 300 C 80 300, 140 300, 200 300 C 320 300, 300 470, 460 470 C 620 470, 640 380, 720 320 C 780 280, 860 300, 1160 300'
+        ] }
+    ],
+    waves: [
+      [['grandma',12,.8],['drunk',16,.6]],
+      [['regular',12,.8],['clipper',16,.6]],
+      [['honey',7,3],['mojito',16,.5]],
+      [['counter',11,1.0],['tourist',26,.22]],
+      [['lady',1,0],['whale',2,10]],
+      [['elvis',24,.35],['influencer',5,4]],
+      [['whale',3,7],['honey',7,3]],
+      [['auditor',2,16],['regular',14,.7]],
+      [['counter',12,.9],['grandma',16,.7],['influencer',5,4]],
+      [['lady',1,0],['shark',1,22],['whale',2,10]]
+    ] },
+  { name: 'Slots Pit 10', hpMul: 8.5, chips: 720,
+    intro: 'End of the block. The WHOLE management team walks the floor tonight — hold the vault and the Blackjack Rooms open next.',
+    variants: [
+      { entryY: 130, vault: [558, 352], killOffset: 25,
+        lanes: [
+          'M -40 130 C 300 130, 680 130, 830 205 C 935 265, 935 385, 820 450 C 700 505, 400 505, 280 455 C 175 410, 165 320, 260 272 C 350 228, 545 228, 650 278 C 725 315, 725 390, 650 428 C 575 462, 465 455, 428 410 C 398 372, 428 330, 492 326 C 540 323, 558 338, 558 352'
+        ] },
+      { entryY: 130, vault: [560, 360], killOffset: 30,
+        lanes: [
+          'M -40 130 C 200 130, 360 130, 520 130 C 700 130, 820 200, 820 330 C 820 430, 700 470, 620 430 C 580 410, 560 390, 560 360',
+          'M -40 130 C 120 130, 200 130, 260 150 C 340 180, 300 300, 330 390 C 360 480, 480 500, 530 440 C 555 410, 560 390, 560 360'
+        ] }
+    ],
+    waves: [
+      [['grandma',14,.8],['regular',12,.8]],
+      [['counter',10,1.0],['mojito',16,.5]],
+      [['whale',2,8],['honey',6,3]],
+      [['auditor',1,0],['elvis',22,.35]],
+      [['whale',3,7],['clipper',16,.6]],
+      [['lady',1,0],['grandma',14,.8]],
+      [['counter',12,.9],['honey',7,3],['influencer',5,4]],
+      [['auditor',2,16],['whale',2,10]],
+      [['lady',1,0],['whale',3,8],['regular',14,.7]],
+      [['shark',1,0],['lady',1,20],['auditor',1,35],['whale',2,12]]
     ] }
 ];
 let ROOM = 0;
@@ -1442,6 +1558,49 @@ const G = {
   variant: { vault: [1046, 470] },
   autoTimer: 0,
   over: false
+};
+
+/* ══════════ SOUND (synthesized in WebAudio — fully offline) ══════════ */
+let AC = null;
+let sndOn = true;
+function ac() {
+  if (!AC) { try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} }
+  return AC;
+}
+document.addEventListener('pointerdown', () => {
+  const c = ac();
+  if (c && c.state === 'suspended') c.resume();
+});
+function tone(freq, dur, type, vol, delay, slide) {
+  if (!sndOn) return;
+  const c = ac();
+  if (!c || c.state !== 'running') return;
+  const t0 = c.currentTime + (delay || 0);
+  const o = c.createOscillator(), g = c.createGain();
+  o.type = type || 'square';
+  o.frequency.setValueAtTime(freq, t0);
+  if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(20, slide), t0 + dur);
+  g.gain.setValueAtTime(0, t0);
+  g.gain.linearRampToValueAtTime(vol || .07, t0 + .008);
+  g.gain.exponentialRampToValueAtTime(.0001, t0 + dur);
+  o.connect(g).connect(c.destination);
+  o.start(t0);
+  o.stop(t0 + dur + .03);
+}
+const SFX = {
+  card()    { tone(2400, .045, 'square', .022); tone(1700, .04, 'square', .016, .02); },
+  ball()    { tone(950, .06, 'triangle', .045); },
+  lob()     { tone(300, .18, 'triangle', .05, 0, 700); },
+  kill()    { tone(880, .06, 'square', .05); tone(1320, .09, 'square', .045, .055); },
+  leak()    { tone(300, .28, 'sawtooth', .085, 0, 105); },
+  build()   { tone(520, .08, 'triangle', .06); tone(780, .1, 'triangle', .055, .07); },
+  sell()    { tone(700, .07, 'triangle', .05, 0, 400); },
+  tilt()    { tone(150, .3, 'square', .07, 0, 95); },
+  wave()    { tone(523, .09, 'square', .05); tone(659, .09, 'square', .05, .09); tone(784, .16, 'square', .06, .18); },
+  boss()    { tone(98, .55, 'sawtooth', .1, 0, 68); tone(104, .55, 'sawtooth', .08, .04, 64); },
+  spin()    { for (let i = 0; i < 6; i++) tone(560 + i * 130, .04, 'square', .032, i * .05); },
+  slotWin() { tone(659, .08, 'square', .06); tone(784, .08, 'square', .06, .09); tone(1047, .2, 'square', .07, .18); },
+  cash()    { tone(1568, .05, 'square', .045); tone(1568, .05, 'square', .045, .08); }
 };
 
 /* ══════════ UI helpers ══════════ */
@@ -1474,6 +1633,7 @@ function fxDoor([x, y]) {
 }
 
 function poof(x, y) {
+  if (G.parts.length > 110) return;
   for (let i = 0; i < 6; i++) {
     const a = Math.random() * Math.PI * 2, sp = 60 + Math.random() * 80;
     const el = svgEl('circle', { r: 3 + Math.random() * 2.5, fill: i % 2 ? '#e8b64c' : '#c9473b',
@@ -1483,6 +1643,7 @@ function poof(x, y) {
 }
 
 function float(x, y, txt, color) {
+  if (G.floats.length > 50) return;
   const t = svgEl('text', {
     x, y, 'text-anchor': 'middle', 'font-size': 17, 'font-weight': 'bold',
     fill: color || '#ffd23f', stroke: '#3b2415', 'stroke-width': 3.5, 'paint-order': 'stroke',
@@ -1604,6 +1765,7 @@ function buildShop(){
       if (d.ok && G.chips >= effCost(d.T)) {
         G.chips -= effCost(d.T);
         buildTower(key, d.x, d.y);
+        SFX.build();
         updateHUD();
       }
     };
@@ -1657,6 +1819,7 @@ function openSheetForTower(tower) {
   s.innerHTML = `<div class="nm">SELL</div><div class="cost">🪙 +${refund}</div><div class="sub">70% back</div>`;
   s.addEventListener('pointerdown', ev => {
     ev.stopPropagation();
+    SFX.sell();
     G.chips += refund;
     tower.el.remove();
     if (tower.auraEl) tower.auraEl.remove();
@@ -1818,6 +1981,7 @@ function spawnEnemy(type) {
   });
   if (E.boss) {
     banner(E.name.toUpperCase());
+    SFX.boss();
     $('wrap').classList.remove('shake');
     void $('wrap').offsetWidth;
     $('wrap').classList.add('shake');
@@ -1848,6 +2012,7 @@ function killEnemy(e, leaked) {
   if (leaked) {
     G.stars = Math.max(0, G.stars - e.E.star);
     const [vx, vy] = G.variant.vault;
+    SFX.leak();
     float(vx - 60, vy - 40, '-' + e.E.star + ' ★', '#e05a3a');
     if (e.E.steal) {
       G.chips = Math.max(0, G.chips - e.E.steal);
@@ -1859,6 +2024,7 @@ function killEnemy(e, leaked) {
     G.chips += e.E.reward;
     float(x, y - 26, '+' + e.E.reward, '#ffd23f');
     poof(x, y - 8);
+    SFX.kill();
   }
   updateHUD();
 }
@@ -1878,6 +2044,7 @@ function startWave() {
     }));
     G.waveCount = WAVES[G.wave].reduce((a, [t, c]) => a + c * (t === 'honey' ? 2 : 1), 0);
     banner('WAVE ' + (G.wave + 1));
+    SFX.wave();
     updateHUD();
   };
   const chain = types.reduceRight((next, t) => () => introduce(t, next), launch);
@@ -1897,6 +2064,15 @@ function showNextWave() {
   nw.style.display = 'flex';
 }
 
+function saveMid() {
+  SAVE.mid = {
+    room: ROOM, vi: G.vi, wave: G.wave, chips: Math.floor(G.chips),
+    stars: G.stars, seen: G.seen,
+    towers: G.towers.map(t => ({ k: t.type, x: Math.round(t.x), y: Math.round(t.y), l: t.lvl }))
+  };
+  saveSave();
+}
+
 function endWave() {
   G.running = false;
   G.wave++;
@@ -1912,16 +2088,21 @@ function endWave() {
   G.chips += income;
   updateHUD();
   if (G.wave >= WAVES.length) return win();
+  saveMid();
   $('startWave').style.display = 'block';
   showNextWave();
 }
 
 function win() {
   G.over = true;
+  delete SAVE.mid;
+  saveSave();
   openSlots();
 }
 function lose() {
   G.over = true;
+  delete SAVE.mid;
+  saveSave();
   showModal('☆ ☆ ☆ ☆ ☆', 'Reputation Ruined', null,
     'Too many guests reached the vault. The review sites are merciless. The casino goes dark... but the house always gets another hand.',
     '', 'TRY AGAIN', () => location.reload());
@@ -1987,6 +2168,7 @@ function fireRoulette(t) {
   const dmg = Math.max(1, Math.round((t.lvl === 2 ? 18 : 12) * (t.jinxed ? .3 : 1)));
   const bounces = t.lvl === 2 ? 4 : 3;
   const el = svgEl('circle', { r: 5, fill: '#fffbe8', stroke: '#3b2415', 'stroke-width': 2 }, $('projG'));
+  SFX.ball();
   G.projectiles.push({ kind: 'ball', x: t.x, y: t.y, el, target, dmg, bounces, hitSet: new Set() });
   return true;
 }
@@ -1997,6 +2179,7 @@ function fireDealer(t) {
   const [tx, ty] = posAtE(target);
   const base = Math.atan2(ty - t.y, tx - t.x);
   const n = t.lvl === 2 ? 5 : 3;
+  SFX.card();
   const dmg = Math.max(1, Math.round((t.lvl === 2 ? 8 : 6) * (t.jinxed ? .3 : 1)));
   for (let i = 0; i < n; i++) {
     const ang = base + (i - (n - 1) / 2) * 0.21;
@@ -2126,6 +2309,7 @@ function update(dt) {
         }
         if (near) {
           near.stunUntil = G.time + 2.5;
+          SFX.tilt();
           e.stunCd = 6;
         } else e.stunCd = 1;
       }
@@ -2216,6 +2400,7 @@ function update(dt) {
       const target = G.chips >= ammo ? firstEnemyInRange(t) : null;
       if (target) {
         G.chips -= ammo;
+        SFX.lob();
         updateHUD();
         const [tx, ty] = posAtE(target);
         const el = svgEl('g', {}, $('projG'));
@@ -2360,6 +2545,11 @@ $('speedBtn').addEventListener('pointerdown', ev => {
   G.speed = G.speed === 1 ? 2 : G.speed === 2 ? 4 : 1;
   $('speedBtn').textContent = '×' + G.speed;
 });
+$('sndBtn').addEventListener('pointerdown', ev => {
+  ev.stopPropagation();
+  sndOn = !sndOn;
+  $('sndBtn').textContent = sndOn ? '🔊' : '🔇';
+});
 $('autoBtn').addEventListener('pointerdown', ev => {
   ev.stopPropagation();
   G.auto = !G.auto;
@@ -2393,11 +2583,15 @@ function makeEndless() {
     waves };
 }
 
-function initRoom(i) {
+function initRoom(i, resume) {
   ROOM = i;
   const R = i >= ROOMS.length ? makeEndless() : ROOMS[i];
   G.roomDef = R;
-  const V = R.variants[Math.floor(Math.random() * R.variants.length)];
+  const vi = resume && SAVE.mid && SAVE.mid.room === i
+    ? Math.min(SAVE.mid.vi, R.variants.length - 1)
+    : Math.floor(Math.random() * R.variants.length);
+  G.vi = vi;
+  const V = R.variants[vi];
   G.variant = V;
   setLanes(V.lanes, V.killOffset);
   WAVES = R.waves;
@@ -2411,8 +2605,24 @@ function initRoom(i) {
   $('startWave').style.display = 'block';
   showNextWave();
   $('waveTot').textContent = WAVES.length;
-  showModal(i >= ROOMS.length ? '∞ · AFTER HOURS' : `ROOM ${i + 1} OF 50 · SLOTS PIT`,
-    R.name, null, R.intro, 'TAP ANY GUEST FOR THEIR DOSSIER', 'OPEN THE DOORS');
+  if (resume && SAVE.mid && SAVE.mid.room === i) {
+    const M = SAVE.mid;
+    G.wave = M.wave;
+    G.chips = M.chips;
+    G.stars = M.stars;
+    G.seen = M.seen || {};
+    for (const tw of M.towers) {
+      const t = buildTower(tw.k, tw.x, tw.y);
+      t.lvl = tw.l;
+    }
+    updateHUD();
+    showNextWave();
+    showModal('WELCOME BACK', R.name, null,
+      `Your floor is exactly as you left it — wave ${M.wave + 1} is waiting.`, '', 'RESUME SHIFT');
+  } else {
+    showModal(i >= ROOMS.length ? '∞ · AFTER HOURS' : `ROOM ${i + 1} OF 50 · SLOTS PIT`,
+      R.name, null, R.intro, 'TAP ANY GUEST FOR THEIR DOSSIER', 'OPEN THE DOORS');
+  }
 }
 
 function renderMap() {
@@ -2426,8 +2636,9 @@ function renderMap() {
     const b = document.createElement('div');
     b.className = 'mapNode' + (cleared ? ' cleared' : unlocked ? ' cur' : '');
     b.textContent = real ? (cleared ? '★' : i + 1) : '?';
-    if (unlocked && !cleared) b.addEventListener('pointerdown', () => initRoom(i));
-    else if (cleared) b.addEventListener('pointerdown', () => initRoom(i));  // replay
+    const hasMid = SAVE.mid && SAVE.mid.room === i;
+    if (hasMid) { b.textContent = '▶'; b.title = 'resume'; }
+    if (unlocked || cleared) b.addEventListener('pointerdown', () => initRoom(i, hasMid));
     holder.appendChild(b);
     if (i < 9) {
       const c = document.createElement('div');
@@ -2563,6 +2774,7 @@ $('spinBtn').addEventListener('pointerdown', ev => {
   const wasFree = free;
   if (free) SLOT.free--; else { SLOT.spins--; G.chips -= SLOT.COST; }
   SLOT.spinning = true;
+  SFX.spin();
   const reels = document.querySelectorAll('#reels .reel');
   const final = [pickSym(), pickSym(), pickSym()];
   let t = 0;
@@ -2592,6 +2804,8 @@ $('spinBtn').addEventListener('pointerdown', ev => {
         }
         SLOT.bonusWon += win;
       }
+      if (win >= 100 || SLOT.free > 0) SFX.slotWin();
+      else if (win > 0) SFX.cash();
       G.chips += win;
       slotInfo(msg);
     }
@@ -2674,11 +2888,11 @@ if (location.search.includes('autotest')) {
   G.towers.forEach(t => { t.lvl = 2; });
   updateHUD();
   const auto = setInterval(() => {
-    if ($('slots').style.display === 'flex') {
-      if (!SLOT.spinning) $('cashBtn').dispatchEvent(new Event('pointerdown'));
-      return;
+    if ($('slots').style.display === 'flex') return;   // stop at victory screen (reload would reset virtual time)
+    if ($('modal').style.display === 'flex') {
+      if (G.over) return;                               // leave defeat modal up for the screenshot
+      $('modalBtn').dispatchEvent(new Event('click'));
     }
-    if ($('modal').style.display === 'flex') $('modalBtn').dispatchEvent(new Event('click'));
     else if (!G.running && !G.over) startWave();
   }, 400);
   // drive the simulation off timers too (headless rAF doesn't advance under virtual time)
