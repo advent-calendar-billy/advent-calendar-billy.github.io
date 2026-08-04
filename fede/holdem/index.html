@@ -1328,23 +1328,72 @@
 
     <!-- vault -->
     <g id="vaultG" transform="translate(1046,470) scale(.6)">
-      <circle r="90" fill="url(#vaultLeak)" id="vaultGlowC"/>
-      <rect x="-64" y="-64" width="140" height="128" rx="14" fill="#5c636b" stroke="#3b2415" stroke-width="5"/>
-      <rect x="-52" y="-52" width="116" height="104" rx="10" fill="url(#steel)" stroke="#3b2415" stroke-width="4"/>
-      <g fill="#c9d0d8" stroke="#3b2415" stroke-width="2.5">
-        <circle cx="-38" cy="-38" r="5"/><circle cx="38" cy="-38" r="5"/>
-        <circle cx="-38" cy="38" r="5"/><circle cx="38" cy="38" r="5"/>
+      <ellipse cx="8" cy="74" rx="82" ry="16" fill="rgba(40,16,8,.4)"/>
+      <circle r="92" fill="url(#vaultLeak)" id="vaultGlowC"/>
+      <!-- outer armored bezel -->
+      <rect x="-72" y="-72" width="152" height="148" rx="18" fill="#3f454d" stroke="#20242a" stroke-width="5"/>
+      <rect x="-64" y="-64" width="136" height="132" rx="14" fill="#565e68" stroke="#2b3036" stroke-width="3"/>
+      <!-- corner rivets -->
+      <g fill="#c9d0d8" stroke="#2b3036" stroke-width="2">
+        <circle cx="-58" cy="-58" r="4"/><circle cx="66" cy="-58" r="4"/>
+        <circle cx="-58" cy="62" r="4"/><circle cx="66" cy="62" r="4"/>
+        <circle cx="4" cy="-58" r="4"/><circle cx="4" cy="62" r="4"/>
+        <circle cx="-58" cy="2" r="4"/><circle cx="66" cy="2" r="4"/>
       </g>
+      <!-- door -->
+      <circle cx="2" cy="0" r="56" fill="url(#steel)" stroke="#20242a" stroke-width="5"/>
+      <circle cx="2" cy="0" r="48" fill="none" stroke="#2b3036" stroke-width="2.5"/>
+      <circle cx="2" cy="0" r="41" fill="none" stroke="#7c858f" stroke-width="1.6" opacity=".8"/>
+      <!-- locking bolts around the rim -->
+      <g fill="url(#chrome)" stroke="#20242a" stroke-width="2.5">
+        <circle cx="2" cy="-50" r="5.5"/><circle cx="2" cy="50" r="5.5"/>
+        <circle cx="-48" cy="0" r="5.5"/><circle cx="52" cy="0" r="5.5"/>
+        <circle cx="-33.4" cy="-35.4" r="5.5"/><circle cx="37.4" cy="-35.4" r="5.5"/>
+        <circle cx="-33.4" cy="35.4" r="5.5"/><circle cx="37.4" cy="35.4" r="5.5"/>
+      </g>
+      <!-- spoked wheel handle -->
       <g id="vaultHandle" style="transform-box: fill-box; transform-origin: center;">
-        <circle r="24" fill="url(#chrome)" stroke="#3b2415" stroke-width="4"/>
-        <g stroke="#3b2415" stroke-width="4.5" stroke-linecap="round">
-          <line x1="0" y1="-22" x2="0" y2="-34"/><line x1="0" y1="22" x2="0" y2="34"/>
-          <line x1="-22" y1="0" x2="-34" y2="0"/><line x1="22" y1="0" x2="34" y2="0"/>
+        <circle cx="2" cy="0" r="27" fill="none" stroke="#20242a" stroke-width="9"/>
+        <circle cx="2" cy="0" r="27" fill="none" stroke="url(#chrome)" stroke-width="6"/>
+        <g stroke="#20242a" stroke-width="7" stroke-linecap="round">
+          <line x1="2" y1="-26" x2="2" y2="26"/>
+          <line x1="-24" y1="0" x2="28" y2="0"/>
+          <line x1="-16" y1="-18" x2="20" y2="18"/>
+          <line x1="20" y1="-18" x2="-16" y2="18"/>
         </g>
-        <circle r="7" fill="#e8b64c" stroke="#3b2415" stroke-width="3"/>
+        <g stroke="#aab3bc" stroke-width="3.5" stroke-linecap="round">
+          <line x1="2" y1="-24" x2="2" y2="24"/>
+          <line x1="-22" y1="0" x2="26" y2="0"/>
+          <line x1="-15" y1="-17" x2="19" y2="17"/>
+          <line x1="19" y1="-17" x2="-15" y2="17"/>
+        </g>
+        <g fill="#e8b64c" stroke="#20242a" stroke-width="2">
+          <circle cx="2" cy="-27" r="4"/><circle cx="2" cy="27" r="4"/>
+          <circle cx="-25" cy="0" r="4"/><circle cx="29" cy="0" r="4"/>
+        </g>
+        <circle cx="2" cy="0" r="9" fill="url(#chrome)" stroke="#20242a" stroke-width="3"/>
+        <circle cx="2" cy="0" r="3.5" fill="#e8b64c" stroke="#20242a" stroke-width="1.5"/>
       </g>
-      <rect x="-48" y="-88" width="96" height="20" rx="5" fill="#d9a94f" stroke="#3b2415" stroke-width="3"/>
-      <text x="0" y="-73" text-anchor="middle" font-family="Georgia" font-weight="bold" font-size="13" fill="#3b2415">RESERVE</text>
+      <!-- combination dial + keypad plate -->
+      <g transform="translate(-46,44)">
+        <rect x="-10" y="-8" width="22" height="18" rx="3" fill="#2b3036" stroke="#20242a" stroke-width="2"/>
+        <circle cx="1" cy="1" r="6" fill="url(#chrome)" stroke="#20242a" stroke-width="1.6"/>
+        <line x1="1" y1="1" x2="1" y2="-4" stroke="#c9473b" stroke-width="1.6"/>
+      </g>
+      <g transform="translate(48,44)">
+        <rect x="-10" y="-8" width="21" height="18" rx="3" fill="#2b3036" stroke="#20242a" stroke-width="2"/>
+        <g fill="#79e0d2">
+          <circle cx="-4" cy="-2" r="1.6"/><circle cx="1" cy="-2" r="1.6"/><circle cx="6" cy="-2" r="1.6"/>
+          <circle cx="-4" cy="4" r="1.6"/><circle cx="1" cy="4" r="1.6"/><circle cx="6" cy="4" r="1.6"/>
+        </g>
+      </g>
+      <!-- specular sweep -->
+      <path d="M -30 -44 A 52 52 0 0 1 34 -40" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="6" stroke-linecap="round"/>
+      <!-- brass plate -->
+      <rect x="-52" y="-96" width="112" height="22" rx="6" fill="#d9a94f" stroke="#6b5218" stroke-width="3"/>
+      <rect x="-48" y="-92" width="104" height="14" rx="4" fill="none" stroke="#b98d2f" stroke-width="1.5"/>
+      <text x="4" y="-80" text-anchor="middle" font-family="Georgia" font-weight="bold" font-size="11"
+            fill="#3b2415" letter-spacing="1">HOLD'EM RESERVE</text>
     </g>
 
     <!-- ambient floor furniture (randomized per room) -->
@@ -1632,7 +1681,7 @@ const ROOMS = [
       [['grandma',8,1.4],['clipper',6,1.3],['elvis',8,1.0],['influencer',2,9]],
       [['shark',1,0],['grandma',6,1.6],['whale',1,26]]
     ] },
-  { name: 'Slots Pit 2', hpMul: 1.35, chips: 420,
+  { name: 'Slots Pit 2', hpMul: 1.29, chips: 420,
     intro: 'The corridor FORKS tonight — each guest picks a side on a whim. Cover both, or gamble on one. New faces: The Drunk weaves, Mojito Guy has a temper.',
     variants: [
       { entryY: 300, vault: [1046, 300], killOffset: 112,
@@ -1658,7 +1707,7 @@ const ROOMS = [
       [['mojito',10,.9],['grandma',8,1.2],['influencer',2,9],['counter',3,7]],
       [['whale',2,18],['grandma',8,1.2],['elvis',10,.8]]
     ] },
-  { name: 'Slots Pit 3', carpet: ['#9c2b26','#b23a30','#872420'],  hpMul: 1.8, chips: 460,
+  { name: 'Slots Pit 3', carpet: ['#9c2b26','#b23a30','#872420'],  hpMul: 1.63, chips: 460,
     intro: 'The vault sits exposed mid-floor and the corridor splits around it. Everything the Slots Pit has walks — and the Loan Shark collects at the end.',
     variants: [
       { entryY: 130, vault: [560, 360], killOffset: 30,
@@ -1684,7 +1733,7 @@ const ROOMS = [
       [['whale',2,15],['grandma',10,1.0],['mojito',10,.8]],
       [['shark',1,0],['whale',2,20],['influencer',2,12],['grandma',8,1.2]]
     ] },
-  { name: 'Slots Pit 4', carpet: ['#953041','#a83e4e','#7f2836'],  hpMul: 2.5, chips: 520,
+  { name: 'Slots Pit 4', carpet: ['#953041','#a83e4e','#7f2836'],  hpMul: 2.16, chips: 520,
     intro: 'The pit boss called Corporate. The Regular knows the staff doors, and at the end of the night THE AUDITOR walks the floor — your best tower freezes while he lives.',
     variants: [
       { entryY: 470, vault: [1046, 470], killOffset: 112,
@@ -1710,7 +1759,7 @@ const ROOMS = [
       [['whale',2,12],['counter',5,2.0],['mojito',12,.7]],
       [['auditor',1,0],['grandma',10,1.0],['whale',1,30],['regular',8,1.0]]
     ] },
-  { name: 'Slots Pit 5', carpet: ['#822d52','#94395f','#6e2545'],  hpMul: 3.2, chips: 560,
+  { name: 'Slots Pit 5', carpet: ['#822d52','#94395f','#6e2545'],  hpMul: 2.63, chips: 560,
     intro: 'The corridor coils around the vault like a spring. Tonight LADY LUCK herself walks the floor — towers inside her shimmer go cold. End of the Slots Pit.',
     variants: [
       { entryY: 130, vault: [558, 352], killOffset: 25,
@@ -1734,7 +1783,7 @@ const ROOMS = [
       [['whale',3,10],['clipper',12,.8],['influencer',3,6]],
       [['lady',1,0],['shark',1,25],['grandma',12,.9]]
     ] },
-  { name: 'Slots Pit 6', carpet: ['#6e2f5e','#7d3a6c','#5c2650'],  hpMul: 3.6, chips: 600,
+  { name: 'Slots Pit 6', carpet: ['#6e2f5e','#7d3a6c','#5c2650'],  hpMul: 2.82, chips: 600,
     intro: 'The fork is back, and the crowd is meaner. Management sends The Auditor to close the night.',
     variants: [
       { entryY: 300, vault: [1046, 430], killOffset: 112,
@@ -1760,7 +1809,7 @@ const ROOMS = [
       [['whale',3,9],['mojito',14,.6]],
       [['auditor',1,0],['whale',2,16],['grandma',12,.9],['regular',10,.9]]
     ] },
-  { name: 'Slots Pit 7', carpet: ['#5e3070','#6d3c80','#4e2760'],  hpMul: 3.4, chips: 630,
+  { name: 'Slots Pit 7', carpet: ['#5e3070','#6d3c80','#4e2760'],  hpMul: 2.54, chips: 630,
     intro: 'THREE corridors tonight. Every guest picks one on a whim — nowhere is safe to skimp.',
     variants: [
       { entryY: 300, vault: [1046, 300], killOffset: 112,
@@ -1782,7 +1831,7 @@ const ROOMS = [
       [['counter',10,1.1],['grandma',14,.8],['influencer',4,5]],
       [['auditor',2,20],['whale',2,14],['mojito',16,.5]]
     ] },
-  { name: 'Slots Pit 8', carpet: ['#4a2f77','#573a86','#3d2565'],  hpMul: 4.6, chips: 660,
+  { name: 'Slots Pit 8', carpet: ['#4a2f77','#573a86','#3d2565'],  hpMul: 3.27, chips: 660,
     intro: 'A long serpentine whose middle run splits in two. Lady Luck herself takes a stroll mid-shift.',
     variants: [
       { entryY: 150, vault: [1046, 470], killOffset: 112,
@@ -1803,7 +1852,7 @@ const ROOMS = [
       [['auditor',2,18],['grandma',14,.8]],
       [['shark',1,0],['auditor',1,25],['whale',2,12],['influencer',4,5]]
     ] },
-  { name: 'Slots Pit 9', carpet: ['#3a2f80','#46398f','#2f256d'],  hpMul: 5.2, chips: 690,
+  { name: 'Slots Pit 9', carpet: ['#3a2f80','#46398f','#2f256d'],  hpMul: 3.52, chips: 690,
     intro: 'The floor plan changes nightly now. Everything walks, and the bosses walk with them.',
     variants: [
       { entryY: 300, vault: [1046, 430], killOffset: 112,
@@ -1829,7 +1878,7 @@ const ROOMS = [
       [['counter',12,.9],['grandma',16,.7],['influencer',5,4]],
       [['lady',1,0],['shark',1,22],['whale',2,10]]
     ] },
-  { name: 'Slots Pit 10', carpet: ['#2d2a6e','#383579','#23215c'],  hpMul: 6.0, chips: 720,
+  { name: 'Slots Pit 10', carpet: ['#2d2a6e','#383579','#23215c'],  hpMul: 3.87, chips: 720,
     intro: 'End of the block. The WHOLE management team walks the floor tonight — hold the vault and the Blackjack Rooms open next.',
     variants: [
       { entryY: 130, vault: [558, 352], killOffset: 25,
@@ -1854,7 +1903,7 @@ const ROOMS = [
       [['lady',1,0],['whale',3,8],['regular',14,.7]],
       [['shark',1,0],['lady',1,20],['auditor',1,35],['whale',2,12]]
     ] },
-  { name: 'Roulette Hall 1', hpMul: 6.4, chips: 750, block: 1,
+  { name: 'Roulette Hall 1', hpMul: 3.93, chips: 750, block: 1,
     carpet: ['#1e6b4a', '#2a7d58', '#175a3d'],
     intro: 'A new block: the ROULETTE HALLS. Green felt, spinning wheels wall to wall — and the crowd up here bets bigger and hits harder.',
     variants: [
@@ -1875,7 +1924,7 @@ const ROOMS = [
       [['counter',12,.85],['grandma',16,.7],['honey',7,3]],
       [['shark',1,0],['whale',3,8],['influencer',5,4]]
     ] },
-  { name: 'Roulette Hall 2', hpMul: 5.6, chips: 780, block: 1,
+  { name: 'Roulette Hall 2', hpMul: 3.27, chips: 780, block: 1,
     carpet: ['#195e50', '#237060', '#124a3f'],
     intro: 'The wheels run hotter and the corridor splits over the felt. Cover both sides of the hall.',
     variants: [
@@ -1902,7 +1951,7 @@ const ROOMS = [
       [['auditor',2,14],['whale',3,7]],
       [['auditor',2,18],['lady',1,25],['grandma',18,.65]]
     ] },
-  { name: 'Roulette Hall 3', hpMul: 7.2, chips: 810, block: 1,
+  { name: 'Roulette Hall 3', hpMul: 4.01, chips: 810, block: 1,
     carpet: ['#14524d', '#1d635d', '#0e403c'],
     intro: 'The high-limit hall: one great ring around the wheelhouse, the vault dead ahead in the middle of it all.',
     variants: [
@@ -1924,6 +1973,20 @@ const ROOMS = [
 ];
 let ROOM = 0;
 let WAVES = [];
+
+/* every guest gets 5% tougher per floor AFTER their debut floor (Billy's power-creep rule) */
+const INTRO_ROOM = (() => {
+  const m = {};
+  ROOMS.forEach((R, i) => {
+    R.waves.flat().forEach(([t]) => {
+      if (t === 'honey') { ['honey', 'groom', 'bride'].forEach(k => { if (!(k in m)) m[k] = i; }); }
+      else if (!(t in m)) m[t] = i;
+    });
+  });
+  return m;
+})();
+const familiarity = type =>
+  Math.pow(1.05, Math.max(0, Math.min(ROOM, ROOMS.length) - (INTRO_ROOM[type] || 0)));
 
 /* ══════════ STATE ══════════ */
 const G = {
@@ -2420,7 +2483,7 @@ function spawnEnemy(type) {
   const hpEl = svgEl('rect', { x: -barW/2 + 1.5, y: -1.5, width: barW - 3, height: 3, rx: 1.5, fill: '#57c26e' }, barG);
   // tap target
   const tap = svgEl('circle', { r: E.tapR, fill: 'transparent' }, el);
-  const hpMax = E.hp * (1 + G.wave * 0.10) * G.roomDef.hpMul;
+  const hpMax = E.hp * (1 + G.wave * 0.10) * G.roomDef.hpMul * familiarity(type);
   const slowEl = svgEl('text', {
     y: -E.scale * 60 - 20, 'text-anchor': 'middle', 'font-size': 14, 'font-weight': 'bold',
     fill: '#c73a4a', stroke: '#3b2415', 'stroke-width': 2.5, 'paint-order': 'stroke', opacity: 0
@@ -3150,7 +3213,7 @@ function makeEndless() {
     if (w > 6 && Math.random() < .4) wave.push(['honey', 2 + Math.floor(w / 8), 5]);
     waves.push(wave);
   }
-  return { name: 'The Endless Pit', hpMul: 2.6, chips: 500,
+  return { name: 'The Endless Pit', hpMul: 1.45, chips: 500,
     carpet: ['#1d1c3a', '#28264a', '#141330'],
     intro: 'No closing time tonight. Fifty generated waves, each meaner than the last. How deep can the house hold?',
     variants: ROOMS.flatMap(r => r.variants),
