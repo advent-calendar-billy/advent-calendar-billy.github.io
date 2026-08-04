@@ -86,6 +86,7 @@
 - [ ] sw.js cache version bump discipline (bump CACHE on every deploy!)
 
 ## BALANCE (living list)
+- [ ] roomPow(): towers gain +16% dmg per room to track the hp curve — crude, replace with real per-room tuning
 - [ ] Room 1 first-pass numbers are guesses — playtest: tower costs, enemy HP curve (+10%/wave), income rates
 - [ ] Grandma stun: 6s cd / 2.5s stun — feels?
 - [ ] Whale at wave 5 beatable with ~2-3 towers?

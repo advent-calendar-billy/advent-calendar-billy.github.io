@@ -2146,6 +2146,9 @@ function damageEnemy(e, dmg) {
   else e.hpEl.setAttribute('width', Math.max(0, (e.barW - 3) * e.hp / e.hpMax));
 }
 
+/* towers sharpen as the campaign deepens — keeps late rooms winnable vs the hp curve */
+const roomPow = () => 1 + Math.min(ROOM, ROOMS.length) * 0.16;
+
 function atkSpeedFactor(t) {
   let f = 1;
   for (const w of G.towers) {
@@ -2171,7 +2174,7 @@ function firstEnemyInRange(t) {
 function fireRoulette(t) {
   const target = firstEnemyInRange(t);
   if (!target) return false;
-  const dmg = Math.max(1, Math.round((t.lvl === 2 ? 18 : 12) * (t.jinxed ? .3 : 1)));
+  const dmg = Math.max(1, Math.round((t.lvl === 2 ? 18 : 12) * roomPow() * (t.jinxed ? .3 : 1)));
   const bounces = t.lvl === 2 ? 4 : 3;
   const el = svgEl('circle', { r: 5, fill: '#fffbe8', stroke: '#3b2415', 'stroke-width': 2 }, $('projG'));
   SFX.ball();
@@ -2186,7 +2189,7 @@ function fireDealer(t) {
   const base = Math.atan2(ty - t.y, tx - t.x);
   const n = t.lvl === 2 ? 5 : 3;
   SFX.card();
-  const dmg = Math.max(1, Math.round((t.lvl === 2 ? 8 : 6) * (t.jinxed ? .3 : 1)));
+  const dmg = Math.max(1, Math.round((t.lvl === 2 ? 8 : 6) * roomPow() * (t.jinxed ? .3 : 1)));
   for (let i = 0; i < n; i++) {
     const ang = base + (i - (n - 1) / 2) * 0.21;
     const el = svgEl('g', {}, $('projG'));
@@ -2366,7 +2369,7 @@ function update(dt) {
         if (nb) {
           t.lures--;
           nb.luredUntil = G.time + 2.6;
-          nb.lureDps = t.lvl === 2 ? 15 : 9;
+          nb.lureDps = (t.lvl === 2 ? 15 : 9) * roomPow();
           float(t.x, t.y - 34, 'FREE SHRIMP!', '#e07b39');
         }
       }
@@ -2415,7 +2418,7 @@ function update(dt) {
         G.projectiles.push({
           kind: 'lob', x: t.x, y: t.y, sx: t.x, sy: t.y, tx, ty, el,
           t: 0, dur: .55,
-          dmg: Math.max(1, Math.round((t.lvl === 2 ? 70 : 40) * (t.jinxed ? .3 : 1))),
+          dmg: Math.max(1, Math.round((t.lvl === 2 ? 70 : 40) * roomPow() * (t.jinxed ? .3 : 1))),
           aoe: t.lvl === 2 ? 80 : 60
         });
         t.cool = TTYPES.catapult.cd * atkSpeedFactor(t);
