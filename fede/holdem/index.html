@@ -414,8 +414,9 @@
   #mapNodes {
     display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
     gap: 4px;
-    margin: 36px 0 16px;
+    margin: 6px 0 16px;
   }
+  #mapNodes .mapNode { width: 44px; height: 44px; font-size: 15px; }
   .mapNode {
     position: relative;
     width: 52px; height: 52px;
@@ -1164,6 +1165,20 @@
         </g>
       </g>
 
+      <g id="decSign2">
+        <ellipse cx="2" cy="34" rx="16" ry="5" fill="rgba(40,16,8,.3)"/>
+        <line x1="0" y1="34" x2="0" y2="6" stroke="#3b2415" stroke-width="6"/>
+        <line x1="0" y1="34" x2="0" y2="6" stroke="#d9a94f" stroke-width="3"/>
+        <ellipse cx="0" cy="34" rx="9" ry="3.5" fill="#d9a94f" stroke="#3b2415" stroke-width="2.5"/>
+        <rect x="-30" y="-30" width="60" height="38" rx="6" fill="#0f3d2a" stroke="#d9a94f" stroke-width="3"/>
+        <text x="0" y="-16" text-anchor="middle" font-family="Georgia" font-weight="bold" font-size="10" fill="#f5ead1">BLACKJACK</text>
+        <text x="0" y="-4" text-anchor="middle" font-family="Georgia" font-weight="bold" font-size="10" fill="#ffd23f">PAYS 3:2</text>
+        <g fill="#e8b64c">
+          <circle cx="-24" cy="-24" r="1.6"/><circle cx="24" cy="-24" r="1.6"/>
+          <circle cx="-24" cy="2" r="1.6"/><circle cx="24" cy="2" r="1.6"/>
+        </g>
+      </g>
+
       <g id="decCocktail">
         <ellipse cx="3" cy="14" rx="20" ry="6" fill="rgba(40,16,8,.3)"/>
         <circle r="17" fill="#8a5a30" stroke="#3b2415" stroke-width="3.5"/>
@@ -1394,11 +1409,11 @@
     <div class="bulbs">● ● ● ● ● ● ● ● ● ●</div>
     <div class="mapMarquee">HOLD'EM</div>
     <div class="bulbs">● ● ● ● ● ● ● ● ● ●</div>
-    <div class="mapSub">CASINO DIRECTORY · SLOTS PIT · FLOORS 1–10</div>
+    <div class="mapSub">CASINO DIRECTORY</div>
     <div id="mapComps"></div>
     <div id="mapNodes"></div>
     <div id="mapShop"></div>
-    <div class="mapSub" style="opacity:.55">…47 more rooms under renovation</div>
+    <div class="mapSub" style="opacity:.55">…37 more rooms under renovation</div>
   </div>
 </div>
 
@@ -1825,6 +1840,73 @@ const ROOMS = [
       [['auditor',2,16],['whale',2,10]],
       [['lady',1,0],['whale',3,8],['regular',14,.7]],
       [['shark',1,0],['lady',1,20],['auditor',1,35],['whale',2,12]]
+    ] },
+  { name: 'Blackjack Row 1', hpMul: 6.4, chips: 750, block: 1,
+    carpet: ['#1e6b4a', '#2a7d58', '#175a3d'],
+    intro: 'A new block: the BLACKJACK ROOMS. Green felt underfoot, the same hungry crowd — and the pit bosses hit harder up here.',
+    variants: [
+      { entryY: 300, vault: [1046, 300], killOffset: 112,
+        lanes: ['M -40 300 C 120 300, 200 170, 360 170 C 520 170, 520 430, 680 430 C 840 430, 900 300, 1160 300'] },
+      { entryY: 300, vault: [1046, 300], killOffset: 112,
+        lanes: ['M -40 300 C 120 300, 200 430, 360 430 C 520 430, 520 170, 680 170 C 840 170, 900 300, 1160 300'] }
+    ],
+    waves: [
+      [['retiree',26,.4],['tourist',18,.35]],
+      [['drunk',16,.55],['clipper',14,.6]],
+      [['honey',7,3],['mojito',14,.55]],
+      [['counter',10,1.0],['regular',12,.75]],
+      [['lady',1,0],['grandma',12,.8]],
+      [['elvis',24,.32],['influencer',5,4]],
+      [['whale',3,7],['drunk',16,.5]],
+      [['auditor',2,15],['clipper',16,.55]],
+      [['counter',12,.85],['grandma',16,.7],['honey',7,3]],
+      [['shark',1,0],['whale',3,8],['influencer',5,4]]
+    ] },
+  { name: 'Blackjack Row 2', hpMul: 7.0, chips: 780, block: 1,
+    carpet: ['#195e50', '#237060', '#124a3f'],
+    intro: 'The tables run hotter and the corridor splits over the felt. Cover both sides of the pit.',
+    variants: [
+      { entryY: 170, vault: [1046, 380], killOffset: 112,
+        lanes: [
+          'M -40 170 C 100 170, 160 170, 220 170 C 360 170, 350 95, 490 95 C 630 95, 620 210, 740 250 C 850 285, 900 360, 1160 380',
+          'M -40 170 C 100 170, 160 170, 220 170 C 360 170, 350 345, 490 345 C 630 345, 640 275, 740 250 C 850 285, 900 360, 1160 380'
+        ] },
+      { entryY: 430, vault: [1046, 220], killOffset: 112,
+        lanes: [
+          'M -40 430 C 100 430, 160 430, 220 430 C 360 430, 350 505, 490 505 C 630 505, 620 390, 740 350 C 850 315, 900 240, 1160 220',
+          'M -40 430 C 100 430, 160 430, 220 430 C 360 430, 350 255, 490 255 C 630 255, 640 325, 740 350 C 850 315, 900 240, 1160 220'
+        ] }
+    ],
+    waves: [
+      [['retiree',28,.35],['drunk',14,.6]],
+      [['tourist',24,.28],['mojito',14,.55]],
+      [['clipper',18,.5],['honey',8,2.8]],
+      [['regular',14,.7],['counter',11,.9]],
+      [['whale',3,7],['grandma',14,.75]],
+      [['elvis',26,.3],['influencer',6,3.5]],
+      [['lady',1,0],['mojito',18,.45]],
+      [['counter',13,.8],['honey',8,2.8],['drunk',16,.5]],
+      [['auditor',2,14],['whale',3,7]],
+      [['auditor',2,18],['lady',1,25],['grandma',18,.65]]
+    ] },
+  { name: 'Blackjack Row 3', hpMul: 7.7, chips: 810, block: 1,
+    carpet: ['#14524d', '#1d635d', '#0e403c'],
+    intro: 'The high-limit pit: one great ring of tables, the vault dead ahead in the middle of it all.',
+    variants: [
+      { entryY: 130, vault: [800, 330], killOffset: 25,
+        lanes: ['M -40 130 C 240 130, 420 130, 560 160 C 760 200, 820 340, 700 440 C 580 530, 320 500, 240 400 C 170 315, 240 230, 380 250 C 500 268, 560 330, 640 330 C 720 330, 760 330, 800 330'] }
+    ],
+    waves: [
+      [['retiree',30,.32],['tourist',22,.3]],
+      [['drunk',18,.5],['clipper',18,.5]],
+      [['honey',9,2.6],['regular',14,.65]],
+      [['counter',13,.8],['mojito',18,.45]],
+      [['shark',1,0],['grandma',16,.7]],
+      [['elvis',30,.28],['influencer',6,3.2]],
+      [['whale',4,6],['honey',9,2.6]],
+      [['lady',1,0],['counter',14,.75]],
+      [['auditor',3,12],['grandma',20,.6]],
+      [['shark',1,0],['lady',1,18],['auditor',1,32],['whale',3,8]]
     ] }
 ];
 let ROOM = 0;
@@ -3095,44 +3177,58 @@ function initRoom(i, resume) {
   }
 }
 
+function makeMapNode(i, real) {
+  const unlocked = real && i < SAVE.unlocked;
+  const cleared = real && i < SAVE.unlocked - 1;
+  const b = document.createElement('div');
+  b.className = 'mapNode' + (cleared ? ' cleared' : unlocked ? ' cur' : '');
+  b.textContent = real ? (cleared ? '★' : i + 1) : '?';
+  if (cleared && SAVE.roomStars && SAVE.roomStars[i]) {
+    const r = document.createElement('div');
+    r.style.cssText = 'position:absolute;bottom:-15px;left:50%;transform:translateX(-50%);font-size:8px;color:var(--gold);letter-spacing:1px;white-space:nowrap;';
+    r.textContent = '★'.repeat(SAVE.roomStars[i]);
+    b.appendChild(r);
+  }
+  const hasMid = real && SAVE.mid && SAVE.mid.room === i;
+  if (hasMid) {
+    b.textContent = '▶';
+    const w = document.createElement('div');
+    w.style.cssText = 'position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);font-size:9px;color:#9c8757;font-weight:800;';
+    w.textContent = 'W' + (SAVE.mid.wave + 1);
+    b.appendChild(w);
+  }
+  if (unlocked && !cleared) {
+    const tag = document.createElement('div');
+    tag.className = 'hereTag';
+    tag.textContent = hasMid ? 'RESUME SHIFT' : 'YOU ARE HERE';
+    b.appendChild(tag);
+  }
+  if (unlocked || cleared) b.addEventListener('pointerdown', () => initRoom(i, hasMid));
+  return b;
+}
+
 function renderMap() {
   $('mapComps').textContent = `🎟 ${SAVE.comps} COMPS`;
   const holder = $('mapNodes');
   holder.innerHTML = '';
-  for (let i = 0; i < 10; i++) {
-    const real = i < ROOMS.length;
-    const unlocked = real && i < SAVE.unlocked;
-    const cleared = i < SAVE.unlocked - 1;
-    const b = document.createElement('div');
-    b.className = 'mapNode' + (cleared ? ' cleared' : unlocked ? ' cur' : '');
-    b.textContent = real ? (cleared ? '★' : i + 1) : '?';
-    if (cleared && SAVE.roomStars && SAVE.roomStars[i]) {
-      const r = document.createElement('div');
-      r.style.cssText = 'position:absolute;bottom:-15px;left:50%;transform:translateX(-50%);font-size:8px;color:var(--gold);letter-spacing:1px;white-space:nowrap;';
-      r.textContent = '★'.repeat(SAVE.roomStars[i]);
-      b.appendChild(r);
-    }
-    const hasMid = SAVE.mid && SAVE.mid.room === i;
-    if (hasMid) {
-      b.textContent = '▶';
-      b.title = 'resume';
-      const w = document.createElement('div');
-      w.style.cssText = 'position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);font-size:9px;color:#9c8757;font-weight:800;';
-      w.textContent = 'W' + (SAVE.mid.wave + 1);
-      b.appendChild(w);
-    }
-    if (unlocked && !cleared) {
-      const tag = document.createElement('div');
-      tag.className = 'hereTag';
-      tag.textContent = hasMid ? 'RESUME SHIFT' : 'YOU ARE HERE';
-      b.appendChild(tag);
-    }
-    if (unlocked || cleared) b.addEventListener('pointerdown', () => initRoom(i, hasMid));
-    holder.appendChild(b);
-    if (i < 9) {
-      const c = document.createElement('div');
-      c.className = 'mapLink';
-      holder.appendChild(c);
+  const BLOCKS = [
+    { label: 'SLOTS PIT · FLOORS 1–10', start: 0, count: 10 },
+    { label: 'BLACKJACK ROOMS · FLOORS 11–20', start: 10, count: 10 }
+  ];
+  for (const blk of BLOCKS) {
+    const lbl = document.createElement('div');
+    lbl.className = 'mapSub';
+    lbl.style.cssText = 'width:100%;margin:14px 0 26px;';
+    lbl.textContent = blk.label;
+    holder.appendChild(lbl);
+    for (let k = 0; k < blk.count; k++) {
+      const i = blk.start + k;
+      holder.appendChild(makeMapNode(i, i < ROOMS.length));
+      if (k < blk.count - 1) {
+        const c = document.createElement('div');
+        c.className = 'mapLink';
+        holder.appendChild(c);
+      }
     }
   }
   // comps shop: permanent upgrades (provisional design)

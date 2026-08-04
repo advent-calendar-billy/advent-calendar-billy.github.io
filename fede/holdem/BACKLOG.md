@@ -56,7 +56,7 @@
 - [x] Room progression: fresh build per room, leftover chips → meta-currency (approved)
 - [x] Comps shop v1 on map (Bigger Bankroll, House Discount) — PROVISIONAL, needs user approval
 - [x] Rooms 2-10 built — SLOTS PIT BLOCK COMPLETE (triple-fork R7, forked-serpentine R8, RNG-layout R9, gauntlet R10)
-- [ ] Later theme blocks: blackjack rooms, roulette halls, poker room, buffet, pool deck, theater, high-roller suite, vault finale
+- [x] Blackjack Rooms block STARTED (rooms 11-13, green felt family, block-aware map) — 14-20 + later blocks (roulette halls, poker room, buffet, pool deck, theater, suite, vault) pending
 - [ ] Branching floors (1 → 2a/2b → 3) — later, approved as eventual
 - [x] localStorage campaign save (which room, meta-currency, unlocks)
 
