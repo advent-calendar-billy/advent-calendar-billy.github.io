@@ -263,6 +263,24 @@
     animation: hereBob 1.2s ease-in-out infinite;
   }
 
+  #dealHint {
+    position: fixed;
+    right: 18px;
+    bottom: calc(76px + env(safe-area-inset-bottom, 0));
+    background: #c9473b;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 2px solid #3b2415;
+    display: none;
+    z-index: 11;
+    pointer-events: none;
+    animation: hereBob 1.2s ease-in-out infinite;
+  }
+
   /* ── next-wave preview ── */
   #nextWave {
     position: fixed;
@@ -1327,6 +1345,7 @@
 <!-- shop bar: drag a tower onto the floor -->
 <div id="shop"></div>
 <div id="dragHint">DRAG A TOWER ONTO THE CARPET ⤵</div>
+<div id="dealHint">NOW DEAL THEM IN ⤵</div>
 
 <!-- build / tower sheet -->
 <div id="sheet">
@@ -2045,6 +2064,7 @@ function buildShop(){
         buildTower(key, d.x, d.y);
         SFX.build();
         $('dragHint').style.display = 'none';
+        if (ROOM === 0 && G.wave === 0 && !G.running) $('dealHint').style.display = 'block';
         updateHUD();
       }
     };
@@ -2341,6 +2361,7 @@ function startWave() {
     $('startWave').style.display = 'none';
     $('nextWave').style.display = 'none';
     $('dragHint').style.display = 'none';
+    $('dealHint').style.display = 'none';
     G.spawners = WAVES[G.wave].map(([type, count, interval], si) => ({
       // single-count spawners use their interval as an initial delay (boss staggering)
       type, left: count, interval, timer: count === 1 ? Math.max(interval, si * 1.6) : si * 1.6
@@ -3085,6 +3106,11 @@ function renderMap() {
   e.className = 'mapNode' + (endlessOpen ? ' cur' : '');
   e.textContent = '∞';
   e.style.marginLeft = '10px';
+  e.title = 'The Endless Pit';
+  const sub = document.createElement('div');
+  sub.style.cssText = 'position:absolute;bottom:-15px;left:50%;transform:translateX(-50%);font-size:8px;color:#9c8757;letter-spacing:1px;white-space:nowrap;';
+  sub.textContent = 'AFTER HOURS';
+  e.appendChild(sub);
   if (endlessOpen) e.addEventListener('pointerdown', () => initRoom(ROOMS.length));
   holder.appendChild(e);
   if (SAVE.best) {
