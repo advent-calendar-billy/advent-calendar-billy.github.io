@@ -9,6 +9,7 @@
 <meta name="theme-color" content="#0b3d2e">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
 <title>HOLD'EM</title>
 <style>
   :root {
@@ -212,6 +213,25 @@
   #modalBtn { font-size: 16px; padding: 10px 26px; }
 
   /* ── float layer for TILT!/chips text handled in SVG ── */
+
+  /* ── first-run drag hint ── */
+  #dragHint {
+    position: fixed;
+    left: 18px;
+    bottom: calc(104px + env(safe-area-inset-bottom, 0));
+    background: #c9473b;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 2px solid #3b2415;
+    display: none;
+    z-index: 11;
+    pointer-events: none;
+    animation: hereBob 1.2s ease-in-out infinite;
+  }
 
   /* ── next-wave preview ── */
   #nextWave {
@@ -1273,6 +1293,7 @@
 
 <!-- shop bar: drag a tower onto the floor -->
 <div id="shop"></div>
+<div id="dragHint">DRAG A TOWER ONTO THE CARPET ⤵</div>
 
 <!-- build / tower sheet -->
 <div id="sheet">
@@ -1941,6 +1962,7 @@ function buildShop(){
         G.chips -= effCost(d.T);
         buildTower(key, d.x, d.y);
         SFX.build();
+        $('dragHint').style.display = 'none';
         updateHUD();
       }
     };
@@ -2859,6 +2881,7 @@ function initRoom(i, resume) {
   updateHUD();
   $('startWave').style.display = 'block';
   showNextWave();
+  if (i === 0 && !resume) $('dragHint').style.display = 'block';
   $('waveTot').textContent = WAVES.length;
   if (resume && SAVE.mid && SAVE.mid.room === i) {
     const M = SAVE.mid;

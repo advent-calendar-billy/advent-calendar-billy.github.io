@@ -86,6 +86,7 @@
 - [ ] sw.js cache version bump discipline (bump CACHE on every deploy!)
 
 ## BALANCE (living list)
+- [x] Probe data (Aug 3): reinvesting bot clears R1 easily, dies at R3 wave-10 gauntlet — softened hpMul ladder lands in the right zone; human playtest still needed
 - [ ] roomPow(): towers gain +16% dmg per room to track the hp curve — crude, replace with real per-room tuning
 - [ ] Room 1 first-pass numbers are guesses — playtest: tower costs, enemy HP curve (+10%/wave), income rates
 - [ ] Grandma stun: 6s cd / 2.5s stun — feels?
