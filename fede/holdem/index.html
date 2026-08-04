@@ -1368,7 +1368,7 @@
     <div class="bulbs">● ● ● ● ● ● ●</div>
     <h2>LUCKY 7s</h2>
     <div class="bulbs" style="margin-top:-6px">● ● ● ● ● ● ●</div>
-    <div id="reels"><span class="reel">7</span><span class="reel">♦</span><span class="reel">★</span></div>
+    <div id="reels"><span class="reel">🍒</span><span class="reel">7</span><span class="reel">🍋</span></div>
     <div id="slotMsg">Gamble your leftover chips… or bank them as comps.</div>
     <div id="payline">7·7·7 <b>500</b> &nbsp; ♦·♦·♦ <b>300</b> &nbsp; 🍒×3 <b>200</b> &nbsp; 🍋×3 <b>150</b> &nbsp; ★×3 <b>FREE GAMES</b></div>
     <div id="slotInfo"></div>
@@ -2451,6 +2451,7 @@ function damageEnemy(e, dmg) {
   e.hp -= dmg;
   if (e.hp <= 0) killEnemy(e, false);
   else {
+    e.flashUntil = G.time + .09;
     e.barG.setAttribute('opacity', 1);
     e.hpEl.setAttribute('width', Math.max(0, (e.barW - 3) * e.hp / e.hpMax));
   }
@@ -2594,6 +2595,7 @@ function update(dt) {
     if (e.dist >= PATHS[e.pathI].killAt) { killEnemy(e, true); continue; }  // despawn AT the vault door
     const [x, y] = posAtE(e);
     e.el.setAttribute('transform', `translate(${x},${y - 4})`);
+    e.el.setAttribute('opacity', e.flashUntil > G.time ? .5 : 1);
     /* honeymooners heal while both live */
     if (e.E.pairHeal && e.mate && !e.mate.dead && e.hp < e.hpMax) {
       e.hp = Math.min(e.hpMax, e.hp + e.E.pairHeal * dt);
@@ -3247,7 +3249,7 @@ renderMap();
 $('map').style.display = 'flex';
 if (location.search.includes('unlockall')) { SAVE.unlocked = ROOMS.length + 1; renderMap(); }
 const roomParam = location.search.match(/room=(\d+)/);
-if (roomParam) initRoom(Math.min(ROOMS.length - 1, Math.max(0, +roomParam[1] - 1)));
+if (roomParam) initRoom(Math.min(ROOMS.length, Math.max(0, +roomParam[1] - 1)));  // N=11 → Endless
 
 /* offline support */
 if ('serviceWorker' in navigator && location.protocol.startsWith('http') && !location.search.includes('nosw')) {

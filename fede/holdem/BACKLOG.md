@@ -61,18 +61,25 @@
 - [x] localStorage campaign save (which room, meta-currency, unlocks)
 
 ## AESTHETIC / JUICE
+- [x] POLISH SWEEP (Aug 3 night): entrance marquee doorway, casino-directory map board
+      (bulbs, YOU ARE HERE, backdrop blur), LUCKY 7s cabinet (payline, win flash, cash-out
+      preview), pause menu w/ quit-to-map, boss HP bar, hidden-till-hit health bars, lvl2 ★
+      badges, impact rings, tour bus arrivals w/ honk, tourist camera-flash blind (approved
+      mechanic), leak screen flash, lounge chord pad, rolling chip counter, victory beat,
+      FINAL WAVE banner, drag hint, sprite pass (Mojito/Drunk/Shark), LOOSE SLOTS sign +
+      cocktail decor, mirrored layout variants for rooms 1-6, apple-touch-icon, dev README
 - [x] Randomized per-room decor (slot banks, blackjack tables, plants) — doubles as placement obstacles
 - [x] Forked lanes with per-enemy branch RNG (rooms 2-3) + random layout variants (room 1)
 - [x] Rope visual overhaul: bars the lane, marching aura, queue dots + slowed gait on victims
 - [x] Ambient roaming waitress
 - [x] Death animations (poof of chips, grandma drops coin cup)
-- [ ] Hit flashes, knockback wiggle
+- [ ] Hit flashes on enemies (knockback wiggle done via craps)
 - [x] Wave-start banner animation ("WAVE 3 — THE BUS ARRIVES")
 - [x] Boss intro: screen shake + name plate
 - [ ] Vault door creaks open on leak (visual)
 - [x] SFX v1: synthesized WebAudio (cards, balls, kills, leaks, TILT, wave fanfare, boss sting, slot bells) + mute toggle
-- [ ] Music: light lounge loop, boss theme (embedded/synth — offline)
-- [ ] App icon + PWA manifest (installable to home screen)
+- [x] Music v1: quiet synthesized lounge chord pad (boss theme still open)
+- [x] App icon + PWA manifest + apple-touch-icon PNG
 - [ ] Title screen with marquee art (reuse style-samples header)
 
 ## MOBILE / TECH
