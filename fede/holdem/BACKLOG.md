@@ -81,6 +81,7 @@
 - [x] PWA manifest.json + icons (real installability)
 - [ ] Performance audit on real phone (SVG entity count at wave 9+)
 - [x] Prevent double-tap zoom / scroll bleed on iOS Safari
+- [ ] Verify mid-room RESUME on a real device (headless test env fights virtual time)
 - [ ] Test on Fede's actual phone model before the flight
 - [ ] sw.js cache version bump discipline (bump CACHE on every deploy!)
 

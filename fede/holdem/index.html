@@ -1354,7 +1354,7 @@ const ROOMS = [
       [['mojito',10,.9],['grandma',8,1.2],['influencer',2,9],['counter',3,7]],
       [['whale',2,18],['grandma',8,1.2],['elvis',10,.8]]
     ] },
-  { name: 'Slots Pit 3', hpMul: 2.3, chips: 460,
+  { name: 'Slots Pit 3', carpet: ['#9c2b26','#b23a30','#872420'],  hpMul: 2.3, chips: 460,
     intro: 'The vault sits exposed mid-floor and the corridor splits around it. Everything the Slots Pit has walks — and the Loan Shark collects at the end.',
     variants: [
       { entryY: 130, vault: [560, 360], killOffset: 30,
@@ -1375,7 +1375,7 @@ const ROOMS = [
       [['whale',2,15],['grandma',10,1.0],['mojito',10,.8]],
       [['shark',1,0],['whale',2,20],['influencer',2,12],['grandma',8,1.2]]
     ] },
-  { name: 'Slots Pit 4', hpMul: 3.1, chips: 520,
+  { name: 'Slots Pit 4', carpet: ['#953041','#a83e4e','#7f2836'],  hpMul: 3.1, chips: 520,
     intro: 'The pit boss called Corporate. The Regular knows the staff doors, and at the end of the night THE AUDITOR walks the floor — your best tower freezes while he lives.',
     variants: [
       { entryY: 470, vault: [1046, 470], killOffset: 112,
@@ -1396,7 +1396,7 @@ const ROOMS = [
       [['whale',2,12],['counter',5,2.0],['mojito',12,.7]],
       [['auditor',1,0],['grandma',10,1.0],['whale',1,30],['regular',8,1.0]]
     ] },
-  { name: 'Slots Pit 5', hpMul: 3.9, chips: 560,
+  { name: 'Slots Pit 5', carpet: ['#822d52','#94395f','#6e2545'],  hpMul: 3.9, chips: 560,
     intro: 'The corridor coils around the vault like a spring. Tonight LADY LUCK herself walks the floor — towers inside her shimmer go cold. End of the Slots Pit.',
     variants: [
       { entryY: 130, vault: [558, 352], killOffset: 25,
@@ -1416,7 +1416,7 @@ const ROOMS = [
       [['whale',3,10],['clipper',12,.8],['influencer',3,6]],
       [['lady',1,0],['shark',1,25],['grandma',12,.9]]
     ] },
-  { name: 'Slots Pit 6', hpMul: 4.6, chips: 600,
+  { name: 'Slots Pit 6', carpet: ['#6e2f5e','#7d3a6c','#5c2650'],  hpMul: 4.6, chips: 600,
     intro: 'The fork is back, and the crowd is meaner. Management sends The Auditor to close the night.',
     variants: [
       { entryY: 300, vault: [1046, 430], killOffset: 112,
@@ -1437,7 +1437,7 @@ const ROOMS = [
       [['whale',3,9],['mojito',14,.6]],
       [['auditor',1,0],['whale',2,16],['grandma',12,.9],['regular',10,.9]]
     ] },
-  { name: 'Slots Pit 7', hpMul: 5.4, chips: 630,
+  { name: 'Slots Pit 7', carpet: ['#5e3070','#6d3c80','#4e2760'],  hpMul: 5.4, chips: 630,
     intro: 'THREE corridors tonight. Every guest picks one on a whim — nowhere is safe to skimp.',
     variants: [
       { entryY: 300, vault: [1046, 300], killOffset: 112,
@@ -1459,7 +1459,7 @@ const ROOMS = [
       [['counter',10,1.1],['grandma',14,.8],['influencer',4,5]],
       [['auditor',2,20],['whale',2,14],['mojito',16,.5]]
     ] },
-  { name: 'Slots Pit 8', hpMul: 6.3, chips: 660,
+  { name: 'Slots Pit 8', carpet: ['#4a2f77','#573a86','#3d2565'],  hpMul: 6.3, chips: 660,
     intro: 'A long serpentine whose middle run splits in two. Lady Luck herself takes a stroll mid-shift.',
     variants: [
       { entryY: 150, vault: [1046, 470], killOffset: 112,
@@ -1480,7 +1480,7 @@ const ROOMS = [
       [['auditor',2,18],['grandma',14,.8]],
       [['shark',1,0],['auditor',1,25],['whale',2,12],['influencer',4,5]]
     ] },
-  { name: 'Slots Pit 9', hpMul: 7.3, chips: 690,
+  { name: 'Slots Pit 9', carpet: ['#3a2f80','#46398f','#2f256d'],  hpMul: 7.3, chips: 690,
     intro: 'The floor plan changes nightly now. Everything walks, and the bosses walk with them.',
     variants: [
       { entryY: 300, vault: [1046, 430], killOffset: 112,
@@ -1506,7 +1506,7 @@ const ROOMS = [
       [['counter',12,.9],['grandma',16,.7],['influencer',5,4]],
       [['lady',1,0],['shark',1,22],['whale',2,10]]
     ] },
-  { name: 'Slots Pit 10', hpMul: 8.5, chips: 720,
+  { name: 'Slots Pit 10', carpet: ['#2d2a6e','#383579','#23215c'],  hpMul: 8.5, chips: 720,
     intro: 'End of the block. The WHOLE management team walks the floor tonight — hold the vault and the Blackjack Rooms open next.',
     variants: [
       { entryY: 130, vault: [558, 352], killOffset: 25,
@@ -1564,6 +1564,7 @@ const G = {
 let AC = null;
 let sndOn = true;
 function ac() {
+  if (location.search.includes('autotest') || location.search.includes('gallery')) return null;  // WebAudio pins headless virtual time
   if (!AC) { try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} }
   return AC;
 }
@@ -2013,6 +2014,10 @@ function killEnemy(e, leaked) {
     G.stars = Math.max(0, G.stars - e.E.star);
     const [vx, vy] = G.variant.vault;
     SFX.leak();
+    const vg = $('vaultGlowC');
+    vg.style.animation = 'none';
+    void vg.getBoundingClientRect();
+    vg.style.animation = 'vaultGlow .5s ease-out 3';
     float(vx - 60, vy - 40, '-' + e.E.star + ' ★', '#e05a3a');
     if (e.E.steal) {
       G.chips = Math.max(0, G.chips - e.E.steal);
@@ -2102,6 +2107,7 @@ function win() {
 function lose() {
   G.over = true;
   delete SAVE.mid;
+  if (ROOM >= ROOMS.length) SAVE.best = Math.max(SAVE.best || 0, G.wave);
   saveSave();
   showModal('☆ ☆ ☆ ☆ ☆', 'Reputation Ruined', null,
     'Too many guests reached the vault. The review sites are merciless. The casino goes dark... but the house always gets another hand.',
@@ -2549,11 +2555,15 @@ $('sndBtn').addEventListener('pointerdown', ev => {
   ev.stopPropagation();
   sndOn = !sndOn;
   $('sndBtn').textContent = sndOn ? '🔊' : '🔇';
+  SAVE.prefs = { snd: sndOn, auto: G.auto, speed: G.speed };
+  saveSave();
 });
 $('autoBtn').addEventListener('pointerdown', ev => {
   ev.stopPropagation();
   G.auto = !G.auto;
   $('autoBtn').classList.toggle('primary', G.auto);
+  SAVE.prefs = { snd: sndOn, auto: G.auto, speed: G.speed };
+  saveSave();
 });
 $('pauseBtn').addEventListener('pointerdown', ev => {
   ev.stopPropagation();
@@ -2592,6 +2602,11 @@ function initRoom(i, resume) {
     : Math.floor(Math.random() * R.variants.length);
   G.vi = vi;
   const V = R.variants[vi];
+  const carp = R.carpet || ['#a63029', '#bd4136', '#8f2a24'];
+  const pat = document.getElementById('carpet');
+  pat.children[0].setAttribute('fill', carp[0]);
+  pat.children[1].setAttribute('fill', carp[1]);
+  pat.children[2].setAttribute('stroke', carp[2]);
   G.variant = V;
   setLanes(V.lanes, V.killOffset);
   WAVES = R.waves;
@@ -2681,6 +2696,12 @@ function renderMap() {
   e.style.marginLeft = '10px';
   if (endlessOpen) e.addEventListener('pointerdown', () => initRoom(ROOMS.length));
   holder.appendChild(e);
+  if (SAVE.best) {
+    const bl = document.createElement('div');
+    bl.className = 'mapSub';
+    bl.textContent = `ENDLESS BEST · WAVE ${SAVE.best}`;
+    holder.parentNode.insertBefore(bl, holder.nextSibling);
+  }
 }
 
 /* ══════════ AMBIENT DECOR (randomized per room — furniture blocks tower spots) ══════════ */
@@ -2823,6 +2844,14 @@ $('cashBtn').addEventListener('pointerdown', ev => {
 });
 
 /* ══════════ BOOT ══════════ */
+if (SAVE.prefs) {
+  sndOn = SAVE.prefs.snd !== false;
+  $('sndBtn').textContent = sndOn ? '🔊' : '🔇';
+  G.auto = !!SAVE.prefs.auto;
+  $('autoBtn').classList.toggle('primary', G.auto);
+  G.speed = SAVE.prefs.speed || 1;
+  $('speedBtn').textContent = '×' + G.speed;
+}
 updateHUD();
 renderMap();
 $('map').style.display = 'flex';
@@ -2830,7 +2859,7 @@ const roomParam = location.search.match(/room=(\d+)/);
 if (roomParam) initRoom(Math.min(ROOMS.length - 1, Math.max(0, +roomParam[1] - 1)));
 
 /* offline support */
-if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+if ('serviceWorker' in navigator && location.protocol.startsWith('http') && !location.search.includes('nosw')) {
   navigator.serviceWorker.register('sw.js').catch(() => {});
 }
 
