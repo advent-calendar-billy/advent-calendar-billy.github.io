@@ -2418,7 +2418,7 @@ function lose() {
   saveSave();
   showModal('☆ ☆ ☆ ☆ ☆', 'Reputation Ruined', null,
     'Too many guests reached the vault. The review sites are merciless. The casino goes dark... but the house always gets another hand.',
-    '', 'TRY AGAIN', () => location.reload());
+    `YOU HELD UNTIL WAVE ${Math.min(G.wave + 1, WAVES.length)} OF ${WAVES.length}`, 'TRY AGAIN', () => location.reload());
 }
 
 /* ══════════ COMBAT ══════════ */
@@ -3023,6 +3023,12 @@ function renderMap() {
     const b = document.createElement('div');
     b.className = 'mapNode' + (cleared ? ' cleared' : unlocked ? ' cur' : '');
     b.textContent = real ? (cleared ? '★' : i + 1) : '?';
+    if (cleared && SAVE.roomStars && SAVE.roomStars[i]) {
+      const r = document.createElement('div');
+      r.style.cssText = 'position:absolute;bottom:-15px;left:50%;transform:translateX(-50%);font-size:8px;color:var(--gold);letter-spacing:1px;white-space:nowrap;';
+      r.textContent = '★'.repeat(SAVE.roomStars[i]);
+      b.appendChild(r);
+    }
     const hasMid = SAVE.mid && SAVE.mid.room === i;
     if (hasMid) {
       b.textContent = '▶';
@@ -3230,6 +3236,8 @@ $('cashBtn').addEventListener('pointerdown', ev => {
   if (SLOT.spinning) return;
   const comps = Math.floor(G.chips / 10);
   SAVE.comps += comps;
+  SAVE.roomStars = SAVE.roomStars || {};
+  SAVE.roomStars[ROOM] = Math.max(SAVE.roomStars[ROOM] || 0, G.stars);
   SAVE.unlocked = Math.max(SAVE.unlocked, Math.min(ROOM + 2, ROOMS.length + 1));
   saveSave();
   location.reload();
