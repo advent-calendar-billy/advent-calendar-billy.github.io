@@ -613,6 +613,9 @@
         <stop offset="0%" stop-color="#f2e2b8"/>
         <stop offset="100%" stop-color="#e4cf9c"/>
       </linearGradient>
+      <filter id="softBlur" x="-60%" y="-60%" width="220%" height="220%">
+        <feGaussianBlur stdDeviation="5"/>
+      </filter>
       <radialGradient id="vaultLeak" cx="50%" cy="50%" r="50%">
         <stop offset="0%" stop-color="#ffd23f" stop-opacity=".8"/>
         <stop offset="100%" stop-color="#ffd23f" stop-opacity="0"/>
@@ -2350,6 +2353,7 @@ function openSheetForTower(tower) {
     SFX.sell();
     G.chips += refund;
     tower.el.remove();
+    if (tower.shadowEl) tower.shadowEl.remove();
     if (tower.auraEl) tower.auraEl.remove();
     G.towers = G.towers.filter(t => t !== tower);
     closeSheet();
@@ -2405,6 +2409,10 @@ function buildTower(type, x, y) {
     }, $('towersG'));
     tower.auraEl.style.animation = 'ropeMarch 1.1s linear infinite';
   }
+  tower.shadowEl = svgEl('ellipse', {
+    cx: x + 3, cy: y + tower.r * .62, rx: tower.r + 9, ry: tower.r * .36,
+    fill: 'rgba(30,12,6,.5)', filter: 'url(#softBlur)'
+  }, $('towersG'));
   const el = svgEl('g', { transform: `translate(${x},${y}) rotate(${tower.rot}) scale(${T.scale})` }, $('towersG'));
   svgEl('use', { href: '#' + T.sprite }, el);
   tower.el = el;
@@ -3411,6 +3419,10 @@ function placeDecor() {
         const x = 80 + Math.random() * 960, y = 100 + Math.random() * 400;
         if (!decorSpotOK(x, y, k.r)) continue;
         const rot = (Math.random() * 14 - 7).toFixed(1);
+        svgEl('ellipse', {
+          cx: x + 3, cy: y + k.r * .58, rx: k.r + 8, ry: k.r * .33,
+          fill: 'rgba(30,12,6,.42)', filter: 'url(#softBlur)'
+        }, g);
         const el = svgEl('g', { transform: `translate(${x.toFixed(0)},${y.toFixed(0)}) rotate(${rot})` }, g);
         svgEl('use', { href: '#' + k.id }, el);
         G.decor.push({ x, y, r: k.r });
@@ -3574,6 +3586,42 @@ if (location.search.includes('gallery')) {
     svgEl('text', { x, y: y + 92, 'text-anchor': 'middle', 'font-size': 15, fill: '#e8b64c',
                     'font-weight': 'bold', 'font-family': 'Georgia' }, gal).textContent = id.replace(/^(spr|tw)/, '');
   });
+}
+
+/* dev depthtest: three depth treatments side by side for review */
+if (location.search.includes('depthtest')) {
+  initRoom(0);
+  $('modalBtn').dispatchEvent(new Event('click'));
+  G.paused = true;
+  document.querySelectorAll('#hud,#startWave,#shop,#nextWave,#dragHint').forEach(n => n.style.display = 'none');
+  const lab = (x, txt) => {
+    const t = svgEl('text', { x, y: 480, 'text-anchor': 'middle', 'font-size': 20, fill: '#f5ead1',
+      'font-weight': 'bold', stroke: '#3b2415', 'stroke-width': 4, 'paint-order': 'stroke' }, stageSvg);
+    t.textContent = txt;
+  };
+  const mk = (x, mode) => {
+    [['twRoulette', -80, .62], ['twDealer', 90, .62]].forEach(([spr, dy, sc]) => {
+      const y = 300 + dy;
+      const g = svgEl('g', {}, $('towersG'));
+      if (mode >= 1) {
+        svgEl('ellipse', { cx: x + 4, cy: y + 26 * sc + 14, rx: 52 * sc + 10, ry: 14,
+          fill: 'rgba(30,12,6,.55)', filter: 'url(#softBlur)' }, g);
+      }
+      if (mode >= 2) {
+        svgEl('circle', { cx: x, cy: y + 4, r: 60 * sc + 8, fill: 'rgba(30,12,6,.28)' }, g);
+        svgEl('circle', { cx: x, cy: y + 4, r: 60 * sc + 8, fill: 'none', stroke: 'rgba(255,240,200,.35)', 'stroke-width': 2 }, g);
+      }
+      const sp = svgEl('g', { transform: `translate(${x},${y - (mode >= 2 ? 4 : 0)}) scale(${sc})` }, g);
+      svgEl('use', { href: '#' + spr }, sp);
+      if (mode >= 1) {
+        svgEl('path', { d: `M ${x - 34} ${y - 26} A 40 40 0 0 1 ${x + 30} ${y - 28}`,
+          fill: 'none', stroke: 'rgba(255,255,255,.3)', 'stroke-width': 5, 'stroke-linecap': 'round' }, g);
+      }
+    });
+  };
+  mk(200, 0); lab(200, 'A · CURRENT');
+  mk(540, 1); lab(540, 'B · SHADOW + RIM LIGHT');
+  mk(880, 2); lab(880, 'C · B + BASE PAD, RAISED');
 }
 
 /* dev sheettest: open a room and pop a tower sheet */
