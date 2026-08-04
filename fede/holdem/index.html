@@ -214,6 +214,25 @@
 
   /* ── float layer for TILT!/chips text handled in SVG ── */
 
+  /* ── pause menu ── */
+  #pauseUI {
+    position: fixed; inset: 0;
+    background: rgba(7,20,14,.72);
+    display: none;
+    align-items: center; justify-content: center;
+    z-index: 24;
+  }
+  #pauseCard {
+    background: linear-gradient(180deg, #16120c, #0f0d09);
+    border: 3px solid var(--gold);
+    border-radius: 18px;
+    padding: 20px 34px 22px;
+    text-align: center;
+    color: var(--cream);
+    box-shadow: 0 0 60px rgba(232,182,76,.25);
+    animation: pop .28s cubic-bezier(.34,1.56,.64,1);
+  }
+
   /* ── first-run drag hint ── */
   #dragHint {
     position: fixed;
@@ -1346,6 +1365,19 @@
   </div>
 </div>
 
+<!-- pause menu -->
+<div id="pauseUI">
+  <div id="pauseCard">
+    <div class="bulbs">● ● ● ●</div>
+    <h2 style="font-family:Georgia,serif; color:var(--gold); letter-spacing:2px;">PAUSED</h2>
+    <div style="display:flex; gap:10px; justify-content:center; margin-top:14px;">
+      <button class="btn primary" id="resumeBtn">RESUME ▸</button>
+      <button class="btn" id="quitBtn">QUIT TO MAP</button>
+    </div>
+    <div style="font-size:11px; color:#9c8757; margin-top:10px;">progress autosaves after every wave</div>
+  </div>
+</div>
+
 <div id="rotate">
   <div class="ph">📱</div>
   <div style="font-size:20px; font-weight:800;">Rotate your phone</div>
@@ -2265,7 +2297,7 @@ function startWave() {
       G.bus = { el, t: 0 };
       SFX.honk();
     }
-    banner('WAVE ' + (G.wave + 1));
+    banner(G.wave + 1 === WAVES.length ? 'FINAL WAVE!' : 'WAVE ' + (G.wave + 1));
     SFX.wave();
     updateHUD();
   };
@@ -2831,6 +2863,17 @@ $('pauseBtn').addEventListener('pointerdown', ev => {
   if ($('modal').style.display === 'flex') return;
   G.paused = !G.paused;
   $('pauseBtn').textContent = G.paused ? '▶' : '⏸';
+  $('pauseUI').style.display = G.paused ? 'flex' : 'none';
+});
+$('resumeBtn').addEventListener('pointerdown', ev => {
+  ev.stopPropagation();
+  G.paused = false;
+  $('pauseBtn').textContent = '⏸';
+  $('pauseUI').style.display = 'none';
+});
+$('quitBtn').addEventListener('pointerdown', ev => {
+  ev.stopPropagation();
+  location.reload();
 });
 
 /* ══════════ ROOMS / MAP ══════════ */
