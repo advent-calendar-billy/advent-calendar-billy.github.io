@@ -1039,6 +1039,22 @@
         <path d="M-18 6 L18 6 L14 30 L-14 30 Z" fill="#d9a94f" stroke="#3b2415" stroke-width="3"/>
       </g>
 
+      <g id="sprBus">
+        <ellipse cx="0" cy="21" rx="46" ry="7" fill="rgba(40,16,8,.3)"/>
+        <rect x="-45" y="-16" width="90" height="34" rx="9" fill="#e8b64c" stroke="#3b2415" stroke-width="3.5"/>
+        <rect x="-43" y="-1" width="86" height="9" fill="#c9473b"/>
+        <text x="-4" y="6.5" text-anchor="middle" font-family="Georgia" font-weight="bold" font-size="7.5" fill="#f5ead1">CASINO TOURS</text>
+        <rect x="-38" y="-11" width="13" height="10" rx="2" fill="#79e0d2" stroke="#3b2415" stroke-width="2"/>
+        <rect x="-21" y="-11" width="13" height="10" rx="2" fill="#79e0d2" stroke="#3b2415" stroke-width="2"/>
+        <rect x="-4" y="-11" width="13" height="10" rx="2" fill="#79e0d2" stroke="#3b2415" stroke-width="2"/>
+        <rect x="13" y="-11" width="13" height="10" rx="2" fill="#79e0d2" stroke="#3b2415" stroke-width="2"/>
+        <rect x="31" y="-11" width="11" height="26" rx="2.5" fill="#2e2622" stroke="#3b2415" stroke-width="2"/>
+        <circle cx="-26" cy="19" r="7.5" fill="#2e2622" stroke="#3b2415" stroke-width="2.5"/>
+        <circle cx="26" cy="19" r="7.5" fill="#2e2622" stroke="#3b2415" stroke-width="2.5"/>
+        <circle cx="-26" cy="19" r="3" fill="#8d959f"/>
+        <circle cx="26" cy="19" r="3" fill="#8d959f"/>
+      </g>
+
       <g id="decSign">
         <ellipse cx="2" cy="34" rx="16" ry="5" fill="rgba(40,16,8,.3)"/>
         <line x1="0" y1="34" x2="0" y2="6" stroke="#3b2415" stroke-width="6"/>
@@ -1695,6 +1711,7 @@ const G = {
   auto: false,
   decor: [],
   ambient: [],
+  bus: null,
   variant: { vault: [1046, 470] },
   autoTimer: 0,
   over: false
@@ -1741,7 +1758,8 @@ const SFX = {
   boss()    { tone(98, .55, 'sawtooth', .1, 0, 68); tone(104, .55, 'sawtooth', .08, .04, 64); },
   spin()    { for (let i = 0; i < 6; i++) tone(560 + i * 130, .04, 'square', .032, i * .05); },
   slotWin() { tone(659, .08, 'square', .06); tone(784, .08, 'square', .06, .09); tone(1047, .2, 'square', .07, .18); },
-  cash()    { tone(1568, .05, 'square', .045); tone(1568, .05, 'square', .045, .08); }
+  cash()    { tone(1568, .05, 'square', .045); tone(1568, .05, 'square', .045, .08); },
+  honk()    { tone(392, .14, 'square', .07); tone(330, .2, 'square', .07, .16); }
 };
 
 /* ══════════ UI helpers ══════════ */
@@ -2201,6 +2219,12 @@ function startWave() {
       type, left: count, interval, timer: count === 1 ? Math.max(interval, si * 1.6) : si * 1.6
     }));
     G.waveCount = WAVES[G.wave].reduce((a, [t, c]) => a + c * (t === 'honey' ? 2 : 1), 0);
+    if (WAVES[G.wave].some(w => w[0] === 'tourist') && !G.bus) {
+      const el = svgEl('g', {}, $('decorG'));
+      svgEl('use', { href: '#sprBus' }, el);
+      G.bus = { el, t: 0 };
+      SFX.honk();
+    }
     banner('WAVE ' + (G.wave + 1));
     SFX.wave();
     updateHUD();
@@ -2255,7 +2279,9 @@ function win() {
   G.over = true;
   delete SAVE.mid;
   saveSave();
-  openSlots();
+  banner('FLOOR CLEARED!');
+  SFX.slotWin();
+  setTimeout(openSlots, 1500);
 }
 function lose() {
   G.over = true;
@@ -2670,6 +2696,20 @@ function update(dt) {
     }
   }
 
+  /* the tour bus pulls up when tourists arrive */
+  if (G.bus) {
+    const b = G.bus;
+    b.t += dt;
+    let bx = null;
+    if (b.t < .9) bx = -140 + (b.t / .9) * 172;
+    else if (b.t < 3.2) bx = 32;
+    else if (b.t < 4.1) bx = 32 - ((b.t - 3.2) / .9) * 172;
+    else { b.el.remove(); G.bus = null; }
+    if (G.bus && bx !== null) {
+      b.el.setAttribute('transform', `translate(${bx},${(G.variant.entryY || 130) - 62})`);
+    }
+  }
+
   /* boss hp bar */
   const bossE = G.enemies.find(e => e.E.boss);
   if (bossE) {
@@ -2763,6 +2803,7 @@ function makeEndless() {
     waves.push(wave);
   }
   return { name: 'The Endless Pit', hpMul: 2.6, chips: 500,
+    carpet: ['#1d1c3a', '#28264a', '#141330'],
     intro: 'No closing time tonight. Fifty generated waves, each meaner than the last. How deep can the house hold?',
     variants: ROOMS.flatMap(r => r.variants),
     waves };
@@ -2887,7 +2928,7 @@ function renderMap() {
 
 /* ══════════ AMBIENT DECOR (randomized per room — furniture blocks tower spots) ══════════ */
 function decorSpotOK(x, y, r) {
-  if (x < 70 || x > 1050 || y < 95 || y > 555) return false;
+  if (x < 70 || x > 1050 || y < 95 || y > 505) return false;
   const clr = (30 + r) * (30 + r);
   for (const P of PATHS) {
     for (let i = 0; i < P.pts.length; i += 2) {
@@ -2919,7 +2960,7 @@ function placeDecor() {
     const n = k.min + Math.floor(Math.random() * (k.max - k.min + 1));
     for (let i = 0; i < n; i++) {
       for (let tries = 0; tries < 50; tries++) {
-        const x = 80 + Math.random() * 960, y = 100 + Math.random() * 450;
+        const x = 80 + Math.random() * 960, y = 100 + Math.random() * 400;
         if (!decorSpotOK(x, y, k.r)) continue;
         const rot = (Math.random() * 14 - 7).toFixed(1);
         const el = svgEl('g', { transform: `translate(${x.toFixed(0)},${y.toFixed(0)}) rotate(${rot})` }, g);
@@ -2963,6 +3004,7 @@ function slotInfo(msg) {
     (SLOT.free > 0 ? `FREE GAMES ${SLOT.free}` : `SPINS LEFT ${SLOT.spins}`);
   if (msg) $('slotMsg').textContent = msg;
   const can = !SLOT.spinning && (SLOT.free > 0 || (SLOT.spins > 0 && G.chips >= SLOT.COST));
+  $('cashBtn').textContent = 'CASH OUT ▸ 🎟 +' + Math.floor(G.chips / 10);
   $('spinBtn').style.opacity = can ? 1 : .4;
   $('spinBtn').textContent = SLOT.free > 0 ? 'SPIN · FREE' : 'SPIN · ' + SLOT.COST;
 }
