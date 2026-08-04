@@ -435,6 +435,20 @@
     color: #c9473b;
   }
   #slotMsg { font-size: 13.5px; color: #d8cbb0; min-height: 20px; }
+  #slotMsg.bigwin {
+    font-size: 17px;
+    color: #ffd23f;
+    font-weight: 800;
+    text-shadow: 0 0 12px rgba(255,210,63,.7);
+    animation: pulse .6s ease-in-out infinite;
+  }
+  #payline { font-size: 10.5px; color: #9c8757; margin-top: 7px; letter-spacing: .5px; }
+  #payline b { color: #d8cbb0; }
+  .reel.winflash { animation: reelWin .55s ease 2; }
+  @keyframes reelWin {
+    0%,100% { box-shadow: inset 0 -14px 18px rgba(0,0,0,.18), inset 0 14px 18px rgba(0,0,0,.18); }
+    50% { box-shadow: 0 0 22px rgba(255,210,63,.95), inset 0 0 10px rgba(255,210,63,.5); }
+  }
   #slotInfo { margin-top: 8px; font-weight: 800; color: var(--gold); font-size: 14px; }
 
   /* ── ambient decor ── */
@@ -1273,9 +1287,12 @@
 <div id="slots">
   <div id="slotCard">
     <div class="kind" style="font-size:11px; letter-spacing:3px; color:#b7a98a;">FLOOR CLEARED · HOUSE LOUNGE</div>
+    <div class="bulbs">● ● ● ● ● ● ●</div>
     <h2>LUCKY 7s</h2>
+    <div class="bulbs" style="margin-top:-6px">● ● ● ● ● ● ●</div>
     <div id="reels"><span class="reel">7</span><span class="reel">♦</span><span class="reel">★</span></div>
     <div id="slotMsg">Gamble your leftover chips… or bank them as comps.</div>
+    <div id="payline">7·7·7 <b>500</b> &nbsp; ♦·♦·♦ <b>300</b> &nbsp; 🍒×3 <b>200</b> &nbsp; 🍋×3 <b>150</b> &nbsp; ★×3 <b>FREE GAMES</b></div>
     <div id="slotInfo"></div>
     <div style="display:flex; gap:10px; justify-content:center; margin-top:12px;">
       <button class="btn primary" id="spinBtn">SPIN · 25</button>
@@ -1686,7 +1703,7 @@ const G = {
 let AC = null;
 let sndOn = true;
 function ac() {
-  if (location.search.includes('autotest') || location.search.includes('gallery')) return null;  // WebAudio pins headless virtual time
+  if (/autotest|gallery|slottest/.test(location.search)) return null;  // WebAudio pins headless virtual time
   if (!AC) { try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} }
   return AC;
 }
@@ -2938,7 +2955,7 @@ function slotInfo(msg) {
 }
 function openSlots() {
   $('slots').style.display = 'flex';
-  slotInfo(`${G.roomDef.name} cleared! Every 10 chips banks 1 comp.`);
+  slotInfo(`${(G.roomDef || { name: 'Floor' }).name} cleared! Every 10 chips banks 1 comp.`);
 }
 $('spinBtn').addEventListener('pointerdown', ev => {
   ev.stopPropagation();
@@ -2980,6 +2997,10 @@ $('spinBtn').addEventListener('pointerdown', ev => {
       }
       if (win >= 100 || SLOT.free > 0) SFX.slotWin();
       else if (win > 0) SFX.cash();
+      if (win >= 100 || (a === '★' && b === '★' && c === '★')) {
+        reels.forEach(r => { r.classList.remove('winflash'); void r.offsetWidth; r.classList.add('winflash'); });
+      }
+      $('slotMsg').classList.toggle('bigwin', SLOT.free > 0 || win >= 150);
       G.chips += win;
       slotInfo(msg);
     }
