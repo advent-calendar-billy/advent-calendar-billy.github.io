@@ -388,8 +388,17 @@
     font-weight: bold;
     font-size: 44px;
     letter-spacing: 3px;
-    color: var(--gold);
-    text-shadow: 0 0 18px rgba(232,182,76,.5), 0 3px 0 #6b5218;
+    background: linear-gradient(105deg, #e8b64c 38%, #fff3cf 50%, #e8b64c 62%);
+    background-size: 220% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    filter: drop-shadow(0 0 14px rgba(232,182,76,.45)) drop-shadow(0 3px 0 #6b5218);
+    animation: logoShimmer 3.2s ease-in-out infinite;
+  }
+  @keyframes logoShimmer {
+    0%, 100% { background-position: 110% 0; }
+    50% { background-position: -10% 0; }
   }
   .mapSub { font-size: 12px; letter-spacing: 4px; color: #9fc4b2; margin-top: 6px; text-transform: uppercase; }
   #mapComps {
@@ -530,6 +539,17 @@
   @keyframes ropeMarch { to { stroke-dashoffset: -16; } }
   .buffetStink { animation: stinkUp 2.2s ease-in-out infinite; }
   @keyframes stinkUp { 0%,100% { opacity: .35; transform: translateY(0); } 50% { opacity: .85; transform: translateY(-3px); } }
+
+  .mote {
+    opacity: 0;
+    animation: moteFloat 7s ease-in-out infinite;
+  }
+  @keyframes moteFloat {
+    0% { opacity: 0; transform: translateY(0); }
+    25% { opacity: .55; }
+    75% { opacity: .25; }
+    100% { opacity: 0; transform: translateY(-46px); }
+  }
 
   /* ── enemy gaits ── */
   .gait-waddle, .gait-groove, .gait-lumber, .gait-stagger {
@@ -1287,12 +1307,14 @@
         <circle cx="-38" cy="-38" r="5"/><circle cx="38" cy="-38" r="5"/>
         <circle cx="-38" cy="38" r="5"/><circle cx="38" cy="38" r="5"/>
       </g>
-      <circle r="24" fill="url(#chrome)" stroke="#3b2415" stroke-width="4"/>
-      <g stroke="#3b2415" stroke-width="4.5" stroke-linecap="round">
-        <line x1="0" y1="-22" x2="0" y2="-34"/><line x1="0" y1="22" x2="0" y2="34"/>
-        <line x1="-22" y1="0" x2="-34" y2="0"/><line x1="22" y1="0" x2="34" y2="0"/>
+      <g id="vaultHandle" style="transform-box: fill-box; transform-origin: center;">
+        <circle r="24" fill="url(#chrome)" stroke="#3b2415" stroke-width="4"/>
+        <g stroke="#3b2415" stroke-width="4.5" stroke-linecap="round">
+          <line x1="0" y1="-22" x2="0" y2="-34"/><line x1="0" y1="22" x2="0" y2="34"/>
+          <line x1="-22" y1="0" x2="-34" y2="0"/><line x1="22" y1="0" x2="34" y2="0"/>
+        </g>
+        <circle r="7" fill="#e8b64c" stroke="#3b2415" stroke-width="3"/>
       </g>
-      <circle r="7" fill="#e8b64c" stroke="#3b2415" stroke-width="3"/>
       <rect x="-48" y="-88" width="96" height="20" rx="5" fill="#d9a94f" stroke="#3b2415" stroke-width="3"/>
       <text x="0" y="-73" text-anchor="middle" font-family="Georgia" font-weight="bold" font-size="13" fill="#3b2415">RESERVE</text>
     </g>
@@ -1929,14 +1951,41 @@ function fxDoor([x, y]) {
   G.fx.push({ el: g, t: 0, life: .7 });
 }
 
-function poof(x, y) {
-  if (G.parts.length > 110) return;
-  for (let i = 0; i < 6; i++) {
-    const a = Math.random() * Math.PI * 2, sp = 60 + Math.random() * 80;
-    const el = svgEl('circle', { r: 3 + Math.random() * 2.5, fill: i % 2 ? '#e8b64c' : '#c9473b',
-                                 stroke: '#3b2415', 'stroke-width': 1.2 }, $('floatG'));
-    G.parts.push({ el, x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 40, t: 0 });
+const PART_COLORS = ['#e8b64c', '#c9473b', '#2e8b6a', '#2b6cb0', '#e05a7a'];
+function emit(x, y, o) {
+  if (G.parts.length > 160) return;
+  const n = o.n || 6;
+  for (let i = 0; i < n; i++) {
+    const a = (o.dir === undefined ? -Math.PI / 2 : o.dir) + (Math.random() - .5) * (o.spread === undefined ? Math.PI * 2 : o.spread);
+    const sp = (o.speed || 95) * (.6 + Math.random() * .8);
+    const shape = o.shapes[Math.floor(Math.random() * o.shapes.length)];
+    const color = (o.colors || PART_COLORS)[Math.floor(Math.random() * (o.colors || PART_COLORS).length)];
+    let el;
+    if (shape === 'chip') {
+      el = svgEl('g', {}, $('floatG'));
+      svgEl('ellipse', { rx: 5, ry: 2.4, fill: color, stroke: '#3b2415', 'stroke-width': 1.4 }, el);
+      svgEl('ellipse', { rx: 2.2, ry: 1, fill: '#f5ead1', opacity: .9 }, el);
+    } else if (shape === 'conf') {
+      el = svgEl('g', {}, $('floatG'));
+      svgEl('rect', { x: -3.5, y: -1.8, width: 7, height: 3.6, rx: .8, fill: color }, el);
+    } else {
+      el = svgEl('g', {}, $('floatG'));
+      svgEl('circle', { r: 1.8 + Math.random() * 2, fill: color, stroke: '#3b2415', 'stroke-width': 1 }, el);
+    }
+    G.parts.push({
+      el, x, y,
+      vx: Math.cos(a) * sp, vy: Math.sin(a) * sp,
+      t: 0, life: (o.life || .65) * (.75 + Math.random() * .55),
+      grav: o.grav === undefined ? 240 : o.grav,
+      rot: Math.random() * 360, vr: (Math.random() - .5) * 640
+    });
   }
+}
+function poof(x, y) {
+  emit(x, y, { n: 5, shapes: ['chip', 'spark'], speed: 100, dir: -Math.PI / 2, spread: 2.6, grav: 300 });
+}
+function confettiBurst(x, y) {
+  emit(x, y, { n: 14, shapes: ['conf'], speed: 150, dir: -Math.PI / 2, spread: 2.2, grav: 150, life: 1.4 });
 }
 
 function float(x, y, txt, color) {
@@ -2325,6 +2374,10 @@ function killEnemy(e, leaked) {
     h.classList.remove('show');
     void h.offsetWidth;
     h.classList.add('show');
+    const vh = $('vaultHandle');
+    vh.style.animation = 'none';
+    void vh.getBoundingClientRect();
+    vh.style.animation = 'twspinrev .7s ease-out';
     float(vx - 60, vy - 40, '-' + e.E.star + ' ★', '#e05a3a');
     if (e.E.steal) {
       G.chips = Math.max(0, G.chips - e.E.steal);
@@ -2338,8 +2391,9 @@ function killEnemy(e, leaked) {
     poof(x, y - 8);
     SFX.kill();
     if (e.E.boss) {
-      poof(x - 18, y - 20);
-      poof(x + 18, y - 14);
+      emit(x, y - 14, { n: 22, shapes: ['chip'], speed: 190, dir: -Math.PI / 2, spread: 2.4, grav: 320, life: .9,
+                        colors: ['#e8b64c', '#c9473b', '#2b6cb0'] });
+      emit(x, y - 14, { n: 10, shapes: ['spark'], speed: 240, life: .5, colors: ['#fffbe8', '#ffd23f'] });
       fxRing(x, y - 10, 90, '#ffd23f');
       float(x, y - 52, 'BOUNTY!', '#ffd23f');
       SFX.slotWin();
@@ -2430,7 +2484,10 @@ function win() {
   saveSave();
   banner('FLOOR CLEARED!');
   SFX.slotWin();
-  setTimeout(openSlots, 1500);
+  for (let i = 0; i < 9; i++) {
+    setTimeout(() => confettiBurst(140 + Math.random() * 840, 90 + Math.random() * 160), i * 130);
+  }
+  setTimeout(openSlots, 1600);
 }
 function lose() {
   G.over = true;
@@ -2509,6 +2566,7 @@ function fireRoulette(t) {
   const dmg = Math.max(1, Math.round((t.lvl === 2 ? 18 : 12) * roomPow() * (t.jinxed ? .3 : 1)));
   const bounces = t.lvl === 2 ? 4 : 3;
   const el = svgEl('circle', { r: 5, fill: '#fffbe8', stroke: '#3b2415', 'stroke-width': 2 }, $('projG'));
+  emit(t.x, t.y - 6, { n: 2, shapes: ['spark'], speed: 55, life: .22, grav: 0, colors: ['#fffbe8'] });
   SFX.ball();
   G.projectiles.push({ kind: 'ball', x: t.x, y: t.y, el, target, dmg, bounces, hitSet: new Set() });
   return true;
@@ -2520,6 +2578,7 @@ function fireDealer(t) {
   const [tx, ty] = posAtE(target);
   const base = Math.atan2(ty - t.y, tx - t.x);
   const n = t.lvl === 2 ? 5 : 3;
+  emit(t.x, t.y - 6, { n: 2, shapes: ['spark'], speed: 50, life: .2, grav: 0, colors: ['#f5ead1'] });
   SFX.card();
   const dmg = Math.max(1, Math.round((t.lvl === 2 ? 8 : 6) * roomPow() * (t.jinxed ? .3 : 1)));
   for (let i = 0; i < n; i++) {
@@ -2544,10 +2603,11 @@ function frame(now) {
   update(dt);
 }
 function update(dt) {
-  if (G.paused || G.over) return;
+  if (G.paused) return;
   dt *= G.speed;
   G.time += dt;
 
+  if (!G.over) {
   /* auto-start next wave */
   if (G.auto && !G.running && G.wave < WAVES.length) {
     G.autoTimer -= dt;
@@ -2853,6 +2913,8 @@ function update(dt) {
     }
   }
 
+  }  // end !G.over sim
+
   /* the tour bus pulls up when tourists arrive */
   if (G.bus) {
     const b = G.bus;
@@ -2900,11 +2962,11 @@ function update(dt) {
     p.t += dt;
     p.x += p.vx * dt;
     p.y += p.vy * dt;
-    p.vy += 160 * dt;
-    p.el.setAttribute('cx', p.x);
-    p.el.setAttribute('cy', p.y);
-    p.el.setAttribute('opacity', Math.max(0, 1 - p.t / .6));
-    if (p.t > .6) { p.el.remove(); G.parts = G.parts.filter(q => q !== p); }
+    p.vy += p.grav * dt;
+    p.rot += p.vr * dt;
+    p.el.setAttribute('transform', `translate(${p.x},${p.y}) rotate(${p.rot})`);
+    p.el.setAttribute('opacity', Math.max(0, Math.min(1, 2.2 * (1 - p.t / p.life))));
+    if (p.t > p.life) { p.el.remove(); G.parts = G.parts.filter(q => q !== p); }
   }
 
   /* rolling chip counter */
@@ -3165,6 +3227,16 @@ function placeDecor() {
       }
     }
   }
+  // drifting gold dust motes — the room breathes
+  for (let i = 0; i < 9; i++) {
+    const m = svgEl('circle', {
+      cx: 60 + Math.random() * 1000, cy: 120 + Math.random() * 380,
+      r: 1.4 + Math.random() * 1.4, fill: '#ffdf9e', class: 'mote'
+    }, g);
+    m.style.animationDelay = (Math.random() * 6).toFixed(1) + 's';
+    m.style.animationDuration = (5 + Math.random() * 5).toFixed(1) + 's';
+  }
+
   // a waitress (or two) works the floor — pure atmosphere
   const nW = 1 + Math.floor(Math.random() * 2);
   for (let i = 0; i < nW; i++) {
