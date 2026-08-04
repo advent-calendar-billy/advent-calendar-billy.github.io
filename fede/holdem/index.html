@@ -36,6 +36,17 @@
     60% { transform: translate(-5px,-4px); } 80% { transform: translate(4px,5px); }
   }
 
+  /* ── leak flash ── */
+  #hurt {
+    position: fixed; inset: 0;
+    pointer-events: none;
+    z-index: 7;
+    opacity: 0;
+    box-shadow: inset 0 0 90px 30px rgba(201,71,59,.75);
+  }
+  #hurt.show { animation: hurtFlash .55s ease-out; }
+  @keyframes hurtFlash { 0% { opacity: 1; } 100% { opacity: 0; } }
+
   /* ── boss bar ── */
   #bossBar {
     position: fixed;
@@ -1305,6 +1316,9 @@
 <!-- wave / boss banner -->
 <div id="banner"></div>
 
+<!-- leak hurt flash -->
+<div id="hurt"></div>
+
 <!-- boss health bar -->
 <div id="bossBar"><div id="bossName">—</div><div id="bossTrack"><div id="bossFill"></div></div></div>
 
@@ -1436,9 +1450,9 @@ const ETYPES = {
   retiree: { name:'Penny Slot Retiree', sprite:'sprRetiree', hp:20, speed:44, reward:4, star:1, scale:.52, tapR:30,
     desc:'Shuffles in at dawn with a cup of nickels and infinite patience. Harmless alone. They are never alone.',
     stats:'SLOW · FRAGILE · SWARMS' },
-  tourist: { name:'Bus Tour Tourist', sprite:'sprTourist', hp:36, speed:62, reward:6, star:1, scale:.55, tapR:30,
-    desc:'The bus unloads and they pour in — matching shirts, laminated maps, zero fear. They come in packs.',
-    stats:'MEDIUM SPEED · ARRIVES IN GROUPS' },
+  tourist: { name:'Bus Tour Tourist', sprite:'sprTourist', hp:36, speed:62, reward:6, star:1, scale:.55, tapR:30, special:'flash',
+    desc:'The bus unloads and they pour in — matching shirts, laminated maps, zero fear. And that camera flash BLINDS your crew.',
+    stats:'ARRIVES IN PACKS · FLASH BLINDS A TOWER' },
   elvis: { name:'Elvis Impersonator', sprite:'sprElvis', hp:75, speed:80, reward:10, star:1, scale:.55, tapR:32,
     desc:'One of many. There is no real one. Dances down the lane faster than security can follow.',
     stats:'FAST · DANCES · UH-HUH' },
@@ -1806,6 +1820,18 @@ function tone(freq, dur, type, vol, delay, slide) {
   o.start(t0);
   o.stop(t0 + dur + .03);
 }
+let padTimer = null;
+function loungePad() {
+  if (padTimer) return;
+  padTimer = setInterval(() => {
+    if (!sndOn || G.paused || G.over || $('map').style.display === 'flex') return;
+    const chords = [[130.8, 164.8, 196, 246.9], [174.6, 220, 261.6, 329.6],
+                    [146.8, 185, 220, 293.7], [123.5, 155.6, 196, 233.1]];
+    const c = chords[Math.floor(G.time / 7.5) % chords.length];
+    c.forEach((f, i) => tone(f, 6.8, 'sine', .012, i * .06));
+  }, 7500);
+}
+
 const SFX = {
   card()    { tone(2400, .045, 'square', .022); tone(1700, .04, 'square', .016, .02); },
   ball()    { tone(950, .06, 'triangle', .045); },
@@ -2251,6 +2277,10 @@ function killEnemy(e, leaked) {
     vg.style.animation = 'none';
     void vg.getBoundingClientRect();
     vg.style.animation = 'vaultGlow .5s ease-out 3';
+    const h = $('hurt');
+    h.classList.remove('show');
+    void h.offsetWidth;
+    h.classList.add('show');
     float(vx - 60, vy - 40, '-' + e.E.star + ' ★', '#e05a3a');
     if (e.E.steal) {
       G.chips = Math.max(0, G.chips - e.E.steal);
@@ -2286,6 +2316,7 @@ function startWave() {
     G.running = true;
     $('startWave').style.display = 'none';
     $('nextWave').style.display = 'none';
+    $('dragHint').style.display = 'none';
     G.spawners = WAVES[G.wave].map(([type, count, interval], si) => ({
       // single-count spawners use their interval as an initial delay (boss staggering)
       type, left: count, interval, timer: count === 1 ? Math.max(interval, si * 1.6) : si * 1.6
@@ -2563,22 +2594,28 @@ function update(dt) {
         }
       }
     }
-    /* grandma tower-tap */
-    if (e.E.special === 'stun') {
+    /* grandma tower-tap / tourist camera flash */
+    if (e.E.special === 'stun' || e.E.special === 'flash') {
       e.stunCd -= dt;
       if (e.stunCd <= 0) {
+        const flash = e.E.special === 'flash';
         let near = null, nd = 1e9;
         for (const t of G.towers) {
-          if (t.type === 'cage' || t.type === 'rope') continue;  // she only taps machines
+          if (t.type === 'cage' || t.type === 'rope') continue;
           const dx = x - t.x, dy = y - t.y, d2 = dx * dx + dy * dy;
           if (d2 < 110 * 110 && d2 < nd && G.time > t.stunUntil) { near = t; nd = d2; }
         }
         if (near) {
-          near.stunUntil = G.time + 2.5;
-          SFX.tilt();
-          float(x, y - 34, 'tap tap tap', '#e08bb0');
-          e.stunCd = 6;
-        } else e.stunCd = 1;
+          near.stunUntil = G.time + (flash ? .9 : 2.5);
+          if (flash) {
+            fxRing(x, y - 12, 46, '#fffbe8');
+            float(x, y - 34, 'FLASH!', '#fffbe8');
+          } else {
+            SFX.tilt();
+            float(x, y - 34, 'tap tap tap', '#e08bb0');
+          }
+          e.stunCd = flash ? 11 : 6;
+        } else e.stunCd = 1.5;
       }
     }
   }
@@ -2922,6 +2959,7 @@ function initRoom(i, resume) {
   placeDecor();
   $('map').style.display = 'none';
   updateHUD();
+  loungePad();
   $('startWave').style.display = 'block';
   showNextWave();
   if (i === 0 && !resume) $('dragHint').style.display = 'block';
