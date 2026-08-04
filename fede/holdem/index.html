@@ -1612,6 +1612,11 @@ const ROOMS = [
         lanes: [
           'M -40 470 C 100 470, 160 470, 220 470 C 340 470, 330 300, 500 300 C 670 300, 680 400, 780 450 C 830 475, 900 470, 1160 470',
           'M -40 470 C 100 470, 160 470, 220 470 C 340 470, 360 500, 520 500 C 680 500, 700 490, 780 478 C 830 470, 900 470, 1160 470'
+        ] },
+      { entryY: 130, vault: [1046, 130], killOffset: 112,
+        lanes: [
+          'M -40 130 C 100 130, 160 130, 220 130 C 340 130, 330 300, 500 300 C 670 300, 680 200, 780 150 C 830 125, 900 130, 1160 130',
+          'M -40 130 C 100 130, 160 130, 220 130 C 340 130, 360 100, 520 100 C 680 100, 700 110, 780 122 C 830 130, 900 130, 1160 130'
         ] }
     ],
     waves: [
@@ -1632,6 +1637,10 @@ const ROOMS = [
       { entryY: 130, vault: [558, 352], killOffset: 25,
         lanes: [
           'M -40 130 C 300 130, 680 130, 830 205 C 935 265, 935 385, 820 450 C 700 505, 400 505, 280 455 C 175 410, 165 320, 260 272 C 350 228, 545 228, 650 278 C 725 315, 725 390, 650 428 C 575 462, 465 455, 428 410 C 398 372, 428 330, 492 326 C 540 323, 558 338, 558 352'
+        ] },
+      { entryY: 470, vault: [558, 248], killOffset: 25,
+        lanes: [
+          'M -40 470 C 300 470, 680 470, 830 395 C 935 335, 935 215, 820 150 C 700 95, 400 95, 280 145 C 175 190, 165 280, 260 328 C 350 372, 545 372, 650 322 C 725 285, 725 210, 650 172 C 575 138, 465 145, 428 190 C 398 228, 428 270, 492 274 C 540 277, 558 262, 558 248'
         ] }
     ],
     waves: [
@@ -2939,7 +2948,9 @@ function initRoom(i, resume) {
   ROOM = i;
   const R = i >= ROOMS.length ? makeEndless() : ROOMS[i];
   G.roomDef = R;
-  const vi = resume && SAVE.mid && SAVE.mid.room === i
+  const viParam = location.search.match(/vi=(\d+)/);
+  const vi = viParam ? Math.min(+viParam[1], R.variants.length - 1)
+    : resume && SAVE.mid && SAVE.mid.room === i
     ? Math.min(SAVE.mid.vi, R.variants.length - 1)
     : Math.floor(Math.random() * R.variants.length);
   G.vi = vi;
@@ -2996,7 +3007,14 @@ function renderMap() {
     b.className = 'mapNode' + (cleared ? ' cleared' : unlocked ? ' cur' : '');
     b.textContent = real ? (cleared ? '★' : i + 1) : '?';
     const hasMid = SAVE.mid && SAVE.mid.room === i;
-    if (hasMid) { b.textContent = '▶'; b.title = 'resume'; }
+    if (hasMid) {
+      b.textContent = '▶';
+      b.title = 'resume';
+      const w = document.createElement('div');
+      w.style.cssText = 'position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);font-size:9px;color:#9c8757;font-weight:800;';
+      w.textContent = 'W' + (SAVE.mid.wave + 1);
+      b.appendChild(w);
+    }
     if (unlocked && !cleared) {
       const tag = document.createElement('div');
       tag.className = 'hereTag';
@@ -3242,6 +3260,15 @@ if (location.search.includes('gallery')) {
     svgEl('text', { x, y: y + 92, 'text-anchor': 'middle', 'font-size': 15, fill: '#e8b64c',
                     'font-weight': 'bold', 'font-family': 'Georgia' }, gal).textContent = id.replace(/^(spr|tw)/, '');
   });
+}
+
+/* dev pausetest: open a room and pause immediately */
+if (location.search.includes('pausetest')) {
+  initRoom(0);
+  $('modalBtn').dispatchEvent(new Event('click'));
+  G.paused = true;
+  $('pauseBtn').textContent = '▶';
+  $('pauseUI').style.display = 'flex';
 }
 
 /* dev slottest: jump straight to the slot machine and spin a few times */
