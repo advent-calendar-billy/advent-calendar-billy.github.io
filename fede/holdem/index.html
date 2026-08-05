@@ -1546,6 +1546,21 @@
         <circle cx="26" cy="19" r="3" fill="#8d959f"/>
       </g>
 
+      <g id="sprEntrance">
+        <path d="M 2 42 L 2 -30 Q 2 -42 14 -42 L 52 -42 Q 64 -42 64 -30 L 64 42"
+              fill="none" stroke="#3b2415" stroke-width="9"/>
+        <path d="M 2 42 L 2 -30 Q 2 -42 14 -42 L 52 -42 Q 64 -42 64 -30 L 64 42"
+              fill="none" stroke="url(#brassG)" stroke-width="5"/>
+        <rect x="8" y="-36" width="50" height="16" rx="4" fill="#16120c" stroke="#d9a94f" stroke-width="2"/>
+        <text x="33" y="-24" text-anchor="middle" font-family="Georgia" font-weight="bold" font-size="10" fill="#ffd23f">IN</text>
+        <path d="M 6 -18 Q 16 -4 12 30 L 2 30 L 2 -18 Z" fill="#9c2333" stroke="#3b2415" stroke-width="2.5"/>
+        <path d="M 60 -18 Q 50 -4 54 30 L 64 30 L 64 -18 Z" fill="#9c2333" stroke="#3b2415" stroke-width="2.5"/>
+        <g stroke="#7c4a22" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="16,-14 30,0 16,14"/>
+          <polyline points="38,-14 52,0 38,14"/>
+        </g>
+      </g>
+
       <g id="decSign">
         <ellipse cx="2" cy="34" rx="16" ry="5" fill="rgba(40,16,8,.3)"/>
         <line x1="0" y1="34" x2="0" y2="6" stroke="#3b2415" stroke-width="6"/>
@@ -1800,20 +1815,8 @@
     <rect x="13" y="13" width="1094" height="604" rx="12" fill="none" stroke="rgba(20,8,4,.55)" stroke-width="12" pointer-events="none"/>
     <rect x="7" y="7" width="1106" height="616" rx="14" fill="none" stroke="#d9a94f" stroke-width="3" opacity=".38" pointer-events="none"/>
 
-    <!-- entrance -->
-    <g id="entryG">
-      <path d="M 2 172 L 2 100 Q 2 88 14 88 L 52 88 Q 64 88 64 100 L 64 172"
-            fill="none" stroke="#3b2415" stroke-width="9"/>
-      <path d="M 2 172 L 2 100 Q 2 88 14 88 L 52 88 Q 64 88 64 100 L 64 172"
-            fill="none" stroke="#d9a94f" stroke-width="5"/>
-      <rect x="8" y="94" width="50" height="16" rx="4" fill="#16120c" stroke="#d9a94f" stroke-width="2"/>
-      <text x="33" y="106" text-anchor="middle" font-family="Georgia" font-weight="bold" font-size="10" fill="#ffd23f">IN</text>
-      <path d="M 6 112 Q 16 126 12 160 L 2 160 L 2 112 Z" fill="#9c2333" stroke="#3b2415" stroke-width="2.5"/>
-      <path d="M 60 112 Q 50 126 54 160 L 64 160 L 64 112 Z" fill="#9c2333" stroke="#3b2415" stroke-width="2.5"/>
-      <g stroke="#7c4a22" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="16,116 30,130 16,144"/>
-        <polyline points="38,116 52,130 38,144"/>
-      </g>
+    <!-- entrances (generated per lane) -->
+    <g id="entryG"></g>
     </g>
 
     <!-- vault -->
@@ -2512,6 +2515,76 @@ const ROOMS = [
       [['lady',1,0],['counter',14,.75]],
       [['auditor',3,12],['grandma',20,.6]],
       [['shark',1,0],['lady',1,18],['auditor',1,32],['whale',3,8]]
+    ] },
+  { name: 'Roulette Hall 4', hpMul: 4.05, chips: 840, block: 1,
+    carpet: ['#11504e', '#1a615e', '#0b3d3a'],
+    intro: 'Two wheels, two loops, one crowd splitting between them. Whatever you leave uncovered, they will find.',
+    variants: [
+      { entryY: 300, vault: [1046, 300], killOffset: 112,
+        lanes: [
+          'M -40 300 C 90 300, 150 300, 210 300 C 330 300, 330 120, 460 120 C 590 120, 600 260, 700 290 C 800 320, 900 300, 1160 300',
+          'M -40 300 C 90 300, 150 300, 210 300 C 330 300, 330 480, 460 480 C 590 480, 600 340, 700 310 C 800 280, 900 300, 1160 300'
+        ] },
+      { entryY: 130, vault: [1046, 470], killOffset: 112,
+        lanes: [
+          'M -40 130 C 160 130, 300 130, 400 170 C 520 218, 470 330, 350 360 C 240 388, 220 470, 330 500 C 480 540, 700 500, 1160 470'
+        ] }
+    ],
+    waves: [
+      [['retiree',26,.4],['tourist',20,.32]],
+      [['drunk',18,.48],['mojito',16,.5]],
+      [['clipper',18,.48],['honey',8,2.8]],
+      [['counter',12,.85],['regular',14,.65]],
+      [['whale',3,7],['grandma',16,.7]],
+      [['elvis',28,.28],['influencer',6,3.2]],
+      [['honey',9,2.6],['drunk',18,.45]],
+      [['auditor',2,14],['clipper',18,.48]],
+      [['counter',14,.75],['mojito',20,.42]],
+      [['shark',1,0],['whale',3,7],['influencer',6,3.2]]
+    ] },
+  { name: 'Roulette Hall 5', hpMul: 4.1, chips: 870, block: 1,
+    carpet: ['#0f4a52', '#175b64', '#0a3940'],
+    intro: 'The crossing. Two corridors cut straight through each other over the felt — and tonight LADY LUCK and the AUDITOR work the same shift.',
+    variants: [
+      { entryY: 130, vault: [1046, 470], killOffset: 112,
+        lanes: [
+          'M -40 130 C 200 130, 420 150, 560 250 C 700 350, 820 440, 1160 470',
+          'M -40 470 C 200 470, 420 450, 560 350 C 700 250, 820 160, 1160 130'
+        ] }
+    ],
+    waves: [
+      [['retiree',28,.36],['drunk',16,.5]],
+      [['tourist',26,.26],['clipper',18,.45]],
+      [['honey',9,2.6],['mojito',18,.45]],
+      [['regular',16,.6],['counter',13,.8]],
+      [['lady',1,0],['grandma',16,.68]],
+      [['elvis',30,.26],['influencer',6,3]],
+      [['whale',4,6],['honey',9,2.5]],
+      [['auditor',2,13],['drunk',20,.42]],
+      [['counter',15,.7],['clipper',20,.42],['influencer',6,3]],
+      [['lady',1,0],['auditor',1,22],['whale',3,7],['grandma',18,.62]]
+    ] },
+  { name: 'Roulette Hall 6', hpMul: 4.15, chips: 900, block: 1,
+    carpet: ['#0d4459', '#14566d', '#083446'],
+    intro: 'The great wheel room: one enormous ring around the pit, with a spur that cuts across the middle for anyone in a hurry.',
+    variants: [
+      { entryY: 130, vault: [560, 300], killOffset: 25,
+        lanes: [
+          'M -40 130 C 220 130, 460 130, 640 150 C 830 172, 930 280, 860 400 C 790 515, 520 545, 340 480 C 190 426, 170 330, 280 290 C 380 254, 470 290, 560 300',
+          'M -40 130 C 220 130, 400 130, 520 160 C 620 185, 620 250, 560 300'
+        ] }
+    ],
+    waves: [
+      [['retiree',30,.34],['tourist',22,.3]],
+      [['drunk',20,.44],['clipper',20,.44]],
+      [['honey',10,2.4],['regular',16,.6]],
+      [['counter',14,.75],['mojito',20,.42]],
+      [['whale',4,6],['grandma',18,.62]],
+      [['elvis',32,.24],['influencer',7,2.8]],
+      [['auditor',2,12],['honey',10,2.4]],
+      [['lady',1,0],['counter',16,.68]],
+      [['whale',4,6],['clipper',22,.4],['drunk',20,.42]],
+      [['shark',1,0],['lady',1,20],['auditor',1,34],['whale',3,7]]
     ] }
 ];
 let ROOM = 0;
@@ -3840,11 +3913,23 @@ function initRoom(i, resume, altKey) {
   pat.children[2].setAttribute('stroke', carp[2]);
   G.variant = V;
   setLanes(V.lanes, V.killOffset);
+  // one doorway per lane entrance
+  const eg = $('entryG');
+  eg.innerHTML = '';
+  const seen = new Set();
+  for (const P of PATHS) {
+    const [sx, sy] = P.pts[0];
+    const key = Math.round(sy / 24);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    svgEl('use', { href: '#sprEntrance', transform: `translate(0,${sy.toFixed(0)})` }, eg);
+  }
+
   WAVES = R.waves;
   G.chips = R.chips + 60 * (SAVE.upg.bank || 0);
   buildShop();
   $('vaultG').setAttribute('transform', `translate(${V.vault[0]},${V.vault[1]}) scale(.6)`);
-  $('entryG').setAttribute('transform', `translate(0,${V.entryY - 130})`);
+
   placeDecor();
   $('map').style.display = 'none';
   updateHUD();
