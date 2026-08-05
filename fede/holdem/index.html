@@ -715,6 +715,39 @@
         <stop offset="0%" stop-color="#f2e2b8"/>
         <stop offset="100%" stop-color="#e4cf9c"/>
       </linearGradient>
+      <radialGradient id="woodG" cx="32%" cy="26%" r="82%">
+        <stop offset="0%" stop-color="#c08a4e"/>
+        <stop offset="52%" stop-color="#9a6634"/>
+        <stop offset="100%" stop-color="#5f3c1c"/>
+      </radialGradient>
+      <radialGradient id="woodDeep" cx="34%" cy="24%" r="80%">
+        <stop offset="0%" stop-color="#a3703c"/>
+        <stop offset="60%" stop-color="#7c4a22"/>
+        <stop offset="100%" stop-color="#4a2b12"/>
+      </radialGradient>
+      <radialGradient id="feltG" cx="34%" cy="26%" r="84%">
+        <stop offset="0%" stop-color="#3fa87c"/>
+        <stop offset="55%" stop-color="#2e8b6a"/>
+        <stop offset="100%" stop-color="#1a5f47"/>
+      </radialGradient>
+      <linearGradient id="brassG" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#f6d98c"/>
+        <stop offset="45%" stop-color="#d9a94f"/>
+        <stop offset="100%" stop-color="#8a6a25"/>
+      </linearGradient>
+      <radialGradient id="cageGlow" cx="50%" cy="42%" r="62%">
+        <stop offset="0%" stop-color="#ffcf7a" stop-opacity=".55"/>
+        <stop offset="100%" stop-color="#ffcf7a" stop-opacity="0"/>
+      </radialGradient>
+      <linearGradient id="screenG" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#a8f0e2"/>
+        <stop offset="100%" stop-color="#3fb5a0"/>
+      </linearGradient>
+      <linearGradient id="steelBody" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#3d648f"/>
+        <stop offset="48%" stop-color="#2b4a6f"/>
+        <stop offset="100%" stop-color="#16304a"/>
+      </linearGradient>
       <filter id="softBlur" x="-60%" y="-60%" width="220%" height="220%">
         <feGaussianBlur stdDeviation="5"/>
       </filter>
@@ -1042,26 +1075,66 @@
       <!-- ═══ TOWER SPRITES ═══ -->
 
       <g id="twRoulette">
-        <polygon points="52,21.5 21.5,52 -21.5,52 -52,21.5 -52,-21.5 -21.5,-52 21.5,-52 52,-21.5"
-                 fill="#8a5a30" stroke="#3b2415" stroke-width="4" transform="rotate(22.5)"/>
-        <circle r="42" fill="#a3703c" stroke="#3b2415" stroke-width="3.5"/>
-        <circle r="36" fill="none" stroke="#6b4423" stroke-width="2.5"/>
+        <!-- beveled octagonal plinth -->
+        <polygon points="54,22.4 22.4,54 -22.4,54 -54,22.4 -54,-22.4 -22.4,-54 22.4,-54 54,-22.4"
+                 fill="#4a2b12" transform="rotate(22.5)"/>
+        <polygon points="50,20.7 20.7,50 -20.7,50 -50,20.7 -50,-20.7 -20.7,-50 20.7,-50 50,-20.7"
+                 fill="url(#woodDeep)" stroke="#3b2415" stroke-width="3.5" transform="rotate(22.5)"/>
+        <polygon points="50,20.7 20.7,50 -20.7,50 -50,20.7 -50,-20.7 -20.7,-50 20.7,-50 50,-20.7"
+                 fill="none" stroke="rgba(255,231,180,.28)" stroke-width="2" transform="rotate(22.5)"
+                 stroke-dasharray="46 118" stroke-dashoffset="86"/>
+        <!-- brass screw heads on the plinth corners -->
+        <g fill="url(#brassG)" stroke="#3b2415" stroke-width="1.4">
+          <circle cx="-40" cy="-40" r="3.4"/><circle cx="40" cy="-40" r="3.4"/>
+          <circle cx="-40" cy="40" r="3.4"/><circle cx="40" cy="40" r="3.4"/>
+        </g>
+        <!-- grained wood bowl -->
+        <circle r="42" fill="url(#woodG)" stroke="#3b2415" stroke-width="3.5"/>
+        <g fill="none" stroke="rgba(70,38,12,.34)" stroke-width="1.3">
+          <path d="M-38 -10 A 40 40 0 0 1 -8 -39"/>
+          <path d="M-34 8 A 36 36 0 0 1 -3 -35"/>
+          <path d="M12 37 A 39 39 0 0 0 38 6"/>
+        </g>
+        <!-- ball track, sunken -->
+        <circle r="36" fill="none" stroke="#5a3517" stroke-width="5"/>
+        <circle r="36" fill="none" stroke="rgba(0,0,0,.4)" stroke-width="2.4"/>
+        <circle r="33.6" fill="none" stroke="rgba(255,226,170,.22)" stroke-width="1.4"/>
         <g class="wheelSpin">
           <circle r="32" fill="#2e2622" stroke="#3b2415" stroke-width="2.5"/>
           <g class="pockets"></g>
-          <circle r="12" fill="url(#chrome)" stroke="#3b2415" stroke-width="2.5"/>
-          <circle r="4" fill="#e8b64c" stroke="#3b2415" stroke-width="2"/>
+          <circle r="13" fill="url(#chrome)" stroke="#3b2415" stroke-width="2.5"/>
+          <path d="M-9 -7 A 12 12 0 0 1 5 -11" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2.4" stroke-linecap="round"/>
+          <circle r="4.4" fill="url(#brassG)" stroke="#3b2415" stroke-width="2"/>
         </g>
         <g class="ballSpin">
-          <circle cx="0" cy="-39" r="4.5" fill="#fffbe8" stroke="#3b2415" stroke-width="2"/>
+          <circle cx="0" cy="-39" r="4.6" fill="#fffbe8" stroke="#3b2415" stroke-width="2"/>
+          <circle cx="-1.4" cy="-40.4" r="1.5" fill="#fff"/>
         </g>
+        <!-- rim light + occlusion -->
+        <path d="M-34 -24 A 42 42 0 0 1 6 -41.5" fill="none" stroke="rgba(255,240,205,.5)" stroke-width="3.4" stroke-linecap="round"/>
+        <path d="M40 12 A 42 42 0 0 1 14 40" fill="none" stroke="rgba(30,12,4,.42)" stroke-width="4.4" stroke-linecap="round"/>
       </g>
 
       <g id="twDealer">
-        <ellipse cx="4" cy="5" rx="52" ry="33" fill="rgba(40,16,8,.35)"/>
-        <ellipse rx="52" ry="33" fill="#8a5a30" stroke="#3b2415" stroke-width="4"/>
-        <ellipse rx="42" ry="24" fill="#2e8b6a" stroke="#3b2415" stroke-width="3"/>
-        <path d="M-27 7 A 30 18 0 0 1 27 7" fill="none" stroke="#f5ead1" stroke-width="1.8" opacity=".6"/>
+        <ellipse cx="4" cy="6" rx="53" ry="34" fill="#3b2415"/>
+        <ellipse rx="52" ry="33" fill="url(#woodG)" stroke="#3b2415" stroke-width="4"/>
+        <path d="M-46 -14 A 52 33 0 0 1 -6 -31.5" fill="none" stroke="rgba(255,240,205,.42)" stroke-width="3" stroke-linecap="round"/>
+        <path d="M42 14 A 52 33 0 0 1 12 31.5" fill="none" stroke="rgba(30,12,4,.35)" stroke-width="3.6" stroke-linecap="round"/>
+        <ellipse rx="42" ry="24" fill="url(#feltG)" stroke="#3b2415" stroke-width="3"/>
+        <ellipse rx="42" ry="24" fill="none" stroke="rgba(0,0,0,.28)" stroke-width="5"/>
+        <ellipse rx="38" ry="20.5" fill="none" stroke="#f5ead1" stroke-width="1.2" opacity=".3" stroke-dasharray="4 5"/>
+        <path d="M-27 7 A 30 18 0 0 1 27 7" fill="none" stroke="#f5ead1" stroke-width="1.8" opacity=".55"/>
+        <!-- dealer chip tray -->
+        <g transform="translate(20,-12)">
+          <path d="M-16 -4 A 17 8 0 0 1 16 -4 L 14 4 A 15 7 0 0 0 -14 4 Z" fill="#5a3517" stroke="#3b2415" stroke-width="2"/>
+          <g stroke="#3b2415" stroke-width="1.2">
+            <circle cx="-9" cy="-2" r="3.4" fill="#c9473b"/>
+            <circle cx="-1" cy="-3.4" r="3.4" fill="#f5ead1"/>
+            <circle cx="7" cy="-2.4" r="3.4" fill="#2b6cb0"/>
+          </g>
+        </g>
+        <!-- drink ring stain -->
+        <ellipse cx="-24" cy="12" rx="6" ry="3.4" fill="none" stroke="rgba(20,60,45,.5)" stroke-width="1.6"/>
         <g transform="rotate(24)">
           <rect x="-10" y="-21" width="17" height="24" rx="3" fill="#f5ead1" stroke="#3b2415" stroke-width="2.5" transform="rotate(-16 -1 -9)"/>
           <rect x="-7" y="-22" width="17" height="24" rx="3" fill="#f5ead1" stroke="#3b2415" stroke-width="2.5"/>
@@ -1073,16 +1146,30 @@
       </g>
 
       <g id="twCage">
-        <rect x="-38" y="-30" width="80" height="66" rx="8" fill="rgba(40,16,8,.35)" transform="translate(3,4)"/>
-        <rect x="-38" y="-30" width="76" height="62" rx="8" fill="#7c4a22" stroke="#3b2415" stroke-width="4"/>
-        <rect x="-30" y="-22" width="60" height="38" rx="5" fill="#16120c" stroke="#3b2415" stroke-width="3"/>
-        <g stroke="#d9a94f" stroke-width="3">
+        <rect x="-35" y="-26" width="76" height="62" rx="8" fill="#3b2415"/>
+        <rect x="-38" y="-30" width="76" height="62" rx="8" fill="url(#woodDeep)" stroke="#3b2415" stroke-width="4"/>
+        <path d="M-34 -26 L 34 -26" stroke="rgba(255,240,205,.35)" stroke-width="2.6" stroke-linecap="round"/>
+        <path d="M-34 -26 L -34 26" stroke="rgba(255,240,205,.22)" stroke-width="2.2" stroke-linecap="round"/>
+        <path d="M34 -20 L 34 28 L -30 28" fill="none" stroke="rgba(20,8,2,.4)" stroke-width="3"/>
+        <!-- lit teller window -->
+        <rect x="-30" y="-22" width="60" height="38" rx="5" fill="#0e0b06" stroke="#3b2415" stroke-width="3"/>
+        <rect x="-30" y="-22" width="60" height="38" rx="5" fill="url(#cageGlow)"/>
+        <circle cx="14" cy="-8" r="4" fill="#ffcf7a" opacity=".85"/>
+        <g stroke="url(#brassG)" stroke-width="3">
           <line x1="-22" y1="-22" x2="-22" y2="16"/><line x1="-11" y1="-22" x2="-11" y2="16"/>
           <line x1="0" y1="-22" x2="0" y2="16"/><line x1="11" y1="-22" x2="11" y2="16"/>
           <line x1="22" y1="-22" x2="22" y2="16"/>
         </g>
-        <rect x="-30" y="8" width="60" height="8" fill="#d9a94f" stroke="#3b2415" stroke-width="2.5"/>
-        <rect x="-24" y="-42" width="48" height="16" rx="4" fill="#d9a94f" stroke="#3b2415" stroke-width="3"/>
+        <g stroke="rgba(255,255,255,.5)" stroke-width="1">
+          <line x1="-23.2" y1="-21" x2="-23.2" y2="15"/><line x1="-12.2" y1="-21" x2="-12.2" y2="15"/>
+          <line x1="-1.2" y1="-21" x2="-1.2" y2="15"/><line x1="9.8" y1="-21" x2="9.8" y2="15"/>
+        </g>
+        <!-- counter ledge with bevel -->
+        <rect x="-30" y="8" width="60" height="9" fill="url(#brassG)" stroke="#3b2415" stroke-width="2.5"/>
+        <line x1="-29" y1="9.4" x2="29" y2="9.4" stroke="rgba(255,255,255,.55)" stroke-width="1.4"/>
+        <!-- engraved plate -->
+        <rect x="-24" y="-42" width="48" height="16" rx="4" fill="url(#brassG)" stroke="#3b2415" stroke-width="3"/>
+        <text x="0" y="-29.5" text-anchor="middle" font-family="Georgia" font-weight="bold" font-size="11" fill="rgba(255,255,255,.45)">CAGE</text>
         <text x="0" y="-30" text-anchor="middle" font-family="Georgia" font-weight="bold" font-size="11" fill="#3b2415">CAGE</text>
         <g>
           <ellipse cx="-16" cy="24" rx="8" ry="3.5" fill="#c9473b" stroke="#3b2415" stroke-width="2"/>
@@ -1092,29 +1179,45 @@
       </g>
 
       <g id="twRope">
-        <ellipse cx="0" cy="26" rx="30" ry="7" fill="rgba(40,16,8,.3)"/>
-        <!-- bouncer -->
-        <path d="M-11 22 Q -13 2 -8 -3 L 8 -3 Q 13 2 11 22 Q 0 27 -11 22 Z"
-              fill="#1e1a16" stroke="#3b2415" stroke-width="3.5"/>
-        <path d="M-6 -3 L 0 4 L 6 -3" fill="#f5ead1" stroke="#3b2415" stroke-width="2.5"/>
+        <ellipse cx="0" cy="26" rx="30" ry="7" fill="rgba(40,16,8,.35)"/>
+        <!-- bouncer: dinner jacket, bow tie, earpiece -->
+        <path d="M-12 22 Q -14 2 -8 -3 L 8 -3 Q 14 2 12 22 Q 0 27 -12 22 Z"
+              fill="#20242c" stroke="#3b2415" stroke-width="3.5"/>
+        <path d="M-8 -3 L -2 8 L -5 20" fill="none" stroke="#39404b" stroke-width="3"/>
+        <path d="M8 -3 L 2 8 L 5 20" fill="none" stroke="#39404b" stroke-width="3"/>
+        <path d="M-6 -3 L 0 5 L 6 -3 Z" fill="#f5ead1" stroke="#3b2415" stroke-width="2"/>
+        <path d="M-4 -2 L 0 1 L 4 -2 L 2.5 2 L -2.5 2 Z" fill="#8f1e2e" stroke="#3b2415" stroke-width="1.4"/>
+        <circle cx="0" cy="9" r="1.5" fill="#d9a94f"/>
         <circle cx="0" cy="-13" r="10" fill="#f2b98c" stroke="#3b2415" stroke-width="3.5"/>
         <path d="M-9 -18 Q 0 -24 9 -18 L 9 -15 L -9 -15 Z" fill="#1e1a16" stroke="#3b2415" stroke-width="2"/>
-        <rect x="-8" y="-16" width="7" height="5" rx="2" fill="#1e1a16" stroke="#3b2415" stroke-width="1.8"/>
-        <rect x="1" y="-16" width="7" height="5" rx="2" fill="#1e1a16" stroke="#3b2415" stroke-width="1.8"/>
-        <!-- posts + rope -->
+        <rect x="-8" y="-16" width="7" height="5" rx="2" fill="#141821" stroke="#3b2415" stroke-width="1.8"/>
+        <rect x="1" y="-16" width="7" height="5" rx="2" fill="#141821" stroke="#3b2415" stroke-width="1.8"/>
+        <line x1="-1" y1="-14" x2="1" y2="-14" stroke="#3b2415" stroke-width="1.4"/>
+        <path d="M-4 -7 L 4 -7" stroke="#3b2415" stroke-width="1.6" stroke-linecap="round"/>
+        <!-- earpiece + coiled wire -->
+        <circle cx="9.5" cy="-12" r="2" fill="#c3c9d2" stroke="#3b2415" stroke-width="1.4"/>
+        <path d="M10 -10 q 3 3 0 6 q -3 3 0 5" fill="none" stroke="#c3c9d2" stroke-width="1.4"/>
+        <!-- brass stanchions -->
         <g transform="translate(-26,8)">
-          <line x1="0" y1="0" x2="0" y2="-16" stroke="#3b2415" stroke-width="5"/>
-          <line x1="0" y1="0" x2="0" y2="-16" stroke="#d9a94f" stroke-width="2.8"/>
-          <circle cx="0" cy="-18" r="4" fill="#e8b64c" stroke="#3b2415" stroke-width="2"/>
-          <ellipse cx="0" cy="1" rx="6" ry="2.6" fill="#d9a94f" stroke="#3b2415" stroke-width="2"/>
+          <ellipse cx="0" cy="1" rx="7" ry="3" fill="#5a4626"/>
+          <ellipse cx="0" cy="0" rx="6.4" ry="2.7" fill="url(#brassG)" stroke="#3b2415" stroke-width="2"/>
+          <line x1="0" y1="0" x2="0" y2="-16" stroke="#3b2415" stroke-width="5.4"/>
+          <line x1="-.6" y1="0" x2="-.6" y2="-16" stroke="url(#brassG)" stroke-width="3"/>
+          <circle cx="0" cy="-18" r="4.2" fill="url(#brassG)" stroke="#3b2415" stroke-width="2"/>
+          <circle cx="-1.3" cy="-19.2" r="1.2" fill="rgba(255,255,255,.8)"/>
         </g>
         <g transform="translate(26,8)">
-          <line x1="0" y1="0" x2="0" y2="-16" stroke="#3b2415" stroke-width="5"/>
-          <line x1="0" y1="0" x2="0" y2="-16" stroke="#d9a94f" stroke-width="2.8"/>
-          <circle cx="0" cy="-18" r="4" fill="#e8b64c" stroke="#3b2415" stroke-width="2"/>
-          <ellipse cx="0" cy="1" rx="6" ry="2.6" fill="#d9a94f" stroke="#3b2415" stroke-width="2"/>
+          <ellipse cx="0" cy="1" rx="7" ry="3" fill="#5a4626"/>
+          <ellipse cx="0" cy="0" rx="6.4" ry="2.7" fill="url(#brassG)" stroke="#3b2415" stroke-width="2"/>
+          <line x1="0" y1="0" x2="0" y2="-16" stroke="#3b2415" stroke-width="5.4"/>
+          <line x1="-.6" y1="0" x2="-.6" y2="-16" stroke="url(#brassG)" stroke-width="3"/>
+          <circle cx="0" cy="-18" r="4.2" fill="url(#brassG)" stroke="#3b2415" stroke-width="2"/>
+          <circle cx="-1.3" cy="-19.2" r="1.2" fill="rgba(255,255,255,.8)"/>
         </g>
-        <path d="M-26 -8 Q -13 -1 0 -8 M0 -8 Q 13 -1 26 -8" fill="none" stroke="#9c2333" stroke-width="4.5" stroke-linecap="round"/>
+        <!-- velvet rope with sheen -->
+        <path d="M-26 -8 Q -13 -1 0 -8 M0 -8 Q 13 -1 26 -8" fill="none" stroke="#5e0f1c" stroke-width="6" stroke-linecap="round"/>
+        <path d="M-26 -8 Q -13 -1 0 -8 M0 -8 Q 13 -1 26 -8" fill="none" stroke="#9c2333" stroke-width="4.4" stroke-linecap="round"/>
+        <path d="M-24 -8.6 Q -13 -2.4 -2 -8.6 M2 -8.6 Q 13 -2.4 24 -8.6" fill="none" stroke="rgba(255,150,165,.45)" stroke-width="1.4" stroke-linecap="round"/>
       </g>
 
       <g id="sprCounter">
@@ -1380,79 +1483,178 @@
       </g>
 
       <g id="twBuffet">
-        <rect x="-33" y="-16" width="72" height="46" rx="9" fill="rgba(40,16,8,.35)"/>
-        <rect x="-36" y="-20" width="72" height="46" rx="9" fill="#8a5a30" stroke="#3b2415" stroke-width="4"/>
-        <rect x="-29" y="-13" width="58" height="32" rx="6" fill="#f5ead1" stroke="#3b2415" stroke-width="2.5"/>
-        <ellipse cx="-10" cy="3" rx="13" ry="8" fill="#e07b39" stroke="#3b2415" stroke-width="2.5"/>
-        <path d="M-16 0 Q -13 -4 -10 0 M-9 4 Q -6 0 -3 4 M-15 6 Q -12 2 -9 6" fill="none" stroke="#e05a3a" stroke-width="2"/>
-        <circle cx="15" cy="2" r="6.5" fill="#c9473b" stroke="#3b2415" stroke-width="2.2"/>
-        <g class="buffetStink" stroke="#9aa86a" stroke-width="1.8" fill="none" opacity=".8">
-          <path d="M-14 -18 q 3 -4 0 -8 q -3 -4 0 -8"/>
-          <path d="M-4 -20 q 3 -4 0 -8 q -3 -4 0 -8"/>
-          <path d="M6 -18 q 3 -4 0 -8 q -3 -4 0 -8"/>
+        <rect x="-33" y="-16" width="72" height="46" rx="9" fill="#3b2415"/>
+        <!-- steel steam-table body -->
+        <rect x="-36" y="-20" width="72" height="46" rx="9" fill="url(#steel)" stroke="#3b2415" stroke-width="4"/>
+        <path d="M-30 -17 L 30 -17" stroke="rgba(255,255,255,.5)" stroke-width="2.4" stroke-linecap="round"/>
+        <path d="M32 -6 L 32 20 L -24 20" fill="none" stroke="rgba(10,10,14,.35)" stroke-width="3"/>
+        <!-- warming wells -->
+        <rect x="-30" y="-13" width="58" height="30" rx="5" fill="#6a727c" stroke="#3b2415" stroke-width="2.5"/>
+        <rect x="-27" y="-10" width="27" height="24" rx="4" fill="#2b2f36" stroke="#20242a" stroke-width="2"/>
+        <rect x="2" y="-10" width="23" height="24" rx="4" fill="#2b2f36" stroke="#20242a" stroke-width="2"/>
+        <!-- week-old shrimp cocktail -->
+        <ellipse cx="-13.5" cy="3" rx="11" ry="8.5" fill="#e0904f"/>
+        <g stroke="#c9473b" stroke-width="2.6" fill="none" stroke-linecap="round">
+          <path d="M-20 2 q 3 -5 7 -3 q 3 2 1 5"/>
+          <path d="M-12 7 q 3 -5 7 -3 q 3 2 1 5"/>
+          <path d="M-17 -3 q 3 -4 7 -2"/>
         </g>
-        <line x1="-22" y1="-20" x2="-22" y2="-34" stroke="#3b2415" stroke-width="3"/>
-        <line x1="18" y1="-20" x2="18" y2="-34" stroke="#3b2415" stroke-width="3"/>
-        <path d="M-30 -34 L -14 -34 L -18 -42 L -26 -42 Z" fill="#e8b64c" stroke="#3b2415" stroke-width="2.5"/>
-        <path d="M10 -34 L 26 -34 L 22 -42 L 14 -42 Z" fill="#e8b64c" stroke="#3b2415" stroke-width="2.5"/>
+        <!-- suspicious ranch dip -->
+        <circle cx="13" cy="2" r="8" fill="#e4dcbe" stroke="#b8ae8a" stroke-width="1.8"/>
+        <circle cx="10.5" cy="-.5" r="2.4" fill="rgba(255,255,255,.6)"/>
+        <path d="M8 5 q 4 3 9 -1" fill="none" stroke="#9aa86a" stroke-width="1.6"/>
+        <!-- steam -->
+        <g class="buffetStink" stroke="#9aa86a" stroke-width="1.8" fill="none" opacity=".8">
+          <path d="M-14 -14 q 3 -4 0 -8 q -3 -4 0 -8"/>
+          <path d="M-4 -16 q 3 -4 0 -8 q -3 -4 0 -8"/>
+          <path d="M8 -14 q 3 -4 0 -8 q -3 -4 0 -8"/>
+        </g>
+        <!-- sneeze guard -->
+        <path d="M-33 -20 L -33 -34 L 33 -34 L 33 -20" fill="rgba(190,225,235,.18)" stroke="#c3d4dc" stroke-width="2"/>
+        <line x1="-28" y1="-32" x2="-14" y2="-21" stroke="rgba(255,255,255,.5)" stroke-width="2"/>
+        <line x1="4" y1="-32" x2="18" y2="-21" stroke="rgba(255,255,255,.35)" stroke-width="1.6"/>
+        <!-- heat lamps with glow -->
+        <line x1="-20" y1="-34" x2="-20" y2="-40" stroke="#3b2415" stroke-width="3"/>
+        <line x1="18" y1="-34" x2="18" y2="-40" stroke="#3b2415" stroke-width="3"/>
+        <path d="M-30 -40 L -10 -40 L -14 -48 L -26 -48 Z" fill="url(#brassG)" stroke="#3b2415" stroke-width="2.5"/>
+        <path d="M8 -40 L 28 -40 L 24 -48 L 12 -48 Z" fill="url(#brassG)" stroke="#3b2415" stroke-width="2.5"/>
+        <ellipse cx="-20" cy="-39" rx="9" ry="3" fill="#ffb35c" opacity=".85"/>
+        <ellipse cx="18" cy="-39" rx="9" ry="3" fill="#ffb35c" opacity=".85"/>
+        <path d="M-29 -38 L -11 -38 L -6 -20 L -34 -20 Z" fill="#ffcf7a" opacity=".13"/>
+        <path d="M9 -38 L 27 -38 L 32 -20 L 4 -20 Z" fill="#ffcf7a" opacity=".13"/>
       </g>
 
       <g id="twWaitress">
-        <ellipse cx="0" cy="28" rx="28" ry="8" fill="rgba(40,16,8,.3)"/>
-        <circle cx="-14" cy="10" r="14" fill="#8a5a30" stroke="#3b2415" stroke-width="3.5"/>
-        <circle cx="-14" cy="10" r="10" fill="#a3703c" stroke="#3b2415" stroke-width="2"/>
-        <rect x="-19" y="3" width="4" height="7" fill="#79e0d2" stroke="#3b2415" stroke-width="1.4"/>
-        <rect x="-12" y="2" width="4" height="8" fill="#e8b64c" stroke="#3b2415" stroke-width="1.4"/>
-        <g transform="translate(12,-2)"><use href="#sprWaitress"/></g>
+        <ellipse cx="-2" cy="28" rx="30" ry="8" fill="rgba(40,16,8,.35)"/>
+        <!-- service table -->
+        <path d="M-17 24 L -13 12 L -3 12 L 1 24 Z" fill="#5a3517" stroke="#3b2415" stroke-width="2.5"/>
+        <ellipse cx="-8" cy="10" rx="17" ry="7" fill="url(#woodG)" stroke="#3b2415" stroke-width="3"/>
+        <ellipse cx="-8" cy="8.6" rx="13" ry="5" fill="none" stroke="rgba(255,240,205,.35)" stroke-width="1.6"/>
+        <!-- bottles + glasses on the table -->
+        <g stroke="#3b2415" stroke-width="1.6">
+          <rect x="-20" y="-2" width="5" height="11" rx="1.6" fill="#2e7d4f"/>
+          <rect x="-19.2" y="-6" width="3.4" height="5" rx="1.2" fill="#2e7d4f"/>
+          <rect x="-13" y="-4" width="5" height="13" rx="1.6" fill="#8f2a24"/>
+          <rect x="-12.2" y="-8" width="3.4" height="5" rx="1.2" fill="#8f2a24"/>
+        </g>
+        <path d="M-5 1 L 3 1 L -.4 7 Z" fill="rgba(180,230,200,.85)" stroke="#3b2415" stroke-width="1.6"/>
+        <line x1="-1" y1="7" x2="-1" y2="10" stroke="#3b2415" stroke-width="1.6"/>
+        <circle cx="1.5" cy="1.5" r="1.8" fill="#c9473b" stroke="#3b2415" stroke-width="1.2"/>
+        <!-- ice bucket -->
+        <path d="M6 2 L 16 2 L 14.5 10 L 7.5 10 Z" fill="url(#chrome)" stroke="#3b2415" stroke-width="2"/>
+        <ellipse cx="11" cy="2" rx="5" ry="1.8" fill="#8d959f" stroke="#3b2415" stroke-width="1.6"/>
+        <rect x="9.4" y="-4" width="3.2" height="6" rx="1.2" fill="#e8b64c" stroke="#3b2415" stroke-width="1.4"/>
+        <g transform="translate(15,-4) scale(.92)"><use href="#sprWaitress"/></g>
       </g>
 
       <g id="twCatapult">
-        <ellipse cx="2" cy="28" rx="34" ry="8" fill="rgba(40,16,8,.35)"/>
-        <circle cx="-20" cy="22" r="8" fill="#8a5a30" stroke="#3b2415" stroke-width="3"/>
-        <circle cx="20" cy="22" r="8" fill="#8a5a30" stroke="#3b2415" stroke-width="3"/>
-        <rect x="-30" y="8" width="60" height="14" rx="5" fill="#7c4a22" stroke="#3b2415" stroke-width="3.5"/>
-        <g transform="rotate(-32 0 12)">
-          <rect x="-5" y="-36" width="10" height="48" rx="4" fill="#8a5a30" stroke="#3b2415" stroke-width="3"/>
-          <circle cx="0" cy="-38" r="9" fill="#6b4423" stroke="#3b2415" stroke-width="2.5"/>
+        <ellipse cx="2" cy="28" rx="34" ry="8" fill="rgba(40,16,8,.4)"/>
+        <!-- wheels -->
+        <circle cx="-20" cy="22" r="8.5" fill="url(#woodDeep)" stroke="#3b2415" stroke-width="3"/>
+        <circle cx="-20" cy="22" r="3" fill="#5a3517" stroke="#3b2415" stroke-width="1.6"/>
+        <circle cx="20" cy="22" r="8.5" fill="url(#woodDeep)" stroke="#3b2415" stroke-width="3"/>
+        <circle cx="20" cy="22" r="3" fill="#5a3517" stroke="#3b2415" stroke-width="1.6"/>
+        <!-- frame -->
+        <rect x="-30" y="8" width="60" height="14" rx="5" fill="url(#woodG)" stroke="#3b2415" stroke-width="3.5"/>
+        <line x1="-26" y1="10.5" x2="26" y2="10.5" stroke="rgba(255,240,205,.4)" stroke-width="2"/>
+        <g fill="url(#brassG)" stroke="#3b2415" stroke-width="1.3">
+          <circle cx="-24" cy="15" r="2.6"/><circle cx="24" cy="15" r="2.6"/>
+        </g>
+        <!-- torsion bundle at the pivot -->
+        <circle cx="0" cy="10" r="7.5" fill="#5a3517" stroke="#3b2415" stroke-width="2.5"/>
+        <g stroke="#d9c08a" stroke-width="1.6" opacity=".9">
+          <path d="M-5 6 q 5 3 10 0 M-5 10 q 5 3 10 0 M-5 14 q 5 3 10 0"/>
+        </g>
+        <!-- arm + chip basket -->
+        <g transform="rotate(-32 0 10)">
+          <rect x="-5" y="-36" width="10" height="46" rx="4" fill="url(#woodG)" stroke="#3b2415" stroke-width="3"/>
+          <line x1="-2.4" y1="-33" x2="-2.4" y2="6" stroke="rgba(255,240,205,.35)" stroke-width="1.8"/>
+          <path d="M-11 -40 A 11 11 0 0 0 11 -40 L 8 -47 L -8 -47 Z" fill="#6b4423" stroke="#3b2415" stroke-width="2.5"/>
           <g stroke="#3b2415" stroke-width="1.6">
-            <ellipse cx="0" cy="-40" rx="6" ry="2.6" fill="#c9473b"/>
-            <ellipse cx="0" cy="-43" rx="6" ry="2.6" fill="#e8b64c"/>
+            <ellipse cx="-3" cy="-45" rx="5.4" ry="2.4" fill="#c9473b"/>
+            <ellipse cx="3" cy="-46.5" rx="5.4" ry="2.4" fill="#e8b64c"/>
+            <ellipse cx="0" cy="-49" rx="5.4" ry="2.4" fill="#2b6cb0"/>
           </g>
         </g>
+        <!-- ammo pile -->
         <g stroke="#3b2415" stroke-width="1.8">
-          <ellipse cx="22" cy="6" rx="8" ry="3.4" fill="#2b6cb0"/>
-          <ellipse cx="22" cy="2.5" rx="8" ry="3.4" fill="#c9473b"/>
-          <ellipse cx="22" cy="-1" rx="8" ry="3.4" fill="#e8b64c"/>
+          <ellipse cx="23" cy="6" rx="8" ry="3.4" fill="#2b6cb0"/>
+          <ellipse cx="23" cy="2.5" rx="8" ry="3.4" fill="#c9473b"/>
+          <ellipse cx="23" cy="-1" rx="8" ry="3.4" fill="#e8b64c"/>
+          <ellipse cx="23" cy="-2.6" rx="3.4" ry="1.4" fill="rgba(255,255,255,.6)" stroke="none"/>
         </g>
       </g>
 
       <g id="twATM">
-        <rect x="-21" y="-22" width="52" height="60" rx="7" fill="rgba(40,16,8,.35)"/>
-        <rect x="-24" y="-26" width="48" height="56" rx="7" fill="#2b4a6f" stroke="#3b2415" stroke-width="4"/>
-        <rect x="-17" y="-19" width="34" height="18" rx="3" fill="#79e0d2" stroke="#3b2415" stroke-width="2.5"/>
-        <text x="0" y="-6" text-anchor="middle" font-size="10" font-weight="bold" fill="#0b3d2e" font-family="Georgia">$$$</text>
-        <g fill="#c3c9d2" stroke="#3b2415" stroke-width="1.4">
-          <circle cx="-12" cy="5" r="2.6"/><circle cx="-4" cy="5" r="2.6"/><circle cx="4" cy="5" r="2.6"/>
-          <circle cx="-12" cy="12" r="2.6"/><circle cx="-4" cy="12" r="2.6"/><circle cx="4" cy="12" r="2.6"/>
+        <rect x="-21" y="-22" width="49" height="57" rx="7" fill="#20160c"/>
+        <rect x="-24" y="-26" width="48" height="56" rx="7" fill="url(#steelBody)" stroke="#3b2415" stroke-width="4"/>
+        <path d="M-20 -22 L 20 -22" stroke="rgba(190,225,255,.45)" stroke-width="2.4" stroke-linecap="round"/>
+        <path d="M-20 -22 L -20 24" stroke="rgba(190,225,255,.25)" stroke-width="2" stroke-linecap="round"/>
+        <!-- screen with glow + scanlines -->
+        <rect x="-18" y="-20" width="36" height="20" rx="3" fill="#0d2b28" stroke="#3b2415" stroke-width="2.5"/>
+        <rect x="-16.5" y="-18.5" width="33" height="17" rx="2" fill="url(#screenG)"/>
+        <g stroke="rgba(0,60,50,.28)" stroke-width="1">
+          <line x1="-16" y1="-15" x2="16" y2="-15"/><line x1="-16" y1="-11" x2="16" y2="-11"/>
+          <line x1="-16" y1="-7" x2="16" y2="-7"/>
         </g>
-        <rect x="-15" y="19" width="30" height="5" rx="2.5" fill="#1e1a16" stroke="#3b2415" stroke-width="2"/>
-        <rect x="12" y="2" width="7" height="13" rx="2" fill="#e8b64c" stroke="#3b2415" stroke-width="2"/>
+        <text x="0" y="-6.5" text-anchor="middle" font-size="10" font-weight="bold" fill="#08332a" font-family="Georgia">$$$</text>
+        <path d="M-15 -18 L 6 -18 L -2 -2 L -15 -2 Z" fill="rgba(255,255,255,.18)"/>
+        <!-- keypad -->
+        <rect x="-17" y="1" width="26" height="17" rx="3" fill="#16304a" stroke="#3b2415" stroke-width="1.8"/>
+        <g stroke="#22303d" stroke-width="1.2">
+          <circle cx="-12" cy="5.5" r="2.7" fill="#c3c9d2"/><circle cx="-4" cy="5.5" r="2.7" fill="#c3c9d2"/><circle cx="4" cy="5.5" r="2.7" fill="#c3c9d2"/>
+          <circle cx="-12" cy="13" r="2.7" fill="#c3c9d2"/><circle cx="-4" cy="13" r="2.7" fill="#c3c9d2"/><circle cx="4" cy="13" r="2.7" fill="#c3c9d2"/>
+        </g>
+        <g fill="rgba(255,255,255,.75)">
+          <circle cx="-12.9" cy="4.6" r=".85"/><circle cx="-4.9" cy="4.6" r=".85"/><circle cx="3.1" cy="4.6" r=".85"/>
+          <circle cx="-12.9" cy="12.1" r=".85"/><circle cx="-4.9" cy="12.1" r=".85"/><circle cx="3.1" cy="12.1" r=".85"/>
+        </g>
+        <!-- card slot (lit) + cash slot -->
+        <rect x="12" y="2" width="8" height="14" rx="2" fill="#1a2836" stroke="#3b2415" stroke-width="2"/>
+        <rect x="13.6" y="4" width="4.8" height="2" rx="1" fill="#ffd23f"/>
+        <rect x="-16" y="21" width="32" height="6" rx="3" fill="#0d1620" stroke="#3b2415" stroke-width="2"/>
+        <line x1="-14" y1="21.8" x2="14" y2="21.8" stroke="rgba(190,225,255,.35)" stroke-width="1.2"/>
       </g>
 
       <g id="twCraps">
-        <rect x="-37" y="-22" width="84" height="56" rx="14" fill="rgba(40,16,8,.35)"/>
-        <rect x="-40" y="-26" width="80" height="52" rx="14" fill="#8a5a30" stroke="#3b2415" stroke-width="4"/>
-        <rect x="-32" y="-18" width="64" height="36" rx="9" fill="#2e8b6a" stroke="#3b2415" stroke-width="3"/>
-        <path d="M-24 0 H 24" stroke="#f5ead1" stroke-width="1.6" opacity=".5"/>
-        <g transform="translate(-9,-4) rotate(-14)">
+        <rect x="-37" y="-22" width="80" height="52" rx="14" fill="#3b2415"/>
+        <rect x="-40" y="-26" width="80" height="52" rx="14" fill="url(#woodG)" stroke="#3b2415" stroke-width="4"/>
+        <path d="M-28 -23 L 28 -23" stroke="rgba(255,240,205,.42)" stroke-width="2.6" stroke-linecap="round"/>
+        <path d="M36 -8 A 14 14 0 0 1 28 23 L -20 23" fill="none" stroke="rgba(20,8,2,.35)" stroke-width="3"/>
+        <!-- sunken felt -->
+        <rect x="-32" y="-18" width="64" height="36" rx="8" fill="url(#feltG)" stroke="#3b2415" stroke-width="3"/>
+        <rect x="-32" y="-18" width="64" height="36" rx="8" fill="none" stroke="rgba(0,0,0,.3)" stroke-width="4.5"/>
+        <!-- betting layout -->
+        <g stroke="#f5ead1" opacity=".55">
+          <rect x="-28" y="-14" width="56" height="11" rx="2" fill="none" stroke-width="1.2"/>
+          <line x1="-14" y1="-14" x2="-14" y2="-3" stroke-width="1"/>
+          <line x1="0" y1="-14" x2="0" y2="-3" stroke-width="1"/>
+          <line x1="14" y1="-14" x2="14" y2="-3" stroke-width="1"/>
+          <path d="M-27 12 Q 0 4 27 12" fill="none" stroke-width="1.4"/>
+        </g>
+        <g fill="#f5ead1" opacity=".7" font-family="Georgia" font-size="6" text-anchor="middle">
+          <text x="-21" y="-6">4</text><text x="-7" y="-6">6</text><text x="7" y="-6">8</text><text x="21" y="-6">10</text>
+        </g>
+        <!-- dice with shadows -->
+        <ellipse cx="-7" cy="4" rx="9" ry="3.4" fill="rgba(10,40,30,.45)"/>
+        <ellipse cx="14" cy="10" rx="9" ry="3.4" fill="rgba(10,40,30,.45)"/>
+        <g transform="translate(-9,-1) rotate(-14)">
           <rect x="-7" y="-7" width="14" height="14" rx="3" fill="#f5ead1" stroke="#3b2415" stroke-width="2.5"/>
-          <circle r="1.8" fill="#3b2415"/>
+          <path d="M-5.5 -5.5 L 4 -5.5 L -5.5 4 Z" fill="rgba(255,255,255,.7)"/>
+          <circle r="1.8" fill="#c9182b"/>
           <circle cx="-3.5" cy="-3.5" r="1.8" fill="#3b2415"/><circle cx="3.5" cy="3.5" r="1.8" fill="#3b2415"/>
         </g>
-        <g transform="translate(12,2) rotate(12)">
+        <g transform="translate(12,5) rotate(12)">
           <rect x="-7" y="-7" width="14" height="14" rx="3" fill="#f5ead1" stroke="#3b2415" stroke-width="2.5"/>
+          <path d="M-5.5 -5.5 L 4 -5.5 L -5.5 4 Z" fill="rgba(255,255,255,.7)"/>
           <circle cx="-3.5" cy="-3.5" r="1.8" fill="#3b2415"/><circle cx="3.5" cy="-3.5" r="1.8" fill="#3b2415"/>
           <circle cx="-3.5" cy="3.5" r="1.8" fill="#3b2415"/><circle cx="3.5" cy="3.5" r="1.8" fill="#3b2415"/>
+        </g>
+        <!-- rail chips -->
+        <g stroke="#3b2415" stroke-width="1.4">
+          <ellipse cx="-31" cy="21" rx="6" ry="2.6" fill="#c9473b"/>
+          <ellipse cx="-31" cy="18.6" rx="6" ry="2.6" fill="#f5ead1"/>
+          <ellipse cx="30" cy="-19" rx="6" ry="2.6" fill="#2b6cb0"/>
         </g>
       </g>
     </defs>
@@ -3822,7 +4024,8 @@ document.addEventListener('dblclick', e => e.preventDefault());
 
 /* dev gallery: ?gallery renders every sprite large for visual review */
 if (location.search.includes('gallery')) {
-  const ids = ['sprRetiree','sprTourist','sprElvis','sprGrandma','sprClipper','sprInfluencer',
+  const TW = ['twDealer','twRoulette','twRope','twCage','twATM','twCraps','twBuffet','twWaitress','twCatapult'];
+  const ids = location.search.includes('gallery=tw') ? TW : ['sprRetiree','sprTourist','sprElvis','sprGrandma','sprClipper','sprInfluencer',
                'sprDrunk','sprMojito','sprCounter','sprGroom','sprBride','sprRegular','sprWaitress','sprAuditor','sprLady','sprWhale','sprShark',
                'twDealer','twRoulette','twRope','twCage','twATM','twCraps','twBuffet','twWaitress','twCatapult','decSlot','decBJ','decPlant'];
   document.querySelectorAll('#hud,#startWave,#shop,#nextWave,#modal,#map,#slots').forEach(n => n.style.display = 'none');
@@ -3830,11 +4033,13 @@ if (location.search.includes('gallery')) {
   const gal = svgEl('g', {}, stageSvg);
   svgEl('rect', { width: 1120, height: 630, fill: '#0b3d2e' }, gal);
   ids.forEach((id, i) => {
-    const x = 90 + (i % 8) * 138, y = 140 + Math.floor(i / 8) * 260;
-    svgEl('circle', { cx: x, cy: y, r: 62, fill: 'rgba(0,0,0,.25)' }, gal);
-    const h = svgEl('g', { transform: `translate(${x},${y}) scale(1.15)` }, gal);
+    const big = location.search.includes('gallery=tw');
+    const per = big ? 5 : 8, gap = big ? 220 : 138, sc = big ? 2.1 : 1.15;
+    const x = (big ? 130 : 90) + (i % per) * gap, y = (big ? 180 : 140) + Math.floor(i / per) * (big ? 300 : 260);
+    svgEl('circle', { cx: x, cy: y, r: big ? 105 : 62, fill: 'rgba(0,0,0,.25)' }, gal);
+    const h = svgEl('g', { transform: `translate(${x},${y}) scale(${sc})` }, gal);
     svgEl('use', { href: '#' + id }, h);
-    svgEl('text', { x, y: y + 92, 'text-anchor': 'middle', 'font-size': 15, fill: '#e8b64c',
+    svgEl('text', { x, y: y + (big ? 140 : 92), 'text-anchor': 'middle', 'font-size': big ? 20 : 15, fill: '#e8b64c',
                     'font-weight': 'bold', 'font-family': 'Georgia' }, gal).textContent = id.replace(/^(spr|tw)/, '');
   });
 }
