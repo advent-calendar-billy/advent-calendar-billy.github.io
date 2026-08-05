@@ -451,6 +451,88 @@
   @keyframes rot { 0%,20% { transform: rotate(0); } 60%,100% { transform: rotate(90deg); } }
   @media (orientation: portrait) { #rotate { display: flex; } }
 
+  /* ── title card ── */
+  #title {
+    position: fixed; inset: 0;
+    background: radial-gradient(ellipse 90% 70% at 50% 44%, #14543f 0%, #06251a 55%, #030f0b 100%);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    z-index: 40;
+    overflow: hidden;
+    cursor: pointer;
+    transition: opacity .5s ease;
+  }
+  #title.gone { opacity: 0; pointer-events: none; }
+  #titleRays {
+    position: absolute; width: 190vmax; height: 190vmax;
+    left: 50%; top: 42%;
+    margin-left: -95vmax; margin-top: -95vmax;
+    background: repeating-conic-gradient(from 0deg,
+      rgba(232,182,76,.075) 0deg 7deg, transparent 7deg 20deg);
+    animation: raySpin 70s linear infinite;
+  }
+  @keyframes raySpin { to { transform: rotate(360deg); } }
+  #titleGlow {
+    position: absolute; width: 120vmin; height: 60vmin;
+    left: 50%; top: 42%; transform: translate(-50%,-50%);
+    background: radial-gradient(ellipse at center, rgba(255,205,120,.2), transparent 62%);
+    pointer-events: none;
+  }
+  #titleSign {
+    position: relative;
+    padding: clamp(16px, 4vh, 34px) clamp(26px, 7vw, 74px);
+    border: 4px solid #e8b64c;
+    border-radius: 18px;
+    background: linear-gradient(180deg, rgba(30,22,12,.94), rgba(12,9,5,.96));
+    box-shadow:
+      0 0 0 5px #16120c, 0 0 0 8px #a8801f,
+      0 0 70px rgba(232,182,76,.34),
+      inset 0 0 50px rgba(0,0,0,.75);
+  }
+  #bulbRing { position: absolute; inset: -9px; pointer-events: none; }
+  #bulbRing i {
+    position: absolute;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #ffdc8a;
+    box-shadow: 0 0 8px 2px rgba(255,200,90,.9);
+    animation: bulbChase 1.4s linear infinite;
+  }
+  @keyframes bulbChase { 0%,55% { opacity: 1; } 70%,100% { opacity: .18; } }
+  #titleWord {
+    font-family: Georgia, serif;
+    font-weight: bold;
+    font-size: clamp(44px, 13vw, 116px);
+    line-height: 1;
+    letter-spacing: clamp(2px, 1.2vw, 10px);
+    background: linear-gradient(180deg, #fff3cf 4%, #e8b64c 42%, #a8801f 66%, #f3dfa4 92%);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+    filter: drop-shadow(0 3px 0 #5c4413) drop-shadow(0 0 22px rgba(255,190,80,.55));
+    text-align: center;
+  }
+  .tsub {
+    text-align: center;
+    margin-top: 10px;
+    font-size: clamp(9px, 1.9vw, 13px);
+    letter-spacing: clamp(3px, 1.1vw, 8px);
+    color: #9fc4b2;
+  }
+  #titleChips { width: min(420px, 74vw); height: 70px; margin-top: 6px; }
+  #titleCta {
+    margin-top: 6px;
+    font-weight: 800;
+    font-size: clamp(12px, 2.6vw, 16px);
+    letter-spacing: 4px;
+    color: #f5ead1;
+    animation: ctaPulse 1.6s ease-in-out infinite;
+  }
+  @keyframes ctaPulse { 0%,100% { opacity: .45; } 50% { opacity: 1; } }
+  #titleFoot {
+    position: absolute; bottom: 14px;
+    font-size: 10px; letter-spacing: 3px; color: #4e7a68;
+  }
+
   /* ── campaign map (casino directory board) ── */
   #map {
     position: fixed; inset: 0;
@@ -1830,6 +1912,20 @@
     <div class="statline" id="modalStats"></div>
     <button class="btn primary" id="modalBtn">DEAL ME IN</button>
   </div>
+</div>
+
+<!-- title card -->
+<div id="title">
+  <div id="titleRays"></div>
+  <div id="titleGlow"></div>
+  <div id="titleSign">
+    <div id="bulbRing"></div>
+    <div id="titleWord">HOLD'EM</div>
+    <div class="tsub">CASINO&nbsp;&nbsp;TOWER&nbsp;&nbsp;DEFENSE</div>
+  </div>
+  <svg id="titleChips" viewBox="0 0 420 70"></svg>
+  <div id="titleCta">TAP TO ENTER</div>
+  <div id="titleFoot">THE HOUSE ALWAYS WINS · BUILT FOR FEDE</div>
 </div>
 
 <!-- campaign map -->
@@ -4074,6 +4170,60 @@ $('cashBtn').addEventListener('pointerdown', ev => {
   location.reload();
 });
 
+/* ══════════ TITLE CARD ══════════ */
+(function buildTitle(){
+  // marquee bulbs around the sign
+  const ring = $('bulbRing');
+  const N = 44;
+  for (let i = 0; i < N; i++) {
+    const b = document.createElement('i');
+    const t = i / N;
+    // walk the perimeter as a percentage
+    let x, y;
+    if (t < .25)      { x = t * 4 * 100; y = 0; }
+    else if (t < .5)  { x = 100; y = (t - .25) * 4 * 100; }
+    else if (t < .75) { x = 100 - (t - .5) * 4 * 100; y = 100; }
+    else              { x = 0; y = 100 - (t - .75) * 4 * 100; }
+    b.style.left = `calc(${x}% - 3.5px)`;
+    b.style.top = `calc(${y}% - 3.5px)`;
+    b.style.animationDelay = (i * 0.055).toFixed(2) + 's';
+    ring.appendChild(b);
+  }
+  // scattered chips + cards under the sign
+  const g = $('titleChips');
+  const chip = (x, y, c, r) => {
+    const k = svgEl('g', { transform: `translate(${x},${y}) rotate(${r})` }, g);
+    svgEl('ellipse', { cx: 2, cy: 3, rx: 20, ry: 7, fill: 'rgba(0,0,0,.4)' }, k);
+    svgEl('ellipse', { rx: 20, ry: 7, fill: c, stroke: '#3b2415', 'stroke-width': 2.4 }, k);
+    svgEl('ellipse', { cy: -4, rx: 20, ry: 7, fill: c, stroke: '#3b2415', 'stroke-width': 2.4 }, k);
+    svgEl('ellipse', { cy: -4, rx: 9, ry: 3, fill: '#f5ead1', opacity: .85 }, k);
+  };
+  const card = (x, y, r, suit, col) => {
+    const k = svgEl('g', { transform: `translate(${x},${y}) rotate(${r})` }, g);
+    svgEl('rect', { x: -13, y: -18, width: 26, height: 36, rx: 4, fill: '#f5ead1', stroke: '#3b2415', 'stroke-width': 2.4 }, k);
+    const t = svgEl('text', { x: 0, y: 8, 'text-anchor': 'middle', 'font-family': 'Georgia', 'font-size': 22, fill: col }, k);
+    t.textContent = suit;
+  };
+  card(62, 40, -16, '♠', '#2e2622');
+  card(92, 44, 10, '♥', '#c9182b');
+  chip(160, 52, '#c9473b', -4);
+  chip(206, 56, '#2b6cb0', 3);
+  chip(250, 52, '#e8b64c', -2);
+  card(330, 44, 14, '♦', '#c9182b');
+  card(360, 40, -8, '♣', '#2e2622');
+})();
+
+function enterFromTitle() {
+  const t = $('title');
+  if (t.classList.contains('gone')) return;
+  const c = ac();
+  if (c && c.state === 'suspended') c.resume();
+  SFX.wave();
+  t.classList.add('gone');
+  setTimeout(() => { t.style.display = 'none'; }, 520);
+}
+$('title').addEventListener('pointerdown', enterFromTitle);
+
 /* ══════════ BOOT ══════════ */
 if (SAVE.prefs) {
   sndOn = SAVE.prefs.snd !== false;
@@ -4104,6 +4254,10 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http') && !loc
 /* iOS: no pinch zoom, no double-tap zoom */
 document.addEventListener('gesturestart', e => e.preventDefault());
 document.addEventListener('dblclick', e => e.preventDefault());
+
+if (/gallery|autotest|slottest|pausetest|sheettest|ridetest|depthtest|room=/.test(location.search)) {
+  $('title').style.display = 'none';
+}
 
 /* dev gallery: ?gallery renders every sprite large for visual review */
 if (location.search.includes('gallery')) {

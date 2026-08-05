@@ -85,7 +85,7 @@
 - [x] SFX v1: synthesized WebAudio (cards, balls, kills, leaks, TILT, wave fanfare, boss sting, slot bells) + mute toggle
 - [x] Music v1: quiet synthesized lounge chord pad (boss theme still open)
 - [x] App icon + PWA manifest + apple-touch-icon PNG
-- [ ] Title screen with marquee art (reuse style-samples header)
+- [x] Title screen: marquee sign with chasing bulbs, sunburst rays, scattered chips/cards
 
 ## MOBILE / TECH
 - [x] Landscape lock + rotate overlay
