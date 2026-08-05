@@ -2802,16 +2802,28 @@ function tone(freq, dur, type, vol, delay, slide) {
   o.start(t0);
   o.stop(t0 + dur + .03);
 }
-let padTimer = null;
+let padTimer = null, vampTimer = null, vampStep = 0;
+const bossOnFloor = () => G.enemies.some(e => e.E.boss);
 function loungePad() {
   if (padTimer) return;
   padTimer = setInterval(() => {
-    if (!sndOn || G.paused || G.over || $('map').style.display === 'flex') return;
+    if (!sndOn || G.paused || G.over || bossOnFloor() || $('map').style.display === 'flex') return;
     const chords = [[130.8, 164.8, 196, 246.9], [174.6, 220, 261.6, 329.6],
                     [146.8, 185, 220, 293.7], [123.5, 155.6, 196, 233.1]];
     const c = chords[Math.floor(G.time / 7.5) % chords.length];
     c.forEach((f, i) => tone(f, 6.8, 'sine', .012, i * .06));
   }, 7500);
+  // the house band drops out and the floor goes tense when a boss walks
+  if (vampTimer) return;
+  vampTimer = setInterval(() => {
+    if (!sndOn || G.paused || G.over || !bossOnFloor()) { vampStep = 0; return; }
+    const bass = [98, 98, 116.5, 110][vampStep % 4];
+    tone(bass, .36, 'sawtooth', .05);
+    tone(bass * 2, .2, 'square', .02, .05);
+    if (vampStep % 8 === 6) tone(1244, .09, 'triangle', .028, .2);
+    if (vampStep % 8 === 7) tone(1046, .12, 'triangle', .03, .12);
+    vampStep++;
+  }, 620);
 }
 
 const SFX = {
@@ -3254,9 +3266,21 @@ function spawnEnemy(type) {
                       'stroke-dasharray': '10 8', opacity: .7 }, el);
     ring.style.animation = 'ropeMarch 2.2s linear infinite';
   }
+  // grounding shadow under every guest (matches the tower light direction)
+  svgEl('ellipse', {
+    cx: E.scale * 3, cy: E.scale * 34,
+    rx: E.scale * (E.boss ? 30 : 19), ry: E.scale * (E.boss ? 9 : 6),
+    fill: 'rgba(30,12,6,.42)', filter: 'url(#softBlur)'
+  }, el);
   const spriteG = svgEl('g', { transform: `scale(${E.scale},${E.scale * .84})` }, el);
   const gaitG = svgEl('g', { class: 'gait-' + (E.gait || (E.boss ? 'lumber' : type === 'elvis' ? 'groove' : 'waddle')) }, spriteG);
   svgEl('use', { href: '#' + E.sprite }, gaitG);
+  // rim light down the lit side
+  svgEl('use', {
+    href: '#' + E.sprite, fill: 'none',
+    stroke: 'rgba(255,240,205,.5)', 'stroke-width': 2.4,
+    'clip-path': 'inset(0 55% 0 0)', 'pointer-events': 'none', opacity: .55
+  }, gaitG);
   // health bar
   const barW = E.boss ? 46 : 28;
   const barG = svgEl('g', { transform: `translate(0,${-E.scale * 60 - 8})`, opacity: 0 }, el);

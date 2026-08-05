@@ -79,12 +79,12 @@
 - [x] Rope visual overhaul: bars the lane, marching aura, queue dots + slowed gait on victims
 - [x] Ambient roaming waitress
 - [x] Death animations (poof of chips, grandma drops coin cup)
-- [ ] Hit flashes on enemies (knockback wiggle done via craps)
+- [x] Hit flashes on enemies; grounding shadows + rim light on every guest
 - [x] Wave-start banner animation ("WAVE 3 — THE BUS ARRIVES")
 - [x] Boss intro: screen shake + name plate
 - [ ] Vault door creaks open on leak (visual)
 - [x] SFX v1: synthesized WebAudio (cards, balls, kills, leaks, TILT, wave fanfare, boss sting, slot bells) + mute toggle
-- [x] Music v1: quiet synthesized lounge chord pad (boss theme still open)
+- [x] Music v1: lounge chord pad + tense boss vamp that takes over while a boss is on the floor
 - [x] App icon + PWA manifest + apple-touch-icon PNG
 - [x] Title screen: marquee sign with chasing bulbs, sunburst rays, scattered chips/cards
 
