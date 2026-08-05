@@ -721,7 +721,7 @@
     box-shadow: 0 0 60px rgba(232,182,76,.3);
     animation: pop .28s cubic-bezier(.34,1.56,.64,1);
   }
-  #slotCard h2 {
+  #slotCard h2Legacy {
     font-family: Georgia, serif;
     color: #ffd23f;
     font-size: 30px;
@@ -729,16 +729,11 @@
     text-shadow: 0 0 14px rgba(255,210,63,.6);
     margin: 4px 0 10px;
   }
-  #reelBox {
-    width: 216px;
-    margin: 4px auto 10px;
-    background: #16081a;
-    border: 3px solid #e8b64c;
-    border-radius: 14px;
-    padding: 9px;
-    box-shadow: inset 0 0 24px rgba(0,0,0,.7), 0 0 18px rgba(232,182,76,.25);
-  }
-  #reelGrid { width: 100%; display: block; }
+  #cabinet { width: min(300px, 68vw); display: block; margin: 2px auto 4px; }
+  .cabBulb { animation: cabBulbBlink 1.2s linear infinite; }
+  @keyframes cabBulbBlink { 0%,55% { opacity: 1; } 70%,100% { opacity: .25; } }
+  #leverArm { transform-box: fill-box; transform-origin: 50% 4%; transition: transform .18s ease-out; }
+  #leverArm.pulled { transform: rotate(38deg); }
   #slotMsg { font-size: 13.5px; color: #d8cbb0; min-height: 20px; }
   #slotMsg.bigwin {
     font-size: 17px;
@@ -2012,12 +2007,7 @@
 <div id="slots">
   <div id="slotCard">
     <div class="kind" style="font-size:11px; letter-spacing:3px; color:#b7a98a;">FLOOR CLEARED · HOUSE LOUNGE</div>
-    <div class="bulbs">● ● ● ● ● ● ●</div>
-    <h2>SHOWTIME!</h2>
-    <div class="bulbs" style="margin-top:-6px">● ● ● ● ● ● ●</div>
-    <div id="reelBox">
-      <svg id="reelGrid" viewBox="0 0 180 180"></svg>
-    </div>
+    <svg id="cabinet" viewBox="0 0 314 330"></svg>
     <div id="slotMsg">Five lines across the great musicals. Spin your leftover chips… or bank them as comps.</div>
     <div id="payline"></div>
     <div id="slotInfo"></div>
@@ -4350,18 +4340,63 @@ const SLOT_LINES = [[0,1,2],[3,4,5],[6,7,8],[0,4,8],[2,4,6]];
 const pickSym = () => STRIP[Math.floor(Math.random() * STRIP.length)];
 let slotCells = [], slotLineLayer = null;
 function buildReelGrid() {
-  const g = $('reelGrid');
+  const g = $('cabinet');
   g.innerHTML = '';
+  // cabinet shell
+  svgEl('rect', { x: 8, y: 6, width: 284, height: 318, rx: 26, fill: '#1c0a24', stroke: '#e8b64c', 'stroke-width': 4 }, g);
+  svgEl('rect', { x: 16, y: 14, width: 268, height: 302, rx: 21, fill: 'none', stroke: '#7a3f8c', 'stroke-width': 3 }, g);
+  // top glass with title
+  svgEl('rect', { x: 30, y: 22, width: 240, height: 56, rx: 12, fill: '#2a0f36', stroke: '#e8b64c', 'stroke-width': 3 }, g);
+  const t = svgEl('text', { x: 150, y: 56, 'text-anchor': 'middle', 'font-family': 'Georgia',
+    'font-weight': 'bold', 'font-size': 27, fill: '#ffd23f', 'letter-spacing': 3 }, g);
+  t.textContent = 'SHOWTIME!';
+  svgEl('text', { x: 150, y: 70, 'text-anchor': 'middle', 'font-family': 'Georgia',
+    'font-size': 7.4, fill: '#c9a7d8', 'letter-spacing': 1.2 }, g).textContent = 'FIVE LINES · THE GREAT MUSICALS';
+  // marquee bulbs around the glass
+  for (let i = 0; i < 22; i++) {
+    const p = i / 22;
+    let x, y;
+    if (p < .42)      { x = 34 + (p / .42) * 232; y = 18; }
+    else if (p < .5)  { x = 266; y = 18 + ((p - .42) / .08) * 64; }
+    else if (p < .92) { x = 266 - ((p - .5) / .42) * 232; y = 82; }
+    else              { x = 34; y = 82 - ((p - .92) / .08) * 64; }
+    const b = svgEl('circle', { cx: x, cy: y, r: 3.1, fill: '#ffdc8a', class: 'cabBulb' }, g);
+    b.style.animationDelay = (i * .06).toFixed(2) + 's';
+  }
+  // reel window (recessed)
+  svgEl('rect', { x: 34, y: 92, width: 232, height: 190, rx: 12, fill: '#0d0510', stroke: '#e8b64c', 'stroke-width': 3 }, g);
+  svgEl('rect', { x: 40, y: 98, width: 220, height: 178, rx: 9, fill: '#1a0c20', stroke: '#5a2b6b', 'stroke-width': 2 }, g);
+  for (const dx of [48, 116]) {
+    svgEl('line', { x1: 82 + dx - 34, y1: 100, x2: 82 + dx - 34, y2: 274, stroke: '#3d1c4a', 'stroke-width': 2 }, g);
+  }
   slotCells = [];
   for (let i = 0; i < 9; i++) {
-    const cx = 30 + (i % 3) * 60, cy = 30 + Math.floor(i / 3) * 60;
-    svgEl('rect', { x: cx - 27, y: cy - 27, width: 54, height: 54, rx: 8,
+    const cx = 82 + (i % 3) * 68, cy = 133 + Math.floor(i / 3) * 55;
+    svgEl('rect', { x: cx - 30, y: cy - 25, width: 60, height: 50, rx: 8,
       fill: '#f5ead1', stroke: '#3b2415', 'stroke-width': 2.5 }, g);
-    const holder = svgEl('g', { transform: `translate(${cx},${cy}) scale(1.35)` }, g);
+    svgEl('rect', { x: cx - 27, y: cy - 22, width: 54, height: 16, rx: 5, fill: 'rgba(255,255,255,.55)' }, g);
+    const holder = svgEl('g', { transform: `translate(${cx},${cy}) scale(1.3)` }, g);
     const u = svgEl('use', { href: '#' + pickSym() }, holder);
     slotCells.push(u);
   }
   slotLineLayer = svgEl('g', { 'pointer-events': 'none' }, g);
+  // coin tray + side lights
+  svgEl('rect', { x: 60, y: 292, width: 180, height: 20, rx: 9, fill: '#0d0510', stroke: '#7a3f8c', 'stroke-width': 2.5 }, g);
+  [['#c9473b', 96], ['#e8b64c', 122], ['#2b6cb0', 148], ['#c9473b', 174], ['#e8b64c', 200]].forEach(([c, x]) => {
+    svgEl('ellipse', { cx: x, cy: 302, rx: 9, ry: 3.4, fill: c, stroke: '#3b2415', 'stroke-width': 1.6 }, g);
+  });
+  for (let i = 0; i < 5; i++) {
+    const yy = 110 + i * 40;
+    const l1 = svgEl('circle', { cx: 22, cy: yy, r: 3.4, fill: '#e05a7a', class: 'cabBulb' }, g);
+    const l2 = svgEl('circle', { cx: 278, cy: yy, r: 3.4, fill: '#e05a7a', class: 'cabBulb' }, g);
+    l1.style.animationDelay = l2.style.animationDelay = (i * .18).toFixed(2) + 's';
+  }
+  // lever
+  const lev = svgEl('g', { id: 'leverArm' }, g);
+  svgEl('rect', { x: 296, y: 130, width: 7, height: 58, rx: 3.5, fill: 'url(#chrome)', stroke: '#3b2415', 'stroke-width': 2 }, lev);
+  svgEl('circle', { cx: 299.5, cy: 126, r: 9.5, fill: '#c9182b', stroke: '#3b2415', 'stroke-width': 2.5 }, lev);
+  svgEl('circle', { cx: 296.6, cy: 123, r: 3, fill: 'rgba(255,255,255,.6)' }, lev);
+  svgEl('rect', { x: 288, y: 184, width: 16, height: 7, rx: 3, fill: '#3d1c4a', stroke: '#7a3f8c', 'stroke-width': 2 }, g);
   const pl = $('payline');
   pl.innerHTML = ['symSeven','symLips','symHat','symPlant','symWig','symSun']
     .map(k => `<svg viewBox="-20 -20 40 40"><use href="#${k}"/></svg><b>${SLOT_PAY[k]}</b>`)
@@ -4393,6 +4428,11 @@ $('spinBtn').addEventListener('pointerdown', ev => {
   if (free) SLOT.free--; else { SLOT.spins--; G.chips -= SLOT.COST; }
   SLOT.spinning = true;
   SFX.spin();
+  const lever = $('leverArm');
+  if (lever) {
+    lever.classList.add('pulled');
+    setTimeout(() => lever.classList.remove('pulled'), 260);
+  }
   slotLineLayer.innerHTML = '';
   const final = Array.from({ length: 9 }, pickSym);
   let t = 0;
@@ -4431,7 +4471,7 @@ $('spinBtn').addEventListener('pointerdown', ev => {
         SLOT.bonusWon += win;
       }
       for (const L of hitLines) {
-        const pts = L.map(i => `${30 + (i % 3) * 60},${30 + Math.floor(i / 3) * 60}`).join(' ');
+        const pts = L.map(i => `${82 + (i % 3) * 68},${133 + Math.floor(i / 3) * 55}`).join(' ');
         svgEl('polyline', { points: pts, fill: 'none', stroke: '#ffd23f', 'stroke-width': 6,
           'stroke-linecap': 'round', opacity: .85 }, slotLineLayer);
       }
