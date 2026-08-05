@@ -61,6 +61,11 @@
 - [x] localStorage campaign save (which room, meta-currency, unlocks)
 
 ## AESTHETIC / JUICE
+- [x] BILLY FEEDBACK ROUND (Aug 4): soft-shadow depth (exp B), background overhaul (border/skirting/
+      sheen/weave), NPC familiarity +5%/floor with recompensated ladder, bank-vault redesign THEN
+      replaced by GUEST SERVICES front desk (complaints = reputation flavor, live star placard, bell
+      ring on leak), SHOWTIME! musical 3x3 slot machine (Rocky/Hedwig/Hair/LittleShop/Wicked symbols,
+      5 paylines), full emoji purge, pause RESTART, endless copy rewrite, per-tower targeting
 - [x] POLISH SWEEP (Aug 3 night): entrance marquee doorway, casino-directory map board
       (bulbs, YOU ARE HERE, backdrop blur), LUCKY 7s cabinet (payline, win flash, cash-out
       preview), pause menu w/ quit-to-map, boss HP bar, hidden-till-hit health bars, lvl2 ★
