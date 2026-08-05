@@ -515,10 +515,11 @@
   }
   #mapNodes {
     display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
-    gap: 4px;
+    gap: 2px;
     margin: 6px 0 16px;
   }
-  #mapNodes .mapNode { width: 44px; height: 44px; font-size: 15px; }
+  #mapNodes .mapNode { width: 46px; height: 46px; font-size: 15px; }
+  #mapNodes .mapNode.branch { width: 40px; height: 40px; font-size: 12.5px; }
   .mapNode {
     position: relative;
     width: 52px; height: 52px;
@@ -565,7 +566,22 @@
   }
   @keyframes hereBob { 0%,100% { transform: translate(-50%,0); } 50% { transform: translate(-50%,-4px); } }
   @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.12); } }
-  .mapLink { width: 14px; height: 3px; background: #5a4626; border-radius: 2px; }
+  .mapLink { width: 9px; height: 3px; background: #5a4626; border-radius: 2px; }
+  .mapFork {
+    display: flex; flex-direction: column; gap: 16px;
+    padding: 0 3px;
+    position: relative;
+  }
+  .mapFork::before {
+    content: '';
+    position: absolute; left: -8px; right: -8px; top: 26px; bottom: 26px;
+    border: 3px solid #5a4626;
+    border-radius: 12px;
+    border-left-color: transparent;
+    border-right-color: transparent;
+    pointer-events: none;
+  }
+  .mapNode.branch { width: 42px; height: 42px; font-size: 13px; }
   #mapShop { margin: 6px 0 14px; }
   .mapUp {
     display: inline-block;
@@ -2119,7 +2135,32 @@ const ROOMS = [
       [['tourist',26,.2],['clipper',8,1.0],['honey',4,4]],
       [['whale',2,12],['counter',5,2.0],['mojito',12,.7]],
       [['auditor',1,0],['grandma',10,1.0],['whale',1,30],['regular',8,1.0]]
-    ] },
+    ],
+    alt: {
+      name: 'Service Corridor',
+      sub: 'BACK OF HOUSE',
+      hpMul: 2.16, chips: 690,
+      carpet: ['#4c4a42', '#585549', '#3a382f'],
+      intro: 'The staff shortcut: bare concrete, a straight run, and no time to think. They arrive FAST — but management pays hazard money, and the Auditor never comes down here.',
+      variants: [
+        { entryY: 200, vault: [1046, 400], killOffset: 100,
+          lanes: ['M -40 200 C 160 200, 300 200, 420 240 C 560 286, 700 360, 1160 400'] },
+        { entryY: 400, vault: [1046, 200], killOffset: 100,
+          lanes: ['M -40 400 C 160 400, 300 400, 420 360 C 560 314, 700 240, 1160 200'] }
+      ],
+      waves: [
+        [['retiree',14,.6],['drunk',10,.8]],
+        [['regular',10,.9],['clipper',10,.8]],
+        [['mojito',12,.7],['tourist',16,.35]],
+        [['counter',7,1.4],['grandma',10,.9]],
+        [['whale',2,11],['regular',10,.85]],
+        [['elvis',18,.4],['influencer',3,5]],
+        [['honey',5,3.5],['drunk',14,.6]],
+        [['clipper',14,.6],['counter',8,1.2]],
+        [['whale',2,10],['mojito',16,.5]],
+        [['shark',1,0],['grandma',14,.7],['whale',2,14]]
+      ]
+    } },
   { name: 'Slots Pit 5', carpet: ['#822d52','#94395f','#6e2545'],  hpMul: 2.63, chips: 560,
     intro: 'The corridor coils around the vault like a spring. Tonight LADY LUCK herself walks the floor — towers inside her shimmer go cold. End of the Slots Pit.',
     variants: [
@@ -2212,7 +2253,30 @@ const ROOMS = [
       [['counter',10,1.0],['honey',6,3.5],['drunk',14,.6]],
       [['auditor',2,18],['grandma',14,.8]],
       [['shark',1,0],['auditor',1,25],['whale',2,12],['influencer',4,5]]
-    ] },
+    ],
+    alt: {
+      name: 'The Mezzanine',
+      sub: 'UPSTAIRS BALCONY',
+      hpMul: 3.9, chips: 700,
+      carpet: ['#3a2a5e', '#46346e', '#2b1f47'],
+      intro: 'One flight up: a long balcony loop over the pit. More lane to work with, but everything that walks it has already survived the floor below.',
+      variants: [
+        { entryY: 130, vault: [1046, 130], killOffset: 112,
+          lanes: ['M -40 130 C 180 130, 380 130, 520 130 C 700 130, 820 210, 820 330 C 820 440, 680 500, 520 500 C 340 500, 200 470, 160 380 C 128 306, 210 270, 330 270 C 480 270, 620 300, 760 250 C 880 208, 940 140, 1160 130'] }
+      ],
+      waves: [
+        [['retiree',22,.45],['drunk',12,.7]],
+        [['mojito',16,.5],['clipper',14,.6]],
+        [['honey',6,3.2],['counter',9,1.1]],
+        [['whale',2,9],['elvis',22,.35]],
+        [['lady',1,0],['grandma',14,.75]],
+        [['regular',14,.65],['influencer',4,5]],
+        [['whale',3,8],['honey',7,3]],
+        [['counter',12,.85],['drunk',16,.5]],
+        [['auditor',2,16],['grandma',16,.7]],
+        [['shark',1,0],['lady',1,22],['whale',3,9]]
+      ]
+    } },
   { name: 'Slots Pit 9', carpet: ['#3a2f80','#46398f','#2f256d'],  hpMul: 3.52, chips: 690,
     intro: 'The floor plan changes nightly now. Everything walks, and the bosses walk with them.',
     variants: [
@@ -3003,7 +3067,7 @@ function showNextWave() {
 
 function saveMid() {
   SAVE.mid = {
-    room: ROOM, vi: G.vi, wave: G.wave, chips: Math.floor(G.chips),
+    room: ROOM, alt: G.alt, vi: G.vi, wave: G.wave, chips: Math.floor(G.chips),
     stars: G.stars, seen: G.seen,
     towers: G.towers.map(t => ({ k: t.type, x: Math.round(t.x), y: Math.round(t.y), l: t.lvl, p: t.prio }))
   };
@@ -3605,7 +3669,7 @@ function makeEndless() {
     waves };
 }
 
-function rideElevator(i, resume) {
+function rideElevator(i, resume, altKey) {
   const elev = $('elev');
   const from = (SAVE.lastFloor || 1);
   const to = i >= ROOMS.length ? '∞' : (i + 1);
@@ -3626,7 +3690,7 @@ function rideElevator(i, resume) {
       SFX.ding();
       if (k >= Math.max(1, steps)) {
         clearInterval(iv);
-        initRoom(i, resume);
+        initRoom(i, resume, altKey);
         setTimeout(() => {
           elev.classList.remove('shut');
           setTimeout(() => elev.classList.remove('riding'), 550);
@@ -3638,9 +3702,11 @@ function rideElevator(i, resume) {
   saveSave();
 }
 
-function initRoom(i, resume) {
+function initRoom(i, resume, altKey) {
   ROOM = i;
-  const R = i >= ROOMS.length ? makeEndless() : ROOMS[i];
+  const base = i >= ROOMS.length ? makeEndless() : ROOMS[i];
+  const R = (altKey === 'b' && base.alt) ? Object.assign({}, base, base.alt) : base;
+  G.alt = (altKey === 'b' && base.alt) ? 'b' : null;
   G.roomDef = R;
   const viParam = location.search.match(/vi=(\d+)/);
   const vi = viParam ? Math.min(+viParam[1], R.variants.length - 1)
@@ -3669,7 +3735,7 @@ function initRoom(i, resume) {
   showNextWave();
   if (i === 0 && !resume) $('dragHint').style.display = 'block';
   $('waveTot').textContent = WAVES.length;
-  if (resume && SAVE.mid && SAVE.mid.room === i) {
+  if (resume && SAVE.mid && SAVE.mid.room === i && (SAVE.mid.alt || null) === (G.alt || null)) {
     const M = SAVE.mid;
     G.wave = M.wave;
     G.chips = M.chips;
@@ -3685,17 +3751,24 @@ function initRoom(i, resume) {
     showModal('WELCOME BACK', R.name, null,
       `Your floor is exactly as you left it — wave ${M.wave + 1} is waiting.`, '', 'RESUME SHIFT');
   } else {
-    showModal(i >= ROOMS.length ? '∞ · AFTER HOURS' : `ROOM ${i + 1} OF 50 · SLOTS PIT`,
+    showModal(i >= ROOMS.length ? '∞ · AFTER HOURS'
+      : `FLOOR ${i + 1}${G.alt ? 'B · ' + (R.sub || 'ALTERNATE ROUTE') : (base.alt ? 'A · MAIN FLOOR' : '')}`,
       R.name, null, R.intro, 'TAP ANY GUEST FOR THEIR DOSSIER', 'OPEN THE DOORS');
   }
 }
 
-function makeMapNode(i, real) {
+function makeMapNode(i, real, altKey) {
   const unlocked = real && i < SAVE.unlocked;
   const cleared = real && i < SAVE.unlocked - 1;
   const b = document.createElement('div');
-  b.className = 'mapNode' + (cleared ? ' cleared' : unlocked ? ' cur' : '');
-  b.textContent = real ? (cleared ? '★' : i + 1) : '?';
+  b.className = 'mapNode' + (altKey ? ' branch' : '') + (cleared ? ' cleared' : unlocked ? ' cur' : '');
+  b.textContent = real ? (cleared && !altKey ? '★' : (i + 1) + (altKey ? altKey.toUpperCase() : '')) : '?';
+  if (altKey) {
+    const t = document.createElement('div');
+    t.style.cssText = 'position:absolute;bottom:-13px;left:50%;transform:translateX(-50%);font-size:7.5px;color:#9c8757;letter-spacing:.5px;white-space:nowrap;';
+    t.textContent = altKey === 'a' ? 'MAIN FLOOR' : (ROOMS[i].alt.sub || 'ALT ROUTE');
+    b.appendChild(t);
+  }
   if (cleared && SAVE.roomStars && SAVE.roomStars[i]) {
     const r = document.createElement('div');
     r.style.cssText = 'position:absolute;bottom:-15px;left:50%;transform:translateX(-50%);font-size:8px;color:var(--gold);letter-spacing:1px;white-space:nowrap;';
@@ -3716,7 +3789,7 @@ function makeMapNode(i, real) {
     tag.textContent = hasMid ? 'RESUME SHIFT' : 'YOU ARE HERE';
     b.appendChild(tag);
   }
-  if (unlocked || cleared) b.addEventListener('pointerdown', () => rideElevator(i, hasMid));
+  if (unlocked || cleared) b.addEventListener('pointerdown', () => rideElevator(i, hasMid, altKey));
   return b;
 }
 
@@ -3731,12 +3804,21 @@ function renderMap() {
   for (const blk of BLOCKS) {
     const lbl = document.createElement('div');
     lbl.className = 'mapSub';
-    lbl.style.cssText = 'width:100%;margin:14px 0 26px;';
+    lbl.style.cssText = 'width:100%;margin:26px 0 28px;';
     lbl.textContent = blk.label;
     holder.appendChild(lbl);
     for (let k = 0; k < blk.count; k++) {
       const i = blk.start + k;
-      holder.appendChild(makeMapNode(i, i < ROOMS.length));
+      const real = i < ROOMS.length;
+      if (real && ROOMS[i].alt) {
+        const fork = document.createElement('div');
+        fork.className = 'mapFork';
+        fork.appendChild(makeMapNode(i, real, 'a'));
+        fork.appendChild(makeMapNode(i, real, 'b'));
+        holder.appendChild(fork);
+      } else {
+        holder.appendChild(makeMapNode(i, real));
+      }
       if (k < blk.count - 1) {
         const c = document.createElement('div');
         c.className = 'mapLink';
@@ -4006,7 +4088,8 @@ renderMap();
 $('map').style.display = 'flex';
 if (location.search.includes('unlockall')) { SAVE.unlocked = ROOMS.length + 1; renderMap(); }
 const roomParam = location.search.match(/room=(\d+)/);
-if (roomParam) initRoom(Math.min(ROOMS.length, Math.max(0, +roomParam[1] - 1)));  // beyond last room → Endless
+if (roomParam) initRoom(Math.min(ROOMS.length, Math.max(0, +roomParam[1] - 1)), false,
+                        location.search.includes('alt=b') ? 'b' : null);  // beyond last room → Endless
 else {
   let goto = null;
   try { goto = sessionStorage.getItem('holdem-goto'); sessionStorage.removeItem('holdem-goto'); } catch (e) {}
