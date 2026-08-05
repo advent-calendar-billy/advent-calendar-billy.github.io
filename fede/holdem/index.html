@@ -115,40 +115,60 @@
     z-index: 10;
   }
   .pill {
-    background: rgba(18,16,12,.85);
+    background: linear-gradient(180deg, rgba(46,36,20,.92), rgba(14,11,6,.94));
     border: 2px solid var(--gold);
     border-radius: 999px;
     color: var(--gold);
-    font-weight: 800;
+    font-family: Georgia, serif;
+    font-weight: bold;
     font-size: 15px;
-    padding: 5px 14px;
-    display: flex; align-items: center; gap: 7px;
+    letter-spacing: .5px;
+    padding: 5px 15px;
+    display: flex; align-items: center; gap: 8px;
     pointer-events: auto;
+    box-shadow:
+      inset 0 1px 0 rgba(255,235,180,.28),
+      inset 0 -3px 7px rgba(0,0,0,.55),
+      0 3px 10px rgba(0,0,0,.45);
+    text-shadow: 0 1px 0 rgba(0,0,0,.6);
   }
   .pill .chipdot {
-    width: 16px; height: 16px; border-radius: 50%;
-    background: #c9473b;
+    width: 17px; height: 17px; border-radius: 50%;
+    background: radial-gradient(circle at 34% 30%, #e2685c, #a8342a);
     border: 2.5px solid var(--cream);
-    box-shadow: inset 0 0 0 1.5px #3b2415;
+    box-shadow: inset 0 0 0 1.5px #3b2415, 0 1px 3px rgba(0,0,0,.6);
   }
-  #stars { color: var(--gold); letter-spacing: 2px; font-size: 16px; }
-  #stars .off { color: #574a33; }
+  #stars { color: var(--gold); letter-spacing: 2px; font-size: 16px; text-shadow: 0 0 8px rgba(232,182,76,.6), 0 1px 0 rgba(0,0,0,.7); }
+  #stars .off { color: #4a3f28; text-shadow: none; }
   #waveLbl { color: var(--cream); }
   #waveLbl b { color: var(--gold); }
   .spacer { flex: 1; }
   .btn {
-    background: rgba(18,16,12,.85);
+    background: linear-gradient(180deg, rgba(46,36,20,.92), rgba(14,11,6,.94));
     border: 2px solid var(--gold);
     border-radius: 999px;
     color: var(--cream);
-    font-weight: 800;
+    font-family: Georgia, serif;
+    font-weight: bold;
     font-size: 15px;
-    padding: 6px 14px;
+    letter-spacing: .5px;
+    padding: 6px 15px;
     pointer-events: auto;
     cursor: pointer;
+    box-shadow:
+      inset 0 1px 0 rgba(255,235,180,.26),
+      inset 0 -3px 7px rgba(0,0,0,.5),
+      0 3px 10px rgba(0,0,0,.4);
+    text-shadow: 0 1px 0 rgba(0,0,0,.6);
   }
-  .btn:active { transform: scale(.94); }
-  .btn.primary { background: var(--gold); color: #3b2415; border-color: #b98d2f; }
+  .btn:active { transform: translateY(1px) scale(.97); box-shadow: inset 0 2px 6px rgba(0,0,0,.6); }
+  .btn.primary {
+    background: linear-gradient(180deg, #ffe9b0 2%, #e8b64c 45%, #b98d2f 100%);
+    color: #3b2415;
+    border-color: #8a6a25;
+    text-shadow: 0 1px 0 rgba(255,255,255,.45);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.6), inset 0 -3px 8px rgba(120,80,10,.45), 0 4px 12px rgba(0,0,0,.45);
+  }
 
   /* ── start-wave button ── */
   #startWave {
@@ -419,7 +439,7 @@
   .shopCard {
     flex: 0 0 auto;
     width: 70px;
-    background: rgba(18,16,12,.88);
+    background: linear-gradient(180deg, rgba(44,34,18,.94), rgba(12,9,5,.95));
     border: 2px solid #5a4626;
     border-radius: 12px;
     text-align: center;
@@ -427,11 +447,13 @@
     color: var(--cream);
     touch-action: none;
     cursor: grab;
+    box-shadow: inset 0 1px 0 rgba(255,235,180,.16), 0 3px 9px rgba(0,0,0,.4);
   }
-  .shopCard.afford { border-color: var(--gold); }
+  .shopCard.afford { border-color: var(--gold); box-shadow: inset 0 1px 0 rgba(255,235,180,.3), 0 0 12px rgba(232,182,76,.2), 0 3px 9px rgba(0,0,0,.4); }
+  .shopCard:active { transform: translateY(1px); }
   .shopCard:not(.afford) { opacity: .45; }
   .shopCard svg { width: 54px; height: 44px; display: block; margin: 0 auto; pointer-events: none; }
-  .shopCard .cost { font-size: 12px; color: var(--gold); font-weight: 800; }
+  .shopCard .cost { font-size: 12px; color: var(--gold); font-weight: 800; font-family: Georgia, serif; }
   .shopCard .nm { font-size: 9.5px; font-weight: 700; color: #d8cbb0; }
 
   /* ── portrait blocker ── */
