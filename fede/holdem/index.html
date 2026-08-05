@@ -3275,12 +3275,15 @@ function spawnEnemy(type) {
   const spriteG = svgEl('g', { transform: `scale(${E.scale},${E.scale * .84})` }, el);
   const gaitG = svgEl('g', { class: 'gait-' + (E.gait || (E.boss ? 'lumber' : type === 'elvis' ? 'groove' : 'waddle')) }, spriteG);
   svgEl('use', { href: '#' + E.sprite }, gaitG);
-  // rim light down the lit side
-  svgEl('use', {
-    href: '#' + E.sprite, fill: 'none',
-    stroke: 'rgba(255,240,205,.5)', 'stroke-width': 2.4,
-    'clip-path': 'inset(0 55% 0 0)', 'pointer-events': 'none', opacity: .55
-  }, gaitG);
+  // rim light down the lit side — bosses only (a second full sprite draw per guest
+  // is real phone cost, and at fodder scale the shadow already does the grounding)
+  if (E.boss) {
+    svgEl('use', {
+      href: '#' + E.sprite, fill: 'none',
+      stroke: 'rgba(255,240,205,.5)', 'stroke-width': 2.4,
+      'clip-path': 'inset(0 55% 0 0)', 'pointer-events': 'none', opacity: .55
+    }, gaitG);
+  }
   // health bar
   const barW = E.boss ? 46 : 28;
   const barG = svgEl('g', { transform: `translate(0,${-E.scale * 60 - 8})`, opacity: 0 }, el);
