@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hold'Em — Night 2 Report</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0b3d2e;
+    color: #f5ead1;
+    font-family: 'Avenir Next', 'Segoe UI', system-ui, sans-serif;
+    padding: 30px 14px 90px;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; }
+  h1 {
+    font-family: Georgia, serif;
+    color: #e8b64c;
+    text-align: center;
+    letter-spacing: 2px;
+    text-shadow: 0 0 16px rgba(232,182,76,.5);
+  }
+  .sub { text-align: center; color: #9fc4b2; font-size: 13px; margin: 8px 0 4px; }
+  .note {
+    background: rgba(18,16,12,.62);
+    border: 2px solid #5a4626;
+    border-radius: 12px;
+    padding: 15px 18px;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 20px 0;
+  }
+  .note b { color: #e8b64c; }
+  .note code {
+    background: #1d1811; color: #d8cbb0;
+    padding: 1px 5px; border-radius: 4px; font-size: 12.5px;
+  }
+  .card {
+    background: #101511;
+    border: 2px solid #23392e;
+    border-radius: 14px;
+    overflow: hidden;
+    margin: 26px 0;
+  }
+  .card img { width: 100%; display: block; }
+  .cap { padding: 13px 16px 4px; font-size: 14px; line-height: 1.55; color: #cfe0d6; }
+  .cap b { color: #e8b64c; }
+  .ask { color: #ffb35c; font-style: italic; }
+  textarea {
+    width: calc(100% - 24px);
+    margin: 10px 12px 6px;
+    background: #1d1811;
+    border: 2px solid #5a4626;
+    border-radius: 10px;
+    color: #f5ead1;
+    font-family: inherit;
+    font-size: 14px;
+    padding: 10px 12px;
+    min-height: 46px;
+    resize: vertical;
+  }
+  textarea:focus { outline: none; border-color: #e8b64c; }
+  .st { font-size: 11px; color: #57c26e; padding: 0 14px 12px; height: 22px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+  td { padding: 3px 8px; border-bottom: 1px solid #23392e; }
+  td:last-child { text-align: right; color: #9fc4b2; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>HOLD'EM · NIGHT 2</h1>
+  <div class="sub">everything below is live in the game — type under any shot, it saves as you go</div>
+
+  <div class="note">
+    <b>All your notes got built.</b> The map is an elevator, the vault is gone (guests now file
+    complaints at a staffed <b>GUEST SERVICES</b> desk), the slot machine is a musical cabinet,
+    towers and guests all got a real material pass, every emoji is gone, the campaign
+    <b>bifurcates</b> on three floors, and towers take a <b>targeting priority</b>. On top of that:
+    a title screen, floors 14–20, a new boss, and a balance harness that caught a genuine math bug.
+    <br><br>
+    <b>Play it at</b> <code>/fede/holdem/</code> — 20 floors + Endless. Handy while testing:
+    <code>?unlockall</code> opens every floor, <code>?room=7</code> jumps straight to one.
+  </div>
+
+  <div id="cards"></div>
+
+  <div class="note">
+    <b>The math bug, because it's the important one:</b> enemy HP was compounding two multipliers
+    (per-floor difficulty × your +5%-per-floor familiarity rule) to about <b>11×</b> by floor 20,
+    while tower damage only grew to about <b>4×</b>. The late floors were literally unwinnable — a
+    bot playing floor 20 died on <i>wave 1</i>. I flattened the difficulty curve, made every floor
+    ramp its opening waves in, then re-swept all 20 floors:
+    <table>
+      <tr><td>Floors 1–8</td><td>bot reaches wave 9–10</td></tr>
+      <tr><td>Floors 9–15</td><td>bot reaches wave 5–10</td></tr>
+      <tr><td>Floors 16–20</td><td>bot reaches wave 5–8</td></tr>
+    </table>
+    The bot is dumb (fixed towers, never re-places, never picks targeting), so a human should clear
+    comfortably where it dies. <span class="ask">Your play is still the real test — tell me the first
+    floor that made you sweat and the first that bored you.</span>
+  </div>
+
+  <div class="note">
+    <b>Open questions live in <code>questions.txt</code></b> (round 2 at the bottom): which theme for
+    floors 21–30 — <b>Poker Room</b>, <b>Fancy Bar</b>, or <b>The Theater</b> (my pick: it pays off
+    the Entertainer boss and his song, which you already greenlit); which <b>weird floor</b> to slot
+    between blocks; and what <b>comps</b> should actually buy.
+  </div>
+
+  <div class="note">Anything else — what to fix first, what to throw away:</div>
+  <div class="card"><textarea data-id="n2-overall" placeholder="overall notes…"></textarea><div class="st"></div></div>
+</div>
+
+<script>
+const SHOTS = [
+  ['01-title.png', '<b>Title card</b> — marquee sign with chasing bulbs, gold deco lettering, slow sunburst rays. Tap anywhere to enter. <span class="ask">Is this the tone you wanted for "official"?</span>'],
+  ['02-map.png', '<b>The map is an elevator.</b> Floor buttons are brass call-buttons on a panel; the three forks (4A/4B, 8A/8B, 18A/18B) show as stacked pairs with route names. Cleared floors keep your best star rating.'],
+  ['03-elevator.png', '<b>The ride between floors</b> — brushed brass doors with a deco diamond split by the seam, a floor indicator that ticks with a ding per floor and a pulsing travel arrow. <span class="ask">Long enough? Too long?</span>'],
+  ['04-towers.png', '<b>Towers, "way too flat" fixed.</b> One light direction for the whole game: wood gradients with grain arcs, beveled plinths with brass screws, rim lights, occlusion. The Cage has a lit teller window, the ATM has a glowing scanline screen, the Buffet is a steam table under heat lamps, the Rope bouncer has a bow tie and an earpiece.'],
+  ['05-ingame.png', '<b>In play</b> — brass HUD plates with engraved serif type, and the carpet now has a border, skirting shadow, sheen and weave texture instead of a flat tile.'],
+  ['06-slots.png', '<b>SHOWTIME!</b> — a real cabinet: lit marquee glass, recessed reel window, 3×3 with five paylines, coin tray, and a chrome lever that kicks when you spin. Symbols are hand-drawn from your list — Rocky Horror lips, Hedwig’s wig, the Hair sun, Audrey II, Wicked’s hat. No emoji anywhere. <span class="ask">Odds feel right once you play it?</span>'],
+  ['07-pitboss.png', '<b>New boss: THE PIT BOSS.</b> Suit, radio, earpiece. Every guest inside his teal comp-aura takes <b>half damage</b> until he goes down — a different problem from the Auditor (freezes your best tower) or Lady Luck (weakens towers near her).'],
+  ['08-corridor.png', '<b>Floor 4B · SERVICE CORRIDOR</b> — the first bifurcation. Bare concrete, one fast straight run, no Auditor, and hazard pay: you start with far more chips. 4A is the normal floor. Both rejoin at 5.'],
+  ['09-mezzanine.png', '<b>Floor 8B · THE MEZZANINE</b> — the other kind of branch: a long balcony loop giving you much more lane to work with, against guests who already survived the floor below.'],
+  ['10-crossing.png', '<b>Floor 15 · THE CROSSING</b> — two corridors cutting through each other, one doorway per lane (every entrance gets its own marquee now).'],
+  ['11-spiral.png', '<b>Floor 19 · THE SPIRAL</b> — one long coil tightening onto the desk at its heart. My favourite layout in the game.'],
+  ['12-shadows.png', '<b>Guests are grounded too</b> — same soft blurred shadow as the towers plus a lit edge, so nobody floats on the carpet. GUEST SERVICES sits where the vault used to: a clerk, a service bell that rings on every leak, and a live star placard.']
+];
+const holder = document.getElementById('cards');
+SHOTS.forEach(([f, cap]) => {
+  const d = document.createElement('div');
+  d.className = 'card';
+  d.innerHTML = `<img src="report2-assets/${f}" loading="lazy">
+    <div class="cap">${cap}</div>
+    <textarea data-id="n2-${f}" placeholder="feedback… (saves as you type)"></textarea>
+    <div class="st"></div>`;
+  holder.appendChild(d);
+});
+
+document.querySelectorAll('textarea').forEach(t => {
+  const id = t.dataset.id;
+  t.value = localStorage.getItem('fb-' + id) || '';
+  let deb;
+  t.addEventListener('input', () => {
+    localStorage.setItem('fb-' + id, t.value);
+    const st = t.parentNode.querySelector('.st');
+    st.textContent = 'saving…';
+    clearTimeout(deb);
+    deb = setTimeout(() => {
+      fetch('http://localhost:8766/fb', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, text: t.value })
+      }).then(() => { st.textContent = 'saved ✓'; })
+        .catch(() => { st.textContent = 'saved in this browser ✓'; });
+    }, 700);
+  });
+});
+</script>
+</body>
+</html>
