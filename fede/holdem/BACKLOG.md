@@ -46,7 +46,8 @@
 - [x] Loan Shark (room 1 wave 10)
 - [x] The Auditor — boss, freezes priciest tower (UNDER AUDIT), room 4 wave 10
 - [x] Lady Luck — boss, jinx aura (towers deal 30% dmg inside), Room 5 finale
-- [ ] 6+ more bosses to brainstorm WITH USER (interview style)
+- [x] The Pit Boss — comp aura halves damage to nearby guests
+- [ ] 5+ more bosses (Billy greenlit names: Magician, House Photographer, The Entertainer (needs synth song), Health Inspector, The Whale's Wife, The Regulator, The Owner)
 
 ## CAMPAIGN / META
 - [x] Between-floor SLOT MACHINE (approved spec): costs chips, ≤10 plays/intermission, EV low but positive,
@@ -56,7 +57,7 @@
 - [x] Room progression: fresh build per room, leftover chips → meta-currency (approved)
 - [x] Comps shop v1 on map (Bigger Bankroll, House Discount) — PROVISIONAL, needs user approval
 - [x] Rooms 2-10 built — SLOTS PIT BLOCK COMPLETE (triple-fork R7, forked-serpentine R8, RNG-layout R9, gauntlet R10)
-- [x] Roulette Halls block (renamed per Billy — Fede doesn’t play blackjack) STARTED (rooms 11-13, green felt family, block-aware map) — 14-20 + later blocks (roulette halls, poker room, buffet, pool deck, theater, suite, vault) pending
+- [x] ROULETTE HALLS BLOCK COMPLETE (floors 11-20: twin-loop, crossing X, wheel ring, split hall, 3-way converge, spiral, finale) + 18A/18B Counting Room fork — later blocks (poker room, buffet, pool deck, THEATER for the Entertainer, suite, vault) pending
 - [x] Branching floors: 4A/4B (Main Floor vs Service Corridor) and 8A/8B (Main vs Mezzanine) fork and rejoin; map draws the fork
 - [x] localStorage campaign save (which room, meta-currency, unlocks)
 
