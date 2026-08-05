@@ -19,7 +19,7 @@
 - [ ] Early-wave-call bonus chips (call next wave while current still alive)
 - [x] Auto-start toggle for waves (mobile QoL)
 - [x] Mid-room save/resume: autosaves every wave, map shows a resume node
-- [x] Endless mode: ∞ node on map after clearing room 3 — 50 generated scaling waves
+- [x] Endless mode: genuinely endless (waves generated on demand, HUD reads WAVE n/∞), banks comps when the run ends, tracks best wave
 
 ## TOWERS — approved, not yet built
 - [x] ATM Row — skims fee from enemies walking past; wants dangerous placement

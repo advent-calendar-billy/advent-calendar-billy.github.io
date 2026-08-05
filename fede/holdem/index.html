@@ -2847,7 +2847,9 @@ const SFX = {
 /* ══════════ UI helpers ══════════ */
 function updateHUD() {
   $('chipsLbl').textContent = Math.floor(G.chips).toLocaleString();
-  $('waveNum').textContent = Math.max(1, Math.min(G.wave + (G.running ? 1 : 0), WAVES.length));
+  $('waveNum').textContent = ROOM >= ROOMS.length
+    ? Math.max(1, G.wave + (G.running ? 1 : 0))
+    : Math.max(1, Math.min(G.wave + (G.running ? 1 : 0), WAVES.length));
   let s = '';
   for (let i = 0; i < 5; i++) s += `<span${i < G.stars ? '' : ' class="off"'}>★</span>`;
   $('stars').innerHTML = s;
@@ -3389,8 +3391,11 @@ function killEnemy(e, leaked) {
 }
 
 /* ══════════ WAVES ══════════ */
+const isEndless = () => ROOM >= ROOMS.length;
 function startWave() {
   if (G.running || G.over) return;
+  // the Endless Pit never runs out of night
+  while (isEndless() && G.wave >= WAVES.length - 2) WAVES.push(endlessWave(WAVES.length));
   // queue infoboxes for unseen types in this wave
   const types = [...new Set(WAVES[G.wave].map(s => s[0]))].filter(t => !G.seen[t]);
   const launch = () => {
@@ -3425,6 +3430,7 @@ $('startWave').addEventListener('pointerdown', ev => { ev.stopPropagation(); sta
 
 function showNextWave() {
   const nw = $('nextWave');
+  if (isEndless()) while (G.wave >= WAVES.length) WAVES.push(endlessWave(WAVES.length));
   if (G.wave >= WAVES.length || G.over) { nw.style.display = 'none'; return; }
   const counts = {};
   WAVES[G.wave].forEach(([type, count]) => { counts[type] = (counts[type] || 0) + count; });
@@ -3464,9 +3470,13 @@ function endWave() {
   });
   G.chips += income;
   probeReport('running');
+  if (isEndless()) {
+    SAVE.best = Math.max(SAVE.best || 0, G.wave);
+    saveSave();
+  }
   float(560, 100, `WAVE CLEAR +${income}`, '#57c26e');
   updateHUD();
-  if (G.wave >= WAVES.length) return win();
+  if (!isEndless() && G.wave >= WAVES.length) return win();
   saveMid();
   $('startWave').style.display = 'block';
   showNextWave();
@@ -3488,11 +3498,22 @@ function lose() {
   G.over = true;
   probeReport('LOSE');
   delete SAVE.mid;
-  if (ROOM >= ROOMS.length) SAVE.best = Math.max(SAVE.best || 0, G.wave);
+  let banked = 0;
+  if (isEndless()) {
+    SAVE.best = Math.max(SAVE.best || 0, G.wave);
+    banked = Math.floor(G.chips / 10);       // an endless run still pays its comps
+    SAVE.comps += banked;
+  }
   saveSave();
-  showModal('☆ ☆ ☆ ☆ ☆', 'Reputation Ruined', null,
-    'Too many guests reached GUEST SERVICES and filed complaints. The review sites are merciless. The casino goes dark... but the house always gets another hand.',
-    `YOU HELD UNTIL WAVE ${Math.min(G.wave + 1, WAVES.length)} OF ${WAVES.length}`, 'TRY AGAIN', () => location.reload());
+  showModal('☆ ☆ ☆ ☆ ☆', isEndless() ? 'The Night Finally Ends' : 'Reputation Ruined',
+    null,
+    isEndless()
+      ? 'The floor never emptied and the complaints piled up until the board went dark. The house counts what you held onto and opens again tomorrow.'
+      : 'Too many guests reached GUEST SERVICES and filed complaints. The review sites are merciless. The casino goes dark... but the house always gets another hand.',
+    isEndless()
+      ? `SURVIVED ${G.wave} WAVES · BEST ${SAVE.best} · BANKED ${banked} COMPS`
+      : `YOU HELD UNTIL WAVE ${Math.min(G.wave + 1, WAVES.length)} OF ${WAVES.length}`,
+    'TRY AGAIN', () => location.reload());
 }
 
 /* ══════════ COMBAT ══════════ */
@@ -4045,23 +4066,25 @@ $('quitBtn').addEventListener('pointerdown', ev => {
 });
 
 /* ══════════ ROOMS / MAP ══════════ */
-function makeEndless() {
-  const waves = [];
-  const pool = ['retiree','tourist','drunk','mojito','elvis','clipper','grandma','influencer','counter','regular'];
-  for (let w = 0; w < 50; w++) {
-    const wave = [];
-    const streams = 2 + Math.min(3, Math.floor(w / 6));
-    for (let k = 0; k < streams; k++) {
-      const t = pool[Math.floor(Math.random() * pool.length)];
-      wave.push([t, 6 + Math.floor(w * 1.2), Math.max(.25, 1.4 - w * .03)]);
-    }
-    if (w % 5 === 4) {
-      const boss = w % 20 === 19 ? 'pitboss' : w % 15 === 14 ? 'lady' : w % 10 === 9 ? 'shark' : 'whale';
-      wave.push([boss, 1 + Math.floor(w / 12), 15]);
-    }
-    if (w > 6 && Math.random() < .4) wave.push(['honey', 2 + Math.floor(w / 8), 5]);
-    waves.push(wave);
+const ENDLESS_POOL = ['retiree','tourist','drunk','mojito','elvis','clipper','grandma','influencer','counter','regular'];
+function endlessWave(w) {
+  const wave = [];
+  const streams = 2 + Math.min(3, Math.floor(w / 6));
+  for (let k = 0; k < streams; k++) {
+    const t = ENDLESS_POOL[Math.floor(Math.random() * ENDLESS_POOL.length)];
+    wave.push([t, 6 + Math.floor(w * 1.1), Math.max(.24, 1.4 - w * .028)]);
   }
+  if (w % 5 === 4) {
+    const boss = w % 20 === 19 ? 'pitboss' : w % 15 === 14 ? 'lady' : w % 10 === 9 ? 'shark' : 'whale';
+    wave.push([boss, 1 + Math.floor(w / 12), 15]);
+  }
+  if (w > 6 && Math.random() < .4) wave.push(['honey', 2 + Math.floor(w / 8), 5]);
+  return wave;
+}
+function makeEndless() {
+  // seeded with a handful; startWave() keeps extending it forever
+  const waves = [];
+  for (let w = 0; w < 6; w++) waves.push(endlessWave(w));
   return { name: 'The Endless Pit', hpMul: 1.45, chips: 500,
     carpet: ['#1d1c3a', '#28264a', '#141330'],
     intro: 'After hours, the doors never lock. The crowds keep coming, bigger every wave, until the reputation board finally goes dark. How long can you keep five stars alive?',
@@ -4146,7 +4169,7 @@ function initRoom(i, resume, altKey) {
   $('startWave').style.display = 'block';
   showNextWave();
   if (i === 0 && !resume) $('dragHint').style.display = 'block';
-  $('waveTot').textContent = WAVES.length;
+  $('waveTot').textContent = i >= ROOMS.length ? '∞' : WAVES.length;
   if (resume && SAVE.mid && SAVE.mid.room === i && (SAVE.mid.alt || null) === (G.alt || null)) {
     const M = SAVE.mid;
     G.wave = M.wave;
