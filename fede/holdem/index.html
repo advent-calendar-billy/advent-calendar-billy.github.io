@@ -596,9 +596,20 @@
         <stop offset="100%" stop-color="#000" stop-opacity=".42"/>
       </radialGradient>
       <radialGradient id="lightPool" cx="50%" cy="50%" r="50%">
-        <stop offset="0%" stop-color="#ffdf9e" stop-opacity=".14"/>
+        <stop offset="0%" stop-color="#ffdf9e" stop-opacity=".22"/>
+        <stop offset="55%" stop-color="#ffdf9e" stop-opacity=".09"/>
         <stop offset="100%" stop-color="#ffdf9e" stop-opacity="0"/>
       </radialGradient>
+      <linearGradient id="floorSheen" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#fff" stop-opacity=".07"/>
+        <stop offset="34%" stop-color="#fff" stop-opacity="0"/>
+        <stop offset="62%" stop-color="#000" stop-opacity="0"/>
+        <stop offset="100%" stop-color="#000" stop-opacity=".14"/>
+      </linearGradient>
+      <pattern id="weave" width="9" height="9" patternUnits="userSpaceOnUse">
+        <circle cx="2" cy="2" r=".8" fill="rgba(255,255,255,.05)"/>
+        <circle cx="6.5" cy="6.5" r=".8" fill="rgba(0,0,0,.06)"/>
+      </pattern>
       <radialGradient id="steel" cx="38%" cy="34%" r="80%">
         <stop offset="0%" stop-color="#c9d0d8"/>
         <stop offset="60%" stop-color="#8d959f"/>
@@ -1303,15 +1314,24 @@
 
     <!-- floor -->
     <rect width="1120" height="630" fill="url(#carpet)"/>
-    <ellipse cx="330" cy="220" rx="400" ry="270" fill="url(#lightPool)"/>
-    <ellipse cx="800" cy="420" rx="400" ry="270" fill="url(#lightPool)"/>
+    <rect width="1120" height="630" fill="url(#weave)"/>
+    <rect width="1120" height="630" fill="url(#floorSheen)"/>
+    <ellipse cx="330" cy="220" rx="420" ry="290" fill="url(#lightPool)"/>
+    <ellipse cx="800" cy="420" rx="420" ry="290" fill="url(#lightPool)"/>
+    <!-- hotel-carpet border inset -->
+    <g fill="none" pointer-events="none">
+      <rect x="26" y="26" width="1068" height="578" rx="10" stroke="rgba(30,12,6,.45)" stroke-width="7"/>
+      <rect x="26" y="26" width="1068" height="578" rx="10" stroke="#d9a94f" stroke-width="2" opacity=".5"/>
+      <rect x="38" y="38" width="1044" height="554" rx="8" stroke="#d9a94f" stroke-width="1.4" opacity=".3"/>
+    </g>
 
     <!-- lane -->
     <g id="laneG"></g>
     <path id="lanePath" d="M -40 130 C 200 130, 460 130, 620 130 C 740 130, 740 300, 620 300 C 440 300, 300 300, 230 300 C 115 300, 115 470, 230 470 C 430 470, 640 470, 1160 470" fill="none" stroke="none"/>
 
-    <!-- room frame -->
-    <rect x="7" y="7" width="1106" height="616" rx="14" fill="none" stroke="#d9a94f" stroke-width="3" opacity=".3" pointer-events="none"/>
+    <!-- room frame + skirting -->
+    <rect x="13" y="13" width="1094" height="604" rx="12" fill="none" stroke="rgba(20,8,4,.55)" stroke-width="12" pointer-events="none"/>
+    <rect x="7" y="7" width="1106" height="616" rx="14" fill="none" stroke="#d9a94f" stroke-width="3" opacity=".38" pointer-events="none"/>
 
     <!-- entrance -->
     <g id="entryG">
@@ -1424,7 +1444,7 @@
   <div class="pill" id="stars"></div>
   <div class="pill" id="waveLbl">WAVE <b id="waveNum">0</b>/<span id="waveTot">10</span></div>
   <div class="spacer"></div>
-  <button class="btn" id="sndBtn">🔊</button>
+  <button class="btn" id="sndBtn">♪</button>
   <button class="btn" id="autoBtn">AUTO</button>
   <button class="btn" id="speedBtn">×1</button>
   <button class="btn" id="pauseBtn">⏸</button>
@@ -1507,6 +1527,7 @@
     <h2 style="font-family:Georgia,serif; color:var(--gold); letter-spacing:2px;">PAUSED</h2>
     <div style="display:flex; gap:10px; justify-content:center; margin-top:14px;">
       <button class="btn primary" id="resumeBtn">RESUME ▸</button>
+      <button class="btn" id="restartBtn">RESTART ROOM</button>
       <button class="btn" id="quitBtn">QUIT TO MAP</button>
     </div>
     <div style="font-size:11px; color:#9c8757; margin-top:10px;">progress autosaves after every wave</div>
@@ -1514,7 +1535,7 @@
 </div>
 
 <div id="rotate">
-  <div class="ph">📱</div>
+  <div class="ph" style="width:34px;height:58px;border:4px solid #f5ead1;border-radius:9px;"></div>
   <div style="font-size:20px; font-weight:800;">Rotate your phone</div>
   <div style="opacity:.7">Hold'Em plays in landscape — the floor is wide.</div>
 </div>
@@ -1648,8 +1669,8 @@ const TTYPES = {
     blurb:'Drinks on the house', menu:'Towers +25% speed',
     up: { cost:170, menu:'+40% attack speed' } },
   catapult: { name:'Chip Catapult', sprite:'twCatapult', cost:260, range:200, cd:2.8, scale:.68,
-    blurb:'Throws money at it', menu:'8🪙/shot · big AoE',
-    up: { cost:220, menu:'12🪙/shot · huge AoE' } }
+    blurb:'Throws money at it', menu:'8 chips/shot · big AoE',
+    up: { cost:220, menu:'12 chips/shot · huge AoE' } }
 };
 
 /* footprint radius per tower type (for placement collision) */
@@ -2240,7 +2261,7 @@ function buildShop(){
     card.dataset.cost = effCost(T);
     card.innerHTML =
       `<svg viewBox="-62 -58 124 108"><use href="#${T.sprite}"/></svg>` +
-      `<div class="cost">🪙 ${effCost(T)}</div><div class="nm">${T.name}</div>`;
+      `<div class="cost">◉ ${effCost(T)}</div><div class="nm">${T.name}</div>`;
     bar.appendChild(card);
 
     card.addEventListener('pointerdown', ev => {
@@ -2323,7 +2344,7 @@ function openSheetForTower(tower) {
     const b = document.createElement('div');
     b.className = 'shopItem' + (G.chips >= T.up.cost ? ' afford' : '');
     b.dataset.cost = T.up.cost;
-    b.innerHTML = `<div class="nm">UPGRADE ★</div><div class="cost">🪙 ${T.up.cost}</div><div class="sub">${T.up.menu}</div>`;
+    b.innerHTML = `<div class="nm">UPGRADE ★</div><div class="cost">◉ ${T.up.cost}</div><div class="sub">${T.up.menu}</div>`;
     b.addEventListener('pointerdown', ev => {
       ev.stopPropagation();
       if (G.chips < T.up.cost) return;
@@ -2347,7 +2368,7 @@ function openSheetForTower(tower) {
   const s = document.createElement('div');
   const refund = Math.floor((T.cost + (tower.lvl === 2 ? T.up.cost : 0)) * .7);
   s.className = 'shopItem afford';
-  s.innerHTML = `<div class="nm">SELL</div><div class="cost">🪙 +${refund}</div><div class="sub">70% back</div>`;
+  s.innerHTML = `<div class="nm">SELL</div><div class="cost">◉ +${refund}</div><div class="sub">70% back</div>`;
   s.addEventListener('pointerdown', ev => {
     ev.stopPropagation();
     SFX.sell();
@@ -2541,7 +2562,7 @@ function killEnemy(e, leaked) {
     e.mate.enraged = true;
     e.mate.mate = null;
     const [mx, my] = posAtE(e.mate);
-    float(mx, my - 34, '💔!!', '#e05a7a');
+    float(mx, my - 34, 'WIDOWED!', '#e05a7a');
   }
   e.el.remove();
   G.enemies = G.enemies.filter(x => x !== e);
@@ -2833,7 +2854,7 @@ function update(dt) {
       e.barG.setAttribute('opacity', 1);
       e.hpEl.setAttribute('width', Math.max(0, (e.barW - 3) * e.hp / e.hpMax));
       e.sickT = (e.sickT || 0) + dt;
-      if (e.sickT > 1.4) { e.sickT = 0; float(ex, ey - 30, '🤢', '#9aa86a'); }
+      if (e.sickT > 1.4) { e.sickT = 0; float(ex, ey - 30, '~urp~', '#9aa86a'); }
     }
     let slow = 1;
     for (const t of G.towers) {
@@ -3177,7 +3198,7 @@ $('speedBtn').addEventListener('pointerdown', ev => {
 $('sndBtn').addEventListener('pointerdown', ev => {
   ev.stopPropagation();
   sndOn = !sndOn;
-  $('sndBtn').textContent = sndOn ? '🔊' : '🔇';
+  $('sndBtn').textContent = sndOn ? '♪' : '−';
   SAVE.prefs = { snd: sndOn, auto: G.auto, speed: G.speed };
   saveSave();
 });
@@ -3201,6 +3222,13 @@ $('resumeBtn').addEventListener('pointerdown', ev => {
   $('pauseBtn').textContent = '⏸';
   $('pauseUI').style.display = 'none';
 });
+$('restartBtn').addEventListener('pointerdown', ev => {
+  ev.stopPropagation();
+  delete SAVE.mid;
+  saveSave();
+  try { sessionStorage.setItem('holdem-goto', String(ROOM + 1)); } catch (e) {}
+  location.reload();
+});
 $('quitBtn').addEventListener('pointerdown', ev => {
   ev.stopPropagation();
   location.reload();
@@ -3223,7 +3251,7 @@ function makeEndless() {
   }
   return { name: 'The Endless Pit', hpMul: 1.45, chips: 500,
     carpet: ['#1d1c3a', '#28264a', '#141330'],
-    intro: 'No closing time tonight. Fifty generated waves, each meaner than the last. How deep can the house hold?',
+    intro: 'After hours, the doors never lock. The crowds keep coming, bigger every wave, until the reputation board finally goes dark. How long can you keep five stars alive?',
     variants: ROOMS.flatMap(r => r.variants),
     waves };
 }
@@ -3311,7 +3339,7 @@ function makeMapNode(i, real) {
 }
 
 function renderMap() {
-  $('mapComps').textContent = `🎟 ${SAVE.comps} COMPS`;
+  $('mapComps').textContent = `${SAVE.comps} COMPS`;
   const holder = $('mapNodes');
   holder.innerHTML = '';
   const BLOCKS = [
@@ -3350,7 +3378,7 @@ function renderMap() {
     div.innerHTML =
       `<div style="font-weight:800">${u.name} <span style="color:var(--gold)">${'★'.repeat(l)}</span></div>` +
       `<div style="font-size:11px;color:#b7a98a">${u.desc}</div>` +
-      `<div style="font-size:12.5px;color:var(--gold);font-weight:800">${maxed ? 'MAXED' : '🎟 ' + c}</div>`;
+      `<div style="font-size:12.5px;color:var(--gold);font-weight:800">${maxed ? 'MAXED' : c + ' COMPS'}</div>`;
     if (!maxed) div.addEventListener('pointerdown', () => {
       if (SAVE.comps < c) return;
       SAVE.comps -= c;
@@ -3474,7 +3502,7 @@ function slotInfo(msg) {
     (SLOT.free > 0 ? `FREE GAMES ${SLOT.free}` : `SPINS LEFT ${SLOT.spins}`);
   if (msg) $('slotMsg').textContent = msg;
   const can = !SLOT.spinning && (SLOT.free > 0 || (SLOT.spins > 0 && G.chips >= SLOT.COST));
-  $('cashBtn').textContent = 'CASH OUT ▸ 🎟 +' + Math.floor(G.chips / 10);
+  $('cashBtn').textContent = 'CASH OUT ▸ +' + Math.floor(G.chips / 10) + ' COMPS';
   $('spinBtn').style.opacity = can ? 1 : .4;
   $('spinBtn').textContent = SLOT.free > 0 ? 'SPIN · FREE' : 'SPIN · ' + SLOT.COST;
 }
@@ -3547,7 +3575,7 @@ $('cashBtn').addEventListener('pointerdown', ev => {
 /* ══════════ BOOT ══════════ */
 if (SAVE.prefs) {
   sndOn = SAVE.prefs.snd !== false;
-  $('sndBtn').textContent = sndOn ? '🔊' : '🔇';
+  $('sndBtn').textContent = sndOn ? '♪' : '−';
   G.auto = !!SAVE.prefs.auto;
   $('autoBtn').classList.toggle('primary', G.auto);
   G.speed = SAVE.prefs.speed || 1;
@@ -3558,7 +3586,12 @@ renderMap();
 $('map').style.display = 'flex';
 if (location.search.includes('unlockall')) { SAVE.unlocked = ROOMS.length + 1; renderMap(); }
 const roomParam = location.search.match(/room=(\d+)/);
-if (roomParam) initRoom(Math.min(ROOMS.length, Math.max(0, +roomParam[1] - 1)));  // N=11 → Endless
+if (roomParam) initRoom(Math.min(ROOMS.length, Math.max(0, +roomParam[1] - 1)));  // beyond last room → Endless
+else {
+  let goto = null;
+  try { goto = sessionStorage.getItem('holdem-goto'); sessionStorage.removeItem('holdem-goto'); } catch (e) {}
+  if (goto) initRoom(Math.min(ROOMS.length, Math.max(0, +goto - 1)));
+}
 
 /* offline support */
 if ('serviceWorker' in navigator && location.protocol.startsWith('http') && !location.search.includes('nosw')) {
