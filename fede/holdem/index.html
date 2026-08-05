@@ -2193,7 +2193,7 @@ SAVE.upg = SAVE.upg || {};
 const effCost = T => Math.round(T.cost * (1 - .05 * (SAVE.upg.cheap || 0)));
 
 const ROOMS = [
-  { name: 'Slots Pit 1', hpMul: 1, chips: 380,
+  { name: 'Slots Pit 1', hpMul: 1.0, chips: 380,
     intro: 'Drag towers from the shelf onto the carpet — green means it fits. Hold all five stars and survive 10 waves.',
     variants: [
       { entryY: 130, vault: [1046, 470], killOffset: 112,
@@ -2213,7 +2213,7 @@ const ROOMS = [
       [['grandma',8,1.4],['clipper',6,1.3],['elvis',8,1.0],['influencer',2,9]],
       [['shark',1,0],['grandma',6,1.6],['whale',1,26]]
     ] },
-  { name: 'Slots Pit 2', hpMul: 1.29, chips: 420,
+  { name: 'Slots Pit 2', hpMul: 1.06, chips: 420,
     intro: 'The corridor FORKS tonight — each guest picks a side on a whim. Cover both, or gamble on one. New faces: The Drunk weaves, Mojito Guy has a temper.',
     variants: [
       { entryY: 300, vault: [1046, 300], killOffset: 112,
@@ -2239,7 +2239,7 @@ const ROOMS = [
       [['mojito',10,.9],['grandma',8,1.2],['influencer',2,9],['counter',3,7]],
       [['whale',2,18],['grandma',8,1.2],['elvis',10,.8]]
     ] },
-  { name: 'Slots Pit 3', carpet: ['#9c2b26','#b23a30','#872420'],  hpMul: 1.63, chips: 460,
+  { name: 'Slots Pit 3', carpet: ['#9c2b26','#b23a30','#872420'],  hpMul: 1.12, chips: 460,
     intro: 'The vault sits exposed mid-floor and the corridor splits around it. Everything the Slots Pit has walks — and the Loan Shark collects at the end.',
     variants: [
       { entryY: 130, vault: [560, 360], killOffset: 30,
@@ -2265,7 +2265,7 @@ const ROOMS = [
       [['whale',2,15],['grandma',10,1.0],['mojito',10,.8]],
       [['shark',1,0],['whale',2,20],['influencer',2,12],['grandma',8,1.2]]
     ] },
-  { name: 'Slots Pit 4', carpet: ['#953041','#a83e4e','#7f2836'],  hpMul: 2.16, chips: 520,
+  { name: 'Slots Pit 4', carpet: ['#953041','#a83e4e','#7f2836'],  hpMul: 1.18, chips: 520,
     intro: 'The pit boss called Corporate. The Regular knows the staff doors, and at the end of the night THE AUDITOR walks the floor — your best tower freezes while he lives.',
     variants: [
       { entryY: 470, vault: [1046, 470], killOffset: 112,
@@ -2294,7 +2294,7 @@ const ROOMS = [
     alt: {
       name: 'Service Corridor',
       sub: 'BACK OF HOUSE',
-      hpMul: 2.16, chips: 690,
+      hpMul: 1.12, chips: 690,
       carpet: ['#4c4a42', '#585549', '#3a382f'],
       intro: 'The staff shortcut: bare concrete, a straight run, and no time to think. They arrive FAST — but management pays hazard money, and the Auditor never comes down here.',
       variants: [
@@ -2316,7 +2316,7 @@ const ROOMS = [
         [['shark',1,0],['grandma',14,.7],['whale',2,14]]
       ]
     } },
-  { name: 'Slots Pit 5', carpet: ['#822d52','#94395f','#6e2545'],  hpMul: 2.63, chips: 560,
+  { name: 'Slots Pit 5', carpet: ['#822d52','#94395f','#6e2545'],  hpMul: 1.24, chips: 560,
     intro: 'The corridor coils around the vault like a spring. Tonight LADY LUCK herself walks the floor — towers inside her shimmer go cold. End of the Slots Pit.',
     variants: [
       { entryY: 130, vault: [558, 352], killOffset: 25,
@@ -2340,7 +2340,7 @@ const ROOMS = [
       [['whale',3,10],['clipper',12,.8],['influencer',3,6]],
       [['lady',1,0],['shark',1,25],['grandma',12,.9]]
     ] },
-  { name: 'Slots Pit 6', carpet: ['#6e2f5e','#7d3a6c','#5c2650'],  hpMul: 2.82, chips: 600,
+  { name: 'Slots Pit 6', carpet: ['#6e2f5e','#7d3a6c','#5c2650'],  hpMul: 1.3, chips: 600,
     intro: 'The fork is back, and the crowd is meaner. Management sends The Auditor to close the night.',
     variants: [
       { entryY: 300, vault: [1046, 430], killOffset: 112,
@@ -2366,7 +2366,7 @@ const ROOMS = [
       [['whale',3,9],['mojito',14,.6]],
       [['auditor',1,0],['whale',2,16],['grandma',12,.9],['regular',10,.9]]
     ] },
-  { name: 'Slots Pit 7', carpet: ['#5e3070','#6d3c80','#4e2760'],  hpMul: 2.54, chips: 630,
+  { name: 'Slots Pit 7', carpet: ['#5e3070','#6d3c80','#4e2760'],  hpMul: 1.36, chips: 630,
     intro: 'THREE corridors tonight. Every guest picks one on a whim — nowhere is safe to skimp.',
     variants: [
       { entryY: 300, vault: [1046, 300], killOffset: 112,
@@ -2388,7 +2388,7 @@ const ROOMS = [
       [['counter',10,1.1],['grandma',14,.8],['influencer',4,5]],
       [['auditor',2,20],['whale',2,14],['mojito',16,.5]]
     ] },
-  { name: 'Slots Pit 8', carpet: ['#4a2f77','#573a86','#3d2565'],  hpMul: 3.27, chips: 660,
+  { name: 'Slots Pit 8', carpet: ['#4a2f77','#573a86','#3d2565'],  hpMul: 1.42, chips: 660,
     intro: 'A long serpentine whose middle run splits in two. Lady Luck herself takes a stroll mid-shift.',
     variants: [
       { entryY: 150, vault: [1046, 470], killOffset: 112,
@@ -2412,7 +2412,7 @@ const ROOMS = [
     alt: {
       name: 'The Mezzanine',
       sub: 'UPSTAIRS BALCONY',
-      hpMul: 3.9, chips: 700,
+      hpMul: 1.49, chips: 700,
       carpet: ['#3a2a5e', '#46346e', '#2b1f47'],
       intro: 'One flight up: a long balcony loop over the pit. More lane to work with, but everything that walks it has already survived the floor below.',
       variants: [
@@ -2432,7 +2432,7 @@ const ROOMS = [
         [['shark',1,0],['lady',1,22],['whale',3,9]]
       ]
     } },
-  { name: 'Slots Pit 9', carpet: ['#3a2f80','#46398f','#2f256d'],  hpMul: 3.52, chips: 690,
+  { name: 'Slots Pit 9', carpet: ['#3a2f80','#46398f','#2f256d'],  hpMul: 1.48, chips: 690,
     intro: 'The floor plan changes nightly now. Everything walks, and the bosses walk with them.',
     variants: [
       { entryY: 300, vault: [1046, 430], killOffset: 112,
@@ -2458,7 +2458,7 @@ const ROOMS = [
       [['counter',12,.9],['grandma',16,.7],['influencer',5,4]],
       [['lady',1,0],['shark',1,22],['whale',2,10]]
     ] },
-  { name: 'Slots Pit 10', carpet: ['#2d2a6e','#383579','#23215c'],  hpMul: 3.87, chips: 720,
+  { name: 'Slots Pit 10', carpet: ['#2d2a6e','#383579','#23215c'],  hpMul: 1.54, chips: 720,
     intro: 'End of the block. The WHOLE management team walks the floor tonight — hold the vault and the Blackjack Rooms open next.',
     variants: [
       { entryY: 130, vault: [558, 352], killOffset: 25,
@@ -2483,7 +2483,7 @@ const ROOMS = [
       [['lady',1,0],['whale',3,8],['regular',14,.7]],
       [['shark',1,0],['lady',1,20],['auditor',1,35],['whale',2,12]]
     ] },
-  { name: 'Roulette Hall 1', hpMul: 3.93, chips: 750, block: 1,
+  { name: 'Roulette Hall 1', hpMul: 1.6, chips: 750, block: 1,
     carpet: ['#1e6b4a', '#2a7d58', '#175a3d'],
     intro: 'A new block: the ROULETTE HALLS. Green felt, spinning wheels wall to wall — and the crowd up here bets bigger and hits harder.',
     variants: [
@@ -2504,7 +2504,7 @@ const ROOMS = [
       [['counter',12,.85],['grandma',16,.7],['honey',7,3]],
       [['shark',1,0],['whale',3,8],['influencer',5,4]]
     ] },
-  { name: 'Roulette Hall 2', hpMul: 3.27, chips: 780, block: 1,
+  { name: 'Roulette Hall 2', hpMul: 1.66, chips: 780, block: 1,
     carpet: ['#195e50', '#237060', '#124a3f'],
     intro: 'The wheels run hotter and the corridor splits over the felt. Cover both sides of the hall.',
     variants: [
@@ -2531,7 +2531,7 @@ const ROOMS = [
       [['auditor',2,14],['whale',3,7]],
       [['auditor',2,18],['lady',1,25],['grandma',18,.65]]
     ] },
-  { name: 'Roulette Hall 3', hpMul: 4.01, chips: 810, block: 1,
+  { name: 'Roulette Hall 3', hpMul: 1.72, chips: 810, block: 1,
     carpet: ['#14524d', '#1d635d', '#0e403c'],
     intro: 'The high-limit hall: one great ring around the wheelhouse, the vault dead ahead in the middle of it all.',
     variants: [
@@ -2550,7 +2550,7 @@ const ROOMS = [
       [['auditor',3,12],['grandma',20,.6]],
       [['shark',1,0],['lady',1,18],['auditor',1,32],['whale',3,8]]
     ] },
-  { name: 'Roulette Hall 4', hpMul: 4.05, chips: 840, block: 1,
+  { name: 'Roulette Hall 4', hpMul: 1.78, chips: 840, block: 1,
     carpet: ['#11504e', '#1a615e', '#0b3d3a'],
     intro: 'Two wheels, two loops, one crowd splitting between them. Whatever you leave uncovered, they will find.',
     variants: [
@@ -2576,7 +2576,7 @@ const ROOMS = [
       [['counter',14,.75],['mojito',20,.42]],
       [['shark',1,0],['whale',3,7],['influencer',6,3.2]]
     ] },
-  { name: 'Roulette Hall 5', hpMul: 4.1, chips: 870, block: 1,
+  { name: 'Roulette Hall 5', hpMul: 1.84, chips: 870, block: 1,
     carpet: ['#0f4a52', '#175b64', '#0a3940'],
     intro: 'The crossing. Two corridors cut straight through each other over the felt — and tonight LADY LUCK and the AUDITOR work the same shift.',
     variants: [
@@ -2598,7 +2598,7 @@ const ROOMS = [
       [['counter',15,.7],['clipper',20,.42],['influencer',6,3]],
       [['lady',1,0],['auditor',1,22],['whale',3,7],['grandma',18,.62]]
     ] },
-  { name: 'Roulette Hall 6', hpMul: 4.15, chips: 900, block: 1,
+  { name: 'Roulette Hall 6', hpMul: 1.9, chips: 900, block: 1,
     carpet: ['#0d4459', '#14566d', '#083446'],
     intro: 'The great wheel room: one enormous ring around the pit, with a spur that cuts across the middle for anyone in a hurry.',
     variants: [
@@ -2620,7 +2620,7 @@ const ROOMS = [
       [['whale',4,6],['clipper',22,.4],['drunk',20,.42]],
       [['pitboss',1,0],['lady',1,20],['auditor',1,34],['whale',3,7]]
     ] },
-  { name: 'Roulette Hall 7', hpMul: 4.2, chips: 930, block: 1,
+  { name: 'Roulette Hall 7', hpMul: 1.96, chips: 930, block: 1,
     carpet: ['#0c3d5c', '#134d70', '#082c44'],
     intro: 'The long hall splits around the private wheel and comes back together. Both sides are yours to hold.',
     variants: [
@@ -2642,7 +2642,7 @@ const ROOMS = [
       [['counter',17,.62],['honey',11,2.2]],
       [['shark',1,0],['lady',1,18],['whale',4,6]]
     ] },
-  { name: 'Roulette Hall 8', hpMul: 4.25, chips: 960, block: 1,
+  { name: 'Roulette Hall 8', hpMul: 2.02, chips: 960, block: 1,
     carpet: ['#0a3660', '#114674', '#07264a'],
     intro: 'Three doors, one desk. Everything in the hall funnels toward the same point — pick your choke and commit.',
     variants: [
@@ -2668,7 +2668,7 @@ const ROOMS = [
     alt: {
       name: 'The Counting Room',
       sub: 'STAFF ONLY',
-      hpMul: 4.0, chips: 1120,
+      hpMul: 1.92, chips: 1120,
       carpet: ['#3b3a34', '#474640', '#2c2b26'],
       intro: 'Behind the wheels: strip lights, steel shelving and a single tight corridor stacked with the night\'s take. Nobody is supposed to be down here. The pay is extraordinary.',
       variants: [
@@ -2688,7 +2688,7 @@ const ROOMS = [
         [['shark',1,0],['whale',4,6],['pitboss',1,22]]
       ]
     } },
-  { name: 'Roulette Hall 9', hpMul: 4.3, chips: 990, block: 1,
+  { name: 'Roulette Hall 9', hpMul: 2.08, chips: 990, block: 1,
     carpet: ['#0b2f66', '#123c7c', '#071f4c'],
     intro: 'The spiral hall: one long coil that tightens all the way to the desk at its heart.',
     variants: [
@@ -2707,7 +2707,7 @@ const ROOMS = [
       [['auditor',2,10],['counter',20,.55]],
       [['shark',1,0],['lady',1,16],['pitboss',1,32],['whale',4,6]]
     ] },
-  { name: 'Roulette Hall 10', hpMul: 4.4, chips: 1020, block: 1,
+  { name: 'Roulette Hall 10', hpMul: 2.14, chips: 1020, block: 1,
     carpet: ['#0a2358', '#102e6e', '#061640'],
     intro: 'Top of the block. Two halls, every face the Roulette floor has, and the entire management team on shift. Hold this and the doors above open.',
     variants: [
@@ -3396,9 +3396,13 @@ function startWave() {
     $('nextWave').style.display = 'none';
     $('dragHint').style.display = 'none';
     $('dealHint').style.display = 'none';
+    // opening waves ramp in — a floor should never open with a wall of bodies
+    const OPENER = [.45, .62, .8, .92];
+    const os = OPENER[G.wave] || 1;
     G.spawners = WAVES[G.wave].map(([type, count, interval], si) => ({
       // single-count spawners use their interval as an initial delay (boss staggering)
-      type, left: count, interval, timer: count === 1 ? Math.max(interval, si * 1.6) : si * 1.6
+      type, left: Math.max(1, Math.round(count * (count > 1 ? os : 1))),
+      interval, timer: count === 1 ? Math.max(interval, si * 1.6) : si * 1.6
     }));
     G.waveCount = WAVES[G.wave].reduce((a, [t, c]) => a + c * (t === 'honey' ? 2 : 1), 0);
     if (WAVES[G.wave].some(w => w[0] === 'tourist') && !G.bus) {
@@ -3428,6 +3432,12 @@ function showNextWave() {
   nw.style.display = 'flex';
 }
 
+const PROBE = location.search.includes('autotest');
+function probeReport(state) {
+  if (!PROBE) return;
+  document.title = `PROBE room=${ROOM + 1}${G.alt ? 'B' : ''} wave=${Math.min(G.wave + 1, WAVES.length)}/${WAVES.length} ${state}`;
+}
+
 function saveMid() {
   SAVE.mid = {
     room: ROOM, alt: G.alt, vi: G.vi, wave: G.wave, chips: Math.floor(G.chips),
@@ -3450,6 +3460,7 @@ function endWave() {
     }
   });
   G.chips += income;
+  probeReport('running');
   float(560, 100, `WAVE CLEAR +${income}`, '#57c26e');
   updateHUD();
   if (G.wave >= WAVES.length) return win();
@@ -3460,6 +3471,7 @@ function endWave() {
 
 function win() {
   G.over = true;
+  probeReport('WIN');
   delete SAVE.mid;
   saveSave();
   banner('FLOOR CLEARED!');
@@ -3471,6 +3483,7 @@ function win() {
 }
 function lose() {
   G.over = true;
+  probeReport('LOSE');
   delete SAVE.mid;
   if (ROOM >= ROOMS.length) SAVE.best = Math.max(SAVE.best || 0, G.wave);
   saveSave();

@@ -64,6 +64,20 @@
 - **Boss every 5th room** — needs ~10 distinct bosses or heavy variants across the campaign
 - **Reputation meter**: leaks damage the casino's star rating; at zero stars the room fails
 
+## Billy feedback round (Aug 4 — APPROVED)
+- **Per-tower targeting priority**: tap a tower → FIRST / STRONGEST / LAST ("I should be able to choose this priority, per tower")
+- **NPC power creep**: a guest gains ~+5% HP per floor after their debut floor; room multipliers compensated so veterans stay tuned
+- **Floors 11–20 are ROULETTE HALLS**, not Blackjack ("Fede doesn't play blackjack") — roulette / slot-machine / fancy-bar themes preferred
+- **NO EMOJIS anywhere in the game** ("emojis are kinda cheap") — everything is drawn as SVG
+- **The vault is gone**: leaked guests file complaints at **GUEST SERVICES**, a staffed front desk with a live star placard (reputation flavor now matches the mechanic)
+- **The map is an elevator**: floor buttons on a brass panel, doors close and the floor indicator ticks between rooms
+- **Bifurcating floors**: e.g. 4 → 4A/4B → 5 (approved twice; built on floors 4, 8 and 18)
+- **Slot machine is musical**: multi-line with designed symbols from Rocky Horror, Hedwig, Hair, Little Shop, Wicked
+- **Depth pass**: soft shadows under towers/guests, background must not read flat
+- **Boss roster greenlit for later**: Pit Boss (built), Magician, House Photographer, The Entertainer (**must play his own synthesized song on his floor**), Health Inspector, The Whale's Wife, The Regulator, The Owner
+- **Pause menu needs RESTART** (added)
+- Lounge music: "fine for now"
+
 ## Comps shop (PROVISIONAL — not yet user-approved)
 - Map screen sells permanent upgrades for comps: Bigger Bankroll (+60 start chips, ×3) and House Discount (towers 5% cheaper, ×2)
 - Placeholder design to make comps mean something; revisit with Billy

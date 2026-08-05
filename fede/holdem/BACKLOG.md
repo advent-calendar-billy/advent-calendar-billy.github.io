@@ -99,6 +99,12 @@
 - [ ] sw.js cache version bump discipline (bump CACHE on every deploy!)
 
 ## BALANCE (living list)
+- [x] Probe harness: ?autotest reports progress through document.title, so a headless sweep of all
+      20 floors yields a wave-reached table (scratchpad/probe-results.txt)
+- [x] Aug 5 rebalance: enemy scale was compounding hpMul x familiarity(1.05^floor) to ~11x by floor 20
+      while towers only reached ~4x — late floors were mathematically unwinnable. hpMul is now a flat
+      1 + 0.06*floor curve, and every room opens with a ramp (45/62/80/92% counts for waves 1-4).
+      Bot results on the worst floors went from wave 1-2 to wave 6-10.
 - [x] Probe data v2 (Aug 3 night): fodder-first openers fixed wave-1 walls in r6-r10; blind bot now
       reaches r3:w10, r5:w9, r10:w4, endless:w15. R7 triple-fork stays hard for the bot (hub-placement
       puzzle) — trimmed to 3.4x, needs human validation

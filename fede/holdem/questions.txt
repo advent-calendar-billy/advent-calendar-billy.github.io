@@ -40,3 +40,34 @@ This sounds fine, for rthe entertainer boss map the song should play (synthesize
 7. Anything you HATED in tonight's screenshots/game? (Carpet colors, sounds, pacing...)
 
 make me an html report with screenshots incl maps and comps and the ability for me to leave quick feedback before each feedback (requiring zero clicks -- basically a text input field below each screenshot)
+
+
+═══════════════════════════════════════════════════════════
+ROUND 2 — after the Aug 4/5 overnight work (answer any time)
+═══════════════════════════════════════════════════════════
+
+8. BLOCK 3 (floors 21-30): approved themes are the gambling climb + amenity floors,
+   with weird floors sprinkled between blocks. Which next?
+   a) POKER ROOM (tournament tables, timers, the felt gets serious)
+   b) THE FANCY BAR (you mentioned it — cocktails, lounge singer, velvet)
+   c) THE THEATER (marquee, seats, backstage — and it's where THE ENTERTAINER boss
+      lives with his own song, which you already greenlit)
+   My instinct: THEATER, because the slot machine is already musical and it pays
+   off the Entertainer. Say the word and I'll build it.
+
+9. WEIRD FLOOR between blocks: approved in principle. Candidates —
+   the wedding chapel, the rooftop pool at dawn, the flooded aquarium bar,
+   the laundry basement. Pick one and it becomes floor 21.
+
+10. BRANCHES: floors 4, 8 and 18 now fork (main floor vs. an alternate route with a
+    different look and payout). Enough? More? Should a branch ever be a DEAD END that
+    costs you something, or always safe to pick either?
+
+11. COMPS SHOP is still the provisional two-upgrade version (Bigger Bankroll,
+    House Discount). Now that you've seen the game: what should comps actually buy?
+    Ideas: unlock a 10th tower, start each room with one free tower, +1 reputation star,
+    a re-roll of the room's furniture layout, extra slot spins.
+
+12. DIFFICULTY: I built a bot that plays every floor and reports how far it gets, so I can
+    tune without you. But bots are dumb — when you do play, tell me which floor first
+    made you sweat, and which felt boring.
