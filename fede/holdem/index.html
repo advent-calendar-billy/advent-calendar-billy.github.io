@@ -514,17 +514,16 @@
     text-shadow: 0 0 14px rgba(255,210,63,.6);
     margin: 4px 0 10px;
   }
-  #reels { display: flex; gap: 10px; justify-content: center; margin: 6px 0 12px; }
-  .reel {
-    width: 74px; height: 84px;
-    background: #f5ead1;
-    border: 3px solid #3b2415;
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 44px;
-    box-shadow: inset 0 -14px 18px rgba(0,0,0,.18), inset 0 14px 18px rgba(0,0,0,.18);
-    color: #c9473b;
+  #reelBox {
+    width: 216px;
+    margin: 4px auto 10px;
+    background: #16081a;
+    border: 3px solid #e8b64c;
+    border-radius: 14px;
+    padding: 9px;
+    box-shadow: inset 0 0 24px rgba(0,0,0,.7), 0 0 18px rgba(232,182,76,.25);
   }
+  #reelGrid { width: 100%; display: block; }
   #slotMsg { font-size: 13.5px; color: #d8cbb0; min-height: 20px; }
   #slotMsg.bigwin {
     font-size: 17px;
@@ -535,11 +534,7 @@
   }
   #payline { font-size: 10.5px; color: #9c8757; margin-top: 7px; letter-spacing: .5px; }
   #payline b { color: #d8cbb0; }
-  .reel.winflash { animation: reelWin .55s ease 2; }
-  @keyframes reelWin {
-    0%,100% { box-shadow: inset 0 -14px 18px rgba(0,0,0,.18), inset 0 14px 18px rgba(0,0,0,.18); }
-    50% { box-shadow: 0 0 22px rgba(255,210,63,.95), inset 0 0 10px rgba(255,210,63,.5); }
-  }
+  #payline svg { width: 17px; height: 17px; vertical-align: -3px; }
   #slotInfo { margin-top: 8px; font-weight: 800; color: var(--gold); font-size: 14px; }
 
   /* ── ambient decor ── */
@@ -892,6 +887,60 @@
         <circle cx="5" cy="-40.5" r="3" fill="#2e2622" stroke="#3b2415" stroke-width="1.6"/>
         <circle cx="-4.5" cy="-29" r="1.6" fill="#3b2415"/><circle cx="4.5" cy="-29" r="1.6" fill="#3b2415"/>
         <path d="M-5 -24 Q 0 -18 5 -24" fill="#f5ead1" stroke="#3b2415" stroke-width="1.8"/>
+      </g>
+
+      <!-- ═══ SHOWTIME SLOT SYMBOLS (musicals — no emojis) ═══ -->
+      <g id="symLips">
+        <path d="M-16 -2 Q -9 -12 0 -5 Q 9 -12 16 -2 Q 8 12 0 12 Q -8 12 -16 -2 Z"
+              fill="#c9182b" stroke="#3b2415" stroke-width="2.6"/>
+        <path d="M-11 -1 Q 0 3 11 -1 Q 0 6 -11 -1 Z" fill="#f5ead1" stroke="#3b2415" stroke-width="1.4"/>
+        <path d="M-9 -5 Q -4 -8 0 -5 M0 -5 Q 4 -8 9 -5" fill="none" stroke="#8f0f1e" stroke-width="1.6"/>
+      </g>
+      <g id="symWig">
+        <path d="M0 -14 Q -15 -14 -16 0 Q -17 10 -11 14 Q -13 6 -10 1 Q -9 9 -4 12 Q -7 4 -5 -2 Q -2 6 3 8 Q 1 1 3 -4 Q 6 3 11 4 Q 8 -2 8 -7 Q 12 -4 15 2 Q 16 -12 0 -14 Z"
+              fill="#e8b64c" stroke="#3b2415" stroke-width="2.4"/>
+        <path d="M-9 -8 Q 0 -12 9 -8" fill="none" stroke="#b98d2f" stroke-width="1.6"/>
+        <path d="M-5 -3 Q 0 -6 5 -3" fill="none" stroke="#b98d2f" stroke-width="1.4"/>
+      </g>
+      <g id="symSun">
+        <g stroke="#3b2415" stroke-width="2" fill="#e8b64c">
+          <path d="M0 -16 L 3 -9 L -3 -9 Z"/><path d="M0 16 L 3 9 L -3 9 Z"/>
+          <path d="M-16 0 L -9 3 L -9 -3 Z"/><path d="M16 0 L 9 3 L 9 -3 Z"/>
+          <path d="M-11.5 -11.5 L -5.5 -8.5 L -8.5 -5.5 Z"/><path d="M11.5 -11.5 L 8.5 -5.5 L 5.5 -8.5 Z"/>
+          <path d="M-11.5 11.5 L -8.5 5.5 L -5.5 8.5 Z"/><path d="M11.5 11.5 L 5.5 8.5 L 8.5 5.5 Z"/>
+        </g>
+        <circle r="8.5" fill="#ffd23f" stroke="#3b2415" stroke-width="2.4"/>
+        <circle cx="-3" cy="-1" r="1.1" fill="#3b2415"/><circle cx="3" cy="-1" r="1.1" fill="#3b2415"/>
+        <path d="M-3 3 Q 0 5 3 3" fill="none" stroke="#3b2415" stroke-width="1.5" stroke-linecap="round"/>
+      </g>
+      <g id="symPlant">
+        <path d="M-3 14 Q -8 8 -6 2" fill="none" stroke="#2e7d4f" stroke-width="3.4"/>
+        <path d="M-10 10 Q -16 7 -16 1 Q -10 2 -7 7 Z" fill="#2e8b6a" stroke="#3b2415" stroke-width="2"/>
+        <path d="M8 12 Q 15 10 16 4 Q 10 3 6 8 Z" fill="#2e8b6a" stroke="#3b2415" stroke-width="2"/>
+        <path d="M-6 2 Q -14 -8 -6 -13 Q 0 -16 7 -12 Q 15 -7 10 1 Q 6 7 -1 6 Q -5 5 -6 2 Z"
+              fill="#3f9c5e" stroke="#3b2415" stroke-width="2.6"/>
+        <path d="M-8 -4 Q 0 -9 9 -3 Q 2 1 -8 -4 Z" fill="#8f1e2e" stroke="#3b2415" stroke-width="2"/>
+        <path d="M-6 -4.5 L -4 -2.5 L -2 -5 L 0 -3 L 2 -5.5 L 4 -3 L 6 -4.5"
+              fill="none" stroke="#f5ead1" stroke-width="1.6"/>
+        <circle cx="-2" cy="-9" r="1.4" fill="#3b2415"/><circle cx="4" cy="-8" r="1.4" fill="#3b2415"/>
+      </g>
+      <g id="symHat">
+        <path d="M-16 10 Q 0 15 16 10 Q 10 7 8 4 L -8 4 Q -10 7 -16 10 Z"
+              fill="#1e2a1e" stroke="#3b2415" stroke-width="2.4"/>
+        <path d="M-8 4 Q -4 -10 2 -15 Q 8 -18 6 -12 Q 4 -4 8 4 Z"
+              fill="#2a3d2a" stroke="#3b2415" stroke-width="2.4"/>
+        <path d="M-8 4 L 8 4 L 7 0 L -7 0 Z" fill="#3f9c5e" stroke="#3b2415" stroke-width="1.8"/>
+        <rect x="-2" y="-.5" width="4" height="4" fill="#e8b64c" stroke="#3b2415" stroke-width="1.4"/>
+      </g>
+      <g id="symStar">
+        <path d="M0 -15 L 3.9 -4.9 L 14.6 -4.6 L 6.1 2 L 9.2 12.3 L 0 6.2 L -9.2 12.3 L -6.1 2 L -14.6 -4.6 L -3.9 -4.9 Z"
+              fill="#ffd23f" stroke="#3b2415" stroke-width="2.4"/>
+        <path d="M0 -9 L 2 -3.5 L -2 -3.5 Z" fill="#fff3cf" opacity=".8"/>
+      </g>
+      <g id="symSeven">
+        <path d="M-9 -13 L 10 -13 L 11 -8 L 1 13 L -6 13 L 4 -7 L -8 -7 Z"
+              fill="#e8b64c" stroke="#3b2415" stroke-width="2.6"/>
+        <path d="M-7 -11 L 8 -11" stroke="#fff3cf" stroke-width="1.8"/>
       </g>
 
       <!-- ═══ TOWER SPRITES ═══ -->
@@ -1507,11 +1556,13 @@
   <div id="slotCard">
     <div class="kind" style="font-size:11px; letter-spacing:3px; color:#b7a98a;">FLOOR CLEARED · HOUSE LOUNGE</div>
     <div class="bulbs">● ● ● ● ● ● ●</div>
-    <h2>LUCKY 7s</h2>
+    <h2>SHOWTIME!</h2>
     <div class="bulbs" style="margin-top:-6px">● ● ● ● ● ● ●</div>
-    <div id="reels"><span class="reel">🍒</span><span class="reel">7</span><span class="reel">🍋</span></div>
-    <div id="slotMsg">Gamble your leftover chips… or bank them as comps.</div>
-    <div id="payline">7·7·7 <b>500</b> &nbsp; ♦·♦·♦ <b>300</b> &nbsp; 🍒×3 <b>200</b> &nbsp; 🍋×3 <b>150</b> &nbsp; ★×3 <b>FREE GAMES</b></div>
+    <div id="reelBox">
+      <svg id="reelGrid" viewBox="0 0 180 180"></svg>
+    </div>
+    <div id="slotMsg">Five lines across the great musicals. Spin your leftover chips… or bank them as comps.</div>
+    <div id="payline"></div>
     <div id="slotInfo"></div>
     <div style="display:flex; gap:10px; justify-content:center; margin-top:12px;">
       <button class="btn primary" id="spinBtn">SPIN · 25</button>
@@ -3492,8 +3543,35 @@ function pickAmbientTarget(w) {
 
 /* ══════════ SLOT MACHINE (between floors) ══════════ *//* ══════════ SLOT MACHINE (between floors) ══════════ */
 const SLOT = { spins: 10, free: 0, bonusWon: 0, spinning: false, COST: 25, CAP: 400 };
-const STRIP = ['🍒','🍒','🍒','🍒','🍋','🍋','🍋','🍋','♦','♦','♦','7','7','★'];
+/* weighted strip: sun(Hair) wig(Hedwig) plant(LittleShop) hat(Wicked) lips(Rocky) seven star */
+const STRIP = ['symSun','symSun','symSun','symSun','symSun',
+               'symWig','symWig','symWig','symWig',
+               'symPlant','symPlant','symPlant',
+               'symHat','symHat',
+               'symLips','symLips',
+               'symSeven','symStar'];
+const SLOT_PAY = { symSeven: 500, symLips: 300, symHat: 250, symPlant: 200, symWig: 150, symSun: 120 };
+const SLOT_LINES = [[0,1,2],[3,4,5],[6,7,8],[0,4,8],[2,4,6]];
 const pickSym = () => STRIP[Math.floor(Math.random() * STRIP.length)];
+let slotCells = [], slotLineLayer = null;
+function buildReelGrid() {
+  const g = $('reelGrid');
+  g.innerHTML = '';
+  slotCells = [];
+  for (let i = 0; i < 9; i++) {
+    const cx = 30 + (i % 3) * 60, cy = 30 + Math.floor(i / 3) * 60;
+    svgEl('rect', { x: cx - 27, y: cy - 27, width: 54, height: 54, rx: 8,
+      fill: '#f5ead1', stroke: '#3b2415', 'stroke-width': 2.5 }, g);
+    const holder = svgEl('g', { transform: `translate(${cx},${cy}) scale(1.35)` }, g);
+    const u = svgEl('use', { href: '#' + pickSym() }, holder);
+    slotCells.push(u);
+  }
+  slotLineLayer = svgEl('g', { 'pointer-events': 'none' }, g);
+  const pl = $('payline');
+  pl.innerHTML = ['symSeven','symLips','symHat','symPlant','symWig','symSun']
+    .map(k => `<svg viewBox="-20 -20 40 40"><use href="#${k}"/></svg><b>${SLOT_PAY[k]}</b>`)
+    .join(' &nbsp;') + ' &nbsp;<svg viewBox="-20 -20 40 40"><use href="#symStar"/></svg><b>×3 FREE GAMES</b>';
+}
 
 function slotInfo(msg) {
   updateHUD();
@@ -3507,6 +3585,7 @@ function slotInfo(msg) {
   $('spinBtn').textContent = SLOT.free > 0 ? 'SPIN · FREE' : 'SPIN · ' + SLOT.COST;
 }
 function openSlots() {
+  buildReelGrid();
   $('slots').style.display = 'flex';
   slotInfo(`${(G.roomDef || { name: 'Floor' }).name} cleared! Every 10 chips banks 1 comp.`);
 }
@@ -3519,28 +3598,36 @@ $('spinBtn').addEventListener('pointerdown', ev => {
   if (free) SLOT.free--; else { SLOT.spins--; G.chips -= SLOT.COST; }
   SLOT.spinning = true;
   SFX.spin();
-  const reels = document.querySelectorAll('#reels .reel');
-  const final = [pickSym(), pickSym(), pickSym()];
+  slotLineLayer.innerHTML = '';
+  const final = Array.from({ length: 9 }, pickSym);
   let t = 0;
   const iv = setInterval(() => {
     t += 80;
-    reels.forEach((r, i) => {
-      r.textContent = t < 380 + i * 260 ? pickSym() : final[i];
+    slotCells.forEach((u, i) => {
+      const col = i % 3;
+      u.setAttribute('href', '#' + (t < 420 + col * 260 ? pickSym() : final[i]));
     });
-    if (t >= 380 + 2 * 260 + 90) {
+    if (t >= 420 + 2 * 260 + 90) {
       clearInterval(iv);
       SLOT.spinning = false;
-      const [a, b, c] = final;
-      let win = 0, msg = 'So close.';
-      if (a === '★' && b === '★' && c === '★') {
+      let win = 0;
+      const msgs = [];
+      const hitLines = [];
+      for (const L of SLOT_LINES) {
+        const [a, b, c] = L.map(i => final[i]);
+        if (a === b && b === c && SLOT_PAY[a]) {
+          win += SLOT_PAY[a];
+          hitLines.push(L);
+        }
+      }
+      const stars = final.filter(x => x === 'symStar').length;
+      if (stars >= 3) {
         SLOT.free += 10;
-        msg = '✨ 10 FREE GAMES! ✨';
-      } else if (a === b && b === c) {
-        win = { '7': 500, '♦': 300, '🍒': 200, '🍋': 150 }[a];
-        msg = `THREE OF A KIND! +${win}`;
-      } else if (a === b || b === c || a === c) { win = 25; msg = 'Pair! +25'; }
-      else if (final.includes('🍒')) { win = 10; msg = 'Cherry! +10'; }
-      if (win && wasFree) {  // free-game winnings are hard-capped: no infinite bonus
+        msgs.push('10 FREE GAMES!');
+      }
+      if (win) msgs.push('LINE HIT +' + win);
+      let msg = msgs.length ? msgs.join(' · ') : 'So close.';
+      if (win && wasFree) {
         if (SLOT.bonusWon + win > SLOT.CAP) {
           win = Math.max(0, SLOT.CAP - SLOT.bonusWon);
           SLOT.free = 0;
@@ -3548,12 +3635,14 @@ $('spinBtn').addEventListener('pointerdown', ev => {
         }
         SLOT.bonusWon += win;
       }
+      for (const L of hitLines) {
+        const pts = L.map(i => `${30 + (i % 3) * 60},${30 + Math.floor(i / 3) * 60}`).join(' ');
+        svgEl('polyline', { points: pts, fill: 'none', stroke: '#ffd23f', 'stroke-width': 6,
+          'stroke-linecap': 'round', opacity: .85 }, slotLineLayer);
+      }
       if (win >= 100 || SLOT.free > 0) SFX.slotWin();
       else if (win > 0) SFX.cash();
-      if (win >= 100 || (a === '★' && b === '★' && c === '★')) {
-        reels.forEach(r => { r.classList.remove('winflash'); void r.offsetWidth; r.classList.add('winflash'); });
-      }
-      $('slotMsg').classList.toggle('bigwin', SLOT.free > 0 || win >= 150);
+      $('slotMsg').classList.toggle('bigwin', SLOT.free > 0 || win >= 200);
       G.chips += win;
       slotInfo(msg);
     }
