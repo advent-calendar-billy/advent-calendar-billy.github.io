@@ -3526,15 +3526,16 @@ function buildShop(){
       ev.stopPropagation();
       ev.preventDefault();
       if (G.chips < effCost(T) || G.over) return;
-      card.setPointerCapture(ev.pointerId);
+      try { card.setPointerCapture(ev.pointerId); } catch (err) {}
       const g = svgEl('g', { opacity: .9 }, $('ghostG'));
       const ring = T.range
         ? svgEl('circle', { r: T.range, fill: 'rgba(232,182,76,.08)', stroke: '#e8b64c', 'stroke-width': 2, 'stroke-dasharray': '6 8' }, g)
         : null;
+      const cover = svgEl('g', { 'pointer-events': 'none' }, $('ghostG'));
       const foot = svgEl('circle', { r: TOWER_R[key], fill: 'rgba(87,194,110,.25)', stroke: '#57c26e', 'stroke-width': 2.5 }, g);
       const sprite = svgEl('g', { transform: `scale(${T.scale})` }, g);
       svgEl('use', { href: '#' + T.sprite }, sprite);
-      drag = { key, T, g, foot, x: -999, y: -999, ok: false };
+      drag = { key, T, g, cover, foot, x: -999, y: -999, ok: false };
       const [x, y] = clientToSvg(ev.clientX, ev.clientY);
       moveDrag(x, y);
     });
@@ -3548,6 +3549,7 @@ function buildShop(){
       const d = drag;
       drag = null;
       d.g.remove();
+      d.cover.remove();
       if (d.ok && G.chips >= effCost(d.T)) {
         G.chips -= effCost(d.T);
         buildTower(key, d.x, d.y);
@@ -3564,6 +3566,30 @@ function buildShop(){
     drag.x = x; drag.y = y;
     drag.ok = placeOK(x, y, TOWER_R[drag.key], drag.key);
     drag.g.setAttribute('transform', `translate(${x},${y})`);
+    // paint the stretch of lane this tower would actually work on
+    drag.cover.innerHTML = '';
+    const R = drag.T.range;
+    if (R) {
+      for (const P of PATHS) {
+        let run = [];
+        const flush = () => {
+          if (run.length > 2) {
+            svgEl('polyline', {
+              points: run.join(' '),
+              fill: 'none', stroke: drag.ok ? 'rgba(87,194,110,.45)' : 'rgba(224,90,58,.4)',
+              'stroke-width': 22, 'stroke-linecap': 'round', 'stroke-linejoin': 'round'
+            }, drag.cover);
+          }
+          run = [];
+        };
+        for (let i = 0; i < P.pts.length; i += 2) {
+          const [px, py] = P.pts[i];
+          if ((px - x) ** 2 + (py - y) ** 2 <= R * R) run.push(px.toFixed(0) + ',' + py.toFixed(0));
+          else flush();
+        }
+        flush();
+      }
+    }
     drag.foot.setAttribute('fill', drag.ok ? 'rgba(87,194,110,.25)' : 'rgba(224,90,58,.35)');
     drag.foot.setAttribute('stroke', drag.ok ? '#57c26e' : '#e05a3a');
   }
@@ -5251,7 +5277,7 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http') && !loc
 document.addEventListener('gesturestart', e => e.preventDefault());
 document.addEventListener('dblclick', e => e.preventDefault());
 
-if (/gallery|autotest|slottest|pausetest|sheettest|ridetest|depthtest|unlockall|room=/.test(location.search)) {
+if (/gallery|autotest|slottest|pausetest|sheettest|ridetest|depthtest|dragtest|unlockall|room=/.test(location.search)) {
   $('title').style.display = 'none';
 }
 
@@ -5318,6 +5344,20 @@ if (location.search.includes('depthtest')) {
   mk(200, 0); lab(200, 'A · CURRENT');
   mk(540, 1); lab(540, 'B · SHADOW + RIM LIGHT');
   mk(880, 2); lab(880, 'C · B + BASE PAD, RAISED');
+}
+
+/* dev dragtest: freeze a tower mid-drag to inspect the placement preview */
+if (location.search.includes('dragtest')) {
+  initRoom(0);
+  $('modalBtn').dispatchEvent(new Event('click'));
+  setTimeout(() => {
+    const card = document.querySelectorAll('.shopCard')[1];   // roulette: biggest range
+    const r = card.getBoundingClientRect();
+    const opts = { bubbles: true, pointerId: 1, pointerType: 'touch' };
+    card.dispatchEvent(new PointerEvent('pointerdown', Object.assign({ clientX: r.left + 20, clientY: r.top + 20 }, opts)));
+    card.dispatchEvent(new PointerEvent('pointermove', Object.assign({ clientX: window.innerWidth * .43, clientY: window.innerHeight * .55 }, opts)));
+    G.paused = true;
+  }, 60);
 }
 
 /* dev sheettest: open a room and pop a tower sheet */
