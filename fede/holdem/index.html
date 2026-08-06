@@ -141,6 +141,8 @@
   #stars { color: var(--gold); letter-spacing: 2px; font-size: 16px; text-shadow: 0 0 8px rgba(232,182,76,.6), 0 1px 0 rgba(0,0,0,.7); }
   #stars .off { color: #4a3f28; text-shadow: none; }
   #waveLbl { color: var(--cream); }
+  #floorLbl { color: #d8cbb0; font-size: 12px; letter-spacing: 1.5px; }
+  @media (max-width: 780px) { #floorLbl { display: none; } }
   #waveLbl b { color: var(--gold); }
   .spacer { flex: 1; }
   .btn {
@@ -607,16 +609,26 @@
     50% { background-position: -10% 0; }
   }
   .mapSub { font-size: 12px; letter-spacing: 4px; color: #9fc4b2; margin-top: 6px; text-transform: uppercase; }
-  #mapComps {
-    display: inline-block;
-    margin: 14px 0;
-    padding: 6px 18px;
+  #mapStats { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 14px 0 4px; }
+  .statPlate {
+    min-width: 92px;
+    padding: 6px 14px 7px;
     border: 2px solid var(--gold);
-    border-radius: 999px;
-    color: var(--gold);
-    font-weight: 800;
-    background: rgba(18,16,12,.8);
+    border-radius: 10px;
+    background: linear-gradient(180deg, rgba(46,36,20,.92), rgba(14,11,6,.94));
+    box-shadow: inset 0 1px 0 rgba(255,235,180,.24), inset 0 -3px 7px rgba(0,0,0,.5);
   }
+  .statPlate .v {
+    font-family: Georgia, serif; font-weight: bold; font-size: 19px; color: var(--gold);
+    text-shadow: 0 1px 0 rgba(0,0,0,.6);
+  }
+  .statPlate .k { font-size: 8.5px; letter-spacing: 2px; color: #9c8757; margin-top: 1px; }
+  .blockBar {
+    width: 190px; height: 5px; margin: 5px auto 0;
+    background: #241d10; border-radius: 3px; overflow: hidden;
+    border: 1px solid #4a3a22;
+  }
+  .blockBar span { display: block; height: 100%; background: linear-gradient(90deg, #b98d2f, #ffe9b0); }
   #mapNodes {
     display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
     gap: 2px;
@@ -2007,6 +2019,10 @@
     <g id="laneG"></g>
     <path id="lanePath" d="M -40 130 C 200 130, 460 130, 620 130 C 740 130, 740 300, 620 300 C 440 300, 300 300, 230 300 C 115 300, 115 470, 230 470 C 430 470, 640 470, 1160 470" fill="none" stroke="none"/>
 
+    <!-- corner ornaments + room dressing -->
+    <g id="cornersG" pointer-events="none" opacity=".5"></g>
+    <g id="dressG" pointer-events="none"></g>
+
     <!-- room frame + skirting -->
     <rect x="13" y="13" width="1094" height="604" rx="12" fill="none" stroke="rgba(20,8,4,.55)" stroke-width="12" pointer-events="none"/>
     <rect x="7" y="7" width="1106" height="616" rx="14" fill="none" stroke="#d9a94f" stroke-width="3" opacity=".38" pointer-events="none"/>
@@ -2090,6 +2106,7 @@
   <div class="pill"><span class="chipdot"></span><span id="chipsLbl">0</span></div>
   <div class="pill" id="stars"></div>
   <div class="pill" id="waveLbl">WAVE <b id="waveNum">0</b>/<span id="waveTot">10</span></div>
+  <div class="pill" id="floorLbl">—</div>
   <div class="spacer"></div>
   <button class="btn" id="sndBtn">♪</button>
   <button class="btn" id="autoBtn">AUTO</button>
@@ -2156,7 +2173,7 @@
     <div class="mapMarquee">HOLD'EM</div>
     <div class="bulbs">● ● ● ● ● ● ● ● ● ●</div>
     <div class="mapSub">CASINO DIRECTORY</div>
-    <div id="mapComps"></div>
+    <div id="mapStats"></div>
     <div id="mapNodes"></div>
     <div id="mapShop"></div>
     <div class="mapSub" style="opacity:.55">…20 more floors under renovation</div>
@@ -2244,6 +2261,20 @@ function setLanes(lanes, killOffset) {
     lanes.forEach(d => {
       svgEl('path', Object.assign({d, stroke, 'stroke-width': w, fill: 'none'}, extra), g);
     });
+  });
+  // direction chevrons painted on the walkway — decoration that also reads the flow in fork rooms
+  PATHS.forEach(P => {
+    for (let i = 30; i < P.pts.length - 30; i += 36) {
+      const [ax, ay] = P.pts[i - 4], [bx, by] = P.pts[i + 4];
+      const a = Math.atan2(by - ay, bx - ax) * 180 / Math.PI;
+      const [x, y] = P.pts[i];
+      svgEl('path', {
+        d: 'M -7 -8 L 4 0 L -7 8', fill: 'none',
+        stroke: 'rgba(120,80,34,.3)', 'stroke-width': 3.4,
+        'stroke-linecap': 'round', 'stroke-linejoin': 'round',
+        transform: `translate(${x.toFixed(1)},${y.toFixed(1)}) rotate(${a.toFixed(1)})`
+      }, g);
+    }
   });
 }
 const posAt = (dist, pi) => {
@@ -4448,6 +4479,37 @@ function initRoom(i, resume, altKey) {
     : Math.floor(Math.random() * R.variants.length);
   G.vi = vi;
   const V = R.variants[vi];
+  // art-deco fans in the room corners
+  const cg = $('cornersG');
+  cg.innerHTML = '';
+  [[34, 34, 0], [1086, 34, 90], [1086, 596, 180], [34, 596, 270]].forEach(([cx, cy, rot]) => {
+    const k = svgEl('g', { transform: `translate(${cx},${cy}) rotate(${rot})` }, cg);
+    for (let r = 16; r <= 40; r += 8) {
+      svgEl('path', { d: `M ${r} 0 A ${r} ${r} 0 0 1 0 ${r}`, fill: 'none',
+                      stroke: '#d9a94f', 'stroke-width': 2 }, k);
+    }
+    svgEl('circle', { r: 5, fill: '#d9a94f' }, k);
+  });
+
+  // engraved floor plate + block-specific dressing
+  const dg = $('dressG');
+  dg.innerHTML = '';
+  if (R.block === 2) {
+    // stage curtain swags along the top of theater floors
+    for (let k = 0; k < 9; k++) {
+      const x = k * 130 - 20;
+      svgEl('path', {
+        d: `M ${x} 8 Q ${x + 65} 74 ${x + 130} 8 L ${x + 130} 8 L ${x} 8 Z`,
+        fill: '#6b1024', stroke: '#3b0a14', 'stroke-width': 2, opacity: .92
+      }, dg);
+      svgEl('path', {
+        d: `M ${x + 12} 10 Q ${x + 65} 66 ${x + 118} 10`,
+        fill: 'none', stroke: 'rgba(255,170,190,.22)', 'stroke-width': 3
+      }, dg);
+      svgEl('circle', { cx: x + 65, cy: 70, r: 5, fill: 'url(#brassG)', stroke: '#3b0a14', 'stroke-width': 1.8 }, dg);
+    }
+  }
+
   const carp = R.carpet || ['#a63029', '#bd4136', '#8f2a24'];
   const pat = document.getElementById('carpet');
   pat.children[0].setAttribute('fill', carp[0]);
@@ -4481,6 +4543,9 @@ function initRoom(i, resume, altKey) {
   showNextWave();
   if (i === 0 && !resume) $('dragHint').style.display = 'block';
   $('waveTot').textContent = i >= ROOMS.length ? '∞' : WAVES.length;
+  $('floorLbl').textContent = i >= ROOMS.length
+    ? 'AFTER HOURS'
+    : `${i + 1}${G.alt ? 'B' : ''} · ${R.name.toUpperCase()}`;
   if (resume && SAVE.mid && SAVE.mid.room === i && (SAVE.mid.alt || null) === (G.alt || null)) {
     const M = SAVE.mid;
     G.wave = M.wave;
@@ -4540,7 +4605,16 @@ function makeMapNode(i, real, altKey) {
 }
 
 function renderMap() {
-  $('mapComps').textContent = `${SAVE.comps} COMPS`;
+  // progress plaques
+  const cleared = Math.max(0, Math.min(SAVE.unlocked - 1, ROOMS.length));
+  const stars = Object.values(SAVE.roomStars || {}).reduce((a, b) => a + b, 0);
+  $('mapStats').innerHTML = [
+    [`${cleared}/30`, 'FLOORS HELD'],
+    [`${stars}/${ROOMS.length * 5}`, 'STARS KEPT'],
+    [`${SAVE.comps}`, 'COMPS'],
+    SAVE.best ? [`${SAVE.best}`, 'ENDLESS BEST'] : null
+  ].filter(Boolean).map(([v, k]) => `<div class="statPlate"><div class="v">${v}</div><div class="k">${k}</div></div>`).join('');
+
   const holder = $('mapNodes');
   holder.innerHTML = '';
   const BLOCKS = [
@@ -4551,8 +4625,9 @@ function renderMap() {
   for (const blk of BLOCKS) {
     const lbl = document.createElement('div');
     lbl.className = 'mapSub';
-    lbl.style.cssText = 'width:100%;margin:26px 0 28px;';
-    lbl.textContent = blk.label;
+    lbl.style.cssText = 'width:100%;margin:22px 0 26px;';
+    const done = Math.max(0, Math.min(SAVE.unlocked - 1 - blk.start, blk.count));
+    lbl.innerHTML = `${blk.label}<div class="blockBar"><span style="width:${(done / blk.count * 100).toFixed(0)}%"></span></div>`;
     holder.appendChild(lbl);
     for (let k = 0; k < blk.count; k++) {
       const i = blk.start + k;
@@ -4613,12 +4688,7 @@ function renderMap() {
   e.appendChild(sub);
   if (endlessOpen) e.addEventListener('pointerdown', () => rideElevator(ROOMS.length));
   holder.appendChild(e);
-  if (SAVE.best) {
-    const bl = document.createElement('div');
-    bl.className = 'mapSub';
-    bl.textContent = `ENDLESS BEST · WAVE ${SAVE.best}`;
-    holder.parentNode.insertBefore(bl, holder.nextSibling);
-  }
+
 }
 
 /* ══════════ AMBIENT DECOR (randomized per room — furniture blocks tower spots) ══════════ */
