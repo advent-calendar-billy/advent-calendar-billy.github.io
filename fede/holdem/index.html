@@ -223,6 +223,48 @@
   }
   .prioBtn.on { border-color: var(--gold); color: var(--gold); background: #241d10; }
 
+  /* ── floating tower menu ── */
+  #twMenu {
+    position: fixed;
+    display: none;
+    z-index: 21;
+    min-width: 178px;
+    padding: 9px 10px 10px;
+    background: linear-gradient(180deg, rgba(46,36,20,.97), rgba(12,9,5,.98));
+    border: 2px solid var(--gold);
+    border-radius: 13px;
+    box-shadow: 0 8px 26px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,235,180,.24);
+    text-align: center;
+    animation: pop .16s ease-out;
+  }
+  #twMenu::after {
+    content: '';
+    position: absolute; left: 50%; bottom: -9px;
+    margin-left: -8px;
+    border: 8px solid transparent;
+    border-top-color: var(--gold);
+  }
+  #twName {
+    font-family: Georgia, serif; font-weight: bold; font-size: 12.5px;
+    color: var(--gold); letter-spacing: 1px; margin-bottom: 6px;
+  }
+  #twPrio { display: flex; gap: 4px; justify-content: center; margin-bottom: 7px; }
+  #twActions { display: flex; gap: 6px; justify-content: center; }
+  .twBtn {
+    flex: 1;
+    background: #1d1811;
+    border: 2px solid #5a4626;
+    border-radius: 9px;
+    color: var(--cream);
+    font-family: inherit; font-weight: 800; font-size: 11px;
+    padding: 6px 8px 5px;
+    cursor: pointer;
+  }
+  .twBtn.can { border-color: var(--gold); }
+  .twBtn:not(.can) { opacity: .45; }
+  .twBtn .c { display: block; color: var(--gold); font-size: 12.5px; margin-top: 1px; }
+  .twBtn:active { transform: translateY(1px); }
+
   /* ── modal (infobox / victory / defeat) ── */
   #modal {
     position: fixed; inset: 0;
@@ -381,7 +423,7 @@
     display: none;
     z-index: 11;
     pointer-events: none;
-    animation: hereBob 1.2s ease-in-out infinite;
+    animation: hintBob 1.2s ease-in-out infinite;
   }
 
   #dealHint {
@@ -399,8 +441,9 @@
     display: none;
     z-index: 11;
     pointer-events: none;
-    animation: hereBob 1.2s ease-in-out infinite;
+    animation: hintBob 1.2s ease-in-out infinite;
   }
+  @keyframes hintBob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
 
   /* ── next-wave preview ── */
   #nextWave {
@@ -2133,6 +2176,13 @@
 <div id="dragHint">DRAG A TOWER ONTO THE CARPET ⤵</div>
 <div id="dealHint">NOW DEAL THEM IN ⤵</div>
 
+<!-- floating tower menu -->
+<div id="twMenu">
+  <div id="twName">—</div>
+  <div id="twPrio"></div>
+  <div id="twActions"></div>
+</div>
+
 <!-- build / tower sheet -->
 <div id="sheet">
   <div id="sheetTitle">BUILD</div>
@@ -3178,6 +3228,9 @@ function updateHUD() {
     }
   }
   // keep shop-bar + sheet affordability live
+  document.querySelectorAll('#twMenu .twBtn[data-cost]').forEach(b => {
+    b.classList.toggle('can', G.chips >= +b.dataset.cost);
+  });
   document.querySelectorAll('#sheetRow .shopItem[data-cost], #shop .shopCard[data-cost]').forEach(b => {
     b.classList.toggle('afford', G.chips >= +b.dataset.cost);
   });
@@ -3389,36 +3442,41 @@ buildShop();
 /* ══════════ SHEET (tap a placed tower → upgrade / sell) ══════════ */
 function closeSheet() {
   $('sheet').style.display = 'none';
+  $('twMenu').style.display = 'none';
   $('rangePrev').setAttribute('opacity', 0);
 }
 function openSheetForTower(tower) {
   const T = TTYPES[tower.type];
   const { x, y } = tower;
-  const row = $('sheetRow');
-  row.innerHTML = '';
-  $('sheetTitle').textContent = `${T.name}${tower.lvl > 1 ? ' ★' : ''} · ${T.blurb}`;
+  const menu = $('twMenu');
+  $('twName').textContent = `${T.name}${tower.lvl > 1 ? ' ★' : ''}`;
+
+  // targeting priority
+  const pr = $('twPrio');
+  pr.innerHTML = '';
   if (['dealer', 'roulette', 'catapult'].includes(tower.type)) {
-    const pr = document.createElement('div');
-    pr.className = 'prioRow';
-    [['first', 'FIRST'], ['strong', 'STRONGEST'], ['last', 'LAST']].forEach(([k, lbl]) => {
+    [['first', 'FIRST'], ['strong', 'STRONG'], ['last', 'LAST']].forEach(([k, lbl]) => {
       const pb = document.createElement('button');
       pb.className = 'prioBtn' + (tower.prio === k ? ' on' : '');
       pb.textContent = lbl;
       pb.addEventListener('pointerdown', ev => {
         ev.stopPropagation();
         tower.prio = k;
-        pr.querySelectorAll('.prioBtn').forEach(x => x.classList.remove('on'));
+        pr.querySelectorAll('.prioBtn').forEach(z => z.classList.remove('on'));
         pb.classList.add('on');
       });
       pr.appendChild(pb);
     });
-    row.appendChild(pr);
   }
+
+  const act = $('twActions');
+  act.innerHTML = '';
   if (tower.lvl === 1) {
-    const b = document.createElement('div');
-    b.className = 'shopItem' + (G.chips >= T.up.cost ? ' afford' : '');
+    const b = document.createElement('button');
+    b.className = 'twBtn' + (G.chips >= T.up.cost ? ' can' : '');
     b.dataset.cost = T.up.cost;
-    b.innerHTML = `<div class="nm">UPGRADE ★</div><div class="cost">◉ ${T.up.cost}</div><div class="sub">${T.up.menu}</div>`;
+    b.innerHTML = `UPGRADE ★<span class="c">◉ ${T.up.cost}</span>`;
+    b.title = T.up.menu;
     b.addEventListener('pointerdown', ev => {
       ev.stopPropagation();
       if (G.chips < T.up.cost) return;
@@ -3437,12 +3495,12 @@ function openSheetForTower(tower) {
       closeSheet();
       updateHUD();
     });
-    row.appendChild(b);
+    act.appendChild(b);
   }
-  const s = document.createElement('div');
-  const refund = Math.floor((T.cost + (tower.lvl === 2 ? T.up.cost : 0)) * .7);
-  s.className = 'shopItem afford';
-  s.innerHTML = `<div class="nm">SELL</div><div class="cost">◉ +${refund}</div><div class="sub">70% back</div>`;
+  const s = document.createElement('button');
+  const refund = Math.floor((effCost(T) + (tower.lvl === 2 ? T.up.cost : 0)) * .7);
+  s.className = 'twBtn can';
+  s.innerHTML = `SELL<span class="c">◉ +${refund}</span>`;
   s.addEventListener('pointerdown', ev => {
     ev.stopPropagation();
     SFX.sell();
@@ -3454,17 +3512,26 @@ function openSheetForTower(tower) {
     closeSheet();
     updateHUD();
   });
-  row.appendChild(s);
+  act.appendChild(s);
+
   if (T.range) {
     $('rangePrev').setAttribute('cx', x);
     $('rangePrev').setAttribute('cy', y);
     $('rangePrev').setAttribute('r', tower.range());
     $('rangePrev').setAttribute('opacity', 1);
   }
-  $('sheet').style.display = 'block';
+  // anchor the menu just above the tower, clamped to the screen
+  menu.style.display = 'block';
+  const m = stageSvg.getScreenCTM();
+  const pt = new DOMPoint(x, y - tower.r - 6).matrixTransform(m);
+  const w = menu.offsetWidth, h = menu.offsetHeight;
+  const left = Math.max(8, Math.min(window.innerWidth - w - 8, pt.x - w / 2));
+  const top = Math.max(56, pt.y - h - 12);
+  menu.style.left = left + 'px';
+  menu.style.top = top + 'px';
 }
 document.addEventListener('pointerdown', ev => {
-  if (!ev.target.closest('#sheet')) closeSheet();
+  if (!ev.target.closest('#sheet') && !ev.target.closest('#twMenu')) closeSheet();
 });
 
 /* ══════════ TOWERS ══════════ */

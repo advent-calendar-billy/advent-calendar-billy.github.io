@@ -14,7 +14,7 @@
 ## CORE MECHANICS
 - [ ] Tower placement polish: snap-back animation on invalid drop, subtle grid magnetism (maybe), placement while paused
 - [x] Per-tower targeting priority (FIRST/STRONGEST/LAST pills in the tower sheet) — Billy approved
-- [ ] Sell/upgrade UX: floating mini-menu at the tower instead of bottom sheet? (bottom sheet conflicts with shop bar)
+- [x] Floating tower menu anchored at the tower (upgrade/sell/targeting) — replaces the bottom sheet that fought the shop bar
 - [x] Wave preview: show icons of what's coming next wave
 - [ ] Early-wave-call bonus chips (call next wave while current still alive)
 - [x] Auto-start toggle for waves (mobile QoL)
