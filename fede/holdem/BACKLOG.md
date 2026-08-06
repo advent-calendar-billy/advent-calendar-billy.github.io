@@ -112,7 +112,11 @@
       reaches r3:w10, r5:w9, r10:w4, endless:w15. R7 triple-fork stays hard for the bot (hub-placement
       puzzle) — trimmed to 3.4x, needs human validation
 - [x] Probe data (Aug 3): reinvesting bot clears R1 easily, dies at R3 wave-10 gauntlet — softened hpMul ladder lands in the right zone; human playtest still needed
-- [ ] roomPow(): towers gain +16% dmg per room to track the hp curve — crude, replace with real per-room tuning
+- [x] Economy math pass (Aug 5): measured chips earned per floor with an instrumented probe. Income per
+      wave was PLATEAUING (~330) while threat grew ~18x by floor 20, so defense fell ~3x behind. Now:
+      towers +22%/floor (was 16%), kill rewards + wave income + Cage + ATM all scale with the floor's
+      hpMul, and late floors trim raw body count (difficulty comes from HP and layout, not spam).
+      Result: floors 15/25 went from wave 7 to wave 10, earned income now scales 1.9k -> 11k.
 - [ ] Room 1 first-pass numbers are guesses — playtest: tower costs, enemy HP curve (+10%/wave), income rates
 - [ ] Grandma stun: 6s cd / 2.5s stun — feels?
 - [ ] Whale at wave 5 beatable with ~2-3 towers?

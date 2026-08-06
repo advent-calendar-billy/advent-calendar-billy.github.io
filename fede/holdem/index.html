@@ -2946,6 +2946,7 @@ const familiarity = type =>
 /* ══════════ STATE ══════════ */
 const G = {
   chips: 380,
+  earned: 0,
   chipShow: 380,
   stars: 5,
   wave: 0,            // completed waves
@@ -3580,8 +3581,10 @@ function killEnemy(e, leaked) {
     if (G.stars <= 0 && !G.over) { updateHUD(); return lose(); }
   } else {
     const [x, y] = posAtE(e);
-    G.chips += e.E.reward;
-    float(x, y - 26, '+' + e.E.reward, '#ffd23f');
+    const rw = Math.round(e.E.reward * payScale());
+    G.chips += rw;
+    G.earned += rw;
+    float(x, y - 26, '+' + rw, '#ffd23f');
     poof(x, y - 8);
     SFX.kill();
     if (e.E.boss) {
@@ -3615,7 +3618,7 @@ function startWave() {
     $('dealHint').style.display = 'none';
     // opening waves ramp in — a floor should never open with a wall of bodies
     const OPENER = [.45, .62, .8, .92];
-    const os = OPENER[G.wave] || 1;
+    const os = (OPENER[G.wave] || 1) * countScale();
     G.spawners = WAVES[G.wave].map(([type, count, interval], si) => ({
       // single-count spawners use their interval as an initial delay (boss staggering)
       type, left: Math.max(1, Math.round(count * (count > 1 ? os : 1))),
@@ -3653,7 +3656,9 @@ function showNextWave() {
 const PROBE = location.search.includes('autotest');
 function probeReport(state) {
   if (!PROBE) return;
-  document.title = `PROBE room=${ROOM + 1}${G.alt ? 'B' : ''} wave=${Math.min(G.wave + 1, WAVES.length)}/${WAVES.length} ${state}`;
+  const lvl2 = G.towers.filter(t => t.lvl === 2).length;
+  document.title = `PROBE room=${ROOM + 1}${G.alt ? 'B' : ''} wave=${Math.min(G.wave + 1, WAVES.length)}/${WAVES.length} `
+    + `tow=${G.towers.length} up=${lvl2} chips=${Math.floor(G.chips)} earned=${Math.floor(G.earned)} ${state}`;
 }
 
 function saveMid() {
@@ -3669,15 +3674,16 @@ function endWave() {
   G.running = false;
   G.wave++;
   G.autoTimer = 2.5;
-  let income = 25;
+  let income = Math.round(25 * payScale());
   G.towers.forEach(t => {
     if (t.type === 'cage') {
-      const amt = t.lvl === 2 ? 100 : 45;
+      const amt = Math.round((t.lvl === 2 ? 100 : 45) * payScale());
       income += amt;
       float(t.x, t.y - 44, '+' + amt, '#57c26e');
     }
   });
   G.chips += income;
+  G.earned += income;
   probeReport('running');
   if (isEndless()) {
     SAVE.best = Math.max(SAVE.best || 0, G.wave);
@@ -3779,7 +3785,11 @@ function damageEnemy(e, dmg) {
 }
 
 /* towers sharpen as the campaign deepens — keeps late rooms winnable vs the hp curve */
-const roomPow = () => 1 + Math.min(ROOM, ROOMS.length) * 0.16;
+const roomPow = () => 1 + Math.min(ROOM, ROOMS.length) * 0.22;
+/* a floor's payout scales with how tough its guests are, so chips-per-effort stays honest */
+const payScale = () => (G.roomDef ? G.roomDef.hpMul : 1);
+/* late floors trim raw body count — the difficulty should come from HP and layout, not spam */
+const countScale = () => 1 / (1 + 0.022 * Math.max(0, Math.min(ROOM, ROOMS.length) - 8));
 
 function atkSpeedFactor(t) {
   let f = 1;
@@ -4049,8 +4059,9 @@ function update(dt) {
         if (dx * dx + dy * dy <= rr) n++;
       }
       if (n) {
-        const amt = n * (t.lvl === 2 ? 2 : 1);
+        const amt = Math.round(n * (t.lvl === 2 ? 2 : 1) * payScale());
         G.chips += amt;
+        G.earned += amt;
         float(t.x, t.y - 32, '+' + amt, '#57c26e');
         updateHUD();
       }
@@ -4386,6 +4397,7 @@ function initRoom(i, resume, altKey) {
 
   WAVES = R.waves;
   G.chips = R.chips + 60 * (SAVE.upg.bank || 0);
+  G.earned = 0;
   buildShop();
   $('vaultG').setAttribute('transform', `translate(${V.vault[0]},${V.vault[1]}) scale(.6)`);
 
@@ -5021,7 +5033,7 @@ if (location.search.includes('autotest')) {
     }
     else if (!G.running && !G.over) startWave();
     // reinvest like a player would
-    if (!G.over && G.chips > 360 && G.towers.length < 18) {
+    if (!G.over && G.chips > 360 && G.towers.length < 26) {
       const P = PATHS[buyN % PATHS.length];
       const idx = Math.min(P.pts.length - 3, Math.round((.12 + (buyN % 7) * .12) * P.pts.length));
       const [ax, ay] = P.pts[idx - 2], [bx, by] = P.pts[idx + 2];
