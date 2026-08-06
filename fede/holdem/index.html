@@ -784,6 +784,15 @@
   @keyframes gLumber  { 0%,100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg); } }
   @keyframes gStagger { 0%,100% { transform: rotate(-8deg) translateX(-2px); } 30% { transform: rotate(5deg); } 65% { transform: rotate(-3deg) translateX(3px); } }
   @keyframes bellRing { 0%,100% { transform: rotate(0); } 25% { transform: rotate(-14deg); } 65% { transform: rotate(11deg); } }
+  .entNote {
+    transform-box: fill-box; transform-origin: center;
+    animation: notePop 2.4s ease-in-out infinite;
+  }
+  @keyframes notePop {
+    0% { opacity: 0; transform: translate(0,0) rotate(-8deg); }
+    30% { opacity: .95; }
+    100% { opacity: 0; transform: translate(-16px,-26px) rotate(10deg); }
+  }
 </style>
 </head>
 <body>
@@ -1453,6 +1462,49 @@
         <path d="M-4 -25 Q 0 -28 4 -25" fill="none" stroke="#3b2415" stroke-width="2.2" stroke-linecap="round"/>
       </g>
 
+      <g id="sprEntertainer">
+        <ellipse cx="0" cy="52" rx="30" ry="9" fill="rgba(40,16,8,.35)"/>
+        <ellipse cx="-11" cy="50" rx="9" ry="5.5" fill="#1a1a1a" stroke="#3b2415" stroke-width="3"/>
+        <ellipse cx="11" cy="50" rx="9" ry="5.5" fill="#1a1a1a" stroke="#3b2415" stroke-width="3"/>
+        <!-- flared sequined tuxedo -->
+        <path d="M-14 -18 L 14 -18 L 19 14 L 27 46 L 9 46 L 5 22 L -5 22 L -9 46 L -27 46 L -19 14 Z"
+              fill="#7a1f4e" stroke="#3b2415" stroke-width="4.5"/>
+        <g fill="#ffd6ec" opacity=".85">
+          <circle cx="-9" cy="-8" r="1.5"/><circle cx="6" cy="-3" r="1.5"/><circle cx="-4" cy="6" r="1.5"/>
+          <circle cx="11" cy="10" r="1.5"/><circle cx="-13" cy="12" r="1.5"/><circle cx="2" cy="16" r="1.5"/>
+          <circle cx="-17" cy="30" r="1.5"/><circle cx="15" cy="30" r="1.5"/><circle cx="-8" cy="36" r="1.5"/>
+        </g>
+        <path d="M-19 14 L -27 46 M19 14 L 27 46" stroke="#e8b64c" stroke-width="3"/>
+        <!-- open shirt + medallion -->
+        <path d="M-8 -18 L 0 -2 L 8 -18" fill="#f2b98c" stroke="#3b2415" stroke-width="3"/>
+        <circle cx="0" cy="-6" r="4" fill="url(#brassG)" stroke="#3b2415" stroke-width="2"/>
+        <path d="M-14 -18 L -20 -27 M14 -18 L 20 -27" stroke="#3b2415" stroke-width="3.5"/>
+        <!-- mic arm, thrown wide -->
+        <path d="M14 -12 Q 27 -18 31 -32" fill="none" stroke="#7a1f4e" stroke-width="7.5" stroke-linecap="round"/>
+        <g transform="translate(32,-38) rotate(18)">
+          <rect x="-3.4" y="-4" width="6.8" height="16" rx="3" fill="#2b2f36" stroke="#3b2415" stroke-width="2.2"/>
+          <circle cx="0" cy="-7" r="6" fill="url(#chrome)" stroke="#3b2415" stroke-width="2.4"/>
+          <circle cx="-1.8" cy="-9" r="1.8" fill="rgba(255,255,255,.7)"/>
+        </g>
+        <path d="M-14 -12 Q -26 -6 -28 6" fill="none" stroke="#7a1f4e" stroke-width="7.5" stroke-linecap="round"/>
+        <circle cx="-29" cy="9" r="4.4" fill="#f2b98c" stroke="#3b2415" stroke-width="2.4"/>
+        <!-- head: pompadour, shades, jaw -->
+        <circle cx="0" cy="-34" r="16" fill="#f2b98c" stroke="#3b2415" stroke-width="4"/>
+        <path d="M-16 -38 Q -15 -56 3 -55 Q 18 -54 16 -36 Q 6 -48 -4 -47 Q -13 -45 -16 -38 Z"
+              fill="#1e1a16" stroke="#3b2415" stroke-width="2.6"/>
+        <path d="M-16 -36 L -16 -24 L -11 -24 L -12.5 -35 Z" fill="#1e1a16"/>
+        <path d="M16 -36 L 16 -24 L 11 -24 L 12.5 -35 Z" fill="#1e1a16"/>
+        <rect x="-12" y="-38" width="10.5" height="8" rx="3.4" fill="url(#brassG)" stroke="#3b2415" stroke-width="2.2"/>
+        <rect x="1.5" y="-38" width="10.5" height="8" rx="3.4" fill="url(#brassG)" stroke="#3b2415" stroke-width="2.2"/>
+        <line x1="-1.5" y1="-34.5" x2="1.5" y2="-34.5" stroke="#3b2415" stroke-width="2"/>
+        <path d="M-5 -24 Q 0 -20 6 -25" fill="none" stroke="#3b2415" stroke-width="2.4" stroke-linecap="round"/>
+        <!-- musical notes riding the air -->
+        <g class="entNote" fill="#ffd6ec" stroke="#3b2415" stroke-width="1.4">
+          <circle cx="-34" cy="-30" r="3.2"/>
+          <path d="M-31 -30 L -31 -42 L -25 -44 L -25 -40 L -31 -38" />
+        </g>
+      </g>
+
       <g id="sprPitBoss">
         <ellipse cx="0" cy="52" rx="31" ry="9" fill="rgba(40,16,8,.35)"/>
         <ellipse cx="-12" cy="50" rx="9" ry="5.5" fill="#15171c" stroke="#3b2415" stroke-width="3"/>
@@ -1623,6 +1675,42 @@
           <circle cx="-24" cy="-24" r="1.6"/><circle cx="24" cy="-24" r="1.6"/>
           <circle cx="-24" cy="2" r="1.6"/><circle cx="24" cy="2" r="1.6"/>
         </g>
+      </g>
+
+      <g id="decSeats">
+        <ellipse cx="4" cy="20" rx="46" ry="8" fill="rgba(40,16,8,.3)"/>
+        <g stroke="#3b2415" stroke-width="2.6">
+          <path d="M-42 14 Q -42 -6 -30 -6 Q -18 -6 -18 14 Z" fill="#7a1230"/>
+          <path d="M-38 12 Q -38 -2 -30 -2 Q -22 -2 -22 12 Z" fill="#9c1b3f"/>
+          <path d="M-14 14 Q -14 -6 -2 -6 Q 10 -6 10 14 Z" fill="#7a1230"/>
+          <path d="M-10 12 Q -10 -2 -2 -2 Q 6 -2 6 12 Z" fill="#9c1b3f"/>
+          <path d="M14 14 Q 14 -6 26 -6 Q 38 -6 38 14 Z" fill="#7a1230"/>
+          <path d="M18 12 Q 18 -2 26 -2 Q 34 -2 34 12 Z" fill="#9c1b3f"/>
+        </g>
+        <g fill="url(#brassG)" stroke="#3b2415" stroke-width="1.4">
+          <circle cx="-30" cy="16" r="2.4"/><circle cx="-2" cy="16" r="2.4"/><circle cx="26" cy="16" r="2.4"/>
+        </g>
+      </g>
+
+      <g id="decPoster">
+        <ellipse cx="2" cy="34" rx="15" ry="5" fill="rgba(40,16,8,.3)"/>
+        <line x1="0" y1="34" x2="0" y2="8" stroke="#3b2415" stroke-width="6"/>
+        <line x1="0" y1="34" x2="0" y2="8" stroke="#d9a94f" stroke-width="3"/>
+        <ellipse cx="0" cy="34" rx="9" ry="3.5" fill="#d9a94f" stroke="#3b2415" stroke-width="2.5"/>
+        <rect x="-23" y="-34" width="46" height="44" rx="4" fill="#1c0a24" stroke="#e8b64c" stroke-width="3"/>
+        <text x="0" y="-21" text-anchor="middle" font-family="Georgia" font-weight="bold" font-size="8" fill="#ffd23f">TONIGHT</text>
+        <g transform="translate(0,-6) scale(.62)"><use href="#symLips"/></g>
+        <text x="0" y="6" text-anchor="middle" font-family="Georgia" font-size="6.5" fill="#c9a7d8">ONE NIGHT ONLY</text>
+        <g fill="#e8b64c">
+          <circle cx="-18" cy="-30" r="1.4"/><circle cx="18" cy="-30" r="1.4"/>
+          <circle cx="-18" cy="6" r="1.4"/><circle cx="18" cy="6" r="1.4"/>
+        </g>
+      </g>
+
+      <g id="decSpot">
+        <ellipse cx="0" cy="0" rx="34" ry="20" fill="rgba(255,214,236,.13)"/>
+        <ellipse cx="0" cy="0" rx="22" ry="13" fill="rgba(255,236,247,.16)"/>
+        <ellipse cx="0" cy="0" rx="34" ry="20" fill="none" stroke="rgba(255,214,236,.25)" stroke-width="2"/>
       </g>
 
       <g id="decCocktail">
@@ -1999,7 +2087,7 @@
     <div id="mapComps"></div>
     <div id="mapNodes"></div>
     <div id="mapShop"></div>
-    <div class="mapSub" style="opacity:.55">…30 more floors under renovation</div>
+    <div class="mapSub" style="opacity:.55">…20 more floors under renovation</div>
   </div>
 </div>
 
@@ -2137,6 +2225,9 @@ const ETYPES = {
   auditor: { name:'The Auditor', sprite:'sprAuditor', hp:2600, speed:26, reward:300, star:2, scale:.8, tapR:40, boss:true, audit:true,
     desc:'Everything stops when he opens the briefcase. While he walks, your most expensive tower is UNDER AUDIT — frozen, pending review.',
     stats:'BOSS · DISABLES YOUR PRICIEST TOWER' },
+  entertainer: { name:'The Entertainer', sprite:'sprEntertainer', hp:3400, speed:27, reward:380, star:2, scale:.8, tapR:40, boss:true, showtime:170,
+    desc:'The headliner works the room, and when he takes a number EVERY tower within earshot stops to watch. Nobody works the floor while he is singing.',
+    stats:'BOSS · HIS NUMBER FREEZES NEARBY TOWERS' },
   pitboss: { name:'The Pit Boss', sprite:'sprPitBoss', hp:2900, speed:28, reward:320, star:2, scale:.8, tapR:40, boss:true, comp:150,
     desc:'He runs this floor and everyone on it is comped. While he walks, every guest inside his radius takes HALF damage. Cut him out first.',
     stats:'BOSS · HALVES DAMAGE TO NEARBY GUESTS' },
@@ -2728,6 +2819,111 @@ const ROOMS = [
       [['pitboss',1,0],['honey',13,2],['influencer',8,2.2]],
       [['whale',5,5],['clipper',28,.32],['drunk',26,.32]],
       [['shark',1,0],['lady',1,16],['auditor',1,30],['pitboss',1,44],['whale',4,6]]
+    ] },
+  { name: 'The Showroom', hpMul: 2.20, chips: 1050, block: 2,
+    carpet: ['#5e0f22', '#71182c', '#450a18'],
+    intro: 'A new block: THE THEATER. Red velvet, raked seating and a house that fills up before every number. The crowd files in along the front of the stage.',
+    variants: [
+      { entryY: 140, vault: [1046, 420], killOffset: 112,
+        lanes: ['M -40 140 C 220 140, 460 150, 600 210 C 740 270, 800 360, 1160 420'] },
+      { entryY: 460, vault: [1046, 180], killOffset: 112,
+        lanes: ['M -40 460 C 220 460, 460 450, 600 390 C 740 330, 800 240, 1160 180'] }
+    ],
+    waves: [
+      [['retiree',30,.32],['tourist',24,.3]],
+      [['drunk',20,.42],['mojito',20,.42]],
+      [['honey',10,2.4],['clipper',20,.44]],
+      [['counter',14,.75],['regular',18,.55]],
+      [['whale',4,6],['grandma',20,.58]],
+      [['elvis',34,.22],['influencer',7,2.6]],
+      [['pitboss',1,0],['drunk',22,.4]],
+      [['auditor',2,13],['honey',11,2.2]],
+      [['counter',16,.68],['clipper',22,.4]],
+      [['shark',1,0],['whale',4,6],['grandma',22,.54]]
+    ] },
+  { name: 'The Aisles', hpMul: 2.26, chips: 1080, block: 2,
+    carpet: ['#57101f', '#6b1a2b', '#3f0a15'],
+    intro: 'Two aisles run down either side of the house and meet at the doors. Late arrivals take whichever is emptier — which is to say, whichever you left alone.',
+    variants: [
+      { entryY: 300, vault: [1046, 300], killOffset: 112,
+        lanes: [
+          'M -40 300 C 90 300, 150 300, 210 300 C 330 300, 320 130, 470 130 C 620 130, 640 250, 760 290 C 850 320, 900 300, 1160 300',
+          'M -40 300 C 90 300, 150 300, 210 300 C 330 300, 320 470, 470 470 C 620 470, 640 350, 760 310 C 850 280, 900 300, 1160 300'
+        ] }
+    ],
+    waves: [
+      [['retiree',32,.3],['drunk',20,.42]],
+      [['clipper',22,.4],['tourist',26,.26]],
+      [['mojito',22,.4],['honey',11,2.2]],
+      [['regular',18,.55],['counter',15,.7]],
+      [['lady',1,0],['grandma',22,.54]],
+      [['elvis',36,.2],['influencer',8,2.4]],
+      [['whale',4,6],['honey',12,2.1]],
+      [['pitboss',1,0],['clipper',24,.36]],
+      [['counter',17,.62],['drunk',24,.36]],
+      [['shark',1,0],['auditor',1,20],['whale',4,6]]
+    ] },
+  { name: 'Backstage', hpMul: 2.32, chips: 1110, block: 2,
+    carpet: ['#2e2a2c', '#3a3538', '#211e20'],
+    intro: 'Past the curtain: rope lines, prop crates and one narrow corridor to the stage door. Nobody out here is dressed for the show.',
+    variants: [
+      { entryY: 200, vault: [1046, 380], killOffset: 100,
+        lanes: ['M -40 200 C 140 200, 240 200, 330 250 C 430 305, 380 420, 500 460 C 620 500, 700 420, 800 390 C 900 360, 980 380, 1160 380'] },
+      { entryY: 400, vault: [1046, 220], killOffset: 100,
+        lanes: ['M -40 400 C 140 400, 240 400, 330 350 C 430 295, 380 180, 500 140 C 620 100, 700 180, 800 210 C 900 240, 980 220, 1160 220'] }
+    ],
+    waves: [
+      [['drunk',22,.4],['retiree',30,.32]],
+      [['regular',20,.5],['clipper',22,.4]],
+      [['counter',16,.66],['mojito',22,.4]],
+      [['honey',12,2.1],['grandma',22,.52]],
+      [['pitboss',1,0],['regular',22,.48]],
+      [['elvis',36,.2],['influencer',8,2.4]],
+      [['whale',5,5],['clipper',24,.36]],
+      [['auditor',2,12],['counter',18,.6]],
+      [['lady',1,0],['drunk',26,.32]],
+      [['shark',1,0],['whale',4,6],['pitboss',1,22]]
+    ] },
+  { name: 'The Balcony', hpMul: 2.38, chips: 1140, block: 2,
+    carpet: ['#4c1030', '#5e1a3e', '#380a22'],
+    intro: 'The upper ring. A single loop around the house with the best view in the building — and the longest walk to the desk.',
+    variants: [
+      { entryY: 130, vault: [560, 330], killOffset: 25,
+        lanes: ['M -40 130 C 260 130, 560 130, 740 170 C 900 206, 960 330, 840 430 C 700 545, 340 545, 220 450 C 120 372, 170 270, 320 262 C 450 255, 520 300, 560 330'] }
+    ],
+    waves: [
+      [['retiree',34,.28],['tourist',26,.26]],
+      [['drunk',24,.36],['clipper',24,.36]],
+      [['honey',13,2],['mojito',24,.36]],
+      [['counter',17,.62],['regular',20,.5]],
+      [['whale',5,5],['grandma',24,.5]],
+      [['elvis',38,.19],['influencer',8,2.3]],
+      [['lady',1,0],['honey',13,2]],
+      [['pitboss',1,0],['clipper',26,.34]],
+      [['auditor',2,11],['counter',19,.58]],
+      [['shark',1,0],['lady',1,18],['whale',4,6]]
+    ] },
+  { name: 'The Main Stage', hpMul: 2.44, chips: 1170, block: 2,
+    carpet: ['#63102a', '#7a1a38', '#480a1e'],
+    intro: 'House lights down. Tonight THE ENTERTAINER headlines, and when he takes a number every tower in earshot stops working to watch him. Hold the room anyway.',
+    variants: [
+      { entryY: 130, vault: [1046, 470], killOffset: 112,
+        lanes: [
+          'M -40 130 C 240 130, 460 140, 600 200 C 760 268, 700 380, 560 400 C 420 420, 380 490, 520 510 C 700 535, 900 500, 1160 470',
+          'M -40 470 C 200 470, 380 470, 520 440 C 680 406, 760 330, 900 350 C 1000 364, 1060 430, 1160 470'
+        ] }
+    ],
+    waves: [
+      [['retiree',36,.26],['drunk',24,.36]],
+      [['clipper',26,.34],['tourist',28,.24]],
+      [['honey',13,2],['mojito',26,.34]],
+      [['entertainer',1,0],['regular',22,.48]],
+      [['whale',5,5],['grandma',24,.5]],
+      [['elvis',40,.18],['influencer',9,2.2]],
+      [['pitboss',1,0],['counter',20,.55]],
+      [['auditor',2,11],['honey',14,1.9]],
+      [['lady',1,0],['clipper',28,.32]],
+      [['entertainer',1,0],['shark',1,26],['whale',4,6],['grandma',24,.5]]
     ] }
 ];
 let ROOM = 0;
@@ -2817,6 +3013,18 @@ function loungePad() {
   if (vampTimer) return;
   vampTimer = setInterval(() => {
     if (!sndOn || G.paused || G.over || !bossOnFloor()) { vampStep = 0; return; }
+    // the headliner brings his own arrangement
+    if (G.enemies.some(e => e.E.showtime)) {
+      const MEL = [523, 587, 659, 784, 659, 587, 523, 440];
+      const BASS = [131, 131, 175, 175, 196, 196, 165, 165];
+      const i = vampStep % 8;
+      tone(BASS[i], .42, 'triangle', .045);
+      tone(MEL[i], .3, 'square', .033, .04);
+      tone(MEL[i] * 2, .16, 'sine', .016, .06);
+      if (i === 7) tone(880, .3, 'triangle', .03, .22);
+      vampStep++;
+      return;
+    }
     const bass = [98, 98, 116.5, 110][vampStep % 4];
     tone(bass, .36, 'sawtooth', .05);
     tone(bass * 2, .2, 'square', .02, .05);
@@ -2841,7 +3049,8 @@ const SFX = {
   slotWin() { tone(659, .08, 'square', .06); tone(784, .08, 'square', .06, .09); tone(1047, .2, 'square', .07, .18); },
   cash()    { tone(1568, .05, 'square', .045); tone(1568, .05, 'square', .045, .08); },
   honk()    { tone(392, .14, 'square', .07); tone(330, .2, 'square', .07, .16); },
-  ding()    { tone(1568, .18, 'triangle', .06); tone(2093, .3, 'triangle', .04, .05); }
+  ding()    { tone(1568, .18, 'triangle', .06); tone(2093, .3, 'triangle', .04, .05); },
+  showtime(){ [523, 659, 784, 1047].forEach((f, i) => tone(f, .3, 'triangle', .05, i * .07)); }
 };
 
 /* ══════════ UI helpers ══════════ */
@@ -3763,6 +3972,23 @@ function update(dt) {
     }
   }
 
+  /* the Entertainer takes a number — the floor stops to watch */
+  for (const e of G.enemies) {
+    if (!e.E.showtime) continue;
+    e.showT = (e.showT || 0) + dt;
+    if (e.showT >= 8) {
+      e.showT = 0;
+      const [sx, sy] = posAtE(e);
+      fxRing(sx, sy, e.E.showtime, '#ffd6ec');
+      float(sx, sy - 40, 'SHOWTIME!', '#ffd6ec');
+      SFX.showtime();
+      for (const t of G.towers) {
+        const dx = t.x - sx, dy = t.y - sy;
+        if (dx * dx + dy * dy <= e.E.showtime * e.E.showtime) t.stunUntil = Math.max(t.stunUntil, G.time + 2.4);
+      }
+    }
+  }
+
   /* Lady Luck's jinx: towers in her aura roll minimum damage */
   const jinxers = G.enemies.filter(e => e.E.jinx);
   for (const t of G.towers) {
@@ -4075,7 +4301,8 @@ function endlessWave(w) {
     wave.push([t, 6 + Math.floor(w * 1.1), Math.max(.24, 1.4 - w * .028)]);
   }
   if (w % 5 === 4) {
-    const boss = w % 20 === 19 ? 'pitboss' : w % 15 === 14 ? 'lady' : w % 10 === 9 ? 'shark' : 'whale';
+    const boss = w % 25 === 24 ? 'entertainer' : w % 20 === 19 ? 'pitboss'
+               : w % 15 === 14 ? 'lady' : w % 10 === 9 ? 'shark' : 'whale';
     wave.push([boss, 1 + Math.floor(w / 12), 15]);
   }
   if (w > 6 && Math.random() < .4) wave.push(['honey', 2 + Math.floor(w / 8), 5]);
@@ -4234,7 +4461,8 @@ function renderMap() {
   holder.innerHTML = '';
   const BLOCKS = [
     { label: 'SLOTS PIT · FLOORS 1–10', start: 0, count: 10 },
-    { label: 'ROULETTE HALLS · FLOORS 11–20', start: 10, count: 10 }
+    { label: 'ROULETTE HALLS · FLOORS 11–20', start: 10, count: 10 },
+    { label: 'THE THEATER · FLOORS 21–30', start: 20, count: 10 }
   ];
   for (const blk of BLOCKS) {
     const lbl = document.createElement('div');
@@ -4332,13 +4560,21 @@ function placeDecor() {
   g.innerHTML = '';
   G.decor = [];
   G.ambient = [];
-  const KINDS = [
+  const CASINO_KINDS = [
     { id: 'decSlot', r: 32, min: 2, max: 4 },
     { id: 'decBJ',   r: 48, min: 1, max: 2 },
     { id: 'decPlant', r: 24, min: 1, max: 2 },
     { id: 'decSign', r: 26, min: 0, max: 2 },
     { id: 'decCocktail', r: 20, min: 1, max: 2 }
   ];
+  const THEATER_KINDS = [
+    { id: 'decSeats', r: 46, min: 2, max: 3 },
+    { id: 'decPoster', r: 26, min: 1, max: 2 },
+    { id: 'decSpot', r: 30, min: 1, max: 2 },
+    { id: 'decPlant', r: 24, min: 0, max: 1 },
+    { id: 'decCocktail', r: 20, min: 0, max: 1 }
+  ];
+  const KINDS = (G.roomDef && G.roomDef.block === 2) ? THEATER_KINDS : CASINO_KINDS;
   for (const k of KINDS) {
     const n = k.min + Math.floor(Math.random() * (k.max - k.min + 1));
     for (let i = 0; i < n; i++) {
@@ -4652,7 +4888,7 @@ if (/gallery|autotest|slottest|pausetest|sheettest|ridetest|depthtest|unlockall|
 if (location.search.includes('gallery')) {
   const TW = ['twDealer','twRoulette','twRope','twCage','twATM','twCraps','twBuffet','twWaitress','twCatapult'];
   const ids = location.search.includes('gallery=tw') ? TW : ['sprRetiree','sprTourist','sprElvis','sprGrandma','sprClipper','sprInfluencer',
-               'sprDrunk','sprMojito','sprCounter','sprGroom','sprBride','sprRegular','sprWaitress','sprAuditor','sprLady','sprPitBoss','sprWhale','sprShark',
+               'sprDrunk','sprMojito','sprCounter','sprGroom','sprBride','sprRegular','sprWaitress','sprAuditor','sprLady','sprPitBoss','sprEntertainer','sprWhale','sprShark',
                'twDealer','twRoulette','twRope','twCage','twATM','twCraps','twBuffet','twWaitress','twCatapult','decSlot','decBJ','decPlant'];
   document.querySelectorAll('#hud,#startWave,#shop,#nextWave,#modal,#map,#slots').forEach(n => n.style.display = 'none');
   G.paused = true; G.over = true;
