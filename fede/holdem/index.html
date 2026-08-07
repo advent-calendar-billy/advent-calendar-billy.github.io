@@ -295,7 +295,7 @@
     font-family: Georgia, serif;
   }
   #modalCard .kind { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: #b7a98a; }
-  #modalSprite { margin: 8px auto 4px; display: block; }
+  #modalSprite { margin: 6px auto 2px; display: block; overflow: visible; }
   #modalCard p { font-size: 14px; line-height: 1.5; color: #d8cbb0; margin: 8px 0 4px; }
   #modalCard .statline { font-size: 12.5px; color: var(--gold); font-weight: 800; margin-bottom: 12px; }
   #modalBtn { font-size: 16px; padding: 10px 26px; }
@@ -3465,6 +3465,7 @@ function float(x, y, txt, color) {
 /* ══════════ MODAL ══════════ */
 let modalClose = null;
 let modalPrevPaused = false;
+let modalGait = 'waddle';
 function showModal(kind, title, spriteId, desc, stats, btnTxt, onClose, spriteScale) {
   $('modalKind').textContent = kind;
   $('modalTitle').textContent = title;
@@ -3474,10 +3475,12 @@ function showModal(kind, title, spriteId, desc, stats, btnTxt, onClose, spriteSc
   const ms = $('modalSprite');
   ms.innerHTML = '';
   if (spriteId) {
-    const u = document.createElementNS(NS, 'use');
-    u.setAttribute('href', '#' + spriteId);
-    u.setAttribute('transform', `scale(${spriteScale || 1})`);
-    ms.appendChild(u);
+    svgEl('ellipse', { cx: 0, cy: 42, rx: 44, ry: 12, fill: 'rgba(255,214,140,.10)' }, ms);
+    svgEl('ellipse', { cx: 0, cy: 42, rx: 26, ry: 7, fill: 'rgba(255,214,140,.14)' }, ms);
+    svgEl('ellipse', { cx: 3, cy: 40, rx: 22, ry: 6, fill: 'rgba(20,10,4,.5)' }, ms);
+    const gait = svgEl('g', { class: 'gait-' + (modalGait || 'waddle'),
+                              transform: `scale(${spriteScale || 1})` }, ms);
+    svgEl('use', { href: '#' + spriteId }, gait);
   }
   ms.style.display = spriteId ? 'block' : 'none';
   if ($('modal').style.display !== 'flex') modalPrevPaused = G.paused;
@@ -3495,7 +3498,8 @@ $('modalBtn').addEventListener('click', () => {
 function introduce(type, then) {
   const e = ETYPES[type];
   G.seen[type] = true;
-  showModal(e.boss ? '⚠ BOSS ON THE FLOOR ⚠' : 'NEW GUEST ON THE FLOOR',
+  modalGait = e.gait || (e.boss ? 'lumber' : type === 'elvis' ? 'groove' : 'waddle');
+  showModal(e.boss ? 'BOSS ON THE FLOOR' : 'NEW GUEST ON THE FLOOR',
     e.name, e.sprite, e.desc, e.stats, 'DEAL ME IN', then,
     e.boss ? .9 : 1);
 }
@@ -3885,7 +3889,8 @@ function spawnEnemy(type) {
   }
   tap.addEventListener('pointerdown', ev => {
     ev.stopPropagation();
-    showModal(E.boss ? '⚠ BOSS ⚠' : 'GUEST DOSSIER', E.name, E.sprite, E.desc, E.stats, 'BACK TO THE FLOOR');
+    modalGait = E.gait || (E.boss ? 'lumber' : type === 'elvis' ? 'groove' : 'waddle');
+    showModal(E.boss ? 'BOSS ON THE FLOOR' : 'GUEST DOSSIER', E.name, E.sprite, E.desc, E.stats, 'BACK TO THE FLOOR');
   });
   if (E.boss) {
     banner(E.name.toUpperCase());
@@ -5301,7 +5306,7 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http') && !loc
 document.addEventListener('gesturestart', e => e.preventDefault());
 document.addEventListener('dblclick', e => e.preventDefault());
 
-if (/gallery|autotest|slottest|pausetest|sheettest|ridetest|depthtest|dragtest|unlockall|room=/.test(location.search)) {
+if (/gallery|autotest|slottest|pausetest|sheettest|ridetest|depthtest|dragtest|dossier|unlockall|room=/.test(location.search)) {
   $('title').style.display = 'none';
 }
 
@@ -5368,6 +5373,14 @@ if (location.search.includes('depthtest')) {
   mk(200, 0); lab(200, 'A · CURRENT');
   mk(540, 1); lab(540, 'B · SHADOW + RIM LIGHT');
   mk(880, 2); lab(880, 'C · B + BASE PAD, RAISED');
+}
+
+/* dev dossier: open a guest dossier card for review */
+const dosParam = location.search.match(/dossier=([a-z]+)/);
+if (dosParam && ETYPES[dosParam[1]]) {
+  initRoom(0);
+  $('modalBtn').dispatchEvent(new Event('click'));
+  introduce(dosParam[1], () => {});
 }
 
 /* dev dragtest: freeze a tower mid-drag to inspect the placement preview */

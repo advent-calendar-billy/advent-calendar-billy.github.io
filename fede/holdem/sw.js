@@ -1,4 +1,4 @@
-const CACHE = 'holdem-v48';
+const CACHE = 'holdem-v49';
 const ASSETS = ['./', './index.html', './manifest.json', './icon.svg', './icon-180.png'];
 
 self.addEventListener('install', e => {
