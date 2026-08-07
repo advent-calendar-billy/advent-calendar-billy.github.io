@@ -79,8 +79,9 @@
 - Lounge music: "fine for now"
 
 ## Comps shop (PROVISIONAL — not yet user-approved)
-- Map screen sells permanent upgrades for comps: Bigger Bankroll (+60 start chips, ×3) and House Discount (towers 5% cheaper, ×2)
-- Placeholder design to make comps mean something; revisit with Billy
+- Map screen sells permanent upgrades for comps: **Bigger Bankroll** (+12% starting chips per level, ×3, 30/65/110 comps) and **House Discount** (towers 6% cheaper per level, ×2, 55/95 comps)
+- Percentages rather than flat bonuses so the perks stay relevant on floor 30, where a floor already starts with 1320 chips
+- Still a placeholder design — Billy has been asked what comps SHOULD buy (unlock a 10th tower / a free starting tower / +1 reputation star / re-roll the furniture / extra slot spins)
 
 ## Economy (approved)
 - **Fresh build per room** (Bloons-style): build from scratch each room with starting chips

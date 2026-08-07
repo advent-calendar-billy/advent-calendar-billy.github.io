@@ -102,6 +102,8 @@
 - [ ] sw.js cache version bump discipline (bump CACHE on every deploy!)
 
 ## BALANCE (living list)
+- [x] Comps perks converted from flat (+60 chips) to percentage (+12% bankroll / -6% cost) and repriced
+      on a curve, so meta-progression stays meaningful at floor 30 where a floor starts with 1320 chips
 - [x] Probe harness: ?autotest reports progress through document.title, so a headless sweep of all
       20 floors yields a wave-reached table (scratchpad/probe-results.txt)
 - [x] Aug 5 rebalance: enemy scale was compounding hpMul x familiarity(1.05^floor) to ~11x by floor 20
