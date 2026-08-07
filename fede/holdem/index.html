@@ -445,6 +445,22 @@
   }
   @keyframes hintBob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
   .twInner { transform-box: fill-box; transform-origin: center; }
+  #twDealer .dealFan, #twCatapult .catArm, #twCraps .crapsDie, #twCraps .crapsDie2 {
+    transform-box: fill-box; transform-origin: center;
+  }
+  #twDealer .dealFan { animation: fanBreathe 3.4s ease-in-out infinite; }
+  @keyframes fanBreathe { 0%,100% { transform: rotate(-2.5deg); } 50% { transform: rotate(2.5deg); } }
+  #twCatapult .catArm { animation: armSway 2.8s ease-in-out infinite; }
+  @keyframes armSway { 0%,100% { transform: rotate(-1.6deg); } 50% { transform: rotate(2.6deg); } }
+  #twCraps .crapsDie { animation: dieRattle 4.2s ease-in-out infinite; }
+  #twCraps .crapsDie2 { animation: dieRattle 4.2s ease-in-out .4s infinite; }
+  @keyframes dieRattle {
+    0%,86%,100% { transform: translate(0,0) rotate(0); }
+    90% { transform: translate(1px,-2px) rotate(9deg); }
+    94% { transform: translate(-1px,1px) rotate(-7deg); }
+  }
+  #twCage .cageLight { animation: cagePulse 3.6s ease-in-out infinite; }
+  @keyframes cagePulse { 0%,100% { opacity: .75; } 50% { opacity: 1; } }
   .twInner.fired { animation: twFire .16s ease-out; }
   @keyframes twFire { 0% { transform: scale(1); } 35% { transform: scale(1.09); } 100% { transform: scale(1); } }
   .dying { transform-box: fill-box; transform-origin: 50% 80%; animation: guestOut .22s ease-in forwards; }
@@ -1356,12 +1372,12 @@
         </g>
         <!-- drink ring stain -->
         <ellipse cx="-24" cy="12" rx="6" ry="3.4" fill="none" stroke="rgba(20,60,45,.5)" stroke-width="1.6"/>
-        <g transform="rotate(24)">
+        <g class="dealFan"><g transform="rotate(24)">
           <rect x="-10" y="-21" width="17" height="24" rx="3" fill="#f5ead1" stroke="#3b2415" stroke-width="2.5" transform="rotate(-16 -1 -9)"/>
           <rect x="-7" y="-22" width="17" height="24" rx="3" fill="#f5ead1" stroke="#3b2415" stroke-width="2.5"/>
           <rect x="-4" y="-23" width="17" height="24" rx="3" fill="#f5ead1" stroke="#3b2415" stroke-width="2.5" transform="rotate(16 4 -11)"/>
           <text x="3" y="-8" text-anchor="middle" font-family="Georgia" font-size="11" fill="#c9473b">♦</text>
-        </g>
+        </g></g>
         <circle cx="-21" cy="11" r="6.5" fill="#c9473b" stroke="#3b2415" stroke-width="2"/>
         <circle cx="-10" cy="15" r="6.5" fill="#2b6cb0" stroke="#3b2415" stroke-width="2"/>
       </g>
@@ -1374,7 +1390,7 @@
         <path d="M34 -20 L 34 28 L -30 28" fill="none" stroke="rgba(20,8,2,.4)" stroke-width="3"/>
         <!-- lit teller window -->
         <rect x="-30" y="-22" width="60" height="38" rx="5" fill="#0e0b06" stroke="#3b2415" stroke-width="3"/>
-        <rect x="-30" y="-22" width="60" height="38" rx="5" fill="url(#cageGlow)"/>
+        <rect class="cageLight" x="-30" y="-22" width="60" height="38" rx="5" fill="url(#cageGlow)"/>
         <circle cx="14" cy="-8" r="4" fill="#ffcf7a" opacity=".85"/>
         <g stroke="url(#brassG)" stroke-width="3">
           <line x1="-22" y1="-22" x2="-22" y2="16"/><line x1="-11" y1="-22" x2="-11" y2="16"/>
@@ -1961,7 +1977,7 @@
           <path d="M-5 6 q 5 3 10 0 M-5 10 q 5 3 10 0 M-5 14 q 5 3 10 0"/>
         </g>
         <!-- arm + chip basket -->
-        <g transform="rotate(-32 0 10)">
+        <g class="catArm"><g transform="rotate(-32 0 10)">
           <rect x="-5" y="-36" width="10" height="46" rx="4" fill="url(#woodG)" stroke="#3b2415" stroke-width="3"/>
           <line x1="-2.4" y1="-33" x2="-2.4" y2="6" stroke="rgba(255,240,205,.35)" stroke-width="1.8"/>
           <path d="M-11 -40 A 11 11 0 0 0 11 -40 L 8 -47 L -8 -47 Z" fill="#6b4423" stroke="#3b2415" stroke-width="2.5"/>
@@ -1970,7 +1986,7 @@
             <ellipse cx="3" cy="-46.5" rx="5.4" ry="2.4" fill="#e8b64c"/>
             <ellipse cx="0" cy="-49" rx="5.4" ry="2.4" fill="#2b6cb0"/>
           </g>
-        </g>
+        </g></g>
         <!-- ammo pile -->
         <g stroke="#3b2415" stroke-width="1.8">
           <ellipse cx="23" cy="6" rx="8" ry="3.4" fill="#2b6cb0"/>
@@ -2033,18 +2049,18 @@
         <!-- dice with shadows -->
         <ellipse cx="-7" cy="4" rx="9" ry="3.4" fill="rgba(10,40,30,.45)"/>
         <ellipse cx="14" cy="10" rx="9" ry="3.4" fill="rgba(10,40,30,.45)"/>
-        <g transform="translate(-9,-1) rotate(-14)">
+        <g class="crapsDie"><g transform="translate(-9,-1) rotate(-14)">
           <rect x="-7" y="-7" width="14" height="14" rx="3" fill="#f5ead1" stroke="#3b2415" stroke-width="2.5"/>
           <path d="M-5.5 -5.5 L 4 -5.5 L -5.5 4 Z" fill="rgba(255,255,255,.7)"/>
           <circle r="1.8" fill="#c9182b"/>
           <circle cx="-3.5" cy="-3.5" r="1.8" fill="#3b2415"/><circle cx="3.5" cy="3.5" r="1.8" fill="#3b2415"/>
-        </g>
-        <g transform="translate(12,5) rotate(12)">
+        </g></g>
+        <g class="crapsDie2"><g transform="translate(12,5) rotate(12)">
           <rect x="-7" y="-7" width="14" height="14" rx="3" fill="#f5ead1" stroke="#3b2415" stroke-width="2.5"/>
           <path d="M-5.5 -5.5 L 4 -5.5 L -5.5 4 Z" fill="rgba(255,255,255,.7)"/>
           <circle cx="-3.5" cy="-3.5" r="1.8" fill="#3b2415"/><circle cx="3.5" cy="-3.5" r="1.8" fill="#3b2415"/>
           <circle cx="-3.5" cy="3.5" r="1.8" fill="#3b2415"/><circle cx="3.5" cy="3.5" r="1.8" fill="#3b2415"/>
-        </g>
+        </g></g>
         <!-- rail chips -->
         <g stroke="#3b2415" stroke-width="1.4">
           <ellipse cx="-31" cy="21" rx="6" ry="2.6" fill="#c9473b"/>
