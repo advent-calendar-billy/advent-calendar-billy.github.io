@@ -102,6 +102,12 @@
 - [ ] sw.js cache version bump discipline (bump CACHE on every deploy!)
 
 ## BALANCE (living list)
+- [x] Aug 7 playtest (Billy): 5 lives was far too punishing -> 20 per floor, shown as a counter.
+      Two measured curves now:
+        BASELINE (5 tables, no mastery, tier II): floors 1-15 clear, floor 20 -> wave 9, floor 30 -> wave 8
+        MASTERED (all tables, tier III): clears everything
+      So the comps you earn are what carry you through the last third — that's the intended shape.
+      NOTE: early floors are now gentle by design; check on the next playtest whether 1-10 feel boring.
 - [x] Full 30-floor sweep after the economy pass: 23 of 30 floors now reach the final wave for the
       blind bot, with block finales (10/20/30) and a few mid-block floors as the genuine spikes.
       Lady Luck's jinx softened 30%->45% damage and aura 140->125 after it proved a wall on floor 10.

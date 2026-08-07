@@ -5678,8 +5678,13 @@ if (location.search.includes('slottest')) {
 
 /* dev autotest: ?autotest plays the campaign unattended */
 if (location.search.includes('autotest')) {
-  SAVE.owned = Object.keys(TTYPES);          // probes exercise the whole shelf
-  Object.keys(TTYPES).forEach(k => { SAVE.mastery[k] = true; });
+  // ?baseline probes a brand-new player: five tables, no mastery, tier II ceiling
+  const BASE = location.search.includes('baseline');
+  const MAXLV = BASE ? 2 : 3;
+  if (!BASE) {
+    SAVE.owned = Object.keys(TTYPES);        // probes exercise the whole shelf
+    Object.keys(TTYPES).forEach(k => { SAVE.mastery[k] = true; });
+  }
   if ($('map').style.display !== 'none') {
     const cur = document.querySelector('.mapNode.cur');
     if (cur) cur.dispatchEvent(new Event('pointerdown'));
@@ -5687,7 +5692,8 @@ if (location.search.includes('autotest')) {
   $('modalBtn').dispatchEvent(new Event('click'));
   // place towers along the lane so probes work on ANY layout
   (function autoPlace() {
-    const kinds = ['dealer', 'roulette', 'dealer', 'roulette', 'craps', 'waitress'];
+    const kinds = ['dealer', 'roulette', 'dealer', 'roulette', 'craps', 'waitress']
+      .map(k => SAVE.owned.includes(k) ? k : 'dealer');
     kinds.forEach((k, i) => {
       const P = PATHS[i % PATHS.length];
       const frac = .15 + i * .13;
@@ -5706,7 +5712,7 @@ if (location.search.includes('autotest')) {
     const midIdx = Math.round(P0.pts.length * .45);
     buildTower('rope', P0.pts[midIdx][0], P0.pts[midIdx][1]);
   })();
-  G.towers.forEach(t => { t.lvl = 3; });     // and the full tier ladder
+  G.towers.forEach(t => { t.lvl = MAXLV; }); // and the tier ladder it's entitled to
   G.speed = 4;
   updateHUD();
   let buyN = 0;
@@ -5726,9 +5732,10 @@ if (location.search.includes('autotest')) {
       const len = Math.hypot(bx - ax, by - ay) || 1;
       const nx = -(by - ay) / len, ny = (bx - ax) / len;
       const side = buyN % 3 ? -1 : 1;
-      const k = ['dealer', 'roulette', 'catapult'][buyN % 3];
+      const pool = ['dealer', 'roulette', 'catapult'].filter(z => SAVE.owned.includes(z));
+      const k = pool[buyN % pool.length];
       buildTower(k, Math.max(60, Math.min(1060, px + nx * 120 * side)),
-                    Math.max(70, Math.min(500, py + ny * 120 * side))).lvl = 3;
+                    Math.max(70, Math.min(500, py + ny * 120 * side))).lvl = MAXLV;
       G.chips -= effCost(TTYPES[k]);
       buyN++;
     }

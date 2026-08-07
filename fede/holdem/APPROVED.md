@@ -62,7 +62,12 @@
 
 ## Pacing & loss condition (approved)
 - **Boss every 5th room** — needs ~10 distinct bosses or heavy variants across the campaign
-- **Reputation meter**: leaks damage the casino's star rating; at zero stars the room fails
+- **Reputation meter**: leaks damage the casino's reputation; at zero the room fails
+- **20 reputation per floor** (Aug 7 playtest: "5 lives is way too little"), displayed as a **counter, not star glyphs**, and it **resets every floor**
+
+## Layout (approved Aug 7 playtest)
+- **MAP | TABLES**: the floor fills the left of the screen, the tower rack is a vertical column pinned to the right edge (no floating shelf, no wasted space, nothing cut off)
+- **Tapping a table in the rack opens its dossier** (art, effect, reach, all three tiers with costs)
 
 ## Billy feedback round (Aug 4 — APPROVED)
 - **Per-tower targeting priority**: tap a tower → FIRST / STRONGEST / LAST ("I should be able to choose this priority, per tower")
