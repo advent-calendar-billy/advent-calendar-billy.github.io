@@ -102,6 +102,9 @@
 - [ ] sw.js cache version bump discipline (bump CACHE on every deploy!)
 
 ## BALANCE (living list)
+- [x] Full 30-floor sweep after the economy pass: 23 of 30 floors now reach the final wave for the
+      blind bot, with block finales (10/20/30) and a few mid-block floors as the genuine spikes.
+      Lady Luck's jinx softened 30%->45% damage and aura 140->125 after it proved a wall on floor 10.
 - [x] Comps perks converted from flat (+60 chips) to percentage (+12% bankroll / -6% cost) and repriced
       on a curve, so meta-progression stays meaningful at floor 30 where a floor starts with 1320 chips
 - [x] Probe harness: ?autotest reports progress through document.title, so a headless sweep of all

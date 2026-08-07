@@ -2424,7 +2424,7 @@ const ETYPES = {
   pitboss: { name:'The Pit Boss', sprite:'sprPitBoss', hp:2900, speed:28, reward:320, star:2, scale:.8, tapR:40, boss:true, comp:150,
     desc:'He runs this floor and everyone on it is comped. While he walks, every guest inside his radius takes HALF damage. Cut him out first.',
     stats:'BOSS · HALVES DAMAGE TO NEARBY GUESTS' },
-  lady: { name:'Lady Luck', sprite:'sprLady', hp:3200, speed:24, reward:350, star:2, scale:.8, tapR:40, boss:true, jinx:140,
+  lady: { name:'Lady Luck', sprite:'sprLady', hp:3200, speed:24, reward:350, star:2, scale:.8, tapR:40, boss:true, jinx:125,
     desc:'She blows a kiss and every wheel goes cold. Towers inside her shimmer roll minimum damage while she glides past.',
     stats:'BOSS · JINX AURA: TOWERS DEAL MIN DAMAGE' },
   whale: { name:'The Whale', sprite:'sprWhale', hp:1050, speed:25, reward:150, star:2, scale:.78, tapR:40, boss:true,
@@ -4183,7 +4183,7 @@ function firstEnemyInRange(t) {
 function fireRoulette(t) {
   const target = firstEnemyInRange(t);
   if (!target) return false;
-  const dmg = Math.max(1, Math.round((t.lvl === 2 ? 18 : 12) * roomPow() * (t.jinxed ? .3 : 1)));
+  const dmg = Math.max(1, Math.round((t.lvl === 2 ? 18 : 12) * roomPow() * (t.jinxed ? .45 : 1)));
   const bounces = t.lvl === 2 ? 4 : 3;
   const el = svgEl('circle', { r: 5, fill: '#fffbe8', stroke: '#3b2415', 'stroke-width': 2 }, $('projG'));
   emit(t.x, t.y - 6, { n: 2, shapes: ['spark'], speed: 55, life: .22, grav: 0, colors: ['#fffbe8'] });
@@ -4200,7 +4200,7 @@ function fireDealer(t) {
   const n = t.lvl === 2 ? 5 : 3;
   emit(t.x, t.y - 6, { n: 2, shapes: ['spark'], speed: 50, life: .2, grav: 0, colors: ['#f5ead1'] });
   SFX.card();
-  const dmg = Math.max(1, Math.round((t.lvl === 2 ? 8 : 6) * roomPow() * (t.jinxed ? .3 : 1)));
+  const dmg = Math.max(1, Math.round((t.lvl === 2 ? 8 : 6) * roomPow() * (t.jinxed ? .45 : 1)));
   for (let i = 0; i < n; i++) {
     const ang = base + (i - (n - 1) / 2) * 0.21;
     const el = svgEl('g', {}, $('projG'));
@@ -4462,7 +4462,7 @@ function update(dt) {
         G.projectiles.push({
           kind: 'lob', x: t.x, y: t.y, sx: t.x, sy: t.y, tx, ty, el,
           t: 0, dur: .55,
-          dmg: Math.max(1, Math.round((t.lvl === 2 ? 70 : 40) * roomPow() * (t.jinxed ? .3 : 1))),
+          dmg: Math.max(1, Math.round((t.lvl === 2 ? 70 : 40) * roomPow() * (t.jinxed ? .45 : 1))),
           aoe: t.lvl === 2 ? 80 : 60
         });
         t.cool = TTYPES.catapult.cd * atkSpeedFactor(t);
@@ -5136,7 +5136,8 @@ function slotInfo(msg) {
 function openSlots() {
   buildReelGrid();
   $('slots').style.display = 'flex';
-  slotInfo(`${(G.roomDef || { name: 'Floor' }).name} cleared! Every 10 chips banks 1 comp.`);
+  const nm = (G.roomDef || { name: 'Floor' }).name;
+  slotInfo(`${nm} cleared with ${'★'.repeat(G.stars)}${'☆'.repeat(5 - G.stars)} — every 10 chips banks a comp.`);
 }
 $('spinBtn').addEventListener('pointerdown', ev => {
   ev.stopPropagation();
