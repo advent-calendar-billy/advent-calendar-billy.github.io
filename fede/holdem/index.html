@@ -27,7 +27,9 @@
     user-select: none;
     -webkit-user-select: none;
   }
-  #wrap { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; }
+  #wrap { position: fixed; top: 0; left: 0; bottom: 0; right: var(--rack); display: flex; align-items: center; justify-content: center; }
+  :root { --rack: 104px; }
+  @media (max-width: 700px) { :root { --rack: 88px; } }
   #stage { width: 100%; height: 100%; display: block; touch-action: none; }
   #wrap.shake { animation: shake .45s linear; }
   @keyframes shake {
@@ -108,7 +110,7 @@
 
   /* ── top HUD ── */
   #hud {
-    position: fixed; top: env(safe-area-inset-top, 0); left: 0; right: 0;
+    position: fixed; top: env(safe-area-inset-top, 0); left: 0; right: var(--rack);
     display: flex; align-items: center; gap: 10px;
     padding: 8px 12px;
     pointer-events: none;
@@ -138,11 +140,15 @@
     border: 2.5px solid var(--cream);
     box-shadow: inset 0 0 0 1.5px #3b2415, 0 1px 3px rgba(0,0,0,.6);
   }
-  #stars { color: var(--gold); letter-spacing: 2px; font-size: 16px; text-shadow: 0 0 8px rgba(232,182,76,.6), 0 1px 0 rgba(0,0,0,.7); }
-  #stars .off { color: #4a3f28; text-shadow: none; }
+  #stars { color: var(--gold); font-size: 16px; gap: 4px; }
+  #stars .starIcon { text-shadow: 0 0 8px rgba(232,182,76,.6); }
+  #stars b { font-size: 17px; }
+  #stars b.low { color: #ff7a5c; text-shadow: 0 0 10px rgba(255,90,60,.7); }
+  #stars .starMax { font-size: 11px; color: #9c8757; }
   #waveLbl { color: var(--cream); }
   #floorLbl { color: #d8cbb0; font-size: 12px; letter-spacing: 1.5px; }
-  @media (max-width: 780px) { #floorLbl { display: none; } }
+  @media (max-width: 980px) { #floorLbl { display: none; } }
+  @media (max-width: 860px) { #waveLbl { font-size: 13px; padding: 4px 10px; } }
   #waveLbl b { color: var(--gold); }
   .spacer { flex: 1; }
   .btn {
@@ -174,7 +180,7 @@
 
   /* ── start-wave button ── */
   #startWave {
-    position: fixed; right: 14px; bottom: calc(14px + env(safe-area-inset-bottom, 0));
+    position: fixed; right: calc(var(--rack) + 12px); bottom: calc(14px + env(safe-area-inset-bottom, 0));
     z-index: 10;
     font-size: 17px;
     padding: 12px 22px;
@@ -297,7 +303,10 @@
   #modalCard .kind { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: #b7a98a; }
   #modalSprite { margin: 6px auto 2px; display: block; overflow: visible; }
   #modalCard p { font-size: 14px; line-height: 1.5; color: #d8cbb0; margin: 8px 0 4px; }
-  #modalCard .statline { font-size: 12.5px; color: var(--gold); font-weight: 800; margin-bottom: 12px; }
+  #modalCard .statline {
+    font-size: 12px; color: var(--gold); font-weight: 800; margin-bottom: 12px;
+    white-space: pre-line; line-height: 1.75; letter-spacing: .3px;
+  }
   #modalBtn { font-size: 16px; padding: 10px 26px; }
 
   /* ── float layer for TILT!/chips text handled in SVG ── */
@@ -410,8 +419,8 @@
   /* ── first-run drag hint ── */
   #dragHint {
     position: fixed;
-    left: 18px;
-    bottom: calc(104px + env(safe-area-inset-bottom, 0));
+    right: calc(var(--rack) + 10px);
+    top: calc(58px + env(safe-area-inset-top, 0));
     background: #c9473b;
     color: #fff;
     font-size: 12px;
@@ -428,8 +437,8 @@
 
   #dealHint {
     position: fixed;
-    right: 18px;
-    bottom: calc(76px + env(safe-area-inset-bottom, 0));
+    right: calc(var(--rack) + 16px);
+    bottom: calc(112px + env(safe-area-inset-bottom, 0));
     background: #c9473b;
     color: #fff;
     font-size: 12px;
@@ -473,7 +482,7 @@
   /* ── next-wave preview ── */
   #nextWave {
     position: fixed;
-    right: 14px;
+    right: calc(var(--rack) + 12px);
     bottom: calc(66px + env(safe-area-inset-bottom, 0));
     background: rgba(18,16,12,.85);
     border: 2px solid #5a4626;
@@ -495,25 +504,28 @@
   /* ── shop bar (drag towers from here) ── */
   #shop {
     position: fixed;
-    left: 10px;
-    bottom: calc(8px + env(safe-area-inset-bottom, 0));
+    right: 0; top: 0; bottom: 0;
+    width: var(--rack);
     display: flex;
-    gap: 7px;
+    flex-direction: column;
+    gap: 4px;
     z-index: 12;
-    max-width: calc(100vw - 210px);
-    overflow-x: auto;
-    padding-bottom: 2px;
+    padding: calc(46px + env(safe-area-inset-top, 0)) 5px calc(6px + env(safe-area-inset-bottom, 0));
+    overflow-y: auto;
     scrollbar-width: none;
+    background: linear-gradient(180deg, rgba(10,26,18,.96), rgba(6,18,12,.98));
+    border-left: 2px solid #2c4a3a;
+    box-shadow: -6px 0 18px rgba(0,0,0,.45);
   }
   #shop::-webkit-scrollbar { display: none; }
   .shopCard {
     flex: 0 0 auto;
-    width: 70px;
+    width: 100%;
     background: linear-gradient(180deg, rgba(44,34,18,.94), rgba(12,9,5,.95));
     border: 2px solid #5a4626;
     border-radius: 12px;
     text-align: center;
-    padding: 3px 2px 5px;
+    padding: 2px 2px 3px;
     color: var(--cream);
     touch-action: none;
     cursor: grab;
@@ -522,9 +534,15 @@
   .shopCard.afford { border-color: var(--gold); box-shadow: inset 0 1px 0 rgba(255,235,180,.3), 0 0 12px rgba(232,182,76,.2), 0 3px 9px rgba(0,0,0,.4); }
   .shopCard:active { transform: translateY(1px); }
   .shopCard:not(.afford) { opacity: .45; }
-  .shopCard svg { width: 54px; height: 44px; display: block; margin: 0 auto; pointer-events: none; }
-  .shopCard .cost { font-size: 12px; color: var(--gold); font-weight: 800; font-family: Georgia, serif; }
-  .shopCard .nm { font-size: 9.5px; font-weight: 700; color: #d8cbb0; }
+  .shopCard svg { width: 42px; height: 30px; display: block; margin: 0 auto; pointer-events: none; }
+  .shopCard .cost { font-size: 11.5px; color: var(--gold); font-weight: 800; font-family: Georgia, serif; line-height: 1.1; }
+  .shopCard .nm { font-size: 8px; font-weight: 700; color: #d8cbb0; line-height: 1.05; }
+  #shopFade {
+    position: fixed; right: 0; bottom: 0;
+    width: var(--rack); height: 26px;
+    background: linear-gradient(180deg, transparent, rgba(6,18,12,.95));
+    pointer-events: none; z-index: 13;
+  }
 
   /* ── portrait blocker ── */
   #rotate {
@@ -838,6 +856,8 @@
   /* ── ambient decor ── */
   .decScreen { animation: screenPulse 2s ease-in-out infinite; }
   @keyframes screenPulse { 0%,100% { opacity: .55; } 50% { opacity: 1; } }
+  .poolShine { animation: poolWave 4.6s ease-in-out infinite; }
+  @keyframes poolWave { 0%,100% { transform: translateX(-3px); opacity: .55; } 50% { transform: translateX(3px); opacity: .9; } }
   .decLeaf {
     animation: leafSway 3.4s ease-in-out infinite;
     transform-box: fill-box; transform-origin: 50% 95%;
@@ -1837,6 +1857,40 @@
         </g>
       </g>
 
+      <g id="decLounger">
+        <ellipse cx="4" cy="16" rx="34" ry="8" fill="rgba(20,30,50,.28)"/>
+        <path d="M-30 12 L -26 -2 L 20 -2 L 24 12 Z" fill="#e4dcc8" stroke="#3b2415" stroke-width="2.6"/>
+        <path d="M-26 -2 L -30 -22 L -14 -24 L -8 -2 Z" fill="#f5ead1" stroke="#3b2415" stroke-width="2.6"/>
+        <g stroke="#5aa9a2" stroke-width="2.4">
+          <path d="M-24 8 L 18 8 M-25 3 L 19 3"/>
+          <path d="M-27 -8 L -11 -9.6 M-28.4 -14 L -12.4 -15.6"/>
+        </g>
+        <line x1="-24" y1="12" x2="-26" y2="20" stroke="#8d959f" stroke-width="3"/>
+        <line x1="18" y1="12" x2="20" y2="20" stroke="#8d959f" stroke-width="3"/>
+        <path d="M26 -6 L 34 -6 L 32 6 L 28 6 Z" fill="rgba(180,230,220,.8)" stroke="#3b2415" stroke-width="1.8"/>
+      </g>
+
+      <g id="decPool">
+        <ellipse cx="4" cy="6" rx="60" ry="34" fill="rgba(20,30,50,.3)"/>
+        <ellipse rx="58" ry="32" fill="#7fc9d8" stroke="#e4dcc8" stroke-width="5"/>
+        <ellipse rx="58" ry="32" fill="none" stroke="#3b2415" stroke-width="2.4"/>
+        <ellipse rx="48" ry="24" fill="#4fa8c4" opacity=".55"/>
+        <g class="poolShine" stroke="rgba(255,255,255,.55)" stroke-width="2.4" fill="none">
+          <path d="M-32 -8 q 8 -5 16 0 q 8 5 16 0"/>
+          <path d="M-22 6 q 8 -5 16 0 q 8 5 16 0"/>
+        </g>
+        <path d="M40 -18 A 46 26 0 0 1 52 2" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="3"/>
+      </g>
+
+      <g id="decParasol">
+        <ellipse cx="3" cy="30" rx="14" ry="5" fill="rgba(20,30,50,.3)"/>
+        <line x1="0" y1="30" x2="0" y2="-10" stroke="#8a5a30" stroke-width="4"/>
+        <path d="M-32 -10 Q -16 -34 0 -34 Q 16 -34 32 -10 Z" fill="#e05a7a" stroke="#3b2415" stroke-width="3"/>
+        <path d="M-16 -10 Q -8 -34 0 -34 Q 8 -34 16 -10 Z" fill="#f5ead1" stroke="#3b2415" stroke-width="2.2"/>
+        <path d="M-32 -10 Q -22 -6 -16 -10 Q -6 -6 0 -10 Q 6 -6 16 -10 Q 22 -6 32 -10" fill="none" stroke="#3b2415" stroke-width="2.4"/>
+        <circle cx="0" cy="-36" r="3" fill="url(#brassG)" stroke="#3b2415" stroke-width="2"/>
+      </g>
+
       <g id="decSeats">
         <ellipse cx="4" cy="20" rx="46" ry="8" fill="rgba(40,16,8,.3)"/>
         <g stroke="#3b2415" stroke-width="2.6">
@@ -2206,7 +2260,8 @@
 
 <!-- shop bar: drag a tower onto the floor -->
 <div id="shop"></div>
-<div id="dragHint">DRAG A TOWER ONTO THE CARPET ⤵</div>
+<div id="shopFade"></div>
+<div id="dragHint">DRAG A TABLE ONTO THE FLOOR ⇠</div>
 <div id="dealHint">NOW DEAL THEM IN ⤵</div>
 
 <!-- floating tower menu -->
@@ -2259,7 +2314,7 @@
     <div id="mapStats"></div>
     <div id="mapNodes"></div>
     <div id="mapShop"></div>
-    <div class="mapSub" style="opacity:.55">…20 more floors under renovation</div>
+    <div class="mapSub" style="opacity:.55">…19 more floors under renovation</div>
   </div>
 </div>
 
@@ -2535,11 +2590,11 @@ SAVE.owned = SAVE.owned || ['dealer', 'roulette', 'rope', 'cage', 'atm'];
 SAVE.mastery = SAVE.mastery || {};
 SAVE.perks = SAVE.perks || {};
 const effCost = T => T.cost;
-const maxStars = () => 5 + (SAVE.perks.star ? 1 : 0);
+const maxStars = () => 20 + (SAVE.perks.star ? 5 : 0);
 
 const ROOMS = [
   { name: 'Slots Pit 1', hpMul: 1.0, chips: 380,
-    intro: 'Drag towers from the shelf onto the carpet — green means it fits. Hold all five stars and survive 10 waves.',
+    intro: 'Drag a table from the rack on the right onto any open floor — green means it fits. Every guest who reaches the front desk costs reputation; hold 10 waves without running out.',
     variants: [
       { entryY: 130, vault: [1046, 470], killOffset: 112,
         lanes: ['M -40 130 C 200 130, 460 130, 620 130 C 740 130, 740 300, 620 300 C 440 300, 300 300, 230 300 C 115 300, 115 470, 230 470 C 430 470, 640 470, 1160 470'] },
@@ -3291,6 +3346,27 @@ const ROOMS = [
       [['lady',1,0],['honey',18,1.5]],
       [['whale',6,5],['clipper',36,.24],['influencer',11,1.9]],
       [['entertainer',1,0],['shark',1,20],['lady',1,38],['auditor',1,56],['pitboss',1,72]]
+    ] },
+  { name: 'Rooftop at Dawn', hpMul: 2.80, chips: 1350, block: 3,
+    carpet: ['#6d8296', '#7b90a4', '#5b6f83'],
+    intro: 'The sun is coming up over the city and the last of them are still going. Deck chairs, a cold pool, and one long walk around the roof before the night finally lets go.',
+    variants: [
+      { entryY: 200, vault: [1046, 430], killOffset: 112,
+        lanes: ['M -40 200 C 180 200, 340 200, 460 250 C 600 308, 560 430, 420 470 C 280 508, 200 430, 260 370 C 320 312, 460 350, 580 400 C 720 458, 860 430, 1160 430'] },
+      { entryY: 430, vault: [1046, 200], killOffset: 112,
+        lanes: ['M -40 430 C 180 430, 340 430, 460 380 C 600 322, 560 200, 420 160 C 280 122, 200 200, 260 260 C 320 318, 460 280, 580 230 C 720 172, 860 200, 1160 200'] }
+    ],
+    waves: [
+      [['retiree',34,.28],['drunk',26,.32]],
+      [['mojito',28,.3],['clipper',28,.32]],
+      [['honey',14,1.9],['elvis',40,.18]],
+      [['counter',20,.55],['regular',26,.42]],
+      [['whale',5,5],['grandma',26,.46]],
+      [['influencer',10,2],['drunk',30,.28]],
+      [['entertainer',1,0],['honey',15,1.8]],
+      [['lady',1,0],['clipper',30,.3]],
+      [['pitboss',1,0],['counter',22,.5]],
+      [['shark',1,0],['whale',5,5],['mojito',32,.28]]
     ] }
 ];
 let ROOM = 0;
@@ -3428,20 +3504,20 @@ function updateHUD() {
   $('waveNum').textContent = ROOM >= ROOMS.length
     ? Math.max(1, G.wave + (G.running ? 1 : 0))
     : Math.max(1, Math.min(G.wave + (G.running ? 1 : 0), WAVES.length));
-  let s = '';
   const mx = maxStars();
-  for (let i = 0; i < mx; i++) s += `<span${i < G.stars ? '' : ' class="off"'}>★</span>`;
-  $('stars').innerHTML = s;
+  const low = G.stars <= Math.max(3, mx * .25);
+  $('stars').innerHTML = `<span class="starIcon">★</span><b${low ? ' class="low"' : ''}>${G.stars}</b>`
+    + `<span class="starMax">/${mx}</span>`;
   const ds = $('deskStars');
   if (ds) {
     ds.innerHTML = '';
-    for (let i = 0; i < mx; i++) {
-      const u = document.createElementNS(NS, 'use');
-      u.setAttribute('href', '#symStar');
-      u.setAttribute('transform', `translate(${-54 + i * (mx > 5 ? 23 : 28)},1) scale(${mx > 5 ? .55 : .62})`);
-      u.setAttribute('opacity', i < G.stars ? 1 : .18);
-      ds.appendChild(u);
-    }
+    const u = document.createElementNS(NS, 'use');
+    u.setAttribute('href', '#symStar');
+    u.setAttribute('transform', 'translate(-42,1) scale(.6)');
+    ds.appendChild(u);
+    const t = svgEl('text', { x: 12, y: 8, 'text-anchor': 'middle', 'font-family': 'Georgia',
+      'font-weight': 'bold', 'font-size': 17, fill: low ? '#e05a3a' : '#e8b64c' }, ds);
+    t.textContent = G.stars + ' / ' + mx;
   }
   // keep shop-bar + sheet affordability live
   document.querySelectorAll('#twMenu .twBtn[data-cost]').forEach(b => {
@@ -3625,12 +3701,14 @@ function buildShop(){
       const foot = svgEl('circle', { r: TOWER_R[key], fill: 'rgba(87,194,110,.25)', stroke: '#57c26e', 'stroke-width': 2.5 }, g);
       const sprite = svgEl('g', { transform: `scale(${T.scale})` }, g);
       svgEl('use', { href: '#' + T.sprite }, sprite);
-      drag = { key, T, g, cover, foot, x: -999, y: -999, ok: false };
+      drag = { key, T, g, cover, foot, x: -999, y: -999, ok: false,
+               sx: ev.clientX, sy: ev.clientY, moved: 0 };
       const [x, y] = clientToSvg(ev.clientX, ev.clientY);
       moveDrag(x, y);
     });
     card.addEventListener('pointermove', ev => {
       if (!drag || drag.key !== key) return;
+      drag.moved = Math.max(drag.moved, Math.hypot(ev.clientX - drag.sx, ev.clientY - drag.sy));
       const [x, y] = clientToSvg(ev.clientX, ev.clientY);
       moveDrag(x, y);
     });
@@ -3640,6 +3718,7 @@ function buildShop(){
       drag = null;
       d.g.remove();
       d.cover.remove();
+      if (d.moved < 9) { showTowerInfo(key); return; }   // a tap asks what it does
       if (d.ok && G.chips >= effCost(d.T)) {
         G.chips -= effCost(d.T);
         buildTower(key, d.x, d.y);
@@ -3687,6 +3766,20 @@ function buildShop(){
 buildShop();
 
 /* ══════════ SHEET (tap a placed tower → upgrade / sell) ══════════ */
+function showTowerInfo(key) {
+  const T = TTYPES[key];
+  const owned = SAVE.owned.includes(key);
+  const lines = T.lv.map((l, i) =>
+    `${i === 0 ? 'BASE' : i === 1 ? '★' : '★★'}  ${l.menu}` +
+    (l.cost ? `   (${l.cost} chips)` : `   (${effCost(T)} chips)`) +
+    (i === 2 && !(SAVE.mastery || {})[key] ? '   — needs MASTERY' : '')
+  ).join('\n');
+  modalGait = '';
+  showModal(owned ? 'TABLE DOSSIER' : 'NOT YET HIRED', T.name, T.sprite,
+    T.blurb + (T.range ? ` · reaches ${T.range} across the floor.` : '.'),
+    lines, 'BACK TO THE FLOOR', null, .78);
+}
+
 function closeSheet() {
   $('sheet').style.display = 'none';
   $('twMenu').style.display = 'none';
@@ -4837,6 +4930,33 @@ function initRoom(i, resume, altKey) {
   // engraved floor plate + block-specific dressing
   const dg = $('dressG');
   dg.innerHTML = '';
+  if (R.block === 3) {
+    // sunrise over the skyline
+    const sky = svgEl('g', {}, dg);
+    const grad = svgEl('linearGradient', { id: 'dawnSky', x1: '0', y1: '0', x2: '0', y2: '1' }, sky);
+    [['0%', '#f7b56a'], ['38%', '#e07b8a'], ['74%', '#7a5a9c'], ['100%', '#3b3d72']].forEach(([o, c]) =>
+      svgEl('stop', { offset: o, 'stop-color': c }, grad));
+    svgEl('rect', { x: 8, y: 8, width: 1104, height: 96, rx: 10, fill: 'url(#dawnSky)' }, sky);
+    svgEl('circle', { cx: 250, cy: 96, r: 30, fill: '#ffe9b0', opacity: .95 }, sky);
+    svgEl('circle', { cx: 250, cy: 96, r: 52, fill: '#ffd28a', opacity: .28 }, sky);
+    let bx = 8;
+    let seed = 7;
+    while (bx < 1112) {
+      seed = (seed * 1103515245 + 12345) % 2147483648;
+      const w = 34 + (seed % 46), h = 26 + ((seed >> 5) % 58);
+      svgEl('rect', { x: bx, y: 104 - h, width: w, height: h, fill: '#2b2a4a', opacity: .92 }, sky);
+      for (let wy = 104 - h + 8; wy < 100; wy += 12) {
+        for (let wx = bx + 6; wx < bx + w - 6; wx += 11) {
+          if (((wx + wy + seed) >> 3) % 3 === 0) {
+            svgEl('rect', { x: wx, y: wy, width: 4, height: 5, fill: '#ffd28a', opacity: .55 }, sky);
+          }
+        }
+      }
+      bx += w + 3;
+    }
+    svgEl('rect', { x: 8, y: 100, width: 1104, height: 7, fill: '#4a4a58' }, sky);
+  }
+
   if (R.block === 2) {
     // stage curtain swags along the top of theater floors
     for (let k = 0; k < 9; k++) {
@@ -4858,6 +4978,18 @@ function initRoom(i, resume, altKey) {
   pat.children[0].setAttribute('fill', carp[0]);
   pat.children[1].setAttribute('fill', carp[1]);
   pat.children[2].setAttribute('stroke', carp[2]);
+  // the rooftop isn't carpeted — flatten the motif and lay decking over it
+  pat.children[3].setAttribute('fill', R.block === 3 ? 'none' : '#d9a94f');
+  if (R.block === 3) {
+    for (let py = 118; py < 604; py += 26) {
+      svgEl('line', { x1: 14, y1: py, x2: 1106, y2: py,
+                      stroke: 'rgba(30,40,55,.3)', 'stroke-width': 2 }, dg);
+    }
+    for (let px = 40; px < 1106; px += 128) {
+      svgEl('line', { x1: px, y1: 112, x2: px, y2: 604,
+                      stroke: 'rgba(30,40,55,.18)', 'stroke-width': 1.6 }, dg);
+    }
+  }
   G.variant = V;
   setLanes(V.lanes, V.killOffset);
   // one doorway per lane entrance
@@ -4954,7 +5086,7 @@ function renderMap() {
   const stars = Object.values(SAVE.roomStars || {}).reduce((a, b) => a + b, 0);
   $('mapStats').innerHTML = [
     [`${cleared}/30`, 'FLOORS HELD'],
-    [`${stars}/${ROOMS.length * 5}`, 'STARS KEPT'],
+    [`${stars}`, 'REPUTATION KEPT'],
     [`${SAVE.comps}`, 'COMPS'],
     SAVE.best ? [`${SAVE.best}`, 'ENDLESS BEST'] : null
   ].filter(Boolean).map(([v, k]) => `<div class="statPlate"><div class="v">${v}</div><div class="k">${k}</div></div>`).join('');
@@ -4964,7 +5096,8 @@ function renderMap() {
   const BLOCKS = [
     { label: 'SLOTS PIT · FLOORS 1–10', start: 0, count: 10 },
     { label: 'ROULETTE HALLS · FLOORS 11–20', start: 10, count: 10 },
-    { label: 'THE THEATER · FLOORS 21–30', start: 20, count: 10 }
+    { label: 'THE THEATER · FLOORS 21–30', start: 20, count: 10 },
+    { label: 'ROOFTOP · FLOOR 31', start: 30, count: 1 }
   ];
   for (const blk of BLOCKS) {
     const lbl = document.createElement('div');
@@ -5034,7 +5167,7 @@ function renderMap() {
   }
 
   section('THE HOUSE');
-  buy('Sixth Star', 'start every floor with 6 reputation stars', 120,
+  buy('House Insurance', 'start every floor with 25 reputation instead of 20', 120,
       !!SAVE.perks.star, () => { SAVE.perks.star = true; });
   buy('House Comp Spins', '+2 spins at the machine between floors', 35,
       (SAVE.perks.spins || 0) >= 3, () => { SAVE.perks.spins = (SAVE.perks.spins || 0) + 1; });
@@ -5092,7 +5225,15 @@ function placeDecor() {
     { id: 'decPlant', r: 24, min: 0, max: 1 },
     { id: 'decCocktail', r: 20, min: 0, max: 1 }
   ];
-  const KINDS = (G.roomDef && G.roomDef.block === 2) ? THEATER_KINDS : CASINO_KINDS;
+  const ROOF_KINDS = [
+    { id: 'decPool', r: 58, min: 1, max: 1 },
+    { id: 'decLounger', r: 34, min: 2, max: 3 },
+    { id: 'decParasol', r: 30, min: 1, max: 2 },
+    { id: 'decPlant', r: 24, min: 1, max: 2 },
+    { id: 'decCocktail', r: 20, min: 1, max: 1 }
+  ];
+  const blk = G.roomDef && G.roomDef.block;
+  const KINDS = blk === 3 ? ROOF_KINDS : blk === 2 ? THEATER_KINDS : CASINO_KINDS;
   for (const k of KINDS) {
     const n = k.min + Math.floor(Math.random() * (k.max - k.min + 1));
     for (let i = 0; i < n; i++) {
@@ -5403,7 +5544,7 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http') && !loc
 document.addEventListener('gesturestart', e => e.preventDefault());
 document.addEventListener('dblclick', e => e.preventDefault());
 
-if (/gallery|autotest|slottest|pausetest|sheettest|ridetest|depthtest|dragtest|dossier|unlockall|room=/.test(location.search)) {
+if (/gallery|autotest|slottest|pausetest|sheettest|ridetest|depthtest|dragtest|dossier|twinfo|unlockall|room=/.test(location.search)) {
   $('title').style.display = 'none';
 }
 
@@ -5478,6 +5619,14 @@ if (dosParam && ETYPES[dosParam[1]]) {
   initRoom(0);
   $('modalBtn').dispatchEvent(new Event('click'));
   introduce(dosParam[1], () => {});
+}
+
+/* dev twinfo: open a table dossier */
+const twiParam = location.search.match(/twinfo=([a-z]+)/);
+if (twiParam && TTYPES[twiParam[1]]) {
+  initRoom(0);
+  $('modalBtn').dispatchEvent(new Event('click'));
+  showTowerInfo(twiParam[1]);
 }
 
 /* dev dragtest: freeze a tower mid-drag to inspect the placement preview */
