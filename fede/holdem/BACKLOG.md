@@ -27,7 +27,7 @@
 - [x] The Waitress — attack-speed aura tower (+25%/40%)
 - [x] Craps Table — periodic AoE cheer knockback
 - [x] Chip Stack Catapult — 8/12 chips per lobbed AoE shot
-- [ ] Tower upgrade paths (2 paths each, à la Bloons) instead of single ★ upgrade — big system
+- [x] Tower TIERS (Billy: "tower progression/level unlock like in bloons"): every tower has 3 levels with level-indexed stats; tier III is gated behind a comps-bought MASTERY per tower
 - [ ] Capstone towers (design doc has Fountain/Magician/Vault/Don Fortunato — NONE approved yet, re-pitch to user)
 
 ## ENEMIES — approved, not yet built
@@ -56,7 +56,7 @@
 - [x] Campaign map screen — the map is part of the aesthetic; ~50 rooms in theme blocks
       (classic gambling climb + amenity floors, weird floors between blocks)
 - [x] Room progression: fresh build per room, leftover chips → meta-currency (approved)
-- [x] Comps shop v1 on map (Bigger Bankroll, House Discount) — PROVISIONAL, needs user approval
+- [x] Comps counter rebuilt per Billy: HIRE NEW TABLES (4 towers locked at start, unlocked with comps), MASTERY (tier III per tower), THE HOUSE (Sixth Star, +2 slot spins). Bankroll/Discount perks retired.
 - [x] Rooms 2-10 built — SLOTS PIT BLOCK COMPLETE (triple-fork R7, forked-serpentine R8, RNG-layout R9, gauntlet R10)
 - [x] THE THEATER BLOCK COMPLETE (floors 21-30: Showroom, Aisles, Backstage, Balcony, Main Stage, Orchestra Pit, Dressing Rooms, Rigging Loft, Grand Foyer, Opening Night) w/ own decor set + curtain swags
 - [x] ROULETTE HALLS BLOCK COMPLETE (floors 11-20: twin-loop, crossing X, wheel ring, split hall, 3-way converge, spiral, finale) + 18A/18B Counting Room fork — later blocks (poker room, buffet, pool deck, THEATER for the Entertainer, suite, vault) pending

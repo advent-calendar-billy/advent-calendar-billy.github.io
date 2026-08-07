@@ -678,6 +678,7 @@
   }
   .mapSub { font-size: 12px; letter-spacing: 4px; color: #9fc4b2; margin-top: 6px; text-transform: uppercase; }
   #mapStats { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 14px 0 4px; }
+  #mapShop { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
   .statPlate {
     min-width: 92px;
     padding: 6px 14px 7px;
@@ -786,6 +787,7 @@
   }
   .mapUp.can:active { transform: translateY(1px); }
   .mapUp:not(.can) { opacity: .55; }
+  .mapUp.owned { opacity: .8; border-color: #2e7d4f; }
 
   /* ── slot machine ── */
   #slots {
@@ -2437,32 +2439,87 @@ const ETYPES = {
 
 const TTYPES = {
   dealer: { name:'Card Dealer', sprite:'twDealer', cost:150, range:135, cd:.85, scale:.62,
-    blurb:'Fan of razor cards', menu:'3 cards · 6 dmg',
-    up: { cost:120, menu:'5 cards · 8 dmg' } },
+    blurb:'Fan of razor cards',
+    lv: [
+      { menu:'3 cards · 6 dmg' },
+      { cost:120, menu:'5 cards · 8 dmg' },
+      { cost:340, menu:'7 cards · 11 dmg · longer reach' }
+    ] },
   roulette: { name:'Roulette Wheel', sprite:'twRoulette', cost:220, range:155, cd:1.5, scale:.62,
-    blurb:'Ricochet ivory ball', menu:'12 dmg · 3 bounces',
-    up: { cost:180, menu:'18 dmg · 4 bounces' } },
+    blurb:'Ricochet ivory ball',
+    lv: [
+      { menu:'12 dmg · 3 bounces' },
+      { cost:180, menu:'18 dmg · 4 bounces' },
+      { cost:430, menu:'27 dmg · 6 bounces · faster' }
+    ] },
   rope: { name:'Velvet Rope', sprite:'twRope', cost:180, range:105, scale:.72,
-    blurb:'Guests queue politely', menu:'Slows 40%',
-    up: { cost:140, menu:'Slows 55% · wider' } },
+    blurb:'Guests queue politely',
+    lv: [
+      { menu:'Slows 40%' },
+      { cost:140, menu:'Slows 55% · wider' },
+      { cost:330, menu:'Slows 68% · widest' }
+    ] },
   cage: { name:'The Cage', sprite:'twCage', cost:200, scale:.6,
-    blurb:'Pays a dividend', menu:'+45 chips / wave',
-    up: { cost:160, menu:'+100 chips / wave' } },
+    blurb:'Pays a dividend',
+    lv: [
+      { menu:'+45 chips / wave' },
+      { cost:160, menu:'+100 chips / wave' },
+      { cost:380, menu:'+190 chips / wave' }
+    ] },
   atm: { name:'ATM Row', sprite:'twATM', cost:170, range:110, scale:.7,
-    blurb:'Convenience fees', menu:'+1 chip/guest/sec',
-    up: { cost:150, menu:'+2 chips · wider' } },
+    blurb:'Convenience fees',
+    lv: [
+      { menu:'+1 chip/guest/sec' },
+      { cost:150, menu:'+2 chips · wider' },
+      { cost:350, menu:'+4 chips · widest' }
+    ] },
   craps: { name:'Craps Table', sprite:'twCraps', cost:240, range:125, cd:6, scale:.7,
-    blurb:'Hot-roll knockback', menu:'Shoves crowd back',
-    up: { cost:200, menu:'Faster · stronger' } },
+    blurb:'Hot-roll knockback',
+    lv: [
+      { menu:'Shoves crowd back' },
+      { cost:200, menu:'Faster · stronger' },
+      { cost:460, menu:'Every 3s · huge shove' }
+    ] },
   buffet: { name:'Shrimp Buffet', sprite:'twBuffet', cost:190, range:120, scale:.7,
-    blurb:'Week-old shrimp', menu:'Lures 5% · poison',
-    up: { cost:160, menu:'Lures 20% · worse shrimp' } },
+    blurb:'Week-old shrimp',
+    lv: [
+      { menu:'Lures 5% · poison' },
+      { cost:160, menu:'Lures 20% · worse shrimp' },
+      { cost:400, menu:'Lures 35% · food poisoning' }
+    ] },
   waitress: { name:'The Waitress', sprite:'twWaitress', cost:210, range:130, scale:.62,
-    blurb:'Drinks on the house', menu:'Towers +25% speed',
-    up: { cost:170, menu:'+40% attack speed' } },
+    blurb:'Drinks on the house',
+    lv: [
+      { menu:'Towers +25% speed' },
+      { cost:170, menu:'+40% attack speed' },
+      { cost:410, menu:'+65% · wider circuit' }
+    ] },
   catapult: { name:'Chip Catapult', sprite:'twCatapult', cost:260, range:200, cd:2.8, scale:.68,
-    blurb:'Throws money at it', menu:'8 chips/shot · big AoE',
-    up: { cost:220, menu:'12 chips/shot · huge AoE' } }
+    blurb:'Throws money at it',
+    lv: [
+      { menu:'8 chips/shot · big AoE' },
+      { cost:220, menu:'12 chips/shot · huge AoE' },
+      { cost:520, menu:'18 chips/shot · devastating' }
+    ] }
+};
+/* level-indexed stats (index 0 = level 1) */
+const TSTAT = {
+  dealer:   { n:[3,5,7],        dmg:[6,8,11],       range:[135,135,160] },
+  roulette: { dmg:[12,18,27],   bounce:[3,4,6],     cd:[1.5,1.5,1.2] },
+  rope:     { slow:[.6,.45,.32], range:[105,130,152] },
+  cage:     { income:[45,100,190] },
+  atm:      { chips:[1,2,4],    range:[110,135,160] },
+  craps:    { push:[60,85,125], cd:[6,4.5,3] },
+  buffet:   { lure:[.05,.20,.35], dps:[9,15,24] },
+  waitress: { factor:[.75,.6,.45], range:[130,130,158] },
+  catapult: { dmg:[40,70,115],  aoe:[60,80,108],    ammo:[8,12,18] }
+};
+const st = (t, key) => TSTAT[t.type][key][t.lvl - 1];
+const towerSpend = t => {
+  const T = TTYPES[t.type];
+  let v = effCost(T);
+  for (let i = 1; i < t.lvl; i++) v += T.lv[i].cost;
+  return v;
 };
 
 /* footprint radius per tower type (for placement collision) */
@@ -2474,8 +2531,11 @@ function loadSave() { try { return JSON.parse(localStorage.getItem(SAVE_KEY)) ||
 function saveSave() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(SAVE)); } catch (e) {} }
 const SAVE = Object.assign({ unlocked: 1, comps: 0, upg: {} }, loadSave());
 SAVE.upg = SAVE.upg || {};
-const effCost = T => Math.round(T.cost * (1 - .06 * (SAVE.upg.cheap || 0)));
-const bankMul = () => 1 + .12 * (SAVE.upg.bank || 0);
+SAVE.owned = SAVE.owned || ['dealer', 'roulette', 'rope', 'cage', 'atm'];
+SAVE.mastery = SAVE.mastery || {};
+SAVE.perks = SAVE.perks || {};
+const effCost = T => T.cost;
+const maxStars = () => 5 + (SAVE.perks.star ? 1 : 0);
 
 const ROOMS = [
   { name: 'Slots Pit 1', hpMul: 1.0, chips: 380,
@@ -3254,6 +3314,7 @@ const familiarity = type =>
 const G = {
   chips: 380,
   earned: 0,
+  maxStars: 5,
   chipShow: 380,
   stars: 5,
   wave: 0,            // completed waves
@@ -3368,15 +3429,16 @@ function updateHUD() {
     ? Math.max(1, G.wave + (G.running ? 1 : 0))
     : Math.max(1, Math.min(G.wave + (G.running ? 1 : 0), WAVES.length));
   let s = '';
-  for (let i = 0; i < 5; i++) s += `<span${i < G.stars ? '' : ' class="off"'}>★</span>`;
+  const mx = maxStars();
+  for (let i = 0; i < mx; i++) s += `<span${i < G.stars ? '' : ' class="off"'}>★</span>`;
   $('stars').innerHTML = s;
   const ds = $('deskStars');
   if (ds) {
     ds.innerHTML = '';
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < mx; i++) {
       const u = document.createElementNS(NS, 'use');
       u.setAttribute('href', '#symStar');
-      u.setAttribute('transform', `translate(${-54 + i * 28},1) scale(.62)`);
+      u.setAttribute('transform', `translate(${-54 + i * (mx > 5 ? 23 : 28)},1) scale(${mx > 5 ? .55 : .62})`);
       u.setAttribute('opacity', i < G.stars ? 1 : .18);
       ds.appendChild(u);
     }
@@ -3540,6 +3602,7 @@ function buildShop(){
   const bar = $('shop');
   bar.innerHTML = '';
   for (const key in TTYPES) {
+    if (!SAVE.owned.includes(key)) continue;
     const T = TTYPES[key];
     const card = document.createElement('div');
     card.className = 'shopCard';
@@ -3633,7 +3696,7 @@ function openSheetForTower(tower) {
   const T = TTYPES[tower.type];
   const { x, y } = tower;
   const menu = $('twMenu');
-  $('twName').textContent = `${T.name}${tower.lvl > 1 ? ' ★' : ''}`;
+  $('twName').textContent = `${T.name} ${'★'.repeat(tower.lvl - 1)}`.trim();
 
   // targeting priority
   const pr = $('twPrio');
@@ -3655,34 +3718,43 @@ function openSheetForTower(tower) {
 
   const act = $('twActions');
   act.innerHTML = '';
-  if (tower.lvl === 1) {
+  const next = T.lv[tower.lvl];                       // the next tier, if any
+  const mastered = (SAVE.mastery || {})[tower.type];
+  if (next && tower.lvl >= 2 && !mastered) {
+    const lock = document.createElement('button');
+    lock.className = 'twBtn';
+    lock.innerHTML = `TIER III<span class="c">locked</span>`;
+    lock.title = 'Buy this tower\'s mastery with comps on the floor map';
+    act.appendChild(lock);
+  } else if (next) {
     const b = document.createElement('button');
-    b.className = 'twBtn' + (G.chips >= T.up.cost ? ' can' : '');
-    b.dataset.cost = T.up.cost;
-    b.innerHTML = `UPGRADE ★<span class="c">◉ ${T.up.cost}</span>`;
-    b.title = T.up.menu;
+    b.className = 'twBtn' + (G.chips >= next.cost ? ' can' : '');
+    b.dataset.cost = next.cost;
+    b.innerHTML = `${tower.lvl === 1 ? 'UPGRADE ★' : 'TIER III ★★'}<span class="c">◉ ${next.cost}</span>`;
+    b.title = next.menu;
     b.addEventListener('pointerdown', ev => {
       ev.stopPropagation();
-      if (G.chips < T.up.cost) return;
-      G.chips -= T.up.cost;
-      tower.lvl = 2;
-      const star = svgEl('text', {
+      if (G.chips < next.cost) return;
+      G.chips -= next.cost;
+      tower.lvl += 1;
+      if (tower.badge) tower.badge.remove();
+      tower.badge = svgEl('text', {
         x: 0, y: -34 / T.scale, 'text-anchor': 'middle', 'font-size': 26,
         fill: '#ffd23f', stroke: '#3b2415', 'stroke-width': 3, 'paint-order': 'stroke'
       }, tower.el);
-      star.textContent = '★';
+      tower.badge.textContent = tower.lvl === 3 ? '★★' : '★';
+      if (tower.auraEl) tower.auraEl.setAttribute('r', tower.range());
       if (tower.type === 'rope') {
-        tower.el.setAttribute('transform', `translate(${x},${y}) rotate(${tower.rot}) scale(${T.scale * 1.15})`);
-        tower.auraEl.setAttribute('r', tower.range());
+        tower.el.setAttribute('transform', `translate(${x},${y}) rotate(${tower.rot}) scale(${T.scale * (1 + .15 * (tower.lvl - 1))})`);
       }
-      float(x, y - 40, '★ UPGRADED', '#57c26e');
+      float(x, y - 40, tower.lvl === 3 ? '★★ MASTERED' : '★ UPGRADED', '#57c26e');
       closeSheet();
       updateHUD();
     });
     act.appendChild(b);
   }
   const s = document.createElement('button');
-  const refund = Math.floor((effCost(T) + (tower.lvl === 2 ? T.up.cost : 0)) * .7);
+  const refund = Math.floor(towerSpend(tower) * .7);
   s.className = 'twBtn can';
   s.innerHTML = `SELL<span class="c">◉ +${refund}</span>`;
   s.addEventListener('pointerdown', ev => {
@@ -3724,9 +3796,8 @@ function buildTower(type, x, y) {
   const tower = {
     type, x, y, r: TOWER_R[type], lvl: 1, cool: 0, stunUntil: 0, prio: 'first',
     range() {
-      if (type === 'rope') return this.lvl === 2 ? 130 : T.range;
-      if (type === 'atm') return this.lvl === 2 ? 135 : T.range;
-      return T.range;
+      const tbl = TSTAT[type] && TSTAT[type].range;
+      return tbl ? tbl[this.lvl - 1] : T.range;
     }
   };
   // the rope's slow aura is always visible, so it never looks like it does nothing
@@ -4027,7 +4098,7 @@ function showNextWave() {
 const PROBE = location.search.includes('autotest');
 function probeReport(state) {
   if (!PROBE) return;
-  const lvl2 = G.towers.filter(t => t.lvl === 2).length;
+  const lvl2 = G.towers.filter(t => t.lvl > 1).length;
   document.title = `PROBE room=${ROOM + 1}${G.alt ? 'B' : ''} wave=${Math.min(G.wave + 1, WAVES.length)}/${WAVES.length} `
     + `tow=${G.towers.length} up=${lvl2} chips=${Math.floor(G.chips)} earned=${Math.floor(G.earned)} ${state}`;
 }
@@ -4048,7 +4119,7 @@ function endWave() {
   let income = Math.round(25 * payScale());
   G.towers.forEach(t => {
     if (t.type === 'cage') {
-      const amt = Math.round((t.lvl === 2 ? 100 : 45) * payScale());
+      const amt = Math.round(st(t, 'income') * payScale());
       income += amt;
       float(t.x, t.y - 44, '+' + amt, '#57c26e');
     }
@@ -4167,7 +4238,7 @@ function atkSpeedFactor(t) {
   for (const w of G.towers) {
     if (w.type !== 'waitress' || w === t || w.audited) continue;
     const r = w.range(), dx = w.x - t.x, dy = w.y - t.y;
-    if (dx * dx + dy * dy <= r * r) f = Math.min(f, w.lvl === 2 ? .6 : .75);
+    if (dx * dx + dy * dy <= r * r) f = Math.min(f, st(w, 'factor'));
   }
   return f;
 }
@@ -4188,8 +4259,8 @@ function firstEnemyInRange(t) {
 function fireRoulette(t) {
   const target = firstEnemyInRange(t);
   if (!target) return false;
-  const dmg = Math.max(1, Math.round((t.lvl === 2 ? 18 : 12) * roomPow() * (t.jinxed ? .45 : 1)));
-  const bounces = t.lvl === 2 ? 4 : 3;
+  const dmg = Math.max(1, Math.round(st(t, 'dmg') * roomPow() * (t.jinxed ? .45 : 1)));
+  const bounces = st(t, 'bounce');
   const el = svgEl('circle', { r: 5, fill: '#fffbe8', stroke: '#3b2415', 'stroke-width': 2 }, $('projG'));
   emit(t.x, t.y - 6, { n: 2, shapes: ['spark'], speed: 55, life: .22, grav: 0, colors: ['#fffbe8'] });
   SFX.ball();
@@ -4202,10 +4273,10 @@ function fireDealer(t) {
   if (!target) return false;
   const [tx, ty] = posAtE(target);
   const base = Math.atan2(ty - t.y, tx - t.x);
-  const n = t.lvl === 2 ? 5 : 3;
+  const n = st(t, 'n');
   emit(t.x, t.y - 6, { n: 2, shapes: ['spark'], speed: 50, life: .2, grav: 0, colors: ['#f5ead1'] });
   SFX.card();
-  const dmg = Math.max(1, Math.round((t.lvl === 2 ? 8 : 6) * roomPow() * (t.jinxed ? .45 : 1)));
+  const dmg = Math.max(1, Math.round(st(t, 'dmg') * roomPow() * (t.jinxed ? .45 : 1)));
   for (let i = 0; i < n; i++) {
     const ang = base + (i - (n - 1) / 2) * 0.21;
     const el = svgEl('g', {}, $('projG'));
@@ -4281,7 +4352,7 @@ function update(dt) {
       if (t.type !== 'rope' || t.audited) continue;
       const dx = ex - t.x, dy = ey - t.y;
       if (dx * dx + dy * dy <= t.range() * t.range()) {
-        slow = Math.min(slow, t.lvl === 2 ? .45 : .6);
+        slow = Math.min(slow, st(t, 'slow'));
       }
     }
     /* influencer haste aura + mojito rage */
@@ -4386,7 +4457,7 @@ function update(dt) {
   if (G.enemies.some(e => e.E.audit)) {
     let best = -1;
     for (const t of G.towers) {
-      const c = TTYPES[t.type].cost + (t.lvl === 2 ? TTYPES[t.type].up.cost : 0);
+      const c = towerSpend(t);
       if (c > best) { best = c; auditTarget = t; }
     }
   }
@@ -4402,7 +4473,7 @@ function update(dt) {
     t.cool -= dt;
     if (t.cool > 0) continue;
     if (t.type === 'buffet') {
-      if (t.lureWave !== G.wave) { t.lureWave = G.wave; t.lures = Math.max(1, Math.floor((G.waveCount || 10) * (t.lvl === 2 ? .2 : .05))); }
+      if (t.lureWave !== G.wave) { t.lureWave = G.wave; t.lures = Math.max(1, Math.floor((G.waveCount || 10) * st(t, 'lure'))); }
       if (t.lures > 0) {
         let nb = null, nd = t.range() * t.range();
         for (const e of G.enemies) {
@@ -4414,7 +4485,7 @@ function update(dt) {
         if (nb) {
           t.lures--;
           nb.luredUntil = G.time + 2.6;
-          nb.lureDps = (t.lvl === 2 ? 15 : 9) * roomPow();
+          nb.lureDps = st(t, 'dps') * roomPow();
           float(t.x, t.y - 34, 'FREE SHRIMP!', '#e07b39');
         }
       }
@@ -4430,7 +4501,7 @@ function update(dt) {
         if (dx * dx + dy * dy <= rr) n++;
       }
       if (n) {
-        const amt = Math.round(n * (t.lvl === 2 ? 2 : 1) * payScale());
+        const amt = Math.round(n * st(t, 'chips') * payScale());
         G.chips += amt;
         G.earned += amt;
         float(t.x, t.y - 32, '+' + amt, '#57c26e');
@@ -4440,7 +4511,7 @@ function update(dt) {
     } else if (t.type === 'craps') {
       let hitAny = false;
       const rr = t.range() * t.range();
-      const push = t.lvl === 2 ? 85 : 60;
+      const push = st(t, 'push');
       for (const e of G.enemies) {
         const [x, y] = posAtE(e);
         const dx = x - t.x, dy = y - t.y;
@@ -4450,10 +4521,10 @@ function update(dt) {
         t.kick();
         fxRing(t.x, t.y, t.range(), '#ffd23f');
         float(t.x, t.y - 36, 'SEVEN!', '#ffd23f');
-        t.cool = t.lvl === 2 ? 4.5 : TTYPES.craps.cd;
+        t.cool = st(t, 'cd');
       } else t.cool = .3;
     } else if (t.type === 'catapult') {
-      const ammo = t.lvl === 2 ? 12 : 8;
+      const ammo = st(t, 'ammo');
       const target = G.chips >= ammo ? firstEnemyInRange(t) : null;
       if (target) {
         G.chips -= ammo;
@@ -4467,15 +4538,16 @@ function update(dt) {
         G.projectiles.push({
           kind: 'lob', x: t.x, y: t.y, sx: t.x, sy: t.y, tx, ty, el,
           t: 0, dur: .55,
-          dmg: Math.max(1, Math.round((t.lvl === 2 ? 70 : 40) * roomPow() * (t.jinxed ? .45 : 1))),
-          aoe: t.lvl === 2 ? 80 : 60
+          dmg: Math.max(1, Math.round(st(t, 'dmg') * roomPow() * (t.jinxed ? .45 : 1))),
+          aoe: st(t, 'aoe')
         });
         t.cool = TTYPES.catapult.cd * atkSpeedFactor(t);
       } else t.cool = .3;
     } else {
       const fired = t.type === 'roulette' ? fireRoulette(t) : fireDealer(t);
       if (fired) t.kick();
-      t.cool = fired ? TTYPES[t.type].cd * atkSpeedFactor(t) : 0.1;
+      const base = (TSTAT[t.type] && TSTAT[t.type].cd) ? st(t, 'cd') : TTYPES[t.type].cd;
+      t.cool = fired ? base * atkSpeedFactor(t) : 0.1;
     }
   }
 
@@ -4801,11 +4873,12 @@ function initRoom(i, resume, altKey) {
   }
 
   WAVES = R.waves;
-  G.chips = Math.round(R.chips * bankMul());
+  G.chips = R.chips;
   G.earned = 0;
   buildShop();
   $('vaultG').setAttribute('transform', `translate(${V.vault[0]},${V.vault[1]}) scale(.6)`);
 
+  G.stars = maxStars();
   placeDecor();
   $('map').style.display = 'none';
   updateHUD();
@@ -4919,32 +4992,52 @@ function renderMap() {
       }
     }
   }
-  // comps shop: permanent upgrades (provisional design)
-  const UPG = [
-    { k: 'bank',  name: 'Bigger Bankroll', desc: '+12% starting chips per level', max: 3, cost: l => [30, 65, 110][l] },
-    { k: 'cheap', name: 'House Discount',  desc: 'towers 6% cheaper per level',   max: 2, cost: l => [55, 95][l] }
-  ];
+  // ── the comps counter: permanent progression ──
   const shop = $('mapShop');
-  shop.innerHTML = '<div class="mapSub" style="margin-bottom:4px">SPEND COMPS</div>';
-  UPG.forEach(u => {
-    const l = SAVE.upg[u.k] || 0;
-    const maxed = l >= u.max;
-    const c = u.cost(l);
-    const div = document.createElement('div');
-    div.className = 'mapUp' + (!maxed && SAVE.comps >= c ? ' can' : '');
-    div.innerHTML =
-      `<div style="font-weight:800">${u.name} <span style="color:var(--gold)">${'★'.repeat(l)}</span></div>` +
-      `<div style="font-size:11px;color:#b7a98a">${u.desc}</div>` +
-      `<div style="font-size:12.5px;color:var(--gold);font-weight:800">${maxed ? 'MAXED' : c + ' COMPS'}</div>`;
-    if (!maxed) div.addEventListener('pointerdown', () => {
-      if (SAVE.comps < c) return;
-      SAVE.comps -= c;
-      SAVE.upg[u.k] = l + 1;
+  shop.innerHTML = '';
+  const section = (title) => {
+    const h = document.createElement('div');
+    h.className = 'mapSub';
+    h.style.cssText = 'width:100%;margin:12px 0 4px;font-size:9.5px;';
+    h.textContent = title;
+    shop.appendChild(h);
+  };
+  const buy = (label, sub, cost, owned, onBuy) => {
+    const d = document.createElement('div');
+    const can = !owned && SAVE.comps >= cost;
+    d.className = 'mapUp' + (can ? ' can' : '') + (owned ? ' owned' : '');
+    d.innerHTML =
+      `<div style="font-weight:800">${label}</div>` +
+      `<div style="font-size:10.5px;color:#b7a98a">${sub}</div>` +
+      `<div style="font-size:12px;color:${owned ? '#57c26e' : 'var(--gold)'};font-weight:800">` +
+      `${owned ? 'OWNED' : cost + ' COMPS'}</div>`;
+    if (can) d.addEventListener('pointerdown', () => {
+      SAVE.comps -= cost;
+      onBuy();
       saveSave();
       renderMap();
     });
-    shop.appendChild(div);
-  });
+    shop.appendChild(d);
+  };
+
+  const LOCKED = { craps: 40, buffet: 45, waitress: 50, catapult: 60 };
+  section('HIRE NEW TABLES');
+  for (const k in LOCKED) {
+    const T = TTYPES[k];
+    buy(T.name, T.blurb, LOCKED[k], SAVE.owned.includes(k), () => SAVE.owned.push(k));
+  }
+
+  section('MASTERY — UNLOCKS TIER III FOR THAT TABLE');
+  for (const k of SAVE.owned) {
+    const T = TTYPES[k];
+    buy(T.name + ' ★★', T.lv[2].menu, 70, !!SAVE.mastery[k], () => { SAVE.mastery[k] = true; });
+  }
+
+  section('THE HOUSE');
+  buy('Sixth Star', 'start every floor with 6 reputation stars', 120,
+      !!SAVE.perks.star, () => { SAVE.perks.star = true; });
+  buy('House Comp Spins', '+2 spins at the machine between floors', 35,
+      (SAVE.perks.spins || 0) >= 3, () => { SAVE.perks.spins = (SAVE.perks.spins || 0) + 1; });
 
   // the Endless Pit opens once the (current) campaign is cleared
   const e = document.createElement('div');
@@ -5052,6 +5145,7 @@ function pickAmbientTarget(w) {
 
 /* ══════════ SLOT MACHINE (between floors) ══════════ *//* ══════════ SLOT MACHINE (between floors) ══════════ */
 const SLOT = { spins: 10, free: 0, bonusWon: 0, spinning: false, COST: 25, CAP: 400 };
+const slotSpins = () => 10 + 2 * (SAVE.perks.spins || 0);
 /* weighted strip: sun(Hair) wig(Hedwig) plant(LittleShop) hat(Wicked) lips(Rocky) seven star */
 const STRIP = ['symSun','symSun','symSun','symSun','symSun',
                'symWig','symWig','symWig','symWig',
@@ -5139,6 +5233,9 @@ function slotInfo(msg) {
   $('spinBtn').textContent = SLOT.free > 0 ? 'SPIN · FREE' : 'SPIN · ' + SLOT.COST;
 }
 function openSlots() {
+  SLOT.spins = slotSpins();
+  SLOT.free = 0;
+  SLOT.bonusWon = 0;
   buildReelGrid();
   $('slots').style.display = 'flex';
   const nm = (G.roomDef || { name: 'Floor' }).name;
@@ -5432,6 +5529,8 @@ if (location.search.includes('slottest')) {
 
 /* dev autotest: ?autotest plays the campaign unattended */
 if (location.search.includes('autotest')) {
+  SAVE.owned = Object.keys(TTYPES);          // probes exercise the whole shelf
+  Object.keys(TTYPES).forEach(k => { SAVE.mastery[k] = true; });
   if ($('map').style.display !== 'none') {
     const cur = document.querySelector('.mapNode.cur');
     if (cur) cur.dispatchEvent(new Event('pointerdown'));
@@ -5458,7 +5557,7 @@ if (location.search.includes('autotest')) {
     const midIdx = Math.round(P0.pts.length * .45);
     buildTower('rope', P0.pts[midIdx][0], P0.pts[midIdx][1]);
   })();
-  G.towers.forEach(t => { t.lvl = 2; });
+  G.towers.forEach(t => { t.lvl = 3; });     // and the full tier ladder
   G.speed = 4;
   updateHUD();
   let buyN = 0;
@@ -5480,7 +5579,7 @@ if (location.search.includes('autotest')) {
       const side = buyN % 3 ? -1 : 1;
       const k = ['dealer', 'roulette', 'catapult'][buyN % 3];
       buildTower(k, Math.max(60, Math.min(1060, px + nx * 120 * side)),
-                    Math.max(70, Math.min(500, py + ny * 120 * side))).lvl = 2;
+                    Math.max(70, Math.min(500, py + ny * 120 * side))).lvl = 3;
       G.chips -= effCost(TTYPES[k]);
       buyN++;
     }

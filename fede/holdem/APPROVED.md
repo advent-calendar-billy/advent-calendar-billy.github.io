@@ -78,7 +78,21 @@
 - **Pause menu needs RESTART** (added)
 - Lounge music: "fine for now"
 
-## Comps shop (PROVISIONAL — not yet user-approved)
+## Progression & comps (APPROVED Aug 7)
+- **Two currencies, confirmed:** chips are per-floor (each floor GRANTS a starting budget, 380 → 1320 across the campaign; unspent chips cash out at 10:1). **Comps** are permanent, spent on the map.
+- **Towers get Bloons-style depth**: more than one upgrade level per tower (tier III), not just a single ★
+- **Comps buy:**
+  - **Tower unlocks** — start with a subset of the 9 towers, permanently unlock the rest
+  - **Tower progression / level unlocks** — permanently unlock the higher upgrade tier per tower ("mastery")
+  - **A 6th reputation star** (start floors with 6 lives instead of 5)
+  - **Small slot-machine perks** (extra spins etc.) — keep these modest
+- Rejected: "start each floor with a free tower"
+
+## Blocks (APPROVED Aug 7)
+- **Floor 31 is a weird floor: ROOFTOP AT DAWN** — sunrise sky, city skyline, empty deck chairs, the night finally ending
+- **Floors 32–41: THE FANCY BAR** — backlit bottle wall, marble bar, lounge singer, low light
+
+## Comps shop (SUPERSEDED — see Progression above)
 - Map screen sells permanent upgrades for comps: **Bigger Bankroll** (+12% starting chips per level, ×3, 30/65/110 comps) and **House Discount** (towers 6% cheaper per level, ×2, 55/95 comps)
 - Percentages rather than flat bonuses so the perks stay relevant on floor 30, where a floor already starts with 1320 chips
 - Still a placeholder design — Billy has been asked what comps SHOULD buy (unlock a 10th tower / a free starting tower / +1 reputation star / re-roll the furniture / extra slot spins)
