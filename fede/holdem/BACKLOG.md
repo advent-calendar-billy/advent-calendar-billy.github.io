@@ -104,6 +104,10 @@
 - [ ] sw.js cache version bump discipline (bump CACHE on every deploy!)
 
 ## BALANCE (living list)
+- [x] Aug 8 (Fable block): tier 3 added to all 18 branches with real mechanics + SFX. Sweep at
+      max build: floors 1/5/10/15/20/25/30 all clear; endless bot reaches wave ~27. Baseline
+      (no paths) unchanged: floor 1 wins, 2-4 pinch at wave 7-9. Tier-3 pricing (900-1450)
+      awaiting Billy's taste check (questions.txt round 3).
 - [x] Aug 8, branching-paths re-sweep. Blind bot, all branches owned, mixed A/B build:
         floors 5/10/15/20/25/30 -> ALL reach wave 10/10 and WIN
       Blind bot, NO branches bought at all (a player who spent nothing on comps):

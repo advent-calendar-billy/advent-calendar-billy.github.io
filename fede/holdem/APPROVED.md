@@ -97,9 +97,15 @@
 - **Floor 31 is a weird floor: ROOFTOP AT DAWN** — sunrise sky, city skyline, empty deck chairs, the night finally ending
 - **Floors 32–41: THE FANCY BAR** — backlit bottle wall, marble bar, lounge singer, low light
 
-## Branching upgrade paths (APPROVED Aug 8 playtest)
-- Tower upgrades are **branching, not linear**: each table has **two named branches**, two tiers deep
-  (Card Dealer → *Aflame* or *Cold Deck*; Roulette → *Steel Ball* or *Ivory Ball*; etc.)
+## Branching upgrade paths (APPROVED Aug 8 playtest; DEEPENED same day)
+- Tower upgrades are **branching, not linear**: each table has **two named branches**, now **three
+  tiers deep** (Billy: "add 1 level... i want level 3 to be creative/weird/awesome (with visible
+  great effects), it's fine if we break immersion/flavor for this in the name of awesomeness")
+- **Tier 3 is spectacle, by request**: fireball cards, hard freezes, a giant die rolling up the
+  lane, guest-to-guest plague, champagne-cork stuns, gold fountains, screen-shaking earthquakes.
+  Costs 900–1450 chips inside a floor.
+- **Guests dress for the depth** (same session): floors 11+ shades & gold chains, 21+ feather
+  boas, endless tiny crowns — fodder only, bosses keep their own look
 - A branch is **unlocked permanently with comps between floors**; inside a floor you pay **chips**
   to walk a branch you already own. A table that commits to a branch stays on it.
 - **Floor 1 offers no upgrades at all** — no comps banked yet. This is intended, not a bug.

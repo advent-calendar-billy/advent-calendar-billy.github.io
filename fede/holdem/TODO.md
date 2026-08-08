@@ -55,6 +55,15 @@ Tracking every piece of playtest feedback. Checked = shipped & pushed.
 - [x] Fixed: map was drawing up to 20 ★ per cleared floor (leftover from the 5-star era) — now a
       1-5 rating derived from reputation kept
 
+### Same block, second half
+- [x] Tier-3 SFX: fire whoosh, ice tinkle, quake rumble, die-roll clatter, cork pop (spam-guarded)
+- [x] Rack cards show **two branch pips** (gold/steel when bought, dark when locked) so you can
+      see your unlocks without opening a dossier
+- [x] Theater spotlights were reading as grey puddles (they even cast shadows) — now warm,
+      breathing pools of light with glitter motes, no shadow
+- [x] Endless guests wear tiny crooked crowns; SEVEN OUT's die is properly giant
+- [x] Fixed 31/30 FLOORS HELD at campaign end; map stars capped at 5
+
 ## Next playtest questions for Billy
 - With 20 lives, do floors 1–10 feel too easy now?
 - Does the rack actually scroll with your thumb on your phone? (can't test that headlessly)

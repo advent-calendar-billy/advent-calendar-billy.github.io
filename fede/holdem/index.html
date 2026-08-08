@@ -616,6 +616,13 @@
   .shopCard svg { width: 42px; height: 30px; display: block; margin: 0 auto; pointer-events: none; }
   .shopCard .cost { font-size: 11.5px; color: var(--gold); font-weight: 800; font-family: Georgia, serif; line-height: 1.1; }
   .shopCard .nm { font-size: 8px; font-weight: 700; color: #d8cbb0; line-height: 1.05; }
+  .shopCard .pips { display: flex; gap: 4px; justify-content: center; margin-top: 2px; }
+  .shopCard .pips i {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #2c2318; border: 1px solid #5a4626;
+  }
+  .shopCard .pips i.on.a { background: #d9a94f; border-color: #ffe9b0; }
+  .shopCard .pips i.on.b { background: #7fa8c4; border-color: #d7ecf7; }
   #shopFade {
     position: fixed; right: 0; bottom: 0;
     width: var(--rack); height: 26px;
@@ -940,6 +947,8 @@
   .decScreen { animation: screenPulse 2s ease-in-out infinite; }
   @keyframes screenPulse { 0%,100% { opacity: .55; } 50% { opacity: 1; } }
   .poolShine { animation: poolWave 4.6s ease-in-out infinite; }
+  .spotBreath { animation: spotBreath 3.4s ease-in-out infinite; }
+  @keyframes spotBreath { 0%, 100% { opacity: .75; } 50% { opacity: 1; } }
   @keyframes poolWave { 0%,100% { transform: translateX(-3px); opacity: .55; } 50% { transform: translateX(3px); opacity: .9; } }
   .decLeaf {
     animation: leafSway 3.4s ease-in-out infinite;
@@ -2004,10 +2013,15 @@
         </g>
       </g>
 
-      <g id="decSpot">
-        <ellipse cx="0" cy="0" rx="34" ry="20" fill="rgba(255,214,236,.13)"/>
-        <ellipse cx="0" cy="0" rx="22" ry="13" fill="rgba(255,236,247,.16)"/>
-        <ellipse cx="0" cy="0" rx="34" ry="20" fill="none" stroke="rgba(255,214,236,.25)" stroke-width="2"/>
+      <g id="decSpot" class="spotBreath">
+        <ellipse cx="0" cy="0" rx="42" ry="25" fill="rgba(255,223,158,.22)"/>
+        <ellipse cx="0" cy="0" rx="27" ry="16" fill="rgba(255,240,205,.3)"/>
+        <ellipse cx="0" cy="0" rx="13" ry="8" fill="rgba(255,252,240,.4)"/>
+        <ellipse cx="0" cy="0" rx="42" ry="25" fill="none"
+                 stroke="rgba(255,230,170,.45)" stroke-width="1.8" stroke-dasharray="5 7"/>
+        <circle cx="-14" cy="-6" r="1.4" fill="rgba(255,252,240,.8)"/>
+        <circle cx="10" cy="8" r="1.2" fill="rgba(255,252,240,.7)"/>
+        <circle cx="17" cy="-8" r="1" fill="rgba(255,252,240,.6)"/>
       </g>
 
       <g id="decCocktail">
@@ -3713,7 +3727,20 @@ const SFX = {
   cash()    { tone(1568, .05, 'square', .045); tone(1568, .05, 'square', .045, .08); },
   honk()    { tone(392, .14, 'square', .07); tone(330, .2, 'square', .07, .16); },
   ding()    { tone(1568, .18, 'triangle', .06); tone(2093, .3, 'triangle', .04, .05); },
-  showtime(){ [523, 659, 784, 1047].forEach((f, i) => tone(f, .3, 'triangle', .05, i * .07)); }
+  showtime(){ [523, 659, 784, 1047].forEach((f, i) => tone(f, .3, 'triangle', .05, i * .07)); },
+  fire()    { tone(220, .16, 'sawtooth', .04, 0, 90); tone(1900, .07, 'square', .014, .01); },
+  freeze()  { tone(2350, .09, 'triangle', .035); tone(3100, .12, 'triangle', .025, .05); },
+  quake()   { tone(70, .5, 'sawtooth', .11, 0, 42); tone(55, .4, 'square', .06, .06, 38); },
+  dieRoll() { for (let i = 0; i < 5; i++) tone(140 + i * 28, .07, 'square', .05, i * .11); },
+  pop()     { tone(680, .04, 'square', .07); tone(1900, .16, 'triangle', .04, .03, 2600); }
+};
+// spam guards: fire/freeze can proc many times a frame at tier 3
+let sfxGate = {};
+const gated = (key, ms, fn) => {
+  const now = performance.now();
+  if (now - (sfxGate[key] || 0) < ms) return;
+  sfxGate[key] = now;
+  fn();
 };
 
 /* ══════════ UI helpers ══════════ */
@@ -3904,9 +3931,13 @@ function buildShop(){
     const card = document.createElement('div');
     card.className = 'shopCard';
     card.dataset.cost = effCost(T);
+    // two pips = the two upgrade branches; lit means bought with comps
+    const pips = ['a', 'b'].map(pk =>
+      `<i class="${pathOwned(key, pk) ? 'on ' + pk : ''}"></i>`).join('');
     card.innerHTML =
       `<svg viewBox="-62 -58 124 108"><use href="#${T.sprite}"/></svg>` +
-      `<div class="cost">◉ ${effCost(T)}</div><div class="nm">${T.name}</div>`;
+      `<div class="cost">◉ ${effCost(T)}</div><div class="nm">${T.name}</div>` +
+      `<div class="pips">${pips}</div>`;
     bar.appendChild(card);
     // a press only ARMS a gesture — a vertical swipe scrolls the rack,
     // pulling left picks the table up, and a tap asks what it does
@@ -5045,6 +5076,7 @@ function update(dt) {
           fxRing(bx, by, 60, '#f5ead1');
           emit(bx, by, { n: 12, shapes: ['spark'], speed: 150, life: .5, grav: 140,
                          colors: ['#f5ead1', '#ffe9a3', '#cfe9f5'] });
+          SFX.pop();
           float(bx, by - 34, 'POP!', '#ffe9a3');
           for (const e2 of G.enemies) {
             const [x2, y2] = posAtE(e2);
@@ -5135,6 +5167,7 @@ function update(dt) {
         fxRing(t.x, t.y, t.range(), '#ffd23f');
         float(t.x, t.y - 36, st(t, 'stun') ? 'EARTHQUAKE!' : 'SEVEN!', '#ffd23f');
         if (st(t, 'quakeFx')) {
+          SFX.quake();
           $('wrap').classList.remove('shake');
           void $('wrap').offsetWidth;
           $('wrap').classList.add('shake');
@@ -5159,6 +5192,7 @@ function update(dt) {
           G.dieD0 = bi * STEP;
           G.projectiles.push({ kind: 'die', d: bi * STEP, pi: bp, el, rot: 0,
             dmg: Math.max(1, Math.round(st(t, 'bigDie') * roomPow())), hitSet: new Set() });
+          SFX.dieRoll();
           float(t.x, t.y - 56, 'SEVEN OUT!', '#e0575f');
         }
         t.cool = st(t, 'cd');
@@ -5308,6 +5342,7 @@ function update(dt) {
           p.hitSet.add(e);
           damageEnemy(e, p.dmg);
           if (p.fire) {                         // THE INFERNO: every card is a fireball
+            gated('fire', 160, () => SFX.fire());
             fxRing(x, y, 55, '#e8722c');
             emit(x, y, { n: 7, shapes: ['spark'], speed: 130, life: .4, grav: -60,
                          colors: ['#ffb347', '#e8722c', '#ffe08a'] });
@@ -5319,6 +5354,7 @@ function update(dt) {
             }
           }
           if (p.freeze) {                       // ABSOLUTE ZERO: stopped dead, mid-stride
+            gated('freeze', 200, () => SFX.freeze());
             e.slowFac = 0;
             e.slowUntil = Math.max(e.slowUntil || 0, G.time + p.freeze);
             fxRing(x, y, 34, '#cfe9f5');
@@ -5857,7 +5893,7 @@ function placeDecor() {
         const x = 80 + Math.random() * 960, y = 100 + Math.random() * 400;
         if (!decorSpotOK(x, y, k.r)) continue;
         const rot = (Math.random() * 14 - 7).toFixed(1);
-        svgEl('ellipse', {
+        if (k.id !== 'decSpot') svgEl('ellipse', {
           cx: x + 3, cy: y + k.r * .58, rx: k.r + 8, ry: k.r * .33,
           fill: 'rgba(30,12,6,.42)', filter: 'url(#softBlur)'
         }, g);
