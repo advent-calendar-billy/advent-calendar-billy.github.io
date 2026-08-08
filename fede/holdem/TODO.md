@@ -113,6 +113,26 @@ Tracking every piece of playtest feedback. Checked = shipped & pushed.
 - [x] **In-level rack shows only hired tables** — unhired ones appear solely in the map's comps
       shop (round-3 revert of the grayed rack cards, per Billy)
 
+## Playtest feedback round 4 (Aug 8, night) — the honesty pass
+- [x] **THE BIG ONE: the balance bot was cheating.** Its opening towers were never paid for
+      (~1400 chips of free tables on a 380 budget), so every "floor N clears" was fantasy —
+      which is why the game felt impossible. The bot now pays for towers AND upgrades.
+- [x] Rebalanced against honest numbers: floor 1 starts at 560 chips (your "half an extra cage"),
+      early floors funded up, kills pay +35%, wave-clear pays 45, block-1 HP ladder flattened,
+      per-wave HP ramp softened, whale trimmed to 900, familiarity capped at 2x (it was silently
+      QUADRUPLING deep-floor fodder), deeper floors get depth-scaled bankrolls (+6%/floor)
+- [x] **ATM redesign (your spec): prints money per second in its area** — base rate always,
+      plus a cut per guest in range; branches = print faster vs cover more floor
+- [x] **Layout & decor are seeded per floor** — restarting can never reroll a luckier start
+- [x] **×2 is the default speed**
+- [x] **Tap near two towers now opens the closest one** (dead zone gone)
+- [x] **NEXT pill is the wave info** — tap it for the guest list; the (i) button is gone
+- [x] **Upgrade descriptions are flavor, not arithmetic** — "the queue crawls slower" vs
+      "the queue reaches further"; branches read distinct in plain words
+- [ ] NEXT: per-branch tower ART (your "halo is lazy" note) — real design changes per branch+tier
+- Probe status (honest bot): floors 1, 4-30 all clear; forked floors 2-3 reach wave 4-7 (the
+  fixed-spot bot is worst exactly there — humans place the join). Re-test 2-3 in hand please.
+
 ## Next playtest questions for Billy
 - With 20 lives, do floors 1–10 feel too easy now?
 - Does the rack actually scroll with your thumb on your phone? (can't test that headlessly)

@@ -257,15 +257,6 @@
     font-size: 8px; color: rgba(232,182,76,.5); letter-spacing: .5px;
     pointer-events: none;
   }
-  #waveInfoBtn {
-    position: fixed; z-index: 10; display: none;
-    right: calc(var(--rack) + 208px); bottom: calc(22px + env(safe-area-inset-bottom, 0));
-    width: 30px; height: 30px; border-radius: 50%;
-    background: linear-gradient(180deg, rgba(44,34,18,.96), rgba(12,9,5,.96));
-    border: 2px solid #5a4626; color: #b7a98a;
-    font-family: Georgia, serif; font-style: italic; font-size: 15px;
-    cursor: pointer;
-  }
   .wgSpr { width: 30px; height: 38px; flex: 0 0 auto; margin-right: 8px; }
   #twName {
     font-family: Georgia, serif; font-weight: bold; font-size: 12.5px;
@@ -2499,7 +2490,7 @@
   <div class="spacer"></div>
   <button class="btn" id="sndBtn">♪</button>
   <button class="btn" id="autoBtn">AUTO</button>
-  <button class="btn" id="speedBtn">×1</button>
+  <button class="btn" id="speedBtn">×2</button>
   <button class="btn" id="pauseBtn">⏸</button>
 </div>
 
@@ -2516,7 +2507,6 @@
 <div id="bossBar"><div id="bossName">—</div><div id="bossTrack"><div id="bossFill"></div></div></div>
 
 <button class="btn primary" id="startWave">DEAL&nbsp;THEM&nbsp;IN&nbsp;▸</button>
-<button id="waveInfoBtn">i</button>
 
 <!-- shop bar: drag a tower onto the floor -->
 <div id="shop"></div>
@@ -2524,7 +2514,7 @@
 
 
 <!-- floating tower menu -->
-<div id="ver">v66</div>
+<div id="ver">v67</div>
 <div id="twMenu">
   <div id="twName">—</div>
   <div id="twStats"></div>
@@ -2765,7 +2755,7 @@ const ETYPES = {
   lady: { name:'Lady Luck', sprite:'sprLady', hp:3200, speed:24, reward:350, star:5, scale:.8, tapR:40, boss:true, jinx:125,
     desc:'She blows a kiss and every wheel goes cold. Towers inside her shimmer roll minimum damage while she glides past.',
     stats:'BOSS · JINX AURA: TOWERS DEAL MIN DAMAGE' },
-  whale: { name:'The Whale', sprite:'sprWhale', hp:1050, speed:25, reward:150, star:4, scale:.78, tapR:40, boss:true,
+  whale: { name:'The Whale', sprite:'sprWhale', hp:900, speed:25, reward:150, star:4, scale:.78, tapR:40, boss:true,
     desc:'Comped everything. Bathrobe, cigar, security detail waved off. Takes a fortune down with him — and pays one out.',
     stats:'MINI-BOSS · VERY TOUGH · BIG BOUNTY' },
   shark: { name:'Loan Shark', sprite:'sprShark', hp:2000, speed:31, reward:250, star:5, scale:.8, tapR:40, boss:true, steal:120,
@@ -2849,15 +2839,17 @@ const TSPEC = {
         { name: 'DEATH & TAXES', cost: 1000, s: { income: 120, killBonus: 22, range: 270 } } ] }
   },
   atm: {
-    base: { chips: 1, range: 110 },
+    // steady money per second, plus a cut from every guest inside the area
+    // (Billy: "the ATM should generate money per second in the area of influence")
+    base: { rate: 3, chips: 1, range: 110 },
     a: { label: 'Surcharge', tiers: [
-        { name: 'Cash Advance', cost: 175, s: { chips: 3 } },
-        { name: 'The Money Wall', cost: 420, s: { chips: 6 } },
-        { name: 'PREDATORY LENDING', cost: 980, s: { chips: 11, feeDps: 26 } } ] },
+        { name: 'Cash Advance', cost: 175, s: { rate: 6, chips: 2 } },
+        { name: 'The Money Wall', cost: 420, s: { rate: 11, chips: 3 } },
+        { name: 'PREDATORY LENDING', cost: 980, s: { rate: 18, chips: 5, feeDps: 26 } } ] },
     b: { label: 'The Row', tiers: [
-        { name: 'ATM Concourse', cost: 165, s: { chips: 2, range: 165 } },
-        { name: 'Every Corner', cost: 400, s: { chips: 3, range: 215 } },
-        { name: 'TOO BIG TO FAIL', cost: 930, s: { chips: 6, range: 320 } } ] }
+        { name: 'ATM Concourse', cost: 165, s: { rate: 5, chips: 1, range: 170 } },
+        { name: 'Every Corner', cost: 400, s: { rate: 8, chips: 2, range: 225 } },
+        { name: 'TOO BIG TO FAIL', cost: 930, s: { rate: 13, chips: 3, range: 320 } } ] }
   },
   craps: {
     base: { push: 60, cd: 6, dmg: 0, range: 125 },
@@ -2977,7 +2969,7 @@ function statLine(key, path, lvl) {
       if (S.fountain) bits.push(`GOLD FOUNTAIN payouts`);
       break;
     case 'atm':
-      bits.push(`+${S.chips} per guest`, `range ${S.range}`);
+      bits.push(`+${S.rate}/sec`, `+${S.chips} per guest in range`, `range ${S.range}`);
       if (S.feeDps) bits.push(`fees DRAIN ${S.feeDps} HP/sec`);
       break;
     case 'craps':
@@ -3008,6 +3000,29 @@ function statLine(key, path, lvl) {
   }
   return bits.join(' · ');
 }
+/* what each upgrade FEELS like — plain words, no arithmetic (Billy: "more flavor") */
+const FLAVOR = {
+  dealer:   { a: ['more cards, hotter hands', 'throws further, hits harder', 'every card is a fireball'],
+              b: ['cards chill whoever they cut', 'a wider, colder fan', 'freezes them mid-stride'] },
+  roulette: { a: ['hits twice as hard', 'heavier, and spins faster', 'the impact shoves the crowd'],
+              b: ['two more bounces', 'keeps bouncing, hits harder', 'lightning arcs between hits'] },
+  rope:     { a: ['the queue crawls slower', 'slower still, longer lines', 'the bouncer roars — full stop'],
+              b: ['the queue reaches further', 'half the floor waits in line', 'nobody walks free'] },
+  cage:     { a: ['bigger dividends', 'much bigger dividends', 'a fountain of gold every wave'],
+              b: ['pays a cut on kills nearby', 'a bigger cut, wider reach', 'every kill on the floor pays'] },
+  atm:      { a: ['prints faster', 'prints much faster', 'fees drain their health'],
+              b: ['a wider area', 'covers half the floor', 'covers nearly everything'] },
+  craps:    { a: ['a bigger shove, more often', 'the crowd barely advances', 'stuns — and the floor shakes'],
+              b: ['the shove now hurts', 'hits harder, reaches further', 'a giant die rolls up the lane'] },
+  buffet:   { a: ['worse food, worse poisoning', 'lethal leftovers', 'the poison spreads on its own'],
+              b: ['lures more guests in', 'seats half the wave', 'eaters pass out mid-lane'] },
+  waitress: { a: ['tables pour faster', 'much faster service', 'tables run white hot'],
+              b: ['serves a wider circle', 'the whole room drinks', 'corks stun the crowd'] },
+  catapult: { a: ['bigger payloads', 'ruinous payloads', 'one shot, one crater'],
+              b: ['a wider splash', 'the splash covers a table', 'every shot splits into five'] },
+  security: { a: ['hits harder, walks them further', 'much harder, much further', 'escorted all the way OUT'],
+              b: ['works faster', 'handles two at once', 'four guests, no waiting'] }
+};
 const pathOwned = (key, path) => !!((SAVE.paths || {})[key] || {})[path];
 const towerSpend = t => {
   let v = effCost(TTYPES[t.type]);
@@ -3031,7 +3046,7 @@ const effCost = T => T.cost;
 const maxStars = () => 20 + (SAVE.perks.star ? 5 : 0);
 
 const ROOMS = [
-  { name: 'Slots Pit 1', hpMul: 1.0, chips: 380,
+  { name: 'Slots Pit 1', hpMul: 1.0, chips: 560,
     intro: 'Drag a table from the rack on the right onto any open floor — green means it fits. Every guest who reaches the front desk costs reputation; hold 10 waves without running out.',
     variants: [
       { entryY: 130, vault: [1046, 470], killOffset: 112,
@@ -3051,7 +3066,7 @@ const ROOMS = [
       [['grandma',8,1.4],['clipper',6,1.3],['elvis',8,1.0],['influencer',2,9]],
       [['shark',1,0],['grandma',6,1.6],['whale',1,26]]
     ] },
-  { name: 'Slots Pit 2', hpMul: 1.06, chips: 420,
+  { name: 'Slots Pit 2', hpMul: .96, chips: 700,
     intro: 'The corridor FORKS tonight — each guest picks a side on a whim. Cover both, or gamble on one. New faces: The Drunk weaves, Mojito Guy has a temper.',
     variants: [
       { entryY: 300, vault: [1046, 300], killOffset: 112,
@@ -3071,13 +3086,13 @@ const ROOMS = [
       [['tourist',10,.35],['drunk',6,1.4]],
       [['mojito',6,1.6],['tourist',8,.8]],
       [['whale',1,0],['drunk',8,1.0]],
-      [['grandma',5,1.9],['mojito',8,1.0],['clipper',4,2.2]],
-      [['elvis',10,.8],['influencer',1,6],['drunk',6,1.2],['counter',2,8]],
+      [['grandma',3,2.2],['mojito',7,1.1],['clipper',3,2.4]],
+      [['elvis',8,.9],['influencer',1,6],['drunk',6,1.2],['counter',2,8]],
       [['tourist',18,.28],['clipper',6,1.3],['influencer',1,10]],
       [['mojito',10,.9],['grandma',8,1.2],['influencer',2,9],['counter',3,7]],
       [['whale',2,18],['grandma',8,1.2],['elvis',10,.8]]
     ] },
-  { name: 'Slots Pit 3', carpet: ['#9c2b26','#b23a30','#872420'],  hpMul: 1.12, chips: 460,
+  { name: 'Slots Pit 3', carpet: ['#9c2b26','#b23a30','#872420'],  hpMul: 1.0, chips: 760,
     intro: 'The vault sits exposed mid-floor and the corridor splits around it. Everything the Slots Pit has walks — and the Loan Shark collects at the end.',
     variants: [
       { entryY: 130, vault: [560, 360], killOffset: 30,
@@ -3103,7 +3118,7 @@ const ROOMS = [
       [['whale',2,15],['grandma',10,1.0],['mojito',10,.8]],
       [['shark',1,0],['whale',2,20],['influencer',2,12],['grandma',8,1.2]]
     ] },
-  { name: 'Slots Pit 4', carpet: ['#953041','#a83e4e','#7f2836'],  hpMul: 1.18, chips: 520,
+  { name: 'Slots Pit 4', carpet: ['#953041','#a83e4e','#7f2836'],  hpMul: 1.06, chips: 690,
     intro: 'The pit boss called Corporate. The Regular knows the staff doors, and at the end of the night THE AUDITOR walks the floor — your best tower freezes while he lives.',
     variants: [
       { entryY: 470, vault: [1046, 470], killOffset: 112,
@@ -3132,7 +3147,7 @@ const ROOMS = [
     alt: {
       name: 'Service Corridor',
       sub: 'BACK OF HOUSE',
-      hpMul: 1.12, chips: 690,
+      hpMul: 1.0, chips: 690,
       carpet: ['#4c4a42', '#585549', '#3a382f'],
       intro: 'The staff shortcut: bare concrete, a straight run, and no time to think. They arrive FAST — but management pays hazard money, and the Auditor never comes down here.',
       variants: [
@@ -3154,7 +3169,7 @@ const ROOMS = [
         [['shark',1,0],['grandma',14,.7],['whale',2,14]]
       ]
     } },
-  { name: 'Slots Pit 5', carpet: ['#822d52','#94395f','#6e2545'],  hpMul: 1.24, chips: 560,
+  { name: 'Slots Pit 5', carpet: ['#822d52','#94395f','#6e2545'],  hpMul: 1.12, chips: 720,
     intro: 'The corridor coils around the vault like a spring. Tonight LADY LUCK herself walks the floor — towers inside her shimmer go cold. End of the Slots Pit.',
     variants: [
       { entryY: 130, vault: [558, 352], killOffset: 25,
@@ -3178,7 +3193,7 @@ const ROOMS = [
       [['whale',3,10],['clipper',12,.8],['influencer',3,6]],
       [['lady',1,0],['shark',1,25],['grandma',12,.9]]
     ] },
-  { name: 'Slots Pit 6', carpet: ['#6e2f5e','#7d3a6c','#5c2650'],  hpMul: 1.3, chips: 600,
+  { name: 'Slots Pit 6', carpet: ['#6e2f5e','#7d3a6c','#5c2650'],  hpMul: 1.19, chips: 750,
     intro: 'The fork is back, and the crowd is meaner. Management sends The Auditor to close the night.',
     variants: [
       { entryY: 300, vault: [1046, 430], killOffset: 112,
@@ -3204,7 +3219,7 @@ const ROOMS = [
       [['whale',3,9],['mojito',14,.6]],
       [['auditor',1,0],['whale',2,16],['grandma',12,.9],['regular',10,.9]]
     ] },
-  { name: 'Slots Pit 7', carpet: ['#5e3070','#6d3c80','#4e2760'],  hpMul: 1.36, chips: 630,
+  { name: 'Slots Pit 7', carpet: ['#5e3070','#6d3c80','#4e2760'],  hpMul: 1.26, chips: 770,
     intro: 'THREE corridors tonight. Every guest picks one on a whim — nowhere is safe to skimp.',
     variants: [
       { entryY: 300, vault: [1046, 300], killOffset: 112,
@@ -3226,7 +3241,7 @@ const ROOMS = [
       [['counter',10,1.1],['grandma',14,.8],['influencer',4,5]],
       [['auditor',2,20],['whale',2,14],['mojito',16,.5]]
     ] },
-  { name: 'Slots Pit 8', carpet: ['#4a2f77','#573a86','#3d2565'],  hpMul: 1.42, chips: 660,
+  { name: 'Slots Pit 8', carpet: ['#4a2f77','#573a86','#3d2565'],  hpMul: 1.33, chips: 660,
     intro: 'A long serpentine whose middle run splits in two. Lady Luck herself takes a stroll mid-shift.',
     variants: [
       { entryY: 150, vault: [1046, 470], killOffset: 112,
@@ -3250,7 +3265,7 @@ const ROOMS = [
     alt: {
       name: 'The Mezzanine',
       sub: 'UPSTAIRS BALCONY',
-      hpMul: 1.49, chips: 700,
+      hpMul: 1.4, chips: 700,
       carpet: ['#3a2a5e', '#46346e', '#2b1f47'],
       intro: 'One flight up: a long balcony loop over the pit. More lane to work with, but everything that walks it has already survived the floor below.',
       variants: [
@@ -3270,7 +3285,7 @@ const ROOMS = [
         [['shark',1,0],['lady',1,22],['whale',3,9]]
       ]
     } },
-  { name: 'Slots Pit 9', carpet: ['#3a2f80','#46398f','#2f256d'],  hpMul: 1.48, chips: 690,
+  { name: 'Slots Pit 9', carpet: ['#3a2f80','#46398f','#2f256d'],  hpMul: 1.4, chips: 690,
     intro: 'The floor plan changes nightly now. Everything walks, and the bosses walk with them.',
     variants: [
       { entryY: 300, vault: [1046, 430], killOffset: 112,
@@ -3296,7 +3311,7 @@ const ROOMS = [
       [['counter',12,.9],['grandma',16,.7],['influencer',5,4]],
       [['lady',1,0],['shark',1,22],['whale',2,10]]
     ] },
-  { name: 'Slots Pit 10', carpet: ['#2d2a6e','#383579','#23215c'],  hpMul: 1.54, chips: 720,
+  { name: 'Slots Pit 10', carpet: ['#2d2a6e','#383579','#23215c'],  hpMul: 1.4, chips: 860,
     intro: 'End of the block. The WHOLE management team walks the floor tonight — hold the vault and the Blackjack Rooms open next.',
     variants: [
       { entryY: 130, vault: [558, 352], killOffset: 25,
@@ -3822,7 +3837,9 @@ const INTRO_ROOM = (() => {
   return m;
 })();
 const familiarity = type =>
-  Math.pow(1.05, Math.max(0, Math.min(ROOM, ROOMS.length) - (INTRO_ROOM[type] || 0)));
+  // veterans toughen +5%/floor after their debut, but the compounding CAPS at 2x —
+  // uncapped it silently quadrupled deep-floor fodder
+  Math.min(2, Math.pow(1.05, Math.max(0, Math.min(ROOM, ROOMS.length) - (INTRO_ROOM[type] || 0))));
 
 /* ══════════ STATE ══════════ */
 const G = {
@@ -3834,7 +3851,7 @@ const G = {
   wave: 0,            // completed waves
   running: false,     // wave in progress
   paused: false,
-  speed: 1,
+  speed: 2,
   time: 0,
   enemies: [],
   towers: [],
@@ -4106,7 +4123,7 @@ function waveInfo() {
     </div>`;
   }).join('');
 }
-$('waveInfoBtn').addEventListener('pointerdown', ev => {
+$('nextWave').addEventListener('pointerdown', ev => {
   ev.stopPropagation();
   waveInfo();
 });
@@ -4293,7 +4310,7 @@ function showTowerInfo(key, tower) {
       return `<div class="tier ${have ? 'have' : here(pk, lvl) ? 'next' : ''}${open ? '' : ' rowLock'}">
         <div class="ti">
           <div class="tn">${tr.name}</div>
-          <div class="ts">${statLine(key, pk, lvl)}</div>
+          <div class="ts">${FLAVOR[key][pk][i]}</div>
         </div>
         <div class="tc">${have ? '✓' : tr.cost}<small>${have ? '' : 'chips'}</small></div>
       </div>`;
@@ -4363,7 +4380,7 @@ function openSheetForTower(tower) {
     if (unlocked) b.dataset.cost = tier.cost;
     b.innerHTML = `${tier.name}<span class="c">` +
       (unlocked ? `◉ ${tier.cost}` : 'comps') + `</span>`;
-    b.title = statLine(tower.type, pk, tower.lvl + 1);
+    b.title = FLAVOR[tower.type][pk][tower.lvl - 1];
     if (!unlocked) b.addEventListener('pointerdown', ev => {
       ev.stopPropagation();
       float(tower.x, tower.y - 46, 'UNLOCK WITH COMPS', '#c9707c');
@@ -4432,6 +4449,22 @@ function openSheetForTower(tower) {
 }
 document.addEventListener('pointerdown', ev => {
   if (!ev.target.closest('#sheet') && !ev.target.closest('#twMenu')) closeSheet();
+});
+// a tap that lands NEAR towers (but on none of them) opens the closest one —
+// two tables side by side used to swallow the tap (Billy)
+stageSvg.addEventListener('pointerdown', ev => {
+  if (drag || pending || G.over) return;
+  if (ev.target.closest('#twMenu') || ev.target.closest('#shop')) return;
+  const [x, y] = clientToSvg(ev.clientX, ev.clientY);
+  let best = null, bd = 1e9;
+  for (const t of G.towers) {
+    const d2 = (t.x - x) ** 2 + (t.y - y) ** 2;
+    if (d2 < bd) { bd = d2; best = t; }
+  }
+  if (best && bd <= (best.r + 26) * (best.r + 26)) {
+    ev.stopPropagation();
+    openSheetForTower(best);
+  }
 });
 
 /* ══════════ TOWERS ══════════ */
@@ -4644,7 +4677,7 @@ function spawnEnemy(type) {
   const hpEl = svgEl('rect', { x: -barW/2 + 1.5, y: -1.5, width: barW - 3, height: 3, rx: 1.5, fill: '#57c26e' }, barG);
   // tap target
   const tap = svgEl('circle', { r: E.tapR, fill: 'transparent' }, el);
-  const hpMax = E.hp * (1 + G.wave * 0.10) * G.roomDef.hpMul * familiarity(type);
+  const hpMax = E.hp * (1 + G.wave * 0.08) * G.roomDef.hpMul * familiarity(type);
   const slowEl = svgEl('g', { transform: `translate(0,${-E.scale * 60 - 26})`, opacity: 0 }, el);
   svgEl('rect', { x: -24, y: -9, width: 48, height: 17, rx: 4,
                   fill: '#8e1f2e', stroke: '#3b2415', 'stroke-width': 2 }, slowEl);
@@ -4775,7 +4808,7 @@ function killEnemy(e, leaked) {
     if (G.stars <= 0 && !G.over) { updateHUD(); return lose(); }
   } else {
     const [x, y] = posAtE(e);
-    const rw = Math.round(e.E.reward * payScale());
+    const rw = Math.round(e.E.reward * 1.35 * payScale());
     G.chips += rw;
     G.earned += rw;
     float(x, y - 26, '+' + rw, '#ffd23f');
@@ -4805,7 +4838,6 @@ function startWave() {
   const launch = () => {
     G.running = true;
     $('startWave').style.display = 'none';
-    $('waveInfoBtn').style.display = 'none';
     $('nextWave').style.display = 'none';
 
     // opening waves ramp in — a floor should never open with a wall of bodies
@@ -4866,7 +4898,7 @@ function endWave() {
   G.running = false;
   G.wave++;
   G.autoTimer = 2.5;
-  let income = Math.round(25 * payScale());
+  let income = Math.round(45 * payScale());
   G.towers.forEach(t => {
     if (t.type === 'cage') {
       const amt = Math.round(st(t, 'income') * payScale());
@@ -4892,7 +4924,6 @@ function endWave() {
   if (!isEndless() && G.wave >= WAVES.length) return win();
   saveMid();
   $('startWave').style.display = 'block';
-  $('waveInfoBtn').style.display = 'block';
   showNextWave();
 }
 
@@ -5502,21 +5533,23 @@ function update(dt) {
         const dx = x - t.x, dy = y - t.y;
         if (dx * dx + dy * dy <= rr) n++;
       }
-      if (n) {
-        const amt = Math.round(n * st(t, 'chips') * payScale());
+      // the machine earns every second the wave runs; guests walking past add fees
+      const amt = Math.round((st(t, 'rate') + n * st(t, 'chips')) * payScale());
+      if (amt) {
         G.chips += amt;
         G.earned += amt;
-        float(t.x, t.y - 32, '+' + amt, '#57c26e');
+        t.floatT = (t.floatT || 0) + 1;
+        if (n || t.floatT % 3 === 0) float(t.x, t.y - 32, '+' + amt, '#57c26e');
         updateHUD();
-        const fee = st(t, 'feeDps');
-        if (fee) {
-          const fd = Math.max(1, Math.round(fee * roomPow()));
-          for (const e of [...G.enemies]) {
-            const [x, y] = posAtE(e);
-            if ((x - t.x) ** 2 + (y - t.y) ** 2 <= rr) damageEnemy(e, fd);
-          }
-          fxRing(t.x, t.y, t.range(), '#e0575f');
+      }
+      const fee = st(t, 'feeDps');
+      if (fee && n) {
+        const fd = Math.max(1, Math.round(fee * roomPow()));
+        for (const e of [...G.enemies]) {
+          const [x, y] = posAtE(e);
+          if ((x - t.x) ** 2 + (y - t.y) ** 2 <= rr) damageEnemy(e, fd);
         }
+        fxRing(t.x, t.y, t.range(), '#e0575f');
       }
       t.cool = 1;
     } else if (t.type === 'craps') {
@@ -5958,11 +5991,17 @@ function initRoom(i, resume, altKey) {
   const R = (altKey === 'b' && base.alt) ? Object.assign({}, base, base.alt) : base;
   G.alt = (altKey === 'b' && base.alt) ? 'b' : null;
   G.roomDef = R;
+  // deterministic per floor: restarting can never reroll a luckier layout (Billy)
+  let seed = (i * 7919 + SAVE.unlocked * 131 + (altKey === 'b' ? 977 : 0)) >>> 0;
+  G.rand = () => {
+    seed = (seed * 1103515245 + 12345) % 2147483648;
+    return seed / 2147483648;
+  };
   const viParam = location.search.match(/vi=(\d+)/);
   const vi = viParam ? Math.min(+viParam[1], R.variants.length - 1)
     : resume && SAVE.mid && SAVE.mid.room === i
     ? Math.min(SAVE.mid.vi, R.variants.length - 1)
-    : Math.floor(Math.random() * R.variants.length);
+    : Math.floor(G.rand() * R.variants.length);
   G.vi = vi;
   const V = R.variants[vi];
   // art-deco fans in the room corners
@@ -6055,7 +6094,9 @@ function initRoom(i, resume, altKey) {
   }
 
   WAVES = R.waves;
-  G.chips = R.chips;
+  // deeper floors hand you a bigger opening stack — the room defs carry the base
+  // curve, this keeps pace with the tower-cost/threat scaling the late game runs on
+  G.chips = Math.round(R.chips * (1 + i * 0.06));
   G.earned = 0;
   buildShop();
   $('vaultG').setAttribute('transform', `translate(${V.vault[0]},${V.vault[1]}) scale(.6)`);
@@ -6066,7 +6107,6 @@ function initRoom(i, resume, altKey) {
   updateHUD();
   loungePad();
   $('startWave').style.display = 'block';
-  $('waveInfoBtn').style.display = 'block';
   showNextWave();
 
   $('waveTot').textContent = i >= ROOMS.length ? '∞' : WAVES.length;
@@ -6290,13 +6330,14 @@ function placeDecor() {
   ];
   const blk = G.roomDef && G.roomDef.block;
   const KINDS = blk === 3 ? ROOF_KINDS : blk === 2 ? THEATER_KINDS : CASINO_KINDS;
+  const rnd = G.rand || Math.random;
   for (const k of KINDS) {
-    const n = k.min + Math.floor(Math.random() * (k.max - k.min + 1));
+    const n = k.min + Math.floor(rnd() * (k.max - k.min + 1));
     for (let i = 0; i < n; i++) {
       for (let tries = 0; tries < 50; tries++) {
-        const x = 80 + Math.random() * 960, y = 100 + Math.random() * 400;
+        const x = 80 + rnd() * 960, y = 100 + rnd() * 400;
         if (!decorSpotOK(x, y, k.r)) continue;
-        const rot = (Math.random() * 14 - 7).toFixed(1);
+        const rot = (rnd() * 14 - 7).toFixed(1);
         if (k.id !== 'decSpot') svgEl('ellipse', {
           cx: x + 3, cy: y + k.r * .58, rx: k.r + 8, ry: k.r * .33,
           fill: 'rgba(30,12,6,.42)', filter: 'url(#softBlur)'
@@ -6584,7 +6625,7 @@ if (SAVE.prefs) {
   $('sndBtn').textContent = sndOn ? '♪' : '−';
   G.auto = !!SAVE.prefs.auto;
   $('autoBtn').classList.toggle('primary', G.auto);
-  G.speed = SAVE.prefs.speed || 1;
+  G.speed = SAVE.prefs.speed || 2;
   $('speedBtn').textContent = '×' + G.speed;
 }
 updateHUD();
@@ -6881,8 +6922,9 @@ if (location.search.includes('autotest')) {
     const kinds = ['dealer', 'roulette', 'dealer', 'roulette', 'craps', 'waitress']
       .map(k => SAVE.owned.includes(k) ? k : 'dealer');
     kinds.forEach((k, i) => {
-      const P = PATHS[i % PATHS.length];
-      const frac = .15 + i * .13;
+      if (G.chips < effCost(TTYPES[k])) return;   // the bot pays like everyone else
+      const P = PATHS[i % PATHS.length];        // every lane gets cover...
+      const frac = .5 + Math.floor(i / PATHS.length) * .1;   // ...built late, near the desk
       const idx = Math.min(P.pts.length - 3, Math.round(frac * P.pts.length));
       const [ax, ay] = P.pts[idx - 2], [bx, by] = P.pts[idx + 2];
       const [px, py] = P.pts[idx];
@@ -6893,20 +6935,26 @@ if (location.search.includes('autotest')) {
       x = Math.max(60, Math.min(1060, x));
       y = Math.max(70, Math.min(500, y));
       buildTower(k, x, y);
+      G.chips -= effCost(TTYPES[k]);
     });
-    const P0 = PATHS[0];
-    const midIdx = Math.round(P0.pts.length * .45);
-    buildTower('rope', P0.pts[midIdx][0], P0.pts[midIdx][1]);
   })();
-  // with branching paths, a level is worthless without a path to spend it on
-  G.towers.forEach((t, i) => {
-    if (MAXLV > 1) t.path = i % 2 ? 'b' : 'a';
-    t.lvl = MAXLV;
-    applyTowerLook(t);
-  });
   G.speed = 4;
   updateHUD();
   let buyN = 0;
+  // and it walks upgrade paths with chips, capped at the probe's tier ceiling
+  setInterval(() => {
+    if (G.over || !G.towers.length) return;
+    const t = G.towers[buyN % G.towers.length];
+    if (t.lvl >= MAXLV || t.type === 'rope') return;
+    const pk = t.path || (buyN % 2 ? 'b' : 'a');
+    const tier = TSPEC[t.type][pk] && TSPEC[t.type][pk].tiers[t.lvl - 1];
+    if (!tier || G.chips < tier.cost + 80) return;
+    G.chips -= tier.cost;
+    t.path = pk;
+    t.lvl += 1;
+    applyTowerLook(t);
+  }, 900);
+
   const auto = setInterval(() => {
     if ($('slots').style.display === 'flex') return;   // stop at victory screen (reload would reset virtual time)
     if ($('modal').style.display === 'flex') {
@@ -6915,9 +6963,9 @@ if (location.search.includes('autotest')) {
     }
     else if (!G.running && !G.over) startWave();
     // reinvest like a player would
-    if (!G.over && G.chips > 360 && G.towers.length < 26) {
+    if (!G.over && G.chips > 300 && G.towers.length < 26) {
       const P = PATHS[buyN % PATHS.length];
-      const idx = Math.min(P.pts.length - 3, Math.round((.12 + (buyN % 7) * .12) * P.pts.length));
+      const idx = Math.min(P.pts.length - 3, Math.round((.45 + (buyN % 6) * .09) * P.pts.length));
       const [ax, ay] = P.pts[idx - 2], [bx, by] = P.pts[idx + 2];
       const [px, py] = P.pts[idx];
       const len = Math.hypot(bx - ax, by - ay) || 1;
@@ -6927,8 +6975,6 @@ if (location.search.includes('autotest')) {
       const k = pool[buyN % pool.length];
       const nt = buildTower(k, Math.max(60, Math.min(1060, px + nx * 120 * side)),
                     Math.max(70, Math.min(500, py + ny * 120 * side)));
-      if (MAXLV > 1) nt.path = buyN % 2 ? 'b' : 'a';
-      nt.lvl = MAXLV; applyTowerLook(nt);
       G.chips -= effCost(TTYPES[k]);
       buyN++;
     }
