@@ -70,3 +70,4 @@ Tracking every piece of playtest feedback. Checked = shipped & pushed.
 - Two branches per table × 9 tables = 18 unlocks at 35–60 comps each. Too slow to unlock, or right?
 - Floors 2–4 with **no** paths bought are genuinely tight (blind bot reaches wave 7–9 of 10).
   Does that read as "I need to go buy an upgrade" or as "this is unfair"?
+- Casino Security: is walking guests backward fun or annoying to watch? Is 70 comps right?

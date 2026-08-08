@@ -1535,6 +1535,26 @@
         </g>
       </g>
 
+      <g id="twSecurity">
+        <ellipse cx="0" cy="26" rx="30" ry="7" fill="rgba(40,16,8,.35)"/>
+        <!-- guard: charcoal suit, red tie, visor shades -->
+        <path d="M-11 14 Q -13 -4 -7 -8 L 7 -8 Q 13 -4 11 14 Z"
+              fill="#2b2f38" stroke="#3b2415" stroke-width="3.5"/>
+        <path d="M-5 -8 L 0 -1 L 5 -8 Z" fill="#f5ead1" stroke="#3b2415" stroke-width="2"/>
+        <path d="M-2 -4 L 2 -4 L 1 6 L -1 6 Z" fill="#9c2333" stroke="#3b2415" stroke-width="1.4"/>
+        <circle cx="0" cy="-17" r="9.5" fill="#f2b98c" stroke="#3b2415" stroke-width="3.5"/>
+        <path d="M-8.5 -21 Q 0 -27 8.5 -21 L 8.5 -18 L -8.5 -18 Z" fill="#1e1a16" stroke="#3b2415" stroke-width="2"/>
+        <rect x="-8" y="-20" width="16" height="5.5" rx="2.6" fill="#141821" stroke="#3b2415" stroke-width="1.8"/>
+        <path d="M-6.5 -19 L -1.5 -16.6" stroke="rgba(214,236,247,.85)" stroke-width="1.5"/>
+        <circle cx="9.5" cy="-16" r="2" fill="#c3c9d2" stroke="#3b2415" stroke-width="1.4"/>
+        <path d="M10 -14 q 3 3 0 6" fill="none" stroke="#c3c9d2" stroke-width="1.4"/>
+        <!-- podium with brass badge -->
+        <path d="M-14 10 L 14 10 L 11 30 L -11 30 Z" fill="#6b4a26" stroke="#3b2415" stroke-width="3.5"/>
+        <path d="M-14 10 L 14 10 L 13.2 15 L -13.2 15 Z" fill="#8a5f33" stroke="#3b2415" stroke-width="2.4"/>
+        <path d="M0 17 L 3.4 20 L 2.2 24.6 L -2.2 24.6 L -3.4 20 Z"
+              fill="url(#brassG)" stroke="#3b2415" stroke-width="1.8"/>
+        <circle cx="0" cy="21" r="1.1" fill="#8f1e2e"/>
+      </g>
       <g id="twRope">
         <ellipse cx="0" cy="26" rx="30" ry="7" fill="rgba(40,16,8,.35)"/>
         <!-- bouncer: dinner jacket, bow tie, earpiece -->
@@ -2609,7 +2629,9 @@ const TTYPES = {
   waitress: { name:'The Waitress', sprite:'twWaitress', cost:210, range:130, scale:.62,
     blurb:'Drinks on the house', },
   catapult: { name:'Chip Catapult', sprite:'twCatapult', cost:260, range:200, cd:2.8, scale:.68,
-    blurb:'Throws money at it', }
+    blurb:'Throws money at it', },
+  security: { name:'Casino Security', sprite:'twSecurity', cost:240, range:210, cd:3.2, scale:.66,
+    blurb:'Escorts trouble out', }
 };
 /* ══════════ UPGRADE PATHS ══════════
    Every table forks. You buy a PATH with comps between floors; inside a floor
@@ -2715,18 +2737,31 @@ const TSPEC = {
         { name: 'Scattershot', cost: 265, s: { dmg: 55, aoe: 105, ammo: 9 } },
         { name: 'It Rains Chips', cost: 620, s: { dmg: 80, aoe: 155, ammo: 11, cd: 2.2 } },
         { name: 'MAKE IT RAIN', cost: 1380, s: { dmg: 110, aoe: 170, ammo: 14, cd: 1.9, storm: 5 } } ] }
+  },
+  security: {
+    // the anti-boss table: one huge hit, and the guest gets WALKED back up the lane
+    base: { dmg: 70, range: 210, cd: 3.2, walk: 60 },
+    a: { label: 'The Bouncer', tiers: [
+        { name: 'The Bouncer', cost: 260, s: { dmg: 150, walk: 95 } },
+        { name: 'Head of Security', cost: 620, s: { dmg: 300, walk: 135, range: 235 } },
+        { name: 'THE EJECTION', cost: 1350, s: { dmg: 520, walk: 9999, cd: 3.6 } } ] },
+    b: { label: 'Plainclothes', tiers: [
+        { name: 'Plainclothes', cost: 250, s: { dmg: 95, cd: 2.2 } },
+        { name: 'The Task Force', cost: 600, s: { dmg: 130, cd: 1.5, targets: 2 } },
+        { name: 'EVERYWHERE AT ONCE', cost: 1300, s: { dmg: 170, cd: 1, targets: 4, range: 260 } } ] }
   }
 };
 const PATHCOST = {          // comps to open one branch of one table, for the whole campaign
   // floor 1 banks ~40 comps and grants no upgrades at all, so the Dealer's first path
   // has to be reachable the moment you step off it — that's the hook
   dealer: 35, rope: 40, roulette: 45, atm: 45, cage: 50,
-  buffet: 50, craps: 55, waitress: 55, catapult: 60
+  buffet: 50, craps: 55, waitress: 55, catapult: 60, security: 55
 };
 const TROLE = {
   dealer:   'SINGLE TARGET · a fan of cards, each one pierces',
   roulette: 'BOUNCING SHOT · ricochets between guests',
   rope:     'SLOW FIELD · no damage · slow follows them out',
+  security: 'SINGLE TARGET · huge hits that WALK the guest backward',
   cage:     'INCOME · does not attack',
   atm:      'INCOME · skims guests walking past',
   craps:    'AREA KNOCKBACK · shoves the crowd back',
@@ -2799,6 +2834,11 @@ function statLine(key, path, lvl) {
       bits.push(`${S.dmg} splash`, `${S.aoe} radius`, `${S.ammo} chips/shot`);
       if (S.storm) bits.push(`shots SPLIT into ${S.storm} more`);
       break;
+    case 'security':
+      bits.push(`${S.dmg} dmg`, S.walk > 5000 ? 'ESCORTED TO THE DOOR' : `walked back ${S.walk}`,
+                `every ${S.cd}s`, `reach ${S.range}`);
+      if (S.targets > 1) bits.push(`${S.targets} guests at once`);
+      break;
   }
   return bits.join(' · ');
 }
@@ -2810,7 +2850,7 @@ const towerSpend = t => {
 };
 
 /* footprint radius per tower type (for placement collision) */
-const TOWER_R = { dealer: 34, roulette: 36, rope: 30, cage: 32, atm: 28, craps: 36, buffet: 38, waitress: 30, catapult: 34 };
+const TOWER_R = { dealer: 34, roulette: 36, rope: 30, cage: 32, atm: 28, craps: 36, buffet: 38, waitress: 30, catapult: 34, security: 32 };
 
 /* ══════════ CAMPAIGN ══════════ */
 const SAVE_KEY = 'holdem-save';
@@ -3732,7 +3772,8 @@ const SFX = {
   freeze()  { tone(2350, .09, 'triangle', .035); tone(3100, .12, 'triangle', .025, .05); },
   quake()   { tone(70, .5, 'sawtooth', .11, 0, 42); tone(55, .4, 'square', .06, .06, 38); },
   dieRoll() { for (let i = 0; i < 5; i++) tone(140 + i * 28, .07, 'square', .05, i * .11); },
-  pop()     { tone(680, .04, 'square', .07); tone(1900, .16, 'triangle', .04, .03, 2600); }
+  pop()     { tone(680, .04, 'square', .07); tone(1900, .16, 'triangle', .04, .03, 2600); },
+  whistle() { tone(2093, .07, 'square', .05); tone(1568, .16, 'square', .05, .08); }
 };
 // spam guards: fire/freeze can proc many times a frame at tier 3
 let sfxGate = {};
@@ -4110,7 +4151,7 @@ function openSheetForTower(tower) {
   // targeting priority
   const pr = $('twPrio');
   pr.innerHTML = '';
-  if (['dealer', 'roulette', 'catapult'].includes(tower.type)) {
+  if (['dealer', 'roulette', 'catapult', 'security'].includes(tower.type)) {
     [['first', 'FIRST'], ['strong', 'STRONG'], ['last', 'LAST']].forEach(([k, lbl]) => {
       const pb = document.createElement('button');
       pb.className = 'prioBtn' + (tower.prio === k ? ' on' : '');
@@ -4259,7 +4300,8 @@ function applyTowerLook(tower) {
 function buildTower(type, x, y) {
   const T = TTYPES[type];
   const tower = {
-    type, x, y, r: TOWER_R[type], lvl: 1, path: null, cool: 0, stunUntil: 0, prio: 'first',
+    type, x, y, r: TOWER_R[type], lvl: 1, path: null, cool: 0, stunUntil: 0,
+    prio: type === 'security' ? 'strong' : 'first',
     range() {
       return TS(this).range || T.range;
     }
@@ -5216,6 +5258,34 @@ function update(dt) {
         }
         t.cool = st(t, 'cd');
       } else t.cool = .3;
+    } else if (t.type === 'security') {
+      // pick the top N guests by this table's priority, walk each of them back
+      const n = st(t, 'targets') || 1;
+      const rr = t.range() * t.range();
+      const prio = t.prio || 'strong';
+      const cands = [];
+      for (const e of G.enemies) {
+        const [x, y] = posAtE(e);
+        const dx = x - t.x, dy = y - t.y;
+        if (dx * dx + dy * dy > rr) continue;
+        cands.push([prio === 'strong' ? e.hp : prio === 'last' ? -e.dist : e.dist, e]);
+      }
+      cands.sort((a, b) => b[0] - a[0]);
+      let any = false;
+      for (const [, e] of cands.slice(0, n)) {
+        const [x, y] = posAtE(e);
+        const ln = svgEl('line', { x1: t.x, y1: t.y - 8, x2: x, y2: y,
+          stroke: '#e0575f', 'stroke-width': 3, 'stroke-dasharray': '6 5',
+          'stroke-linecap': 'round', opacity: .9 }, $('projG'));
+        setTimeout(() => ln.remove(), 220);
+        const walk = st(t, 'walk');
+        e.dist = Math.max(0, e.dist - walk);
+        damageEnemy(e, Math.max(1, Math.round(st(t, 'dmg') * roomPow() * (t.jinxed ? .45 : 1))));
+        float(x, y - 34, walk > 5000 ? 'EJECTED!' : 'ESCORTED', '#e0575f');
+        any = true;
+      }
+      if (any) { SFX.whistle(); t.kick(); t.cool = st(t, 'cd'); }
+      else t.cool = .3;
     } else if (t.type === 'catapult') {
       const ammo = st(t, 'ammo');
       const target = G.chips >= ammo ? firstEnemyInRange(t) : null;
@@ -5818,7 +5888,7 @@ function renderMap() {
     shop.appendChild(d);
   };
 
-  const LOCKED = { craps: 40, buffet: 45, waitress: 50, catapult: 60 };
+  const LOCKED = { craps: 40, buffet: 45, waitress: 50, catapult: 60, security: 70 };
   section('HIRE NEW TABLES');
   for (const k in LOCKED) {
     const T = TTYPES[k];
@@ -6223,7 +6293,7 @@ if (/gallery|autotest|ropetest|ropeshow|mechshow|slottest|pausetest|sheettest|ri
 
 /* dev gallery: ?gallery renders every sprite large for visual review */
 if (location.search.includes('gallery')) {
-  const TW = ['twDealer','twRoulette','twRope','twCage','twATM','twCraps','twBuffet','twWaitress','twCatapult'];
+  const TW = ['twDealer','twRoulette','twRope','twCage','twATM','twCraps','twBuffet','twWaitress','twCatapult','twSecurity'];
   const NPC = ['sprRetiree','sprClipper','sprCounter','sprRegular','sprGroom','sprBride','sprDrunk','sprMojito','sprElvis','sprGrandma'];
   const ids = /gallery=(npc|flair)/.test(location.search) ? NPC : location.search.includes('gallery=tw') ? TW : ['sprRetiree','sprTourist','sprElvis','sprGrandma','sprClipper','sprInfluencer',
                'sprDrunk','sprMojito','sprCounter','sprGroom','sprBride','sprRegular','sprWaitress','sprAuditor','sprLady','sprPitBoss','sprEntertainer','sprWhale','sprShark',
@@ -6509,7 +6579,7 @@ if (location.search.includes('autotest')) {
       const len = Math.hypot(bx - ax, by - ay) || 1;
       const nx = -(by - ay) / len, ny = (bx - ax) / len;
       const side = buyN % 3 ? -1 : 1;
-      const pool = ['dealer', 'roulette', 'catapult'].filter(z => SAVE.owned.includes(z));
+      const pool = ['dealer', 'roulette', 'catapult', 'security'].filter(z => SAVE.owned.includes(z));
       const k = pool[buyN % pool.length];
       const nt = buildTower(k, Math.max(60, Math.min(1060, px + nx * 120 * side)),
                     Math.max(70, Math.min(500, py + ny * 120 * side)));

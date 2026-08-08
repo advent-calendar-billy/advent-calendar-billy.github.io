@@ -48,6 +48,11 @@
 - **Craps Table** — periodic crowd-cheer AoE shockwave knocks enemies backward
 - **Chip Stack Catapult** — loads your chips as ammo; huge damage per chip spent (late-game chip dump)
 - **Velvet Rope** — expensive; SLOWS enemies by making them queue politely (not a hard blocker)
+- **Casino Security** (added Aug 8 under Billy's "you can add towers" session brief) — 10th table,
+  long-range single-target anti-boss: one huge hit that also WALKS the guest backward up the lane.
+  Branches: The Bouncer (bigger hits, longer walk; tier 3 THE EJECTION escorts them all the way to
+  the door) vs Plainclothes (fast, up to 4 guests at once; tier 3 EVERYWHERE AT ONCE). Hired with
+  70 comps like the other locked tables. Defaults to STRONGEST targeting.
 - **Rejected towers:** Eye in the Sky, Dice Roller
 
 ## Tower placement (approved)
