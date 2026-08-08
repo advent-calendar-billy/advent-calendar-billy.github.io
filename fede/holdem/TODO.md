@@ -72,6 +72,13 @@ Tracking every piece of playtest feedback. Checked = shipped & pushed.
       the endless pit. Every 8s: "SMILE!", a full-screen flash, and every table in frame is
       frozen blind for 1.6s. The anti-tower boss to the Magician's anti-chokepoint.
 
+- [x] **NEW BOSS: THE HEALTH INSPECTOR** (floor 27 + deep endless) — hairnet, clipboard, no
+      mercy. While she walks, every buffet is CLOSED BY ORDER and she cures the food poisoning
+      of anyone she passes. The anti-buffet boss.
+- [x] **NEW MINI-BOSS PAIR: THE WHALE'S WIFE** (floor 27 + deep endless) — arrives on the
+      Whale's arm; they heal each other like the honeymooners; widow either one and the
+      survivor RAGES. Fur stole, big hair, cocktail.
+
 ## Next playtest questions for Billy
 - With 20 lives, do floors 1–10 feel too easy now?
 - Does the rack actually scroll with your thumb on your phone? (can't test that headlessly)
