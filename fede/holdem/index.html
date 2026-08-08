@@ -1797,6 +1797,30 @@
         </g>
       </g>
 
+      <g id="sprPhotog">
+        <ellipse cx="0" cy="30" rx="24" ry="7" fill="rgba(40,16,8,.4)"/>
+        <!-- rumpled sports jacket -->
+        <path d="M-11 26 Q -13 2 -7 -6 L 7 -6 Q 13 2 11 26 Q 0 30 -11 26 Z"
+              fill="#6b5a3a" stroke="#3b2415" stroke-width="3.5"/>
+        <path d="M-7 -6 L -3 4 L -6 22 M 7 -6 L 3 4 L 6 22" fill="none" stroke="#57482c" stroke-width="2.4"/>
+        <path d="M-5 -6 L 0 0 L 5 -6 Z" fill="#f5ead1" stroke="#3b2415" stroke-width="2"/>
+        <!-- the camera, held up two-handed -->
+        <circle cx="-13" cy="-4" r="3.2" fill="#f2b98c" stroke="#3b2415" stroke-width="2"/>
+        <circle cx="13" cy="-4" r="3.2" fill="#f2b98c" stroke="#3b2415" stroke-width="2"/>
+        <rect x="-11" y="-12" width="22" height="14" rx="3" fill="#1e1a16" stroke="#3b2415" stroke-width="3"/>
+        <circle cx="0" cy="-5" r="4.6" fill="#39404b" stroke="#3b2415" stroke-width="2"/>
+        <circle cx="-1.4" cy="-6.4" r="1.4" fill="#d7ecf7"/>
+        <!-- flash pan, mid-pop -->
+        <path d="M6 -12 L 6 -22 L 12 -22" fill="none" stroke="#3b2415" stroke-width="2.6"/>
+        <circle cx="15" cy="-23" r="7.5" fill="rgba(255,233,163,.35)"/>
+        <circle cx="15" cy="-23" r="5" fill="#ffe9a3" stroke="#3b2415" stroke-width="2.2"/>
+        <circle cx="13.6" cy="-24.4" r="1.6" fill="#fffbe8"/>
+        <path d="M20.5 -23 L 24 -23 M 15 -28.5 L 15 -32 M 19 -27 L 21.5 -29.5" stroke="#ffe9a3" stroke-width="1.8" stroke-linecap="round"/>
+        <!-- head peeking over, press hat with card -->
+        <circle cx="0" cy="-19" r="8.5" fill="#f2b98c" stroke="#3b2415" stroke-width="3.5"/>
+        <path d="M-8 -23 Q 0 -28 8 -23 L 8 -20 L -8 -20 Z" fill="#4a3a26" stroke="#3b2415" stroke-width="2"/>
+        <rect x="-7" y="-27" width="5" height="6" rx="1" fill="#f5ead1" stroke="#3b2415" stroke-width="1.4"/>
+      </g>
       <g id="sprMagician">
         <ellipse cx="0" cy="30" rx="24" ry="7" fill="rgba(40,16,8,.4)"/>
         <!-- red-lined cape flaring behind -->
@@ -2622,6 +2646,10 @@ const ETYPES = {
   entertainer: { name:'The Entertainer', sprite:'sprEntertainer', hp:3400, speed:27, reward:380, star:6, scale:.8, tapR:40, boss:true, showtime:170,
     desc:'The headliner works the room, and when he takes a number EVERY tower within earshot stops to watch. Nobody works the floor while he is singing.',
     stats:'BOSS · HIS NUMBER FREEZES NEARBY TOWERS' },
+  photog: { name:'The House Photographer', sprite:'sprPhotog', hp:3300, speed:26, reward:360, star:6, scale:.8, tapR:40, boss:true,
+    paparazzi: { every: 8, r: 215, stun: 1.6 },
+    desc:'Everyone smile! The house shooter works opening night, and when that flash goes off EVERY table in frame stops dead — blinded, blinking, useless.',
+    stats:'BOSS · HIS FLASH FREEZES EVERY TOWER IN FRAME' },
   magician: { name:'The Magician', sprite:'sprMagician', hp:3100, speed:29, reward:350, star:6, scale:.8, tapR:40, boss:true,
     blink: { every: 6, dist: 150, r: 85 },
     desc:'One flourish of the cape and he is somewhere else — and he takes volunteers from the audience with him. You cannot hold a queue that refuses to stand still.',
@@ -3509,9 +3537,9 @@ const ROOMS = [
       [['whale',5,5],['grandma',24,.5]],
       [['elvis',38,.19],['influencer',8,2.3]],
       [['lady',1,0],['honey',13,2]],
-      [['pitboss',1,0],['clipper',26,.34]],
+      [['photog',1,0],['clipper',26,.34]],
       [['auditor',2,11],['counter',19,.58]],
-      [['shark',1,0],['lady',1,18],['whale',4,6]]
+      [['shark',1,0],['photog',1,20],['whale',4,6]]
     ] },
   { name: 'The Main Stage', hpMul: 2.44, chips: 1170, block: 2,
     carpet: ['#63102a', '#7a1a38', '#480a1e'],
@@ -5105,6 +5133,29 @@ function update(dt) {
     }
   }
 
+  /* the House Photographer lines up a shot — everyone in frame goes blind */
+  for (const e of G.enemies) {
+    if (!e.E.paparazzi) continue;
+    e.papT = (e.papT || 0) + dt;
+    if (e.papT < e.E.paparazzi.every) continue;
+    e.papT = 0;
+    const [px2, py2] = posAtE(e);
+    fxRing(px2, py2 - 10, e.E.paparazzi.r, '#fffbe8');
+    fxRing(px2, py2 - 10, e.E.paparazzi.r * .55, '#fffbe8');
+    float(px2, py2 - 40, 'SMILE!', '#fffbe8');
+    SFX.pop();
+    const fl = document.createElement('div');
+    fl.style.cssText = 'position:fixed;inset:0;background:#fff;opacity:.55;pointer-events:none;z-index:60;transition:opacity .5s';
+    document.body.appendChild(fl);
+    requestAnimationFrame(() => { fl.style.opacity = '0'; });
+    setTimeout(() => fl.remove(), 600);
+    const rr = e.E.paparazzi.r * e.E.paparazzi.r;
+    for (const t of G.towers) {
+      const dx = t.x - px2, dy = t.y - py2;
+      if (dx * dx + dy * dy <= rr) t.stunUntil = Math.max(t.stunUntil, G.time + e.E.paparazzi.stun);
+    }
+  }
+
   /* the Entertainer takes a number — the floor stops to watch */
   for (const e of G.enemies) {
     if (!e.E.showtime) continue;
@@ -5643,7 +5694,8 @@ function endlessWave(w) {
     wave.push([t, 6 + Math.floor(w * 1.1), Math.max(.24, 1.4 - w * .028)]);
   }
   if (w % 5 === 4) {
-    const boss = w % 30 === 29 ? 'magician' : w % 25 === 24 ? 'entertainer' : w % 20 === 19 ? 'pitboss'
+    const boss = w % 35 === 34 ? 'photog' : w % 30 === 29 ? 'magician'
+               : w % 25 === 24 ? 'entertainer' : w % 20 === 19 ? 'pitboss'
                : w % 15 === 14 ? 'lady' : w % 10 === 9 ? 'shark' : 'whale';
     wave.push([boss, 1 + Math.floor(w / 12), 15]);
   }

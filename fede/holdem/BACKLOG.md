@@ -61,7 +61,8 @@
 - [x] The Pit Boss — comp aura halves damage to nearby guests
 - [x] The Entertainer — SHOWTIME! freezes nearby towers, plays his own synthesized showtune while alive
 - [x] The Magician — BUILT Aug 8 (floor 17 + endless): blinks forward every 6s, takes nearby guests along
-- [ ] 5 more bosses (greenlit: House Photographer, Health Inspector, The Whale's Wife, The Regulator, The Owner)
+- [x] The House Photographer — BUILT Aug 8 (floor 24 + endless): full-screen flash freezes every tower in frame
+- [ ] 4 more bosses (greenlit: Health Inspector, The Whale's Wife, The Regulator, The Owner)
 
 ## CAMPAIGN / META
 - [x] Between-floor SLOT MACHINE (approved spec): costs chips, ≤10 plays/intermission, EV low but positive,
