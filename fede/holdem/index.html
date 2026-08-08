@@ -5814,7 +5814,7 @@ function makeEndless() {
   for (let w = 0; w < 6; w++) waves.push(endlessWave(w));
   return { name: 'The Endless Pit', hpMul: 1.45, chips: 500,
     carpet: ['#1d1c3a', '#28264a', '#141330'],
-    intro: 'After hours, the doors never lock. The crowds keep coming, bigger every wave, until the reputation board finally goes dark. How long can you keep five stars alive?',
+    intro: 'After hours, the doors never lock. The crowds keep coming, bigger every wave, until the reputation board finally goes dark. How long can you hold the floor?',
     variants: ROOMS.flatMap(r => r.variants),
     waves };
 }
@@ -6486,6 +6486,9 @@ updateHUD();
 renderMap();
 $('map').style.display = 'flex';
 if (location.search.includes('unlockall')) { SAVE.unlocked = ROOMS.length + 1; renderMap(); }
+/* dev: ?comps=200 grants comps so the branch shop can be playtested without the grind */
+const compParam = location.search.match(/comps=(\d+)/);
+if (compParam) { SAVE.comps = +compParam[1]; renderMap(); }
 const roomParam = location.search.match(/room=(\d+)/);
 if (roomParam) initRoom(Math.min(ROOMS.length, Math.max(0, +roomParam[1] - 1)), false,
                         location.search.includes('alt=b') ? 'b' : null);  // beyond last room → Endless

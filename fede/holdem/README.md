@@ -9,10 +9,13 @@ Casino tower defense for Fede. Single-file game (`index.html`), offline PWA.
 
 ## Dev URL params
 - `?gallery` — renders every sprite large for visual review
-- `?room=N` — jump straight into room N (1-10)
+- `?room=N` — jump straight into room N (1-31; 32 = Endless)
 - `?autotest` — self-playing probe: lane-relative tower placement, reinvests chips, ×4 speed
 - `?slottest` — jump to the slot machine, auto-spin 3×
 - `?unlockall` — unlock all rooms + Endless
+- `?comps=200` — grant comps (playtest the branch shop without the grind)
+- `?gallery` / `?gallery=tw|npc|flair` — sprite review sheets
+- `?ropetest` / `?ropeshow` / `?mechshow=<tower>&mpath=a|b[&mboss=<boss>][&mt=sec]` — mechanic probes
 - `?nosw` — skip service-worker registration
 - `&cb=<anything>` — cache-buster for headless tests
 
