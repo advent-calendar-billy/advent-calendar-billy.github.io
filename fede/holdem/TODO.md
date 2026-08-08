@@ -110,6 +110,9 @@ Tracking every piece of playtest feedback. Checked = shipped & pushed.
 - [x] **Guest mini-popups (toasts) removed** — replaced by a small (i) next to DEAL THEM IN that
       opens "THIS WAVE · The Guest List" on demand
 
+- [x] **In-level rack shows only hired tables** — unhired ones appear solely in the map's comps
+      shop (round-3 revert of the grayed rack cards, per Billy)
+
 ## Next playtest questions for Billy
 - With 20 lives, do floors 1–10 feel too easy now?
 - Does the rack actually scroll with your thumb on your phone? (can't test that headlessly)

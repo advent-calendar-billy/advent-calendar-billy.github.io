@@ -638,9 +638,6 @@
   }
   .shopCard .pips i.on.a { background: #d9a94f; border-color: #ffe9b0; }
   .shopCard .pips i.on.b { background: #7fa8c4; border-color: #d7ecf7; }
-  .shopCard.unhired { opacity: .55; cursor: pointer; }
-  .shopCard.unhired svg { filter: grayscale(.75); }
-  .shopCard .hireTag { font-size: 7px; letter-spacing: .4px; color: #9c8757; }
   #shopFade {
     position: fixed; right: 0; bottom: 0;
     width: var(--rack); height: 26px;
@@ -2527,7 +2524,7 @@
 
 
 <!-- floating tower menu -->
-<div id="ver">v65</div>
+<div id="ver">v66</div>
 <div id="twMenu">
   <div id="twName">—</div>
   <div id="twStats"></div>
@@ -4150,25 +4147,11 @@ function buildShop(){
   const bar = $('shop');
   bar.innerHTML = '';
   for (const key in TTYPES) {
+    if (!SAVE.owned.includes(key)) continue;    // unhired tables live in the map's comps shop
     const T = TTYPES[key];
-    const hired = SAVE.owned.includes(key);
     const card = document.createElement('div');
-    card.className = 'shopCard' + (hired ? '' : ' unhired');
+    card.className = 'shopCard';
     card.dataset.cost = effCost(T);
-    if (!hired) {
-      // visible but not for sale yet — so the shelf never looks five tables deep
-      // when the casino actually staffs ten (Billy: "do we only have 5?")
-      card.innerHTML =
-        `<svg viewBox="-62 -58 124 108"><use href="#${T.sprite}"/></svg>` +
-        `<div class="cost hireTag">${HIRECOST[key]} COMPS</div>` +
-        `<div class="nm">${T.name}</div>`;
-      card.addEventListener('pointerdown', ev => {
-        ev.stopPropagation();
-        showTowerInfo(key);
-      });
-      bar.appendChild(card);
-      continue;
-    }
     // two pips = the two upgrade branches; lit means bought with comps
     const pips = ['a', 'b'].map(pk =>
       `<i class="${pathOwned(key, pk) ? 'on ' + pk : ''}"></i>`).join('');
