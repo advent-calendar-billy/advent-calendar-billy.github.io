@@ -4330,7 +4330,12 @@ function buildTower(type, x, y) {
 let nextIntro = [];   // queue of types needing an infobox
 
 function addFlair(g, era) {
-  if (era === 'theater') {          // feather boa slung across the shoulders + one sequin
+  if (era === 'endless') {          // a tiny crooked crown: they have seen everything
+    svgEl('path', { d: 'M -8 -40 L -8 -47 L -4 -42 L 0 -49 L 4 -42 L 8 -47 L 8 -40 Z',
+      fill: '#e8b64c', stroke: '#3b2415', 'stroke-width': 1.6,
+      transform: 'rotate(-8)', opacity: .97 }, g);
+    svgEl('circle', { cx: 0, cy: -44, r: 1.5, fill: '#c9473b' }, g);
+  } else if (era === 'theater') {          // feather boa slung across the shoulders + one sequin
     svgEl('path', { d: 'M -17 -8 Q -9 -15 0 -9 Q 9 -3 17 -9',
       fill: 'none', stroke: '#c94f8e', 'stroke-width': 6.5, 'stroke-linecap': 'round', opacity: .92 }, g);
     svgEl('circle', { cx: 13, cy: -10, r: 2.4, fill: '#ffe9a3' }, g);
@@ -4368,7 +4373,8 @@ function spawnEnemy(type) {
   svgEl('use', { href: '#' + E.sprite }, gaitG);
   // era flair: by the Roulette Halls the crowd has money; by the Theater it has STYLE.
   // fodder only — bosses carry their own drama
-  if (!E.boss) addFlair(gaitG, ROOM >= 20 ? 'theater' : ROOM >= 10 ? 'roulette' : null);
+  if (!E.boss) addFlair(gaitG,
+    ROOM >= ROOMS.length ? 'endless' : ROOM >= 20 ? 'theater' : ROOM >= 10 ? 'roulette' : null);
   // rim light down the lit side — bosses only (a second full sprite draw per guest
   // is real phone cost, and at fodder scale the shadow already does the grounding)
   if (E.boss) {
@@ -5143,10 +5149,14 @@ function update(dt) {
             }
           });
           const el = svgEl('g', {}, $('projG'));
-          svgEl('rect', { x: -16, y: -16, width: 32, height: 32, rx: 7,
-                          fill: '#f5ead1', stroke: '#3b2415', 'stroke-width': 3 }, el);
-          [[-8, -8], [8, 8], [8, -8], [-8, 8], [0, 0]].forEach(([px, py]) =>
-            svgEl('circle', { cx: px, cy: py, r: 3.2, fill: '#c9473b' }, el));
+          svgEl('ellipse', { cy: 16, rx: 24, ry: 7, fill: 'rgba(30,12,6,.4)',
+                             filter: 'url(#softBlur)' }, el);
+          svgEl('rect', { x: -22, y: -22, width: 44, height: 44, rx: 9,
+                          fill: '#f5ead1', stroke: '#3b2415', 'stroke-width': 3.6 }, el);
+          [[-11, -11], [11, 11], [11, -11], [-11, 11], [0, 0]].forEach(([px, py]) =>
+            svgEl('circle', { cx: px, cy: py, r: 4.4, fill: '#c9473b' }, el));
+          G.dieSpawn = (G.dieSpawn || 0) + 1;
+          G.dieD0 = bi * STEP;
           G.projectiles.push({ kind: 'die', d: bi * STEP, pi: bp, el, rot: 0,
             dmg: Math.max(1, Math.round(st(t, 'bigDie') * roomPow())), hitSet: new Set() });
           float(t.x, t.y - 56, 'SEVEN OUT!', '#e0575f');
@@ -5685,7 +5695,7 @@ function renderMap() {
   const cleared = Math.max(0, Math.min(SAVE.unlocked - 1, ROOMS.length));
   const stars = Object.values(SAVE.roomStars || {}).reduce((a, b) => a + b, 0);
   $('mapStats').innerHTML = [
-    [`${cleared}/30`, 'FLOORS HELD'],
+    [`${cleared}/${ROOMS.length}`, 'FLOORS HELD'],
     [`${stars}`, 'REPUTATION KEPT'],
     [`${SAVE.comps}`, 'COMPS'],
     SAVE.best ? [`${SAVE.best}`, 'ENDLESS BEST'] : null
@@ -6152,7 +6162,7 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http') && !loc
 document.addEventListener('gesturestart', e => e.preventDefault());
 document.addEventListener('dblclick', e => e.preventDefault());
 
-if (/gallery|autotest|ropetest|ropeshow|slottest|pausetest|sheettest|ridetest|depthtest|dragtest|dossier|twinfo|unlockall|room=/.test(location.search)) {
+if (/gallery|autotest|ropetest|ropeshow|mechshow|slottest|pausetest|sheettest|ridetest|depthtest|dragtest|dossier|twinfo|unlockall|room=/.test(location.search)) {
   $('title').style.display = 'none';
 }
 
@@ -6258,11 +6268,12 @@ if (location.search.includes('dragtest')) {
 if (location.search.includes('sheettest')) {
   const mode = (location.search.match(/sheettest=(\w+)/) || [])[1] || 'mixed';
   if (mode === 'mixed' || mode === 'poor') SAVE.paths.roulette = { a: true, b: true };
-  if (mode === 'tier2') SAVE.paths.roulette = { a: true };
+  if (mode === 'tier2' || mode === 'tier3') SAVE.paths.roulette = { a: true };
   initRoom(0);
   $('modalBtn').dispatchEvent(new Event('click'));
   const t = buildTower('roulette', 430, 212);
   if (mode === 'tier2') { t.path = 'a'; t.lvl = 2; applyTowerLook(t); }
+  if (mode === 'tier3') { t.path = 'a'; t.lvl = 3; G.chips = 2000; applyTowerLook(t); }
   if (mode === 'poor') G.chips = 40;
   if (mode === 'mixed') { SAVE.paths.roulette = { a: true }; G.chips = 900; }
   openSheetForTower(t);
@@ -6326,6 +6337,33 @@ if (location.search.includes('ropetest')) {
       `(+${Math.round((one / bare - 1) * 100)}%) two=${two.toFixed(1)}s ` +
       `(+${Math.round((two / bare - 1) * 100)}%)`;
   }, 400);
+}
+
+/* ?mechshow=dealer|craps|waitress|cage — one maxed tower mid-spectacle, for screenshots */
+const mechParam = location.search.match(/mechshow=(\w+)/);
+if (mechParam) {
+  const key = mechParam[1], pk = (location.search.match(/mpath=(\w)/) || [, 'a'])[1];
+  $('modalBtn').dispatchEvent(new Event('click'));
+  SAVE.paths[key] = { a: true, b: true };
+  const P0 = PATHS[0];
+  const mid = Math.round(P0.pts.length * .45);
+  const [lx, ly] = P0.pts[mid];
+  const tw = buildTower(key, lx + (key === 'rope' ? 0 : 85), ly - (key === 'rope' ? 0 : 20));
+  tw.path = pk; tw.lvl = 4; applyTowerLook(tw);
+  G.chips = 5000;
+  G.running = true;
+  for (let i = 0; i < 8; i++) {
+    const e = spawnEnemy(['retiree', 'elvis', 'tourist', 'grandma'][i % 4]);
+    e.pathI = 0;
+    e.dist = mid * STEP - 60 - i * 48;
+  }
+  const hold = (location.search.match(/mt=([\d.]+)/) || [, '1.4'])[1];
+  let t = 0;
+  const dt = 1 / 60;
+  while (t < +hold) { update(dt); t += dt; }
+  G.paused = true;
+  document.title = `MECH spawned=${G.dieSpawn || 0} d0=${G.dieD0 || '-'} live=` +
+    G.projectiles.map(q => q.kind + (q.kind === 'die' ? '@' + Math.round(q.d) : '')).join(',');
 }
 
 /* ?ropeshow — one rope, a queue of guests stuck in it, for screenshots */
