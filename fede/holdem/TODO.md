@@ -35,6 +35,26 @@ Tracking every piece of playtest feedback. Checked = shipped & pushed.
   **buyable** (gold), **can't afford** (price in red, tap says how much more you need),
   **not unlocked** (says "buy with comps", tap says when).
 
+## Fable session (Aug 8, 2h block)
+- [x] **Every branch is now 3 tiers deep** (Billy: "add 1 level... level 3 should be creative/weird/awesome")
+      Tier 3 breaks flavor on purpose: THE INFERNO (fireball cards, real AoE burns), ABSOLUTE ZERO
+      (cards hard-freeze guests mid-stride), THE WRECKING BALL (each hit shoves the crowd),
+      PERPETUAL MOTION (lightning arcs between 16 bounces), THE VELVET WALL (the bouncer ROARS —
+      full stop), THE ENDLESS QUEUE (340 reach), THE MONEY PRINTER (gold fountain payouts),
+      DEATH & TAXES (+22/kill nearby), PREDATORY LENDING (fees drain HP), TOO BIG TO FAIL,
+      THE EARTHQUAKE (screen shakes, crowd stunned), SEVEN OUT (a giant die rolls up the lane),
+      PATIENT ZERO PRAWN (poison spreads guest to guest), THE FOOD COMA (eaters pass out mid-lane),
+      LAST CALL (buffed tables spark white hot), CHAMPAGNE SUPERNOVA (cork pops stun the crowd),
+      THE JACKPOT, MAKE IT RAIN (shots split into 5 more)
+- [x] **Rope has a VISIBLE effect now**: red velvet QUEUE tag over every slowed guest (says STOPPED
+      when fully held), gait drops to a crawl, and the rope's aura lights up bright while it's
+      actually holding someone
+- [x] Max-level tables get a breathing glow + orbiting light ring (path-colored)
+- [x] Guests dress for the depth: floors 11-20 wear high-roller shades + gold chains, floors 21+
+      wear feather boas (calibrated in a review gallery, `?gallery=flair`)
+- [x] Fixed: map was drawing up to 20 ★ per cleared floor (leftover from the 5-star era) — now a
+      1-5 rating derived from reputation kept
+
 ## Next playtest questions for Billy
 - With 20 lives, do floors 1–10 feel too easy now?
 - Does the rack actually scroll with your thumb on your phone? (can't test that headlessly)
