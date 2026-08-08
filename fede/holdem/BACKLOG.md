@@ -3,6 +3,16 @@
 > Source of truth for remaining work. Multi-session. Check items off as they land.
 > Decisions live in `APPROVED.md` — anything new/ambiguous gets asked before building.
 
+## NEXT SESSION (queued Aug 8, after the tier-3 block)
+- [ ] Billy's round-3 answers (questions.txt): tier-3 taste + pricing, capstone yes/no, flair check
+- [ ] FLOOR 31: ROOFTOP AT DAWN (approved weird floor) — sunrise sky, deck chairs, the night ending.
+      NOTE: ROOMS already has 31 entries; verify the 31st is the rooftop or build it as such
+- [ ] FLOORS 32-41: THE FANCY BAR block (approved): backlit bottle wall, marble bar, lounge
+      singer, low light
+- [ ] 4+ more bosses (greenlit): Magician, House Photographer, Health Inspector, The Whale's Wife,
+      The Regulator, The Owner
+- [ ] Real-phone checks: rack thumb-scroll, tier-4 CSS animation frame rate, audio on iOS
+
 ## NOW (current session focus)
 - [x] Free tower placement: drag from shop bar onto any spot off-path, collision-checked (no predefined pads)
 - [ ] Playtest & balance pass on Room 1 with free placement

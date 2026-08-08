@@ -4690,6 +4690,7 @@ function lose() {
 
 /* ══════════ COMBAT ══════════ */
 function damageEnemy(e, dmg) {
+  if (e.dead) return;                 // fire splash can kill mid-iteration; never re-process a corpse
   // the Pit Boss comps everyone near him: half damage
   if (!e.E.comp) {
     for (const b of G.enemies) {
@@ -5335,8 +5336,8 @@ function update(dt) {
       p.rot += 720 * dt;
       p.el.setAttribute('transform', `translate(${p.x},${p.y}) rotate(${p.rot})`);
       if (p.life <= 0) { p.el.remove(); G.projectiles = G.projectiles.filter(q => q !== p); continue; }
-      for (const e of G.enemies) {
-        if (p.hitSet.has(e)) continue;
+      for (const e of [...G.enemies]) {
+        if (p.hitSet.has(e) || e.dead) continue;
         const [x, y] = posAtE(e);
         if ((x - p.x) ** 2 + (y - p.y) ** 2 < 18 * 18) {
           p.hitSet.add(e);
