@@ -1797,6 +1797,28 @@
         </g>
       </g>
 
+      <g id="sprRegulator">
+        <ellipse cx="0" cy="30" rx="24" ry="7" fill="rgba(40,16,8,.4)"/>
+        <path d="M-12 26 L -13 -4 L -8 -7 L 8 -7 L 13 -4 L 12 26 Q 0 30 -12 26 Z"
+              fill="#7a7f88" stroke="#3b2415" stroke-width="3.5"/>
+        <path d="M-8 -7 L -3 3 L -7 24 M 8 -7 L 3 3 L 7 24" fill="none" stroke="#5f636b" stroke-width="2.6"/>
+        <path d="M-5 -7 L 0 -1 L 5 -7 Z" fill="#f5ead1" stroke="#3b2415" stroke-width="2"/>
+        <path d="M-4 -6 L -2 6 M 4 -6 L 2 6" stroke="#9c2333" stroke-width="2"/>
+        <rect x="-4" y="6" width="8" height="10" rx="1.5" fill="#f5ead1" stroke="#3b2415" stroke-width="1.8"/>
+        <rect x="-2.6" y="8" width="5.2" height="4" fill="#7fa8c4" stroke="#3b2415" stroke-width="1"/>
+        <circle cx="-14" cy="6" r="3.2" fill="#f2b98c" stroke="#3b2415" stroke-width="2"/>
+        <rect x="-22" y="-2" width="13" height="17" rx="2" fill="#2b2f38" stroke="#3b2415" stroke-width="2.4"/>
+        <rect x="-20.4" y="0" width="9.8" height="13" rx="1" fill="#cfe0d6" stroke="#3b2415" stroke-width="1.2"/>
+        <path d="M-19 3 h 7 M -19 6 h 7 M -19 9 h 5" stroke="#8a7a60" stroke-width="1"/>
+        <circle cx="14" cy="2" r="3.2" fill="#f2b98c" stroke="#3b2415" stroke-width="2"/>
+        <circle cx="0" cy="-16" r="9.5" fill="#f2b98c" stroke="#3b2415" stroke-width="3.5"/>
+        <rect x="-7" y="-19" width="6" height="4.5" rx="2" fill="none" stroke="#1e1a16" stroke-width="1.6"/>
+        <rect x="1" y="-19" width="6" height="4.5" rx="2" fill="none" stroke="#1e1a16" stroke-width="1.6"/>
+        <line x1="-1" y1="-17" x2="1" y2="-17" stroke="#1e1a16" stroke-width="1.4"/>
+        <path d="M-2.5 -10.5 L 2.5 -10.5" stroke="#3b2415" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M-9.5 -19 Q 0 -26.5 9.5 -19 L 9.5 -17 Q 0 -23 -9.5 -17 Z" fill="#57482c" stroke="#3b2415" stroke-width="2"/>
+        <circle cx="0" cy="-26" r="4.5" fill="#57482c" stroke="#3b2415" stroke-width="2"/>
+      </g>
       <g id="sprInspector">
         <ellipse cx="0" cy="30" rx="24" ry="7" fill="rgba(40,16,8,.4)"/>
         <!-- crisp inspection coat over a pencil skirt -->
@@ -2702,6 +2724,10 @@ const ETYPES = {
   entertainer: { name:'The Entertainer', sprite:'sprEntertainer', hp:3400, speed:27, reward:380, star:6, scale:.8, tapR:40, boss:true, showtime:170,
     desc:'The headliner works the room, and when he takes a number EVERY tower within earshot stops to watch. Nobody works the floor while he is singing.',
     stats:'BOSS · HIS NUMBER FREEZES NEARBY TOWERS' },
+  regulator: { name:'The Regulator', sprite:'sprRegulator', hp:3200, speed:24, reward:360, star:6, scale:.8, tapR:40, boss:true,
+    cite: { every: 7 },
+    desc:'Gray suit, government lanyard, infinite paperwork. Every few seconds she cites your nearest table for a VIOLATION — half damage until she leaves the building. The notices stack.',
+    stats:'BOSS · CITES TABLES: HALF DAMAGE UNTIL SHE DIES' },
   inspector: { name:'The Health Inspector', sprite:'sprInspector', hp:3000, speed:25, reward:340, star:6, scale:.8, tapR:40, boss:true, inspect:true,
     desc:'Hairnet, clipboard, no sense of humour. While she walks the floor, every buffet is CLOSED BY ORDER — and nothing she passes keeps its food poisoning.',
     stats:'BOSS · SHUTS EVERY BUFFET · CURES POISON AS SHE PASSES' },
@@ -3495,9 +3521,9 @@ const ROOMS = [
       [['lady',1,0],['grandma',22,.52]],
       [['elvis',38,.19],['influencer',8,2.3]],
       [['pitboss',1,0],['honey',12,2]],
-      [['whale',5,5],['clipper',26,.34]],
+      [['regulator',1,0],['clipper',26,.34]],
       [['auditor',2,10],['counter',20,.55]],
-      [['shark',1,0],['lady',1,16],['pitboss',1,32],['whale',4,6]]
+      [['shark',1,0],['lady',1,16],['regulator',1,32],['whale',4,6]]
     ] },
   { name: 'Roulette Hall 10', hpMul: 2.14, chips: 1020, block: 1,
     carpet: ['#0a2358', '#102e6e', '#061640'],
@@ -4652,6 +4678,14 @@ function spawnWhaleCouple() {
 
 function killEnemy(e, leaked) {
   e.dead = true;
+  if (e.E.cite && !G.enemies.some(z => z !== e && !z.dead && z.E.cite)) {
+    for (const t of G.towers) {
+      if (!t.cited) continue;
+      t.cited = false;
+      if (t.citeEl) { t.citeEl.remove(); t.citeEl = null; }
+      float(t.x, t.y - 40, 'DISMISSED', '#57c26e');
+    }
+  }
   if (!leaked) {                       // the cage takes its cut of every body dropped nearby
     const [kx, ky] = posAtE(e);
     let cut = 0;
@@ -4951,7 +4985,7 @@ function firstEnemyInRange(t) {
 function fireRoulette(t) {
   const target = firstEnemyInRange(t);
   if (!target) return false;
-  const dmg = Math.max(1, Math.round(st(t, 'dmg') * roomPow() * (t.jinxed ? .45 : 1)));
+  const dmg = Math.max(1, Math.round(st(t, 'dmg') * roomPow() * (t.jinxed ? .45 : 1) * (t.cited ? .5 : 1)));
   const bounces = st(t, 'bounce');
   const el = svgEl('circle', { r: 5, fill: '#fffbe8', stroke: '#3b2415', 'stroke-width': 2 }, $('projG'));
   emit(t.x, t.y - 6, { n: 2, shapes: ['spark'], speed: 55, life: .22, grav: 0, colors: ['#fffbe8'] });
@@ -4969,7 +5003,7 @@ function fireDealer(t) {
   const n = st(t, 'n');
   emit(t.x, t.y - 6, { n: 2, shapes: ['spark'], speed: 50, life: .2, grav: 0, colors: ['#f5ead1'] });
   SFX.card();
-  const dmg = Math.max(1, Math.round(st(t, 'dmg') * roomPow() * (t.jinxed ? .45 : 1)));
+  const dmg = Math.max(1, Math.round(st(t, 'dmg') * roomPow() * (t.jinxed ? .45 : 1) * (t.cited ? .5 : 1)));
   for (let i = 0; i < n; i++) {
     const ang = base + (i - (n - 1) / 2) * 0.21;
     const el = svgEl('g', {}, $('projG'));
@@ -5208,6 +5242,33 @@ function update(dt) {
           e.stunCd = flash ? 11 : 6;
         } else e.stunCd = 1.5;
       }
+    }
+  }
+
+  /* the Regulator files violations — half damage per notice until she dies */
+  for (const e of G.enemies) {
+    if (!e.E.cite) continue;
+    e.citeT = (e.citeT || 0) + dt;
+    if (e.citeT < e.E.cite.every) continue;
+    e.citeT = 0;
+    const [rx2, ry2] = posAtE(e);
+    let near = null, nd = 1e9;
+    for (const t of G.towers) {
+      if (t.cited) continue;
+      const dx = t.x - rx2, dy = t.y - ry2;
+      const d2 = dx * dx + dy * dy;
+      if (d2 < nd) { nd = d2; near = t; }
+    }
+    if (near) {
+      near.cited = true;
+      near.citeEl = svgEl('g', { 'pointer-events': 'none' }, $('towersG'));
+      svgEl('rect', { x: near.x + 10, y: near.y - near.r - 14, width: 16, height: 20, rx: 2,
+        fill: '#f5ead1', stroke: '#8f1e2e', 'stroke-width': 2,
+        transform: `rotate(8 ${near.x + 18} ${near.y - near.r - 4})` }, near.citeEl);
+      svgEl('path', { d: `M ${near.x + 13} ${near.y - near.r - 9} h 10 M ${near.x + 13} ${near.y - near.r - 5} h 10 M ${near.x + 13} ${near.y - near.r - 1} h 7`,
+        stroke: '#8f1e2e', 'stroke-width': 1.4 }, near.citeEl);
+      float(near.x, near.y - near.r - 22, 'VIOLATION!', '#e0575f');
+      SFX.tilt();
     }
   }
 
@@ -5494,7 +5555,7 @@ function update(dt) {
         setTimeout(() => ln.remove(), 220);
         const walk = st(t, 'walk');
         e.dist = Math.max(0, e.dist - walk);
-        damageEnemy(e, Math.max(1, Math.round(st(t, 'dmg') * roomPow() * (t.jinxed ? .45 : 1))));
+        damageEnemy(e, Math.max(1, Math.round(st(t, 'dmg') * roomPow() * (t.jinxed ? .45 : 1) * (t.cited ? .5 : 1))));
         float(x, y - 34, walk > 5000 ? 'EJECTED!' : 'ESCORTED', '#e0575f');
         any = true;
       }
@@ -5515,7 +5576,7 @@ function update(dt) {
         G.projectiles.push({
           kind: 'lob', x: t.x, y: t.y, sx: t.x, sy: t.y, tx, ty, el,
           t: 0, dur: .55,
-          dmg: Math.max(1, Math.round(st(t, 'dmg') * roomPow() * (t.jinxed ? .45 : 1))),
+          dmg: Math.max(1, Math.round(st(t, 'dmg') * roomPow() * (t.jinxed ? .45 : 1) * (t.cited ? .5 : 1))),
           aoe: st(t, 'aoe'), storm: st(t, 'storm') || 0
         });
         t.cool = TTYPES.catapult.cd * atkSpeedFactor(t);
@@ -5806,6 +5867,7 @@ function endlessWave(w) {
   if (w > 6 && Math.random() < .4) wave.push(['honey', 2 + Math.floor(w / 8), 5]);
   if (w > 12 && w % 8 === 7) wave.push(['whalewife', 1 + Math.floor(w / 20), 12]);
   if (w > 16 && w % 12 === 11) wave.push(['inspector', 1, 18]);
+  if (w > 20 && w % 14 === 13) wave.push(['regulator', 1, 20]);
   return wave;
 }
 function makeEndless() {
@@ -6516,7 +6578,7 @@ if (location.search.includes('gallery')) {
   const TW = ['twDealer','twRoulette','twRope','twCage','twATM','twCraps','twBuffet','twWaitress','twCatapult','twSecurity'];
   const NPC = ['sprRetiree','sprClipper','sprCounter','sprRegular','sprGroom','sprBride','sprDrunk','sprMojito','sprElvis','sprGrandma'];
   const ids = /gallery=(npc|flair)/.test(location.search) ? NPC : location.search.includes('gallery=tw') ? TW : ['sprRetiree','sprTourist','sprElvis','sprGrandma','sprClipper','sprInfluencer',
-               'sprDrunk','sprMojito','sprCounter','sprGroom','sprBride','sprRegular','sprWaitress','sprAuditor','sprLady','sprPitBoss','sprEntertainer','sprMagician','sprPhotog','sprInspector','sprWhaleWife','sprWhale','sprShark',
+               'sprDrunk','sprMojito','sprCounter','sprGroom','sprBride','sprRegular','sprWaitress','sprAuditor','sprLady','sprPitBoss','sprEntertainer','sprMagician','sprPhotog','sprInspector','sprRegulator','sprWhaleWife','sprWhale','sprShark',
                'twDealer','twRoulette','twRope','twCage','twATM','twCraps','twBuffet','twWaitress','twCatapult','decSlot','decBJ','decPlant'];
   document.querySelectorAll('#hud,#startWave,#shop,#nextWave,#modal,#map,#slots').forEach(n => n.style.display = 'none');
   G.paused = true; G.over = true;

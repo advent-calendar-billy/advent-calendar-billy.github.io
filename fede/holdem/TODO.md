@@ -79,6 +79,12 @@ Tracking every piece of playtest feedback. Checked = shipped & pushed.
       Whale's arm; they heal each other like the honeymooners; widow either one and the
       survivor RAGES. Fur stole, big hair, cocktail.
 
+- [x] **NEW BOSS: THE REGULATOR** (floor 19 + deep endless) — gray suit, lanyard, tablet of
+      paperwork. Every 7s she cites your nearest table for a VIOLATION (red notice taped on,
+      half damage). Notices stack until she dies — then all DISMISSED at once.
+      **7 of your 8 greenlit bosses now exist.** Only THE OWNER remains, saved for his own
+      endgame floor (pitch in questions.txt).
+
 ## Next playtest questions for Billy
 - With 20 lives, do floors 1–10 feel too easy now?
 - Does the rack actually scroll with your thumb on your phone? (can't test that headlessly)

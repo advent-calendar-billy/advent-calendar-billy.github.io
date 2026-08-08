@@ -64,8 +64,10 @@
 - [x] The House Photographer — BUILT Aug 8 (floor 24 + endless): full-screen flash freezes every tower in frame
 - [x] The Health Inspector — BUILT Aug 8 (floor 27 + endless): buffets CLOSED while she walks, cures poison near her
 - [x] The Whale's Wife — BUILT Aug 8 (floor 27 + endless): whale-couple pair-heal, widow rages
-- [ ] 2 more bosses (greenlit, saved for the endgame: The Regulator, The Owner — the Owner should
-      probably anchor a future final block, not be dropped into an existing floor)
+- [x] The Regulator — BUILT Aug 8 (floor 19 + endless): cites towers for VIOLATIONS (half dmg,
+      stacking) until she dies
+- [ ] THE OWNER — the last greenlit boss, saved for his own endgame floor (pitch in questions.txt
+      round 3: immune to walk-back, "buys" towers he passes; anchor of a future final block)
 
 ## CAMPAIGN / META
 - [x] Between-floor SLOT MACHINE (approved spec): costs chips, ≤10 plays/intermission, EV low but positive,
