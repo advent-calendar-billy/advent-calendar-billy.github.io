@@ -122,6 +122,9 @@
 - [ ] sw.js cache version bump discipline (bump CACHE on every deploy!)
 
 ## BALANCE (living list)
+- [x] Aug 8, THE decisive check: a baseline player who buys exactly ONE branch after floor 1
+      (Dealer-Aflame, tier 2 in-floor) flips floors 2/3/4 from LOSE (wave 7-9) to WIN. The
+      "go buy an upgrade" pinch works exactly as designed — with data, not vibes.
 - [x] Aug 8, branch parity check: pure-A (damage) and pure-B (utility) max builds BOTH clear
       floors 15/25 to wave 10 — after the Cold Deck lift and tier-3s, neither branch is a trap
       pick. Pricing question (900-1450/tier-3) remains with Billy.
