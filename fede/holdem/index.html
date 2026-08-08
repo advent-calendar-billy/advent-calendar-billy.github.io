@@ -4847,6 +4847,25 @@ function update(dt) {
     if (G.spawners.every(s => s.left <= 0) && G.enemies.length === 0) endWave();
   }
 
+  /* one bad prawn can clear a whole floor — carriers infect anyone close, even mid-meal */
+  const plagueTick = (e, ex, ey, dt2) => {
+    e.spreadT = (e.spreadT || 0) + dt2;
+    if (e.spreadT <= .8) return;
+    e.spreadT = 0;
+    for (const e2 of G.enemies) {
+      if (e2 === e || e2.poisonUntil > G.time || e2.E.boss) continue;
+      const [x2, y2] = posAtE(e2);
+      if ((x2 - ex) ** 2 + (y2 - ey) ** 2 <= 60 * 60) {
+        e2.poisonUntil = G.time + 4;
+        e2.poisonDps = Math.max(e.poisonDps * .75, e.lureDps * .3);
+        e2.plague = true;
+        emit(x2, y2 - 10, { n: 4, shapes: ['spark'], speed: 55, life: .45, grav: -70,
+                            colors: ['#9aa86a', '#6f8f4f'] });
+        break;
+      }
+    }
+  };
+
   /* enemies */
   for (const e of [...G.enemies]) {
     const [ex, ey] = posAtE(e);
@@ -4855,7 +4874,23 @@ function update(dt) {
       e.hp -= e.lureDps * dt;
       e.poisonUntil = G.time + 4;
       e.poisonDps = e.lureDps * .5;
-      if (e.hp <= 0) { killEnemy(e, false); continue; }
+      if (e.plague) plagueTick(e, ex, ey, dt);
+      if (e.hp <= 0) {
+        if (e.plague) {                        // the diner collapses INTO the buffet — burst
+          for (const e2 of G.enemies) {
+            if (e2 === e || e2.E.boss) continue;
+            const [x2, y2] = posAtE(e2);
+            if ((x2 - ex) ** 2 + (y2 - ey) ** 2 <= 80 * 80) {
+              e2.poisonUntil = G.time + 4;
+              e2.poisonDps = e.lureDps * .35;
+              e2.plague = true;
+            }
+          }
+          fxRing(ex, ey, 80, '#9aa86a');
+        }
+        killEnemy(e, false);
+        continue;
+      }
       e.barG.setAttribute('opacity', 1);
       e.hpEl.setAttribute('width', Math.max(0, (e.barW - 3) * e.hp / e.hpMax));
       continue;
@@ -4875,24 +4910,7 @@ function update(dt) {
       e.hpEl.setAttribute('width', Math.max(0, (e.barW - 3) * e.hp / e.hpMax));
       e.sickT = (e.sickT || 0) + dt;
       if (e.sickT > 1.4) { e.sickT = 0; float(ex, ey - 30, '~urp~', '#9aa86a'); }
-      if (e.plague) {                          // one bad prawn can clear a whole floor
-        e.spreadT = (e.spreadT || 0) + dt;
-        if (e.spreadT > .8) {
-          e.spreadT = 0;
-          for (const e2 of G.enemies) {
-            if (e2 === e || e2.poisonUntil > G.time || e2.E.boss) continue;
-            const [x2, y2] = posAtE(e2);
-            if ((x2 - ex) ** 2 + (y2 - ey) ** 2 <= 60 * 60) {
-              e2.poisonUntil = G.time + 4;
-              e2.poisonDps = e.poisonDps * .75;
-              e2.plague = true;
-              emit(x2, y2 - 10, { n: 4, shapes: ['spark'], speed: 55, life: .45, grav: -70,
-                                  colors: ['#9aa86a', '#6f8f4f'] });
-              break;
-            }
-          }
-        }
-      }
+      if (e.plague) plagueTick(e, ex, ey, dt);
     }
     // one shared shuffle: the rope's queue and the Cold Deck's frost both write here,
     // and it MUST expire, or a stale strong slow wins Math.min forever
@@ -6390,7 +6408,8 @@ if (mechParam) {
   G.chips = 5000;
   G.running = true;
   for (let i = 0; i < 8; i++) {
-    const e = spawnEnemy(['retiree', 'elvis', 'tourist', 'grandma'][i % 4]);
+    // no grandma, no tourist: their tap-stun / camera-flash TILT the tower under test
+    const e = spawnEnemy(['retiree', 'elvis', 'clipper', 'drunk'][i % 4]);
     e.pathI = 0;
     e.dist = mid * STEP - 60 - i * 48;
   }
@@ -6399,7 +6418,10 @@ if (mechParam) {
   const dt = 1 / 60;
   while (t < +hold) { update(dt); t += dt; }
   G.paused = true;
-  document.title = `MECH spawned=${G.dieSpawn || 0} d0=${G.dieD0 || '-'} live=` +
+  document.title = `MECH spawned=${G.dieSpawn || 0} d0=${G.dieD0 || '-'} ` +
+    `sick=${G.enemies.filter(e => e.poisonUntil > G.time).length} ` +
+    `plagued=${G.enemies.filter(e => e.plague).length} ` +
+    `alive=${G.enemies.length} live=` +
     G.projectiles.map(q => q.kind + (q.kind === 'die' ? '@' + Math.round(q.d) : '')).join(',');
 }
 
