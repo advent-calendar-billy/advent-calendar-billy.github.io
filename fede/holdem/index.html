@@ -4750,7 +4750,8 @@ function startWave() {
       type, left: Math.max(1, Math.round(count * (count > 1 ? os : 1))),
       interval, timer: count === 1 ? Math.max(interval, si * 1.6) : si * 1.6
     }));
-    G.waveCount = WAVES[G.wave].reduce((a, [t, c]) => a + c * (t === 'honey' ? 2 : 1), 0);
+    // honey and whalewife entries each spawn a PAIR — count both heads
+    G.waveCount = WAVES[G.wave].reduce((a, [t, c]) => a + c * (t === 'honey' || t === 'whalewife' ? 2 : 1), 0);
     if (WAVES[G.wave].some(w => w[0] === 'tourist') && !G.bus) {
       const el = svgEl('g', {}, $('decorG'));
       svgEl('use', { href: '#sprBus' }, el);

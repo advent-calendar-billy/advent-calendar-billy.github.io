@@ -108,6 +108,9 @@
 - [x] Title screen: marquee sign with chasing bulbs, sunburst rays, scattered chips/cards
 
 ## MOBILE / TECH
+- [ ] KNOWN PROBE FLAKE: ?room=5&autotest sometimes never starts under headless virtual time
+      (title stays HOLD'EM, zero console errors, identical build passes on retry ~50%).
+      Startup race in the harness, not a game bug — but worth pinning down eventually.
 - [x] Landscape lock + rotate overlay
 - [x] Service worker offline cache
 - [x] PWA manifest.json + icons (real installability)
