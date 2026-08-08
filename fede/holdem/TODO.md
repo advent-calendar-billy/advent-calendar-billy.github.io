@@ -97,6 +97,19 @@ Tracking every piece of playtest feedback. Checked = shipped & pushed.
   comps (dies only at the floor-20 finale). If it plays too easy in hand, the levers are enemy
   HP (+X%/floor) or tier-I prices — say the word.
 
+## Playtest feedback round 3 (Aug 8, same evening)
+- [x] **No meta commentary in-game** — treeNote gone, "comps first" gone, section headers terse,
+      lock explanations live in one place (the comps shop) instead of everywhere
+- [x] **"reach N" renamed "range N"** everywhere
+- [x] **Tiny version tag** top-right (v65) so we always know which build you're on
+- [x] **Two taps to play, literally** — cold start: one tap on the title lands you ON your current
+      floor, ready to place. No map, no elevator, no doors modal. The map appears only where it
+      matters: after cashing out (comps shop) or via QUIT TO MAP. Retry/restart skip the title
+      entirely and drop you straight back in.
+- [x] **DRAG A TABLE / DEAL THEM IN hints deleted** — Fede knows how to play
+- [x] **Guest mini-popups (toasts) removed** — replaced by a small (i) next to DEAL THEM IN that
+      opens "THIS WAVE · The Guest List" on demand
+
 ## Next playtest questions for Billy
 - With 20 lives, do floors 1–10 feel too easy now?
 - Does the rack actually scroll with your thumb on your phone? (can't test that headlessly)

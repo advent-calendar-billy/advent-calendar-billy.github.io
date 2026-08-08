@@ -252,24 +252,21 @@
     border: 8px solid transparent;
     border-top-color: var(--gold);
   }
-  #toastRail {
-    position: fixed; left: 10px; bottom: 12px; z-index: 40;
-    display: flex; flex-direction: column-reverse; gap: 6px; pointer-events: none;
+  #ver {
+    position: fixed; top: 2px; right: 4px; z-index: 55;
+    font-size: 8px; color: rgba(232,182,76,.5); letter-spacing: .5px;
+    pointer-events: none;
   }
-  .toast {
-    display: flex; align-items: center; gap: 8px;
+  #waveInfoBtn {
+    position: fixed; z-index: 10; display: none;
+    right: calc(var(--rack) + 208px); bottom: calc(22px + env(safe-area-inset-bottom, 0));
+    width: 30px; height: 30px; border-radius: 50%;
     background: linear-gradient(180deg, rgba(44,34,18,.96), rgba(12,9,5,.96));
-    border: 2px solid var(--gold); border-radius: 10px;
-    padding: 5px 12px 5px 6px; max-width: 240px;
-    pointer-events: auto; cursor: pointer;
-    box-shadow: 0 4px 14px rgba(0,0,0,.5);
-    animation: toastIn .35s cubic-bezier(.2,1.4,.4,1);
+    border: 2px solid #5a4626; color: #b7a98a;
+    font-family: Georgia, serif; font-style: italic; font-size: 15px;
+    cursor: pointer;
   }
-  .toast.bye { transition: opacity .5s, transform .5s; opacity: 0; transform: translateX(-16px); }
-  .toast svg { width: 34px; height: 42px; flex: 0 0 auto; }
-  .toast b { display: block; font-size: 11px; color: var(--gold); letter-spacing: .4px; }
-  .toast span { display: block; font-size: 8.5px; color: #b7a98a; line-height: 1.3; }
-  @keyframes toastIn { from { opacity: 0; transform: translateX(-24px); } }
+  .wgSpr { width: 30px; height: 38px; flex: 0 0 auto; margin-right: 8px; }
   #twName {
     font-family: Georgia, serif; font-weight: bold; font-size: 12.5px;
     color: var(--gold); letter-spacing: 1px; margin-bottom: 6px;
@@ -2522,15 +2519,15 @@
 <div id="bossBar"><div id="bossName">—</div><div id="bossTrack"><div id="bossFill"></div></div></div>
 
 <button class="btn primary" id="startWave">DEAL&nbsp;THEM&nbsp;IN&nbsp;▸</button>
+<button id="waveInfoBtn">i</button>
 
 <!-- shop bar: drag a tower onto the floor -->
 <div id="shop"></div>
 <div id="shopFade"></div>
-<div id="dragHint">DRAG A TABLE ONTO THE FLOOR ⇠</div>
-<div id="dealHint">NOW DEAL THEM IN ⤵</div>
+
 
 <!-- floating tower menu -->
-<div id="toastRail"></div>
+<div id="ver">v65</div>
 <div id="twMenu">
   <div id="twName">—</div>
   <div id="twStats"></div>
@@ -2967,14 +2964,14 @@ function statLine(key, path, lvl) {
       if (S.chill) bits.push(`chills ${Math.round((1 - S.chill) * 100)}%`);
       if (S.fire) bits.push(`FIREBALLS · ${S.fire} splash`);
       if (S.freeze) bits.push(`FREEZES SOLID ${S.freeze}s`);
-      bits.push(`reach ${S.range}`); break;
+      bits.push(`range ${S.range}`); break;
     case 'roulette':
       bits.push(`${S.dmg} dmg to the STRONGEST`, `${S.bounce} bounces, halving each hop`, `every ${S.cd}s`);
       if (S.quake) bits.push(`SHOVES the crowd on impact`);
       if (S.arc) bits.push(`LIGHTNING arcs between hits`);
       break;
     case 'rope':
-      bits.push(`slows ${Math.round((1 - S.slow) * 100)}%`, `lingers ${S.linger}s`, `reach ${S.range}`);
+      bits.push(`slows ${Math.round((1 - S.slow) * 100)}%`, `lingers ${S.linger}s`, `range ${S.range}`);
       if (S.shout) bits.push(`bouncer ROARS every ${S.shout}s — full stop`);
       break;
     case 'cage':
@@ -2983,7 +2980,7 @@ function statLine(key, path, lvl) {
       if (S.fountain) bits.push(`GOLD FOUNTAIN payouts`);
       break;
     case 'atm':
-      bits.push(`+${S.chips} per guest`, `reach ${S.range}`);
+      bits.push(`+${S.chips} per guest`, `range ${S.range}`);
       if (S.feeDps) bits.push(`fees DRAIN ${S.feeDps} HP/sec`);
       break;
     case 'craps':
@@ -2993,12 +2990,12 @@ function statLine(key, path, lvl) {
       if (S.bigDie) bits.push(`rolls a GIANT DIE up the lane, ${S.bigDie} dmg`);
       break;
     case 'buffet':
-      bits.push(`lures ${Math.round(S.lure * 100)}%`, `${S.dps} dmg/sec`, `reach ${S.range}`);
+      bits.push(`lures ${Math.round(S.lure * 100)}%`, `${S.dps} dmg/sec`, `range ${S.range}`);
       if (S.plague) bits.push(`poison SPREADS guest to guest`);
       if (S.coma) bits.push(`eaters PASS OUT mid-lane`);
       break;
     case 'waitress':
-      bits.push(`+${Math.round((1 / S.factor - 1) * 100)}% speed`, `reach ${S.range}`);
+      bits.push(`+${Math.round((1 / S.factor - 1) * 100)}% speed`, `range ${S.range}`);
       if (S.overclock) bits.push(`tables run WHITE HOT`);
       if (S.cork) bits.push(`champagne cork STUNS every ${S.cork}s`);
       break;
@@ -3008,7 +3005,7 @@ function statLine(key, path, lvl) {
       break;
     case 'security':
       bits.push(`${S.dmg} dmg`, S.walk > 5000 ? 'ESCORTED TO THE DOOR' : `walked back ${S.walk}`,
-                `every ${S.cd}s`, `reach ${S.range}`);
+                `every ${S.cd}s`, `range ${S.range}`);
       if (S.targets > 1) bits.push(`${S.targets} guests at once`);
       break;
   }
@@ -4093,29 +4090,29 @@ $('modalBtn').addEventListener('click', () => {
   if (modalClose) { const f = modalClose; modalClose = null; f(); }
 });
 
-/* new guests announce themselves without stopping the game — tap any guest for the
-   full dossier. (Billy: "less popups... the players are smart") */
-function introduce(type, delay) {
-  const e = ETYPES[type];
-  G.seen[type] = true;
-  const t = document.createElement('div');
-  t.className = 'toast';
-  t.innerHTML =
-    `<svg viewBox="-40 -66 80 100"><use href="#${e.sprite}"/></svg>` +
-    `<div><b>${e.name}</b><span>${e.stats.toLowerCase()} · ${e.star} rep</span></div>`;
-  t.addEventListener('pointerdown', ev => {
-    ev.stopPropagation();
-    t.remove();
-    modalGait = e.gait || (e.boss ? 'lumber' : type === 'elvis' ? 'groove' : 'waddle');
-    showModal(e.boss ? 'BOSS ON THE FLOOR' : 'GUEST DOSSIER', e.name, e.sprite, e.desc,
-      `${e.stats}\nCOSTS ${e.star} REPUTATION IF THEY REACH THE DESK`, 'BACK TO THE FLOOR');
-  });
-  setTimeout(() => {
-    $('toastRail').appendChild(t);
-    setTimeout(() => t.classList.add('bye'), 6200);
-    setTimeout(() => t.remove(), 6800);
-  }, delay);
+/* who's coming: opened by the (i) next to DEAL THEM IN — never by itself */
+function waveInfo() {
+  const wave = WAVES[Math.min(G.wave, WAVES.length - 1)];
+  if (!wave) return;
+  const types = [...new Set(wave.map(w => w[0]))];
+  showModal('THIS WAVE', 'The Guest List', null, '', '', 'BACK TO THE FLOOR');
+  const tree = $('twTree');
+  tree.style.display = 'block';
+  tree.innerHTML = types.map(t => {
+    const e = ETYPES[t];
+    return `<div class="tier">
+      <svg class="wgSpr" viewBox="-40 -66 80 100"><use href="#${e.sprite}"/></svg>
+      <div class="ti">
+        <div class="tn">${e.name}</div>
+        <div class="ts">${e.stats.toLowerCase()} · ${e.star} rep</div>
+      </div>
+    </div>`;
+  }).join('');
 }
+$('waveInfoBtn').addEventListener('pointerdown', ev => {
+  ev.stopPropagation();
+  waveInfo();
+});
 
 /* ══════════ PLACEMENT ══════════ */
 const stageSvg = $('stage');
@@ -4163,7 +4160,7 @@ function buildShop(){
       // when the casino actually staffs ten (Billy: "do we only have 5?")
       card.innerHTML =
         `<svg viewBox="-62 -58 124 108"><use href="#${T.sprite}"/></svg>` +
-        `<div class="cost hireTag">HIRE · ${HIRECOST[key]} COMPS</div>` +
+        `<div class="cost hireTag">${HIRECOST[key]} COMPS</div>` +
         `<div class="nm">${T.name}</div>`;
       card.addEventListener('pointerdown', ev => {
         ev.stopPropagation();
@@ -4279,8 +4276,7 @@ function endGesture(ev) {
     G.chips -= effCost(d.T);
     buildTower(d.key, d.x, d.y);
     SFX.build();
-    $('dragHint').style.display = 'none';
-    if (ROOM === 0 && G.wave === 0 && !G.running) $('dealHint').style.display = 'block';
+
     updateHUD();
   }
 }
@@ -4316,17 +4312,15 @@ function showTowerInfo(key, tower) {
           <div class="tn">${tr.name}</div>
           <div class="ts">${statLine(key, pk, lvl)}</div>
         </div>
-        <div class="tc">${have ? '✓' : tr.cost}<small>${have ? 'built' : open ? 'chips' : 'comps first'}</small></div>
+        <div class="tc">${have ? '✓' : tr.cost}<small>${have ? '' : 'chips'}</small></div>
       </div>`;
     }).join('');
     return `<div class="branch">
-      <div class="bh">${P.label}${deep ? '' : ' <b>· II+ LOCKED</b>'}</div>${rows}</div>`;
+      <div class="bh">${P.label}</div>${rows}</div>`;
   };
 
-  const anyLocked = !pathOwned(key, 'a') || !pathOwned(key, 'b');
   tree.innerHTML =
     `<div id="twRole">${TROLE[key]}</div>` +
-    (anyLocked ? `<div class="treeNote">Tier I is open from the start — the deeper tiers are bought with comps between floors.</div>` : '') +
     `<div class="tier ${tower ? 'have' : 'next'}">
        <div class="ti"><div class="tn">${T.name}</div>
        <div class="ts">${statLine(key, null, 1)}</div></div>
@@ -4385,11 +4379,11 @@ function openSheetForTower(tower) {
     b.className = 'twBtn ' + (!unlocked ? 'locked' : afford ? 'can' : 'poor');
     if (unlocked) b.dataset.cost = tier.cost;
     b.innerHTML = `${tier.name}<span class="c">` +
-      (unlocked ? `◉ ${tier.cost}` : 'buy with comps') + `</span>`;
+      (unlocked ? `◉ ${tier.cost}` : 'comps') + `</span>`;
     b.title = statLine(tower.type, pk, tower.lvl + 1);
     if (!unlocked) b.addEventListener('pointerdown', ev => {
       ev.stopPropagation();
-      float(tower.x, tower.y - 46, 'BUY THE PATH WITH COMPS, BETWEEN FLOORS', '#c9707c');
+      float(tower.x, tower.y - 46, 'UNLOCK WITH COMPS', '#c9707c');
     });
     else if (!afford) b.addEventListener('pointerdown', ev => {
       ev.stopPropagation();
@@ -4825,14 +4819,12 @@ function startWave() {
   if (G.running || G.over) return;
   // the Endless Pit never runs out of night
   while (isEndless() && G.wave >= WAVES.length - 2) WAVES.push(endlessWave(WAVES.length));
-  // queue infoboxes for unseen types in this wave
-  const types = [...new Set(WAVES[G.wave].map(s => s[0]))].filter(t => !G.seen[t]);
   const launch = () => {
     G.running = true;
     $('startWave').style.display = 'none';
+    $('waveInfoBtn').style.display = 'none';
     $('nextWave').style.display = 'none';
-    $('dragHint').style.display = 'none';
-    $('dealHint').style.display = 'none';
+
     // opening waves ramp in — a floor should never open with a wall of bodies
     const OPENER = [.45, .62, .8, .92];
     const os = (OPENER[G.wave] || 1) * countScale();
@@ -4853,7 +4845,6 @@ function startWave() {
     SFX.wave();
     updateHUD();
   };
-  types.forEach((t, i) => introduce(t, 600 + i * 1500));
   launch();
 }
 $('startWave').addEventListener('pointerdown', ev => { ev.stopPropagation(); startWave(); });
@@ -4918,6 +4909,7 @@ function endWave() {
   if (!isEndless() && G.wave >= WAVES.length) return win();
   saveMid();
   $('startWave').style.display = 'block';
+  $('waveInfoBtn').style.display = 'block';
   showNextWave();
 }
 
@@ -4952,7 +4944,10 @@ function lose() {
     isEndless()
       ? `SURVIVED ${G.wave} WAVES · BEST ${SAVE.best} · BANKED ${banked} COMPS`
       : `YOU HELD UNTIL WAVE ${Math.min(G.wave + 1, WAVES.length)} OF ${WAVES.length}`,
-    'TRY AGAIN', () => location.reload());
+    'TRY AGAIN', () => {
+      try { sessionStorage.setItem('holdem-goto', String(ROOM + 1)); } catch (e) {}
+      location.reload();
+    });
 }
 
 /* ══════════ COMBAT ══════════ */
@@ -5905,6 +5900,7 @@ $('restartBtn').addEventListener('pointerdown', ev => {
 });
 $('quitBtn').addEventListener('pointerdown', ev => {
   ev.stopPropagation();
+  try { sessionStorage.setItem('toMap', '1'); } catch (e) {}
   location.reload();
 });
 
@@ -6087,8 +6083,9 @@ function initRoom(i, resume, altKey) {
   updateHUD();
   loungePad();
   $('startWave').style.display = 'block';
+  $('waveInfoBtn').style.display = 'block';
   showNextWave();
-  if (i === 0 && !resume) $('dragHint').style.display = 'block';
+
   $('waveTot').textContent = i >= ROOMS.length ? '∞' : WAVES.length;
   $('floorLbl').textContent = i >= ROOMS.length
     ? 'AFTER HOURS'
@@ -6230,7 +6227,7 @@ function renderMap() {
     buy(T.name, T.blurb, HIRECOST[k], SAVE.owned.includes(k), () => SAVE.owned.push(k));
   }
 
-  section('UPGRADE PATHS — UNLOCK TIERS II & III (TIER I IS ALWAYS OPEN)');
+  section('UPGRADE PATHS — TIERS II & III');
   for (const k of SAVE.owned) {
     const T = TTYPES[k], spec = TSPEC[k];
     for (const pk of ['a', 'b']) {
@@ -6534,6 +6531,7 @@ $('cashBtn').addEventListener('pointerdown', ev => {
   SAVE.roomStars[ROOM] = Math.max(SAVE.roomStars[ROOM] || 0, starRating());
   SAVE.unlocked = Math.max(SAVE.unlocked, Math.min(ROOM + 2, ROOMS.length + 1));
   saveSave();
+  try { sessionStorage.setItem('toMap', '1'); } catch (e) {}
   location.reload();
 });
 
@@ -6588,6 +6586,12 @@ function enterFromTitle() {
   SFX.wave();
   t.classList.add('gone');
   setTimeout(() => { t.style.display = 'none'; }, 520);
+  // one tap and you're ON the floor — the map only appears between floors,
+  // where the comps get spent (Billy: "the game should start in level 1. literally.")
+  if ($('map').style.display === 'none') return;  // a room is already live (dev boot / goto)
+  if (SAVE.unlocked > ROOMS.length) return;       // campaign done: pick from the map
+  const target = SAVE.mid ? SAVE.mid.room : Math.min(SAVE.unlocked - 1, ROOMS.length - 1);
+  initRoom(target, !!SAVE.mid && SAVE.mid.room === target);
 }
 $('title').addEventListener('pointerdown', enterFromTitle);
 
@@ -6611,9 +6615,19 @@ const roomParam = location.search.match(/room=(\d+)/);
 if (roomParam) initRoom(Math.min(ROOMS.length, Math.max(0, +roomParam[1] - 1)), false,
                         location.search.includes('alt=b') ? 'b' : null);  // beyond last room → Endless
 else {
-  let goto = null;
-  try { goto = sessionStorage.getItem('holdem-goto'); sessionStorage.removeItem('holdem-goto'); } catch (e) {}
-  if (goto) initRoom(Math.min(ROOMS.length, Math.max(0, +goto - 1)));
+  let goto = null, toMap = null;
+  try {
+    goto = sessionStorage.getItem('holdem-goto');
+    toMap = sessionStorage.getItem('toMap');
+    sessionStorage.removeItem('holdem-goto');
+    sessionStorage.removeItem('toMap');
+  } catch (e) {}
+  if (goto) {
+    $('title').style.display = 'none';            // mid-session: straight back in
+    initRoom(Math.min(ROOMS.length, Math.max(0, +goto - 1)));
+  } else if (toMap) {
+    $('title').style.display = 'none';            // just cashed out: the shop, no ceremony
+  }
 }
 
 /* offline support */
@@ -6838,6 +6852,9 @@ if (mechParam) {
     `alive=${G.enemies.length} live=` +
     G.projectiles.map(q => q.kind + (q.kind === 'die' ? '@' + Math.round(q.d) : '')).join(',');
 }
+
+/* dev: ?waveinfo pops the (i) wave dossier */
+if (location.search.includes('waveinfo')) setTimeout(() => waveInfo(), 300);
 
 /* ?ropeshow — one rope, a queue of guests stuck in it, for screenshots */
 if (location.search.includes('ropeshow')) {
