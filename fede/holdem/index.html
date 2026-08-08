@@ -255,7 +255,16 @@
     color: var(--gold); letter-spacing: 1px; margin-bottom: 6px;
   }
   #twPrio { display: flex; gap: 4px; justify-content: center; margin-bottom: 7px; }
-  #twActions { display: flex; gap: 6px; justify-content: center; }
+  #twActions { display: flex; gap: 5px; justify-content: center; flex-wrap: wrap; }
+  #twStats {
+    font-size: 10px; color: #b7a98a; margin: -1px 0 6px; line-height: 1.35;
+    text-align: center; max-width: 210px;
+  }
+  .twBtn.poor { border-color: #6b4a22; color: #9c8757; }
+  .twBtn.poor .c { color: #e0575f; }        /* you know the price, you're just short */
+  .twBtn.locked { border-color: #4a3a42; color: #8a7a80; opacity: .8; }
+  .twBtn.locked .c { color: #a3707c; font-size: 9.5px; }
+  .twBtn.sell { flex: 0 0 100%; }
   .twBtn {
     flex: 1;
     background: #1d1811;
@@ -278,15 +287,18 @@
     display: none;
     align-items: center; justify-content: center;
     z-index: 30;
-    padding: 16px;
+    padding: 8px;
   }
   #modalCard {
     background: linear-gradient(180deg, #16120c, #0f0d09);
     border: 3px solid var(--gold);
     border-radius: 18px;
-    max-width: 420px;
+    max-width: min(440px, 94vw);
     width: 100%;
-    padding: 18px 20px;
+    max-height: calc(100dvh - 16px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: clamp(10px, 2.6vh, 18px) clamp(12px, 3vw, 20px);
     text-align: center;
     color: var(--cream);
     box-shadow: 0 0 60px rgba(232,182,76,.25);
@@ -295,19 +307,79 @@
   @keyframes pop { from { transform: scale(.7); opacity: 0; } }
   #modalCard h2 {
     color: var(--gold);
-    font-size: 22px;
+    font-size: clamp(16px, 4.4vh, 22px);
     letter-spacing: 1px;
     margin-bottom: 2px;
     font-family: Georgia, serif;
   }
   #modalCard .kind { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: #b7a98a; }
-  #modalSprite { margin: 6px auto 2px; display: block; overflow: visible; }
-  #modalCard p { font-size: 14px; line-height: 1.5; color: #d8cbb0; margin: 8px 0 4px; }
-  #modalCard .statline {
-    font-size: 12px; color: var(--gold); font-weight: 800; margin-bottom: 12px;
-    white-space: pre-line; line-height: 1.75; letter-spacing: .3px;
+  #modalSprite {
+    margin: 4px auto 2px; display: block; overflow: visible;
+    width: clamp(70px, 19vh, 130px); height: clamp(70px, 19vh, 130px);
   }
-  #modalBtn { font-size: 16px; padding: 10px 26px; }
+  #modalCard p { font-size: clamp(11.5px, 2.9vh, 14px); line-height: 1.45; color: #d8cbb0; margin: 6px 0 4px; }
+  #modalCard .statline {
+    font-size: clamp(10px, 2.4vh, 12px); color: var(--gold); font-weight: 800;
+    margin-bottom: clamp(6px, 1.6vh, 12px);
+    white-space: pre-line; line-height: 1.6; letter-spacing: .3px;
+  }
+  #twTree { display: none; text-align: left; margin: 4px 0 10px; }
+  .branchRow { display: flex; gap: 6px; margin-top: 5px; }
+  .branch { flex: 1 1 0; min-width: 0; }
+  .branch.dim .tier { opacity: .5; }
+  .bh b { color: #c9707c; font-weight: 800; }
+  .bh {
+    font-size: clamp(8.5px, 2vh, 10px); letter-spacing: 1.4px; font-weight: 800;
+    color: var(--gold); margin: 0 0 3px 2px;
+  }
+  .treeNote {
+    font-size: clamp(8.5px, 2vh, 10px); color: #9c8757; margin: 2px 0 5px; line-height: 1.4;
+  }
+  /* the fork: a stem off the base table splitting toward each branch */
+  .fork { position: relative; height: 11px; }
+  .fork::before {
+    content: ''; position: absolute; left: 50%; top: 0; width: 2px; height: 4px;
+    background: #5a4626;
+  }
+  .fork i {
+    position: absolute; left: 25%; right: 25%; top: 3px; height: 8px;
+    border: 2px solid #5a4626; border-bottom: 0;
+  }
+  .tier {
+    display: flex; align-items: center; gap: 8px;
+    padding: clamp(4px, 1.1vh, 7px) 9px;
+    border: 2px solid #3a2f1c;
+    border-radius: 10px;
+    background: rgba(20,16,10,.6);
+    margin-bottom: 4px;
+  }
+  .tier.have { border-color: #2e7d4f; background: rgba(24,44,32,.6); }
+  .tier.next { border-color: var(--gold); background: rgba(48,37,18,.75); }
+  .tier.locked { opacity: .5; }
+  .tier .tb {
+    flex: 0 0 auto; width: 26px; height: 26px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: Georgia, serif; font-weight: bold; font-size: 11px;
+    color: #2a1c08; background: linear-gradient(180deg, #ffe9b0, #d9a94f);
+    border: 2px solid #8a6a25;
+  }
+  .tier.locked .tb { background: #2c2418; color: #7d6c4a; border-color: #4a3a22; }
+  .tier .ti { flex: 1 1 auto; min-width: 0; }
+  .tier .tn { font-weight: 800; font-size: clamp(11px, 2.6vh, 13px); color: var(--cream); }
+  .tier .ts { font-size: clamp(9px, 2.1vh, 11px); color: #b7a98a; line-height: 1.35; }
+  .tier .tc {
+    flex: 0 0 auto; text-align: right;
+    font-family: Georgia, serif; font-weight: bold;
+    font-size: clamp(11px, 2.5vh, 13px); color: var(--gold);
+  }
+  .tier .tc small { display: block; font-size: 8px; color: #9c8757; letter-spacing: 1px; }
+  #twRole {
+    font-size: clamp(9px, 2.1vh, 11px); letter-spacing: 1px;
+    color: #79e0d2; font-weight: 800; margin: 2px 0 6px;
+  }
+  #modalBtn { font-size: clamp(13px, 3vh, 16px); padding: clamp(6px, 1.6vh, 10px) clamp(16px, 5vw, 26px); }
+  #modalCard .bulbs { display: none; }
+  @media (min-height: 470px) { #modalCard .bulbs { display: block; } }
 
   /* ── float layer for TILT!/chips text handled in SVG ── */
 
@@ -409,7 +481,9 @@
     background: linear-gradient(180deg, #16120c, #0f0d09);
     border: 3px solid var(--gold);
     border-radius: 18px;
-    padding: 20px 34px 22px;
+    max-height: calc(100dvh - 16px);
+    overflow-y: auto;
+    padding: clamp(12px, 3vh, 20px) clamp(18px, 6vw, 34px) clamp(14px, 3vh, 22px);
     text-align: center;
     color: var(--cream);
     box-shadow: 0 0 60px rgba(232,182,76,.25);
@@ -512,6 +586,9 @@
     z-index: 12;
     padding: calc(46px + env(safe-area-inset-top, 0)) 5px calc(6px + env(safe-area-inset-bottom, 0));
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
     scrollbar-width: none;
     background: linear-gradient(180deg, rgba(10,26,18,.96), rgba(6,18,12,.98));
     border-left: 2px solid #2c4a3a;
@@ -527,7 +604,7 @@
     text-align: center;
     padding: 2px 2px 3px;
     color: var(--cream);
-    touch-action: none;
+    touch-action: pan-y;
     cursor: grab;
     box-shadow: inset 0 1px 0 rgba(255,235,180,.16), 0 3px 9px rgba(0,0,0,.4);
   }
@@ -666,8 +743,9 @@
     border-radius: 20px;
     box-shadow: 0 0 0 3px #072619, 0 0 60px rgba(232,182,76,.22),
       inset 0 2px 0 rgba(255,255,255,.08), inset 0 0 46px rgba(0,0,0,.65);
-    max-height: 96vh;
+    max-height: calc(100dvh - 16px);
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
   .bulbs {
     color: var(--gold);
@@ -680,7 +758,7 @@
   .mapMarquee {
     font-family: Georgia, serif;
     font-weight: bold;
-    font-size: 44px;
+    font-size: clamp(24px, 6.6vh, 44px);
     letter-spacing: 3px;
     background: linear-gradient(105deg, #e8b64c 38%, #fff3cf 50%, #e8b64c 62%);
     background-size: 220% 100%;
@@ -814,14 +892,17 @@
     display: none;
     align-items: center; justify-content: center;
     z-index: 26;
-    padding: 16px;
+    padding: 8px;
   }
   #slotCard {
     background: linear-gradient(180deg, #2a1130, #16081a);
     border: 3px solid var(--gold);
     border-radius: 18px;
-    max-width: 430px; width: 100%;
-    padding: 18px 20px 20px;
+    max-width: min(430px, 94vw); width: 100%;
+    max-height: calc(100dvh - 16px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: clamp(8px, 2vh, 18px) clamp(12px, 3vw, 20px) clamp(10px, 2.2vh, 20px);
     text-align: center;
     color: var(--cream);
     box-shadow: 0 0 60px rgba(232,182,76,.3);
@@ -830,17 +911,17 @@
   #slotCard h2Legacy {
     font-family: Georgia, serif;
     color: #ffd23f;
-    font-size: 30px;
+    font-size: clamp(18px, 5vh, 30px);
     letter-spacing: 3px;
     text-shadow: 0 0 14px rgba(255,210,63,.6);
     margin: 4px 0 10px;
   }
-  #cabinet { width: min(300px, 68vw); display: block; margin: 2px auto 4px; }
+  #cabinet { width: min(300px, 60vw, 44vh); display: block; margin: 2px auto 4px; }
   .cabBulb { animation: cabBulbBlink 1.2s linear infinite; }
   @keyframes cabBulbBlink { 0%,55% { opacity: 1; } 70%,100% { opacity: .25; } }
   #leverArm { transform-box: fill-box; transform-origin: 50% 4%; transition: transform .18s ease-out; }
   #leverArm.pulled { transform: rotate(38deg); }
-  #slotMsg { font-size: 13.5px; color: #d8cbb0; min-height: 20px; }
+  #slotMsg { font-size: clamp(11px, 2.6vh, 13.5px); color: #d8cbb0; min-height: 16px; }
   #slotMsg.bigwin {
     font-size: 17px;
     color: #ffd23f;
@@ -848,7 +929,7 @@
     text-shadow: 0 0 12px rgba(255,210,63,.7);
     animation: pulse .6s ease-in-out infinite;
   }
-  #payline { font-size: 10.5px; color: #9c8757; margin-top: 7px; letter-spacing: .5px; }
+  #payline { font-size: clamp(8.5px, 2vh, 10.5px); color: #9c8757; margin-top: 5px; letter-spacing: .5px; }
   #payline b { color: #d8cbb0; }
   #payline svg { width: 17px; height: 17px; vertical-align: -3px; }
   #slotInfo { margin-top: 8px; font-weight: 800; color: var(--gold); font-size: 14px; }
@@ -2267,6 +2348,7 @@
 <!-- floating tower menu -->
 <div id="twMenu">
   <div id="twName">—</div>
+  <div id="twStats"></div>
   <div id="twPrio"></div>
   <div id="twActions"></div>
 </div>
@@ -2286,6 +2368,7 @@
     <svg id="modalSprite" width="130" height="130" viewBox="-60 -75 120 140"></svg>
     <p id="modalDesc">—</p>
     <div class="statline" id="modalStats"></div>
+    <div id="twTree"></div>
     <button class="btn primary" id="modalBtn">DEAL ME IN</button>
   </div>
 </div>
@@ -2441,7 +2524,7 @@ const ETYPES = {
   elvis: { name:'Elvis Impersonator', sprite:'sprElvis', hp:75, speed:80, reward:10, star:1, scale:.55, tapR:32,
     desc:'One of many. There is no real one. Dances down the lane faster than security can follow.',
     stats:'FAST · DANCES · UH-HUH' },
-  grandma: { name:'Slot Grandma', sprite:'sprGrandma', hp:120, speed:38, reward:14, star:1, scale:.58, tapR:32, special:'stun',
+  grandma: { name:'Slot Grandma', sprite:'sprGrandma', hp:120, speed:38, reward:14, star:2, scale:.58, tapR:32, special:'stun',
     desc:'Taps your machines to "make them pay out." A tapped tower jams for a moment — TILT! Keep her at range.',
     stats:'TOUGH · STUNS NEARBY TOWERS' },
   drunk: { name:'The Drunk', sprite:'sprDrunk', hp:65, speed:47, reward:9, star:1, scale:.55, tapR:32, dodge:.3, gait:'stagger',
@@ -2453,10 +2536,10 @@ const ETYPES = {
   clipper: { name:'Coupon Clipper', sprite:'sprClipper', hp:55, speed:50, reward:12, star:1, scale:.55, tapR:32, armor:4,
     desc:'A fistful of comps absorbs the first hits — watch the coupons shred one by one before she takes a scratch.',
     stats:'ARMORED · 4 COUPONS SOAK 4 HITS' },
-  influencer: { name:'The Influencer', sprite:'sprInfluencer', hp:140, speed:55, reward:25, star:1, scale:.58, tapR:34, aura:'haste',
+  influencer: { name:'The Influencer', sprite:'sprInfluencer', hp:140, speed:55, reward:25, star:2, scale:.58, tapR:34, aura:'haste',
     desc:'Live from the casino floor! Her followers rush in behind her — nearby guests walk 30% faster. Drop her first.',
     stats:'SPEED AURA · PRIORITY TARGET' },
-  counter: { name:'Card Counter', sprite:'sprCounter', hp:150, speed:52, reward:20, star:1, scale:.56, tapR:32, countDodge:4,
+  counter: { name:'Card Counter', sprite:'sprCounter', hp:150, speed:52, reward:20, star:2, scale:.56, tapR:32, countDodge:4,
     desc:'He counts every card, every chip, every projectile. Every 4th thing thrown at him gets calculated around.',
     stats:'ELITE · DODGES EVERY 4TH HIT' },
   groom: { name:'The Honeymooners', sprite:'sprGroom', hp:100, speed:50, reward:12, star:1, scale:.56, tapR:32, pairHeal:4, enrage:1.5,
@@ -2468,112 +2551,202 @@ const ETYPES = {
   honey: { name:'The Honeymooners', sprite:'sprBride', hp:100, speed:50, reward:12, star:1, scale:.56, tapR:32,
     desc:'Just married, deliriously happy, healing each other with every glance. Widow one and the survivor RUNS.',
     stats:'PAIR · HEAL TOGETHER · SURVIVOR RAGES' },
-  regular: { name:'The Regular', sprite:'sprRegular', hp:130, speed:55, reward:16, star:1, scale:.55, tapR:32,
+  regular: { name:'The Regular', sprite:'sprRegular', hp:130, speed:55, reward:16, star:2, scale:.55, tapR:32,
     skip: { every: 8, dist: 110 },
     desc:'Thirty years on this floor. He knows every staff door, and he is not above using them to skip the line.',
     stats:'SKIPS AHEAD VIA STAFF DOORS' },
-  auditor: { name:'The Auditor', sprite:'sprAuditor', hp:2600, speed:26, reward:300, star:2, scale:.8, tapR:40, boss:true, audit:true,
+  auditor: { name:'The Auditor', sprite:'sprAuditor', hp:2600, speed:26, reward:300, star:5, scale:.8, tapR:40, boss:true, audit:true,
     desc:'Everything stops when he opens the briefcase. While he walks, your most expensive tower is UNDER AUDIT — frozen, pending review.',
     stats:'BOSS · DISABLES YOUR PRICIEST TOWER' },
-  entertainer: { name:'The Entertainer', sprite:'sprEntertainer', hp:3400, speed:27, reward:380, star:2, scale:.8, tapR:40, boss:true, showtime:170,
+  entertainer: { name:'The Entertainer', sprite:'sprEntertainer', hp:3400, speed:27, reward:380, star:6, scale:.8, tapR:40, boss:true, showtime:170,
     desc:'The headliner works the room, and when he takes a number EVERY tower within earshot stops to watch. Nobody works the floor while he is singing.',
     stats:'BOSS · HIS NUMBER FREEZES NEARBY TOWERS' },
-  pitboss: { name:'The Pit Boss', sprite:'sprPitBoss', hp:2900, speed:28, reward:320, star:2, scale:.8, tapR:40, boss:true, comp:150,
+  pitboss: { name:'The Pit Boss', sprite:'sprPitBoss', hp:2900, speed:28, reward:320, star:5, scale:.8, tapR:40, boss:true, comp:150,
     desc:'He runs this floor and everyone on it is comped. While he walks, every guest inside his radius takes HALF damage. Cut him out first.',
     stats:'BOSS · HALVES DAMAGE TO NEARBY GUESTS' },
-  lady: { name:'Lady Luck', sprite:'sprLady', hp:3200, speed:24, reward:350, star:2, scale:.8, tapR:40, boss:true, jinx:125,
+  lady: { name:'Lady Luck', sprite:'sprLady', hp:3200, speed:24, reward:350, star:5, scale:.8, tapR:40, boss:true, jinx:125,
     desc:'She blows a kiss and every wheel goes cold. Towers inside her shimmer roll minimum damage while she glides past.',
     stats:'BOSS · JINX AURA: TOWERS DEAL MIN DAMAGE' },
-  whale: { name:'The Whale', sprite:'sprWhale', hp:1050, speed:25, reward:150, star:2, scale:.78, tapR:40, boss:true,
+  whale: { name:'The Whale', sprite:'sprWhale', hp:1050, speed:25, reward:150, star:4, scale:.78, tapR:40, boss:true,
     desc:'Comped everything. Bathrobe, cigar, security detail waved off. Takes a fortune down with him — and pays one out.',
     stats:'MINI-BOSS · VERY TOUGH · BIG BOUNTY' },
-  shark: { name:'Loan Shark', sprite:'sprShark', hp:2000, speed:31, reward:250, star:2, scale:.8, tapR:40, boss:true, steal:120,
+  shark: { name:'Loan Shark', sprite:'sprShark', hp:2000, speed:31, reward:250, star:5, scale:.8, tapR:40, boss:true, steal:120,
     desc:'Collects what he is owed. If he reaches the front desk he collects in chips — YOUR chips.',
     stats:'BOSS · STEALS 120 CHIPS ON LEAK' }
 };
 
 const TTYPES = {
   dealer: { name:'Card Dealer', sprite:'twDealer', cost:150, range:135, cd:.85, scale:.62,
-    blurb:'Fan of razor cards',
-    lv: [
-      { menu:'3 cards · 6 dmg' },
-      { cost:120, menu:'5 cards · 8 dmg' },
-      { cost:340, menu:'7 cards · 11 dmg · longer reach' }
-    ] },
+    blurb:'Fan of razor cards', },
   roulette: { name:'Roulette Wheel', sprite:'twRoulette', cost:220, range:155, cd:1.5, scale:.62,
-    blurb:'Ricochet ivory ball',
-    lv: [
-      { menu:'12 dmg · 3 bounces' },
-      { cost:180, menu:'18 dmg · 4 bounces' },
-      { cost:430, menu:'27 dmg · 6 bounces · faster' }
-    ] },
+    blurb:'Ricochet ivory ball', },
   rope: { name:'Velvet Rope', sprite:'twRope', cost:180, range:105, scale:.72,
-    blurb:'Guests queue politely',
-    lv: [
-      { menu:'Slows 40%' },
-      { cost:140, menu:'Slows 55% · wider' },
-      { cost:330, menu:'Slows 68% · widest' }
-    ] },
+    blurb:'Guests queue politely', },
   cage: { name:'The Cage', sprite:'twCage', cost:200, scale:.6,
-    blurb:'Pays a dividend',
-    lv: [
-      { menu:'+45 chips / wave' },
-      { cost:160, menu:'+100 chips / wave' },
-      { cost:380, menu:'+190 chips / wave' }
-    ] },
+    blurb:'Pays a dividend', },
   atm: { name:'ATM Row', sprite:'twATM', cost:170, range:110, scale:.7,
-    blurb:'Convenience fees',
-    lv: [
-      { menu:'+1 chip/guest/sec' },
-      { cost:150, menu:'+2 chips · wider' },
-      { cost:350, menu:'+4 chips · widest' }
-    ] },
+    blurb:'Convenience fees', },
   craps: { name:'Craps Table', sprite:'twCraps', cost:240, range:125, cd:6, scale:.7,
-    blurb:'Hot-roll knockback',
-    lv: [
-      { menu:'Shoves crowd back' },
-      { cost:200, menu:'Faster · stronger' },
-      { cost:460, menu:'Every 3s · huge shove' }
-    ] },
+    blurb:'Hot-roll knockback', },
   buffet: { name:'Shrimp Buffet', sprite:'twBuffet', cost:190, range:120, scale:.7,
-    blurb:'Week-old shrimp',
-    lv: [
-      { menu:'Lures 5% · poison' },
-      { cost:160, menu:'Lures 20% · worse shrimp' },
-      { cost:400, menu:'Lures 35% · food poisoning' }
-    ] },
+    blurb:'Week-old shrimp', },
   waitress: { name:'The Waitress', sprite:'twWaitress', cost:210, range:130, scale:.62,
-    blurb:'Drinks on the house',
-    lv: [
-      { menu:'Towers +25% speed' },
-      { cost:170, menu:'+40% attack speed' },
-      { cost:410, menu:'+65% · wider circuit' }
-    ] },
+    blurb:'Drinks on the house', },
   catapult: { name:'Chip Catapult', sprite:'twCatapult', cost:260, range:200, cd:2.8, scale:.68,
-    blurb:'Throws money at it',
-    lv: [
-      { menu:'8 chips/shot · big AoE' },
-      { cost:220, menu:'12 chips/shot · huge AoE' },
-      { cost:520, menu:'18 chips/shot · devastating' }
-    ] }
+    blurb:'Throws money at it', }
 };
-/* level-indexed stats (index 0 = level 1) */
-const TSTAT = {
-  dealer:   { n:[3,5,7],        dmg:[6,8,11],       range:[135,135,160] },
-  roulette: { dmg:[12,18,27],   bounce:[3,4,6],     cd:[1.5,1.5,1.2] },
-  rope:     { slow:[.6,.45,.32], range:[105,130,152] },
-  cage:     { income:[45,100,190] },
-  atm:      { chips:[1,2,4],    range:[110,135,160] },
-  craps:    { push:[60,85,125], cd:[6,4.5,3] },
-  buffet:   { lure:[.05,.20,.35], dps:[9,15,24] },
-  waitress: { factor:[.75,.6,.45], range:[130,130,158] },
-  catapult: { dmg:[40,70,115],  aoe:[60,80,108],    ammo:[8,12,18] }
+/* ══════════ UPGRADE PATHS ══════════
+   Every table forks. You buy a PATH with comps between floors; inside a floor
+   you pay chips to walk that path. Tier 1 -> pick a path -> tier 2 of it.      */
+const TSPEC = {
+  dealer: {
+    base: { n: 3, dmg: 6, range: 135, cd: .85 },
+    a: { label: 'Aflame', tiers: [
+        { name: 'Blazing Dealer', cost: 170, s: { n: 4, dmg: 13 } },
+        { name: 'The Firestarter', cost: 430, s: { n: 5, dmg: 24, range: 152 } } ] },
+    b: { label: 'Cold Deck', tiers: [
+        { name: 'Cold Deck', cost: 160, s: { n: 5, dmg: 9, chill: .7 } },
+        { name: 'The Deep Freeze', cost: 400, s: { n: 7, dmg: 14, range: 158, chill: .5 } } ] }
+  },
+  roulette: {
+    base: { dmg: 12, bounce: 3, range: 155, cd: 1.5 },
+    a: { label: 'Steel Ball', tiers: [
+        { name: 'Steel Wheel', cost: 230, s: { dmg: 26, bounce: 3 } },
+        { name: 'The Iron Ball', cost: 560, s: { dmg: 48, bounce: 4, cd: 1.3 } } ] },
+    b: { label: 'Ivory Ball', tiers: [
+        { name: 'Ivory Wheel', cost: 210, s: { dmg: 15, bounce: 6 } },
+        { name: 'The Endless Spin', cost: 520, s: { dmg: 20, bounce: 10, cd: 1.2 } } ] }
+  },
+  rope: {
+    // the queue has to HURT: a wide field, a deep slow, and a shuffle they carry
+    // out of it, or 180 chips buys a decoration (Billy, Aug 8: "doesn't seem to do anything")
+    base: { slow: .42, range: 130, linger: 1.6 },
+    a: { label: 'The Guest List', tiers: [
+        { name: 'The Guest List', cost: 180, s: { slow: .28, linger: 2.2 } },
+        { name: 'Nobody Gets In', cost: 430, s: { slow: .16, linger: 3 } } ] },
+    b: { label: 'The Cordon', tiers: [
+        { name: 'VIP Cordon', cost: 170, s: { range: 195, linger: 2.4 } },
+        { name: 'The Whole Wing', cost: 410, s: { slow: .36, range: 255, linger: 3.2 } } ] }
+  },
+  cage: {
+    base: { income: 45, killBonus: 0, range: 0 },
+    a: { label: 'House Edge', tiers: [
+        { name: 'House Edge', cost: 200, s: { income: 110 } },
+        { name: 'The Counting Window', cost: 470, s: { income: 240 } } ] },
+    b: { label: 'The Count', tiers: [
+        { name: 'The Count', cost: 190, s: { income: 60, killBonus: 3, range: 150 } },
+        { name: 'The Skim', cost: 450, s: { income: 80, killBonus: 8, range: 190 } } ] }
+  },
+  atm: {
+    base: { chips: 1, range: 110 },
+    a: { label: 'Surcharge', tiers: [
+        { name: 'Cash Advance', cost: 175, s: { chips: 3 } },
+        { name: 'The Money Wall', cost: 420, s: { chips: 6 } } ] },
+    b: { label: 'The Row', tiers: [
+        { name: 'ATM Concourse', cost: 165, s: { chips: 2, range: 165 } },
+        { name: 'Every Corner', cost: 400, s: { chips: 3, range: 215 } } ] }
+  },
+  craps: {
+    base: { push: 60, cd: 6, dmg: 0, range: 125 },
+    a: { label: 'Hot Roll', tiers: [
+        { name: 'Hot Table', cost: 250, s: { push: 110, cd: 4 } },
+        { name: "The Shooter's Table", cost: 600, s: { push: 170, cd: 2.8 } } ] },
+    b: { label: 'Snake Eyes', tiers: [
+        { name: 'Snake Eyes', cost: 240, s: { push: 70, cd: 4.5, dmg: 26 } },
+        { name: 'Boxcars', cost: 580, s: { push: 90, cd: 3.4, dmg: 60, range: 150 } } ] }
+  },
+  buffet: {
+    base: { lure: .05, dps: 9, range: 120 },
+    a: { label: 'Expired Mayo', tiers: [
+        { name: 'Expired Mayo', cost: 200, s: { lure: .12, dps: 26 } },
+        { name: 'The Midnight Buffet', cost: 480, s: { lure: .18, dps: 62 } } ] },
+    b: { label: 'Bottomless Trough', tiers: [
+        { name: 'Bottomless Trough', cost: 190, s: { lure: .28, dps: 13, range: 155 } },
+        { name: 'All You Can Eat', cost: 460, s: { lure: .45, dps: 18, range: 190 } } ] }
+  },
+  waitress: {
+    base: { factor: .75, range: 130 },
+    a: { label: 'Open Bar', tiers: [
+        { name: 'Open Bar', cost: 220, s: { factor: .55 } },
+        { name: 'The Floor Captain', cost: 520, s: { factor: .38 } } ] },
+    b: { label: 'VIP Host', tiers: [
+        { name: 'Bottle Service', cost: 205, s: { factor: .65, range: 185 } },
+        { name: 'The Whole Room', cost: 490, s: { factor: .55, range: 240 } } ] }
+  },
+  catapult: {
+    base: { dmg: 40, aoe: 60, ammo: 8, range: 200, cd: 2.8 },
+    a: { label: 'Money Mortar', tiers: [
+        { name: 'Chip Cannon', cost: 280, s: { dmg: 95, ammo: 14 } },
+        { name: 'The Money Mortar', cost: 660, s: { dmg: 190, ammo: 22, cd: 2.4 } } ] },
+    b: { label: 'Scattershot', tiers: [
+        { name: 'Scattershot', cost: 265, s: { dmg: 55, aoe: 105, ammo: 9 } },
+        { name: 'It Rains Chips', cost: 620, s: { dmg: 80, aoe: 155, ammo: 11, cd: 2.2 } } ] }
+  }
 };
-const st = (t, key) => TSTAT[t.type][key][t.lvl - 1];
+const PATHCOST = {          // comps to open one branch of one table, for the whole campaign
+  // floor 1 banks ~40 comps and grants no upgrades at all, so the Dealer's first path
+  // has to be reachable the moment you step off it — that's the hook
+  dealer: 35, rope: 40, roulette: 45, atm: 45, cage: 50,
+  buffet: 50, craps: 55, waitress: 55, catapult: 60
+};
+const TROLE = {
+  dealer:   'SINGLE TARGET · a fan of cards, each one pierces',
+  roulette: 'BOUNCING SHOT · ricochets between guests',
+  rope:     'SLOW FIELD · no damage · slow follows them out',
+  cage:     'INCOME · does not attack',
+  atm:      'INCOME · skims guests walking past',
+  craps:    'AREA KNOCKBACK · shoves the crowd back',
+  buffet:   'LURE + POISON · pulls guests off the lane',
+  waitress: 'SUPPORT · speeds up neighbouring tables',
+  catapult: 'AREA SPLASH · spends your chips as ammo'
+};
+/* the live stats of a placed table: base, then its path tiers layered on top */
+function TS(t) {
+  const spec = TSPEC[t.type];
+  const out = Object.assign({}, spec.base);
+  if (t.path) for (let i = 0; i < t.lvl - 1; i++) Object.assign(out, spec[t.path].tiers[i].s);
+  return out;
+}
+const st = (t, key) => TS(t)[key];
+/* the same, for a hypothetical tower — used by the dossier */
+function specStats(key, path, lvl) {
+  const spec = TSPEC[key];
+  const out = Object.assign({}, spec.base);
+  if (path) for (let i = 0; i < lvl - 1; i++) Object.assign(out, spec[path].tiers[i].s);
+  return out;
+}
+const tName = (key, path, lvl) =>
+  (!path || lvl < 2) ? TTYPES[key].name : TSPEC[key][path].tiers[lvl - 2].name;
+function statLine(key, path, lvl) {
+  const S = specStats(key, path, lvl);
+  const bits = [];
+  switch (key) {
+    case 'dealer':
+      bits.push(`${S.n} cards`, `${S.dmg} dmg each`);
+      if (S.chill) bits.push(`chills ${Math.round((1 - S.chill) * 100)}%`);
+      bits.push(`reach ${S.range}`); break;
+    case 'roulette': bits.push(`${S.dmg} dmg`, `${S.bounce} bounces`, `every ${S.cd}s`); break;
+    case 'rope':     bits.push(`slows ${Math.round((1 - S.slow) * 100)}%`,
+                               `lingers ${S.linger}s`, `reach ${S.range}`); break;
+    case 'cage':
+      bits.push(`+${S.income} a wave`);
+      if (S.killBonus) bits.push(`+${S.killBonus} per kill nearby`);
+      break;
+    case 'atm':      bits.push(`+${S.chips} per guest`, `reach ${S.range}`); break;
+    case 'craps':
+      bits.push(`shoves ${S.push}`, `every ${S.cd}s`);
+      if (S.dmg) bits.push(`${S.dmg} dmg`);
+      break;
+    case 'buffet':   bits.push(`lures ${Math.round(S.lure * 100)}%`, `${S.dps} dmg/sec`, `reach ${S.range}`); break;
+    case 'waitress': bits.push(`+${Math.round((1 / S.factor - 1) * 100)}% speed`, `reach ${S.range}`); break;
+    case 'catapult': bits.push(`${S.dmg} splash`, `${S.aoe} radius`, `${S.ammo} chips/shot`); break;
+  }
+  return bits.join(' · ');
+}
+const pathOwned = (key, path) => !!((SAVE.paths || {})[key] || {})[path];
 const towerSpend = t => {
-  const T = TTYPES[t.type];
-  let v = effCost(T);
-  for (let i = 1; i < t.lvl; i++) v += T.lv[i].cost;
+  let v = effCost(TTYPES[t.type]);
+  if (t.path) for (let i = 0; i < t.lvl - 1; i++) v += TSPEC[t.type][t.path].tiers[i].cost;
   return v;
 };
 
@@ -2587,7 +2760,7 @@ function saveSave() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(SAVE))
 const SAVE = Object.assign({ unlocked: 1, comps: 0, upg: {} }, loadSave());
 SAVE.upg = SAVE.upg || {};
 SAVE.owned = SAVE.owned || ['dealer', 'roulette', 'rope', 'cage', 'atm'];
-SAVE.mastery = SAVE.mastery || {};
+SAVE.paths = SAVE.paths || {};        // { dealer: { a: true } } — comps-bought branches
 SAVE.perks = SAVE.perks || {};
 const effCost = T => T.cost;
 const maxStars = () => 20 + (SAVE.perks.star ? 5 : 0);
@@ -3621,6 +3794,8 @@ function showModal(kind, title, spriteId, desc, stats, btnTxt, onClose, spriteSc
     svgEl('use', { href: '#' + spriteId }, gait);
   }
   ms.style.display = spriteId ? 'block' : 'none';
+  $('twTree').style.display = 'none';
+  $('twTree').innerHTML = '';
   if ($('modal').style.display !== 'flex') modalPrevPaused = G.paused;
   $('modal').style.display = 'flex';
   G.paused = true;
@@ -3638,8 +3813,9 @@ function introduce(type, then) {
   G.seen[type] = true;
   modalGait = e.gait || (e.boss ? 'lumber' : type === 'elvis' ? 'groove' : 'waddle');
   showModal(e.boss ? 'BOSS ON THE FLOOR' : 'NEW GUEST ON THE FLOOR',
-    e.name, e.sprite, e.desc, e.stats, 'DEAL ME IN', then,
-    e.boss ? .9 : 1);
+    e.name, e.sprite, e.desc,
+    `${e.stats}\nCOSTS ${e.star} REPUTATION IF THEY REACH THE DESK`,
+    'DEAL ME IN', then, e.boss ? .9 : 1);
 }
 
 /* ══════════ PLACEMENT ══════════ */
@@ -3687,97 +3863,159 @@ function buildShop(){
       `<svg viewBox="-62 -58 124 108"><use href="#${T.sprite}"/></svg>` +
       `<div class="cost">◉ ${effCost(T)}</div><div class="nm">${T.name}</div>`;
     bar.appendChild(card);
-
+    // a press only ARMS a gesture — a vertical swipe scrolls the rack,
+    // pulling left picks the table up, and a tap asks what it does
     card.addEventListener('pointerdown', ev => {
-      ev.stopPropagation();
-      ev.preventDefault();
-      if (G.chips < effCost(T) || G.over) return;
-      try { card.setPointerCapture(ev.pointerId); } catch (err) {}
-      const g = svgEl('g', { opacity: .9 }, $('ghostG'));
-      const ring = T.range
-        ? svgEl('circle', { r: T.range, fill: 'rgba(232,182,76,.08)', stroke: '#e8b64c', 'stroke-width': 2, 'stroke-dasharray': '6 8' }, g)
-        : null;
-      const cover = svgEl('g', { 'pointer-events': 'none' }, $('ghostG'));
-      const foot = svgEl('circle', { r: TOWER_R[key], fill: 'rgba(87,194,110,.25)', stroke: '#57c26e', 'stroke-width': 2.5 }, g);
-      const sprite = svgEl('g', { transform: `scale(${T.scale})` }, g);
-      svgEl('use', { href: '#' + T.sprite }, sprite);
-      drag = { key, T, g, cover, foot, x: -999, y: -999, ok: false,
-               sx: ev.clientX, sy: ev.clientY, moved: 0 };
-      const [x, y] = clientToSvg(ev.clientX, ev.clientY);
-      moveDrag(x, y);
+      if (G.over) return;
+      pending = { key, T, sx: ev.clientX, sy: ev.clientY, id: ev.pointerId };
     });
-    card.addEventListener('pointermove', ev => {
-      if (!drag || drag.key !== key) return;
-      drag.moved = Math.max(drag.moved, Math.hypot(ev.clientX - drag.sx, ev.clientY - drag.sy));
-      const [x, y] = clientToSvg(ev.clientX, ev.clientY);
-      moveDrag(x, y);
-    });
-    const drop = ev => {
-      if (!drag || drag.key !== key) return;
-      const d = drag;
-      drag = null;
-      d.g.remove();
-      d.cover.remove();
-      if (d.moved < 9) { showTowerInfo(key); return; }   // a tap asks what it does
-      if (d.ok && G.chips >= effCost(d.T)) {
-        G.chips -= effCost(d.T);
-        buildTower(key, d.x, d.y);
-        SFX.build();
-        $('dragHint').style.display = 'none';
-        if (ROOM === 0 && G.wave === 0 && !G.running) $('dealHint').style.display = 'block';
-        updateHUD();
-      }
-    };
-    card.addEventListener('pointerup', drop);
-    card.addEventListener('pointercancel', drop);
-  }
-  function moveDrag(x, y) {
-    drag.x = x; drag.y = y;
-    drag.ok = placeOK(x, y, TOWER_R[drag.key], drag.key);
-    drag.g.setAttribute('transform', `translate(${x},${y})`);
-    // paint the stretch of lane this tower would actually work on
-    drag.cover.innerHTML = '';
-    const R = drag.T.range;
-    if (R) {
-      for (const P of PATHS) {
-        let run = [];
-        const flush = () => {
-          if (run.length > 2) {
-            svgEl('polyline', {
-              points: run.join(' '),
-              fill: 'none', stroke: drag.ok ? 'rgba(87,194,110,.45)' : 'rgba(224,90,58,.4)',
-              'stroke-width': 22, 'stroke-linecap': 'round', 'stroke-linejoin': 'round'
-            }, drag.cover);
-          }
-          run = [];
-        };
-        for (let i = 0; i < P.pts.length; i += 2) {
-          const [px, py] = P.pts[i];
-          if ((px - x) ** 2 + (py - y) ** 2 <= R * R) run.push(px.toFixed(0) + ',' + py.toFixed(0));
-          else flush();
-        }
-        flush();
-      }
-    }
-    drag.foot.setAttribute('fill', drag.ok ? 'rgba(87,194,110,.25)' : 'rgba(224,90,58,.35)');
-    drag.foot.setAttribute('stroke', drag.ok ? '#57c26e' : '#e05a3a');
   }
 }
+
+/* ── rack gestures: scroll vs. place vs. tap ── */
+let pending = null;
+
+function beginDrag(ev) {
+  const { key, T } = pending;
+  const card = [...document.querySelectorAll('#shop .shopCard')]
+    .find(c => c.querySelector('.nm') && c.querySelector('.nm').textContent === T.name);
+  if (card) { try { card.setPointerCapture(ev.pointerId); } catch (err) {} }
+  const g = svgEl('g', { opacity: .9 }, $('ghostG'));
+  if (T.range) {
+    svgEl('circle', { r: T.range, fill: 'rgba(232,182,76,.08)', stroke: '#e8b64c',
+                      'stroke-width': 2, 'stroke-dasharray': '6 8' }, g);
+  }
+  const cover = svgEl('g', { 'pointer-events': 'none' }, $('ghostG'));
+  const foot = svgEl('circle', { r: TOWER_R[key], fill: 'rgba(87,194,110,.25)',
+                                 stroke: '#57c26e', 'stroke-width': 2.5 }, g);
+  const sprite = svgEl('g', { transform: `scale(${T.scale})` }, g);
+  svgEl('use', { href: '#' + T.sprite }, sprite);
+  drag = { key, T, g, cover, foot, x: -999, y: -999, ok: false,
+           sx: pending.sx, sy: pending.sy, moved: 99, id: ev.pointerId };
+  const [x, y] = clientToSvg(ev.clientX, ev.clientY);
+  moveDrag(x, y);
+}
+
+function moveDrag(x, y) {
+  drag.x = x; drag.y = y;
+  drag.ok = placeOK(x, y, TOWER_R[drag.key], drag.key);
+  drag.g.setAttribute('transform', `translate(${x},${y})`);
+  // paint the stretch of lane this tower would actually work on
+  drag.cover.innerHTML = '';
+  const R = drag.T.range;
+  if (R) {
+    for (const P of PATHS) {
+      let run = [];
+      const flush = () => {
+        if (run.length > 2) {
+          svgEl('polyline', {
+            points: run.join(' '),
+            fill: 'none', stroke: drag.ok ? 'rgba(87,194,110,.45)' : 'rgba(224,90,58,.4)',
+            'stroke-width': 22, 'stroke-linecap': 'round', 'stroke-linejoin': 'round'
+          }, drag.cover);
+        }
+        run = [];
+      };
+      for (let i = 0; i < P.pts.length; i += 2) {
+        const [px, py] = P.pts[i];
+        if ((px - x) ** 2 + (py - y) ** 2 <= R * R) run.push(px.toFixed(0) + ',' + py.toFixed(0));
+        else flush();
+      }
+      flush();
+    }
+  }
+  drag.foot.setAttribute('fill', drag.ok ? 'rgba(87,194,110,.25)' : 'rgba(224,90,58,.35)');
+  drag.foot.setAttribute('stroke', drag.ok ? '#57c26e' : '#e05a3a');
+}
+
+window.addEventListener('pointermove', ev => {
+  if (pending && !drag && ev.pointerId === pending.id) {
+    const dx = ev.clientX - pending.sx, dy = ev.clientY - pending.sy;
+    // a mostly-vertical swipe belongs to the rack: let the browser scroll it
+    if (Math.abs(dy) > 9 && Math.abs(dy) > Math.abs(dx)) { pending = null; return; }
+    if (Math.abs(dx) > 8) {
+      if (G.chips < effCost(pending.T)) { pending = null; return; }
+      beginDrag(ev);
+    }
+    return;
+  }
+  if (!drag) return;
+  ev.preventDefault();
+  const [x, y] = clientToSvg(ev.clientX, ev.clientY);
+  moveDrag(x, y);
+}, { passive: false });
+
+function endGesture(ev) {
+  if (pending && !drag && ev.pointerId === pending.id) {
+    const k = pending.key;
+    pending = null;
+    showTowerInfo(k);                     // pressed and released without pulling: a question
+    return;
+  }
+  if (!drag) return;
+  const d = drag;
+  drag = null;
+  pending = null;
+  d.g.remove();
+  d.cover.remove();
+  if (d.ok && G.chips >= effCost(d.T)) {
+    G.chips -= effCost(d.T);
+    buildTower(d.key, d.x, d.y);
+    SFX.build();
+    $('dragHint').style.display = 'none';
+    if (ROOM === 0 && G.wave === 0 && !G.running) $('dealHint').style.display = 'block';
+    updateHUD();
+  }
+}
+window.addEventListener('pointerup', endGesture);
+window.addEventListener('pointercancel', ev => {
+  pending = null;
+  if (drag) { drag.g.remove(); drag.cover.remove(); drag = null; }
+});
+
 buildShop();
 
 /* ══════════ SHEET (tap a placed tower → upgrade / sell) ══════════ */
-function showTowerInfo(key) {
-  const T = TTYPES[key];
+function showTowerInfo(key, tower) {
+  const T = TTYPES[key], spec = TSPEC[key];
   const owned = SAVE.owned.includes(key);
-  const lines = T.lv.map((l, i) =>
-    `${i === 0 ? 'BASE' : i === 1 ? '★' : '★★'}  ${l.menu}` +
-    (l.cost ? `   (${l.cost} chips)` : `   (${effCost(T)} chips)`) +
-    (i === 2 && !(SAVE.mastery || {})[key] ? '   — needs MASTERY' : '')
-  ).join('\n');
   modalGait = '';
-  showModal(owned ? 'TABLE DOSSIER' : 'NOT YET HIRED', T.name, T.sprite,
-    T.blurb + (T.range ? ` · reaches ${T.range} across the floor.` : '.'),
-    lines, 'BACK TO THE FLOOR', null, .78);
+  showModal(owned ? 'TABLE DOSSIER' : 'NOT HIRED YET',
+    tower ? tName(key, tower.path, tower.lvl) : T.name,
+    T.sprite, T.blurb + '.', '', 'BACK TO THE FLOOR', null, .72);
+
+  const tree = $('twTree');
+  tree.style.display = 'block';
+  const here = (path, lvl) => tower && tower.lvl === lvl - 1 && (lvl === 2 || tower.path === path);
+
+  const branch = (pk) => {
+    const P = spec[pk], unlocked = pathOwned(key, pk);
+    const rows = P.tiers.map((tr, i) => {
+      const lvl = i + 2;
+      const have = tower && tower.path === pk && tower.lvl >= lvl;
+      return `<div class="tier ${have ? 'have' : here(pk, lvl) ? 'next' : ''}">
+        <div class="ti">
+          <div class="tn">${tr.name}</div>
+          <div class="ts">${statLine(key, pk, lvl)}</div>
+        </div>
+        <div class="tc">${have ? '✓' : tr.cost}<small>${have ? 'built' : 'chips'}</small></div>
+      </div>`;
+    }).join('');
+    return `<div class="branch ${unlocked ? '' : 'dim'}">
+      <div class="bh">${P.label}${unlocked ? '' : ' <b>· LOCKED</b>'}</div>${rows}</div>`;
+  };
+
+  const anyLocked = !pathOwned(key, 'a') || !pathOwned(key, 'b');
+  tree.innerHTML =
+    `<div id="twRole">${TROLE[key]}</div>` +
+    (anyLocked ? `<div class="treeNote">Locked paths are bought with comps between floors — then chips to walk them.</div>` : '') +
+    `<div class="tier ${tower ? 'have' : 'next'}">
+       <div class="ti"><div class="tn">${T.name}</div>
+       <div class="ts">${statLine(key, null, 1)}</div></div>
+       <div class="tc">${tower ? '✓' : effCost(T)}<small>${tower ? 'built' : 'chips'}</small></div>
+     </div>` +
+    `<div class="fork"><i></i></div>` +
+    `<div class="branchRow">${branch('a')}${branch('b')}</div>`;
 }
 
 function closeSheet() {
@@ -3789,7 +4027,9 @@ function openSheetForTower(tower) {
   const T = TTYPES[tower.type];
   const { x, y } = tower;
   const menu = $('twMenu');
-  $('twName').textContent = `${T.name} ${'★'.repeat(tower.lvl - 1)}`.trim();
+  $('twName').textContent = tName(tower.type, tower.path, tower.lvl);
+  $('twName').onpointerdown = ev => { ev.stopPropagation(); closeSheet(); tower.info(); };
+  $('twName').style.cursor = 'pointer';
 
   // targeting priority
   const pr = $('twPrio');
@@ -3811,57 +4051,71 @@ function openSheetForTower(tower) {
 
   const act = $('twActions');
   act.innerHTML = '';
-  const next = T.lv[tower.lvl];                       // the next tier, if any
-  const mastered = (SAVE.mastery || {})[tower.type];
-  if (next && tower.lvl >= 2 && !mastered) {
-    const lock = document.createElement('button');
-    lock.className = 'twBtn';
-    lock.innerHTML = `TIER III<span class="c">locked</span>`;
-    lock.title = 'Buy this tower\'s mastery with comps on the floor map';
-    act.appendChild(lock);
-  } else if (next) {
+
+  // what this tower does RIGHT NOW, not what the type does in the abstract
+  $('twStats').textContent = statLine(tower.type, tower.path, tower.lvl);
+
+  const step = (pk) => {
+    const P = TSPEC[tower.type][pk];
+    const tier = P.tiers[tower.lvl - 1];
+    if (!tier) return;
+    const unlocked = pathOwned(tower.type, pk);
+    const afford = G.chips >= tier.cost;
     const b = document.createElement('button');
-    b.className = 'twBtn' + (G.chips >= next.cost ? ' can' : '');
-    b.dataset.cost = next.cost;
-    b.innerHTML = `${tower.lvl === 1 ? 'UPGRADE ★' : 'TIER III ★★'}<span class="c">◉ ${next.cost}</span>`;
-    b.title = next.menu;
-    b.addEventListener('pointerdown', ev => {
+    b.className = 'twBtn ' + (!unlocked ? 'locked' : afford ? 'can' : 'poor');
+    if (unlocked) b.dataset.cost = tier.cost;
+    b.innerHTML = `${tier.name}<span class="c">` +
+      (unlocked ? `◉ ${tier.cost}` : 'buy with comps') + `</span>`;
+    b.title = statLine(tower.type, pk, tower.lvl + 1);
+    if (!unlocked) b.addEventListener('pointerdown', ev => {
       ev.stopPropagation();
-      if (G.chips < next.cost) return;
-      G.chips -= next.cost;
+      float(tower.x, tower.y - 46, 'UNLOCK IT BETWEEN FLOORS', '#c9707c');
+    });
+    else if (!afford) b.addEventListener('pointerdown', ev => {
+      ev.stopPropagation();
+      float(tower.x, tower.y - 46, `NEED ${tier.cost - G.chips} MORE`, '#e0575f');
+    });
+    if (unlocked && afford) b.addEventListener('pointerdown', ev => {
+      ev.stopPropagation();
+      if (G.chips < tier.cost) return;
+      G.chips -= tier.cost;
+      tower.path = pk;
       tower.lvl += 1;
       if (tower.badge) tower.badge.remove();
       tower.badge = svgEl('text', {
-        x: 0, y: -34 / T.scale, 'text-anchor': 'middle', 'font-size': 26,
+        x: 0, y: -34 / TTYPES[tower.type].scale, 'text-anchor': 'middle', 'font-size': 26,
         fill: '#ffd23f', stroke: '#3b2415', 'stroke-width': 3, 'paint-order': 'stroke'
       }, tower.el);
-      tower.badge.textContent = tower.lvl === 3 ? '★★' : '★';
+      tower.badge.textContent = '★'.repeat(tower.lvl - 1);
       if (tower.auraEl) tower.auraEl.setAttribute('r', tower.range());
-      if (tower.type === 'rope') {
-        tower.el.setAttribute('transform', `translate(${x},${y}) rotate(${tower.rot}) scale(${T.scale * (1 + .15 * (tower.lvl - 1))})`);
-      }
-      float(x, y - 40, tower.lvl === 3 ? '★★ MASTERED' : '★ UPGRADED', '#57c26e');
+      applyTowerLook(tower);
+      float(tower.x, tower.y - 40, tier.name.toUpperCase(), '#57c26e');
       closeSheet();
       updateHUD();
     });
     act.appendChild(b);
-  }
-  const s = document.createElement('button');
+  };
+
+  if (tower.lvl === 1) { step('a'); step('b'); }
+  else if (tower.lvl === 2) { step(tower.path); }
+
+  const s2 = document.createElement('button');
   const refund = Math.floor(towerSpend(tower) * .7);
-  s.className = 'twBtn can';
-  s.innerHTML = `SELL<span class="c">◉ +${refund}</span>`;
-  s.addEventListener('pointerdown', ev => {
+  s2.className = 'twBtn can sell';
+  s2.innerHTML = `SELL<span class="c">◉ +${refund}</span>`;
+  s2.addEventListener('pointerdown', ev => {
     ev.stopPropagation();
     SFX.sell();
     G.chips += refund;
     tower.el.remove();
     if (tower.shadowEl) tower.shadowEl.remove();
+    if (tower.dress) tower.dress.remove();
     if (tower.auraEl) tower.auraEl.remove();
     G.towers = G.towers.filter(t => t !== tower);
     closeSheet();
     updateHUD();
   });
-  act.appendChild(s);
+  act.appendChild(s2);
 
   if (T.range) {
     $('rangePrev').setAttribute('cx', x);
@@ -3884,13 +4138,44 @@ document.addEventListener('pointerdown', ev => {
 });
 
 /* ══════════ TOWERS ══════════ */
+/* path A runs hot brass, path B runs cold steel — so a built floor is readable at a glance */
+const PATHLOOK = {
+  a: { ring: '#d9a94f', hi: '#ffe9b0', glow: 'rgba(255,200,90,.10)', stud: 'url(#brassG)' },
+  b: { ring: '#7fa8c4', hi: '#d7ecf7', glow: 'rgba(140,200,235,.11)', stud: '#b8d4e2' }
+};
+function applyTowerLook(tower) {
+  const T = TTYPES[tower.type];
+  const sc = T.scale * (1 + .07 * (tower.lvl - 1));
+  tower.el.setAttribute('transform', `translate(${tower.x},${tower.y}) rotate(${tower.rot}) scale(${sc})`);
+  if (tower.dress) tower.dress.remove();
+  if (tower.lvl < 2) { tower.dress = null; return; }
+  const g = svgEl('g', { 'pointer-events': 'none' }, $('towersG'));
+  const r = tower.r + 7;
+  const P = PATHLOOK[tower.path] || PATHLOOK.a;
+  if (tower.lvl === 3) svgEl('circle', { cx: tower.x, cy: tower.y, r: r + 7, fill: P.glow }, g);
+  svgEl('circle', { cx: tower.x, cy: tower.y, r, fill: 'none',
+                    stroke: tower.lvl === 3 ? P.hi : P.ring,
+                    'stroke-width': tower.lvl === 3 ? 3.2 : 2.4, opacity: .9 }, g);
+  if (tower.lvl === 3) svgEl('circle', { cx: tower.x, cy: tower.y, r: r + 4, fill: 'none',
+                                         stroke: P.ring, 'stroke-width': 1.6, opacity: .75 }, g);
+  const studs = tower.lvl === 3 ? 8 : 4;
+  for (let i = 0; i < studs; i++) {
+    const a = (i / studs) * Math.PI * 2 + Math.PI / studs;
+    svgEl('circle', {
+      cx: tower.x + Math.cos(a) * r, cy: tower.y + Math.sin(a) * r,
+      r: tower.lvl === 3 ? 3.4 : 2.8, fill: P.stud, stroke: '#3b2415', 'stroke-width': 1.3
+    }, g);
+  }
+  $('towersG').insertBefore(g, tower.el);   // dressing sits under the table itself
+  tower.dress = g;
+}
+
 function buildTower(type, x, y) {
   const T = TTYPES[type];
   const tower = {
-    type, x, y, r: TOWER_R[type], lvl: 1, cool: 0, stunUntil: 0, prio: 'first',
+    type, x, y, r: TOWER_R[type], lvl: 1, path: null, cool: 0, stunUntil: 0, prio: 'first',
     range() {
-      const tbl = TSTAT[type] && TSTAT[type].range;
-      return tbl ? tbl[this.lvl - 1] : T.range;
+      return TS(this).range || T.range;
     }
   };
   // the rope's slow aura is always visible, so it never looks like it does nothing
@@ -3940,6 +4225,7 @@ function buildTower(type, x, y) {
     'font-family': 'Avenir Next, Segoe UI, sans-serif'
   }, el);
   tower.stunEl.textContent = 'TILT!';
+  applyTowerLook(tower);
   tower.auditEl = svgEl('text', {
     y: -50 / T.scale, 'text-anchor': 'middle', 'font-size': 22, 'font-weight': 'bold',
     fill: '#c9a227', stroke: '#3b2415', 'stroke-width': 4, 'paint-order': 'stroke', opacity: 0,
@@ -3957,6 +4243,7 @@ function buildTower(type, x, y) {
   }
   G.towers.push(tower);
   el.addEventListener('pointerdown', ev => { ev.stopPropagation(); openSheetForTower(tower); });
+  tower.info = () => showTowerInfo(tower.type, tower);
   return tower;
 }
 
@@ -4043,7 +4330,7 @@ function spawnEnemy(type) {
     lat: E.boss ? (Math.random() - .5) * 8 : (Math.random() - .5) * 23,
     pace: E.boss ? 1 : .9 + Math.random() * .2,
     luredUntil: 0, lureDps: 0, poisonUntil: 0, poisonDps: 0,
-    armor: E.armor || 0, pips: []
+    armor: E.armor || 0, pips: [], slowFac: 1, slowUntil: 0
   };
   for (let i = 0; i < enemy.armor; i++) {
     enemy.pips.push(svgEl('rect', {
@@ -4054,7 +4341,8 @@ function spawnEnemy(type) {
   tap.addEventListener('pointerdown', ev => {
     ev.stopPropagation();
     modalGait = E.gait || (E.boss ? 'lumber' : type === 'elvis' ? 'groove' : 'waddle');
-    showModal(E.boss ? 'BOSS ON THE FLOOR' : 'GUEST DOSSIER', E.name, E.sprite, E.desc, E.stats, 'BACK TO THE FLOOR');
+    showModal(E.boss ? 'BOSS ON THE FLOOR' : 'GUEST DOSSIER', E.name, E.sprite, E.desc,
+      `${E.stats}\nCOSTS ${E.star} REPUTATION IF THEY REACH THE DESK`, 'BACK TO THE FLOOR');
   });
   if (E.boss) {
     banner(E.name.toUpperCase());
@@ -4078,6 +4366,23 @@ function spawnPair() {
 
 function killEnemy(e, leaked) {
   e.dead = true;
+  if (!leaked) {                       // the cage takes its cut of every body dropped nearby
+    const [kx, ky] = posAtE(e);
+    let cut = 0;
+    for (const t of G.towers) {
+      if (t.type !== 'cage' || t.audited) continue;
+      const kb = st(t, 'killBonus');
+      if (!kb) continue;
+      const dx = kx - t.x, dy = ky - t.y;
+      if (dx * dx + dy * dy <= t.range() * t.range()) cut += kb;
+    }
+    if (cut) {
+      const amt = Math.round(cut * payScale());
+      G.chips += amt;
+      G.earned += amt;
+      float(kx, ky - 26, '+' + amt, '#57c26e');
+    }
+  }
   if (e.mate && !e.mate.dead) {
     e.mate.enraged = true;
     e.mate.mate = null;
@@ -4200,7 +4505,7 @@ function saveMid() {
   SAVE.mid = {
     room: ROOM, alt: G.alt, vi: G.vi, wave: G.wave, chips: Math.floor(G.chips),
     stars: G.stars, seen: G.seen,
-    towers: G.towers.map(t => ({ k: t.type, x: Math.round(t.x), y: Math.round(t.y), l: t.lvl, p: t.prio }))
+    towers: G.towers.map(t => ({ k: t.type, x: Math.round(t.x), y: Math.round(t.y), l: t.lvl, p: t.prio, w: t.path }))
   };
   saveSave();
 }
@@ -4373,11 +4678,14 @@ function fireDealer(t) {
   for (let i = 0; i < n; i++) {
     const ang = base + (i - (n - 1) / 2) * 0.21;
     const el = svgEl('g', {}, $('projG'));
-    svgEl('rect', { x: -5, y: -7, width: 10, height: 14, rx: 2, fill: '#f5ead1', stroke: '#3b2415', 'stroke-width': 1.8 }, el);
+    const cold = st(t, 'chill') || 0;
+    svgEl('rect', { x: -5, y: -7, width: 10, height: 14, rx: 2,
+                    fill: cold ? '#cfe9f5' : '#f5ead1',
+                    stroke: cold ? '#2c4a5c' : '#3b2415', 'stroke-width': 1.8 }, el);
     G.projectiles.push({
       kind: 'card', x: t.x, y: t.y,
       vx: Math.cos(ang) * 330, vy: Math.sin(ang) * 330,
-      el, dmg, life: .55, pierce: 2, hitSet: new Set(), rot: 0
+      el, dmg, life: .55, pierce: 2, hitSet: new Set(), rot: 0, chill: st(t, 'chill') || 0
     });
   }
   return true;
@@ -4440,14 +4748,24 @@ function update(dt) {
       e.sickT = (e.sickT || 0) + dt;
       if (e.sickT > 1.4) { e.sickT = 0; float(ex, ey - 30, '~urp~', '#9aa86a'); }
     }
-    let slow = 1;
+    // one shared shuffle: the rope's queue and the Cold Deck's frost both write here,
+    // and it MUST expire, or a stale strong slow wins Math.min forever
+    if (G.time >= (e.slowUntil || 0)) e.slowFac = 1;
+    let field = 1, fieldLinger = 0;
     for (const t of G.towers) {
       if (t.type !== 'rope' || t.audited) continue;
       const dx = ex - t.x, dy = ey - t.y;
       if (dx * dx + dy * dy <= t.range() * t.range()) {
-        slow = Math.min(slow, st(t, 'slow'));
+        field = Math.min(field, st(t, 'slow'));
+        fieldLinger = Math.max(fieldLinger, st(t, 'linger'));
       }
     }
+    if (field < 1) {                    // in the queue: refresh the shuffle
+      e.slowFac = Math.min(e.slowFac, field);
+      e.slowUntil = Math.max(e.slowUntil || 0, G.time + fieldLinger);
+    }
+    // they carry the shuffle out of the rope for a beat — that tail is most of the value
+    const slow = e.slowFac;
     /* influencer haste aura + mojito rage */
     let boost = e.enraged ? e.E.enrage : 1;
     if (e.E.aura !== 'haste') {
@@ -4604,11 +4922,15 @@ function update(dt) {
     } else if (t.type === 'craps') {
       let hitAny = false;
       const rr = t.range() * t.range();
-      const push = st(t, 'push');
-      for (const e of G.enemies) {
+      const push = st(t, 'push'), boxcars = st(t, 'dmg');
+      for (const e of G.enemies.slice()) {
         const [x, y] = posAtE(e);
         const dx = x - t.x, dy = y - t.y;
-        if (dx * dx + dy * dy <= rr) { e.dist = Math.max(0, e.dist - push); hitAny = true; }
+        if (dx * dx + dy * dy <= rr) {
+          e.dist = Math.max(0, e.dist - push);
+          if (boxcars) damageEnemy(e, boxcars * roomPow());
+          hitAny = true;
+        }
       }
       if (hitAny) {
         t.kick();
@@ -4639,8 +4961,7 @@ function update(dt) {
     } else {
       const fired = t.type === 'roulette' ? fireRoulette(t) : fireDealer(t);
       if (fired) t.kick();
-      const base = (TSTAT[t.type] && TSTAT[t.type].cd) ? st(t, 'cd') : TTYPES[t.type].cd;
-      t.cool = fired ? base * atkSpeedFactor(t) : 0.1;
+      t.cool = fired ? (st(t, 'cd') || TTYPES[t.type].cd) * atkSpeedFactor(t) : 0.1;
     }
   }
 
@@ -4718,6 +5039,10 @@ function update(dt) {
         if ((x - p.x) ** 2 + (y - p.y) ** 2 < 18 * 18) {
           p.hitSet.add(e);
           damageEnemy(e, p.dmg);
+          if (p.chill) {                        // frozen stiff, same shuffle the rope causes
+            e.slowFac = Math.min(e.slowFac === undefined ? 1 : e.slowFac, p.chill);
+            e.slowUntil = Math.max(e.slowUntil || 0, G.time + 1.8);
+          }
           p.pierce--;
           if (p.pierce <= 0) { p.el.remove(); G.projectiles = G.projectiles.filter(q => q !== p); break; }
         }
@@ -5030,8 +5355,10 @@ function initRoom(i, resume, altKey) {
     G.seen = M.seen || {};
     for (const tw of M.towers) {
       const t = buildTower(tw.k, tw.x, tw.y);
+      t.path = tw.w || null;
       t.lvl = tw.l;
       t.prio = tw.p || 'first';
+      applyTowerLook(t);
     }
     updateHUD();
     showNextWave();
@@ -5160,10 +5487,16 @@ function renderMap() {
     buy(T.name, T.blurb, LOCKED[k], SAVE.owned.includes(k), () => SAVE.owned.push(k));
   }
 
-  section('MASTERY — UNLOCKS TIER III FOR THAT TABLE');
+  section('UPGRADE PATHS — BOUGHT HERE, WALKED WITH CHIPS ON THE FLOOR');
   for (const k of SAVE.owned) {
-    const T = TTYPES[k];
-    buy(T.name + ' ★★', T.lv[2].menu, 70, !!SAVE.mastery[k], () => { SAVE.mastery[k] = true; });
+    const T = TTYPES[k], spec = TSPEC[k];
+    for (const pk of ['a', 'b']) {
+      const P = spec[pk];
+      buy(`${T.name} · ${P.label}`,
+        `${P.tiers[0].name} → ${P.tiers[1].name} — ${statLine(k, pk, 3)}`,
+        PATHCOST[k], pathOwned(k, pk),
+        () => { (SAVE.paths[k] = SAVE.paths[k] || {})[pk] = true; });
+    }
   }
 
   section('THE HOUSE');
@@ -5544,7 +5877,7 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http') && !loc
 document.addEventListener('gesturestart', e => e.preventDefault());
 document.addEventListener('dblclick', e => e.preventDefault());
 
-if (/gallery|autotest|slottest|pausetest|sheettest|ridetest|depthtest|dragtest|dossier|twinfo|unlockall|room=/.test(location.search)) {
+if (/gallery|autotest|ropetest|slottest|pausetest|sheettest|ridetest|depthtest|dragtest|dossier|twinfo|unlockall|room=/.test(location.search)) {
   $('title').style.display = 'none';
 }
 
@@ -5643,11 +5976,18 @@ if (location.search.includes('dragtest')) {
   }, 60);
 }
 
-/* dev sheettest: open a room and pop a tower sheet */
+/* dev sheettest: open a room and pop a tower sheet.
+   ?sheettest=locked|mixed|poor|tier2 exercises each disabled state */
 if (location.search.includes('sheettest')) {
+  const mode = (location.search.match(/sheettest=(\w+)/) || [])[1] || 'mixed';
+  if (mode === 'mixed' || mode === 'poor') SAVE.paths.roulette = { a: true, b: true };
+  if (mode === 'tier2') SAVE.paths.roulette = { a: true };
   initRoom(0);
   $('modalBtn').dispatchEvent(new Event('click'));
   const t = buildTower('roulette', 430, 212);
+  if (mode === 'tier2') { t.path = 'a'; t.lvl = 2; applyTowerLook(t); }
+  if (mode === 'poor') G.chips = 40;
+  if (mode === 'mixed') { SAVE.paths.roulette = { a: true }; G.chips = 900; }
   openSheetForTower(t);
   G.paused = true;
 }
@@ -5676,14 +6016,50 @@ if (location.search.includes('slottest')) {
   }, 300);
 }
 
+/* ?ropetest — measures what the Velvet Rope is actually worth, in seconds of lane */
+if (location.search.includes('ropetest')) {
+  const runOne = (ropes) => {
+    G.enemies.slice().forEach(e => { e.el.remove(); });
+    G.enemies.length = 0;
+    G.towers.slice().forEach(t => {
+      t.el.remove();
+      if (t.auraEl) t.auraEl.remove();
+      if (t.shadowEl) t.shadowEl.remove();
+      if (t.dress) t.dress.remove();
+    });
+    G.towers.length = 0;
+    const P0 = PATHS[0];
+    for (let r = 0; r < ropes; r++) {
+      const idx = Math.round(P0.pts.length * (.3 + r * .3));
+      buildTower('rope', P0.pts[idx][0], P0.pts[idx][1]);
+    }
+    const e = spawnEnemy('retiree');   // the only guest that walks a straight, repeatable line
+    e.pathI = 0;
+    e.dist = 0;
+    let t = 0;
+    const dt = 1 / 60;
+    while (t < 400 && e.dist < P0.killAt) { update(dt); t += dt; }
+    return t;
+  };
+  setTimeout(() => {
+    if ($('modal').style.display === 'flex') $('modalBtn').dispatchEvent(new Event('click'));
+    G.running = true;
+    const bare = runOne(0), one = runOne(1), two = runOne(2);
+    document.title = `ROPE bare=${bare.toFixed(1)}s one=${one.toFixed(1)}s ` +
+      `(+${Math.round((one / bare - 1) * 100)}%) two=${two.toFixed(1)}s ` +
+      `(+${Math.round((two / bare - 1) * 100)}%)`;
+  }, 400);
+}
+
 /* dev autotest: ?autotest plays the campaign unattended */
 if (location.search.includes('autotest')) {
-  // ?baseline probes a brand-new player: five tables, no mastery, tier II ceiling
+  // ?baseline probes a brand-new player: five tables and NO paths bought, so no
+  // upgrade is even purchasable — exactly what floors 1-3 look like before any comps
   const BASE = location.search.includes('baseline');
-  const MAXLV = BASE ? 2 : 3;
+  const MAXLV = BASE ? 1 : 3;
   if (!BASE) {
     SAVE.owned = Object.keys(TTYPES);        // probes exercise the whole shelf
-    Object.keys(TTYPES).forEach(k => { SAVE.mastery[k] = true; });
+    Object.keys(TTYPES).forEach(k => { SAVE.paths[k] = { a: true, b: true }; });
   }
   if ($('map').style.display !== 'none') {
     const cur = document.querySelector('.mapNode.cur');
@@ -5712,7 +6088,12 @@ if (location.search.includes('autotest')) {
     const midIdx = Math.round(P0.pts.length * .45);
     buildTower('rope', P0.pts[midIdx][0], P0.pts[midIdx][1]);
   })();
-  G.towers.forEach(t => { t.lvl = MAXLV; }); // and the tier ladder it's entitled to
+  // with branching paths, a level is worthless without a path to spend it on
+  G.towers.forEach((t, i) => {
+    if (MAXLV > 1) t.path = i % 2 ? 'b' : 'a';
+    t.lvl = MAXLV;
+    applyTowerLook(t);
+  });
   G.speed = 4;
   updateHUD();
   let buyN = 0;
@@ -5734,8 +6115,10 @@ if (location.search.includes('autotest')) {
       const side = buyN % 3 ? -1 : 1;
       const pool = ['dealer', 'roulette', 'catapult'].filter(z => SAVE.owned.includes(z));
       const k = pool[buyN % pool.length];
-      buildTower(k, Math.max(60, Math.min(1060, px + nx * 120 * side)),
-                    Math.max(70, Math.min(500, py + ny * 120 * side))).lvl = MAXLV;
+      const nt = buildTower(k, Math.max(60, Math.min(1060, px + nx * 120 * side)),
+                    Math.max(70, Math.min(500, py + ny * 120 * side)));
+      if (MAXLV > 1) nt.path = buyN % 2 ? 'b' : 'a';
+      nt.lvl = MAXLV; applyTowerLook(nt);
       G.chips -= effCost(TTYPES[k]);
       buyN++;
     }

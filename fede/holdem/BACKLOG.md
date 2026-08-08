@@ -27,7 +27,9 @@
 - [x] The Waitress — attack-speed aura tower (+25%/40%)
 - [x] Craps Table — periodic AoE cheer knockback
 - [x] Chip Stack Catapult — 8/12 chips per lobbed AoE shot
-- [x] Tower TIERS (Billy: "tower progression/level unlock like in bloons"): every tower has 3 levels with level-indexed stats; tier III is gated behind a comps-bought MASTERY per tower
+- [x] Tower TIERS -> replaced Aug 8 by BRANCHING PATHS: every table has 2 named branches x 2 tiers
+      (TSPEC data model), branches unlocked with comps between floors, walked with chips inside one.
+      The linear lv[]/TSTAT/SAVE.mastery system is deleted.
 - [ ] Capstone towers (design doc has Fountain/Magician/Vault/Don Fortunato — NONE approved yet, re-pitch to user)
 
 ## ENEMIES — approved, not yet built
@@ -102,6 +104,20 @@
 - [ ] sw.js cache version bump discipline (bump CACHE on every deploy!)
 
 ## BALANCE (living list)
+- [x] Aug 8, branching-paths re-sweep. Blind bot, all branches owned, mixed A/B build:
+        floors 5/10/15/20/25/30 -> ALL reach wave 10/10 and WIN
+      Blind bot, NO branches bought at all (a player who spent nothing on comps):
+        floor 1 WINS, floors 2/3/4 -> wave 9/7/7 then lose
+      That gap IS the progression hook: floor 1 is winnable bare, and after it you can afford your
+      first branch. Watch on playtest that floors 2-4 read as "go buy an upgrade", not as unfair.
+- [x] Aug 8: the Velvet Rope was measured, not eyeballed (`?ropetest` reports lane transit time).
+      Old rope = +7% transit for 180 chips (i.e. nothing, exactly as Billy reported).
+      New rope = +10-31% for one, +31-40% for two. Slow now lingers after they leave the field.
+- [x] Aug 8: `chill` (Cold Deck), `killBonus` (The Count) and `dmg` (Snake Eyes) were advertised in
+      the dossier but NEVER IMPLEMENTED — same failure mode as the rope. All three now wired.
+      Cold Deck lifted 63 -> 98 dmg/volley so the utility branch isn't a trap pick.
+- [x] Aug 8: fixed the probe harness itself — reinvested bot towers were levelled without a path,
+      so TS() silently ran them on base stats and every late-floor number was pessimistic.
 - [x] Aug 7 playtest (Billy): 5 lives was far too punishing -> 20 per floor, shown as a counter.
       Two measured curves now:
         BASELINE (5 tables, no mastery, tier II): floors 1-15 clear, floor 20 -> wave 9, floor 30 -> wave 8

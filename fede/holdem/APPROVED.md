@@ -97,6 +97,25 @@
 - **Floor 31 is a weird floor: ROOFTOP AT DAWN** — sunrise sky, city skyline, empty deck chairs, the night finally ending
 - **Floors 32–41: THE FANCY BAR** — backlit bottle wall, marble bar, lounge singer, low light
 
+## Branching upgrade paths (APPROVED Aug 8 playtest)
+- Tower upgrades are **branching, not linear**: each table has **two named branches**, two tiers deep
+  (Card Dealer → *Aflame* or *Cold Deck*; Roulette → *Steel Ball* or *Ivory Ball*; etc.)
+- A branch is **unlocked permanently with comps between floors**; inside a floor you pay **chips**
+  to walk a branch you already own. A table that commits to a branch stays on it.
+- **Floor 1 offers no upgrades at all** — no comps banked yet. This is intended, not a bug.
+- The tower menu shows **one button per possible upgrade**, with three visually distinct states:
+  buyable / can't afford (price in red) / not unlocked (says "buy with comps")
+- Upgrading changes the table's **name** and its **look**; path A dresses in hot brass, path B in
+  cold steel, so a built floor reads at a glance
+- Supersedes the linear "MASTERY buys tier III" model, which is deleted
+
+## Velvet Rope (RE-APPROVED Aug 8 — Billy: "doesn't seem to have any effect")
+- The original rope was measurably worthless: a 105px field on a ~1900px lane at 40% slow bought
+  **+7% transit time** for 180 chips. Confirmed by measurement (`?ropetest`), not by eye.
+- Rebuilt: wider field (130), deeper slow (58%), and the slow **lingers ~1.6s after they leave it**
+  — the lingering tail is most of the value. Now measures **+10–31% transit for one rope**.
+- Still not a hard blocker (per the original approval) — it does no damage.
+
 ## Comps shop (SUPERSEDED — see Progression above)
 - Map screen sells permanent upgrades for comps: **Bigger Bankroll** (+12% starting chips per level, ×3, 30/65/110 comps) and **House Discount** (towers 6% cheaper per level, ×2, 55/95 comps)
 - Percentages rather than flat bonuses so the perks stay relevant on floor 30, where a floor already starts with 1320 chips
