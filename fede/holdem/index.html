@@ -252,6 +252,24 @@
     border: 8px solid transparent;
     border-top-color: var(--gold);
   }
+  #toastRail {
+    position: fixed; left: 10px; bottom: 12px; z-index: 40;
+    display: flex; flex-direction: column-reverse; gap: 6px; pointer-events: none;
+  }
+  .toast {
+    display: flex; align-items: center; gap: 8px;
+    background: linear-gradient(180deg, rgba(44,34,18,.96), rgba(12,9,5,.96));
+    border: 2px solid var(--gold); border-radius: 10px;
+    padding: 5px 12px 5px 6px; max-width: 240px;
+    pointer-events: auto; cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0,0,0,.5);
+    animation: toastIn .35s cubic-bezier(.2,1.4,.4,1);
+  }
+  .toast.bye { transition: opacity .5s, transform .5s; opacity: 0; transform: translateX(-16px); }
+  .toast svg { width: 34px; height: 42px; flex: 0 0 auto; }
+  .toast b { display: block; font-size: 11px; color: var(--gold); letter-spacing: .4px; }
+  .toast span { display: block; font-size: 8.5px; color: #b7a98a; line-height: 1.3; }
+  @keyframes toastIn { from { opacity: 0; transform: translateX(-24px); } }
   #twName {
     font-family: Georgia, serif; font-weight: bold; font-size: 12.5px;
     color: var(--gold); letter-spacing: 1px; margin-bottom: 6px;
@@ -328,7 +346,7 @@
   #twTree { display: none; text-align: left; margin: 4px 0 10px; }
   .branchRow { display: flex; gap: 6px; margin-top: 5px; }
   .branch { flex: 1 1 0; min-width: 0; }
-  .branch.dim .tier { opacity: .5; }
+  .tier.rowLock { opacity: .5; }
   .bh b { color: #c9707c; font-weight: 800; }
   .bh {
     font-size: clamp(8.5px, 2vh, 10px); letter-spacing: 1.4px; font-weight: 800;
@@ -623,6 +641,9 @@
   }
   .shopCard .pips i.on.a { background: #d9a94f; border-color: #ffe9b0; }
   .shopCard .pips i.on.b { background: #7fa8c4; border-color: #d7ecf7; }
+  .shopCard.unhired { opacity: .55; cursor: pointer; }
+  .shopCard.unhired svg { filter: grayscale(.75); }
+  .shopCard .hireTag { font-size: 7px; letter-spacing: .4px; color: #9c8757; }
   #shopFade {
     position: fixed; right: 0; bottom: 0;
     width: var(--rack); height: 26px;
@@ -2509,6 +2530,7 @@
 <div id="dealHint">NOW DEAL THEM IN ⤵</div>
 
 <!-- floating tower menu -->
+<div id="toastRail"></div>
 <div id="twMenu">
   <div id="twName">—</div>
   <div id="twStats"></div>
@@ -2761,7 +2783,7 @@ const TTYPES = {
   dealer: { name:'Card Dealer', sprite:'twDealer', cost:150, range:135, cd:.85, scale:.62,
     blurb:'Fan of razor cards', },
   roulette: { name:'Roulette Wheel', sprite:'twRoulette', cost:220, range:155, cd:1.5, scale:.62,
-    blurb:'Ricochet ivory ball', },
+    blurb:'Hunts the biggest fish', },
   rope: { name:'Velvet Rope', sprite:'twRope', cost:180, range:105, scale:.72,
     blurb:'Guests queue politely', },
   cage: { name:'The Cage', sprite:'twCage', cost:200, scale:.6,
@@ -2795,15 +2817,18 @@ const TSPEC = {
         { name: 'ABSOLUTE ZERO', cost: 950, s: { n: 9, dmg: 20, range: 172, chill: .35, freeze: 1.1 } } ] }
   },
   roulette: {
-    base: { dmg: 12, bounce: 3, range: 155, cd: 1.5 },
+    // slow, heavy, and it HUNTS: full damage on the strongest guest in reach, then the
+    // ball ricochets to the next-strongest (never the same one twice), halving each hop.
+    // (Billy: roulette always felt worse than the dealer — make it the anti-elite pick)
+    base: { dmg: 46, bounce: 3, range: 165, cd: 2.4 },
     a: { label: 'Steel Ball', tiers: [
-        { name: 'Steel Wheel', cost: 230, s: { dmg: 26, bounce: 3 } },
-        { name: 'The Iron Ball', cost: 560, s: { dmg: 48, bounce: 4, cd: 1.3 } },
-        { name: 'THE WRECKING BALL', cost: 1150, s: { dmg: 95, bounce: 5, cd: 1.15, quake: 95 } } ] },
+        { name: 'Steel Wheel', cost: 230, s: { dmg: 95 } },
+        { name: 'The Iron Ball', cost: 560, s: { dmg: 175, cd: 2.2 } },
+        { name: 'THE WRECKING BALL', cost: 1150, s: { dmg: 330, bounce: 4, cd: 2.1, quake: 95 } } ] },
     b: { label: 'Ivory Ball', tiers: [
-        { name: 'Ivory Wheel', cost: 210, s: { dmg: 15, bounce: 6 } },
-        { name: 'The Endless Spin', cost: 520, s: { dmg: 20, bounce: 10, cd: 1.2 } },
-        { name: 'PERPETUAL MOTION', cost: 1100, s: { dmg: 28, bounce: 16, cd: 1.05, arc: 1 } } ] }
+        { name: 'Ivory Wheel', cost: 210, s: { dmg: 60, bounce: 5 } },
+        { name: 'The Endless Spin', cost: 520, s: { dmg: 82, bounce: 7, cd: 2.1 } },
+        { name: 'PERPETUAL MOTION', cost: 1100, s: { dmg: 110, bounce: 10, cd: 1.9, arc: 1 } } ] }
   },
   rope: {
     // the queue has to HURT: a wide field, a deep slow, and a shuffle they carry
@@ -2897,6 +2922,7 @@ const TSPEC = {
         { name: 'EVERYWHERE AT ONCE', cost: 1300, s: { dmg: 170, cd: 1, targets: 4, range: 260 } } ] }
   }
 };
+const HIRECOST = { craps: 40, buffet: 45, waitress: 50, catapult: 60, security: 70 };
 const PATHCOST = {          // comps to open one branch of one table, for the whole campaign
   // floor 1 banks ~40 comps and grants no upgrades at all, so the Dealer's first path
   // has to be reachable the moment you step off it — that's the hook
@@ -2943,7 +2969,7 @@ function statLine(key, path, lvl) {
       if (S.freeze) bits.push(`FREEZES SOLID ${S.freeze}s`);
       bits.push(`reach ${S.range}`); break;
     case 'roulette':
-      bits.push(`${S.dmg} dmg`, `${S.bounce} bounces`, `every ${S.cd}s`);
+      bits.push(`${S.dmg} dmg to the STRONGEST`, `${S.bounce} bounces, halving each hop`, `every ${S.cd}s`);
       if (S.quake) bits.push(`SHOVES the crowd on impact`);
       if (S.arc) bits.push(`LIGHTNING arcs between hits`);
       break;
@@ -4067,14 +4093,28 @@ $('modalBtn').addEventListener('click', () => {
   if (modalClose) { const f = modalClose; modalClose = null; f(); }
 });
 
-function introduce(type, then) {
+/* new guests announce themselves without stopping the game — tap any guest for the
+   full dossier. (Billy: "less popups... the players are smart") */
+function introduce(type, delay) {
   const e = ETYPES[type];
   G.seen[type] = true;
-  modalGait = e.gait || (e.boss ? 'lumber' : type === 'elvis' ? 'groove' : 'waddle');
-  showModal(e.boss ? 'BOSS ON THE FLOOR' : 'NEW GUEST ON THE FLOOR',
-    e.name, e.sprite, e.desc,
-    `${e.stats}\nCOSTS ${e.star} REPUTATION IF THEY REACH THE DESK`,
-    'DEAL ME IN', then, e.boss ? .9 : 1);
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.innerHTML =
+    `<svg viewBox="-40 -66 80 100"><use href="#${e.sprite}"/></svg>` +
+    `<div><b>${e.name}</b><span>${e.stats.toLowerCase()} · ${e.star} rep</span></div>`;
+  t.addEventListener('pointerdown', ev => {
+    ev.stopPropagation();
+    t.remove();
+    modalGait = e.gait || (e.boss ? 'lumber' : type === 'elvis' ? 'groove' : 'waddle');
+    showModal(e.boss ? 'BOSS ON THE FLOOR' : 'GUEST DOSSIER', e.name, e.sprite, e.desc,
+      `${e.stats}\nCOSTS ${e.star} REPUTATION IF THEY REACH THE DESK`, 'BACK TO THE FLOOR');
+  });
+  setTimeout(() => {
+    $('toastRail').appendChild(t);
+    setTimeout(() => t.classList.add('bye'), 6200);
+    setTimeout(() => t.remove(), 6800);
+  }, delay);
 }
 
 /* ══════════ PLACEMENT ══════════ */
@@ -4113,11 +4153,25 @@ function buildShop(){
   const bar = $('shop');
   bar.innerHTML = '';
   for (const key in TTYPES) {
-    if (!SAVE.owned.includes(key)) continue;
     const T = TTYPES[key];
+    const hired = SAVE.owned.includes(key);
     const card = document.createElement('div');
-    card.className = 'shopCard';
+    card.className = 'shopCard' + (hired ? '' : ' unhired');
     card.dataset.cost = effCost(T);
+    if (!hired) {
+      // visible but not for sale yet — so the shelf never looks five tables deep
+      // when the casino actually staffs ten (Billy: "do we only have 5?")
+      card.innerHTML =
+        `<svg viewBox="-62 -58 124 108"><use href="#${T.sprite}"/></svg>` +
+        `<div class="cost hireTag">HIRE · ${HIRECOST[key]} COMPS</div>` +
+        `<div class="nm">${T.name}</div>`;
+      card.addEventListener('pointerdown', ev => {
+        ev.stopPropagation();
+        showTowerInfo(key);
+      });
+      bar.appendChild(card);
+      continue;
+    }
     // two pips = the two upgrade branches; lit means bought with comps
     const pips = ['a', 'b'].map(pk =>
       `<i class="${pathOwned(key, pk) ? 'on ' + pk : ''}"></i>`).join('');
@@ -4243,7 +4297,7 @@ function showTowerInfo(key, tower) {
   const T = TTYPES[key], spec = TSPEC[key];
   const owned = SAVE.owned.includes(key);
   modalGait = '';
-  showModal(owned ? 'TABLE DOSSIER' : 'NOT HIRED YET',
+  showModal(owned ? 'TABLE DOSSIER' : `NOT HIRED YET · ${HIRECOST[key] || '?'} COMPS ON THE MAP`,
     tower ? tName(key, tower.path, tower.lvl) : T.name,
     T.sprite, T.blurb + '.', '', 'BACK TO THE FLOOR', null, .72);
 
@@ -4252,26 +4306,27 @@ function showTowerInfo(key, tower) {
   const here = (path, lvl) => tower && tower.lvl === lvl - 1 && (lvl === 2 || tower.path === path);
 
   const branch = (pk) => {
-    const P = spec[pk], unlocked = pathOwned(key, pk);
+    const P = spec[pk], deep = pathOwned(key, pk);
     const rows = P.tiers.map((tr, i) => {
       const lvl = i + 2;
       const have = tower && tower.path === pk && tower.lvl >= lvl;
-      return `<div class="tier ${have ? 'have' : here(pk, lvl) ? 'next' : ''}">
+      const open = lvl === 2 || deep;          // tier I always open; comps buy the rest
+      return `<div class="tier ${have ? 'have' : here(pk, lvl) ? 'next' : ''}${open ? '' : ' rowLock'}">
         <div class="ti">
           <div class="tn">${tr.name}</div>
           <div class="ts">${statLine(key, pk, lvl)}</div>
         </div>
-        <div class="tc">${have ? '✓' : tr.cost}<small>${have ? 'built' : 'chips'}</small></div>
+        <div class="tc">${have ? '✓' : tr.cost}<small>${have ? 'built' : open ? 'chips' : 'comps first'}</small></div>
       </div>`;
     }).join('');
-    return `<div class="branch ${unlocked ? '' : 'dim'}">
-      <div class="bh">${P.label}${unlocked ? '' : ' <b>· LOCKED</b>'}</div>${rows}</div>`;
+    return `<div class="branch">
+      <div class="bh">${P.label}${deep ? '' : ' <b>· II+ LOCKED</b>'}</div>${rows}</div>`;
   };
 
   const anyLocked = !pathOwned(key, 'a') || !pathOwned(key, 'b');
   tree.innerHTML =
     `<div id="twRole">${TROLE[key]}</div>` +
-    (anyLocked ? `<div class="treeNote">Locked paths are bought with comps between floors — then chips to walk them.</div>` : '') +
+    (anyLocked ? `<div class="treeNote">Tier I is open from the start — the deeper tiers are bought with comps between floors.</div>` : '') +
     `<div class="tier ${tower ? 'have' : 'next'}">
        <div class="ti"><div class="tn">${T.name}</div>
        <div class="ts">${statLine(key, null, 1)}</div></div>
@@ -4322,7 +4377,9 @@ function openSheetForTower(tower) {
     const P = TSPEC[tower.type][pk];
     const tier = P.tiers[tower.lvl - 1];
     if (!tier) return;
-    const unlocked = pathOwned(tower.type, pk);
+    // tier I is open to everyone (Billy: "the first tier of upgrades should be
+    // unlocked by default") — comps gate only the deeper tiers
+    const unlocked = tower.lvl === 1 || pathOwned(tower.type, pk);
     const afford = G.chips >= tier.cost;
     const b = document.createElement('button');
     b.className = 'twBtn ' + (!unlocked ? 'locked' : afford ? 'can' : 'poor');
@@ -4332,7 +4389,7 @@ function openSheetForTower(tower) {
     b.title = statLine(tower.type, pk, tower.lvl + 1);
     if (!unlocked) b.addEventListener('pointerdown', ev => {
       ev.stopPropagation();
-      float(tower.x, tower.y - 46, 'UNLOCK IT BETWEEN FLOORS', '#c9707c');
+      float(tower.x, tower.y - 46, 'BUY THE PATH WITH COMPS, BETWEEN FLOORS', '#c9707c');
     });
     else if (!afford) b.addEventListener('pointerdown', ev => {
       ev.stopPropagation();
@@ -4447,7 +4504,7 @@ function buildTower(type, x, y) {
   const T = TTYPES[type];
   const tower = {
     type, x, y, r: TOWER_R[type], lvl: 1, path: null, cool: 0, stunUntil: 0,
-    prio: type === 'security' ? 'strong' : 'first',
+    prio: type === 'security' || type === 'roulette' ? 'strong' : 'first',
     range() {
       return TS(this).range || T.range;
     }
@@ -4796,8 +4853,8 @@ function startWave() {
     SFX.wave();
     updateHUD();
   };
-  const chain = types.reduceRight((next, t) => () => introduce(t, next), launch);
-  chain();
+  types.forEach((t, i) => introduce(t, 600 + i * 1500));
+  launch();
 }
 $('startWave').addEventListener('pointerdown', ev => { ev.stopPropagation(); startWave(); });
 
@@ -4991,7 +5048,7 @@ function fireRoulette(t) {
   emit(t.x, t.y - 6, { n: 2, shapes: ['spark'], speed: 55, life: .22, grav: 0, colors: ['#fffbe8'] });
   SFX.ball();
   G.projectiles.push({ kind: 'ball', x: t.x, y: t.y, el, target, dmg, bounces, hitSet: new Set(),
-                       quake: st(t, 'quake') || 0, arc: st(t, 'arc') || 0 });
+                       hop: 0, quake: st(t, 'quake') || 0, arc: st(t, 'arc') || 0 });
   return true;
 }
 
@@ -5615,7 +5672,9 @@ function update(dt) {
           setTimeout(() => ln.remove(), 150);
         }
         p.hitSet.add(p.target);
-        damageEnemy(p.target, p.dmg);
+        // full damage on the first hit, half on the next, a quarter after that
+        damageEnemy(p.target, Math.max(1, Math.round(p.dmg * Math.pow(.5, p.hop))));
+        p.hop++;
         if (p.quake) {                          // THE WRECKING BALL: the impact shoves the crowd
           fxRing(tx, ty, 75, '#d9dde2');
           for (const e2 of G.enemies) {
@@ -5627,13 +5686,13 @@ function update(dt) {
         p.bounces--;
         p.x = tx; p.y = ty;
         if (p.bounces <= 0) { p.el.remove(); G.projectiles = G.projectiles.filter(q => q !== p); continue; }
-        // bounce to a new target within 140
-        let nb = null, nd = 140 * 140;
+        // ricochet to the next-STRONGEST guest within 150 — never the same one twice
+        let nb = null, bh = -1;
         for (const e of G.enemies) {
           if (p.hitSet.has(e)) continue;
           const [x, y] = posAtE(e);
-          const d2 = (x - p.x) ** 2 + (y - p.y) ** 2;
-          if (d2 < nd) { nd = d2; nb = e; }
+          if ((x - p.x) ** 2 + (y - p.y) ** 2 > 150 * 150) continue;
+          if (e.hp > bh) { bh = e.hp; nb = e; }
         }
         if (!nb) { p.el.remove(); G.projectiles = G.projectiles.filter(q => q !== p); continue; }
         p.target = nb;
@@ -6049,12 +6108,10 @@ function initRoom(i, resume, altKey) {
     }
     updateHUD();
     showNextWave();
-    showModal('WELCOME BACK', R.name, null,
-      `Your floor is exactly as you left it — wave ${M.wave + 1} is waiting.`, '', 'RESUME SHIFT');
+    banner('WELCOME BACK');
   } else {
-    showModal(i >= ROOMS.length ? '∞ · AFTER HOURS'
-      : `FLOOR ${i + 1}${G.alt ? 'B · ' + (R.sub || 'ALTERNATE ROUTE') : (base.alt ? 'A · MAIN FLOOR' : '')}`,
-      R.name, null, R.intro, 'TAP ANY GUEST FOR THEIR DOSSIER', 'OPEN THE DOORS');
+    // no doors-open popup — the floor is ready the moment you arrive (Billy: "less popups")
+    banner(R.name.toUpperCase());
   }
 }
 
@@ -6167,14 +6224,13 @@ function renderMap() {
     shop.appendChild(d);
   };
 
-  const LOCKED = { craps: 40, buffet: 45, waitress: 50, catapult: 60, security: 70 };
   section('HIRE NEW TABLES');
-  for (const k in LOCKED) {
+  for (const k in HIRECOST) {
     const T = TTYPES[k];
-    buy(T.name, T.blurb, LOCKED[k], SAVE.owned.includes(k), () => SAVE.owned.push(k));
+    buy(T.name, T.blurb, HIRECOST[k], SAVE.owned.includes(k), () => SAVE.owned.push(k));
   }
 
-  section('UPGRADE PATHS — BOUGHT HERE, WALKED WITH CHIPS ON THE FLOOR');
+  section('UPGRADE PATHS — UNLOCK TIERS II & III (TIER I IS ALWAYS OPEN)');
   for (const k of SAVE.owned) {
     const T = TTYPES[k], spec = TSPEC[k];
     for (const pk of ['a', 'b']) {
@@ -6807,10 +6863,10 @@ if (location.search.includes('ropeshow')) {
 
 /* dev autotest: ?autotest plays the campaign unattended */
 if (location.search.includes('autotest')) {
-  // ?baseline probes a brand-new player: five tables and NO paths bought, so no
-  // upgrade is even purchasable — exactly what floors 1-3 look like before any comps
+  // ?baseline probes a brand-new player: five tables, no comps spent — which now
+  // means tier I of any branch is still reachable with chips (Billy's default-unlock)
   const BASE = location.search.includes('baseline');
-  const MAXLV = BASE ? 1 : 4;
+  const MAXLV = BASE ? 2 : 4;
   if (!BASE) {
     SAVE.owned = Object.keys(TTYPES);        // probes exercise the whole shelf
     Object.keys(TTYPES).forEach(k => { SAVE.paths[k] = { a: true, b: true }; });

@@ -85,6 +85,18 @@ Tracking every piece of playtest feedback. Checked = shipped & pushed.
       **7 of your 8 greenlit bosses now exist.** Only THE OWNER remains, saved for his own
       endgame floor (pitch in questions.txt).
 
+## Playtest feedback round 2 (Aug 8, after Billy's first branch playtest)
+- [x] **Less popups** — no doors-open modal, floor lands ready; new guests are non-blocking
+      bottom-left toasts (tap one for the full dossier); waves start immediately
+- [x] **Tier I unlocked by default** — chips-only from floor 1; comps buy tiers II & III
+- [x] **"Only 5 towers?"** — there were always 10; the rack now SHOWS the five unhired ones
+      (grayed, priced in comps, tap for dossier) so the roster is visible from minute one
+- [x] **Roulette rework** — slow + heavy anti-elite: full dmg to the STRONGEST, ricochets to the
+      next-strongest (never repeats), halving each hop; targets STRONGEST by default
+- NOTE for Billy: with tier I free, the blind bot now clears most of the campaign without any
+  comps (dies only at the floor-20 finale). If it plays too easy in hand, the levers are enemy
+  HP (+X%/floor) or tier-I prices — say the word.
+
 ## Next playtest questions for Billy
 - With 20 lives, do floors 1–10 feel too easy now?
 - Does the rack actually scroll with your thumb on your phone? (can't test that headlessly)

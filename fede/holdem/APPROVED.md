@@ -102,7 +102,12 @@
 - **Floor 31 is a weird floor: ROOFTOP AT DAWN** — sunrise sky, city skyline, empty deck chairs, the night finally ending
 - **Floors 32–41: THE FANCY BAR** — backlit bottle wall, marble bar, lounge singer, low light
 
-## Branching upgrade paths (APPROVED Aug 8 playtest; DEEPENED same day)
+## Branching upgrade paths (APPROVED Aug 8 playtest; DEEPENED same day; TIER I FREED same day)
+- **Tier I of both branches is unlocked by default** (Billy: "the first tier of upgrades should be
+  unlocked by default") — you pay chips for it in-floor from floor 1. Comps buy tiers II & III.
+- **Roulette identity (Billy, playtest): the big-game hunter.** Slow and heavy: full damage to the
+  STRONGEST guest in reach, then the ball ricochets to the next-strongest (never repeats), damage
+  halving each hop (100/50/25%). Default targeting: STRONGEST.
 - Tower upgrades are **branching, not linear**: each table has **two named branches**, now **three
   tiers deep** (Billy: "add 1 level... i want level 3 to be creative/weird/awesome (with visible
   great effects), it's fine if we break immersion/flavor for this in the name of awesomeness")
@@ -136,9 +141,11 @@
 - **Fresh build per room** (Bloons-style): build from scratch each room with starting chips
 - Leftover chips convert to a **meta-currency** for permanent upgrades between rooms
 
-## NPC Infobox system (approved)
-- When a new NPC type first appears: **flashy infobox** explaining it, which Fede must accept/dismiss before play continues
-- Tapping any NPC in-game re-opens its infobox and **pauses the game**
+## NPC Infobox system (SUPERSEDED Aug 8 — Billy: "less popups... the players are smart")
+- **No blocking popups at floor start.** The floor lands ready: no doors-open modal, and new guest
+  types announce themselves via **non-blocking toasts** (bottom-left, auto-fade, tap for the full
+  dossier). The wave launches immediately.
+- Tapping any NPC in-game still opens its full dossier and pauses — that's user-initiated.
 
 ## Between-floor mechanic
 - **Rejected:** Double or Nothing wagers
