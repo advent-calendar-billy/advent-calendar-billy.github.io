@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hold'Em — Night 3 Report</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0b3d2e;
+    color: #f5ead1;
+    font-family: 'Avenir Next', 'Segoe UI', system-ui, sans-serif;
+    padding: 30px 14px 90px;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; }
+  h1 {
+    font-family: Georgia, serif;
+    color: #e8b64c;
+    text-align: center;
+    letter-spacing: 2px;
+    text-shadow: 0 0 16px rgba(232,182,76,.5);
+  }
+  .sub { text-align: center; color: #9fc4b2; font-size: 13px; margin: 8px 0 4px; }
+  .note {
+    background: rgba(18,16,12,.62);
+    border: 2px solid #5a4626;
+    border-radius: 12px;
+    padding: 15px 18px;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 20px 0;
+  }
+  .note b { color: #e8b64c; }
+  .note code {
+    background: #1d1811; color: #d8cbb0;
+    padding: 1px 5px; border-radius: 4px; font-size: 12.5px;
+  }
+  .card {
+    background: #101511;
+    border: 2px solid #23392e;
+    border-radius: 14px;
+    overflow: hidden;
+    margin: 26px 0;
+  }
+  .card img { width: 100%; display: block; }
+  .cap { padding: 13px 16px 4px; font-size: 14px; line-height: 1.55; color: #cfe0d6; }
+  .cap b { color: #e8b64c; }
+  .ask { color: #ffb35c; font-style: italic; }
+  textarea {
+    width: calc(100% - 24px);
+    margin: 10px 12px 6px;
+    background: #1d1811;
+    border: 2px solid #5a4626;
+    border-radius: 10px;
+    color: #f5ead1;
+    font-family: inherit;
+    font-size: 14px;
+    padding: 10px 12px;
+    min-height: 46px;
+    resize: vertical;
+  }
+  textarea:focus { outline: none; border-color: #e8b64c; }
+  .st { font-size: 11px; color: #57c26e; padding: 0 14px 12px; height: 22px; }
+  ul { margin: 8px 0 0 20px; }
+  li { margin: 3px 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>HOLD'EM · NIGHT 3</h1>
+  <div class="sub">the upgrade rework + the "get crazy" pass — type under any shot, it saves as you go</div>
+
+  <div class="note">
+    <b>Everything from your playtest got built.</b> Upgrades are now a real system: every table has
+    <b>two named branches, three tiers deep</b>. Branches are unlocked permanently with <b>comps
+    between floors</b>; inside a floor you spend chips to walk one. Floor 1 has no upgrades at all
+    (you haven't banked comps yet) — floor 1 pays ~40 comps and the Dealer's first branch costs 35,
+    so your first unlock lands the moment you step off it.
+    <br><br>
+    And per your note — <b>tier 3 gets crazy on purpose</b>: fireball cards, a giant die that rolls
+    up the lane, champagne corks that stun the crowd, food poisoning that spreads guest to guest,
+    a bouncer who roars the whole queue to a stop, gold-fountain payouts, a table that shakes the
+    screen. All real mechanics with their own sounds, not flavor text.
+  </div>
+
+  <div id="cards"></div>
+
+  <div class="note">
+    <b>Numbers, so you know where the tuning stands:</b>
+    <ul>
+      <li>Max build (all branches): the blind bot clears <b>every floor 1–30</b> and reaches
+          <b>wave ~27 of Endless</b>.</li>
+      <li>No branches bought at all: floor 1 still wins; floors 2–4 die at wave 7–9 — that pinch is
+          the "go buy an upgrade" hook. <span class="ask">Does it read that way, or as unfair?</span></li>
+      <li>The old Velvet Rope measured <b>+7% lane time for 180 chips</b> — you were right that it
+          did nothing. The rebuilt one measures <b>+10–31% per rope</b>, and the slow follows guests
+          out of the field.</li>
+      <li>Tier 3 costs 900–1450 chips inside a floor. <span class="ask">Prize or impulse buy?</span></li>
+    </ul>
+  </div>
+
+  <div class="note">
+    <b>Open questions are in <code>questions.txt</code> round 3</b> — tier-3 taste check, pricing,
+    whether a table that's walked both branches should ever fuse into a capstone, and whether the
+    guest accessories per block are the right amount of silly.
+  </div>
+
+  <div class="note">Anything else — what to fix first, what to throw away:</div>
+  <div class="card"><textarea data-id="n3-overall" placeholder="overall notes…"></textarea><div class="st"></div></div>
+</div>
+
+<script>
+const SHOTS = [
+  ['tree2.png', '<b>The dossier is a real tree now.</b> Base table, a drawn fork, two named branches with every tier&rsquo;s actual numbers and cost. Locked branches say so, in pink, and the note explains where to buy them.'],
+  ['sheet-mixed.png', '<b>One button per possible upgrade</b> on a placed table, with the three states you asked for: buyable (gold), can&rsquo;t afford (price in red — tap tells you how short you are), and not-unlocked (&ldquo;buy with comps&rdquo;). The line under the name is the table&rsquo;s <b>current</b> attack.'],
+  ['rope-show.png', '<b>The rope you can finally SEE.</b> Every guest in the queue carries a red velvet QUEUE tag (STOPPED when held fast), shuffles at a crawl, and the rope&rsquo;s field burns bright only while it&rsquo;s working. <span class="ask">Visible enough on your phone?</span>'],
+  ['mech-inferno.png', '<b>THE INFERNO</b> — Card Dealer, Aflame branch, tier 3. Every card is a fireball with a real splash burn. Orange cards, fire rings, spark showers.'],
+  ['mech-die3.png', '<b>SEVEN OUT</b> — Craps, Snake Eyes branch, tier 3. A giant die rolls up the lane against the crowd, flattening everyone it passes. Note the max-level table breathing light with its orbiting ring.'],
+  ['mech-cork.png', '<b>CHAMPAGNE SUPERNOVA</b> — Waitress, VIP branch, tier 3. Every few seconds a cork pops off someone&rsquo;s head and the whole cluster stops to watch. POP!'],
+  ['flair-gallery2.png', '<b>Guests dress for the depth.</b> Floors 11–20 the crowd wears high-roller shades and gold chains; floors 21+ they arrive in feather boas; Endless survivors wear tiny crooked crowns. <span class="ask">Right amount of silly?</span>'],
+  ['max-play2.png', '<b>A maxed floor in play</b> — the Auditor mid-fight, path-A tables ringed in hot brass, path-B in cold steel, so you can read your build at a glance.']
+];
+const holder = document.getElementById('cards');
+SHOTS.forEach(([f, cap]) => {
+  const d = document.createElement('div');
+  d.className = 'card';
+  d.innerHTML = `<img src="report3-assets/${f}" loading="lazy">
+    <div class="cap">${cap}</div>
+    <textarea data-id="n3-${f}" placeholder="feedback… (saves as you type)"></textarea>
+    <div class="st"></div>`;
+  holder.appendChild(d);
+});
+
+document.querySelectorAll('textarea').forEach(t => {
+  const id = t.dataset.id;
+  t.value = localStorage.getItem('fb-' + id) || '';
+  let deb;
+  t.addEventListener('input', () => {
+    localStorage.setItem('fb-' + id, t.value);
+    const st = t.parentNode.querySelector('.st');
+    st.textContent = 'saving…';
+    clearTimeout(deb);
+    deb = setTimeout(() => {
+      fetch('http://localhost:8766/fb', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, text: t.value })
+      }).then(() => { st.textContent = 'saved ✓'; })
+        .catch(() => { st.textContent = 'saved in this browser ✓'; });
+    }, 700);
+  });
+});
+</script>
+</body>
+</html>
