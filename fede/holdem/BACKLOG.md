@@ -9,7 +9,7 @@
       NOTE: ROOMS already has 31 entries; verify the 31st is the rooftop or build it as such
 - [ ] FLOORS 32-41: THE FANCY BAR block (approved): backlit bottle wall, marble bar, lounge
       singer, low light
-- [ ] 4+ more bosses (greenlit): Magician, House Photographer, Health Inspector, The Whale's Wife,
+- [ ] 4 more bosses (greenlit): House Photographer, Health Inspector, The Whale's Wife,
       The Regulator, The Owner
 - [ ] Real-phone checks: rack thumb-scroll, tier-4 CSS animation frame rate, audio on iOS
 
@@ -60,7 +60,8 @@
 - [x] Lady Luck — boss, jinx aura (towers deal 30% dmg inside), Room 5 finale
 - [x] The Pit Boss — comp aura halves damage to nearby guests
 - [x] The Entertainer — SHOWTIME! freezes nearby towers, plays his own synthesized showtune while alive
-- [ ] 4+ more bosses (greenlit: Magician, House Photographer, Health Inspector, The Whale's Wife, The Regulator, The Owner)
+- [x] The Magician — BUILT Aug 8 (floor 17 + endless): blinks forward every 6s, takes nearby guests along
+- [ ] 5 more bosses (greenlit: House Photographer, Health Inspector, The Whale's Wife, The Regulator, The Owner)
 
 ## CAMPAIGN / META
 - [x] Between-floor SLOT MACHINE (approved spec): costs chips, ≤10 plays/intermission, EV low but positive,

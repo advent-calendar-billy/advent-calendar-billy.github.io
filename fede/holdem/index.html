@@ -6542,6 +6542,12 @@ if (mechParam) {
     e.pathI = 0;
     e.dist = mid * STEP - 60 - i * 48;
   }
+  const mb = (location.search.match(/mboss=(\w+)/) || [])[1];
+  if (mb && ETYPES[mb]) {
+    const b = spawnEnemy(mb);
+    b.pathI = 0;
+    b.dist = mid * STEP - 200;
+  }
   const hold = (location.search.match(/mt=([\d.]+)/) || [, '1.4'])[1];
   let t = 0;
   const dt = 1 / 60;
