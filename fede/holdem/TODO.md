@@ -64,6 +64,10 @@ Tracking every piece of playtest feedback. Checked = shipped & pushed.
 - [x] Endless guests wear tiny crooked crowns; SEVEN OUT's die is properly giant
 - [x] Fixed 31/30 FLOORS HELD at campaign end; map stars capped at 5
 
+- [x] **NEW BOSS: THE MAGICIAN** (greenlit roster) — headlines floor 17 and the endless pit.
+      Every 6s he vanishes FORWARD in a puff of smoke and takes nearby guests with him — the
+      anti-chokepoint boss. Tall hat, red-lined cape, wand sparkle. PRESTO!
+
 ## Next playtest questions for Billy
 - With 20 lives, do floors 1–10 feel too easy now?
 - Does the rack actually scroll with your thumb on your phone? (can't test that headlessly)

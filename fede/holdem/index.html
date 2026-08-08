@@ -1797,6 +1797,31 @@
         </g>
       </g>
 
+      <g id="sprMagician">
+        <ellipse cx="0" cy="30" rx="24" ry="7" fill="rgba(40,16,8,.4)"/>
+        <!-- red-lined cape flaring behind -->
+        <path d="M-16 -6 Q -26 10 -20 28 L -8 24 L -8 -2 Z" fill="#8f1e2e" stroke="#3b2415" stroke-width="3"/>
+        <path d="M16 -6 Q 26 10 20 28 L 8 24 L 8 -2 Z" fill="#8f1e2e" stroke="#3b2415" stroke-width="3"/>
+        <!-- tailcoat -->
+        <path d="M-11 26 Q -13 2 -7 -6 L 7 -6 Q 13 2 11 26 Q 0 30 -11 26 Z"
+              fill="#16141e" stroke="#3b2415" stroke-width="3.5"/>
+        <path d="M-6 -6 L 0 2 L 6 -6 Z" fill="#f5ead1" stroke="#3b2415" stroke-width="2"/>
+        <path d="M-3 0 L 3 0 L 1.6 6 L -1.6 6 Z" fill="#d8b4ff" stroke="#3b2415" stroke-width="1.4"/>
+        <!-- white gloves; one raises the wand -->
+        <circle cx="-14" cy="4" r="3.4" fill="#f5ead1" stroke="#3b2415" stroke-width="2"/>
+        <circle cx="15" cy="-14" r="3.4" fill="#f5ead1" stroke="#3b2415" stroke-width="2"/>
+        <line x1="15" y1="-16" x2="22" y2="-30" stroke="#1e1a16" stroke-width="3" stroke-linecap="round"/>
+        <line x1="20.5" y1="-27" x2="22" y2="-30" stroke="#f5ead1" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="23" cy="-32" r="1.6" fill="#ffe9a3"/>
+        <!-- head, curled mustache, tall hat -->
+        <circle cx="0" cy="-15" r="9.5" fill="#f2b98c" stroke="#3b2415" stroke-width="3.5"/>
+        <path d="M-2 -10 Q -6 -8 -8 -11 M 2 -10 Q 6 -8 8 -11" fill="none" stroke="#1e1a16" stroke-width="2" stroke-linecap="round"/>
+        <ellipse cx="-3.5" cy="-17" rx="1.4" ry="1.8" fill="#1e1a16"/>
+        <ellipse cx="3.5" cy="-17" rx="1.4" ry="1.8" fill="#1e1a16"/>
+        <path d="M-11 -21 L 11 -21 L 11 -24 L -11 -24 Z" fill="#16141e" stroke="#3b2415" stroke-width="2"/>
+        <path d="M-8 -24 L 8 -24 L 7 -42 L -7 -42 Z" fill="#16141e" stroke="#3b2415" stroke-width="3"/>
+        <path d="M-7.6 -30 L 7.6 -30 L 7.3 -33 L -7.3 -33 Z" fill="#8f1e2e" stroke="#3b2415" stroke-width="1.6"/>
+      </g>
       <g id="sprPitBoss">
         <ellipse cx="0" cy="52" rx="31" ry="9" fill="rgba(40,16,8,.35)"/>
         <ellipse cx="-12" cy="50" rx="9" ry="5.5" fill="#15171c" stroke="#3b2415" stroke-width="3"/>
@@ -2597,6 +2622,10 @@ const ETYPES = {
   entertainer: { name:'The Entertainer', sprite:'sprEntertainer', hp:3400, speed:27, reward:380, star:6, scale:.8, tapR:40, boss:true, showtime:170,
     desc:'The headliner works the room, and when he takes a number EVERY tower within earshot stops to watch. Nobody works the floor while he is singing.',
     stats:'BOSS · HIS NUMBER FREEZES NEARBY TOWERS' },
+  magician: { name:'The Magician', sprite:'sprMagician', hp:3100, speed:29, reward:350, star:6, scale:.8, tapR:40, boss:true,
+    blink: { every: 6, dist: 150, r: 85 },
+    desc:'One flourish of the cape and he is somewhere else — and he takes volunteers from the audience with him. You cannot hold a queue that refuses to stand still.',
+    stats:'BOSS · VANISHES FORWARD EVERY 6s, TAKING NEARBY GUESTS ALONG' },
   pitboss: { name:'The Pit Boss', sprite:'sprPitBoss', hp:2900, speed:28, reward:320, star:5, scale:.8, tapR:40, boss:true, comp:150,
     desc:'He runs this floor and everyone on it is comped. While he walks, every guest inside his radius takes HALF damage. Cut him out first.',
     stats:'BOSS · HALVES DAMAGE TO NEARBY GUESTS' },
@@ -3294,7 +3323,7 @@ const ROOMS = [
     ] },
   { name: 'Roulette Hall 7', hpMul: 1.96, chips: 930, block: 1,
     carpet: ['#0c3d5c', '#134d70', '#082c44'],
-    intro: 'The long hall splits around the private wheel and comes back together. Both sides are yours to hold.',
+    intro: 'The long hall splits around the private wheel and comes back together. Tonight a MAGICIAN works the room — and his audience never stays where you put them.',
     variants: [
       { entryY: 180, vault: [1046, 420], killOffset: 112,
         lanes: [
@@ -3309,10 +3338,10 @@ const ROOMS = [
       [['counter',15,.7],['regular',18,.55]],
       [['whale',4,6],['grandma',20,.58]],
       [['elvis',34,.22],['influencer',7,2.6]],
-      [['pitboss',1,0],['drunk',22,.4]],
+      [['magician',1,0],['drunk',22,.4]],
       [['auditor',2,12],['clipper',22,.4]],
       [['counter',17,.62],['honey',11,2.2]],
-      [['shark',1,0],['lady',1,18],['whale',4,6]]
+      [['shark',1,0],['magician',1,20],['whale',4,6]]
     ] },
   { name: 'Roulette Hall 8', hpMul: 2.02, chips: 960, block: 1,
     carpet: ['#0a3660', '#114674', '#07264a'],
@@ -5006,6 +5035,36 @@ function update(dt) {
         float(x, y - 30, '+♥', '#57c26e');
       }
     }
+    /* the Magician's vanishing act */
+    if (e.E.blink) {
+      e.blinkT = (e.blinkT || 0) + dt;
+      if (e.blinkT >= e.E.blink.every) {
+        e.blinkT = 0;
+        const cap = PATHS[e.pathI].killAt - 60;      // never blink straight into the desk
+        if (e.dist < cap - 40) {
+          poof(ex, ey - 10);
+          poof(ex + 12, ey - 22);
+          const took = [];
+          for (const e2 of G.enemies) {
+            if (e2 === e || e2.E.boss) continue;
+            const [x2, y2] = posAtE(e2);
+            if ((x2 - ex) ** 2 + (y2 - ey) ** 2 <= e.E.blink.r * e.E.blink.r) took.push(e2);
+          }
+          e.dist = Math.min(cap, e.dist + e.E.blink.dist);
+          for (const e2 of took) {
+            const cap2 = PATHS[e2.pathI].killAt - 60;
+            e2.dist = Math.min(cap2, e2.dist + e.E.blink.dist);
+            const [nx2, ny2] = posAtE(e2);
+            poof(nx2, ny2 - 10);
+          }
+          const [nx, ny] = posAtE(e);
+          poof(nx, ny - 10);
+          poof(nx - 12, ny - 22);
+          float(nx, ny - 40, 'PRESTO!', '#d8b4ff');
+          SFX.spin();
+        }
+      }
+    }
     /* the Regular's staff doors */
     if (e.E.skip) {
       e.skipT = (e.skipT || 0) + dt;
@@ -5584,7 +5643,7 @@ function endlessWave(w) {
     wave.push([t, 6 + Math.floor(w * 1.1), Math.max(.24, 1.4 - w * .028)]);
   }
   if (w % 5 === 4) {
-    const boss = w % 25 === 24 ? 'entertainer' : w % 20 === 19 ? 'pitboss'
+    const boss = w % 30 === 29 ? 'magician' : w % 25 === 24 ? 'entertainer' : w % 20 === 19 ? 'pitboss'
                : w % 15 === 14 ? 'lady' : w % 10 === 9 ? 'shark' : 'whale';
     wave.push([boss, 1 + Math.floor(w / 12), 15]);
   }
