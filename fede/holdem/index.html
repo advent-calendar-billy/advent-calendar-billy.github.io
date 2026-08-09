@@ -3639,7 +3639,7 @@
   <div class="spacer"></div>
   <button class="btn" id="sndBtn">♪</button>
   <button class="btn" id="autoBtn">AUTO</button>
-  <button class="btn" id="speedBtn">×2</button>
+  <button class="btn" id="speedBtn">×1</button>
   <button class="btn" id="pauseBtn">⏸</button>
 </div>
 
@@ -3664,7 +3664,7 @@
 
 
 <!-- floating tower menu -->
-<div id="ver">v82</div>
+<div id="ver">v83</div>
 <div id="susLbl">OPERATIONS SUSPENDED · NO BUILDING THIS WAVE</div>
 <div id="shopOv">
   <div id="shopCardOv">
@@ -6718,7 +6718,14 @@ function frame(now) {
 }
 function update(dt) {
   if (G.paused) return;
-  dt *= G.speed;
+  let total = dt * G.speed;
+  while (total > 1e-4) {
+    const slice = Math.min(0.034, total);
+    stepSim(slice);
+    total -= slice;
+  }
+}
+function stepSim(dt) {
   G.time += dt;
 
   if (!G.over) {
@@ -7612,8 +7619,11 @@ requestAnimationFrame(frame);
 /* ══════════ CONTROLS ══════════ */
 $('speedBtn').addEventListener('pointerdown', ev => {
   ev.stopPropagation();
-  G.speed = G.speed === 1 ? 2 : G.speed === 2 ? 4 : 1;
-  $('speedBtn').textContent = '×' + G.speed;
+  G.speed = G.speed >= 6 ? 2 : G.speed + 2;      // 2 / 4 / 6 under the hood
+  $('speedBtn').textContent = '×' + (G.speed / 2);
+  SAVE.prefs = SAVE.prefs || {};
+  SAVE.prefs.speed = G.speed;
+  saveSave();
 });
 $('sndBtn').addEventListener('pointerdown', ev => {
   ev.stopPropagation();
@@ -8537,7 +8547,8 @@ if (SAVE.prefs) {
   G.auto = !!SAVE.prefs.auto;
   $('autoBtn').classList.toggle('primary', G.auto);
   G.speed = SAVE.prefs.speed || 2;
-  $('speedBtn').textContent = '×' + G.speed;
+  if (G.speed < 2) G.speed = 2;                  // old saves could hold the retired 1x
+  $('speedBtn').textContent = '×' + (G.speed / 2);
 }
 updateHUD();
 renderMap();
