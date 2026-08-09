@@ -3646,7 +3646,7 @@
 
 
 <!-- floating tower menu -->
-<div id="ver">v78</div>
+<div id="ver">v79</div>
 <div id="susLbl">OPERATIONS SUSPENDED · NO BUILDING THIS WAVE</div>
 <div id="shopOv">
   <div id="shopCardOv">
@@ -3910,7 +3910,7 @@ const ETYPES = {
   lady: { name:'Lady Luck', sprite:'sprLady', hp:3200, speed:24, reward:350, star:5, armor:2, scale:.8, tapR:40, boss:true, countDodge:3, dodgeWord:'NOT TONIGHT',
     desc:'She blows a kiss and every wheel goes cold. Towers inside her shimmer roll minimum damage while she glides past.',
     stats:'BOSS · JINX AURA: TOWERS DEAL MIN DAMAGE' },
-  whale: { name:'The Whale', sprite:'sprWhale', hp:900, speed:25, reward:150, star:4, armor:2, scale:.78, tapR:40, boss:true,
+  whale: { name:'The Whale', sprite:'sprWhale', mini:true, hp:900, speed:25, reward:150, star:4, armor:2, scale:.78, tapR:40, boss:true,
     desc:'Comped everything. Bathrobe, cigar, security detail waved off. Takes a fortune down with him — and pays one out.',
     stats:'MINI-BOSS · VERY TOUGH · BIG BOUNTY' },
   shark: { name:'Loan Shark', sprite:'sprShark', hp:2000, speed:31, reward:250, star:5, armor:2, scale:.8, tapR:40, boss:true, steal:120,
@@ -4111,10 +4111,10 @@ const TSPEC = {
         { name: 'ARC FLASH', cost: 1500, s: { dmg: 1900, range: 600, cd: 3.6 } },
         { name: 'THE LIGHTNING ROD', cost: 3100, s: { dmg: 4200, range: 660, cd: 3.3 } } ] },
     b: { label: 'Facial Recognition', tiers: [
-        { name: 'Facial Recognition', cost: 290, s: { dmg: 330, bossMul: 2 } },
-        { name: 'Flagged', cost: 680, s: { dmg: 700, bossMul: 2.4, cd: 3.8 } },
-        { name: 'THE HOUSE ALWAYS KNOWS', cost: 1450, s: { dmg: 1450, bossMul: 3, cd: 3.4 } },
-        { name: 'NO SUCH THING AS LUCK', cost: 3000, s: { dmg: 3000, bossMul: 4, cd: 3 } } ] }
+        { name: 'Facial Recognition', cost: 290, s: { dmg: 330, bossMul: 1.7 } },
+        { name: 'Flagged', cost: 680, s: { dmg: 700, bossMul: 1.9, cd: 3.8 } },
+        { name: 'THE HOUSE ALWAYS KNOWS', cost: 1450, s: { dmg: 1450, bossMul: 2.1, cd: 3.4 } },
+        { name: 'NO SUCH THING AS LUCK', cost: 3000, s: { dmg: 3000, bossMul: 2.3, cd: 3 } } ] }
   },
   security: {
     // the anti-boss table: one huge hit, and the guest gets WALKED back up the lane
@@ -4563,7 +4563,7 @@ const ROOMS = [
       [['counter',12,.9],['grandma',16,.7],['influencer',5,4]],
       [['lady',1,0],['shark',1,22],['whale',2,10]]
     ] },
-  { name: 'Slots Pit 10', carpet: ['#2d2a6e','#383579','#23215c'],  hpMul: 1.4, chips: 860,
+  { name: 'Slots Pit 10', carpet: ['#2d2a6e','#383579','#23215c'],  hpMul: 1.35, chips: 1020,
     intro: 'End of the block. The WHOLE management team walks the floor tonight — hold the vault and the Blackjack Rooms open next.',
     variants: [
       { entryY: 130, vault: [558, 352], killOffset: 25,
@@ -4584,7 +4584,7 @@ const ROOMS = [
       [['whale',3,7],['clipper',16,.6]],
       [['lady',1,0],['grandma',10,1.0]],
       [['counter',12,.9],['honey',7,3],['influencer',5,4]],
-      [['auditor',2,16],['whale',2,10]],
+      [['auditor',1,0],['whale',2,10]],
       [['lady',1,0],['whale',3,8],['regular',14,.7]],
       [['shark',1,0],['lady',1,20],['auditor',1,35],['whale',2,12]]
     ] },
@@ -6163,7 +6163,9 @@ function spawnEnemy(type) {
   const hpEl = svgEl('rect', { x: -barW/2 + 1.5, y: -1.5, width: barW - 3, height: 3, rx: 1.5, fill: '#57c26e' }, barG);
   // tap target
   const tap = svgEl('circle', { r: E.tapR, fill: 'transparent' }, el);
-  const hpMax = E.hp * (1 + G.wave * 0.08) * G.roomDef.hpMul * familiarity(type);
+  // headliners are worth walking around: pack elites (the Whale) keep their old health
+  const bossHp = (E.boss && !E.mini) ? 1.75 : 1;
+  const hpMax = E.hp * (1 + G.wave * 0.08) * G.roomDef.hpMul * familiarity(type) * bossHp;
   const slowEl = svgEl('g', { transform: `translate(0,${-E.scale * 60 - 26})`, opacity: 0 }, el);
   svgEl('rect', { x: -24, y: -9, width: 48, height: 17, rx: 4,
                   fill: '#8e1f2e', stroke: '#3b2415', 'stroke-width': 2 }, slowEl);
@@ -6516,9 +6518,19 @@ function earn(n) {
   return n;
 }
 
+const BOSS_BITE = .30;              // no single blow may take more than this much of a
+                                    // headliner — a safety net over the HP rise below
 function damageEnemy(e, dmg) {
   if (e.dead) return;                 // fire splash can kill mid-iteration; never re-process a corpse
   if (e.exposed && G.time < (e.exposedUntil || 0)) dmg *= e.exposed;
+  if (e.E.boss && !e.E.mini) {
+    const cap = e.hpMax * BOSS_BITE;
+    if (dmg > cap) {
+      dmg = cap;
+      const [bx, by] = posAtE(e);
+      if (G.time > (e.capT || 0)) { e.capT = G.time + .6; float(bx, by - 40, 'SHRUGGED OFF', '#c3c9d2'); }
+    }
+  }
   // the Pit Boss comps everyone near him: half damage
   if (!e.E.comp) {
     for (const b of G.enemies) {

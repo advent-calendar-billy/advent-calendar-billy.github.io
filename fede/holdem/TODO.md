@@ -276,6 +276,20 @@ Tracking every piece of playtest feedback. Checked = shipped & pushed.
       visit**, and two dry visits is down to 29%. Two scatters now says "one off the free games!"
       so the rule is legible. (45% of spins already return something after the pair-pays change.)
 
+- [x] **Bosses were being deleted, and it was worse than you saw.** Measured against the real
+      formulas: the Eye in the Sky's capstone tier needed **0.2 of a shot** to kill a boss (5×
+      overkill), and even mid-tiers took ~50-60% per bolt — exactly what you hit. Cause: boss HP
+      was flat while tower damage compounds with floor × tier × boss multiplier.
+      Fix, after three failed attempts measured by the bot:
+        · headliners get **1.75× health** (pack elites like the Whale excluded — scaling them
+          wiped the early floors, since they arrive three at a time)
+        · **no single blow may remove more than 30%** of a headliner ("SHRUGGED OFF" floats)
+        · boss multiplier trimmed 2/2.4/3/4 → **1.7/1.9/2.1/2.3**
+      Result: the Auditor now takes 5.6-8.2 bolts at tier I instead of ~2, and the branch still
+      matters (at floor 20: Facial Recognition 6.9 hits vs High Voltage 9.2).
+- [x] Floor 10 re-tuned as a consequence — it fielded six boss waves and TWO Auditors at once on
+      the smallest finale bankroll, which was only survivable while bosses were paper.
+
 ## Next playtest questions for Billy
 - With 20 lives, do floors 1–10 feel too easy now?
 - Does the rack actually scroll with your thumb on your phone? (can't test that headlessly)

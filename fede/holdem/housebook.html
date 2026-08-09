@@ -2724,10 +2724,10 @@ const TSPEC = {
         { name: 'ARC FLASH', cost: 1500, s: { dmg: 1900, range: 600, cd: 3.6 } },
         { name: 'THE LIGHTNING ROD', cost: 3100, s: { dmg: 4200, range: 660, cd: 3.3 } } ] },
     b: { label: 'Facial Recognition', tiers: [
-        { name: 'Facial Recognition', cost: 290, s: { dmg: 330, bossMul: 2 } },
-        { name: 'Flagged', cost: 680, s: { dmg: 700, bossMul: 2.4, cd: 3.8 } },
-        { name: 'THE HOUSE ALWAYS KNOWS', cost: 1450, s: { dmg: 1450, bossMul: 3, cd: 3.4 } },
-        { name: 'NO SUCH THING AS LUCK', cost: 3000, s: { dmg: 3000, bossMul: 4, cd: 3 } } ] }
+        { name: 'Facial Recognition', cost: 290, s: { dmg: 330, bossMul: 1.7 } },
+        { name: 'Flagged', cost: 680, s: { dmg: 700, bossMul: 1.9, cd: 3.8 } },
+        { name: 'THE HOUSE ALWAYS KNOWS', cost: 1450, s: { dmg: 1450, bossMul: 2.1, cd: 3.4 } },
+        { name: 'NO SUCH THING AS LUCK', cost: 3000, s: { dmg: 3000, bossMul: 2.3, cd: 3 } } ] }
   },
   security: {
     
@@ -2887,7 +2887,7 @@ const ETYPES = {
   lady: { name:'Lady Luck', sprite:'sprLady', hp:3200, speed:24, reward:350, star:5, armor:2, scale:.8, tapR:40, boss:true, countDodge:3, dodgeWord:'NOT TONIGHT',
     desc:'She blows a kiss and every wheel goes cold. Towers inside her shimmer roll minimum damage while she glides past.',
     stats:'BOSS · JINX AURA: TOWERS DEAL MIN DAMAGE' },
-  whale: { name:'The Whale', sprite:'sprWhale', hp:900, speed:25, reward:150, star:4, armor:2, scale:.78, tapR:40, boss:true,
+  whale: { name:'The Whale', sprite:'sprWhale', mini:true, hp:900, speed:25, reward:150, star:4, armor:2, scale:.78, tapR:40, boss:true,
     desc:'Comped everything. Bathrobe, cigar, security detail waved off. Takes a fortune down with him — and pays one out.',
     stats:'MINI-BOSS · VERY TOUGH · BIG BOUNTY' },
   shark: { name:'Loan Shark', sprite:'sprShark', hp:2000, speed:31, reward:250, star:5, armor:2, scale:.8, tapR:40, boss:true, steal:120,
@@ -3160,7 +3160,7 @@ const ROOMS = [
       [['counter',12,.9],['grandma',16,.7],['influencer',5,4]],
       [['lady',1,0],['shark',1,22],['whale',2,10]]
     ] },
-  { name: 'Slots Pit 10', carpet: ['#2d2a6e','#383579','#23215c'],  hpMul: 1.4, chips: 860,
+  { name: 'Slots Pit 10', carpet: ['#2d2a6e','#383579','#23215c'],  hpMul: 1.35, chips: 1020,
     intro: 'End of the block. The WHOLE management team walks the floor tonight — hold the vault and the Blackjack Rooms open next.',
     variants: [
       { entryY: 130, vault: [558, 352], killOffset: 25,
@@ -3181,7 +3181,7 @@ const ROOMS = [
       [['whale',3,7],['clipper',16,.6]],
       [['lady',1,0],['grandma',10,1.0]],
       [['counter',12,.9],['honey',7,3],['influencer',5,4]],
-      [['auditor',2,16],['whale',2,10]],
+      [['auditor',1,0],['whale',2,10]],
       [['lady',1,0],['whale',3,8],['regular',14,.7]],
       [['shark',1,0],['lady',1,20],['auditor',1,35],['whale',2,12]]
     ] },
