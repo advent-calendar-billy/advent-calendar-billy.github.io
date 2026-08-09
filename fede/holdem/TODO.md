@@ -241,6 +241,21 @@ Tracking every piece of playtest feedback. Checked = shipped & pushed.
       He doesn't stop the floor, he doubles it.
 - Entertainer / Regulator / Lady Luck left exactly as they were, per your call.
 
+## Boss rework round 2 (Aug 9) — your three picks
+- [x] **LADY LUCK dodges every 3rd projectile** (your call) — the damage jinx is gone entirely.
+      She floats "NOT TONIGHT" when she slips one. Same machinery as the Card Counter's every-4th.
+- [x] **THE ENTERTAINER TAKES AN ENCORE** — killing him is act one: he gets back up at half
+      health, 35% faster, and the band changes key. The second death is final. Verified by probe:
+      hp 8296→4148, pace 1.00→1.35, new song flag set, stays dead the second time.
+- [x] **THE REGULATOR SUSPENDS OPERATIONS** — the moment she walks in, no placing and no
+      upgrading, and per your note it lasts **until the end of that wave** whether she dies or
+      reaches the desk ("the paperwork is already filed"). A red banner sits under the HUD while
+      it's in force; the citation/half-damage system is deleted.
+- [x] Auditor escrow softened 100% → **65%** after the probe showed floor 10 (which has him at
+      waves 4 AND 8) starving to death: a total freeze meant the bot could never rebuild.
+      He still holds most of the take, and it still all pays out when he drops.
+- Shop Steward / Fire Marshal / Hen Party: dropped, per your call.
+
 ## Next playtest questions for Billy
 - With 20 lives, do floors 1–10 feel too easy now?
 - Does the rack actually scroll with your thumb on your phone? (can't test that headlessly)
