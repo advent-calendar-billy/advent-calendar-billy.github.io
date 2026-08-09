@@ -141,3 +141,51 @@ Say which you want and I'll build them.
 
 19. Also: enemies now have ARMOUR (see below) — happy to use armour-piercing as
     a boss trait too if you'd rather.
+
+═══════════════════════════════════════════════════════════
+ROUND 5 — BOSS IDEAS, TAKE TWO (Aug 9)
+═══════════════════════════════════════════════════════════
+Auditor (escrow) and Photographer (prints) are built. Three replacements
+for the ones you passed on, then three brand-new bosses.
+
+── REPLACEMENTS ──
+
+20a. LADY LUCK → "SHE NEVER LOSES TWICE TO THE SAME TABLE."
+     She's immune to whichever table hit her last. To hurt her you have to
+     keep switching damage sources — a floor of six Card Dealers does almost
+     nothing to her, a mixed floor shreds her. A little coloured tag over her
+     head shows which table is currently locked out.
+     Why it's good: it's the only boss that judges your BUILD instead of
+     nerfing it, and it's the strongest possible argument for buying variety.
+
+20b. THE ENTERTAINER → THE ENCORE (a two-phase boss).
+     Kill him and he takes a bow, the lights come up... and he gets back up
+     for one encore at half health, faster, with a new song. Nothing else in
+     the game has phases, so he'd be the only fight with a second act.
+
+20c. THE REGULATOR → "OPERATIONS SUSPENDED."
+     While she walks you cannot PLACE or UPGRADE anything. Your defence works
+     at full strength — you just can't react. Everything you'd want to do
+     mid-wave has to be done before she arrives, or after she's down.
+     Why it's good: it attacks your options, not your damage.
+
+── NEW ──
+
+20d. THE SHOP STEWARD — your tables want a bung.
+     While he's on the floor, each table demands a small payment. A little
+     chip icon pops over each one: tap to pay (a few chips each), or leave it
+     and that table downs tools until he's gone. You choose which tables are
+     worth paying for, live, while the wave runs.
+
+20e. THE FIRE MARSHAL — he re-routes the floor.
+     He walks with a clipboard and TAPES OFF sections of lane behind him,
+     forcing everything that follows onto the other routes. Your careful
+     coverage is suddenly pointed at an empty corridor. (On single-lane
+     floors he opens a shortcut instead.)
+
+20f. THE HEN PARTY — one boss, eleven bodies.
+     A bride-to-be plus ten guests who move as one blob. She takes NO damage
+     while any of her party is alive, and they heal each other. You have to
+     chew through the group to reach her, and the sashes make it obvious.
+
+Say which ones you want (any number) and I'll build them.
