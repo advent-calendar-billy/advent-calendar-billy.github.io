@@ -25,5 +25,5 @@ PY
   echo "--- blocked: $BLOCKED   too easy: $SOFT ---"
   if [ "$BLOCKED" -eq 0 ] && [ "$SOFT" -le 2 ]; then echo "SETTLED after round $i"; break; fi
   [ "$i" -lt "$ROUNDS" ] && python3 tools/tune.py "/tmp/bal$i.json" --target 0.10 \
-      --gain 0.5 --max-step 0.3 --floor-wave 7 | tail -3
+      --gain 0.6 --max-step 0.6 --floor-wave 7 | tail -3
 done

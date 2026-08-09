@@ -54,7 +54,7 @@ for idx, li in enumerate(starts, start=1):
     elif r <= a.target and med < a.floor_wave:
         err = -(a.floor_wave - med) / 10.0
     step = max(-a.max_step, min(a.max_step, err * a.gain))
-    new = round(max(0.5, min(3.0, cur * (1 + step))), 3)
+    new = round(max(0.4, min(9.0, cur * (1 + step))), 3)
     if abs(new - cur) < 0.02: continue
     if m:
         lines[li] = lines[li].replace(m.group(0), f"diff: {new}")
