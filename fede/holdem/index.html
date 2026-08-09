@@ -28,8 +28,8 @@
     -webkit-user-select: none;
   }
   #wrap { position: fixed; top: 0; left: 0; bottom: 0; right: var(--rack); display: flex; align-items: center; justify-content: center; }
-  :root { --rack: 104px; }
-  @media (max-width: 700px) { :root { --rack: 88px; } }
+  :root { --rack: 128px; }                      /* includes the 26px scroll gutter */
+  @media (max-width: 700px) { :root { --rack: 112px; } }
   #stage { width: 100%; height: 100%; display: block; touch-action: none; }
   #wrap.shake { animation: shake .45s linear; }
   @keyframes boltOut { to { opacity: 0; } }
@@ -719,12 +719,13 @@
     flex-direction: column;
     gap: 4px;
     z-index: 12;
-    padding: calc(46px + env(safe-area-inset-top, 0)) 5px calc(6px + env(safe-area-inset-bottom, 0));
+    padding: calc(46px + env(safe-area-inset-top, 0)) 5px calc(6px + env(safe-area-inset-bottom, 0)) 26px;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
     touch-action: pan-y;
     scrollbar-width: none;
+    background-repeat: no-repeat;
     background: linear-gradient(180deg, rgba(10,26,18,.96), rgba(6,18,12,.98));
     border-left: 2px solid #2c4a3a;
     box-shadow: -6px 0 18px rgba(0,0,0,.45);
@@ -756,6 +757,15 @@
   }
   .shopCard .pips i.on.a { background: #d9a94f; border-color: #ffe9b0; }
   .shopCard .pips i.on.b { background: #7fa8c4; border-color: #d7ecf7; }
+  #shopRail {
+    position: fixed; z-index: 13; pointer-events: none;
+    right: calc(var(--rack) - 14px);
+    top: calc(58px + env(safe-area-inset-top, 0));
+    bottom: calc(14px + env(safe-area-inset-bottom, 0));
+    width: 3px; border-radius: 2px;
+    background: linear-gradient(180deg, rgba(232,182,76,0), rgba(232,182,76,.28) 12%,
+                                rgba(232,182,76,.28) 88%, rgba(232,182,76,0));
+  }
   #shopFade {
     position: fixed; right: 0; bottom: 0;
     width: var(--rack); height: 26px;
@@ -3649,11 +3659,12 @@
 
 <!-- shop bar: drag a tower onto the floor -->
 <div id="shop"></div>
+<div id="shopRail"></div>
 <div id="shopFade"></div>
 
 
 <!-- floating tower menu -->
-<div id="ver">v81</div>
+<div id="ver">v82</div>
 <div id="susLbl">OPERATIONS SUSPENDED · NO BUILDING THIS WAVE</div>
 <div id="shopOv">
   <div id="shopCardOv">
@@ -4315,7 +4326,7 @@ const effCost = T => T.cost;
 const maxStars = () => 20 + (SAVE.perks.star ? 5 : 0) + (G.repBonus || 0);
 
 const ROOMS = [
-  { name: 'Slots Pit 1', hpMul: 1.0, chips: 560,
+  { name: 'Slots Pit 1', diff: 1.184, hpMul: 1.0, chips: 560,
     intro: 'Drag a table from the rack on the right onto any open floor — green means it fits. Every guest who reaches the front desk costs reputation; hold 10 waves without running out.',
     variants: [
       { entryY: 130, vault: [1046, 470], killOffset: 112,
@@ -4335,7 +4346,7 @@ const ROOMS = [
       [['grandma',8,1.4],['clipper',6,1.3],['elvis',8,1.0],['influencer',2,9]],
       [['shark',1,0],['grandma',6,1.6],['whale',1,26]]
     ] },
-  { name: 'Slots Pit 2', hpMul: .96, chips: 700,
+  { name: 'Slots Pit 2', diff: 0.954, hpMul: .96, chips: 700,
     intro: 'The corridor FORKS tonight — each guest picks a side on a whim. Cover both, or gamble on one. New faces: The Drunk weaves, Mojito Guy has a temper.',
     variants: [
       { entryY: 300, vault: [1046, 300], killOffset: 112,
@@ -4361,18 +4372,18 @@ const ROOMS = [
       [['mojito',10,.9],['grandma',8,1.2],['influencer',2,9],['counter',3,7]],
       [['whale',2,18],['grandma',8,1.2],['elvis',10,.8]]
     ] },
-  { name: 'Slots Pit 3', carpet: ['#9c2b26','#b23a30','#872420'],  hpMul: 1.0, chips: 760,
+  { name: 'Slots Pit 3', diff: 1.009, carpet: ['#9c2b26','#b23a30','#872420'],  hpMul: 1.0, chips: 760,
     intro: 'The vault sits exposed mid-floor and the corridor splits around it. Everything the Slots Pit has walks — and the Loan Shark collects at the end.',
     variants: [
       { entryY: 130, vault: [560, 360], killOffset: 30,
         lanes: [
           'M -40 130 C 200 130, 360 130, 520 130 C 700 130, 820 200, 820 330 C 820 430, 700 470, 620 430 C 580 410, 560 390, 560 360',
-          'M -40 130 C 120 130, 200 130, 260 150 C 340 180, 300 300, 330 390 C 360 480, 480 500, 530 440 C 555 410, 560 390, 560 360'
+          'M -40 130 C 120 130, 200 130, 260 150 C 340 180, 330 260, 250 300 C 160 345, 140 430, 230 470 C 320 505, 430 500, 500 455 C 545 425, 560 390, 560 360'
         ] },
       { entryY: 470, vault: [560, 240], killOffset: 30,
         lanes: [
           'M -40 470 C 200 470, 360 470, 520 470 C 700 470, 820 400, 820 270 C 820 170, 700 130, 620 170 C 580 190, 560 210, 560 240',
-          'M -40 470 C 120 470, 200 470, 260 450 C 340 420, 300 300, 330 210 C 360 120, 480 100, 530 160 C 555 190, 560 210, 560 240'
+          'M -40 470 C 120 470, 200 470, 260 450 C 340 420, 330 340, 250 300 C 160 255, 140 170, 230 130 C 320 95, 430 100, 500 145 C 545 175, 560 210, 560 240'
         ] }
     ],
     waves: [
@@ -4387,7 +4398,7 @@ const ROOMS = [
       [['whale',2,15],['grandma',10,1.0],['mojito',10,.8]],
       [['shark',1,0],['whale',2,20],['influencer',2,12],['grandma',8,1.2]]
     ] },
-  { name: 'Slots Pit 4', carpet: ['#953041','#a83e4e','#7f2836'],  hpMul: 1.06, chips: 690,
+  { name: 'Slots Pit 4', diff: 1.045, carpet: ['#953041','#a83e4e','#7f2836'],  hpMul: 1.06, chips: 690,
     intro: 'The pit boss called Corporate. The Regular knows the staff doors, and at the end of the night THE AUDITOR walks the floor — your best tower freezes while he lives.',
     variants: [
       { entryY: 470, vault: [1046, 470], killOffset: 112,
@@ -4438,7 +4449,7 @@ const ROOMS = [
         [['shark',1,0],['grandma',14,.7],['whale',2,14]]
       ]
     } },
-  { name: 'Slots Pit 5', carpet: ['#822d52','#94395f','#6e2545'],  hpMul: 1.12, chips: 720,
+  { name: 'Slots Pit 5', diff: 2.79, carpet: ['#822d52','#94395f','#6e2545'],  hpMul: 1.12, chips: 720,
     intro: 'The corridor coils around the vault like a spring. Tonight LADY LUCK herself walks the floor — towers inside her shimmer go cold. End of the Slots Pit.',
     variants: [
       { entryY: 130, vault: [558, 352], killOffset: 25,
@@ -4462,7 +4473,7 @@ const ROOMS = [
       [['whale',3,10],['clipper',12,.8],['influencer',3,6]],
       [['lady',1,0],['shark',1,25],['grandma',12,.9]]
     ] },
-  { name: 'Slots Pit 6', carpet: ['#6e2f5e','#7d3a6c','#5c2650'],  hpMul: 1.19, chips: 750,
+  { name: 'Slots Pit 6', diff: 1.213, carpet: ['#6e2f5e','#7d3a6c','#5c2650'],  hpMul: 1.19, chips: 750,
     intro: 'The fork is back, and the crowd is meaner. Management sends The Auditor to close the night.',
     variants: [
       { entryY: 300, vault: [1046, 430], killOffset: 112,
@@ -4488,7 +4499,7 @@ const ROOMS = [
       [['whale',3,9],['mojito',14,.6]],
       [['auditor',1,0],['whale',2,16],['grandma',12,.9],['regular',10,.9]]
     ] },
-  { name: 'Slots Pit 7', carpet: ['#5e3070','#6d3c80','#4e2760'],  hpMul: 1.26, chips: 770,
+  { name: 'Slots Pit 7', diff: 0.96, carpet: ['#5e3070','#6d3c80','#4e2760'],  hpMul: 1.26, chips: 770,
     intro: 'THREE corridors tonight. Every guest picks one on a whim — nowhere is safe to skimp.',
     variants: [
       { entryY: 300, vault: [1046, 300], killOffset: 112,
@@ -4510,7 +4521,7 @@ const ROOMS = [
       [['counter',10,1.1],['grandma',14,.8],['influencer',4,5]],
       [['auditor',2,20],['whale',2,14],['mojito',16,.5]]
     ] },
-  { name: 'Slots Pit 8', carpet: ['#4a2f77','#573a86','#3d2565'],  hpMul: 1.33, chips: 660,
+  { name: 'Slots Pit 8', diff: 1.717, carpet: ['#4a2f77','#573a86','#3d2565'],  hpMul: 1.33, chips: 660,
     intro: 'A long serpentine whose middle run splits in two. Lady Luck herself takes a stroll mid-shift.',
     variants: [
       { entryY: 150, vault: [1046, 470], killOffset: 112,
@@ -4554,7 +4565,7 @@ const ROOMS = [
         [['shark',1,0],['lady',1,22],['whale',3,9]]
       ]
     } },
-  { name: 'Slots Pit 9', carpet: ['#3a2f80','#46398f','#2f256d'],  hpMul: 1.4, chips: 690,
+  { name: 'Slots Pit 9', diff: 0.771, carpet: ['#3a2f80','#46398f','#2f256d'],  hpMul: 1.4, chips: 690,
     intro: 'The floor plan changes nightly now. Everything walks, and the bosses walk with them.',
     variants: [
       { entryY: 300, vault: [1046, 430], killOffset: 112,
@@ -4580,7 +4591,7 @@ const ROOMS = [
       [['counter',12,.9],['grandma',16,.7],['influencer',5,4]],
       [['lady',1,0],['shark',1,22],['whale',2,10]]
     ] },
-  { name: 'Slots Pit 10', carpet: ['#2d2a6e','#383579','#23215c'],  hpMul: 1.35, chips: 1020,
+  { name: 'Slots Pit 10', diff: 1.153, carpet: ['#2d2a6e','#383579','#23215c'],  hpMul: 1.35, chips: 1020,
     intro: 'End of the block. The WHOLE management team walks the floor tonight — hold the vault and the Blackjack Rooms open next.',
     variants: [
       { entryY: 130, vault: [558, 352], killOffset: 25,
@@ -4605,7 +4616,7 @@ const ROOMS = [
       [['lady',1,0],['whale',3,8],['regular',14,.7]],
       [['shark',1,0],['lady',1,20],['auditor',1,35],['whale',2,12]]
     ] },
-  { name: 'Roulette Hall 1', hpMul: 1.6, chips: 750, block: 1,
+  { name: 'Roulette Hall 1', diff: 0.955, hpMul: 1.6, chips: 750, block: 1,
     carpet: ['#1e6b4a', '#2a7d58', '#175a3d'],
     intro: 'A new block: the ROULETTE HALLS. Green felt, spinning wheels wall to wall — and the crowd up here bets bigger and hits harder.',
     variants: [
@@ -4626,7 +4637,7 @@ const ROOMS = [
       [['counter',12,.85],['grandma',16,.7],['honey',7,3]],
       [['shark',1,0],['whale',3,8],['influencer',5,4]]
     ] },
-  { name: 'Roulette Hall 2', hpMul: 1.66, chips: 780, block: 1,
+  { name: 'Roulette Hall 2', diff: 0.961, hpMul: 1.66, chips: 780, block: 1,
     carpet: ['#195e50', '#237060', '#124a3f'],
     intro: 'The wheels run hotter and the corridor splits over the felt. Cover both sides of the hall.',
     variants: [
@@ -4653,7 +4664,7 @@ const ROOMS = [
       [['auditor',2,14],['whale',3,7]],
       [['auditor',2,18],['lady',1,25],['grandma',18,.65]]
     ] },
-  { name: 'Roulette Hall 3', hpMul: 1.72, chips: 810, block: 1,
+  { name: 'Roulette Hall 3', diff: 1.609, hpMul: 1.72, chips: 810, block: 1,
     carpet: ['#14524d', '#1d635d', '#0e403c'],
     intro: 'The high-limit hall: one great ring around the wheelhouse, the vault dead ahead in the middle of it all.',
     variants: [
@@ -4672,7 +4683,7 @@ const ROOMS = [
       [['auditor',3,12],['grandma',20,.6]],
       [['shark',1,0],['lady',1,18],['auditor',1,32],['whale',3,8]]
     ] },
-  { name: 'Roulette Hall 4', hpMul: 1.78, chips: 840, block: 1,
+  { name: 'Roulette Hall 4', diff: 1.101, hpMul: 1.78, chips: 840, block: 1,
     carpet: ['#11504e', '#1a615e', '#0b3d3a'],
     intro: 'Two wheels, two loops, one crowd splitting between them. Whatever you leave uncovered, they will find.',
     variants: [
@@ -4698,7 +4709,7 @@ const ROOMS = [
       [['counter',14,.75],['mojito',20,.42]],
       [['shark',1,0],['whale',3,7],['influencer',6,3.2]]
     ] },
-  { name: 'Roulette Hall 5', hpMul: 1.84, chips: 870, block: 1,
+  { name: 'Roulette Hall 5', diff: 1.059, hpMul: 1.84, chips: 870, block: 1,
     carpet: ['#0f4a52', '#175b64', '#0a3940'],
     intro: 'The crossing. Two corridors cut straight through each other over the felt — and tonight LADY LUCK and the AUDITOR work the same shift.',
     variants: [
@@ -4720,7 +4731,7 @@ const ROOMS = [
       [['counter',15,.7],['clipper',20,.42],['influencer',6,3]],
       [['lady',1,0],['auditor',1,22],['whale',3,7],['grandma',18,.62]]
     ] },
-  { name: 'Roulette Hall 6', hpMul: 1.9, chips: 900, block: 1,
+  { name: 'Roulette Hall 6', diff: 0.768, hpMul: 1.9, chips: 900, block: 1,
     carpet: ['#0d4459', '#14566d', '#083446'],
     intro: 'The great wheel room: one enormous ring around the pit, with a spur that cuts across the middle for anyone in a hurry.',
     variants: [
@@ -4742,7 +4753,7 @@ const ROOMS = [
       [['whale',4,6],['clipper',22,.4],['drunk',20,.42]],
       [['pitboss',1,0],['lady',1,20],['auditor',1,34],['whale',3,7]]
     ] },
-  { name: 'Roulette Hall 7', hpMul: 1.96, chips: 930, block: 1,
+  { name: 'Roulette Hall 7', diff: 1.17, hpMul: 1.96, chips: 930, block: 1,
     carpet: ['#0c3d5c', '#134d70', '#082c44'],
     intro: 'The long hall splits around the private wheel and comes back together. Tonight a MAGICIAN works the room — and his audience never stays where you put them.',
     variants: [
@@ -4764,7 +4775,7 @@ const ROOMS = [
       [['counter',17,.62],['honey',11,2.2]],
       [['shark',1,0],['magician',1,20],['whale',4,6]]
     ] },
-  { name: 'Roulette Hall 8', hpMul: 2.02, chips: 960, block: 1,
+  { name: 'Roulette Hall 8', diff: 1.334, hpMul: 2.02, chips: 960, block: 1,
     carpet: ['#0a3660', '#114674', '#07264a'],
     intro: 'Three doors, one desk. Everything in the hall funnels toward the same point — pick your choke and commit.',
     variants: [
@@ -4810,7 +4821,7 @@ const ROOMS = [
         [['shark',1,0],['whale',4,6],['pitboss',1,22]]
       ]
     } },
-  { name: 'Roulette Hall 9', hpMul: 2.08, chips: 990, block: 1,
+  { name: 'Roulette Hall 9', diff: 2.79, hpMul: 2.08, chips: 990, block: 1,
     carpet: ['#0b2f66', '#123c7c', '#071f4c'],
     intro: 'The spiral hall: one long coil that tightens all the way to the desk at its heart.',
     variants: [
@@ -4829,7 +4840,7 @@ const ROOMS = [
       [['auditor',2,10],['counter',20,.55]],
       [['shark',1,0],['lady',1,16],['regulator',1,32],['whale',4,6]]
     ] },
-  { name: 'Roulette Hall 10', hpMul: 2.08, chips: 1180, block: 1,
+  { name: 'Roulette Hall 10', diff: 1.127, hpMul: 2.08, chips: 1180, block: 1,
     carpet: ['#0a2358', '#102e6e', '#061640'],
     intro: 'Top of the block. Two halls, every face the Roulette floor has, and the entire management team on shift. Hold this and the doors above open.',
     variants: [
@@ -4851,7 +4862,7 @@ const ROOMS = [
       [['whale',5,5],['clipper',28,.32],['drunk',26,.32]],
       [['shark',1,0],['lady',1,18],['auditor',1,34],['whale',3,7]]
     ] },
-  { name: 'The Showroom', hpMul: 2.20, chips: 1050, block: 2,
+  { name: 'The Showroom', diff: 1.492, hpMul: 2.20, chips: 1050, block: 2,
     carpet: ['#5e0f22', '#71182c', '#450a18'],
     intro: 'A new block: THE THEATER. Red velvet, raked seating and a house that fills up before every number. The crowd files in along the front of the stage.',
     variants: [
@@ -4872,7 +4883,7 @@ const ROOMS = [
       [['counter',16,.68],['clipper',22,.4]],
       [['shark',1,0],['whale',4,6],['grandma',22,.54]]
     ] },
-  { name: 'The Aisles', hpMul: 2.26, chips: 1080, block: 2,
+  { name: 'The Aisles', diff: 1.53, hpMul: 2.26, chips: 1080, block: 2,
     carpet: ['#57101f', '#6b1a2b', '#3f0a15'],
     intro: 'Two aisles run down either side of the house and meet at the doors. Late arrivals take whichever is emptier — which is to say, whichever you left alone.',
     variants: [
@@ -4894,7 +4905,7 @@ const ROOMS = [
       [['counter',17,.62],['drunk',24,.36]],
       [['shark',1,0],['auditor',1,20],['whale',4,6]]
     ] },
-  { name: 'Backstage', hpMul: 2.32, chips: 1110, block: 2,
+  { name: 'Backstage', diff: 1.571, hpMul: 2.32, chips: 1110, block: 2,
     carpet: ['#2e2a2c', '#3a3538', '#211e20'],
     intro: 'Past the curtain: rope lines, prop crates and one narrow corridor to the stage door. Nobody out here is dressed for the show.',
     variants: [
@@ -4915,7 +4926,7 @@ const ROOMS = [
       [['lady',1,0],['drunk',26,.32]],
       [['shark',1,0],['whale',4,6],['pitboss',1,22]]
     ] },
-  { name: 'The Balcony', hpMul: 2.38, chips: 1140, block: 2,
+  { name: 'The Balcony', diff: 2.79, hpMul: 2.38, chips: 1140, block: 2,
     carpet: ['#4c1030', '#5e1a3e', '#380a22'],
     intro: 'The upper ring. A single loop around the house with the best view in the building — and the longest walk to the desk.',
     variants: [
@@ -4934,7 +4945,7 @@ const ROOMS = [
       [['auditor',2,11],['counter',19,.58]],
       [['shark',1,0],['photog',1,20],['whale',4,6]]
     ] },
-  { name: 'The Main Stage', hpMul: 2.44, chips: 1170, block: 2,
+  { name: 'The Main Stage', diff: 1.71, hpMul: 2.44, chips: 1170, block: 2,
     carpet: ['#63102a', '#7a1a38', '#480a1e'],
     intro: 'House lights down. Tonight THE ENTERTAINER headlines, and when he takes a number every tower in earshot stops working to watch him. Hold the room anyway.',
     variants: [
@@ -4956,7 +4967,7 @@ const ROOMS = [
       [['lady',1,0],['clipper',28,.32]],
       [['entertainer',1,0],['shark',1,26],['whale',4,6],['grandma',24,.5]]
     ] },
-  { name: 'The Orchestra Pit', hpMul: 2.50, chips: 1200, block: 2,
+  { name: 'The Orchestra Pit', diff: 1.931, hpMul: 2.50, chips: 1200, block: 2,
     carpet: ['#3d1230', '#4c1a3c', '#2b0c22'],
     intro: 'Down in the pit: music stands, cable runs and a sunken horseshoe the crowd has to walk around twice.',
     variants: [
@@ -4981,7 +4992,7 @@ const ROOMS = [
       [['counter',20,.55],['drunk',28,.3]],
       [['entertainer',1,0],['whale',5,5],['grandma',26,.46]]
     ] },
-  { name: 'The Dressing Rooms', hpMul: 2.56, chips: 1230, block: 2,
+  { name: 'The Dressing Rooms', diff: 1.824, hpMul: 2.56, chips: 1230, block: 2,
     carpet: ['#37202e', '#452a3a', '#271721'],
     intro: 'A zigzag of mirrored doors and costume rails. Tight corners everywhere — which is either your advantage or your problem.',
     variants: [
@@ -5002,7 +5013,7 @@ const ROOMS = [
       [['lady',1,0],['counter',21,.52]],
       [['entertainer',1,0],['shark',1,24],['whalewife',2,9]]
     ] },
-  { name: 'The Rigging Loft', hpMul: 2.62, chips: 1260, block: 2,
+  { name: 'The Rigging Loft', diff: 1.735, hpMul: 2.62, chips: 1260, block: 2,
     carpet: ['#2b2438', '#372e46', '#1e1929'],
     intro: 'Catwalks over the stage. Two narrow runs cross above the house and meet at the far rail — mind the drop.',
     variants: [
@@ -5024,7 +5035,7 @@ const ROOMS = [
       [['auditor',3,10],['counter',22,.5]],
       [['entertainer',1,0],['lady',1,22],['whale',5,5]]
     ] },
-  { name: 'The Grand Foyer', hpMul: 2.68, chips: 1290, block: 2,
+  { name: 'The Grand Foyer', diff: 1.53, hpMul: 2.68, chips: 1290, block: 2,
     carpet: ['#5a1030', '#6e1a3e', '#420a22'],
     intro: 'Doors open on three sides and the whole house pours in at once. Chandeliers, marble, and nowhere to hide.',
     variants: [
@@ -5047,7 +5058,7 @@ const ROOMS = [
       [['auditor',3,9],['counter',24,.46]],
       [['entertainer',1,0],['shark',1,22],['pitboss',1,40],['whale',5,5]]
     ] },
-  { name: 'Opening Night', hpMul: 2.74, chips: 1320, block: 2,
+  { name: 'Opening Night', diff: 2.039, hpMul: 2.74, chips: 1320, block: 2,
     carpet: ['#6b0f26', '#821a36', '#4e0a1a'],
     intro: 'Full house, every seat sold, and the entire company on the floor: the headliner, the pit boss, the auditors and Lady Luck herself. Hold this and the top of the building is yours.',
     variants: [
@@ -5069,7 +5080,7 @@ const ROOMS = [
       [['whale',6,5],['clipper',36,.24],['influencer',11,1.9]],
       [['entertainer',1,0],['shark',1,20],['lady',1,38],['auditor',1,56],['pitboss',1,72]]
     ] },
-  { name: 'Rooftop at Dawn', hpMul: 2.80, chips: 1350, block: 3,
+  { name: 'Rooftop at Dawn', diff: 2.79, hpMul: 2.80, chips: 1350, block: 3,
     carpet: ['#6d8296', '#7b90a4', '#5b6f83'],
     intro: 'The sun is coming up over the city and the last of them are still going. Deck chairs, a cold pool, and one long walk around the roof before the night finally lets go.',
     variants: [
@@ -6005,11 +6016,19 @@ function buildTower(type, x, y) {
       tower.auraEl.innerHTML = '';
       const R = tower.range();
       for (const P of PATHS) {
-        const pts = [];
+        // collect RUNS of consecutive in-range points. A serpentine lane can leave the
+        // radius and come back; joining those runs into one path laid carpet straight
+        // across open floor, which read as a shortcut that isn't there (Billy)
+        const runs = [];
+        let run = null;
         for (let i = 0; i < P.pts.length; i++) {
           const dx = P.pts[i][0] - x, dy = P.pts[i][1] - y;
-          if (dx * dx + dy * dy <= R * R) pts.push(P.pts[i]);
+          if (dx * dx + dy * dy <= R * R) {
+            if (!run) { run = []; runs.push(run); }
+            run.push(P.pts[i]);
+          } else run = null;
         }
+        for (const pts of runs) {
         if (pts.length < 3) continue;
         const d = 'M ' + pts.map(q => `${q[0].toFixed(1)} ${q[1].toFixed(1)}`).join(' L ');
         svgEl('path', { d, fill: 'none', stroke: '#6b1420', 'stroke-width': 44,
@@ -6033,6 +6052,7 @@ function buildTower(type, x, y) {
             svgEl('circle', { cx: px, cy: py - 12.5, r: 2.6, fill: 'url(#brassG)',
                               stroke: '#3b2415', 'stroke-width': 1.2 }, tower.auraEl);
           }
+        }
         }
       }
     };
@@ -6188,7 +6208,7 @@ function spawnEnemy(type) {
   const tap = svgEl('circle', { r: E.tapR, fill: 'transparent' }, el);
   // headliners are worth walking around: pack elites (the Whale) keep their old health
   const bossHp = (E.boss && !E.mini) ? 1.75 : 1;
-  const hpMax = E.hp * (1 + G.wave * 0.08) * G.roomDef.hpMul * familiarity(type) * bossHp;
+  const hpMax = E.hp * (1 + G.wave * 0.08) * G.roomDef.hpMul * familiarity(type) * bossHp * depthHP();
   const slowEl = svgEl('g', { transform: `translate(0,${-E.scale * 60 - 26})`, opacity: 0 }, el);
   svgEl('rect', { x: -24, y: -9, width: 48, height: 17, rx: 4,
                   fill: '#8e1f2e', stroke: '#3b2415', 'stroke-width': 2 }, slowEl);
@@ -6610,7 +6630,18 @@ const roomPow = () => 1 + Math.min(ROOM, ROOMS.length) * 0.22;
 /* a floor's payout scales with how tough its guests are, so chips-per-effort stays honest */
 const payScale = () => (G.roomDef ? 1 + (G.roomDef.hpMul - 1) * 0.75 : 1);
 /* late floors trim raw body count — the difficulty should come from HP and layout, not spam */
-const countScale = () => 1 / (1 + 0.022 * Math.max(0, Math.min(ROOM, ROOMS.length) - 8));
+/* the two difficulty knobs, overridable from the URL so tools/sweep.py can measure
+   several settings without editing the file: ?dhp=0.03&cnt=0.012 */
+/* PER-FLOOR DIFFICULTY DIAL.
+   Global knobs turned out to be useless here: +80% health left floors 5/13/25/30
+   untouched at 100% bot wins while floor 20 collapsed to 0%, because the floors
+   differ enormously in wave density. Each room carries its own `diff` instead,
+   multiplying both the health and the body count of everything it sends.
+   tools/tune.py drives these numbers from measured win rates — hand-editing them
+   is fine, but re-run the sweep afterwards. */
+const roomDiff = () => (G.roomDef && G.roomDef.diff) || 1;
+const countScale = () => roomDiff();
+const depthHP = () => roomDiff();
 
 function atkSpeedFactor(t) {
   let f = 1;

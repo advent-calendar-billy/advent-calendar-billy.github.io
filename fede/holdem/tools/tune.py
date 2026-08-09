@@ -14,6 +14,9 @@ ap.add_argument("sweep")
 ap.add_argument("--target", type=float, default=0.45)
 ap.add_argument("--gain", type=float, default=0.5, help="how hard to correct (0-1)")
 ap.add_argument("--max-step", type=float, default=0.35)
+ap.add_argument("--floor-wave", type=int, default=7,
+                help="a floor whose median death is earlier than this is BROKEN, "
+                     "not hard — ease it regardless of win rate")
 ap.add_argument("--file", default="index.html")
 a = ap.parse_args()
 
@@ -21,8 +24,12 @@ rates = {int(k): v for k, v in json.load(open(a.sweep)).items()}
 src = open(a.file).read()
 lines = src.split("\n")
 
-# find each room's opening line, in order
-starts = [i for i, l in enumerate(lines) if re.match(r"\s*\{ name: '[^']+',.*(hpMul|chips)", l)]
+# Top-level ROOMS entries only. They sit at exactly two spaces of indentation;
+# TSPEC tier entries are nested deeper and some of them contain "chips:" as a stat,
+# which an looser pattern happily matched — that shifted every floor by eight.
+starts = [i for i, l in enumerate(lines) if re.match(r"^  \{ name: '[^']+',", l)]
+if len(starts) != 31:
+    print(f"warning: found {len(starts)} rooms, expected 31", file=sys.stderr)
 if not starts:
     sys.exit("could not find room definitions")
 
@@ -34,14 +41,25 @@ for idx, li in enumerate(starts, start=1):
     m = re.search(r"diff:\s*([\d.]+)", lines[li])
     if m: cur = float(m.group(1))
     # win rate too high -> stiffen; too low -> ease
+    # Below ~10% wins the rate stops being a gradient: at 50 samples 0 wins and 1 win
+    # say nearly the same thing. Median wave keeps grading past that point, and it is
+    # what separates "brutal" from "impossible".
+    med = rates[idx].get("median_wave", 10)
+    cliff = rates[idx].get("cliff", 0)
     err = r - a.target
+    if rates[idx]["wins"] == 0:
+        # never wins: ease it. Dying on wave 3 and dying every time on wave 10 are both
+        # failures — one is a wall at the door, the other a wall at the end.
+        err = -0.25 if med < a.floor_wave else -0.12
+    elif r <= a.target and med < a.floor_wave:
+        err = -(a.floor_wave - med) / 10.0
     step = max(-a.max_step, min(a.max_step, err * a.gain))
     new = round(max(0.5, min(3.0, cur * (1 + step))), 3)
     if abs(new - cur) < 0.02: continue
     if m:
         lines[li] = lines[li].replace(m.group(0), f"diff: {new}")
     else:
-        lines[li] = re.sub(r"(\{ name: '[^']+',)", rf"\1 diff: {new},", lines[li], count=1)
+        lines[li] = re.sub(r"^(  \{ name: '[^']+',)", rf"\1 diff: {new},", lines[li], count=1)
     changed.append((idx, r, cur, new))
 
 open(a.file, "w").write("\n".join(lines))
