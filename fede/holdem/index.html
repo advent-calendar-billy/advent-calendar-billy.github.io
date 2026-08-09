@@ -277,7 +277,7 @@
   }
   .sgRow { display: flex; flex-wrap: wrap; gap: 5px; }
   .sgItem {
-    flex: 1 1 46%;
+    flex: 1 1 30%;
     display: flex; justify-content: space-between; align-items: center; gap: 6px;
     background: rgba(20,16,10,.7); border: 2px solid #5a4626; border-radius: 9px;
     padding: 6px 9px; cursor: pointer; min-width: 0;
@@ -293,6 +293,29 @@
   .sgItem.own i { color: #57c26e; }
   .sgItem.poor { opacity: .6; cursor: default; }
   #nextFloorBtn { margin-top: 10px; font-size: 16px; padding: 11px 0; }
+  #buyConfirm {
+    display: none; position: absolute; inset: 0; z-index: 2;
+    background: rgba(8,6,3,.82);
+    align-items: center; justify-content: center;
+  }
+  #buyConfirm.on { display: flex; }
+  #buyCard {
+    width: min(340px, 86vw);
+    background: linear-gradient(180deg, #2c2212, #14100a);
+    border: 3px solid var(--gold); border-radius: 16px;
+    padding: 16px 18px 14px; text-align: center;
+    animation: buyIn .18s ease-out;
+  }
+  @keyframes buyIn { from { transform: scale(.9); opacity: 0; } }
+  #buyName {
+    font-family: Georgia, serif; color: var(--gold);
+    font-size: clamp(15px, 4vh, 19px); line-height: 1.15;
+  }
+  #buyWhat { font-size: 12px; color: #d8cbb0; margin: 5px 0 9px; }
+  #buyPrice { font-size: 15px; font-weight: 800; color: var(--gold); margin-bottom: 12px; }
+  #buyPrice.short { color: #e0575f; }
+  #buyRow { display: flex; gap: 8px; }
+  #buyRow .btn { flex: 1; font-size: 13px; padding: 9px 0; }
   #shopOvMap {
     margin-top: 6px; font-size: 10px; color: #9c8757;
     text-decoration: underline; cursor: pointer;
@@ -3382,7 +3405,7 @@
 
 
 <!-- floating tower menu -->
-<div id="ver">v72</div>
+<div id="ver">v73</div>
 <div id="shopOv">
   <div id="shopCardOv">
     <div id="shopOvKind">BETWEEN FLOORS</div>
@@ -3390,6 +3413,17 @@
     <div id="shopOvBody"></div>
     <button class="btn primary" id="nextFloorBtn">FLOOR 2 ▸</button>
     <div id="shopOvMap">full map</div>
+  </div>
+  <div id="buyConfirm">
+    <div id="buyCard">
+      <div id="buyName">—</div>
+      <div id="buyWhat">—</div>
+      <div id="buyPrice">—</div>
+      <div id="buyRow">
+        <button class="btn primary" id="buyYes">BUY</button>
+        <button class="btn" id="buyNo">BACK</button>
+      </div>
+    </div>
   </div>
 </div>
 <div id="twMenu">
@@ -7703,9 +7737,14 @@ function renderShopOv() {
   const next = Math.min(SAVE.unlocked - 1, ROOMS.length);
   $('nextFloorBtn').textContent = next >= ROOMS.length ? 'AFTER HOURS ▸' : `FLOOR ${next + 1} ▸`;
   let h = '';
-  const item = (id, name, sub, price, owned, afford) =>
-    `<div class="sgItem ${owned ? 'own' : afford ? '' : 'poor'}" data-buy="${owned || !afford ? '' : id}">
-       <b>${name}<small>${sub}</small></b><i>${owned ? 'OWNED' : price + ' ◉'}</i></div>`;
+  // names and prices only — tapping opens the confirm card, which is where the
+  // description lives (Billy: saves space AND gives a confirmation step)
+  SHOPITEMS = {};
+  const item = (id, name, sub, price, owned, afford, full) => {
+    SHOPITEMS[id] = { name: full || name, sub, price, owned, afford };
+    return `<div class="sgItem ${owned ? 'own' : afford ? '' : 'poor'}" data-buy="${id}">
+       <b>${name}</b><i>${owned ? 'OWNED' : price + ' ◉'}</i></div>`;
+  };
   h += '<div class="sgTitle">HIRE NEW TABLES</div><div class="sgRow">';
   for (const k in HIRECOST) {
     if (DISABLED.includes(k)) continue;
@@ -7718,7 +7757,8 @@ function renderShopOv() {
     h += `<div class="sgTower">${TTYPES[k].name}</div><div class="sgRow">`;
     for (const pk of ['a', 'b']) {
       h += item('path:' + k + ':' + pk, TSPEC[k][pk].label, BRANCHINFO[k][pk],
-                PATHCOST[k], pathOwned(k, pk), SAVE.comps >= PATHCOST[k]);
+                PATHCOST[k], pathOwned(k, pk), SAVE.comps >= PATHCOST[k],
+                `${TTYPES[k].name} · ${TSPEC[k][pk].label}`);
     }
     h += '</div>';
   }
@@ -7728,22 +7768,48 @@ function renderShopOv() {
   h += '</div>';
   body.innerHTML = h;
   body.querySelectorAll('[data-buy]').forEach(el => {
-    const id = el.dataset.buy;
-    if (!id) return;
     el.addEventListener('pointerdown', ev => {
       ev.stopPropagation();
-      const [kind, a, b] = id.split(':');
-      if (kind === 'hire') { SAVE.comps -= HIRECOST[a]; SAVE.owned.push(a); }
-      if (kind === 'path') { SAVE.comps -= PATHCOST[a]; (SAVE.paths[a] = SAVE.paths[a] || {})[b] = true; }
-      if (kind === 'perk' && a === 'star') { SAVE.comps -= 120; SAVE.perks.star = true; }
-      if (kind === 'perk' && a === 'spins') { SAVE.comps -= 35; SAVE.perks.spins = (SAVE.perks.spins || 0) + 1; }
-      SFX.cash();
-      saveSave();
-      renderShopOv();
+      askBuy(el.dataset.buy);
     });
   });
   $('shopOv').style.display = 'flex';
 }
+
+let SHOPITEMS = {}, buyPending = null;
+function askBuy(id) {
+  const it = SHOPITEMS[id];
+  if (!it) return;
+  buyPending = it.owned || !it.afford ? null : id;
+  $('buyName').textContent = it.name;
+  $('buyWhat').textContent = it.sub;
+  $('buyPrice').textContent = it.owned ? 'ALREADY YOURS'
+    : it.afford ? it.price + ' ◉ COMPS'
+    : `${it.price} ◉ — you have ${SAVE.comps}`;
+  $('buyPrice').classList.toggle('short', !it.owned && !it.afford);
+  $('buyYes').style.display = buyPending ? 'block' : 'none';
+  $('buyNo').textContent = buyPending ? 'BACK' : 'CLOSE';
+  $('buyConfirm').classList.add('on');
+}
+$('buyNo').addEventListener('pointerdown', ev => {
+  ev.stopPropagation();
+  buyPending = null;
+  $('buyConfirm').classList.remove('on');
+});
+$('buyYes').addEventListener('pointerdown', ev => {
+  ev.stopPropagation();
+  if (!buyPending) return;
+  const [kind, a, b] = buyPending.split(':');
+  if (kind === 'hire') { SAVE.comps -= HIRECOST[a]; SAVE.owned.push(a); }
+  if (kind === 'path') { SAVE.comps -= PATHCOST[a]; (SAVE.paths[a] = SAVE.paths[a] || {})[b] = true; }
+  if (kind === 'perk' && a === 'star') { SAVE.comps -= 120; SAVE.perks.star = true; }
+  if (kind === 'perk' && a === 'spins') { SAVE.comps -= 35; SAVE.perks.spins = (SAVE.perks.spins || 0) + 1; }
+  buyPending = null;
+  $('buyConfirm').classList.remove('on');
+  SFX.cash();
+  saveSave();
+  renderShopOv();
+});
 $('nextFloorBtn').addEventListener('pointerdown', ev => {
   ev.stopPropagation();
   const next = Math.min(SAVE.unlocked - 1, ROOMS.length);
@@ -8147,9 +8213,18 @@ if (artParam && TTYPES[artParam[1]]) {
 
 /* dev: ?shoptest shows the between-floors spend screen */
 if (location.search.includes('shoptest')) {
-  SAVE.comps = 130;
+  SAVE.comps = +((location.search.match(/comps=(\d+)/) || [])[1] || 130);
   SAVE.unlocked = Math.max(SAVE.unlocked, 2);
-  setTimeout(() => renderShopOv(), 250);
+  const buyParam = (location.search.match(/buy=([\w:]+)/) || [])[1];
+  setTimeout(() => {
+    renderShopOv();
+    if (buyParam) askBuy(buyParam);
+    if (location.search.includes('confirmbuy')) {
+      $('buyYes').dispatchEvent(new Event('pointerdown'));
+      document.title = `BUY comps=${SAVE.comps} owned=${SAVE.owned.join('|')} ` +
+        `paths=${JSON.stringify(SAVE.paths)} dialogOpen=${$('buyConfirm').classList.contains('on')}`;
+    }
+  }, 250);
 }
 
 /* dev: ?waveinfo pops the (i) wave dossier */

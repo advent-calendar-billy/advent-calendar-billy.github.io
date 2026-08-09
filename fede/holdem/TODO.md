@@ -190,6 +190,11 @@ Tracking every piece of playtest feedback. Checked = shipped & pushed.
       and every path says what it does in 3-4 plain words ("shoves crowds back", "ice, slows
       guests", "turns guests to rabbits")
 
+- [x] **Spend screen = list + confirmation step**: rows carry only name + price (3 per row, far
+      less scrolling); tapping any row opens a confirm card with the 3-4 word description,
+      the price, and BUY / BACK. Items you can't afford still open — they show the price in red
+      next to your balance, with CLOSE instead of BUY, so you can plan ahead.
+
 ## Next playtest questions for Billy
 - With 20 lives, do floors 1–10 feel too easy now?
 - Does the rack actually scroll with your thumb on your phone? (can't test that headlessly)
