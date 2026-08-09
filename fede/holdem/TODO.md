@@ -151,6 +151,22 @@ Tracking every piece of playtest feedback. Checked = shipped & pushed.
 - ANSWER: dying on a floor is NOT game over — TRY AGAIN restarts that floor; comps, hires and
   unlocked floors all persist.
 
+## Playtest feedback round 6 (Aug 8)
+- [x] **Full sprite transformations per branch** (your "don't be lazy" — you were right, and the
+      roulette's runtime-built pockets were exactly the kind of shortcut you suspected; they now
+      generate per-variant palettes). Every table has two complete alternate designs: burning
+      table ringed in flame vs frozen table with icicles; gunmetal bolted wheel with hot-metal
+      pockets vs ivory-gold wheel; the waitress herself changes uniform and gear (she was a shared
+      sprite before — the "recolor" wasn't touching her at all); armored iron mortar vs
+      triple-cup thrower; red-coat captain with peaked cap, epaulettes and velvet lane vs
+      surveillance op with monitor, antenna and headset; and so on for all nine tables.
+      Review any of them: `?arttest=dealer` etc.
+- [x] **TIER IV added to every branch** (your "add a tier 4") — 20 new top rungs, 2000-3200 chips:
+      THE SUPERNOVA, HEAT DEATH, THE METEOR, THE IRON CURTAIN, THE MINT, THE RECKONING,
+      THE BIG ONE, LOADED DICE, THE OUTBREAK, PERPETUAL HAPPY HOUR, THE HOUSE LIMIT,
+      PERSONA NON GRATA, THE PANOPTICON... each with its own flavor line.
+- [x] **Halos removed** — the design change IS the upgrade indicator now. No rings, no glow.
+
 ## Next playtest questions for Billy
 - With 20 lives, do floors 1–10 feel too easy now?
 - Does the rack actually scroll with your thumb on your phone? (can't test that headlessly)
