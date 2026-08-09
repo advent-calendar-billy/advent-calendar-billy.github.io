@@ -290,6 +290,19 @@ Tracking every piece of playtest feedback. Checked = shipped & pushed.
 - [x] Floor 10 re-tuned as a consequence — it fielded six boss waves and TWO Auditors at once on
       the smallest finale bankroll, which was only survivable while bosses were paper.
 
+- [x] **Star badges on upgraded towers are gone, permanently.** A ★★ counter kept creeping back
+      in; there is now a boxed comment above `applyTowerLook()` stating the standing rule — never
+      add a level indicator (badge, pip, numeral, counter) to a table. The art is the indicator;
+      if a tier doesn't read, make the DESIGN louder.
+- [x] **Scroll gutter** down the right of the between-floors shop — a 30px empty strip (with a
+      faint rail) so a thumb can scroll the list without landing on a card.
+- [x] **"Where's tier 3?" answered and made obvious.** Nothing was broken — a probe confirmed all
+      four tiers offer correctly (lvl1 → both branches, then Iron Ball → Wrecking Ball → Meteor).
+      The confusion was the gating: ONE comps purchase opens the whole branch, but nothing said
+      so. Now the shop row reads "…— opens all 4 tiers", the confirm card adds "One purchase. You
+      then pay chips for each tier, on the floor.", and a locked in-floor button says NEEDS COMPS
+      instead of a quiet "comps".
+
 ## Next playtest questions for Billy
 - With 20 lives, do floors 1–10 feel too easy now?
 - Does the rack actually scroll with your thumb on your phone? (can't test that headlessly)

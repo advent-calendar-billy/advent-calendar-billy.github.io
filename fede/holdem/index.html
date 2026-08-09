@@ -273,7 +273,13 @@
     font-family: Georgia, serif; color: var(--gold);
     font-size: clamp(17px, 4.6vh, 24px); margin: 2px 0 8px;
   }
-  #shopOvBody { overflow-y: auto; min-height: 0; }
+  #shopOvBody {
+    overflow-y: auto; min-height: 0;
+    /* an empty strip down the right so a thumb can scroll without hitting a card */
+    padding-right: 30px;
+    background:
+      linear-gradient(rgba(232,182,76,.16), rgba(232,182,76,.16)) right 12px top / 3px 100% no-repeat;
+  }
   .sgTitle {
     font-size: 9px; letter-spacing: 2px; color: #9c8757;
     margin: 8px 0 5px; text-align: left;
@@ -3646,7 +3652,7 @@
 
 
 <!-- floating tower menu -->
-<div id="ver">v79</div>
+<div id="ver">v80</div>
 <div id="susLbl">OPERATIONS SUSPENDED · NO BUILDING THIS WAVE</div>
 <div id="shopOv">
   <div id="shopCardOv">
@@ -5674,7 +5680,7 @@ function openSheetForTower(tower) {
     b.className = 'twBtn ' + (!unlocked ? 'locked' : afford ? 'can' : 'poor');
     if (unlocked) b.dataset.cost = tier.cost;
     b.innerHTML = `${tier.name}<span class="c">` +
-      (unlocked ? `◉ ${tier.cost}` : 'comps') + `</span>`;
+      (unlocked ? `◉ ${tier.cost}` : 'NEEDS COMPS') + `</span>`;
     b.title = FLAVOR[tower.type][pk][tower.lvl - 1];
     if (!unlocked) b.addEventListener('pointerdown', ev => {
       ev.stopPropagation();
@@ -5691,12 +5697,6 @@ function openSheetForTower(tower) {
       G.chips -= tier.cost;
       tower.path = pk;
       tower.lvl += 1;
-      if (tower.badge) tower.badge.remove();
-      tower.badge = svgEl('text', {
-        x: 0, y: -34 / TTYPES[tower.type].scale, 'text-anchor': 'middle', 'font-size': 26,
-        fill: '#ffd23f', stroke: '#3b2415', 'stroke-width': 3, 'paint-order': 'stroke'
-      }, tower.el);
-      tower.badge.textContent = '★'.repeat(tower.lvl - 1);
       if (tower.rollCarpet) tower.rollCarpet();
       else if (tower.auraEl) tower.auraEl.setAttribute('r', tower.range());
       applyTowerLook(tower);
@@ -5930,6 +5930,18 @@ function artFor(g, type, path, lvl) {
   }
 }
 
+/* ══════════════════════════════════════════════════════════════════════════════
+   NEVER ADD A LEVEL INDICATOR TO A TOWER.
+
+   No star badges, no pips, no "II"/"III" numerals, no counters of any kind
+   floating over a table to advertise its tier. Standing rule from Billy, given
+   more than once — a gold ★★ badge kept creeping back in here.
+
+   The ART is the indicator: each branch swaps the whole sprite at tier II
+   (see the twX_a / twX_b variants in <defs>) and artFor() escalates that
+   design with every tier after. If a tier does not read at a glance, make the
+   DESIGN louder — bigger flames, more frost, another barrel — never a badge.
+   ══════════════════════════════════════════════════════════════════════════════ */
 function applyTowerLook(tower) {
   const T = TTYPES[tower.type];
   const sc = T.scale * (1 + .06 * Math.min(3, tower.lvl - 1));
@@ -8327,7 +8339,9 @@ function renderShopOv() {
     if (DISABLED.includes(k)) continue;
     h += `<div class="sgTower">${TTYPES[k].name}</div><div class="sgRow">`;
     for (const pk of ['a', 'b']) {
-      h += item('path:' + k + ':' + pk, TSPEC[k][pk].label, BRANCHINFO[k][pk],
+      const tiers = TSPEC[k][pk].tiers;
+      h += item('path:' + k + ':' + pk, TSPEC[k][pk].label,
+                `${BRANCHINFO[k][pk]} — opens all ${tiers.length} tiers`,
                 PATHCOST[k], pathOwned(k, pk), SAVE.comps >= PATHCOST[k],
                 `${TTYPES[k].name} · ${TSPEC[k][pk].label}`);
     }
@@ -8353,7 +8367,10 @@ function askBuy(id) {
   if (!it) return;
   buyPending = it.owned || !it.afford ? null : id;
   $('buyName').textContent = it.name;
-  $('buyWhat').textContent = it.sub;
+  $('buyWhat').innerHTML = it.sub +
+    (id.startsWith('path:')
+      ? '<br><b style="color:#9fc4b2">One purchase. You then pay chips for each tier, on the floor.</b>'
+      : '');
   $('buyPrice').textContent = it.owned ? 'ALREADY YOURS'
     : it.afford ? it.price + ' ◉ COMPS'
     : `${it.price} ◉ — you have ${SAVE.comps}`;
