@@ -252,6 +252,46 @@
     border: 8px solid transparent;
     border-top-color: var(--gold);
   }
+  #shopOv {
+    display: none; position: fixed; inset: 0; z-index: 45;
+    background: rgba(8,6,3,.78); backdrop-filter: blur(3px);
+    align-items: center; justify-content: center;
+  }
+  #shopCardOv {
+    width: min(560px, 94vw); max-height: calc(100dvh - 16px);
+    display: flex; flex-direction: column;
+    background: linear-gradient(180deg, #241b0e, #120d06);
+    border: 3px solid var(--gold); border-radius: 18px;
+    padding: clamp(10px, 2.6vh, 18px) clamp(12px, 3vw, 22px);
+    text-align: center;
+  }
+  #shopOvKind { font-size: 10px; letter-spacing: 3px; color: #9c8757; }
+  #shopOvComps {
+    font-family: Georgia, serif; color: var(--gold);
+    font-size: clamp(17px, 4.6vh, 24px); margin: 2px 0 8px;
+  }
+  #shopOvBody { overflow-y: auto; min-height: 0; }
+  .sgTitle {
+    font-size: 9px; letter-spacing: 2px; color: #9c8757;
+    margin: 8px 0 5px; text-align: left;
+  }
+  .sgRow { display: flex; flex-wrap: wrap; gap: 5px; }
+  .sgItem {
+    flex: 1 1 46%;
+    display: flex; justify-content: space-between; align-items: center; gap: 6px;
+    background: rgba(20,16,10,.7); border: 2px solid #5a4626; border-radius: 9px;
+    padding: 6px 9px; cursor: pointer; min-width: 0;
+  }
+  .sgItem b { font-size: 11px; color: var(--cream); text-align: left; line-height: 1.15; }
+  .sgItem i { font-style: normal; font-size: 10.5px; font-weight: 800; color: var(--gold); white-space: nowrap; }
+  .sgItem.own { opacity: .45; cursor: default; }
+  .sgItem.own i { color: #57c26e; }
+  .sgItem.poor { opacity: .6; cursor: default; }
+  #nextFloorBtn { margin-top: 10px; font-size: 16px; padding: 11px 0; }
+  #shopOvMap {
+    margin-top: 6px; font-size: 10px; color: #9c8757;
+    text-decoration: underline; cursor: pointer;
+  }
   #ver {
     position: fixed; top: 2px; right: 4px; z-index: 55;
     font-size: 8px; color: rgba(232,182,76,.5); letter-spacing: .5px;
@@ -2514,7 +2554,16 @@
 
 
 <!-- floating tower menu -->
-<div id="ver">v67</div>
+<div id="ver">v68</div>
+<div id="shopOv">
+  <div id="shopCardOv">
+    <div id="shopOvKind">BETWEEN FLOORS</div>
+    <h2 id="shopOvComps">◉ 0 COMPS</h2>
+    <div id="shopOvBody"></div>
+    <button class="btn primary" id="nextFloorBtn">FLOOR 2 ▸</button>
+    <div id="shopOvMap">full map</div>
+  </div>
+</div>
 <div id="twMenu">
   <div id="twName">—</div>
   <div id="twStats"></div>
@@ -3039,7 +3088,8 @@ function loadSave() { try { return JSON.parse(localStorage.getItem(SAVE_KEY)) ||
 function saveSave() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(SAVE)); } catch (e) {} }
 const SAVE = Object.assign({ unlocked: 1, comps: 0, upg: {} }, loadSave());
 SAVE.upg = SAVE.upg || {};
-SAVE.owned = SAVE.owned || ['dealer', 'roulette', 'rope', 'cage', 'atm'];
+const DISABLED = ['atm'];                       // benched tables — code stays, shelf doesn't
+SAVE.owned = (SAVE.owned || ['dealer', 'roulette', 'rope', 'cage']).filter(k => !DISABLED.includes(k));
 SAVE.paths = SAVE.paths || {};        // { dealer: { a: true } } — comps-bought branches
 SAVE.perks = SAVE.perks || {};
 const effCost = T => T.cost;
@@ -4164,7 +4214,7 @@ function buildShop(){
   const bar = $('shop');
   bar.innerHTML = '';
   for (const key in TTYPES) {
-    if (!SAVE.owned.includes(key)) continue;    // unhired tables live in the map's comps shop
+    if (!SAVE.owned.includes(key) || DISABLED.includes(key)) continue;
     const T = TTYPES[key];
     const card = document.createElement('div');
     card.className = 'shopCard';
@@ -4468,6 +4518,132 @@ stageSvg.addEventListener('pointerdown', ev => {
 });
 
 /* ══════════ TOWERS ══════════ */
+/* ══════════ BRANCH ART — the table itself changes as it walks a path ══════════
+   drawn in sprite-local coords inside tower.el, so it scales/rotates with the table.
+   A-branches run hot and aggressive; B-branches run cool and wide. lvl is 2..4. */
+function artFor(g, type, path, lvl) {
+  const A = path === 'a', k = lvl - 1;            // k = 1,2,3 intensity
+  const P = (d, fill, stroke, w) => svgEl('path', { d, fill: fill || 'none',
+    stroke: stroke || 'none', 'stroke-width': w || 0, 'stroke-linecap': 'round' }, g);
+  const C = (cx, cy, r, fill, stroke, w) => svgEl('circle', { cx, cy, r, fill,
+    stroke: stroke || 'none', 'stroke-width': w || 0 }, g);
+  const E = (cx, cy, rx, ry, fill) => svgEl('ellipse', { cx, cy, rx, ry, fill }, g);
+  const flame = (x, y, h) =>
+    P(`M ${x} ${y} q ${h * .5} ${-h * .6} 0 ${-h} q ${-h * .5} ${h * .4} 0 ${h}`, '#e8722c', '#8c2f1b', 1.6);
+  if (type === 'dealer') {
+    if (A) {                                       // Aflame: the felt smoulders
+      if (k >= 2) E(0, 6, 26, 15, 'rgba(232,114,44,.16)');
+      for (let i = 0; i < 1 + k; i++) flame(-14 + i * (28 / k), 16, 7 + k * 2);
+      if (k >= 3) { flame(-20, 4, 9); flame(20, 4, 9); }
+    } else {                                       // Cold Deck: frost creeps over the felt
+      E(0, 2, 25, 15, `rgba(160,215,240,${.14 + k * .07})`);
+      svgEl('ellipse', { cx: 0, cy: 2, rx: 25, ry: 15, fill: 'none',
+        stroke: '#cfe9f5', 'stroke-width': 1.2 + k * .7, 'stroke-dasharray': '6 5', opacity: .85 }, g);
+      P('M -19 8 l 3.4 -7 l 3.4 7 z', '#e8f6fc', '#2c4a5c', 1.3);
+      if (k >= 2) P('M 12 12 l 3.4 -7 l 3.4 7 z', '#e8f6fc', '#2c4a5c', 1.3);
+      if (k >= 3) P('M -4 -16 l 4 -8 l 4 8 z', '#ffffff', '#2c4a5c', 1.3);
+    }
+  }
+  if (type === 'roulette') {
+    if (A) {                                       // Steel: bolted, brutal
+      C(0, 0, 26, 'none', '#9aa3ad', 2 + k);
+      for (let i = 0; i < 4 + (k >= 3 ? 4 : 0); i++) {
+        const a = i / (4 + (k >= 3 ? 4 : 0)) * Math.PI * 2;
+        C(Math.cos(a) * 26, Math.sin(a) * 26, 2.6, '#c3c9d2', '#3b2415', 1.2);
+      }
+      if (k >= 2) C(0, 0, 8, '#5f636b', '#3b2415', 1.6);
+    } else {                                       // Ivory: more balls in flight
+      C(0, 0, 27, 'none', '#f5ead1', 1.6 + k * .5);
+      for (let i = 0; i < k; i++) {
+        const a = .8 + i * 2.1;
+        C(Math.cos(a) * 21, Math.sin(a) * 21, 3, '#fffbe8', '#3b2415', 1.4);
+      }
+    }
+  }
+  if (type === 'rope') {
+    if (A) {                                       // Guest List: the clipboard rules
+      P('M 20 -2 l 10 3 l 0 13 l -10 -3 z', '#8a5f33', '#3b2415', 1.8);
+      P('M 22 1 l 6 1.8 l 0 8.5 l -6 -1.8 z', '#f5ead1', '#3b2415', 1);
+      if (k >= 2) C(25, -3, 2.4, 'url(#brassG)', '#3b2415', 1.2);
+      if (k >= 3) P('M -30 22 L 30 22', 'none', '#8f1e2e', 3 + k);   // red carpet line
+    } else {                                       // Cordon: the line grows posts
+      for (const sx of k >= 2 ? [-38, 38] : [-36]) {
+        P(`M ${sx} 2 L ${sx} 16`, 'none', '#3b2415', 4.6);
+        P(`M ${sx} 2 L ${sx} 16`, 'none', '#d9a94f', 2.4);
+        C(sx, 0, 2.6, 'url(#brassG)', '#3b2415', 1.2);
+      }
+      if (k >= 3) P('M -38 4 Q 0 14 38 4', 'none', '#8f1e2e', 3);
+    }
+  }
+  if (type === 'cage') {
+    if (A) {                                       // House Edge: the money piles up
+      for (let i = 0; i < k + 1; i++) {
+        for (let j = 0; j < 2 + (i % 2); j++) C(-10 + i * 8, 2 - j * 3.4, 3.2, '#e8b64c', '#3b2415', 1);
+      }
+    } else {                                       // The Count: green shade, ledger light
+      P('M -12 -14 l 24 0 l -3 6 l -18 0 z', '#2f6b46', '#3b2415', 1.6);
+      if (k >= 2) E(0, 0, 14, 9, 'rgba(140,220,160,.14)');
+      if (k >= 3) { C(-14, -18, 2.2, '#8fd0a0'); C(14, -18, 2.2, '#8fd0a0'); }
+    }
+  }
+  if (type === 'craps') {
+    if (A) {                                       // Hot Roll: the dice glow
+      for (let i = 0; i < k; i++) {
+        const x = -8 + i * 9;
+        C(x, -2, 5.5, '#c9473b', '#3b2415', 1.6);
+        C(x, -2, 1.4, '#fffbe8');
+      }
+      if (k >= 3) E(0, -2, 20, 10, 'rgba(224,87,95,.15)');
+    } else {                                       // Snake Eyes: the big die waits
+      const r = 6 + k * 2;
+      P(`M ${12 - r} ${-2 - r} h ${2 * r} v ${2 * r} h ${-2 * r} z`, '#f5ead1', '#3b2415', 2);
+      C(12 - r / 2, -2 - r / 2, 1.6, '#c9473b');
+      C(12 + r / 2, -2 + r / 2, 1.6, '#c9473b');
+    }
+  }
+  if (type === 'buffet') {
+    if (A) {                                       // Expired Mayo: visible stink
+      for (let i = 0; i < k + 1; i++)
+        P(`M ${-10 + i * 8} -12 q 3 -5 0 -9 q -3 -4 0 -8`, 'none', 'rgba(154,168,106,.75)', 1.8);
+    } else {                                       // Trough: a second tier of trays
+      P('M -16 -10 l 32 0 l -2 6 l -28 0 z', '#c3c9d2', '#3b2415', 1.8);
+      for (let i = 0; i < k + 1; i++) C(-9 + i * 7, -7, 2.4, '#e07b39', '#3b2415', 1);
+    }
+  }
+  if (type === 'waitress') {
+    if (A) {                                       // Open Bar: the tray fills up
+      for (let i = 0; i < k + 1; i++) C(4 + i * 5, -22 - (i % 2) * 3, 2.2, '#cfe9f5', '#3b2415', 1);
+      if (k >= 2) { P('M -24 6 l 8 0', 'none', 'rgba(245,234,209,.6)', 1.8); P('M -26 12 l 10 0', 'none', 'rgba(245,234,209,.5)', 1.8); }
+      if (k >= 3) P('M -22 18 l 7 0', 'none', 'rgba(245,234,209,.45)', 1.8);
+    } else {                                       // VIP: the champagne bucket
+      P('M 16 8 l 12 0 l -2 10 l -8 0 z', '#c3c9d2', '#3b2415', 1.8);
+      P('M 22 8 l 2 -8', 'none', '#2f6b46', 3);
+      C(24.4, -2, 2, '#e8b64c', '#3b2415', 1);
+      if (k >= 3) for (let i = 0; i < 3; i++) C(20 + i * 3, -8 - i * 2, 1, '#fffbe8');
+    }
+  }
+  if (type === 'catapult') {
+    if (A) {                                       // Mortar: iron-banded, overloaded
+      P('M -6 -4 l 12 8', 'none', '#5f636b', 4);
+      for (let i = 0; i < k + 1; i++) C(10 + (i % 2) * 5, 6 - Math.floor(i / 2) * 4, 3.4, '#e8b64c', '#3b2415', 1.2);
+    } else {                                       // Scattershot: extra cups
+      for (const dx of k >= 2 ? [-7, 7] : [7])
+        C(dx, -12, 3.6, '#8a5f33', '#3b2415', 1.6);
+      if (k >= 3) C(0, -16, 3.6, '#8a5f33', '#3b2415', 1.6);
+    }
+  }
+  if (type === 'security') {
+    if (A) {                                       // Bouncer: the podium gets a velvet lane
+      P('M -20 26 L 20 26', 'none', '#8f1e2e', 3 + k * 1.5);
+      if (k >= 2) { C(-20, 24, 2.4, 'url(#brassG)', '#3b2415', 1.2); C(20, 24, 2.4, 'url(#brassG)', '#3b2415', 1.2); }
+      if (k >= 3) C(0, -30, 3, '#e0575f', '#3b2415', 1.4);          // the ejection lamp
+    } else {                                       // Plainclothes: more earpieces on the floor
+      for (let i = 0; i < k; i++)
+        P(`M ${14 + i * 5} ${-10 - i * 3} q 3 3 0 6`, 'none', '#c3c9d2', 1.6);
+    }
+  }
+}
+
 /* path A runs hot brass, path B runs cold steel — so a built floor is readable at a glance */
 const PATHLOOK = {
   a: { ring: '#d9a94f', hi: '#ffe9b0', glow: 'rgba(255,200,90,.10)', stud: 'url(#brassG)' },
@@ -4478,7 +4654,12 @@ function applyTowerLook(tower) {
   const sc = T.scale * (1 + .06 * Math.min(3, tower.lvl - 1));
   tower.el.setAttribute('transform', `translate(${tower.x},${tower.y}) rotate(${tower.rot}) scale(${sc})`);
   if (tower.dress) tower.dress.remove();
+  if (tower.artG) { tower.artG.remove(); tower.artG = null; }
   if (tower.lvl < 2) { tower.dress = null; return; }
+  if (tower.path) {
+    tower.artG = svgEl('g', { 'pointer-events': 'none' }, tower.el);
+    artFor(tower.artG, tower.type, tower.path, tower.lvl);
+  }
   const g = svgEl('g', { 'pointer-events': 'none' }, $('towersG'));
   const r = tower.r + 7;
   const P = PATHLOOK[tower.path] || PATHLOOK.a;
@@ -6120,6 +6301,7 @@ function initRoom(i, resume, altKey) {
     G.stars = M.stars;
     G.seen = M.seen || {};
     for (const tw of M.towers) {
+      if (DISABLED.includes(tw.k)) continue;
       const t = buildTower(tw.k, tw.x, tw.y);
       t.path = tw.w || null;
       t.lvl = tw.l;
@@ -6517,12 +6699,17 @@ $('spinBtn').addEventListener('pointerdown', ev => {
           hitLines.push(L);
         }
       }
+      // a left-pair on a row pays small — nearly every other spin gives SOMETHING back
+      for (const L of SLOT_LINES.slice(0, 3)) {
+        const [a, b, c] = L.map(i => final[i]);
+        if (a === b && b !== c && SLOT_PAY[a]) win += Math.max(10, Math.round(SLOT_PAY[a] / 10 / 5) * 5);
+      }
       const stars = final.filter(x => x === 'symStar').length;
       if (stars >= 3) {
         SLOT.free += 10;
         msgs.push('10 FREE GAMES!');
       }
-      if (win) msgs.push('LINE HIT +' + win);
+      if (win) msgs.push('+' + win);
       let msg = msgs.length ? msgs.join(' · ') : 'So close.';
       if (win && wasFree) {
         if (SLOT.bonusWon + win > SLOT.CAP) {
@@ -6555,6 +6742,64 @@ $('cashBtn').addEventListener('pointerdown', ev => {
   SAVE.roomStars[ROOM] = Math.max(SAVE.roomStars[ROOM] || 0, starRating());
   SAVE.unlocked = Math.max(SAVE.unlocked, Math.min(ROOM + 2, ROOMS.length + 1));
   saveSave();
+  $('slots').style.display = 'none';
+  renderShopOv();
+});
+
+/* the spend screen: shows up right after the slot pays out, nothing else between
+   you and the next floor (Billy: purchases should appear after the machine) */
+function renderShopOv() {
+  const body = $('shopOvBody');
+  $('shopOvComps').textContent = '◉ ' + SAVE.comps + ' COMPS';
+  const next = Math.min(SAVE.unlocked - 1, ROOMS.length);
+  $('nextFloorBtn').textContent = next >= ROOMS.length ? 'AFTER HOURS ▸' : `FLOOR ${next + 1} ▸`;
+  let h = '';
+  const item = (id, name, price, owned, afford) =>
+    `<div class="sgItem ${owned ? 'own' : afford ? '' : 'poor'}" data-buy="${owned || !afford ? '' : id}">
+       <b>${name}</b><i>${owned ? 'OWNED' : price + ' ◉'}</i></div>`;
+  h += '<div class="sgTitle">HIRE</div><div class="sgRow">';
+  for (const k in HIRECOST) {
+    if (DISABLED.includes(k)) continue;
+    h += item('hire:' + k, TTYPES[k].name, HIRECOST[k], SAVE.owned.includes(k), SAVE.comps >= HIRECOST[k]);
+  }
+  h += '</div><div class="sgTitle">UPGRADE PATHS · TIERS II & III</div><div class="sgRow">';
+  for (const k of SAVE.owned) {
+    if (DISABLED.includes(k)) continue;
+    for (const pk of ['a', 'b']) {
+      h += item('path:' + k + ':' + pk, `${TTYPES[k].name} · ${TSPEC[k][pk].label}`,
+                PATHCOST[k], pathOwned(k, pk), SAVE.comps >= PATHCOST[k]);
+    }
+  }
+  h += '</div><div class="sgTitle">THE HOUSE</div><div class="sgRow">';
+  h += item('perk:star', '25 reputation floors', 120, !!SAVE.perks.star, SAVE.comps >= 120);
+  h += item('perk:spins', '+2 slot spins', 35, (SAVE.perks.spins || 0) >= 3, SAVE.comps >= 35);
+  h += '</div>';
+  body.innerHTML = h;
+  body.querySelectorAll('[data-buy]').forEach(el => {
+    const id = el.dataset.buy;
+    if (!id) return;
+    el.addEventListener('pointerdown', ev => {
+      ev.stopPropagation();
+      const [kind, a, b] = id.split(':');
+      if (kind === 'hire') { SAVE.comps -= HIRECOST[a]; SAVE.owned.push(a); }
+      if (kind === 'path') { SAVE.comps -= PATHCOST[a]; (SAVE.paths[a] = SAVE.paths[a] || {})[b] = true; }
+      if (kind === 'perk' && a === 'star') { SAVE.comps -= 120; SAVE.perks.star = true; }
+      if (kind === 'perk' && a === 'spins') { SAVE.comps -= 35; SAVE.perks.spins = (SAVE.perks.spins || 0) + 1; }
+      SFX.cash();
+      saveSave();
+      renderShopOv();
+    });
+  });
+  $('shopOv').style.display = 'flex';
+}
+$('nextFloorBtn').addEventListener('pointerdown', ev => {
+  ev.stopPropagation();
+  const next = Math.min(SAVE.unlocked - 1, ROOMS.length);
+  try { sessionStorage.setItem('holdem-goto', String(next + 1)); } catch (e) {}
+  location.reload();
+});
+$('shopOvMap').addEventListener('pointerdown', ev => {
+  ev.stopPropagation();
   try { sessionStorage.setItem('toMap', '1'); } catch (e) {}
   location.reload();
 });
@@ -6663,7 +6908,7 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http') && !loc
 document.addEventListener('gesturestart', e => e.preventDefault());
 document.addEventListener('dblclick', e => e.preventDefault());
 
-if (/gallery|autotest|ropetest|ropeshow|mechshow|slottest|pausetest|sheettest|ridetest|depthtest|dragtest|dossier|twinfo|unlockall|room=/.test(location.search)) {
+if (/gallery|autotest|ropetest|ropeshow|mechshow|slottest|shoptest|arttest|pausetest|sheettest|ridetest|depthtest|dragtest|dossier|twinfo|unlockall|room=/.test(location.search)) {
   $('title').style.display = 'none';
 }
 
@@ -6875,6 +7120,34 @@ if (mechParam) {
     `plagued=${G.enemies.filter(e => e.plague).length} ` +
     `alive=${G.enemies.length} live=` +
     G.projectiles.map(q => q.kind + (q.kind === 'die' ? '@' + Math.round(q.d) : '')).join(',');
+}
+
+/* dev: ?arttest=<type> renders base + both branches x 3 tiers, large */
+const artParam = location.search.match(/arttest=(\w+)/);
+if (artParam && TTYPES[artParam[1]]) {
+  const key = artParam[1];
+  document.querySelectorAll('#hud,#startWave,#shop,#nextWave,#modal,#map,#slots,#title').forEach(n => n && (n.style.display = 'none'));
+  G.paused = true; G.over = true;
+  const gal = svgEl('g', {}, stageSvg);
+  svgEl('rect', { width: 1120, height: 630, fill: '#0b3d2e' }, gal);
+  const states = [[null, 1, 'BASE'], ['a', 2, 'A·II'], ['a', 3, 'A·III'], ['a', 4, 'A·IV'],
+                  ['b', 2, 'B·II'], ['b', 3, 'B·III'], ['b', 4, 'B·IV']];
+  states.forEach(([pk, lvl, lbl], i) => {
+    const x = 90 + (i % 4) * 260, y = i < 4 ? 170 : 430;
+    svgEl('circle', { cx: x, cy: y, r: 95, fill: 'rgba(0,0,0,.28)' }, gal);
+    const h = svgEl('g', { transform: `translate(${x},${y}) scale(2.2)` }, gal);
+    svgEl('use', { href: '#' + TTYPES[key].sprite }, h);
+    if (pk) { const ag = svgEl('g', {}, h); artFor(ag, key, pk, lvl); }
+    svgEl('text', { x, y: y + 128, 'text-anchor': 'middle', 'font-size': 17, fill: '#e8b64c',
+                    'font-weight': 'bold', 'font-family': 'Georgia' }, gal).textContent = lbl;
+  });
+}
+
+/* dev: ?shoptest shows the between-floors spend screen */
+if (location.search.includes('shoptest')) {
+  SAVE.comps = 130;
+  SAVE.unlocked = Math.max(SAVE.unlocked, 2);
+  setTimeout(() => renderShopOv(), 250);
 }
 
 /* dev: ?waveinfo pops the (i) wave dossier */

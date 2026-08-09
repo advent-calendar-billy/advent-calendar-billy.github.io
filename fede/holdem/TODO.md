@@ -133,6 +133,24 @@ Tracking every piece of playtest feedback. Checked = shipped & pushed.
 - Probe status (honest bot): floors 1, 4-30 all clear; forked floors 2-3 reach wave 4-7 (the
   fixed-spot bot is worst exactly there — humans place the join). Re-test 2-3 in hand please.
 
+## Playtest feedback round 5 (Aug 8, late night)
+- [x] **BRANCH ART, for real this time** — upgrading changes the table itself, mid-wave:
+      Aflame dealers grow flames on the felt, Cold Deck felts frost over and throw ice-blue
+      cards; Steel roulette gets a bolted industrial rim, Ivory adds balls in flight; the
+      Guest List rope gets its clipboard + red carpet, the Cordon grows extra stanchions;
+      the cage window fills with coin stacks (A) or a counting-house shade + lamps (B);
+      craps stacks glowing red dice vs one growing snake-eyes die; buffet steams harder vs
+      adds a tray tier; waitress fills her tray vs champagne bucket; catapult iron band +
+      chip ammo vs extra cups; security rolls out a velvet lane + ejection lamp vs radios.
+      Review sheets: `?arttest=<type>`.
+- [x] **ATM benched** (disabled, not deleted) — off the rack, shop, and starting set
+- [x] **Slots feel like slots** — row pairs now pay small (~half of spins return something);
+      full lines unchanged. The old odds: ~18% per spin, so 10 dry spins were genuinely possible.
+- [x] **Purchases appear right after the slot cash-out** — a focused spend screen (hire /
+      paths / house) with one big NEXT FLOOR button. No map scroll. "full map" is a small link.
+- ANSWER: dying on a floor is NOT game over — TRY AGAIN restarts that floor; comps, hires and
+  unlocked floors all persist.
+
 ## Next playtest questions for Billy
 - With 20 lives, do floors 1–10 feel too easy now?
 - Does the rack actually scroll with your thumb on your phone? (can't test that headlessly)
