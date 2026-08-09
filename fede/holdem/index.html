@@ -32,6 +32,8 @@
   @media (max-width: 700px) { :root { --rack: 88px; } }
   #stage { width: 100%; height: 100%; display: block; touch-action: none; }
   #wrap.shake { animation: shake .45s linear; }
+  @keyframes pukeIn { from { transform: scale(.2); opacity: 0; } }
+  @keyframes pukeOut { to { opacity: 0; } }
   @keyframes maxBreath { 0%, 100% { opacity: .45; } 50% { opacity: 1; } }
   @keyframes maxOrbit { to { stroke-dashoffset: -96; } }
   @keyframes shake {
@@ -1652,6 +1654,50 @@
         </g>
       </g>
 
+      <g id="twBouncer">
+        <ellipse cx="0" cy="28" rx="34" ry="8" fill="rgba(40,16,8,.4)"/>
+        <!-- enormous shoulders, black tee, arms like hams -->
+        <path d="M-24 26 Q -28 -2 -14 -10 L 14 -10 Q 28 -2 24 26 Q 0 32 -24 26 Z"
+              fill="#1d1f24" stroke="#3b2415" stroke-width="3.6"/>
+        <path d="M-24 4 Q -30 8 -28 18" fill="none" stroke="#f2b98c" stroke-width="9" stroke-linecap="round"/>
+        <path d="M24 4 Q 30 8 28 18" fill="none" stroke="#f2b98c" stroke-width="9" stroke-linecap="round"/>
+        <path d="M-14 -10 L 0 2 L 14 -10" fill="none" stroke="#2b2f38" stroke-width="3"/>
+        <!-- SHOTGUN, held across the chest -->
+        <g transform="rotate(-14)">
+          <rect x="-6" y="4" width="44" height="5.4" rx="2.4" fill="#3d434b" stroke="#1e1a16" stroke-width="2"/>
+          <rect x="-6" y="9" width="44" height="4" rx="2" fill="#5f636b" stroke="#1e1a16" stroke-width="1.6"/>
+          <path d="M-6 4 L -18 14 L -12 18 L -2 11 Z" fill="#6b4423" stroke="#3b2415" stroke-width="2.4"/>
+          <rect x="10" y="12" width="13" height="5" rx="2" fill="#8a5f33" stroke="#3b2415" stroke-width="1.8"/>
+          <circle cx="39" cy="6.6" r="3" fill="#1e1a16" stroke="#3b2415" stroke-width="1.6"/>
+        </g>
+        <!-- bald head, earpiece, tiny sunglasses, goatee -->
+        <circle cx="0" cy="-20" r="11" fill="#f2b98c" stroke="#3b2415" stroke-width="3.6"/>
+        <path d="M-11 -23 Q 0 -33 11 -23" fill="#f2b98c" stroke="#3b2415" stroke-width="2.4"/>
+        <rect x="-9.5" y="-23" width="19" height="5.4" rx="2.6" fill="#141821" stroke="#3b2415" stroke-width="1.8"/>
+        <path d="M-3.4 -13 Q 0 -10.4 3.4 -13" fill="none" stroke="#3b2415" stroke-width="1.8"/>
+        <path d="M-4 -12.5 L 4 -12.5 L 3 -9 L -3 -9 Z" fill="#4a3a26" stroke="#3b2415" stroke-width="1.4"/>
+        <circle cx="11.5" cy="-19" r="2.2" fill="#c3c9d2" stroke="#3b2415" stroke-width="1.4"/>
+        <path d="M12 -17 q 3 4 0 8" fill="none" stroke="#c3c9d2" stroke-width="1.4"/>
+      </g>
+      <g id="twSniper">
+        <ellipse cx="0" cy="28" rx="32" ry="8" fill="rgba(40,16,8,.4)"/>
+        <!-- sandbag rest -->
+        <ellipse cx="-2" cy="18" rx="24" ry="8" fill="#8a7248" stroke="#3b2415" stroke-width="3"/>
+        <path d="M-20 15 q 8 -5 17 0 q 8 -5 17 0" fill="none" stroke="#6b5a3a" stroke-width="2.2"/>
+        <!-- prone marksman in a dinner jacket -->
+        <path d="M-20 8 Q -8 0 8 2 L 20 6 Q 22 12 14 13 L -14 13 Q -22 12 -20 8 Z"
+              fill="#20242c" stroke="#3b2415" stroke-width="3.2"/>
+        <circle cx="-13" cy="2" r="8" fill="#f2b98c" stroke="#3b2415" stroke-width="3"/>
+        <path d="M-21 -2 Q -13 -9 -5 -2 L -5 1 L -21 1 Z" fill="#1e1a16" stroke="#3b2415" stroke-width="2"/>
+        <!-- the long rifle on its bipod, scope glinting -->
+        <rect x="-6" y="-2" width="46" height="4.6" rx="2.2" fill="#3d434b" stroke="#1e1a16" stroke-width="2"/>
+        <rect x="2" y="-9" width="17" height="6" rx="3" fill="#141821" stroke="#1e1a16" stroke-width="2"/>
+        <circle cx="18" cy="-6" r="2.6" fill="#7fd8f0" stroke="#1e1a16" stroke-width="1.4"/>
+        <circle cx="16.6" cy="-7" r="1" fill="#ffffff"/>
+        <path d="M30 2.6 L 26 14 M 30 2.6 L 36 14" stroke="#3d434b" stroke-width="2.6" stroke-linecap="round"/>
+        <path d="M-6 0 L -14 6" stroke="#6b4423" stroke-width="4.4" stroke-linecap="round"/>
+        <circle cx="41" cy="0.3" r="2.4" fill="#1e1a16" stroke="#3b2415" stroke-width="1.4"/>
+      </g>
       <g id="twMagic">
         <ellipse cx="0" cy="28" rx="32" ry="8" fill="rgba(40,16,8,.4)"/>
         <!-- little stage -->
@@ -1683,6 +1729,24 @@
           <path d="M-2.2 -8.5 l 1.3 0 M .9 -8.5 l 1.3 0" stroke="#1e1a16" stroke-width="1.4" stroke-linecap="round"/>
           <path d="M-1.6 -5.6 L 1.6 -5.6" stroke="#3b2415" stroke-width="1.2"/>
         </g>
+      </g>
+      <g id="sprDove">
+        <ellipse cx="0" cy="12" rx="9" ry="3.6" fill="rgba(40,16,8,.35)"/>
+        <ellipse cx="0" cy="2" rx="8.5" ry="6.5" fill="#ffffff" stroke="#3b2415" stroke-width="2.4"/>
+        <path d="M-2 -1 Q -12 -6 -14 2 Q -8 4 -2 3 Z" fill="#f2f6f8" stroke="#3b2415" stroke-width="2"/>
+        <path d="M9 4 Q 16 6 18 2" fill="none" stroke="#3b2415" stroke-width="2.2"/>
+        <circle cx="-1" cy="-7" r="5" fill="#ffffff" stroke="#3b2415" stroke-width="2.4"/>
+        <path d="M-6 -8 L -10 -6.5 L -6 -5 Z" fill="#e8b64c" stroke="#3b2415" stroke-width="1.4"/>
+        <circle cx="-2.5" cy="-8.5" r="1" fill="#1e1a16"/>
+      </g>
+      <g id="sprFrog">
+        <ellipse cx="0" cy="12" rx="10" ry="3.6" fill="rgba(40,16,8,.35)"/>
+        <ellipse cx="0" cy="4" rx="10" ry="7" fill="#6fbf4a" stroke="#3b2415" stroke-width="2.6"/>
+        <path d="M-10 8 q -5 2 -3 5 M 10 8 q 5 2 3 5" fill="none" stroke="#3b2415" stroke-width="2.4" stroke-linecap="round"/>
+        <circle cx="-4.5" cy="-4" r="4" fill="#8ed46a" stroke="#3b2415" stroke-width="2.2"/>
+        <circle cx="4.5" cy="-4" r="4" fill="#8ed46a" stroke="#3b2415" stroke-width="2.2"/>
+        <circle cx="-4.5" cy="-4.5" r="1.5" fill="#1e1a16"/><circle cx="4.5" cy="-4.5" r="1.5" fill="#1e1a16"/>
+        <path d="M-5 5 Q 0 8 5 5" fill="none" stroke="#3b2415" stroke-width="1.8"/>
       </g>
       <g id="sprRabbit">
         <ellipse cx="0" cy="12" rx="10" ry="4" fill="rgba(40,16,8,.35)"/>
@@ -3271,6 +3335,94 @@
           <path d="M-1.6 -5.6 L 1.6 -5.6" stroke="#3b2415" stroke-width="1.2"/>
         </g>
       <path d="M -26 6 q 4 -7 0 -13 q -4 -6 0 -12" fill="none" stroke="rgba(200,170,230,.7)" stroke-width="2.6" stroke-linecap="round"/><path d="M 27 2 q 4 -7 0 -13 q -4 -6 0 -12" fill="none" stroke="rgba(200,170,230,.55)" stroke-width="2.2" stroke-linecap="round"/><ellipse cx="0" cy="24" rx="26" ry="4" fill="rgba(160,120,200,.25)"/><rect x="24" y="-20" width="10" height="16" rx="2" fill="#d7ecf7" stroke="#3b2415" stroke-width="2" transform="rotate(8 29 -12)" opacity=".9"/></g>
+      <g id="twBouncer_a">
+        <ellipse cx="0" cy="28" rx="34" ry="8" fill="rgba(40,16,8,.4)"/>
+        <!-- enormous shoulders, black tee, arms like hams -->
+        <path d="M-24 26 Q -28 -2 -14 -10 L 14 -10 Q 28 -2 24 26 Q 0 32 -24 26 Z"
+              fill="#4a1119" stroke="#3b2415" stroke-width="3.6"/>
+        <path d="M-24 4 Q -30 8 -28 18" fill="none" stroke="#f2b98c" stroke-width="9" stroke-linecap="round"/>
+        <path d="M24 4 Q 30 8 28 18" fill="none" stroke="#f2b98c" stroke-width="9" stroke-linecap="round"/>
+        <path d="M-14 -10 L 0 2 L 14 -10" fill="none" stroke="#5e1620" stroke-width="3"/>
+        <!-- SHOTGUN, held across the chest -->
+        <g transform="rotate(-14)">
+          <rect x="-6" y="4" width="44" height="5.4" rx="2.4" fill="#3d434b" stroke="#1e1a16" stroke-width="2"/>
+          <rect x="-6" y="9" width="44" height="4" rx="2" fill="#5f636b" stroke="#1e1a16" stroke-width="1.6"/>
+          <path d="M-6 4 L -18 14 L -12 18 L -2 11 Z" fill="#6b4423" stroke="#3b2415" stroke-width="2.4"/>
+          <rect x="10" y="12" width="13" height="5" rx="2" fill="#8a5f33" stroke="#3b2415" stroke-width="1.8"/>
+          <circle cx="39" cy="6.6" r="3" fill="#1e1a16" stroke="#3b2415" stroke-width="1.6"/>
+        </g>
+        <!-- bald head, earpiece, tiny sunglasses, goatee -->
+        <circle cx="0" cy="-20" r="11" fill="#f2b98c" stroke="#3b2415" stroke-width="3.6"/>
+        <path d="M-11 -23 Q 0 -33 11 -23" fill="#f2b98c" stroke="#3b2415" stroke-width="2.4"/>
+        <rect x="-9.5" y="-23" width="19" height="5.4" rx="2.6" fill="#141821" stroke="#3b2415" stroke-width="1.8"/>
+        <path d="M-3.4 -13 Q 0 -10.4 3.4 -13" fill="none" stroke="#3b2415" stroke-width="1.8"/>
+        <path d="M-4 -12.5 L 4 -12.5 L 3 -9 L -3 -9 Z" fill="#4a3a26" stroke="#3b2415" stroke-width="1.4"/>
+        <circle cx="11.5" cy="-19" r="2.2" fill="#c3c9d2" stroke="#3b2415" stroke-width="1.4"/>
+        <path d="M12 -17 q 3 4 0 8" fill="none" stroke="#c3c9d2" stroke-width="1.4"/>
+      <g transform="rotate(-14)"><rect x="-6" y="-1.6" width="46" height="5" rx="2.4" fill="#3d434b" stroke="#1e1a16" stroke-width="2"/><circle cx="41" cy="0.9" r="3.4" fill="#1e1a16" stroke="#3b2415" stroke-width="1.6"/><circle cx="41" cy="6.6" r="3.4" fill="#1e1a16" stroke="#3b2415" stroke-width="1.6"/></g><path d="M-22 6 L 20 16" stroke="#8a5f33" stroke-width="6" stroke-linecap="round"/><rect x="-19" y="7.4" width="4.4" height="6" rx="1.4" fill="#c9473b" stroke="#3b2415" stroke-width="1.2" transform="rotate(13 -17 10.0)"/><rect x="-12" y="9.1" width="4.4" height="6" rx="1.4" fill="#c9473b" stroke="#3b2415" stroke-width="1.2" transform="rotate(13 -10 11.7)"/><rect x="-5" y="10.8" width="4.4" height="6" rx="1.4" fill="#c9473b" stroke="#3b2415" stroke-width="1.2" transform="rotate(13 -3 13.4)"/><rect x="2" y="12.5" width="4.4" height="6" rx="1.4" fill="#c9473b" stroke="#3b2415" stroke-width="1.2" transform="rotate(13 4 15.1)"/><rect x="9" y="14.2" width="4.4" height="6" rx="1.4" fill="#c9473b" stroke="#3b2415" stroke-width="1.2" transform="rotate(13 11 16.8)"/><rect x="16" y="15.9" width="4.4" height="6" rx="1.4" fill="#c9473b" stroke="#3b2415" stroke-width="1.2" transform="rotate(13 18 18.5)"/></g>
+      <g id="twBouncer_b">
+        <ellipse cx="0" cy="28" rx="34" ry="8" fill="rgba(40,16,8,.4)"/>
+        <!-- enormous shoulders, black tee, arms like hams -->
+        <path d="M-24 26 Q -28 -2 -14 -10 L 14 -10 Q 28 -2 24 26 Q 0 32 -24 26 Z"
+              fill="#1a2a3a" stroke="#3b2415" stroke-width="3.6"/>
+        <path d="M-24 4 Q -30 8 -28 18" fill="none" stroke="#f2b98c" stroke-width="9" stroke-linecap="round"/>
+        <path d="M24 4 Q 30 8 28 18" fill="none" stroke="#f2b98c" stroke-width="9" stroke-linecap="round"/>
+        <path d="M-14 -10 L 0 2 L 14 -10" fill="none" stroke="#24384a" stroke-width="3"/>
+        <!-- SHOTGUN, held across the chest -->
+        <g transform="rotate(-14)">
+          <rect x="-6" y="4" width="44" height="5.4" rx="2.4" fill="#3d434b" stroke="#1e1a16" stroke-width="2"/>
+          <rect x="-6" y="9" width="44" height="4" rx="2" fill="#5f636b" stroke="#1e1a16" stroke-width="1.6"/>
+          <path d="M-6 4 L -18 14 L -12 18 L -2 11 Z" fill="#6b4423" stroke="#3b2415" stroke-width="2.4"/>
+          <rect x="10" y="12" width="13" height="5" rx="2" fill="#8a5f33" stroke="#3b2415" stroke-width="1.8"/>
+          <circle cx="39" cy="6.6" r="3" fill="#1e1a16" stroke="#3b2415" stroke-width="1.6"/>
+        </g>
+        <!-- bald head, earpiece, tiny sunglasses, goatee -->
+        <circle cx="0" cy="-20" r="11" fill="#f2b98c" stroke="#3b2415" stroke-width="3.6"/>
+        <path d="M-11 -23 Q 0 -33 11 -23" fill="#f2b98c" stroke="#3b2415" stroke-width="2.4"/>
+        <rect x="-9.5" y="-23" width="19" height="5.4" rx="2.6" fill="#141821" stroke="#3b2415" stroke-width="1.8"/>
+        <path d="M-3.4 -13 Q 0 -10.4 3.4 -13" fill="none" stroke="#3b2415" stroke-width="1.8"/>
+        <path d="M-4 -12.5 L 4 -12.5 L 3 -9 L -3 -9 Z" fill="#4a3a26" stroke="#3b2415" stroke-width="1.4"/>
+        <circle cx="11.5" cy="-19" r="2.2" fill="#c3c9d2" stroke="#3b2415" stroke-width="1.4"/>
+        <path d="M12 -17 q 3 4 0 8" fill="none" stroke="#c3c9d2" stroke-width="1.4"/>
+      <path d="M-16 -6 L 16 -6 L 14 10 L -14 10 Z" fill="#2f4a5e" stroke="#3b2415" stroke-width="2.6"/><path d="M-16 0 L 16 0 M -16 5 L 16 5" stroke="#44637a" stroke-width="1.8"/><g transform="rotate(-14)"><path d="M36 1 L 50 -4 L 50 13 L 36 8 Z" fill="#5f636b" stroke="#1e1a16" stroke-width="2.2"/></g><g transform="translate(-24,4) scale(.62)" opacity=".92"><path d="M-16 26 Q -18 0 -8 -6 L 8 -6 Q 18 0 16 26 Z" fill="#24384a" stroke="#3b2415" stroke-width="4"/><circle cx="0" cy="-18" r="10" fill="#f2b98c" stroke="#3b2415" stroke-width="4"/><rect x="-9" y="-21" width="18" height="5" rx="2.4" fill="#141821" stroke="#3b2415" stroke-width="2"/></g></g>
+      <g id="twSniper_a">
+        <ellipse cx="0" cy="28" rx="32" ry="8" fill="rgba(40,16,8,.4)"/>
+        <!-- sandbag rest -->
+        <ellipse cx="-2" cy="18" rx="24" ry="8" fill="#8a7248" stroke="#3b2415" stroke-width="3"/>
+        <path d="M-20 15 q 8 -5 17 0 q 8 -5 17 0" fill="none" stroke="#6b5a3a" stroke-width="2.2"/>
+        <!-- prone marksman in a dinner jacket -->
+        <path d="M-20 8 Q -8 0 8 2 L 20 6 Q 22 12 14 13 L -14 13 Q -22 12 -20 8 Z"
+              fill="#2b3a2c" stroke="#3b2415" stroke-width="3.2"/>
+        <circle cx="-13" cy="2" r="8" fill="#f2b98c" stroke="#3b2415" stroke-width="3"/>
+        <path d="M-21 -2 Q -13 -9 -5 -2 L -5 1 L -21 1 Z" fill="#1e1a16" stroke="#3b2415" stroke-width="2"/>
+        <!-- the long rifle on its bipod, scope glinting -->
+        <rect x="-6" y="-2" width="46" height="4.6" rx="2.2" fill="#2f353c" stroke="#1e1a16" stroke-width="2"/>
+        <rect x="2" y="-9" width="17" height="6" rx="3" fill="#141821" stroke="#1e1a16" stroke-width="2"/>
+        <circle cx="18" cy="-6" r="2.6" fill="#7fd8f0" stroke="#1e1a16" stroke-width="1.4"/>
+        <circle cx="16.6" cy="-7" r="1" fill="#ffffff"/>
+        <path d="M30 2.6 L 26 14 M 30 2.6 L 36 14" stroke="#2f353c" stroke-width="2.6" stroke-linecap="round"/>
+        <path d="M-6 0 L -14 6" stroke="#6b4423" stroke-width="4.4" stroke-linecap="round"/>
+        <circle cx="41" cy="0.3" r="2.4" fill="#1e1a16" stroke="#3b2415" stroke-width="1.4"/>
+      <rect x="38" y="-1.6" width="26" height="3.8" rx="1.9" fill="#2f353c" stroke="#1e1a16" stroke-width="1.8"/><circle cx="66" cy="0.3" r="2.6" fill="#1e1a16" stroke="#3b2415" stroke-width="1.4"/><rect x="0" y="-13" width="23" height="8" rx="4" fill="#0e1116" stroke="#1e1a16" stroke-width="2.2"/><circle cx="21" cy="-9" r="3.4" fill="#7fd8f0" stroke="#1e1a16" stroke-width="1.6"/><path d="M52 2 L 46 16 M 52 2 L 60 16 M 52 2 L 53 17" stroke="#2f353c" stroke-width="2.4" stroke-linecap="round"/><rect x="-24" y="6" width="12" height="9" rx="1.6" fill="#f5ead1" stroke="#3b2415" stroke-width="1.6"/><path d="M-22 9 h 8 M -22 11.4 h 8" stroke="#8a7a60" stroke-width="1"/></g>
+      <g id="twSniper_b">
+        <ellipse cx="0" cy="28" rx="32" ry="8" fill="rgba(40,16,8,.4)"/>
+        <!-- sandbag rest -->
+        <ellipse cx="-2" cy="18" rx="24" ry="8" fill="#8a7248" stroke="#3b2415" stroke-width="3"/>
+        <path d="M-20 15 q 8 -5 17 0 q 8 -5 17 0" fill="none" stroke="#6b5a3a" stroke-width="2.2"/>
+        <!-- prone marksman in a dinner jacket -->
+        <path d="M-20 8 Q -8 0 8 2 L 20 6 Q 22 12 14 13 L -14 13 Q -22 12 -20 8 Z"
+              fill="#3a2030" stroke="#3b2415" stroke-width="3.2"/>
+        <circle cx="-13" cy="2" r="8" fill="#f2b98c" stroke="#3b2415" stroke-width="3"/>
+        <path d="M-21 -2 Q -13 -9 -5 -2 L -5 1 L -21 1 Z" fill="#1e1a16" stroke="#3b2415" stroke-width="2"/>
+        <!-- the long rifle on its bipod, scope glinting -->
+        <rect x="-6" y="-2" width="46" height="4.6" rx="2.2" fill="#4a2b3a" stroke="#1e1a16" stroke-width="2"/>
+        <rect x="2" y="-9" width="17" height="6" rx="3" fill="#141821" stroke="#1e1a16" stroke-width="2"/>
+        <circle cx="18" cy="-6" r="2.6" fill="#7fd8f0" stroke="#1e1a16" stroke-width="1.4"/>
+        <circle cx="16.6" cy="-7" r="1" fill="#ffffff"/>
+        <path d="M30 2.6 L 26 14 M 30 2.6 L 36 14" stroke="#4a2b3a" stroke-width="2.6" stroke-linecap="round"/>
+        <path d="M-6 0 L -14 6" stroke="#6b4423" stroke-width="4.4" stroke-linecap="round"/>
+        <circle cx="41" cy="0.3" r="2.4" fill="#1e1a16" stroke="#3b2415" stroke-width="1.4"/>
+      <line x1="41" y1="0" x2="70" y2="-6" stroke="rgba(232,64,72,.85)" stroke-width="2"/><circle cx="72" cy="-6.5" r="4.4" fill="none" stroke="#e84048" stroke-width="2"/><circle cx="72" cy="-6.5" r="1.5" fill="#e84048"/><path d="M67 -6.5 h -3.5 M76.5 -6.5 h 3.5 M72 -11 v -3.5 M72 -2 v 3.5" stroke="#e84048" stroke-width="1.6"/><rect x="2" y="-11" width="14" height="7" rx="3" fill="#2a1220" stroke="#1e1a16" stroke-width="2"/><circle cx="13" cy="-7.5" r="2.2" fill="#e84048" stroke="#1e1a16" stroke-width="1.2"/></g>
     </defs>
 
     <!-- floor -->
@@ -3405,7 +3557,7 @@
 
 
 <!-- floating tower menu -->
-<div id="ver">v73</div>
+<div id="ver">v74</div>
 <div id="shopOv">
   <div id="shopCardOv">
     <div id="shopOvKind">BETWEEN FLOORS</div>
@@ -3621,7 +3773,7 @@ const ETYPES = {
   influencer: { name:'The Influencer', sprite:'sprInfluencer', hp:140, speed:55, reward:25, star:2, scale:.58, tapR:34, aura:'haste',
     desc:'Live from the casino floor! Her followers rush in behind her — nearby guests walk 30% faster. Drop her first.',
     stats:'SPEED AURA · PRIORITY TARGET' },
-  counter: { name:'Card Counter', sprite:'sprCounter', hp:150, speed:52, reward:20, star:2, scale:.56, tapR:32, countDodge:4,
+  counter: { name:'Card Counter', sprite:'sprCounter', hp:150, speed:52, reward:20, star:2, armor:2, scale:.56, tapR:32, countDodge:4,
     desc:'He counts every card, every chip, every projectile. Every 4th thing thrown at him gets calculated around.',
     stats:'ELITE · DODGES EVERY 4TH HIT' },
   groom: { name:'The Honeymooners', sprite:'sprGroom', hp:100, speed:50, reward:12, star:1, scale:.56, tapR:32, pairHeal:4, enrage:1.5,
@@ -3633,45 +3785,45 @@ const ETYPES = {
   honey: { name:'The Honeymooners', sprite:'sprBride', hp:100, speed:50, reward:12, star:1, scale:.56, tapR:32,
     desc:'Just married, deliriously happy, healing each other with every glance. Widow one and the survivor RUNS.',
     stats:'PAIR · HEAL TOGETHER · SURVIVOR RAGES' },
-  regular: { name:'The Regular', sprite:'sprRegular', hp:130, speed:55, reward:16, star:2, scale:.55, tapR:32,
+  regular: { name:'The Regular', sprite:'sprRegular', hp:130, speed:55, reward:16, star:2, armor:1, scale:.55, tapR:32,
     skip: { every: 8, dist: 110 },
     desc:'Thirty years on this floor. He knows every staff door, and he is not above using them to skip the line.',
     stats:'SKIPS AHEAD VIA STAFF DOORS' },
-  auditor: { name:'The Auditor', sprite:'sprAuditor', hp:2600, speed:26, reward:300, star:5, scale:.8, tapR:40, boss:true, audit:true,
+  auditor: { name:'The Auditor', sprite:'sprAuditor', hp:2600, speed:26, reward:300, star:5, armor:2, scale:.8, tapR:40, boss:true, audit:true,
     desc:'Everything stops when he opens the briefcase. While he walks, your most expensive tower is UNDER AUDIT — frozen, pending review.',
     stats:'BOSS · DISABLES YOUR PRICIEST TOWER' },
-  entertainer: { name:'The Entertainer', sprite:'sprEntertainer', hp:3400, speed:27, reward:380, star:6, scale:.8, tapR:40, boss:true, showtime:170,
+  entertainer: { name:'The Entertainer', sprite:'sprEntertainer', hp:3400, speed:27, reward:380, star:6, armor:2, scale:.8, tapR:40, boss:true, showtime:170,
     desc:'The headliner works the room, and when he takes a number EVERY tower within earshot stops to watch. Nobody works the floor while he is singing.',
     stats:'BOSS · HIS NUMBER FREEZES NEARBY TOWERS' },
-  regulator: { name:'The Regulator', sprite:'sprRegulator', hp:3200, speed:24, reward:360, star:6, scale:.8, tapR:40, boss:true,
+  regulator: { name:'The Regulator', sprite:'sprRegulator', hp:3200, speed:24, reward:360, star:6, armor:2, scale:.8, tapR:40, boss:true,
     cite: { every: 7 },
     desc:'Gray suit, government lanyard, infinite paperwork. Every few seconds she cites your nearest table for a VIOLATION — half damage until she leaves the building. The notices stack.',
     stats:'BOSS · CITES TABLES: HALF DAMAGE UNTIL SHE DIES' },
-  inspector: { name:'The Health Inspector', sprite:'sprInspector', hp:3000, speed:25, reward:340, star:6, scale:.8, tapR:40, boss:true, inspect:true,
+  inspector: { name:'The Health Inspector', sprite:'sprInspector', hp:3000, speed:25, reward:340, star:6, armor:2, scale:.8, tapR:40, boss:true, inspect:true,
     desc:'Hairnet, clipboard, no sense of humour. While she walks the floor, every buffet is CLOSED BY ORDER — and nothing she passes keeps its food poisoning.',
     stats:'BOSS · SHUTS EVERY BUFFET · CURES POISON AS SHE PASSES' },
-  whalewife: { name:"The Whale's Wife", sprite:'sprWhaleWife', hp:2200, speed:30, reward:280, star:5, scale:.78, tapR:40, boss:true,
+  whalewife: { name:"The Whale's Wife", sprite:'sprWhaleWife', hp:2200, speed:30, reward:280, star:5, armor:2, scale:.78, tapR:40, boss:true,
     pairHeal:26, enrage:1.7,
     desc:"She arrives on the Whale's arm, dripping in comps, and the house heals around them both. Widow her and she stops shopping — and starts RUNNING.",
     stats:'MINI-BOSS PAIR · HEAL TOGETHER · THE WIDOW RUNS' },
-  photog: { name:'The House Photographer', sprite:'sprPhotog', hp:3300, speed:26, reward:360, star:6, scale:.8, tapR:40, boss:true,
+  photog: { name:'The House Photographer', sprite:'sprPhotog', hp:3300, speed:26, reward:360, star:6, armor:2, scale:.8, tapR:40, boss:true,
     paparazzi: { every: 8, r: 215, stun: 1.6 },
     desc:'Everyone smile! The house shooter works opening night, and when that flash goes off EVERY table in frame stops dead — blinded, blinking, useless.',
     stats:'BOSS · HIS FLASH FREEZES EVERY TOWER IN FRAME' },
-  magician: { name:'The Magician', sprite:'sprMagician', hp:3100, speed:29, reward:350, star:6, scale:.8, tapR:40, boss:true,
+  magician: { name:'The Magician', sprite:'sprMagician', hp:3100, speed:29, reward:350, star:6, armor:2, scale:.8, tapR:40, boss:true,
     blink: { every: 6, dist: 150, r: 85 },
     desc:'One flourish of the cape and he is somewhere else — and he takes volunteers from the audience with him. You cannot hold a queue that refuses to stand still.',
     stats:'BOSS · VANISHES FORWARD EVERY 6s, TAKING NEARBY GUESTS ALONG' },
-  pitboss: { name:'The Pit Boss', sprite:'sprPitBoss', hp:2900, speed:28, reward:320, star:5, scale:.8, tapR:40, boss:true, comp:150,
+  pitboss: { name:'The Pit Boss', sprite:'sprPitBoss', hp:2900, speed:28, reward:320, star:5, armor:2, scale:.8, tapR:40, boss:true, comp:150,
     desc:'He runs this floor and everyone on it is comped. While he walks, every guest inside his radius takes HALF damage. Cut him out first.',
     stats:'BOSS · HALVES DAMAGE TO NEARBY GUESTS' },
-  lady: { name:'Lady Luck', sprite:'sprLady', hp:3200, speed:24, reward:350, star:5, scale:.8, tapR:40, boss:true, jinx:125,
+  lady: { name:'Lady Luck', sprite:'sprLady', hp:3200, speed:24, reward:350, star:5, armor:2, scale:.8, tapR:40, boss:true, jinx:125,
     desc:'She blows a kiss and every wheel goes cold. Towers inside her shimmer roll minimum damage while she glides past.',
     stats:'BOSS · JINX AURA: TOWERS DEAL MIN DAMAGE' },
-  whale: { name:'The Whale', sprite:'sprWhale', hp:900, speed:25, reward:150, star:4, scale:.78, tapR:40, boss:true,
+  whale: { name:'The Whale', sprite:'sprWhale', hp:900, speed:25, reward:150, star:4, armor:2, scale:.78, tapR:40, boss:true,
     desc:'Comped everything. Bathrobe, cigar, security detail waved off. Takes a fortune down with him — and pays one out.',
     stats:'MINI-BOSS · VERY TOUGH · BIG BOUNTY' },
-  shark: { name:'Loan Shark', sprite:'sprShark', hp:2000, speed:31, reward:250, star:5, scale:.8, tapR:40, boss:true, steal:120,
+  shark: { name:'Loan Shark', sprite:'sprShark', hp:2000, speed:31, reward:250, star:5, armor:2, scale:.8, tapR:40, boss:true, steal:120,
     desc:'Collects what he is owed. If he reaches the front desk he collects in chips — YOUR chips.',
     stats:'BOSS · STEALS 120 CHIPS ON LEAK' }
 };
@@ -3681,7 +3833,7 @@ const TTYPES = {
     blurb:'Fan of razor cards', },
   roulette: { name:'Roulette Wheel', sprite:'twRoulette', cost:220, range:155, cd:1.5, scale:.62,
     blurb:'Hunts the biggest fish', },
-  rope: { name:'Velvet Rope', sprite:'twRope', cost:180, range:105, scale:.72,
+  rope: { name:'The Red Carpet', sprite:'twRope', cost:180, range:105, scale:.72,
     blurb:'Guests queue politely', },
   cage: { name:'The Cage', sprite:'twCage', cost:200, scale:.6,
     blurb:'Pays a dividend', },
@@ -3695,9 +3847,11 @@ const TTYPES = {
     blurb:'Drinks on the house', },
   catapult: { name:'Chip Catapult', sprite:'twCatapult', cost:260, range:200, cd:2.8, scale:.68,
     blurb:'Throws money at it', },
-  security: { name:'Casino Security', sprite:'twSecurity', cost:240, range:210, cd:3.2, scale:.66,
-    blurb:'Escorts trouble out', },
-  magic: { name:'The Double Act', sprite:'twMagic', cost:250, range:150, cd:5, scale:.66,
+  bouncer: { name:'The Bouncer', sprite:'twBouncer', cost:230, range:120, cd:1.9, scale:.62,
+    blurb:'Shotgun, no conversation', },
+  sniper: { name:'The House Marksman', sprite:'twSniper', cost:280, range:420, cd:4.2, scale:.64,
+    blurb:'One shot from a long way', },
+  magic: { name:'Penn & Teller', sprite:'twMagic', cost:250, range:150, cd:5, scale:.66,
     blurb:'Two magicians, one salary', }
 };
 /* ══════════ UPGRADE PATHS ══════════
@@ -3714,24 +3868,24 @@ const TSPEC = {
     b: { label: 'Cold Deck', tiers: [
         { name: 'Cold Deck', cost: 160, s: { n: 5, dmg: 9, chill: .7 } },
         { name: 'The Deep Freeze', cost: 400, s: { n: 7, dmg: 14, range: 158, chill: .5 } },
-        { name: 'ABSOLUTE ZERO', cost: 950, s: { n: 9, dmg: 20, range: 172, chill: .35, freeze: 1.1 } } ,
-        { name: 'HEAT DEATH', cost: 2200, s: { n: 12, dmg: 32, range: 190, chill: .25, freeze: 1.8 } } ] }
+        { name: 'ABSOLUTE ZERO', cost: 950, s: { n: 9, dmg: 20, range: 172, chill: .35, freeze: 1.1, freezeOdds: .3 } } ,
+        { name: 'HEAT DEATH', cost: 2200, s: { n: 12, dmg: 32, range: 190, chill: .25, freeze: 1.8, freezeOdds: .4 } } ] }
   },
   roulette: {
     // slow, heavy, and it HUNTS: full damage on the strongest guest in reach, then the
     // ball ricochets to the next-strongest (never the same one twice), halving each hop.
     // (Billy: roulette always felt worse than the dealer — make it the anti-elite pick)
-    base: { dmg: 46, bounce: 3, range: 165, cd: 2.4 },
+    base: { dmg: 46, bounce: 3, range: 165, cd: 2.4, falloff: .5 },
     a: { label: 'Steel Ball', tiers: [
         { name: 'Steel Wheel', cost: 230, s: { dmg: 95 } },
         { name: 'The Iron Ball', cost: 560, s: { dmg: 175, cd: 2.2 } },
-        { name: 'THE WRECKING BALL', cost: 1150, s: { dmg: 330, bounce: 4, cd: 2.1, quake: 95 } } ,
+        { name: 'THE WRECKING BALL', cost: 1150, s: { dmg: 330, bounce: 4, cd: 2.1, quake: 95, falloff: .55 } } ,
         { name: 'THE METEOR', cost: 2600, s: { dmg: 620, bounce: 5, cd: 1.9, quake: 160 } } ] },
     b: { label: 'Ivory Ball', tiers: [
-        { name: 'Ivory Wheel', cost: 210, s: { dmg: 60, bounce: 5 } },
-        { name: 'The Endless Spin', cost: 520, s: { dmg: 82, bounce: 7, cd: 2.1 } },
-        { name: 'PERPETUAL MOTION', cost: 1100, s: { dmg: 110, bounce: 10, cd: 1.9, arc: 1 } } ,
-        { name: 'ORBITAL DECAY', cost: 2500, s: { dmg: 190, bounce: 14, cd: 1.6, arc: 1 } } ] }
+        { name: 'Ivory Wheel', cost: 210, s: { dmg: 60, bounce: 5, falloff: .6 } },
+        { name: 'The Endless Spin', cost: 520, s: { dmg: 82, bounce: 7, cd: 2.1, falloff: .68 } },
+        { name: 'PERPETUAL MOTION', cost: 1100, s: { dmg: 110, bounce: 10, cd: 1.9, arc: 1, falloff: .76 } } ,
+        { name: 'ORBITAL DECAY', cost: 2500, s: { dmg: 190, bounce: 14, cd: 1.6, arc: 1, falloff: .84 } } ] }
   },
   rope: {
     // the queue has to HURT: a wide field, a deep slow, and a shuffle they carry
@@ -3739,14 +3893,14 @@ const TSPEC = {
     base: { slow: .42, range: 130, linger: 1.6 },
     a: { label: 'The Guest List', tiers: [
         { name: 'The Guest List', cost: 180, s: { slow: .28, linger: 2.2 } },
-        { name: 'Nobody Gets In', cost: 430, s: { slow: .16, linger: 3 } },
-        { name: 'THE VELVET WALL', cost: 920, s: { slow: .1, linger: 3.6, shout: 7 } } ,
-        { name: 'THE IRON CURTAIN', cost: 2100, s: { slow: .06, linger: 5, shout: 4.5 } } ] },
-    b: { label: 'The Cordon', tiers: [
-        { name: 'VIP Cordon', cost: 170, s: { range: 195, linger: 2.4 } },
-        { name: 'The Whole Wing', cost: 410, s: { slow: .36, range: 255, linger: 3.2 } },
-        { name: 'THE ENDLESS QUEUE', cost: 900, s: { slow: .3, range: 340, linger: 4.2 } } ,
-        { name: 'THE LABYRINTH', cost: 2000, s: { slow: .2, range: 430, linger: 6 } } ] }
+        { name: 'Door Policy', cost: 430, s: { slow: .16, linger: 3 } },
+        { name: 'MEMBERS ONLY', cost: 920, s: { slow: .1, linger: 3.6, shout: 7 } } ,
+        { name: 'THE LIST IS CLOSED', cost: 2100, s: { slow: .06, linger: 5, shout: 4.5 } } ] },
+    b: { label: 'The Rope Line', tiers: [
+        { name: 'The Rope Line', cost: 170, s: { range: 195, linger: 2.4 } },
+        { name: 'The Long Walk', cost: 410, s: { slow: .36, range: 255, linger: 3.2 } },
+        { name: 'THE GRAND ENTRANCE', cost: 900, s: { slow: .3, range: 340, linger: 4.2 } } ,
+        { name: 'THE LONG RED MILE', cost: 2000, s: { slow: .2, range: 430, linger: 6 } } ] }
   },
   cage: {
     base: { income: 45, killBonus: 0, range: 0 },
@@ -3777,30 +3931,30 @@ const TSPEC = {
         { name: 'THE FED', cost: 2100, s: { rate: 22, chips: 5, range: 420 } } ] }
   },
   craps: {
-    base: { push: 60, cd: 6, dmg: 0, range: 125 },
+    base: { push: 60, cd: 6, dmg: 0, range: 125, shoveOdds: .5 },
     a: { label: 'Hot Roll', tiers: [
-        { name: 'Hot Table', cost: 250, s: { push: 110, cd: 4 } },
-        { name: "The Shooter's Table", cost: 600, s: { push: 170, cd: 2.8 } },
-        { name: 'THE EARTHQUAKE', cost: 1300, s: { push: 270, cd: 2.1, stun: .9, quakeFx: 1 } } ,
-        { name: 'THE BIG ONE', cost: 2900, s: { push: 380, cd: 1.7, stun: 1.4, quakeFx: 1 } } ] },
+        { name: 'Hot Table', cost: 250, s: { push: 110, cd: 4, shoveOdds: .58 } },
+        { name: "The Shooter's Table", cost: 600, s: { push: 170, cd: 2.8, shoveOdds: .66 } },
+        { name: 'THE EARTHQUAKE', cost: 1300, s: { push: 270, cd: 2.1, stun: .9, quakeFx: 1, shoveOdds: .74 } } ,
+        { name: 'THE BIG ONE', cost: 2900, s: { push: 380, cd: 1.7, stun: 1.4, quakeFx: 1, shoveOdds: .8 } } ] },
     b: { label: 'Snake Eyes', tiers: [
-        { name: 'Snake Eyes', cost: 240, s: { push: 70, cd: 4.5, dmg: 26 } },
+        { name: 'Snake Eyes', cost: 240, s: { push: 70, cd: 4.5, dmg: 26, shoveOdds: .4 } },
         { name: 'Boxcars', cost: 580, s: { push: 90, cd: 3.4, dmg: 60, range: 150 } },
         { name: 'SEVEN OUT', cost: 1250, s: { push: 100, cd: 5.5, dmg: 80, range: 160, bigDie: 230 } } ,
         { name: 'LOADED DICE', cost: 2800, s: { push: 130, cd: 3.8, dmg: 170, range: 175, bigDie: 520 } } ] }
   },
   buffet: {
-    base: { lure: .08, dps: 16, range: 120 },
+    base: { dps: 16, range: 120 },
     a: { label: 'Expired Mayo', tiers: [
-        { name: 'Expired Mayo', cost: 200, s: { lure: .16, dps: 34 } },
-        { name: 'The Midnight Buffet', cost: 480, s: { lure: .22, dps: 78 } },
-        { name: 'PATIENT ZERO PRAWN', cost: 1080, s: { lure: .26, dps: 150, plague: 1 } } ,
-        { name: 'THE OUTBREAK', cost: 2400, s: { lure: .3, dps: 320, plague: 1 } } ] },
-    b: { label: 'Bottomless Trough', tiers: [
-        { name: 'Bottomless Trough', cost: 190, s: { lure: .3, dps: 20, range: 155 } },
-        { name: 'All You Can Eat', cost: 460, s: { lure: .5, dps: 26, range: 190 } },
-        { name: 'THE FOOD COMA', cost: 1020, s: { lure: .5, dps: 38, range: 215, coma: 1 } } ,
-        { name: 'THE GREAT SLEEP', cost: 2300, s: { lure: .5, dps: 80, range: 250, coma: 1 } } ] }
+        { name: 'Expired Mayo', cost: 200, s: { dps: 40 } },
+        { name: 'The Midnight Buffet', cost: 480, s: { dps: 95, range: 135 } },
+        { name: 'PATIENT ZERO PRAWN', cost: 1080, s: { dps: 180, range: 145, plague: 1 } } ,
+        { name: 'THE OUTBREAK', cost: 2400, s: { dps: 380, range: 160, plague: 1 } } ] },
+    b: { label: 'Bad Oysters', tiers: [
+        { name: 'Bad Oysters', cost: 190, s: { dps: 18, range: 155, puke: 1 } },
+        { name: 'The Raw Bar', cost: 460, s: { dps: 26, range: 185, puke: 1 } },
+        { name: 'THE OYSTER BAR', cost: 1020, s: { dps: 40, range: 215, puke: 1 } } ,
+        { name: "LAST NIGHT'S CATCH", cost: 2300, s: { dps: 82, range: 250, puke: 1 } } ] }
   },
   waitress: {
     base: { factor: .75, range: 130 },
@@ -3808,39 +3962,67 @@ const TSPEC = {
         { name: 'Open Bar', cost: 220, s: { factor: .55 } },
         { name: 'The Floor Captain', cost: 520, s: { factor: .38 } },
         { name: 'LAST CALL', cost: 1150, s: { factor: .26, overclock: 1 } } ,
-        { name: 'PERPETUAL HAPPY HOUR', cost: 2500, s: { factor: .18, overclock: 1 } } ] },
-    b: { label: 'VIP Host', tiers: [
+        { name: 'THE LOCK-IN', cost: 2500, s: { factor: .18, overclock: 1 } } ] },
+    b: { label: 'Bottle Service', tiers: [
         { name: 'Bottle Service', cost: 205, s: { factor: .65, range: 185 } },
-        { name: 'The Whole Room', cost: 490, s: { factor: .55, range: 240 } },
-        { name: 'CHAMPAGNE SUPERNOVA', cost: 1100, s: { factor: .48, range: 300, cork: 6 } } ,
-        { name: 'THE CHAMPAGNE FLOOD', cost: 2400, s: { factor: .4, range: 370, cork: 3.5 } } ] }
+        { name: 'The Corner Booth', cost: 490, s: { factor: .55, range: 240 } },
+        { name: 'THE CHAMPAGNE CART', cost: 1100, s: { factor: .48, range: 300, cork: 6 } } ,
+        { name: 'THE STANDING ORDER', cost: 2400, s: { factor: .4, range: 370, cork: 3.5 } } ] }
   },
   catapult: {
-    base: { dmg: 55, aoe: 60, ammo: 6, range: 200, cd: 2.8 },
+    base: { dmg: 70, aoe: 60, ammo: 6, range: 240, cd: 4 },
     a: { label: 'Money Mortar', tiers: [
-        { name: 'Chip Cannon', cost: 280, s: { dmg: 120, ammo: 10 } },
-        { name: 'The Money Mortar', cost: 660, s: { dmg: 240, ammo: 16, cd: 2.4 } },
-        { name: 'THE JACKPOT', cost: 1450, s: { dmg: 520, aoe: 85, ammo: 24, cd: 2.1 } } ,
-        { name: 'THE HOUSE LIMIT', cost: 3200, s: { dmg: 1150, aoe: 95, ammo: 34, cd: 1.8 } } ] },
+        { name: 'Chip Cannon', cost: 280, s: { dmg: 165, ammo: 9, cd: 3.8 } },
+        { name: 'The Money Mortar', cost: 660, s: { dmg: 340, ammo: 14, cd: 3.6 } },
+        { name: 'THE JACKPOT', cost: 1450, s: { dmg: 720, aoe: 85, ammo: 20, cd: 3.4 } } ,
+        { name: 'THE HOUSE LIMIT', cost: 3200, s: { dmg: 1600, aoe: 95, ammo: 28, cd: 3.2 } } ] },
     b: { label: 'Scattershot', tiers: [
-        { name: 'Scattershot', cost: 265, s: { dmg: 70, aoe: 105, ammo: 7 } },
-        { name: 'It Rains Chips', cost: 620, s: { dmg: 105, aoe: 155, ammo: 9, cd: 2.2 } },
-        { name: 'MAKE IT RAIN', cost: 1380, s: { dmg: 140, aoe: 170, ammo: 11, cd: 1.9, storm: 5 } } ,
-        { name: 'THE CHIPSTORM', cost: 3000, s: { dmg: 300, aoe: 190, ammo: 15, cd: 1.5, storm: 8 } } ] }
+        { name: 'Scattershot', cost: 265, s: { dmg: 85, ammo: 8, cd: 3.8, storm: 1 } },
+        { name: 'It Rains Chips', cost: 620, s: { dmg: 130, ammo: 11, cd: 3.6, storm: 2 } },
+        { name: 'MAKE IT RAIN', cost: 1380, s: { dmg: 200, ammo: 14, cd: 3.4, storm: 4 } } ,
+        { name: 'THE CHIPSTORM', cost: 3000, s: { dmg: 400, ammo: 18, cd: 3.2, storm: 6 } } ] }
   },
   magic: {
-    // pure spectacle control: no damage, but the audience keeps disappearing
-    base: { vanish: 90, cd: 5, range: 150, targets: 1 },
-    a: { label: 'The Showstopper', tiers: [
-        { name: 'The Grand Reveal', cost: 260, s: { vanish: 145, cd: 4.2 } },
-        { name: 'ABRA CADABRA', cost: 620, s: { vanish: 190, cd: 3.6, rabbit: 1 } },
-        { name: 'THE PRESTIGE', cost: 1400, s: { vanish: 240, cd: 3, rabbit: 1, targets: 2 } },
-        { name: 'THE VANISHING ACT', cost: 3000, s: { vanish: 330, cd: 2.4, rabbit: 1, targets: 3 } } ] },
-    b: { label: 'Smoke & Mirrors', tiers: [
-        { name: 'Double Vision', cost: 250, s: { targets: 2, cd: 4.4 } },
-        { name: 'Smoke & Mirrors', cost: 600, s: { targets: 3, cd: 3.8, vanish: 110 } },
-        { name: 'MASS HYSTERIA', cost: 1350, s: { targets: 4, cd: 3.2, vanish: 130, rewind: 2 } },
-        { name: 'THE OTHER PLACE', cost: 2900, s: { targets: 6, cd: 2.6, vanish: 150, rewind: 3 } } ] }
+    // one guest at a time, always — and the act itself is worth a point of reputation
+    base: { vanish: 90, cd: 5, range: 150, rep: 1 },
+    a: { label: "Teller's Menagerie", tiers: [
+        { name: 'The Rabbit Trick', cost: 260, s: { vanish: 120, cd: 4.4, beast: .6 } },
+        { name: 'The Whole Hutch', cost: 620, s: { vanish: 150, cd: 3.8, beast: .46 } },
+        { name: 'THE MENAGERIE', cost: 1400, s: { vanish: 190, cd: 3.2, beast: .34 } },
+        { name: 'THE PETTING ZOO', cost: 3000, s: { vanish: 240, cd: 2.6, beast: .24 } } ] },
+    b: { label: "Penn's Patter", tiers: [
+        { name: 'The Misdirection', cost: 250, s: { strip: 2, cd: 4.4 } },
+        { name: 'The Reveal', cost: 600, s: { strip: 4, cd: 3.8, expose: .25 } },
+        { name: 'THE CON EXPOSED', cost: 1350, s: { strip: 7, cd: 3.2, expose: .4 } },
+        { name: 'NOTHING UP MY SLEEVE', cost: 2900, s: { strip: 99, cd: 2.6, expose: .55 } } ] }
+  },
+  bouncer: {
+    // a cone of buckshot: everything close in front of him takes it
+    base: { dmg: 26, pellets: 5, spread: .5, range: 120, cd: 1.9 },
+    a: { label: 'Double-Barrel', tiers: [
+        { name: 'Double-Barrel', cost: 240, s: { dmg: 58, pellets: 6, knock: 22 } },
+        { name: 'The Slug Gun', cost: 580, s: { dmg: 120, pellets: 6, knock: 40, range: 140 } },
+        { name: 'BOTH BARRELS', cost: 1300, s: { dmg: 250, pellets: 8, knock: 65, cd: 1.7 } },
+        { name: 'THE DOORMAN', cost: 2800, s: { dmg: 520, pellets: 9, knock: 95, cd: 1.5 } } ] },
+    b: { label: 'Crowd Control', tiers: [
+        { name: 'Crowd Control', cost: 230, s: { pellets: 8, spread: .8, dmg: 34 } },
+        { name: 'The Wide Choke', cost: 560, s: { pellets: 11, spread: 1.05, dmg: 52, range: 135 } },
+        { name: 'CLEARING THE ROOM', cost: 1250, s: { pellets: 15, spread: 1.3, dmg: 78, cd: 1.7 } },
+        { name: 'EVERYBODY OUT', cost: 2700, s: { pellets: 20, spread: 1.6, dmg: 130, cd: 1.5 } } ] }
+  },
+  sniper: {
+    // one shot, a long way off, and it takes its time
+    base: { dmg: 190, range: 420, cd: 4.2 },
+    a: { label: 'The Long Shot', tiers: [
+        { name: 'The Long Shot', cost: 300, s: { dmg: 420, range: 480 } },
+        { name: 'The Rafters', cost: 700, s: { dmg: 900, range: 540, cd: 3.9 } },
+        { name: 'ACROSS THE FLOOR', cost: 1500, s: { dmg: 1900, range: 600, cd: 3.6 } },
+        { name: 'THE LAST WORD', cost: 3100, s: { dmg: 4200, range: 660, cd: 3.3 } } ] },
+    b: { label: 'The Called Shot', tiers: [
+        { name: 'The Called Shot', cost: 290, s: { dmg: 330, bossMul: 2 } },
+        { name: 'Marked Man', cost: 680, s: { dmg: 700, bossMul: 2.4, cd: 3.8 } },
+        { name: 'THE HOUSE ALWAYS KNOWS', cost: 1450, s: { dmg: 1450, bossMul: 3, cd: 3.4 } },
+        { name: 'NO SUCH THING AS LUCK', cost: 3000, s: { dmg: 3000, bossMul: 4, cd: 3 } } ] }
   },
   security: {
     // the anti-boss table: one huge hit, and the guest gets WALKED back up the lane
@@ -3857,19 +4039,22 @@ const TSPEC = {
         { name: 'THE PANOPTICON', cost: 2900, s: { dmg: 340, cd: .8, targets: 6, range: 300 } } ] }
   }
 };
-const HIRECOST = { craps: 40, buffet: 45, waitress: 50, catapult: 60, security: 70, magic: 75 };
+const HIRECOST = { craps: 40, buffet: 45, waitress: 50, catapult: 60, bouncer: 55, sniper: 70, magic: 75 };
 const PATHCOST = {          // comps to open one branch of one table, for the whole campaign
   // floor 1 banks ~40 comps and grants no upgrades at all, so the Dealer's first path
   // has to be reachable the moment you step off it — that's the hook
   dealer: 35, rope: 40, roulette: 45, atm: 45, cage: 50,
-  buffet: 50, craps: 55, waitress: 55, catapult: 60, security: 55, magic: 60
+  buffet: 50, craps: 55, waitress: 55, catapult: 60, security: 55, magic: 60,
+  bouncer: 50, sniper: 60
 };
 const TROLE = {
   dealer:   'SINGLE TARGET · a fan of cards, each one pierces',
   roulette: 'BOUNCING SHOT · ricochets between guests',
   rope:     'SLOW FIELD · no damage · slow follows them out',
   security: 'SINGLE TARGET · huge hits that WALK the guest backward',
-  magic: 'CONTROL · no damage · guests VANISH and reappear far back',
+  magic: 'CONTROL · one guest at a time · +1 reputation while it stands',
+  bouncer: 'CLOSE RANGE · a cone of buckshot, brutal up close',
+  sniper: 'LONG RANGE · one enormous shot, slowly',
   cage:     'INCOME · does not attack',
   atm:      'INCOME · skims guests walking past',
   craps:    'AREA KNOCKBACK · shoves the crowd back',
@@ -3902,10 +4087,12 @@ function statLine(key, path, lvl) {
       bits.push(`${S.n} cards`, `${S.dmg} dmg each`);
       if (S.chill) bits.push(`chills ${Math.round((1 - S.chill) * 100)}%`);
       if (S.fire) bits.push(`FIREBALLS · ${S.fire} splash`);
-      if (S.freeze) bits.push(`FREEZES SOLID ${S.freeze}s`);
+      if (S.freeze) bits.push(`${Math.round((S.freezeOdds || .35) * 100)}% chance to FREEZE ${S.freeze}s`);
       bits.push(`range ${S.range}`); break;
     case 'roulette':
-      bits.push(`${S.dmg} dmg to the STRONGEST`, `${S.bounce} bounces, halving each hop`, `every ${S.cd}s`);
+      bits.push(`${S.dmg} dmg to the STRONGEST`,
+                `${S.bounce} bounces at ${Math.round((S.falloff || .5) * 100)}% each hop`,
+                `every ${S.cd}s`);
       if (S.quake) bits.push(`SHOVES the crowd on impact`);
       if (S.arc) bits.push(`LIGHTNING arcs between hits`);
       break;
@@ -3923,15 +4110,15 @@ function statLine(key, path, lvl) {
       if (S.feeDps) bits.push(`fees DRAIN ${S.feeDps} HP/sec`);
       break;
     case 'craps':
-      bits.push(`shoves ${S.push}`, `every ${S.cd}s`);
+      bits.push(`shoves ${S.push}`, `${Math.round((S.shoveOdds || .5) * 100)}% of the crowd`, `every ${S.cd}s`);
       if (S.dmg) bits.push(`${S.dmg} dmg`);
       if (S.stun) bits.push(`STUNS ${S.stun}s + the floor SHAKES`);
       if (S.bigDie) bits.push(`rolls a GIANT DIE up the lane, ${S.bigDie} dmg`);
       break;
     case 'buffet':
-      bits.push(`lures ${Math.round(S.lure * 100)}%`, `${S.dps} dmg/sec`, `range ${S.range}`);
+      bits.push(`poisons everyone in range`, `${S.dps} dmg/sec`, `range ${S.range}`);
       if (S.plague) bits.push(`poison SPREADS guest to guest`);
-      if (S.coma) bits.push(`eaters PASS OUT mid-lane`);
+      if (S.puke) bits.push(`the sick STOP to puke · puddles slow the rest`);
       break;
     case 'waitress':
       bits.push(`+${Math.round((1 / S.factor - 1) * 100)}% speed`, `range ${S.range}`);
@@ -3939,14 +4126,24 @@ function statLine(key, path, lvl) {
       if (S.cork) bits.push(`champagne cork STUNS every ${S.cork}s`);
       break;
     case 'catapult':
-      bits.push(`${S.dmg} splash`, `${S.aoe} radius`, `${S.ammo} chips/shot`);
-      if (S.storm) bits.push(`shots SPLIT into ${S.storm} more`);
+      bits.push(`${S.dmg} dmg`, `PIERCES the whole room`, `${S.ammo} chips/shot`, `every ${S.cd}s`);
+      if (S.storm) bits.push(`fires ${1 + S.storm} chips at once`);
       break;
     case 'magic':
-      bits.push(`sends them back ${S.vanish}`, `every ${S.cd}s`, `range ${S.range}`);
-      if (S.targets > 1) bits.push(`${S.targets} at once`);
-      if (S.rabbit) bits.push(`victims become RABBITS`);
-      if (S.rewind) bits.push(`the confused walk BACKWARD`);
+      bits.push(`+1 reputation while it stands`, `one guest every ${S.cd}s`,
+                `sends them back ${S.vanish}`, `range ${S.range}`);
+      if (S.beast) bits.push(`turns them into an ANIMAL at ${Math.round(S.beast * 100)}% health, powers gone`);
+      if (S.strip) bits.push(`strips ${S.strip > 90 ? 'ALL' : S.strip} armour`);
+      if (S.expose) bits.push(`+${Math.round(S.expose * 100)}% damage taken for 6s`);
+      break;
+    case 'bouncer':
+      bits.push(`${S.dmg} dmg`, `${S.pellets} pellets`,
+                `${Math.round(S.spread * 57)}° cone`, `range ${S.range}`, `every ${S.cd}s`);
+      if (S.knock) bits.push(`knocks them back ${S.knock}`);
+      break;
+    case 'sniper':
+      bits.push(`${S.dmg} dmg`, `range ${S.range}`, `every ${S.cd}s`);
+      if (S.bossMul > 1) bits.push(`×${S.bossMul} against BOSSES`);
       break;
     case 'security':
       bits.push(`${S.dmg} dmg`, S.walk > 5000 ? 'ESCORTED TO THE DOOR' : `walked back ${S.walk}`,
@@ -3971,15 +4168,19 @@ const FLAVOR = {
   craps:    { a: ['a bigger shove, more often', 'the crowd barely advances', 'stuns — and the floor shakes', 'the room comes down'],
               b: ['the shove now hurts', 'hits harder, reaches further', 'a giant die rolls up the lane', 'a boulder with pips'] },
   buffet:   { a: ['worse food, worse poisoning', 'lethal leftovers', 'the poison spreads on its own', 'a plague with cocktail sauce'],
-              b: ['lures more guests in', 'seats half the wave', 'eaters pass out mid-lane', 'the whole wave takes a nap'] },
+              b: ['the sick stop to be sick', 'more of them, more often', 'wider, and quite grim', 'the floor is a hazard'] },
   waitress: { a: ['tables pour faster', 'much faster service', 'tables run white hot', 'service at lightspeed'],
               b: ['serves a wider circle', 'the whole room drinks', 'corks stun the crowd', 'corks fall like rain'] },
   catapult: { a: ['bigger payloads', 'ruinous payloads', 'one shot, one crater', 'bankruptcy, airborne'],
               b: ['a wider splash', 'the splash covers a table', 'every shot splits into five', 'a hurricane of chips'] },
   security: { a: ['hits harder, walks them further', 'much harder, much further', 'escorted all the way OUT', 'they were never here'],
               b: ['works faster', 'handles two at once', 'four guests, no waiting', 'six guests, no waiting'] },
-  magic:    { a: ['they vanish, further back', 'they come back as RABBITS', 'two disappear at once', 'nobody stays on stage'],
-              b: ['two vanish at once', 'three, in a puff of smoke', 'the confused walk backwards', 'the whole crowd loses the plot'] }
+  magic:    { a: ['turns a guest into a rabbit', 'more animals per act', 'the floor fills with critters', 'nobody leaves on two legs'],
+              b: ['strips a little armour', 'strips more, and they bruise easier', 'shreds nearly all of it', 'no armour, no tricks'] },
+  bouncer:  { a: ['heavier shot, knocks them back', 'slugs now, not pellets', 'both barrels, every time', 'nobody gets past the door'],
+              b: ['more pellets, wider spray', 'a much wider choke', 'sweeps the whole doorway', 'clears the room in one'] },
+  sniper:   { a: ['harder, and further', 'sees the whole wing', 'nearly the whole floor', 'wherever they are'],
+              b: ['hurts bosses badly', 'marks them properly', 'bosses take triple', 'bosses take quadruple'] }
 };
 const pathOwned = (key, path) => !!((SAVE.paths || {})[key] || {})[path];
 const towerSpend = t => {
@@ -3989,7 +4190,7 @@ const towerSpend = t => {
 };
 
 /* footprint radius per tower type (for placement collision) */
-const TOWER_R = { dealer: 34, roulette: 36, rope: 30, cage: 32, atm: 28, craps: 36, buffet: 38, waitress: 30, catapult: 34, security: 32, magic: 34 };
+const TOWER_R = { dealer: 34, roulette: 36, rope: 30, cage: 32, atm: 28, craps: 36, buffet: 38, waitress: 30, catapult: 34, security: 32, magic: 34, bouncer: 32, sniper: 32 };
 
 /* ══════════ CAMPAIGN ══════════ */
 const SAVE_KEY = 'holdem-save';
@@ -3997,12 +4198,12 @@ function loadSave() { try { return JSON.parse(localStorage.getItem(SAVE_KEY)) ||
 function saveSave() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(SAVE)); } catch (e) {} }
 const SAVE = Object.assign({ unlocked: 1, comps: 0, upg: {} }, loadSave());
 SAVE.upg = SAVE.upg || {};
-const DISABLED = ['atm'];                       // benched tables — code stays, shelf doesn't
+const DISABLED = ['atm', 'security'];   // benched: code kept, off the shelf                       // benched tables — code stays, shelf doesn't
 SAVE.owned = (SAVE.owned || ['dealer', 'roulette', 'rope', 'cage']).filter(k => !DISABLED.includes(k));
 SAVE.paths = SAVE.paths || {};        // { dealer: { a: true } } — comps-bought branches
 SAVE.perks = SAVE.perks || {};
 const effCost = T => T.cost;
-const maxStars = () => 20 + (SAVE.perks.star ? 5 : 0);
+const maxStars = () => 20 + (SAVE.perks.star ? 5 : 0) + (G.repBonus || 0);
 
 const ROOMS = [
   { name: 'Slots Pit 1', hpMul: 1.0, chips: 560,
@@ -4813,6 +5014,9 @@ const G = {
   speed: 2,
   time: 0,
   enemies: [],
+  pukes: [],          // sick puddles left by the Bad Oysters
+  repBonus: 0,        // +1 per Penn & Teller on the floor, reset every room
+  beastN: 0,
   towers: [],
   projectiles: [],
   floats: [],
@@ -5305,7 +5509,7 @@ function openSheetForTower(tower) {
   // targeting priority
   const pr = $('twPrio');
   pr.innerHTML = '';
-  if (['dealer', 'roulette', 'catapult', 'security'].includes(tower.type)) {
+  if (['dealer', 'roulette', 'catapult', 'security', 'bouncer', 'sniper'].includes(tower.type)) {
     [['first', 'FIRST'], ['strong', 'STRONG'], ['last', 'LAST']].forEach(([k, lbl]) => {
       const pb = document.createElement('button');
       pb.className = 'prioBtn' + (tower.prio === k ? ' on' : '');
@@ -5360,7 +5564,8 @@ function openSheetForTower(tower) {
         fill: '#ffd23f', stroke: '#3b2415', 'stroke-width': 3, 'paint-order': 'stroke'
       }, tower.el);
       tower.badge.textContent = '★'.repeat(tower.lvl - 1);
-      if (tower.auraEl) tower.auraEl.setAttribute('r', tower.range());
+      if (tower.rollCarpet) tower.rollCarpet();
+      else if (tower.auraEl) tower.auraEl.setAttribute('r', tower.range());
       applyTowerLook(tower);
       float(tower.x, tower.y - 40, tier.name.toUpperCase(), '#57c26e');
       closeSheet();
@@ -5379,6 +5584,11 @@ function openSheetForTower(tower) {
   s2.addEventListener('pointerdown', ev => {
     ev.stopPropagation();
     SFX.sell();
+    const rp = TSPEC[tower.type] && TSPEC[tower.type].base.rep;
+    if (rp) {
+      G.repBonus = Math.max(0, (G.repBonus || 0) - rp);
+      G.stars = Math.max(0, G.stars - rp);
+    }
     G.chips += refund;
     tower.el.remove();
     if (tower.shadowEl) tower.shadowEl.remove();
@@ -5541,6 +5751,28 @@ function artFor(g, type, path, lvl) {
       if (k >= 3) C(0, -16, 3.6, '#8a5f33', '#3b2415', 1.6);
     }
   }
+  if (type === 'bouncer') {
+    if (A) {                                       // Double-Barrel: shells pile up at his feet
+      for (let i = 0; i < k + 1; i++)
+        svgEl('rect', { x: -22 + i * 6, y: 20, width: 4, height: 6, rx: 1.4, fill: '#c9473b',
+                        stroke: '#3b2415', 'stroke-width': 1.2 }, g);
+      if (k >= 3) C(0, -34, 3, '#e0575f', '#3b2415', 1.4);
+    } else {                                       // Crowd Control: more men behind the rope
+      for (let i = 0; i < k; i++)
+        C(-30 - i * 7, 10 + (i % 2) * 5, 5, '#24384a', '#3b2415', 2);
+    }
+  }
+  if (type === 'sniper') {
+    if (A) {                                       // Long Shot: spent brass, a spotting scope
+      for (let i = 0; i < k + 1; i++)
+        E(-16 + i * 5, 22, 2.6, 1.4, '#e8b64c');
+      if (k >= 2) C(-26, 2, 3, '#2f353c', '#1e1a16', 1.6);
+    } else {                                       // Called Shot: the ledger of names grows
+      for (let i = 0; i < k; i++)
+        svgEl('rect', { x: -30 + i * 4, y: 6, width: 3, height: 10, rx: 1, fill: '#f5ead1',
+                        stroke: '#3b2415', 'stroke-width': 1.1 }, g);
+    }
+  }
   if (type === 'magic') {
     if (A) {                                       // Showstopper: the stage lights multiply
       for (let i = 0; i < k + 1; i++)
@@ -5586,7 +5818,7 @@ function buildTower(type, x, y) {
   const T = TTYPES[type];
   const tower = {
     type, x, y, r: TOWER_R[type], lvl: 1, path: null, cool: 0, stunUntil: 0,
-    prio: type === 'security' || type === 'roulette' ? 'strong' : 'first',
+    prio: ['security', 'roulette', 'sniper'].includes(type) ? 'strong' : 'first',
     range() {
       return TS(this).range || T.range;
     }
@@ -5610,12 +5842,45 @@ function buildTower(type, x, y) {
       if (rot < -90) rot += 180;
       tower.rot = rot;
     }
-    tower.auraEl = svgEl('circle', {
-      cx: x, cy: y, r: tower.range(),
-      fill: 'rgba(156,35,51,.08)', stroke: '#9c2333', 'stroke-width': 2.5,
-      'stroke-dasharray': '7 9', opacity: .85
-    }, $('towersG'));
-    tower.auraEl.style.animation = 'ropeMarch 1.1s linear infinite';
+    // roll out a real carpet down every lane inside the field, with rope posts —
+    // no more invisible slow (Billy)
+    tower.auraEl = svgEl('g', { 'pointer-events': 'none' }, $('towersG'));
+    tower.rollCarpet = () => {
+      tower.auraEl.innerHTML = '';
+      const R = tower.range();
+      for (const P of PATHS) {
+        const pts = [];
+        for (let i = 0; i < P.pts.length; i++) {
+          const dx = P.pts[i][0] - x, dy = P.pts[i][1] - y;
+          if (dx * dx + dy * dy <= R * R) pts.push(P.pts[i]);
+        }
+        if (pts.length < 3) continue;
+        const d = 'M ' + pts.map(q => `${q[0].toFixed(1)} ${q[1].toFixed(1)}`).join(' L ');
+        svgEl('path', { d, fill: 'none', stroke: '#6b1420', 'stroke-width': 44,
+                        'stroke-linecap': 'round', 'stroke-linejoin': 'round', opacity: .95 }, tower.auraEl);
+        svgEl('path', { d, fill: 'none', stroke: '#9c2333', 'stroke-width': 38,
+                        'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, tower.auraEl);
+        svgEl('path', { d, fill: 'none', stroke: 'rgba(255,170,190,.22)', 'stroke-width': 30,
+                        'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, tower.auraEl);
+        svgEl('path', { d, fill: 'none', stroke: '#d9a94f', 'stroke-width': 2.4,
+                        'stroke-dasharray': '9 7', opacity: .75 }, tower.auraEl);
+        for (let i = 4; i < pts.length - 4; i += 14) {
+          const a = pts[Math.max(0, i - 2)], b = pts[Math.min(pts.length - 1, i + 2)];
+          const len = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1;
+          const nx = -(b[1] - a[1]) / len, ny = (b[0] - a[0]) / len;
+          for (const side of [-1, 1]) {
+            const px = pts[i][0] + nx * 25 * side, py = pts[i][1] + ny * 25 * side;
+            svgEl('line', { x1: px, y1: py + 2, x2: px, y2: py - 11,
+                            stroke: '#3b2415', 'stroke-width': 4.4, 'stroke-linecap': 'round' }, tower.auraEl);
+            svgEl('line', { x1: px, y1: py + 2, x2: px, y2: py - 11,
+                            stroke: '#d9a94f', 'stroke-width': 2.2, 'stroke-linecap': 'round' }, tower.auraEl);
+            svgEl('circle', { cx: px, cy: py - 12.5, r: 2.6, fill: 'url(#brassG)',
+                              stroke: '#3b2415', 'stroke-width': 1.2 }, tower.auraEl);
+          }
+        }
+      }
+    };
+    tower.rollCarpet();
   }
   tower.shadowEl = svgEl('ellipse', {
     cx: x + 3, cy: y + tower.r * .62, rx: tower.r + 9, ry: tower.r * .36,
@@ -5653,6 +5918,12 @@ function buildTower(type, x, y) {
     }, $('towersG'));
     tower.auraEl.style.animation = 'ropeMarch 1.6s linear infinite';
     el.parentNode.insertBefore(tower.auraEl, el);
+  }
+  if (TSPEC[type] && TSPEC[type].base.rep) {     // the act itself buys goodwill
+    G.repBonus = (G.repBonus || 0) + TSPEC[type].base.rep;
+    G.stars += TSPEC[type].base.rep;
+    float(x, y - 46, '+1 REPUTATION', '#57c26e');
+    updateHUD();
   }
   G.towers.push(tower);
   el.addEventListener('pointerdown', ev => { ev.stopPropagation(); openSheetForTower(tower); });
@@ -5777,7 +6048,7 @@ function spawnEnemy(type) {
     // a crowd, not a conga line: each guest picks a lane offset and their own pace
     lat: E.boss ? (Math.random() - .5) * 8 : (Math.random() - .5) * 23,
     pace: E.boss ? 1 : .9 + Math.random() * .2,
-    luredUntil: 0, lureDps: 0, poisonUntil: 0, poisonDps: 0,
+    poisonUntil: 0, poisonDps: 0,
     armor: E.armor || 0, pips: [], slowFac: 1, slowUntil: 0
   };
   for (let i = 0; i < enemy.armor; i++) {
@@ -5823,6 +6094,18 @@ function spawnWhaleCouple() {
   wf.E = Object.assign({}, wf.E, { pairHeal: 26, enrage: 1.7 });
   w.mate = wf;
   wf.mate = w;
+}
+
+/* a cute little splat: three blobs, a shine, a wobble — slows anyone who steps in it */
+function spawnPuke(x, y) {
+  const g = svgEl('g', { transform: `translate(${x},${y})`, 'pointer-events': 'none' }, $('decorG'));
+  svgEl('ellipse', { rx: 15, ry: 6.5, fill: '#8fbf52', stroke: '#5c8a2e', 'stroke-width': 2 }, g);
+  svgEl('ellipse', { cx: -9, cy: 2.5, rx: 6, ry: 3.2, fill: '#a6d465', stroke: '#5c8a2e', 'stroke-width': 1.6 }, g);
+  svgEl('ellipse', { cx: 9.5, cy: -2, rx: 5, ry: 2.8, fill: '#a6d465', stroke: '#5c8a2e', 'stroke-width': 1.6 }, g);
+  svgEl('ellipse', { cx: -3, cy: -2, rx: 4, ry: 1.7, fill: 'rgba(255,255,255,.55)' }, g);
+  svgEl('circle', { cx: 12, cy: 3, r: 1.7, fill: '#c7e88f', stroke: '#5c8a2e', 'stroke-width': 1.2 }, g);
+  g.style.animation = 'pukeIn .25s ease-out';
+  G.pukes.push({ el: g, x, y, until: G.time + 2 });
 }
 
 function killEnemy(e, leaked) {
@@ -6049,6 +6332,7 @@ function lose() {
 /* ══════════ COMBAT ══════════ */
 function damageEnemy(e, dmg) {
   if (e.dead) return;                 // fire splash can kill mid-iteration; never re-process a corpse
+  if (e.exposed && G.time < (e.exposedUntil || 0)) dmg *= e.exposed;
   // the Pit Boss comps everyone near him: half damage
   if (!e.E.comp) {
     for (const b of G.enemies) {
@@ -6139,7 +6423,8 @@ function fireRoulette(t) {
   emit(t.x, t.y - 6, { n: 2, shapes: ['spark'], speed: 55, life: .22, grav: 0, colors: ['#fffbe8'] });
   SFX.ball();
   G.projectiles.push({ kind: 'ball', x: t.x, y: t.y, el, target, dmg, bounces, hitSet: new Set(),
-                       hop: 0, quake: st(t, 'quake') || 0, arc: st(t, 'arc') || 0 });
+                       hop: 0, falloff: st(t, 'falloff') || .5,
+                       quake: st(t, 'quake') || 0, arc: st(t, 'arc') || 0 });
   return true;
 }
 
@@ -6164,7 +6449,8 @@ function fireDealer(t) {
       kind: 'card', x: t.x, y: t.y,
       vx: Math.cos(ang) * 330, vy: Math.sin(ang) * 330,
       el, dmg, life: .55, pierce: 2, hitSet: new Set(), rot: 0,
-      chill: st(t, 'chill') || 0, fire: st(t, 'fire') || 0, freeze: st(t, 'freeze') || 0
+      chill: st(t, 'chill') || 0, fire: st(t, 'fire') || 0, freeze: st(t, 'freeze') || 0,
+      freezeOdds: st(t, 'freezeOdds') || 0
     });
   }
   return true;
@@ -6216,7 +6502,7 @@ function update(dt) {
       const [x2, y2] = posAtE(e2);
       if ((x2 - ex) ** 2 + (y2 - ey) ** 2 <= 60 * 60) {
         e2.poisonUntil = G.time + 4;
-        e2.poisonDps = Math.max(e.poisonDps * .75, e.lureDps * .3);
+        e2.poisonDps = e.poisonDps * .8;
         e2.plague = true;
         emit(x2, y2 - 10, { n: 4, shapes: ['spark'], speed: 55, life: .45, grav: -70,
                             colors: ['#9aa86a', '#6f8f4f'] });
@@ -6225,43 +6511,40 @@ function update(dt) {
     }
   };
 
+  /* puddles fade */
+  for (const q of [...G.pukes]) {
+    if (G.time > q.until) {
+      q.el.style.animation = 'pukeOut .4s ease-in forwards';
+      const el = q.el;
+      setTimeout(() => el.remove(), 420);
+      G.pukes = G.pukes.filter(z => z !== q);
+    }
+  }
+
   /* enemies */
   for (const e of [...G.enemies]) {
     const [ex, ey] = posAtE(e);
-    /* pinned at the shrimp buffet */
-    if (e.luredUntil > G.time) {
-      e.hp -= e.lureDps * dt;
-      e.poisonUntil = G.time + 4;
-      e.poisonDps = e.lureDps * .5;
-      if (e.plague) plagueTick(e, ex, ey, dt);
-      if (e.hp <= 0) {
-        if (e.plague) {                        // the diner collapses INTO the buffet — burst
-          for (const e2 of G.enemies) {
-            if (e2 === e || e2.E.boss) continue;
-            const [x2, y2] = posAtE(e2);
-            if ((x2 - ex) ** 2 + (y2 - ey) ** 2 <= 80 * 80) {
-              e2.poisonUntil = G.time + 4;
-              e2.poisonDps = e.lureDps * .35;
-              e2.plague = true;
-            }
-          }
-          fxRing(ex, ey, 80, '#9aa86a');
-        }
-        killEnemy(e, false);
-        continue;
+    for (const q of G.pukes) {                 // whoever steps in it slips and slows
+      if ((ex - q.x) ** 2 + (ey - q.y) ** 2 < 22 * 22) {
+        e.slowFac = Math.min(e.slowFac, .45);
+        e.slowUntil = Math.max(e.slowUntil || 0, G.time + .4);
+        break;
       }
-      e.barG.setAttribute('opacity', 1);
-      e.hpEl.setAttribute('width', Math.max(0, (e.barW - 3) * e.hp / e.hpMax));
-      continue;
-    }
-    /* the food coma hits the moment they stand up from the trough */
-    if (e.comaPend && e.luredUntil && e.luredUntil <= G.time) {
-      e.slowFac = 0;
-      e.slowUntil = G.time + e.comaPend;
-      e.comaPend = 0;
-      float(ex, ey - 30, 'zzz', '#9fc4b2');
     }
     /* food poisoning lingers */
+    if (e.poisonUntil > G.time) {
+      if (!e.greenEl) {                                  // they go visibly, cartoonishly green
+        e.greenEl = svgEl('use', { href: '#' + e.E.sprite, fill: 'rgba(120,190,90,.5)',
+                                   'pointer-events': 'none' }, e.gaitG);
+      }
+      /* THE BOTTOMLESS TROUGH: they stop to be sick, and the puddle lingers */
+      if (e.pukeSrc && G.time > (e.pukeCd || 0)) {
+        e.pukeCd = G.time + 3.4;
+        e.slowFac = 0;
+        e.slowUntil = Math.max(e.slowUntil || 0, G.time + .5);
+        spawnPuke(ex, ey + 6);
+      }
+    } else if (e.greenEl) { e.greenEl.remove(); e.greenEl = null; }
     if (e.poisonUntil > G.time) {
       e.hp -= e.poisonDps * dt;
       if (e.hp <= 0) { killEnemy(e, false); continue; }
@@ -6487,12 +6770,13 @@ function update(dt) {
       if (!insp.E.inspect) continue;
       const [ix2, iy2] = posAtE(insp);
       for (const e2 of G.enemies) {
-        if (e2.poisonUntil <= G.time && e2.luredUntil <= G.time) continue;
+        if (e2.poisonUntil <= G.time) continue;
         const [x2, y2] = posAtE(e2);
         if ((x2 - ix2) ** 2 + (y2 - iy2) ** 2 <= 120 * 120) {
-          e2.poisonUntil = 0;
-          e2.luredUntil = 0;      // sends them back to the lane, stomachs pumped
+          e2.poisonUntil = 0;                 // stomachs pumped
           e2.plague = false;
+          e2.pukeSrc = 0;
+          if (e2.greenEl) { e2.greenEl.remove(); e2.greenEl = null; }
         }
       }
     }
@@ -6513,9 +6797,7 @@ function update(dt) {
     t.audited = t === auditTarget;
     if (t.type === 'rope' && t.auraEl) {
       const hot = G.time - (t.hotT || -9) < .35;
-      t.auraEl.setAttribute('opacity', hot ? 1 : .45);
-      t.auraEl.setAttribute('stroke-width', hot ? 4 : 2.5);
-      t.auraEl.setAttribute('fill', hot ? 'rgba(156,35,51,.16)' : 'rgba(156,35,51,.05)');
+      t.auraEl.setAttribute('opacity', hot ? 1 : .82);   // the carpet brightens while it works
     }
     t.auditEl.setAttribute('opacity', t.audited ? 1 : 0);
     t.stunEl.setAttribute('opacity', !t.audited && G.time < t.stunUntil ? 1 : 0);
@@ -6587,25 +6869,22 @@ function update(dt) {
       continue;
     }
     if (t.type === 'buffet') {
-      if (t.lureWave !== G.wave) { t.lureWave = G.wave; t.lures = Math.max(1, Math.floor((G.waveCount || 10) * st(t, 'lure'))); }
-      if (t.lures > 0) {
-        let nb = null, nd = t.range() * t.range();
-        for (const e of G.enemies) {
-          if (e.E.boss || e.luredUntil > G.time) continue;
-          const [x, y] = posAtE(e);
-          const dx = x - t.x, dy = y - t.y, d2 = dx * dx + dy * dy;
-          if (d2 < nd) { nd = d2; nb = e; }
-        }
-        if (nb) {
-          t.lures--;
-          nb.luredUntil = G.time + 2.6;
-          nb.lureDps = st(t, 'dps') * roomPow();
-          if (st(t, 'plague')) nb.plague = true;          // PATIENT ZERO PRAWN
-          if (st(t, 'coma')) nb.comaPend = 2.4;           // THE FOOD COMA
-          float(t.x, t.y - 34, 'FREE SHRIMP!', '#e07b39');
-        }
+      // nobody gets dragged to the trough any more — the shrimp just poisons the room
+      // it stands in (Billy: "only apply poison and make them green")
+      const rr = t.range() * t.range();
+      let any = false;
+      for (const e of G.enemies) {
+        const [x, y] = posAtE(e);
+        if ((x - t.x) ** 2 + (y - t.y) ** 2 > rr) continue;
+        e.poisonUntil = G.time + 4;
+        e.poisonDps = Math.max(e.poisonDps || 0, st(t, 'dps') * roomPow() * .5);
+        if (st(t, 'plague')) e.plague = true;
+        if (st(t, 'puke')) e.pukePend = (e.pukePend || 0) + 0;   // marked below on tick
+        e.pukeSrc = st(t, 'puke') ? 1 : (e.pukeSrc || 0);
+        any = true;
       }
-      t.cool = 3;
+      if (any) float(t.x, t.y - 34, 'OH NO', '#9aa86a');
+      t.cool = 1.4;
       continue;
     }
     if (t.type === 'atm') {
@@ -6639,13 +6918,19 @@ function update(dt) {
       let hitAny = false;
       const rr = t.range() * t.range();
       const push = st(t, 'push'), boxcars = st(t, 'dmg'), stun = st(t, 'stun');
+      const odds = st(t, 'shoveOdds') || .5;
       for (const e of G.enemies.slice()) {
         const [x, y] = posAtE(e);
         const dx = x - t.x, dy = y - t.y;
         if (dx * dx + dy * dy <= rr) {
-          e.dist = Math.max(0, e.dist - push);
           if (boxcars) damageEnemy(e, boxcars * roomPow());
-          if (stun) { e.slowFac = 0; e.slowUntil = Math.max(e.slowUntil || 0, G.time + stun); }
+          // only SOME of the crowd stumbles, and never twice in a row — otherwise a row of
+          // craps tables is an impassable wall (Billy)
+          if (Math.random() < odds && G.time > (e.shoveImm || 0)) {
+            e.dist = Math.max(0, e.dist - push);
+            e.shoveImm = G.time + 1.8;
+            if (stun) { e.slowFac = 0; e.slowUntil = Math.max(e.slowUntil || 0, G.time + stun); }
+          }
           hitAny = true;
         }
       }
@@ -6685,45 +6970,107 @@ function update(dt) {
         t.cool = st(t, 'cd');
       } else t.cool = .3;
     } else if (t.type === 'magic') {
-      // no damage: the nearest guests simply VANISH and reappear far up the lane
-      const n = st(t, 'targets') || 1;
+      // ONE volunteer, always — the act is pointed, never a sweep (Billy)
       const rr = t.range() * t.range();
-      const cands = [];
+      let pick = null, best = -1;
       for (const e of G.enemies) {
-        if (e.E.boss) continue;                       // bosses don't volunteer
+        if (e.E.boss || e.beast) continue;             // bosses don't volunteer
         const [x, y] = posAtE(e);
-        const dx = x - t.x, dy = y - t.y;
-        if (dx * dx + dy * dy > rr) continue;
-        cands.push([e.dist, e]);
+        if ((x - t.x) ** 2 + (y - t.y) ** 2 > rr) continue;
+        if (e.dist > best) { best = e.dist; pick = e; }
       }
-      cands.sort((a, b) => b[0] - a[0]);              // furthest along first
-      let any = false;
-      for (const [, e] of cands.slice(0, n)) {
-        const [x, y] = posAtE(e);
+      if (pick) {
+        const [x, y] = posAtE(pick);
         poof(x, y - 10); poof(x + 8, y - 22);
-        e.dist = Math.max(0, e.dist - st(t, 'vanish'));
-        if (st(t, 'rabbit') && !e.rabbit) {           // the classic: now it's a rabbit
-          e.rabbit = true;
-          const u = e.gaitG.querySelector('use');
-          if (u) u.setAttribute('href', '#sprRabbit');
-          e.pace *= .6;
-          e.hp = Math.min(e.hp, e.hpMax * .55);
-          float(x, y - 34, 'A RABBIT!', '#e8b0b8');
+        pick.dist = Math.max(0, pick.dist - st(t, 'vanish'));
+        const keep = st(t, 'beast');
+        if (keep) {
+          // sawn in half and put back together wrong: a weaker animal with no tricks
+          pick.beast = true;
+          const which = ['#sprRabbit', '#sprDove', '#sprFrog'][G.beastN++ % 3];
+          const u = pick.gaitG.querySelector('use');
+          if (u) u.setAttribute('href', which);
+          if (pick.rimEl) pick.rimEl.remove();
+          pick.E = Object.assign({}, pick.E, {          // every special power goes
+            special: null, aura: null, dodge: 0, countDodge: 0, skip: null,
+            pairHeal: 0, enrage: 1, armor: 0
+          });
+          pick.armor = 0;
+          pick.pips.forEach(q => q.remove());
+          pick.pips = [];
+          pick.hpMax = Math.max(1, Math.round(pick.hpMax * keep));
+          pick.hp = Math.min(pick.hp, pick.hpMax);
+          pick.pace *= .72;
+          float(x, y - 34, 'PRESTO!', '#d8b4ff');
         }
-        if (st(t, 'rewind')) {                        // walks the wrong way, confused
-          e.slowFac = -.6;
-          e.slowUntil = G.time + st(t, 'rewind');
+        const strip = st(t, 'strip');
+        if (strip) {
+          // Penn talks them out of their protection
+          if (pick.armor > 0) {
+            const n = Math.min(pick.armor, strip);
+            for (let i = 0; i < n; i++) { const q = pick.pips.pop(); if (q) q.remove(); }
+            pick.armor -= n;
+          }
+          const ex2 = st(t, 'expose');
+          if (ex2) { pick.exposed = 1 + ex2; pick.exposedUntil = G.time + 6; }
+          float(x, y - 34, pick.armor > 0 ? 'EXPOSED' : 'NOTHING UP MY SLEEVE', '#d8b4ff');
         }
-        const [nx, ny] = posAtE(e);
-        poof(nx, ny - 10);
-        any = true;
-      }
-      if (any) {
-        float(t.x, t.y - 44, 'PRESTO!', '#d8b4ff');
         SFX.spin();
         t.kick();
         t.cool = st(t, 'cd');
       } else t.cool = .4;
+    } else if (t.type === 'bouncer') {
+      // a cone of buckshot: everything close in front of him eats it
+      const target = firstEnemyInRange(t);
+      if (target) {
+        const [tx, ty] = posAtE(target);
+        const base = Math.atan2(ty - t.y, tx - t.x);
+        const spread = st(t, 'spread'), n = st(t, 'pellets'), R = t.range();
+        const dmg = Math.max(1, Math.round(st(t, 'dmg') * roomPow() * (t.jinxed ? .45 : 1) * (t.cited ? .5 : 1)));
+        const knock = st(t, 'knock') || 0;
+        for (const e of [...G.enemies]) {
+          const [x, y] = posAtE(e);
+          const dx = x - t.x, dy = y - t.y;
+          if (dx * dx + dy * dy > R * R) continue;
+          let da = Math.atan2(dy, dx) - base;
+          while (da > Math.PI) da -= Math.PI * 2;
+          while (da < -Math.PI) da += Math.PI * 2;
+          if (Math.abs(da) > spread / 2) continue;
+          damageEnemy(e, dmg);
+          if (knock) e.dist = Math.max(0, e.dist - knock);
+        }
+        // the muzzle flash cone
+        const cone = svgEl('path', {
+          d: `M ${t.x} ${t.y} L ${t.x + Math.cos(base - spread / 2) * R} ${t.y + Math.sin(base - spread / 2) * R}` +
+             ` A ${R} ${R} 0 0 1 ${t.x + Math.cos(base + spread / 2) * R} ${t.y + Math.sin(base + spread / 2) * R} Z`,
+          fill: 'rgba(255,220,140,.28)', stroke: '#ffe08a', 'stroke-width': 2
+        }, $('projG'));
+        setTimeout(() => cone.remove(), 130);
+        for (let i = 0; i < n; i++) {
+          const a = base + (Math.random() - .5) * spread;
+          emit(t.x + Math.cos(a) * 20, t.y + Math.sin(a) * 20,
+               { n: 1, shapes: ['spark'], speed: 220, life: .22, grav: 0, dir: a, spread: .1,
+                 colors: ['#ffe08a', '#f5ead1'] });
+        }
+        SFX.tilt();
+        t.kick();
+        t.cool = st(t, 'cd') * atkSpeedFactor(t);
+      } else t.cool = .25;
+    } else if (t.type === 'sniper') {
+      const target = firstEnemyInRange(t);
+      if (target) {
+        const [tx, ty] = posAtE(target);
+        let dmg = st(t, 'dmg') * roomPow() * (t.jinxed ? .45 : 1) * (t.cited ? .5 : 1);
+        if (target.E.boss) dmg *= (st(t, 'bossMul') || 1);
+        const ln = svgEl('line', { x1: t.x, y1: t.y - 6, x2: tx, y2: ty,
+          stroke: '#fffbe8', 'stroke-width': 2.4, opacity: .95 }, $('projG'));
+        setTimeout(() => ln.remove(), 160);
+        fxRing(tx, ty, 26, '#fffbe8');
+        damageEnemy(target, Math.max(1, Math.round(dmg)));
+        SFX.card();
+        t.kick();
+        t.cool = st(t, 'cd') * atkSpeedFactor(t);
+      } else t.cool = .3;
     } else if (t.type === 'security') {
       // pick the top N guests by this table's priority, walk each of them back
       const n = st(t, 'targets') || 1;
@@ -6761,16 +7108,24 @@ function update(dt) {
         SFX.lob();
         updateHUD();
         const [tx, ty] = posAtE(target);
-        const el = svgEl('g', {}, $('projG'));
-        svgEl('circle', { r: 7, fill: '#c9473b', stroke: '#3b2415', 'stroke-width': 2 }, el);
-        svgEl('circle', { r: 3, fill: '#f5ead1' }, el);
-        G.projectiles.push({
-          kind: 'lob', x: t.x, y: t.y, sx: t.x, sy: t.y, tx, ty, el,
-          t: 0, dur: .55,
-          dmg: Math.max(1, Math.round(st(t, 'dmg') * roomPow() * (t.jinxed ? .45 : 1) * (t.cited ? .5 : 1))),
-          aoe: st(t, 'aoe'), storm: st(t, 'storm') || 0
-        });
-        t.cool = TTYPES.catapult.cd * atkSpeedFactor(t);
+        // one slow, enormous chip that SKIMS the whole room, cutting through everyone it
+        // touches — not a shell that lands on a spot (Billy)
+        const base = Math.atan2(ty - t.y, tx - t.x);
+        const lines = 1 + (st(t, 'storm') || 0);
+        const dmg = Math.max(1, Math.round(st(t, 'dmg') * roomPow() * (t.jinxed ? .45 : 1) * (t.cited ? .5 : 1)));
+        for (let i = 0; i < lines; i++) {
+          const ang = base + (i - (lines - 1) / 2) * .16;
+          const el = svgEl('g', {}, $('projG'));
+          svgEl('circle', { r: 11, fill: '#c9473b', stroke: '#3b2415', 'stroke-width': 2.6 }, el);
+          svgEl('circle', { r: 7, fill: '#e8b64c', stroke: '#3b2415', 'stroke-width': 1.6 }, el);
+          svgEl('circle', { r: 3, fill: '#f5ead1' }, el);
+          svgEl('rect', { x: -11, y: -1.4, width: 22, height: 2.8, fill: 'rgba(59,36,21,.55)' }, el);
+          G.projectiles.push({
+            kind: 'chip', x: t.x, y: t.y, vx: Math.cos(ang) * 420, vy: Math.sin(ang) * 420,
+            el, rot: 0, dmg, aoe: st(t, 'aoe'), hitSet: new Set()
+          });
+        }
+        t.cool = (st(t, 'cd') || TTYPES.catapult.cd) * atkSpeedFactor(t);
       } else t.cool = .3;
     } else {
       const fired = t.type === 'roulette' ? fireRoulette(t) : fireDealer(t);
@@ -6806,8 +7161,9 @@ function update(dt) {
           setTimeout(() => ln.remove(), 150);
         }
         p.hitSet.add(p.target);
-        // full damage on the first hit, half on the next, a quarter after that
-        damageEnemy(p.target, Math.max(1, Math.round(p.dmg * Math.pow(.5, p.hop))));
+        // each hop keeps a FRACTION of the last — upgrades raise that fraction, so the
+        // late bounces stop being decoration (Billy)
+        damageEnemy(p.target, Math.max(1, Math.round(p.dmg * Math.pow(p.falloff || .5, p.hop))));
         p.hop++;
         if (p.quake) {                          // THE WRECKING BALL: the impact shoves the crowd
           fxRing(tx, ty, 75, '#d9dde2');
@@ -6836,6 +7192,27 @@ function update(dt) {
       }
       p.el.setAttribute('cx', p.x);
       p.el.setAttribute('cy', p.y);
+    } else if (p.kind === 'chip') {
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.rot += 520 * dt;
+      p.el.setAttribute('transform', `translate(${p.x},${p.y}) rotate(${p.rot})`);
+      if (p.x < -60 || p.x > 1180 || p.y < -60 || p.y > 690) {
+        p.el.remove();
+        G.projectiles = G.projectiles.filter(q => q !== p);
+        continue;
+      }
+      for (const e of [...G.enemies]) {
+        if (p.hitSet.has(e) || e.dead) continue;
+        const [x, y] = posAtE(e);
+        if ((x - p.x) ** 2 + (y - p.y) ** 2 < 20 * 20) {
+          p.hitSet.add(e);
+          damageEnemy(e, p.dmg);
+          fxRing(x, y, Math.max(24, p.aoe * .35), '#e8b64c');
+          emit(x, y, { n: 3, shapes: ['chip'], speed: 90, life: .35, grav: 240,
+                       colors: ['#e8b64c', '#c9473b'] });
+        }
+      }
     } else if (p.kind === 'die') {
       p.d -= 330 * dt;
       p.rot -= 640 * dt;
@@ -6910,10 +7287,12 @@ function update(dt) {
               if ((x2 - x) ** 2 + (y2 - y) ** 2 <= 55 * 55) damageEnemy(e2, fd);
             }
           }
-          if (p.freeze) {                       // ABSOLUTE ZERO: stopped dead, mid-stride
+          if (p.freeze && Math.random() < (p.freezeOdds || .35) && G.time > (e.frzImm || 0)) {
+            // a ROLL, not a rule: unconditional freezing locked the whole floor solid
             gated('freeze', 200, () => SFX.freeze());
             e.slowFac = 0;
             e.slowUntil = Math.max(e.slowUntil || 0, G.time + p.freeze);
+            e.frzImm = G.time + p.freeze + 1.6;      // and they thaw out immune for a beat
             fxRing(x, y, 34, '#cfe9f5');
           } else if (p.chill) {                 // frozen stiff, same shuffle the rope causes
             e.slowFac = Math.min(e.slowFac === undefined ? 1 : e.slowFac, p.chill);
@@ -7216,6 +7595,8 @@ function initRoom(i, resume, altKey) {
     svgEl('use', { href: '#sprEntrance', transform: `translate(0,${sy.toFixed(0)})` }, eg);
   }
 
+  G.pukes.forEach(q => q.el.remove());
+  G.pukes = [];
   WAVES = R.waves;
   // deeper floors hand you a bigger opening stack — the room defs carry the base
   // curve, this keeps pace with the tower-cost/threat scaling the late game runs on
@@ -7224,6 +7605,7 @@ function initRoom(i, resume, altKey) {
   buildShop();
   $('vaultG').setAttribute('transform', `translate(${V.vault[0]},${V.vault[1]}) scale(.6)`);
 
+  G.repBonus = 0;
   G.stars = maxStars();
   placeDecor();
   $('map').style.display = 'none';
@@ -7713,7 +8095,8 @@ $('cashBtn').addEventListener('pointerdown', ev => {
 /* 3-4 words of WHAT IT DOES, for the spend screen */
 const HIREINFO = {
   craps: 'shoves crowds back', buffet: 'lures + poisons guests', waitress: 'speeds nearby tables',
-  catapult: 'huge splash damage', security: 'huge single hits', magic: 'makes guests vanish'
+  catapult: 'huge splash damage', security: 'huge single hits', magic: 'vanishes guests, +1 rep',
+  bouncer: 'close-range buckshot', sniper: 'long-range single shot'
 };
 const BRANCHINFO = {
   dealer:   { a: 'fire, splash damage', b: 'ice, slows guests' },
@@ -7722,10 +8105,12 @@ const BRANCHINFO = {
   cage:     { a: 'bigger dividends', b: 'pays per kill' },
   atm:      { a: 'prints faster', b: 'covers more floor' },
   craps:    { a: 'bigger shoves, stuns', b: 'damage + giant die' },
-  buffet:   { a: 'deadlier, spreading poison', b: 'seats more guests' },
+  buffet:   { a: 'deadlier, spreading poison', b: 'they stop to puke, puddles slow' },
   waitress: { a: 'even faster service', b: 'wider reach, stuns' },
   catapult: { a: 'bigger single blasts', b: 'wide, splitting shots' },
   security: { a: 'harder, walks them far', b: 'faster, multi-target' },
+  bouncer:  { a: 'bigger blasts, knockback', b: 'wider cone, more pellets' },
+  sniper:   { a: 'further, harder', b: 'punishes the biggest guest' },
   magic:    { a: 'turns guests to rabbits', b: 'group vanish, confusion' }
 };
 
@@ -7932,7 +8317,7 @@ if (/gallery|autotest|ropetest|ropeshow|mechshow|slottest|jackpottest|shoptest|a
 
 /* dev gallery: ?gallery renders every sprite large for visual review */
 if (location.search.includes('gallery')) {
-  const TW = ['twDealer','twRoulette','twRope','twCage','twATM','twCraps','twBuffet','twWaitress','twCatapult','twSecurity','twMagic'];
+  const TW = ['twDealer','twRoulette','twRope','twCage','twATM','twCraps','twBuffet','twWaitress','twCatapult','twMagic','twBouncer','twSniper'];
   const NPC = ['sprRetiree','sprClipper','sprCounter','sprRegular','sprGroom','sprBride','sprDrunk','sprMojito','sprElvis','sprGrandma'];
   const ids = /gallery=(npc|flair)/.test(location.search) ? NPC : location.search.includes('gallery=tw') ? TW : ['sprRetiree','sprTourist','sprElvis','sprGrandma','sprClipper','sprInfluencer',
                'sprDrunk','sprMojito','sprCounter','sprGroom','sprBride','sprRegular','sprWaitress','sprAuditor','sprLady','sprPitBoss','sprEntertainer','sprMagician','sprPhotog','sprInspector','sprRegulator','sprWhaleWife','sprWhale','sprShark',
@@ -8321,7 +8706,7 @@ if (location.search.includes('autotest')) {
       const len = Math.hypot(bx - ax, by - ay) || 1;
       const nx = -(by - ay) / len, ny = (bx - ax) / len;
       const side = buyN % 3 ? -1 : 1;
-      const pool = ['dealer', 'roulette', 'catapult', 'security'].filter(z => SAVE.owned.includes(z));
+      const pool = ['dealer', 'roulette', 'catapult', 'bouncer', 'sniper'].filter(z => SAVE.owned.includes(z));
       const k = pool[buyN % pool.length];
       const nt = buildTower(k, Math.max(60, Math.min(1060, px + nx * 120 * side)),
                     Math.max(70, Math.min(500, py + ny * 120 * side)));

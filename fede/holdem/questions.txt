@@ -103,3 +103,41 @@ ROUND 3 — after the tier-3 "get crazy" session (Aug 8)
        top-floor OFFICE at the end of the Fancy Bar block (41?). Slow, enormous,
        immune to walk-back, and every tower he passes he "buys" (it fights FOR
        him until he dies). Say yes/no/adjust and I'll build them there.
+
+═══════════════════════════════════════════════════════════
+ROUND 4 — BOSS REDESIGN PROPOSALS (Aug 9)
+═══════════════════════════════════════════════════════════
+You're right: 5 of the 11 bosses are variations on "I turn your towers off"
+(Auditor freezes your priciest, Entertainer freezes nearby, Photographer
+freezes those in frame, Regulator halves their damage, Lady Luck makes them
+roll minimum). Here's one replacement each — none of them touch your towers.
+Say which you want and I'll build them.
+
+18a. THE AUDITOR — instead of freezing a tower: he AUDITS YOUR BOOKS. While he
+     walks, every chip you EARN is held in escrow (a running total on the HUD).
+     Kill him and it all pays out at once; let him reach the desk and the house
+     keeps it. Turns him into a timer on your greed.
+
+18b. THE ENTERTAINER — instead of freezing towers: the crowd STOPS TO WATCH.
+     Guests near him halt and form an audience, then all surge forward together
+     when his number ends. You can't kill him fast enough to stop the encore,
+     so you have to prepare for one enormous clump instead of a steady line.
+
+18c. THE HOUSE PHOTOGRAPHER — instead of a blinding flash: every guest he
+     photographs gets a COPY. The photo walks the lane a few seconds behind
+     the original at half health. He literally duplicates the wave.
+
+18d. THE REGULATOR — instead of citing tables: she CLOSES A LANE. One entrance
+     is shut with tape while she walks, so everything funnels through the other
+     doors — your careful spread becomes wrong, and you have to re-place under
+     pressure. (On single-lane floors: she reverses the lane's direction of
+     travel for a few seconds instead.)
+
+18e. LADY LUCK — instead of a damage jinx: she GAMBLES for the house. Every few
+     seconds she spins, and one of these happens to the whole floor: all guests
+     heal a little / all guests speed up / she splits into two half-health
+     copies / she pays YOU a jackpot. Genuinely random each spin, telegraphed a
+     second ahead by the wheel above her head.
+
+19. Also: enemies now have ARMOUR (see below) — happy to use armour-piercing as
+    a boss trait too if you'd rather.

@@ -195,6 +195,38 @@ Tracking every piece of playtest feedback. Checked = shipped & pushed.
       the price, and BUY / BACK. Items you can't afford still open — they show the price in red
       next to your balance, with CLOSE instead of BUY, so you can plan ahead.
 
+## Playtest feedback round 8 (Aug 9) — the big balance + roster pass
+- [x] **Cold Deck was a trivial win and you under-guessed it**: the freeze was NOT 60%, it was
+      100% — every card froze, so 9 cards every 0.75s locked the floor solid. Now a per-hit ROLL
+      (30% → 40% by tier) with a thaw-immunity window, and the dossier states the odds.
+- [x] **Bounce falloff is now a per-tier stat**: halving made hops 4+ pointless, so Ivory Ball
+      upgrades raise the ratio 50% → 60 → 68 → 76 → 84%. ORBITAL DECAY's 14 bounces finally mean
+      something. Steel Ball stays punchy (55%) — the branches now feel different on purpose.
+- [x] **Craps can no longer wall a lane**: a shove is a ROLL (50% → 80% by tier) and a shoved
+      guest is immune for 1.8s, so four tables in a row can't freeze the crowd in place.
+- [x] **THE RED CARPET** (was Velvet Rope): its area of effect is now an actual red carpet rolled
+      down every lane it covers, with brass posts and rope swags, brightening while it works.
+- [x] **The shrimp buffet no longer moves anyone** — it just poisons the room it stands in, and
+      the poisoned go visibly green. Branch B is now **Bad Oysters**: the sick stop for half a
+      second to be spectacularly ill, and the puddle stays 2s slowing everyone who steps in it.
+- [x] **Chip Catapult reworked**: no more lobbing at a point. It's slow and enormous now, and the
+      chip PIERCES the whole room in a straight line through everyone it touches. Scattershot
+      fires a fan of them.
+- [x] **Names grounded**: "Nobody Gets In"/"The Whole Wing"/"The Whole Room"/"PERPETUAL HAPPY
+      HOUR" → Door Policy, The Long Walk, The Corner Booth, The Lock-In, etc.
+- [x] **THE BOUNCER replaces Casino Security** — a huge man with a shotgun; a cone of buckshot,
+      brutal up close. Branches: Double-Barrel (slugs + knockback) / Crowd Control (wider, more
+      pellets).
+- [x] **THE HOUSE MARKSMAN** — prone in a dinner jacket behind a sandbag; enormous range, very
+      slow, very strong. Branches: The Long Shot (further, harder) / The Called Shot (×2→×4 on
+      BOSSES).
+- [x] **PENN & TELLER** (was The Double Act) — now strictly pointed, one volunteer at a time, and
+      **+1 reputation for the floor just for standing there**. Branch A *Teller's Menagerie*:
+      turns a guest into a rabbit/dove/frog — weaker and with every special power stripped.
+      Branch B *Penn's Patter*: strips ARMOUR and leaves them exposed (+25→55% damage taken).
+- [x] **Enemies have armour now** — only the Coupon Clipper did, so armour-stripping had nothing
+      to strip. Tough guests and bosses carry 1-3 pips (each eats one hit).
+
 ## Next playtest questions for Billy
 - With 20 lives, do floors 1–10 feel too easy now?
 - Does the rack actually scroll with your thumb on your phone? (can't test that headlessly)
