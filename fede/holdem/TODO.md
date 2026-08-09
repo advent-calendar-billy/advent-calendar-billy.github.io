@@ -296,12 +296,15 @@ Tracking every piece of playtest feedback. Checked = shipped & pushed.
       if a tier doesn't read, make the DESIGN louder.
 - [x] **Scroll gutter** down the right of the between-floors shop — a 30px empty strip (with a
       faint rail) so a thumb can scroll the list without landing on a card.
-- [x] **"Where's tier 3?" answered and made obvious.** Nothing was broken — a probe confirmed all
-      four tiers offer correctly (lvl1 → both branches, then Iron Ball → Wrecking Ball → Meteor).
-      The confusion was the gating: ONE comps purchase opens the whole branch, but nothing said
-      so. Now the shop row reads "…— opens all 4 tiers", the confirm card adds "One purchase. You
-      then pay chips for each tier, on the floor.", and a locked in-floor button says NEEDS COMPS
-      instead of a quiet "comps".
+- [x] **Real fix for "I can't see tier 3": comps now buy ONE TIER AT A TIME.** I'd misread this as
+      an in-floor problem and answered it with explanatory text — wrong on both counts. The shop
+      sold a whole branch in one purchase, so there was never a tier III row to find. Now each
+      tower lists its two branches with the **next tier** on offer — "Aflame · III · The
+      Firestarter" — advancing to IV, then V, then OWNED, at rising comps (35 → 60 → 100).
+      `SAVE.paths[k][branch]` became a count; legacy `true` saves are honoured as fully bought.
+- [x] **All explanatory commentary removed** and a boxed rule added above the spend screen: no
+      sentences telling the player how the game works, anywhere. Names, numbers, prices only —
+      if a rule isn't clear, fix the STRUCTURE, never add a sentence.
 
 ## Next playtest questions for Billy
 - With 20 lives, do floors 1–10 feel too easy now?

@@ -293,6 +293,7 @@
   }
   .sgItem b { font-size: 11px; color: var(--cream); text-align: left; line-height: 1.15; }
   .sgItem b small { display: block; font-size: 9px; font-weight: 400; color: #9c8757; }
+  .sgItem b small { display: block; font-size: 9px; font-weight: 400; color: #9c8757; }
   .sgTower {
     font-size: 10.5px; font-weight: 800; color: var(--cream); letter-spacing: .6px;
     margin: 7px 0 3px; text-align: left; border-bottom: 1px solid #3a2f1c; padding-bottom: 2px;
@@ -3652,7 +3653,7 @@
 
 
 <!-- floating tower menu -->
-<div id="ver">v80</div>
+<div id="ver">v81</div>
 <div id="susLbl">OPERATIONS SUSPENDED · NO BUILDING THIS WAVE</div>
 <div id="shopOv">
   <div id="shopCardOv">
@@ -4280,7 +4281,17 @@ const FLAVOR = {
   sniper:   { a: ['a bigger bolt, further', 'it sees the whole wing', 'the arc jumps further still', 'lightning, on a timer'],
               b: ['it knows a boss when it sees one', 'flags them properly', 'bosses take triple', 'bosses take quadruple'] }
 };
-const pathOwned = (key, path) => !!((SAVE.paths || {})[key] || {})[path];
+/* comps unlock a branch ONE TIER AT A TIME. SAVE.paths[key][path] holds how many
+   tiers past the free first one are bought (0-3). Legacy saves stored `true`,
+   which used to open the whole branch — honour that as fully bought. */
+const pathLv = (key, path) => {
+  const v = ((SAVE.paths || {})[key] || {})[path];
+  return v === true ? 3 : (v || 0);
+};
+const tierUnlocked = (key, path, i) => i === 0 || pathLv(key, path) >= i;
+const pathOwned = (key, path) => pathLv(key, path) > 0;
+const TIERMUL = [1, 1, 1.7, 2.8, 4.5];        // comps price per tier, indexed by tier
+const tierCost = (key, i) => Math.round(PATHCOST[key] * TIERMUL[i] / 5) * 5;
 const towerSpend = t => {
   let v = effCost(TTYPES[t.type]);
   if (t.path) for (let i = 0; i < t.lvl - 1; i++) v += TSPEC[t.type][t.path].tiers[i].cost;
@@ -5603,11 +5614,11 @@ function showTowerInfo(key, tower) {
   const here = (path, lvl) => tower && tower.lvl === lvl - 1 && (lvl === 2 || tower.path === path);
 
   const branch = (pk) => {
-    const P = spec[pk], deep = pathOwned(key, pk);
+    const P = spec[pk];
     const rows = P.tiers.map((tr, i) => {
       const lvl = i + 2;
       const have = tower && tower.path === pk && tower.lvl >= lvl;
-      const open = lvl === 2 || deep;          // tier I always open; comps buy the rest
+      const open = tierUnlocked(key, pk, i);
       return `<div class="tier ${have ? 'have' : here(pk, lvl) ? 'next' : ''}${open ? '' : ' rowLock'}">
         <div class="ti">
           <div class="tn">${tr.name}</div>
@@ -5674,13 +5685,13 @@ function openSheetForTower(tower) {
     if (!tier) return;
     // tier I is open to everyone (Billy: "the first tier of upgrades should be
     // unlocked by default") — comps gate only the deeper tiers
-    const unlocked = !G.suspended && (tower.lvl === 1 || pathOwned(tower.type, pk));
+    const unlocked = !G.suspended && tierUnlocked(tower.type, pk, tower.lvl - 1);
     const afford = G.chips >= tier.cost;
     const b = document.createElement('button');
     b.className = 'twBtn ' + (!unlocked ? 'locked' : afford ? 'can' : 'poor');
     if (unlocked) b.dataset.cost = tier.cost;
     b.innerHTML = `${tier.name}<span class="c">` +
-      (unlocked ? `◉ ${tier.cost}` : 'NEEDS COMPS') + `</span>`;
+      (unlocked ? `◉ ${tier.cost}` : 'comps') + `</span>`;
     b.title = FLAVOR[tower.type][pk][tower.lvl - 1];
     if (!unlocked) b.addEventListener('pointerdown', ev => {
       ev.stopPropagation();
@@ -8312,8 +8323,19 @@ const BRANCHINFO = {
   magic:    { a: 'turns guests to rabbits', b: 'group vanish, confusion' }
 };
 
-/* the spend screen: shows up right after the slot pays out, nothing else between
-   you and the next floor (Billy: purchases should appear after the machine) */
+/* ══════════════════════════════════════════════════════════════════════════════
+   NO EXPLANATORY COMMENTARY IN THE GAME.
+
+   Do not add sentences telling the player how the game works — not here, not in
+   the dossiers, not on buttons, not as notes under a list. No "one purchase
+   unlocks all tiers", no "locked paths are bought with comps between floors",
+   no tooltips restating a rule. Standing instruction from Billy, given twice:
+   the people playing this work it out, and the text is clutter that tires the
+   eye. Names, numbers and prices only. If a rule isn't clear, fix the STRUCTURE
+   (group it, order it, show the next step) — never add a sentence.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+/* the spend screen: shows up right after the slot pays out */
 function renderShopOv() {
   const body = $('shopOvBody');
   $('shopOvComps').textContent = '◉ ' + SAVE.comps + ' COMPS';
@@ -8334,16 +8356,21 @@ function renderShopOv() {
     h += item('hire:' + k, TTYPES[k].name, HIREINFO[k] || '', HIRECOST[k],
               SAVE.owned.includes(k), SAVE.comps >= HIRECOST[k]);
   }
-  h += '</div><div class="sgTitle">UPGRADE PATHS · TIERS II+</div>';
+  h += '</div><div class="sgTitle">UPGRADES</div>';
+  const ROM = ['I', 'II', 'III', 'IV', 'V'];
   for (const k of SAVE.owned) {
     if (DISABLED.includes(k)) continue;
     h += `<div class="sgTower">${TTYPES[k].name}</div><div class="sgRow">`;
     for (const pk of ['a', 'b']) {
-      const tiers = TSPEC[k][pk].tiers;
-      h += item('path:' + k + ':' + pk, TSPEC[k][pk].label,
-                `${BRANCHINFO[k][pk]} — opens all ${tiers.length} tiers`,
-                PATHCOST[k], pathOwned(k, pk), SAVE.comps >= PATHCOST[k],
-                `${TTYPES[k].name} · ${TSPEC[k][pk].label}`);
+      const P = TSPEC[k][pk];
+      const i = pathLv(k, pk) + 1;             // the next tier this branch can buy
+      const done = i >= P.tiers.length;
+      const tr = P.tiers[Math.min(i, P.tiers.length - 1)];
+      const cost = tierCost(k, i);
+      h += item('path:' + k + ':' + pk,
+                `${P.label} <small>${ROM[Math.min(i + 1, 4)]} · ${tr.name}</small>`,
+                BRANCHINFO[k][pk], cost, done, SAVE.comps >= cost,
+                `${TTYPES[k].name} · ${tr.name}`);
     }
     h += '</div>';
   }
@@ -8367,10 +8394,7 @@ function askBuy(id) {
   if (!it) return;
   buyPending = it.owned || !it.afford ? null : id;
   $('buyName').textContent = it.name;
-  $('buyWhat').innerHTML = it.sub +
-    (id.startsWith('path:')
-      ? '<br><b style="color:#9fc4b2">One purchase. You then pay chips for each tier, on the floor.</b>'
-      : '');
+  $('buyWhat').textContent = it.sub;
   $('buyPrice').textContent = it.owned ? 'ALREADY YOURS'
     : it.afford ? it.price + ' ◉ COMPS'
     : `${it.price} ◉ — you have ${SAVE.comps}`;
@@ -8389,7 +8413,12 @@ $('buyYes').addEventListener('pointerdown', ev => {
   if (!buyPending) return;
   const [kind, a, b] = buyPending.split(':');
   if (kind === 'hire') { SAVE.comps -= HIRECOST[a]; SAVE.owned.push(a); }
-  if (kind === 'path') { SAVE.comps -= PATHCOST[a]; (SAVE.paths[a] = SAVE.paths[a] || {})[b] = true; }
+  if (kind === 'path') {
+    const nxt = pathLv(a, b) + 1;
+    SAVE.comps -= tierCost(a, nxt);
+    if (SAVE.paths[a] && SAVE.paths[a][b] === true) SAVE.paths[a][b] = 3;
+    (SAVE.paths[a] = SAVE.paths[a] || {})[b] = nxt;
+  }
   if (kind === 'perk' && a === 'star') { SAVE.comps -= 120; SAVE.perks.star = true; }
   if (kind === 'perk' && a === 'spins') { SAVE.comps -= 35; SAVE.perks.spins = (SAVE.perks.spins || 0) + 1; }
   buyPending = null;
