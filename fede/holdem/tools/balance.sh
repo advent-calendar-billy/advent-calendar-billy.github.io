@@ -14,8 +14,7 @@ d = json.load(open(sys.argv[1]))
 # BLOCKED is the one that matters: a floor nobody clears ends the campaign, so it is
 # never an acceptable leftover. Too-easy floors are only an annoyance.
 blocked = [k for k, v in d.items()
-           if v["wins"] == 0 or v["median_wave"] < 7
-           or (v.get("cliff", 0) > 0.8 and v["rate"] < 0.05)]
+           if v["wins"] == 0 or v["median_wave"] < 7]
 soft = [k for k, v in d.items() if v["rate"] > 0.15]
 print(len(blocked), len(soft))
 print("  blocked:", " ".join(sorted(blocked, key=int)) or "none", file=sys.stderr)

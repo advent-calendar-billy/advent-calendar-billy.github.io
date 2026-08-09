@@ -48,3 +48,8 @@ prediction of human difficulty.
         868 long against the other's 1298, and seeded layouts meant it rolled
         that variant every time.
   30-70% is the healthy band for a normal floor; block finales can sit lower.
+
+A floor where the bot reaches wave 10 every run and dies there is FINE — Billy's
+call, and a sound one: the bot cannot retarget, reposition or focus a boss, so a
+person has a great deal more room than its win rate suggests. What is not fine is
+a floor it never wins at all, or one it dies on by wave 5.
