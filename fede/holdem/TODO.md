@@ -264,6 +264,18 @@ Tracking every piece of playtest feedback. Checked = shipped & pushed.
       **The Escort** ("walks them back out"), 65 comps to hire, branch A renamed The Heavies so it
       no longer collides with the Bouncer's name.
 
+- [x] **THE EYE IN THE SKY replaces the House Marksman** (your call) — a security camera on a
+      post whose head **pans back and forth on patrol** like the real thing (IR ring, blinking
+      red record light), and it kills with a **thunderbolt**: a jagged three-layer arc, sparks,
+      and an electrical crack. Branches renamed to suit: High Voltage (transformer, arcing
+      terminals) and Facial Recognition (monitor with a face-detection box, tally of flagged
+      faces). Probe-verified: 5 bolts fired in 8 seconds.
+- [x] **SLOT MACHINE: you were right, the math was off.** One scatter in an 18-symbol strip meant
+      **1.12% per spin, 10.6% per visit, and a 4-in-5 chance of two dry visits in a row** — you
+      hit the likely case, not bad luck. Added a second scatter: now **6% per spin, 46% per
+      visit**, and two dry visits is down to 29%. Two scatters now says "one off the free games!"
+      so the rule is legible. (45% of spins already return something after the pair-pays change.)
+
 ## Next playtest questions for Billy
 - With 20 lives, do floors 1–10 feel too easy now?
 - Does the rack actually scroll with your thumb on your phone? (can't test that headlessly)

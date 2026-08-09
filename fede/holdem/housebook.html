@@ -696,6 +696,28 @@
         <circle cx="11.5" cy="-19" r="2.2" fill="#c3c9d2" stroke="#3b2415" stroke-width="1.4"/>
         <path d="M12 -17 q 3 4 0 8" fill="none" stroke="#c3c9d2" stroke-width="1.4"/>
       </g>
+      <g id="twCamera">
+        <ellipse cx="0" cy="26" rx="26" ry="7" fill="rgba(40,16,8,.4)"/>
+        <!-- floor plate + post -->
+        <ellipse cx="0" cy="20" rx="17" ry="7" fill="#5a4626" stroke="#3b2415" stroke-width="3"/>
+        <ellipse cx="0" cy="18" rx="13" ry="5" fill="url(#brassG)" stroke="#3b2415" stroke-width="2"/>
+        <rect x="-4.5" y="-6" width="9" height="24" rx="3" fill="#8b939e" stroke="#3b2415" stroke-width="2.6"/>
+        <rect x="-2.4" y="-4" width="2.6" height="20" fill="rgba(255,255,255,.35)"/>
+        <!-- THE HEAD: this is what pans -->
+        <g class="camPan">
+          <rect x="-13" y="-24" width="26" height="15" rx="4" fill="#2b2f38" stroke="#3b2415" stroke-width="3"/>
+          <rect x="-13" y="-24" width="26" height="5" rx="2.5" fill="#3d434b"/>
+          <path d="M-9 -26 L 9 -26 L 7 -30 L -7 -30 Z" fill="#20242c" stroke="#3b2415" stroke-width="2.2"/>
+          <!-- lens barrel pointing forward -->
+          <rect x="9" y="-21" width="12" height="9" rx="3" fill="#1e1a16" stroke="#3b2415" stroke-width="2.4"/>
+          <circle cx="21" cy="-16.5" r="5" fill="#141821" stroke="#3b2415" stroke-width="2.4"/>
+          <circle cx="21" cy="-16.5" r="2.6" fill="#2b6cb0"/>
+          <circle cx="19.6" cy="-18" r="1.1" fill="#d7ecf7"/>
+          <!-- IR ring + recording light -->
+          <circle cx="21" cy="-16.5" r="7.4" fill="none" stroke="#7a3f8c" stroke-width="1.4" opacity=".8"/>
+          <circle cx="-9" cy="-21.5" r="1.8" fill="#e0575f" class="camRec"/>
+        </g>
+      </g>
       <g id="twSniper">
         <ellipse cx="0" cy="28" rx="32" ry="8" fill="rgba(40,16,8,.4)"/>
         <!-- sandbag rest -->
@@ -2440,6 +2462,50 @@
         <path d="M-6 0 L -14 6" stroke="#6b4423" stroke-width="4.4" stroke-linecap="round"/>
         <circle cx="41" cy="0.3" r="2.4" fill="#1e1a16" stroke="#3b2415" stroke-width="1.4"/>
       <line x1="41" y1="0" x2="70" y2="-6" stroke="rgba(232,64,72,.85)" stroke-width="2"/><circle cx="72" cy="-6.5" r="4.4" fill="none" stroke="#e84048" stroke-width="2"/><circle cx="72" cy="-6.5" r="1.5" fill="#e84048"/><path d="M67 -6.5 h -3.5 M76.5 -6.5 h 3.5 M72 -11 v -3.5 M72 -2 v 3.5" stroke="#e84048" stroke-width="1.6"/><rect x="2" y="-11" width="14" height="7" rx="3" fill="#2a1220" stroke="#1e1a16" stroke-width="2"/><circle cx="13" cy="-7.5" r="2.2" fill="#e84048" stroke="#1e1a16" stroke-width="1.2"/></g>
+      <g id="twCamera_a">
+        <ellipse cx="0" cy="26" rx="26" ry="7" fill="rgba(40,16,8,.4)"/>
+        <!-- floor plate + post -->
+        <ellipse cx="0" cy="20" rx="17" ry="7" fill="#5a4626" stroke="#3b2415" stroke-width="3"/>
+        <ellipse cx="0" cy="18" rx="13" ry="5" fill="url(#brassG)" stroke="#3b2415" stroke-width="2"/>
+        <rect x="-4.5" y="-6" width="9" height="24" rx="3" fill="#8b939e" stroke="#3b2415" stroke-width="2.6"/>
+        <rect x="-2.4" y="-4" width="2.6" height="20" fill="rgba(255,255,255,.35)"/>
+        <!-- THE HEAD: this is what pans -->
+        <g class="camPan">
+          <rect x="-13" y="-24" width="26" height="15" rx="4" fill="#3d434b" stroke="#3b2415" stroke-width="3"/>
+          <rect x="-13" y="-24" width="26" height="5" rx="2.5" fill="#3d434b"/>
+          <path d="M-9 -26 L 9 -26 L 7 -30 L -7 -30 Z" fill="#2f353c" stroke="#3b2415" stroke-width="2.2"/>
+          <!-- lens barrel pointing forward -->
+          <rect x="9" y="-21" width="12" height="9" rx="3" fill="#1e1a16" stroke="#3b2415" stroke-width="2.4"/>
+          <circle cx="21" cy="-16.5" r="5" fill="#141821" stroke="#3b2415" stroke-width="2.4"/>
+          <circle cx="21" cy="-16.5" r="2.6" fill="#7fd8f0"/>
+          <circle cx="19.6" cy="-18" r="1.1" fill="#d7ecf7"/>
+          <!-- IR ring + recording light -->
+          <circle cx="21" cy="-16.5" r="7.4" fill="none" stroke="#7a3f8c" stroke-width="1.4" opacity=".8"/>
+          <circle cx="-9" cy="-21.5" r="1.8" fill="#e0575f" class="camRec"/>
+        </g>
+      <rect x="-24" y="4" width="15" height="17" rx="3" fill="#5f636b" stroke="#3b2415" stroke-width="2.4"/><path d="M-21 8 h 9 M -21 12 h 9 M -21 16 h 9" stroke="#9aa3ad" stroke-width="1.4"/><path d="M-16.5 4 L -16.5 -2" stroke="#3b2415" stroke-width="2.6"/><circle cx="-16.5" cy="-3.5" r="2.6" fill="#bfe6ff" stroke="#3b2415" stroke-width="1.4"/><path d="M-16.5 -6 q 5 -4 2 -9 q -3 -4 1 -8" fill="none" stroke="#7fd8f0" stroke-width="1.8" stroke-linecap="round" opacity=".9"/><path d="M13 20 l 5 -7 l -3 0 l 4 -7" fill="none" stroke="#ffe08a" stroke-width="2.2" stroke-linecap="round"/></g>
+      <g id="twCamera_b">
+        <ellipse cx="0" cy="26" rx="26" ry="7" fill="rgba(40,16,8,.4)"/>
+        <!-- floor plate + post -->
+        <ellipse cx="0" cy="20" rx="17" ry="7" fill="#5a4626" stroke="#3b2415" stroke-width="3"/>
+        <ellipse cx="0" cy="18" rx="13" ry="5" fill="url(#brassG)" stroke="#3b2415" stroke-width="2"/>
+        <rect x="-4.5" y="-6" width="9" height="24" rx="3" fill="#8b939e" stroke="#3b2415" stroke-width="2.6"/>
+        <rect x="-2.4" y="-4" width="2.6" height="20" fill="rgba(255,255,255,.35)"/>
+        <!-- THE HEAD: this is what pans -->
+        <g class="camPan">
+          <rect x="-13" y="-24" width="26" height="15" rx="4" fill="#2a1f38" stroke="#3b2415" stroke-width="3"/>
+          <rect x="-13" y="-24" width="26" height="5" rx="2.5" fill="#3d434b"/>
+          <path d="M-9 -26 L 9 -26 L 7 -30 L -7 -30 Z" fill="#221a2e" stroke="#3b2415" stroke-width="2.2"/>
+          <!-- lens barrel pointing forward -->
+          <rect x="9" y="-21" width="12" height="9" rx="3" fill="#1e1a16" stroke="#3b2415" stroke-width="2.4"/>
+          <circle cx="21" cy="-16.5" r="5" fill="#141821" stroke="#3b2415" stroke-width="2.4"/>
+          <circle cx="21" cy="-16.5" r="2.6" fill="#e0575f"/>
+          <circle cx="19.6" cy="-18" r="1.1" fill="#d7ecf7"/>
+          <!-- IR ring + recording light -->
+          <circle cx="21" cy="-16.5" r="7.4" fill="none" stroke="#7a3f8c" stroke-width="1.4" opacity=".8"/>
+          <circle cx="-9" cy="-21.5" r="1.8" fill="#e0575f" class="camRec"/>
+        </g>
+      <rect x="-27" y="0" width="20" height="15" rx="2.4" fill="#141821" stroke="#3b2415" stroke-width="2.4"/><rect x="-25" y="2" width="16" height="11" rx="1.4" fill="#12261e"/><circle cx="-19" cy="6.4" r="3" fill="none" stroke="#8fd0a0" stroke-width="1.4"/><rect x="-23" y="2.8" width="8" height="8" fill="none" stroke="#e0575f" stroke-width="1.2" stroke-dasharray="2 1.6"/><path d="M-13 12 h 3 M -13 9.6 h 3" stroke="#8fd0a0" stroke-width="1"/><circle cx="21" cy="-16.5" r="9.6" fill="none" stroke="#e0575f" stroke-width="1.2" stroke-dasharray="3 2.4"/></g>
     </defs></svg>
 <div class="wrap">
   <h1>THE HOUSE BOOK</h1>
@@ -2491,8 +2557,8 @@ const TTYPES = {
     blurb:'Shotgun, no conversation', },
   security: { name:'The Escort', sprite:'twSecurity', cost:240, range:210, cd:3.2, scale:.66,
     blurb:'Walks them back out', },
-  sniper: { name:'The House Marksman', sprite:'twSniper', cost:280, range:420, cd:4.2, scale:.64,
-    blurb:'One shot from a long way', },
+  sniper: { name:'The Eye in the Sky', sprite:'twCamera', cost:280, range:420, cd:4.2, scale:.64,
+    blurb:'Sees you. Then it fries you', },
   magic: { name:'Penn & Teller', sprite:'twMagic', cost:250, range:150, cd:5, scale:.66,
     blurb:'Two magicians, one salary', }
 };
@@ -2652,14 +2718,14 @@ const TSPEC = {
   sniper: {
     
     base: { dmg: 190, range: 420, cd: 4.2 },
-    a: { label: 'The Long Shot', tiers: [
-        { name: 'The Long Shot', cost: 300, s: { dmg: 420, range: 480 } },
-        { name: 'The Rafters', cost: 700, s: { dmg: 900, range: 540, cd: 3.9 } },
-        { name: 'ACROSS THE FLOOR', cost: 1500, s: { dmg: 1900, range: 600, cd: 3.6 } },
-        { name: 'THE LAST WORD', cost: 3100, s: { dmg: 4200, range: 660, cd: 3.3 } } ] },
-    b: { label: 'The Called Shot', tiers: [
-        { name: 'The Called Shot', cost: 290, s: { dmg: 330, bossMul: 2 } },
-        { name: 'Marked Man', cost: 680, s: { dmg: 700, bossMul: 2.4, cd: 3.8 } },
+    a: { label: 'High Voltage', tiers: [
+        { name: 'High Voltage', cost: 300, s: { dmg: 420, range: 480 } },
+        { name: 'The Substation', cost: 700, s: { dmg: 900, range: 540, cd: 3.9 } },
+        { name: 'ARC FLASH', cost: 1500, s: { dmg: 1900, range: 600, cd: 3.6 } },
+        { name: 'THE LIGHTNING ROD', cost: 3100, s: { dmg: 4200, range: 660, cd: 3.3 } } ] },
+    b: { label: 'Facial Recognition', tiers: [
+        { name: 'Facial Recognition', cost: 290, s: { dmg: 330, bossMul: 2 } },
+        { name: 'Flagged', cost: 680, s: { dmg: 700, bossMul: 2.4, cd: 3.8 } },
         { name: 'THE HOUSE ALWAYS KNOWS', cost: 1450, s: { dmg: 1450, bossMul: 3, cd: 3.4 } },
         { name: 'NO SUCH THING AS LUCK', cost: 3000, s: { dmg: 3000, bossMul: 4, cd: 3 } } ] }
   },
@@ -2685,7 +2751,7 @@ const TROLE = {
   security: 'SINGLE TARGET · hits hard and WALKS them back up the lane',
   magic: 'CONTROL · one guest at a time · +1 reputation while it stands',
   bouncer: 'CLOSE RANGE · a cone of buckshot, brutal up close',
-  sniper: 'LONG RANGE · one enormous shot, slowly',
+  sniper: 'LONG RANGE · a bolt of lightning, slowly',
   cage:     'INCOME · does not attack',
   atm:      'INCOME · skims guests walking past',
   craps:    'AREA KNOCKBACK · shoves the crowd back',
@@ -2718,8 +2784,8 @@ const FLAVOR = {
               b: ['strips a little armour', 'strips more, and they bruise easier', 'shreds nearly all of it', 'no armour, no tricks'] },
   bouncer:  { a: ['heavier shot, knocks them back', 'slugs now, not pellets', 'both barrels, every time', 'nobody gets past the door'],
               b: ['more pellets, wider spray', 'a much wider choke', 'sweeps the whole doorway', 'clears the room in one'] },
-  sniper:   { a: ['harder, and further', 'sees the whole wing', 'nearly the whole floor', 'wherever they are'],
-              b: ['hurts bosses badly', 'marks them properly', 'bosses take triple', 'bosses take quadruple'] }
+  sniper:   { a: ['a bigger bolt, further', 'it sees the whole wing', 'the arc jumps further still', 'lightning, on a timer'],
+              b: ['it knows a boss when it sees one', 'flags them properly', 'bosses take triple', 'bosses take quadruple'] }
 };
 const BRANCHINFO = {
   dealer:   { a: 'fire, splash damage', b: 'ice, slows guests' },
@@ -2733,13 +2799,13 @@ const BRANCHINFO = {
   catapult: { a: 'bigger single blasts', b: 'wide, splitting shots' },
   security: { a: 'harder, walks them far', b: 'faster, multi-target' },
   bouncer:  { a: 'bigger blasts, knockback', b: 'wider cone, more pellets' },
-  sniper:   { a: 'further, harder', b: 'punishes the biggest guest' },
+  sniper:   { a: 'longer reach, bigger bolt', b: 'hunts bosses specifically' },
   magic:    { a: 'turns guests to rabbits', b: 'group vanish, confusion' }
 };
 const HIREINFO = {
   craps: 'shoves crowds back', buffet: 'lures + poisons guests', waitress: 'speeds nearby tables',
   catapult: 'huge splash damage', security: 'hits hard, walks them back', magic: 'vanishes guests, +1 rep',
-  bouncer: 'close-range buckshot', sniper: 'long-range single shot'
+  bouncer: 'close-range buckshot', sniper: 'long-range lightning bolt'
 };
 const HIRECOST = { craps: 40, buffet: 45, waitress: 50, catapult: 60, bouncer: 55, security: 65, sniper: 70, magic: 75 };
 const PATHCOST = {          
@@ -3809,14 +3875,14 @@ function artFor(g, type, path, lvl) {
     }
   }
   if (type === 'sniper') {
-    if (A) {                                       // Long Shot: spent brass, a spotting scope
+    if (A) {                                       // High Voltage: the arcs multiply
       for (let i = 0; i < k + 1; i++)
-        E(-16 + i * 5, 22, 2.6, 1.4, '#e8b64c');
-      if (k >= 2) C(-26, 2, 3, '#2f353c', '#1e1a16', 1.6);
-    } else {                                       // Called Shot: the ledger of names grows
+        P(`M ${-8 + i * 8} -34 q 4 -4 1 -8 q -3 -4 2 -7`, 'none', '#7fd8f0', 1.8);
+      if (k >= 3) C(0, -40, 3, '#bfe6ff', '#3b2415', 1.4);
+    } else {                                       // Facial Recognition: more faces on file
       for (let i = 0; i < k; i++)
-        svgEl('rect', { x: -30 + i * 4, y: 6, width: 3, height: 10, rx: 1, fill: '#f5ead1',
-                        stroke: '#3b2415', 'stroke-width': 1.1 }, g);
+        svgEl('rect', { x: -32 + i * 7, y: -12, width: 6, height: 7, rx: 1.2, fill: '#12261e',
+                        stroke: '#8fd0a0', 'stroke-width': 1.2 }, g);
     }
   }
   if (type === 'magic') {
