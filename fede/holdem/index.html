@@ -3664,7 +3664,7 @@
 
 
 <!-- floating tower menu -->
-<div id="ver">v83</div>
+<div id="ver">v84</div>
 <div id="susLbl">OPERATIONS SUSPENDED · NO BUILDING THIS WAVE</div>
 <div id="shopOv">
   <div id="shopCardOv">
@@ -8136,12 +8136,13 @@ function pickAmbientTarget(w) {
 }
 
 /* ══════════ SLOT MACHINE (between floors) ══════════ *//* ══════════ SLOT MACHINE (between floors) ══════════ */
-const SLOT = { spins: 10, free: 0, bonusWon: 0, spinning: false, COST: 25, CAP: 400 };
+const SLOT = { spins: 10, free: 0, awarded: 0, bonusWon: 0, spinning: false,
+               COST: 25, MAXFREE: 20 };
 const slotSpins = () => 10 + 2 * (SAVE.perks.spins || 0);
 /* weighted strip: sun(Hair) wig(Hedwig) plant(LittleShop) hat(Wicked) lips(Rocky) seven star */
-const STRIP = ['symSun','symSun','symSun','symSun','symSun',
-               'symWig','symWig','symWig','symWig',
-               'symPlant','symPlant','symPlant',
+const STRIP = ['symSun','symSun','symSun','symSun','symSun','symSun','symSun',
+               'symWig','symWig','symWig','symWig','symWig',
+               'symPlant','symPlant','symPlant','symPlant',
                'symHat','symHat',
                'symLips','symLips',
                'symSeven','symStar','symStar'];
@@ -8249,6 +8250,7 @@ const starRating = () => Math.max(1, Math.min(5, Math.round(G.stars / maxStars()
 function openSlots() {
   SLOT.spins = slotSpins();
   SLOT.free = 0;
+  SLOT.awarded = 0;
   SLOT.bonusWon = 0;
   buildReelGrid();
   $('slots').style.display = 'flex';
@@ -8298,23 +8300,17 @@ $('spinBtn').addEventListener('pointerdown', ev => {
         if (a === b && b !== c && SLOT_PAY[a]) win += Math.max(10, Math.round(SLOT_PAY[a] / 10 / 5) * 5);
       }
       const stars = final.filter(x => x === 'symStar').length;
-      if (stars >= 3) {
+      if (stars >= 3 && SLOT.awarded < SLOT.MAXFREE) {
         SLOT.free += 10;
+        SLOT.awarded += 10;
         msgs.push('10 FREE GAMES!');
         jackpotShow();
       }
       if (win) msgs.push('+' + win);
       let msg = msgs.length ? msgs.join(' · ')
-        : stars === 2 ? 'TWO SCATTERS — one off the free games!'
+        : stars === 2 ? '2 SCATTERS'
         : 'So close.';
-      if (win && wasFree) {
-        if (SLOT.bonusWon + win > SLOT.CAP) {
-          win = Math.max(0, SLOT.CAP - SLOT.bonusWon);
-          SLOT.free = 0;
-          msg = `House limit! +${win} — bonus over.`;
-        }
-        SLOT.bonusWon += win;
-      }
+      if (win && wasFree) SLOT.bonusWon += win;
       for (const L of hitLines) {
         const pts = L.map(i => `${82 + (i % 3) * 68},${133 + Math.floor(i / 3) * 55}`).join(' ');
         svgEl('polyline', { points: pts, fill: 'none', stroke: '#ffd23f', 'stroke-width': 6,
@@ -8325,6 +8321,7 @@ $('spinBtn').addEventListener('pointerdown', ev => {
       $('slotMsg').classList.toggle('bigwin', SLOT.free > 0 || win >= 200);
       G.chips += win;
       slotInfo(msg);
+      if (SLOT.free > 0) setTimeout(() => $('spinBtn').dispatchEvent(new Event('pointerdown')), 1150);
     }
   }, 80);
   slotInfo('...');
