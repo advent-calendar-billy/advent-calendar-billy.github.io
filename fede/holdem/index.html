@@ -3568,7 +3568,7 @@
 
 
 <!-- floating tower menu -->
-<div id="ver">v76</div>
+<div id="ver">v77</div>
 <div id="susLbl">OPERATIONS SUSPENDED · NO BUILDING THIS WAVE</div>
 <div id="shopOv">
   <div id="shopCardOv">
@@ -3861,6 +3861,8 @@ const TTYPES = {
     blurb:'Throws money at it', },
   bouncer: { name:'The Bouncer', sprite:'twBouncer', cost:230, range:120, cd:1.9, scale:.62,
     blurb:'Shotgun, no conversation', },
+  security: { name:'The Escort', sprite:'twSecurity', cost:240, range:210, cd:3.2, scale:.66,
+    blurb:'Walks them back out', },
   sniper: { name:'The House Marksman', sprite:'twSniper', cost:280, range:420, cd:4.2, scale:.64,
     blurb:'One shot from a long way', },
   magic: { name:'Penn & Teller', sprite:'twMagic', cost:250, range:150, cd:5, scale:.66,
@@ -4039,8 +4041,8 @@ const TSPEC = {
   security: {
     // the anti-boss table: one huge hit, and the guest gets WALKED back up the lane
     base: { dmg: 70, range: 210, cd: 3.2, walk: 60 },
-    a: { label: 'The Bouncer', tiers: [
-        { name: 'The Bouncer', cost: 260, s: { dmg: 150, walk: 95 } },
+    a: { label: 'The Heavies', tiers: [
+        { name: 'The Heavies', cost: 260, s: { dmg: 150, walk: 95 } },
         { name: 'Head of Security', cost: 620, s: { dmg: 300, walk: 135, range: 235 } },
         { name: 'THE EJECTION', cost: 1350, s: { dmg: 520, walk: 9999, cd: 3.6 } } ,
         { name: 'PERSONA NON GRATA', cost: 3000, s: { dmg: 1150, walk: 9999, cd: 3.2 } } ] },
@@ -4051,7 +4053,7 @@ const TSPEC = {
         { name: 'THE PANOPTICON', cost: 2900, s: { dmg: 340, cd: .8, targets: 6, range: 300 } } ] }
   }
 };
-const HIRECOST = { craps: 40, buffet: 45, waitress: 50, catapult: 60, bouncer: 55, sniper: 70, magic: 75 };
+const HIRECOST = { craps: 40, buffet: 45, waitress: 50, catapult: 60, bouncer: 55, security: 65, sniper: 70, magic: 75 };
 const PATHCOST = {          // comps to open one branch of one table, for the whole campaign
   // floor 1 banks ~40 comps and grants no upgrades at all, so the Dealer's first path
   // has to be reachable the moment you step off it — that's the hook
@@ -4063,7 +4065,7 @@ const TROLE = {
   dealer:   'SINGLE TARGET · a fan of cards, each one pierces',
   roulette: 'BOUNCING SHOT · ricochets between guests',
   rope:     'SLOW FIELD · no damage · slow follows them out',
-  security: 'SINGLE TARGET · huge hits that WALK the guest backward',
+  security: 'SINGLE TARGET · hits hard and WALKS them back up the lane',
   magic: 'CONTROL · one guest at a time · +1 reputation while it stands',
   bouncer: 'CLOSE RANGE · a cone of buckshot, brutal up close',
   sniper: 'LONG RANGE · one enormous shot, slowly',
@@ -4210,7 +4212,7 @@ function loadSave() { try { return JSON.parse(localStorage.getItem(SAVE_KEY)) ||
 function saveSave() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(SAVE)); } catch (e) {} }
 const SAVE = Object.assign({ unlocked: 1, comps: 0, upg: {} }, loadSave());
 SAVE.upg = SAVE.upg || {};
-const DISABLED = ['atm', 'security'];   // benched: code kept, off the shelf                       // benched tables — code stays, shelf doesn't
+const DISABLED = ['atm'];              // benched: code kept, off the shelf
 SAVE.owned = (SAVE.owned || ['dealer', 'roulette', 'rope', 'cage']).filter(k => !DISABLED.includes(k));
 SAVE.paths = SAVE.paths || {};        // { dealer: { a: true } } — comps-bought branches
 SAVE.perks = SAVE.perks || {};
@@ -8162,7 +8164,7 @@ $('cashBtn').addEventListener('pointerdown', ev => {
 /* 3-4 words of WHAT IT DOES, for the spend screen */
 const HIREINFO = {
   craps: 'shoves crowds back', buffet: 'lures + poisons guests', waitress: 'speeds nearby tables',
-  catapult: 'huge splash damage', security: 'huge single hits', magic: 'vanishes guests, +1 rep',
+  catapult: 'huge splash damage', security: 'hits hard, walks them back', magic: 'vanishes guests, +1 rep',
   bouncer: 'close-range buckshot', sniper: 'long-range single shot'
 };
 const BRANCHINFO = {

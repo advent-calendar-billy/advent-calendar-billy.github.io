@@ -2489,6 +2489,8 @@ const TTYPES = {
     blurb:'Throws money at it', },
   bouncer: { name:'The Bouncer', sprite:'twBouncer', cost:230, range:120, cd:1.9, scale:.62,
     blurb:'Shotgun, no conversation', },
+  security: { name:'The Escort', sprite:'twSecurity', cost:240, range:210, cd:3.2, scale:.66,
+    blurb:'Walks them back out', },
   sniper: { name:'The House Marksman', sprite:'twSniper', cost:280, range:420, cd:4.2, scale:.64,
     blurb:'One shot from a long way', },
   magic: { name:'Penn & Teller', sprite:'twMagic', cost:250, range:150, cd:5, scale:.66,
@@ -2664,8 +2666,8 @@ const TSPEC = {
   security: {
     
     base: { dmg: 70, range: 210, cd: 3.2, walk: 60 },
-    a: { label: 'The Bouncer', tiers: [
-        { name: 'The Bouncer', cost: 260, s: { dmg: 150, walk: 95 } },
+    a: { label: 'The Heavies', tiers: [
+        { name: 'The Heavies', cost: 260, s: { dmg: 150, walk: 95 } },
         { name: 'Head of Security', cost: 620, s: { dmg: 300, walk: 135, range: 235 } },
         { name: 'THE EJECTION', cost: 1350, s: { dmg: 520, walk: 9999, cd: 3.6 } } ,
         { name: 'PERSONA NON GRATA', cost: 3000, s: { dmg: 1150, walk: 9999, cd: 3.2 } } ] },
@@ -2680,7 +2682,7 @@ const TROLE = {
   dealer:   'SINGLE TARGET · a fan of cards, each one pierces',
   roulette: 'BOUNCING SHOT · ricochets between guests',
   rope:     'SLOW FIELD · no damage · slow follows them out',
-  security: 'SINGLE TARGET · huge hits that WALK the guest backward',
+  security: 'SINGLE TARGET · hits hard and WALKS them back up the lane',
   magic: 'CONTROL · one guest at a time · +1 reputation while it stands',
   bouncer: 'CLOSE RANGE · a cone of buckshot, brutal up close',
   sniper: 'LONG RANGE · one enormous shot, slowly',
@@ -2736,10 +2738,10 @@ const BRANCHINFO = {
 };
 const HIREINFO = {
   craps: 'shoves crowds back', buffet: 'lures + poisons guests', waitress: 'speeds nearby tables',
-  catapult: 'huge splash damage', security: 'huge single hits', magic: 'vanishes guests, +1 rep',
+  catapult: 'huge splash damage', security: 'hits hard, walks them back', magic: 'vanishes guests, +1 rep',
   bouncer: 'close-range buckshot', sniper: 'long-range single shot'
 };
-const HIRECOST = { craps: 40, buffet: 45, waitress: 50, catapult: 60, bouncer: 55, sniper: 70, magic: 75 };
+const HIRECOST = { craps: 40, buffet: 45, waitress: 50, catapult: 60, bouncer: 55, security: 65, sniper: 70, magic: 75 };
 const PATHCOST = {          
   
   
@@ -3603,7 +3605,7 @@ const ROOMS = [
       [['shark',1,0],['whale',5,5],['mojito',32,.28]]
     ] }
 ];
-const DISABLED = ['atm', 'security'];
+const DISABLED = ['atm'];
 function specStats(key, path, lvl) {
   const spec = TSPEC[key];
   const out = Object.assign({}, spec.base);

@@ -256,6 +256,14 @@ Tracking every piece of playtest feedback. Checked = shipped & pushed.
       He still holds most of the take, and it still all pays out when he drops.
 - Shop Steward / Fire Marshal / Hen Party: dropped, per your call.
 
+- [x] **The walk-back tower is back for Fede, as THE ESCORT.** Clearing up the name tangle: the
+      tower that *threw guests back up the lane* was **Casino Security**, which Billy disliked and
+      which I replaced with **The Bouncer** (the shotgun guy — he's a different table and is still
+      in). Casino Security hadn't just been benched, its TTYPES entry had been deleted outright,
+      though its mechanic, sprite, branch art and both variants all survived. It's restored as
+      **The Escort** ("walks them back out"), 65 comps to hire, branch A renamed The Heavies so it
+      no longer collides with the Bouncer's name.
+
 ## Next playtest questions for Billy
 - With 20 lives, do floors 1–10 feel too easy now?
 - Does the rack actually scroll with your thumb on your phone? (can't test that headlessly)
