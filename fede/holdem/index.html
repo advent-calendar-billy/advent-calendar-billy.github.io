@@ -372,6 +372,10 @@
   }
   #twPrio { display: flex; gap: 4px; justify-content: center; margin-bottom: 7px; }
   #twActions { display: flex; gap: 5px; justify-content: center; flex-wrap: wrap; }
+  #escrowLbl {
+    display: none; margin-left: 7px; color: #e0575f; font-weight: 800;
+    animation: pulse 1.1s ease-in-out infinite;
+  }
   #twStats {
     font-size: 10px; color: #b7a98a; margin: -1px 0 6px; line-height: 1.35;
     text-align: center; max-width: 210px;
@@ -3526,7 +3530,7 @@
 
 <!-- HUD -->
 <div id="hud">
-  <div class="pill"><span class="chipdot"></span><span id="chipsLbl">0</span></div>
+  <div class="pill"><span class="chipdot"></span><span id="chipsLbl">0</span><span id="escrowLbl"></span></div>
   <div class="pill" id="stars"></div>
   <div class="pill" id="waveLbl">WAVE <b id="waveNum">0</b>/<span id="waveTot">10</span></div>
   <div class="pill" id="floorLbl">—</div>
@@ -3557,7 +3561,7 @@
 
 
 <!-- floating tower menu -->
-<div id="ver">v74</div>
+<div id="ver">v75</div>
 <div id="shopOv">
   <div id="shopCardOv">
     <div id="shopOvKind">BETWEEN FLOORS</div>
@@ -3790,8 +3794,8 @@ const ETYPES = {
     desc:'Thirty years on this floor. He knows every staff door, and he is not above using them to skip the line.',
     stats:'SKIPS AHEAD VIA STAFF DOORS' },
   auditor: { name:'The Auditor', sprite:'sprAuditor', hp:2600, speed:26, reward:300, star:5, armor:2, scale:.8, tapR:40, boss:true, audit:true,
-    desc:'Everything stops when he opens the briefcase. While he walks, your most expensive tower is UNDER AUDIT — frozen, pending review.',
-    stats:'BOSS · DISABLES YOUR PRICIEST TOWER' },
+    desc:'He opens the briefcase and the till closes. Every chip the floor earns while he walks is held pending review — drop him and it all pays out at once, let him reach the desk and the house keeps the lot.',
+    stats:'BOSS · IMPOUNDS EVERYTHING YOU EARN' },
   entertainer: { name:'The Entertainer', sprite:'sprEntertainer', hp:3400, speed:27, reward:380, star:6, armor:2, scale:.8, tapR:40, boss:true, showtime:170,
     desc:'The headliner works the room, and when he takes a number EVERY tower within earshot stops to watch. Nobody works the floor while he is singing.',
     stats:'BOSS · HIS NUMBER FREEZES NEARBY TOWERS' },
@@ -3807,9 +3811,9 @@ const ETYPES = {
     desc:"She arrives on the Whale's arm, dripping in comps, and the house heals around them both. Widow her and she stops shopping — and starts RUNNING.",
     stats:'MINI-BOSS PAIR · HEAL TOGETHER · THE WIDOW RUNS' },
   photog: { name:'The House Photographer', sprite:'sprPhotog', hp:3300, speed:26, reward:360, star:6, armor:2, scale:.8, tapR:40, boss:true,
-    paparazzi: { every: 8, r: 215, stun: 1.6 },
-    desc:'Everyone smile! The house shooter works opening night, and when that flash goes off EVERY table in frame stops dead — blinded, blinking, useless.',
-    stats:'BOSS · HIS FLASH FREEZES EVERY TOWER IN FRAME' },
+    paparazzi: { every: 7, r: 215, copies: 3 },
+    desc:'Everyone smile! Every guest caught in that flash gets a print — a copy of themselves that walks in a few seconds behind, at half health. He does not stop the floor. He doubles it.',
+    stats:'BOSS · PHOTOGRAPHS GUESTS INTO COPIES' },
   magician: { name:'The Magician', sprite:'sprMagician', hp:3100, speed:29, reward:350, star:6, armor:2, scale:.8, tapR:40, boss:true,
     blink: { every: 6, dist: 150, r: 85 },
     desc:'One flourish of the cape and he is somewhere else — and he takes volunteers from the audience with him. You cannot hold a queue that refuses to stand still.',
@@ -4720,7 +4724,7 @@ const ROOMS = [
       [['auditor',2,10],['counter',20,.55]],
       [['shark',1,0],['lady',1,16],['regulator',1,32],['whale',4,6]]
     ] },
-  { name: 'Roulette Hall 10', hpMul: 2.14, chips: 1020, block: 1,
+  { name: 'Roulette Hall 10', hpMul: 2.08, chips: 1180, block: 1,
     carpet: ['#0a2358', '#102e6e', '#061640'],
     intro: 'Top of the block. Two halls, every face the Roulette floor has, and the entire management team on shift. Hold this and the doors above open.',
     variants: [
@@ -4740,7 +4744,7 @@ const ROOMS = [
       [['auditor',2,10],['counter',20,.52]],
       [['pitboss',1,0],['honey',13,2],['influencer',8,2.2]],
       [['whale',5,5],['clipper',28,.32],['drunk',26,.32]],
-      [['shark',1,0],['lady',1,16],['auditor',1,30],['pitboss',1,44],['whale',4,6]]
+      [['shark',1,0],['lady',1,18],['auditor',1,34],['whale',3,7]]
     ] },
   { name: 'The Showroom', hpMul: 2.20, chips: 1050, block: 2,
     carpet: ['#5e0f22', '#71182c', '#450a18'],
@@ -5016,6 +5020,8 @@ const G = {
   enemies: [],
   pukes: [],          // sick puddles left by the Bad Oysters
   repBonus: 0,        // +1 per Penn & Teller on the floor, reset every room
+  escrow: 0,          // takings the Auditor is sitting on
+  audited: false,
   beastN: 0,
   towers: [],
   projectiles: [],
@@ -5133,6 +5139,11 @@ const gated = (key, ms, fn) => {
 /* ══════════ UI helpers ══════════ */
 function updateHUD() {
   $('chipsLbl').textContent = Math.floor(G.chips).toLocaleString();
+  const esc = $('escrowLbl');
+  if (esc) {
+    esc.style.display = G.escrow > 0 ? 'inline' : 'none';
+    esc.textContent = '⊘ ' + Math.round(G.escrow);
+  }
   $('waveNum').textContent = ROOM >= ROOMS.length
     ? Math.max(1, G.wave + (G.running ? 1 : 0))
     : Math.max(1, Math.min(G.wave + (G.running ? 1 : 0), WAVES.length));
@@ -5909,7 +5920,7 @@ function buildTower(type, x, y) {
     fill: '#c9a227', stroke: '#3b2415', 'stroke-width': 4, 'paint-order': 'stroke', opacity: 0,
     'font-family': 'Avenir Next, Segoe UI, sans-serif'
   }, el);
-  tower.auditEl.textContent = 'UNDER AUDIT';
+  tower.auditEl.textContent = '';
   if (type === 'waitress') {
     tower.auraEl = svgEl('circle', {
       cx: x, cy: y, r: tower.range(),
@@ -6110,6 +6121,22 @@ function spawnPuke(x, y) {
 
 function killEnemy(e, leaked) {
   e.dead = true;
+  if (e.E.audit && !G.enemies.some(z => z !== e && !z.dead && z.E.audit)) {
+    const held = Math.round(G.escrow || 0);
+    G.escrow = 0;
+    G.audited = false;
+    const [ax, ay] = posAtE(e);
+    if (leaked) {
+      if (held) float(ax, ay - 40, `THE HOUSE KEEPS ${held}`, '#e0575f');
+    } else if (held) {
+      G.chips += held;
+      float(ax, ay - 40, `AUDIT CLEARED +${held}`, '#57c26e');
+      emit(ax, ay - 10, { n: 18, shapes: ['chip'], speed: 170, life: .8, grav: 300,
+                          dir: -Math.PI / 2, spread: 1.8, colors: ['#e8b64c', '#ffd23f'] });
+      SFX.slotWin();
+    }
+    updateHUD();
+  }
   if (e.E.cite && !G.enemies.some(z => z !== e && !z.dead && z.E.cite)) {
     for (const t of G.towers) {
       if (!t.cited) continue;
@@ -6130,7 +6157,7 @@ function killEnemy(e, leaked) {
     }
     if (cut) {
       const amt = Math.round(cut * payScale());
-      G.chips += amt;
+      earn(amt);
       G.earned += amt;
       float(kx, ky - 26, '+' + amt, '#57c26e');
     }
@@ -6174,9 +6201,9 @@ function killEnemy(e, leaked) {
   } else {
     const [x, y] = posAtE(e);
     const rw = Math.round(e.E.reward * 1.35 * payScale());
-    G.chips += rw;
+    earn(rw);
     G.earned += rw;
-    float(x, y - 26, '+' + rw, '#ffd23f');
+    float(x, y - 26, (G.audited ? '⊘ ' : '+') + rw, G.audited ? '#c9707c' : '#ffd23f');
     poof(x, y - 8);
     SFX.kill();
     if (e.E.boss) {
@@ -6277,7 +6304,7 @@ function endWave() {
       }
     }
   });
-  G.chips += income;
+  earn(income);
   G.earned += income;
   probeReport('running');
   if (isEndless()) {
@@ -6330,6 +6357,14 @@ function lose() {
 }
 
 /* ══════════ COMBAT ══════════ */
+/* one till for every chip the floor earns — the Auditor impounds it at the source */
+function earn(n) {
+  if (n <= 0) return 0;
+  if (G.audited) { G.escrow = (G.escrow || 0) + n; return 0; }
+  G.chips += n;
+  return n;
+}
+
 function damageEnemy(e, dmg) {
   if (e.dead) return;                 // fire splash can kill mid-iteration; never re-process a corpse
   if (e.exposed && G.time < (e.exposedUntil || 0)) dmg *= e.exposed;
@@ -6720,11 +6755,26 @@ function update(dt) {
     document.body.appendChild(fl);
     requestAnimationFrame(() => { fl.style.opacity = '0'; });
     setTimeout(() => fl.remove(), 600);
+    // everyone in frame gets a PRINT: a copy that walks in a few seconds behind them
     const rr = e.E.paparazzi.r * e.E.paparazzi.r;
-    for (const t of G.towers) {
-      const dx = t.x - px2, dy = t.y - py2;
-      if (dx * dx + dy * dy <= rr) t.stunUntil = Math.max(t.stunUntil, G.time + e.E.paparazzi.stun);
+    let made = 0;
+    for (const g2 of [...G.enemies]) {
+      if (made >= (e.E.paparazzi.copies || 3)) break;
+      if (g2.E.boss || g2.print) continue;
+      const [gx, gy] = posAtE(g2);
+      if ((gx - px2) ** 2 + (gy - py2) ** 2 > rr) continue;
+      const c = spawnEnemy(g2.type);
+      c.pathI = g2.pathI;
+      c.dist = Math.max(0, g2.dist - 120);
+      c.print = true;                                  // a print of a print is not a thing
+      c.hpMax = Math.max(1, Math.round(c.hpMax * .5));
+      c.hp = c.hpMax;
+      c.el.setAttribute('opacity', .82);
+      const [cx2, cy2] = posAtE(c);
+      fxRing(cx2, cy2, 30, '#fffbe8');
+      made++;
     }
+    if (made) float(px2, py2 - 56, `+${made} PRINTS`, '#fffbe8');
   }
 
   /* the Entertainer takes a number — the floor stops to watch */
@@ -6782,19 +6832,12 @@ function update(dt) {
     }
   }
 
-  /* the Auditor freezes the priciest tower while he lives */
-  let auditTarget = null;
-  if (G.enemies.some(e => e.E.audit)) {
-    let best = -1;
-    for (const t of G.towers) {
-      const c = towerSpend(t);
-      if (c > best) { best = c; auditTarget = t; }
-    }
-  }
+  /* the Auditor holds your earnings in escrow while he walks the floor */
+  G.audited = G.enemies.some(e => e.E.audit && !e.dead);
 
   /* towers */
   for (const t of G.towers) {
-    t.audited = t === auditTarget;
+    t.audited = false;
     if (t.type === 'rope' && t.auraEl) {
       const hot = G.time - (t.hotT || -9) < .35;
       t.auraEl.setAttribute('opacity', hot ? 1 : .82);   // the carpet brightens while it works
@@ -6898,7 +6941,7 @@ function update(dt) {
       // the machine earns every second the wave runs; guests walking past add fees
       const amt = Math.round((st(t, 'rate') + n * st(t, 'chips')) * payScale());
       if (amt) {
-        G.chips += amt;
+        earn(amt);
         G.earned += amt;
         t.floatT = (t.floatT || 0) + 1;
         if (n || t.floatT % 3 === 0) float(t.x, t.y - 32, '+' + amt, '#57c26e');
@@ -7606,6 +7649,8 @@ function initRoom(i, resume, altKey) {
   $('vaultG').setAttribute('transform', `translate(${V.vault[0]},${V.vault[1]}) scale(.6)`);
 
   G.repBonus = 0;
+  G.escrow = 0;
+  G.audited = false;
   G.stars = maxStars();
   placeDecor();
   $('map').style.display = 'none';
@@ -7774,16 +7819,18 @@ function renderMap() {
   buy('House Comp Spins', '+2 spins at the machine between floors', 35,
       (SAVE.perks.spins || 0) >= 3, () => { SAVE.perks.spins = (SAVE.perks.spins || 0) + 1; });
 
-  // the Endless Pit opens once the (current) campaign is cleared
+  // the Endless Pit opens the moment floor 20 is held (Billy) — no need to finish
+  // the whole campaign first
+  const ENDLESS_AT = 20;
   const e = document.createElement('div');
-  const endlessOpen = SAVE.unlocked > ROOMS.length;
+  const endlessOpen = SAVE.unlocked > ENDLESS_AT;
   e.className = 'mapNode' + (endlessOpen ? ' cur' : '');
   e.textContent = '∞';
   e.style.marginLeft = '10px';
   e.title = 'The Endless Pit';
   const sub = document.createElement('div');
   sub.style.cssText = 'position:absolute;bottom:-15px;left:50%;transform:translateX(-50%);font-size:8px;color:#9c8757;letter-spacing:1px;white-space:nowrap;';
-  sub.textContent = 'AFTER HOURS';
+  sub.textContent = endlessOpen ? 'AFTER HOURS' : 'HOLD FLOOR 20';
   e.appendChild(sub);
   if (endlessOpen) e.addEventListener('pointerdown', () => rideElevator(ROOMS.length));
   holder.appendChild(e);

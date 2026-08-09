@@ -227,6 +227,20 @@ Tracking every piece of playtest feedback. Checked = shipped & pushed.
 - [x] **Enemies have armour now** — only the Coupon Clipper did, so armour-stripping had nothing
       to strip. Tough guests and bosses carry 1-3 pips (each eats one hit).
 
+- [x] **Armour stays, floor 20 is winnable again**: its finale stacked FOUR bosses plus a whale
+      pack (and the Pit Boss already headlines waves 4 and 8 of that floor). Dropped him from the
+      finale, whales 4→3, hpMul 2.14→2.08, bankroll 1020→1180. Three probe runs, three wins.
+- [x] **THE ENDLESS PIT OPENS AT FLOOR 20** — no need to clear all 31 first. The map node reads
+      "HOLD FLOOR 20" until you do.
+- [x] **THE AUDITOR reworked** (your pick): he no longer freezes a table. He IMPOUNDS the till —
+      every chip earned while he walks is held in escrow (shown live in the HUD, kill floats go
+      red with ⊘). Drop him and it all pays out in a shower of chips; let him reach the desk and
+      the house keeps the lot.
+- [x] **THE HOUSE PHOTOGRAPHER reworked** (your pick): the flash no longer blinds towers. Every
+      guest caught in frame gets a PRINT — a half-health copy that walks in a few seconds behind.
+      He doesn't stop the floor, he doubles it.
+- Entertainer / Regulator / Lady Luck left exactly as they were, per your call.
+
 ## Next playtest questions for Billy
 - With 20 lives, do floors 1–10 feel too easy now?
 - Does the rack actually scroll with your thumb on your phone? (can't test that headlessly)
