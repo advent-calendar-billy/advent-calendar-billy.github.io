@@ -292,6 +292,44 @@
     margin-top: 6px; font-size: 10px; color: #9c8757;
     text-decoration: underline; cursor: pointer;
   }
+  #jackpotRays {
+    position: absolute; width: 150vmax; height: 150vmax; left: 50%; top: 50%;
+    margin: -75vmax 0 0 -75vmax; pointer-events: none; opacity: 0; z-index: 0;
+    background: repeating-conic-gradient(rgba(255,210,63,.28) 0 9deg, rgba(255,210,63,0) 9deg 24deg);
+    border-radius: 50%;
+  }
+  #slots.jackpot #jackpotRays { opacity: 1; animation: raysSpin 6s linear infinite, raysIn .5s ease-out; }
+  #jackpotBanner {
+    position: absolute; left: 50%; top: 14%; transform: translateX(-50%) scale(0); z-index: 3;
+    font-family: Georgia, serif; font-weight: 800; font-size: clamp(30px, 9vw, 64px);
+    color: #ffd23f; letter-spacing: 3px; white-space: nowrap;
+    text-shadow: 0 0 22px rgba(255,210,63,.9), 0 4px 0 #7a4a00, 0 0 4px #3b2415;
+    pointer-events: none;
+  }
+  #slots.jackpot #jackpotBanner { animation: jackBanner 2.6s cubic-bezier(.2,1.5,.4,1) forwards; }
+  #slots.jackpot #slotCard { animation: cardRumble .5s linear 3; }
+  .jackCoin {
+    position: absolute; top: -40px; width: 22px; height: 22px; border-radius: 50%;
+    background: radial-gradient(circle at 34% 30%, #ffe9a3, #e8b64c 55%, #9a6c1c);
+    border: 2px solid #3b2415; z-index: 2; pointer-events: none;
+    animation: coinFall linear forwards;
+  }
+  @keyframes raysSpin { to { transform: rotate(360deg); } }
+  @keyframes raysIn { from { opacity: 0; } }
+  @keyframes jackBanner {
+    0% { transform: translateX(-50%) scale(0) rotate(-8deg); }
+    18% { transform: translateX(-50%) scale(1.25) rotate(3deg); }
+    28% { transform: translateX(-50%) scale(1) rotate(0); }
+    82% { transform: translateX(-50%) scale(1); opacity: 1; }
+    100% { transform: translateX(-50%) scale(1.1); opacity: 0; }
+  }
+  @keyframes cardRumble {
+    0%, 100% { transform: translate(0, 0); }
+    25% { transform: translate(-4px, 2px) rotate(-.5deg); }
+    50% { transform: translate(4px, -2px) rotate(.5deg); }
+    75% { transform: translate(-3px, -2px); }
+  }
+  @keyframes coinFall { to { transform: translateY(115vh) rotate(720deg); } }
   #ver {
     position: fixed; top: 2px; right: 4px; z-index: 55;
     font-size: 8px; color: rgba(232,182,76,.5); letter-spacing: .5px;
@@ -948,7 +986,9 @@
     align-items: center; justify-content: center;
     z-index: 26;
     padding: 8px;
+    overflow: hidden;
   }
+  #slotCard { position: relative; z-index: 1; }
   #slotCard {
     background: linear-gradient(180deg, #2a1130, #16081a);
     border: 3px solid var(--gold);
@@ -1581,6 +1621,50 @@
         </g>
       </g>
 
+      <g id="twMagic">
+        <ellipse cx="0" cy="28" rx="32" ry="8" fill="rgba(40,16,8,.4)"/>
+        <!-- little stage -->
+        <rect x="-30" y="18" width="60" height="9" rx="3" fill="url(#woodG)" stroke="#3b2415" stroke-width="3"/>
+        <path d="M-30 21 L 30 21" stroke="rgba(255,240,205,.35)" stroke-width="1.6"/>
+        <!-- the TALL one: tails, top hat, wand up -->
+        <g transform="translate(-11,0)">
+          <path d="M-8 19 Q -10 0 -5 -6 L 5 -6 Q 10 0 8 19 Z" fill="#16141e" stroke="#3b2415" stroke-width="3"/>
+          <path d="M-4 -6 L 0 0 L 4 -6 Z" fill="#f5ead1" stroke="#3b2415" stroke-width="1.8"/>
+          <path d="M-1.6 -2 L 1.6 -2 L .8 3 L -.8 3 Z" fill="#8f1e2e" stroke="#3b2415" stroke-width="1.2"/>
+          <circle cx="9" cy="-14" r="2.8" fill="#f5ead1" stroke="#3b2415" stroke-width="1.8"/>
+          <line x1="10" y1="-16" x2="14" y2="-26" stroke="#1e1a16" stroke-width="2.6" stroke-linecap="round"/>
+          <line x1="13" y1="-24" x2="14" y2="-26" stroke="#f5ead1" stroke-width="2.6" stroke-linecap="round"/>
+          <circle cx="15" cy="-28" r="1.6" fill="#ffe9a3"/>
+          <circle cx="0" cy="-13" r="7.5" fill="#f2b98c" stroke="#3b2415" stroke-width="3"/>
+          <path d="M-7 -17 L 7 -17 L 7 -19.5 L -7 -19.5 Z" fill="#16141e" stroke="#3b2415" stroke-width="1.6"/>
+          <path d="M-5.5 -19.5 L 5.5 -19.5 L 4.8 -32 L -4.8 -32 Z" fill="#16141e" stroke="#3b2415" stroke-width="2.4"/>
+          <path d="M-5.2 -24 L 5.2 -24 L 5 -26.5 L -5 -26.5 Z" fill="#8f1e2e" stroke="#3b2415" stroke-width="1.2"/>
+          <path d="M-2.4 -12 l 1.4 0 M 1 -12 l 1.4 0" stroke="#1e1a16" stroke-width="1.4" stroke-linecap="round"/>
+          <path d="M-2 -9 Q 0 -7.8 2 -9" fill="none" stroke="#3b2415" stroke-width="1.2"/>
+        </g>
+        <!-- the SHORT one: stockier, arms crossed, says nothing -->
+        <g transform="translate(13,4)">
+          <path d="M-8 15 Q -9 1 -5 -3 L 5 -3 Q 9 1 8 15 Z" fill="#2e2634" stroke="#3b2415" stroke-width="3"/>
+          <path d="M-4 -3 L 0 2 L 4 -3 Z" fill="#f5ead1" stroke="#3b2415" stroke-width="1.6"/>
+          <path d="M-6 4 Q 0 8 6 4" fill="none" stroke="#1e1a16" stroke-width="3.4" stroke-linecap="round"/>
+          <circle cx="0" cy="-9" r="6.8" fill="#f2b98c" stroke="#3b2415" stroke-width="3"/>
+          <path d="M-6 -12 Q 0 -16.5 6 -12 L 6 -10 Q 0 -13.5 -6 -10 Z" fill="#4a3a26" stroke="#3b2415" stroke-width="1.6"/>
+          <path d="M-2.2 -8.5 l 1.3 0 M .9 -8.5 l 1.3 0" stroke="#1e1a16" stroke-width="1.4" stroke-linecap="round"/>
+          <path d="M-1.6 -5.6 L 1.6 -5.6" stroke="#3b2415" stroke-width="1.2"/>
+        </g>
+      </g>
+      <g id="sprRabbit">
+        <ellipse cx="0" cy="12" rx="10" ry="4" fill="rgba(40,16,8,.35)"/>
+        <ellipse cx="0" cy="4" rx="8.5" ry="7" fill="#f5ead1" stroke="#3b2415" stroke-width="2.6"/>
+        <circle cx="-6.5" cy="9" r="3" fill="#ffffff" stroke="#3b2415" stroke-width="1.6"/>
+        <circle cx="0" cy="-5" r="5.5" fill="#f5ead1" stroke="#3b2415" stroke-width="2.6"/>
+        <path d="M-3.5 -9 Q -5 -19 -1.8 -19.5 Q -.4 -14 -1 -9.5 Z" fill="#f5ead1" stroke="#3b2415" stroke-width="2"/>
+        <path d="M1 -9.5 Q 1.4 -19.5 4.6 -19 Q 5.4 -13.5 3.5 -9 Z" fill="#f5ead1" stroke="#3b2415" stroke-width="2"/>
+        <path d="M-2.6 -19 Q -3.4 -14.5 -2.4 -11" fill="none" stroke="#e8b0b8" stroke-width="1.4"/>
+        <path d="M2.6 -18.6 Q 3.2 -14 2.6 -11" fill="none" stroke="#e8b0b8" stroke-width="1.4"/>
+        <circle cx="-2" cy="-6" r="1" fill="#1e1a16"/><circle cx="2" cy="-6" r="1" fill="#1e1a16"/>
+        <path d="M-.8 -3.6 L .8 -3.6" stroke="#e8b0b8" stroke-width="1.4"/>
+      </g>
       <g id="twSecurity">
         <ellipse cx="0" cy="26" rx="30" ry="7" fill="rgba(40,16,8,.35)"/>
         <!-- guard: charcoal suit, red tie, visor shades -->
@@ -3092,6 +3176,70 @@
         <rect x="-9" y="14" width="18" height="12" rx="2" fill="#141821" stroke="#3b2415" stroke-width="2"/><rect x="-7" y="16" width="14" height="8" rx="1" fill="#1e3a2e"/><path d="M -6 22 l 3 -3 l 3 2 l 4 -4" fill="none" stroke="#8fd0a0" stroke-width="1.2"/>
         <line x1="14" y1="10" x2="14" y2="-8" stroke="#3b2415" stroke-width="2.6"/><line x1="14" y1="10" x2="14" y2="-8" stroke="#8b939e" stroke-width="1.4"/><circle cx="14" cy="-9.5" r="2" fill="#c9473b" stroke="#3b2415" stroke-width="1.2"/>
       <path d="M 12 -22 q 5 5 0 10 M 16 -26 q 8 8 0 16 M 20 -30 q 11 11 0 22" fill="none" stroke="#8fd0a0" stroke-width="1.8" stroke-linecap="round"/></g>
+      <g id="twMagic_a">
+        <ellipse cx="0" cy="28" rx="32" ry="8" fill="rgba(40,16,8,.4)"/>
+        <!-- little stage -->
+        <rect x="-30" y="18" width="60" height="9" rx="3" fill="url(#woodG)" stroke="#3b2415" stroke-width="3"/>
+        <path d="M-30 21 L 30 21" stroke="rgba(255,240,205,.35)" stroke-width="1.6"/>
+        <!-- the TALL one: tails, top hat, wand up -->
+        <g transform="translate(-11,0)">
+          <path d="M-8 19 Q -10 0 -5 -6 L 5 -6 Q 10 0 8 19 Z" fill="#5e0f1c" stroke="#3b2415" stroke-width="3"/>
+          <path d="M-4 -6 L 0 0 L 4 -6 Z" fill="#f5ead1" stroke="#3b2415" stroke-width="1.8"/>
+          <path d="M-1.6 -2 L 1.6 -2 L .8 3 L -.8 3 Z" fill="#8f1e2e" stroke="#3b2415" stroke-width="1.2"/>
+          <circle cx="9" cy="-14" r="2.8" fill="#f5ead1" stroke="#3b2415" stroke-width="1.8"/>
+          <line x1="10" y1="-16" x2="14" y2="-26" stroke="#1e1a16" stroke-width="2.6" stroke-linecap="round"/>
+          <line x1="13" y1="-24" x2="14" y2="-26" stroke="#f5ead1" stroke-width="2.6" stroke-linecap="round"/>
+          <circle cx="15" cy="-28" r="1.6" fill="#ffe9a3"/>
+          <circle cx="0" cy="-13" r="7.5" fill="#f2b98c" stroke="#3b2415" stroke-width="3"/>
+          <path d="M-7 -17 L 7 -17 L 7 -19.5 L -7 -19.5 Z" fill="#5e0f1c" stroke="#3b2415" stroke-width="1.6"/>
+          <path d="M-5.5 -19.5 L 5.5 -19.5 L 4.8 -32 L -4.8 -32 Z" fill="#5e0f1c" stroke="#3b2415" stroke-width="2.4"/>
+          <path d="M-5.2 -24 L 5.2 -24 L 5 -26.5 L -5 -26.5 Z" fill="#8f1e2e" stroke="#3b2415" stroke-width="1.2"/>
+          <path d="M-2.4 -12 l 1.4 0 M 1 -12 l 1.4 0" stroke="#1e1a16" stroke-width="1.4" stroke-linecap="round"/>
+          <path d="M-2 -9 Q 0 -7.8 2 -9" fill="none" stroke="#3b2415" stroke-width="1.2"/>
+        </g>
+        <!-- the SHORT one: stockier, arms crossed, says nothing -->
+        <g transform="translate(13,4)">
+          <path d="M-8 15 Q -9 1 -5 -3 L 5 -3 Q 9 1 8 15 Z" fill="#3a0d14" stroke="#3b2415" stroke-width="3"/>
+          <path d="M-4 -3 L 0 2 L 4 -3 Z" fill="#f5ead1" stroke="#3b2415" stroke-width="1.6"/>
+          <path d="M-6 4 Q 0 8 6 4" fill="none" stroke="#1e1a16" stroke-width="3.4" stroke-linecap="round"/>
+          <circle cx="0" cy="-9" r="6.8" fill="#f2b98c" stroke="#3b2415" stroke-width="3"/>
+          <path d="M-6 -12 Q 0 -16.5 6 -12 L 6 -10 Q 0 -13.5 -6 -10 Z" fill="#4a3a26" stroke="#3b2415" stroke-width="1.6"/>
+          <path d="M-2.2 -8.5 l 1.3 0 M .9 -8.5 l 1.3 0" stroke="#1e1a16" stroke-width="1.4" stroke-linecap="round"/>
+          <path d="M-1.6 -5.6 L 1.6 -5.6" stroke="#3b2415" stroke-width="1.2"/>
+        </g>
+      <path d="M -34 -30 Q 0 -44 34 -30 L 34 -24 Q 0 -37 -34 -24 Z" fill="#8f1e2e" stroke="#3b2415" stroke-width="2.4"/><path d="M -30 -27 Q 0 -39 30 -27" fill="none" stroke="rgba(255,170,190,.4)" stroke-width="2"/><g fill="#ffe9a3"><circle cx="-24" cy="14" r="1.8"/><circle cx="-8" cy="16" r="1.8"/><circle cx="8" cy="16" r="1.8"/><circle cx="24" cy="14" r="1.8"/></g><path d="M -20 -34 l 2 4 l 4 .5 l -3 3 l 1 4 l -4 -2 l -4 2 l 1 -4 l -3 -3 l 4 -.5 z" fill="#ffe9a3" stroke="#8c6a1c" stroke-width="1"/></g>
+      <g id="twMagic_b">
+        <ellipse cx="0" cy="28" rx="32" ry="8" fill="rgba(40,16,8,.4)"/>
+        <!-- little stage -->
+        <rect x="-30" y="18" width="60" height="9" rx="3" fill="url(#woodG)" stroke="#3b2415" stroke-width="3"/>
+        <path d="M-30 21 L 30 21" stroke="rgba(255,240,205,.35)" stroke-width="1.6"/>
+        <!-- the TALL one: tails, top hat, wand up -->
+        <g transform="translate(-11,0)">
+          <path d="M-8 19 Q -10 0 -5 -6 L 5 -6 Q 10 0 8 19 Z" fill="#2a1a3e" stroke="#3b2415" stroke-width="3"/>
+          <path d="M-4 -6 L 0 0 L 4 -6 Z" fill="#f5ead1" stroke="#3b2415" stroke-width="1.8"/>
+          <path d="M-1.6 -2 L 1.6 -2 L .8 3 L -.8 3 Z" fill="#7a3f8c" stroke="#3b2415" stroke-width="1.2"/>
+          <circle cx="9" cy="-14" r="2.8" fill="#f5ead1" stroke="#3b2415" stroke-width="1.8"/>
+          <line x1="10" y1="-16" x2="14" y2="-26" stroke="#1e1a16" stroke-width="2.6" stroke-linecap="round"/>
+          <line x1="13" y1="-24" x2="14" y2="-26" stroke="#f5ead1" stroke-width="2.6" stroke-linecap="round"/>
+          <circle cx="15" cy="-28" r="1.6" fill="#ffe9a3"/>
+          <circle cx="0" cy="-13" r="7.5" fill="#f2b98c" stroke="#3b2415" stroke-width="3"/>
+          <path d="M-7 -17 L 7 -17 L 7 -19.5 L -7 -19.5 Z" fill="#2a1a3e" stroke="#3b2415" stroke-width="1.6"/>
+          <path d="M-5.5 -19.5 L 5.5 -19.5 L 4.8 -32 L -4.8 -32 Z" fill="#2a1a3e" stroke="#3b2415" stroke-width="2.4"/>
+          <path d="M-5.2 -24 L 5.2 -24 L 5 -26.5 L -5 -26.5 Z" fill="#7a3f8c" stroke="#3b2415" stroke-width="1.2"/>
+          <path d="M-2.4 -12 l 1.4 0 M 1 -12 l 1.4 0" stroke="#1e1a16" stroke-width="1.4" stroke-linecap="round"/>
+          <path d="M-2 -9 Q 0 -7.8 2 -9" fill="none" stroke="#3b2415" stroke-width="1.2"/>
+        </g>
+        <!-- the SHORT one: stockier, arms crossed, says nothing -->
+        <g transform="translate(13,4)">
+          <path d="M-8 15 Q -9 1 -5 -3 L 5 -3 Q 9 1 8 15 Z" fill="#3d2a56" stroke="#3b2415" stroke-width="3"/>
+          <path d="M-4 -3 L 0 2 L 4 -3 Z" fill="#f5ead1" stroke="#3b2415" stroke-width="1.6"/>
+          <path d="M-6 4 Q 0 8 6 4" fill="none" stroke="#1e1a16" stroke-width="3.4" stroke-linecap="round"/>
+          <circle cx="0" cy="-9" r="6.8" fill="#f2b98c" stroke="#3b2415" stroke-width="3"/>
+          <path d="M-6 -12 Q 0 -16.5 6 -12 L 6 -10 Q 0 -13.5 -6 -10 Z" fill="#4a3a26" stroke="#3b2415" stroke-width="1.6"/>
+          <path d="M-2.2 -8.5 l 1.3 0 M .9 -8.5 l 1.3 0" stroke="#1e1a16" stroke-width="1.4" stroke-linecap="round"/>
+          <path d="M-1.6 -5.6 L 1.6 -5.6" stroke="#3b2415" stroke-width="1.2"/>
+        </g>
+      <path d="M -26 6 q 4 -7 0 -13 q -4 -6 0 -12" fill="none" stroke="rgba(200,170,230,.7)" stroke-width="2.6" stroke-linecap="round"/><path d="M 27 2 q 4 -7 0 -13 q -4 -6 0 -12" fill="none" stroke="rgba(200,170,230,.55)" stroke-width="2.2" stroke-linecap="round"/><ellipse cx="0" cy="24" rx="26" ry="4" fill="rgba(160,120,200,.25)"/><rect x="24" y="-20" width="10" height="16" rx="2" fill="#d7ecf7" stroke="#3b2415" stroke-width="2" transform="rotate(8 29 -12)" opacity=".9"/></g>
     </defs>
 
     <!-- floor -->
@@ -3226,7 +3374,7 @@
 
 
 <!-- floating tower menu -->
-<div id="ver">v69</div>
+<div id="ver">v70</div>
 <div id="shopOv">
   <div id="shopCardOv">
     <div id="shopOvKind">BETWEEN FLOORS</div>
@@ -3293,6 +3441,8 @@
 
 <!-- between-floor slot machine -->
 <div id="slots">
+  <div id="jackpotRays"></div>
+  <div id="jackpotBanner">10 FREE GAMES!</div>
   <div id="slotCard">
     <div class="kind" style="font-size:11px; letter-spacing:3px; color:#b7a98a;">FLOOR CLEARED · HOUSE LOUNGE</div>
     <svg id="cabinet" viewBox="0 0 314 330"></svg>
@@ -3504,7 +3654,9 @@ const TTYPES = {
   catapult: { name:'Chip Catapult', sprite:'twCatapult', cost:260, range:200, cd:2.8, scale:.68,
     blurb:'Throws money at it', },
   security: { name:'Casino Security', sprite:'twSecurity', cost:240, range:210, cd:3.2, scale:.66,
-    blurb:'Escorts trouble out', }
+    blurb:'Escorts trouble out', },
+  magic: { name:'The Double Act', sprite:'twMagic', cost:250, range:150, cd:5, scale:.66,
+    blurb:'Two magicians, one salary', }
 };
 /* ══════════ UPGRADE PATHS ══════════
    Every table forks. You buy a PATH with comps between floors; inside a floor
@@ -3596,17 +3748,17 @@ const TSPEC = {
         { name: 'LOADED DICE', cost: 2800, s: { push: 130, cd: 3.8, dmg: 170, range: 175, bigDie: 520 } } ] }
   },
   buffet: {
-    base: { lure: .05, dps: 9, range: 120 },
+    base: { lure: .08, dps: 16, range: 120 },
     a: { label: 'Expired Mayo', tiers: [
-        { name: 'Expired Mayo', cost: 200, s: { lure: .12, dps: 26 } },
-        { name: 'The Midnight Buffet', cost: 480, s: { lure: .18, dps: 62 } },
-        { name: 'PATIENT ZERO PRAWN', cost: 1080, s: { lure: .2, dps: 130, plague: 1 } } ,
-        { name: 'THE OUTBREAK', cost: 2400, s: { lure: .2, dps: 290, plague: 1 } } ] },
+        { name: 'Expired Mayo', cost: 200, s: { lure: .16, dps: 34 } },
+        { name: 'The Midnight Buffet', cost: 480, s: { lure: .22, dps: 78 } },
+        { name: 'PATIENT ZERO PRAWN', cost: 1080, s: { lure: .26, dps: 150, plague: 1 } } ,
+        { name: 'THE OUTBREAK', cost: 2400, s: { lure: .3, dps: 320, plague: 1 } } ] },
     b: { label: 'Bottomless Trough', tiers: [
-        { name: 'Bottomless Trough', cost: 190, s: { lure: .28, dps: 13, range: 155 } },
-        { name: 'All You Can Eat', cost: 460, s: { lure: .45, dps: 18, range: 190 } },
-        { name: 'THE FOOD COMA', cost: 1020, s: { lure: .45, dps: 30, range: 215, coma: 1 } } ,
-        { name: 'THE GREAT SLEEP', cost: 2300, s: { lure: .45, dps: 70, range: 250, coma: 1 } } ] }
+        { name: 'Bottomless Trough', cost: 190, s: { lure: .3, dps: 20, range: 155 } },
+        { name: 'All You Can Eat', cost: 460, s: { lure: .5, dps: 26, range: 190 } },
+        { name: 'THE FOOD COMA', cost: 1020, s: { lure: .5, dps: 38, range: 215, coma: 1 } } ,
+        { name: 'THE GREAT SLEEP', cost: 2300, s: { lure: .5, dps: 80, range: 250, coma: 1 } } ] }
   },
   waitress: {
     base: { factor: .75, range: 130 },
@@ -3622,17 +3774,31 @@ const TSPEC = {
         { name: 'THE CHAMPAGNE FLOOD', cost: 2400, s: { factor: .4, range: 370, cork: 3.5 } } ] }
   },
   catapult: {
-    base: { dmg: 40, aoe: 60, ammo: 8, range: 200, cd: 2.8 },
+    base: { dmg: 55, aoe: 60, ammo: 6, range: 200, cd: 2.8 },
     a: { label: 'Money Mortar', tiers: [
-        { name: 'Chip Cannon', cost: 280, s: { dmg: 95, ammo: 14 } },
-        { name: 'The Money Mortar', cost: 660, s: { dmg: 190, ammo: 22, cd: 2.4 } },
-        { name: 'THE JACKPOT', cost: 1450, s: { dmg: 430, aoe: 85, ammo: 32, cd: 2.1 } } ,
-        { name: 'THE HOUSE LIMIT', cost: 3200, s: { dmg: 980, aoe: 95, ammo: 45, cd: 1.8 } } ] },
+        { name: 'Chip Cannon', cost: 280, s: { dmg: 120, ammo: 10 } },
+        { name: 'The Money Mortar', cost: 660, s: { dmg: 240, ammo: 16, cd: 2.4 } },
+        { name: 'THE JACKPOT', cost: 1450, s: { dmg: 520, aoe: 85, ammo: 24, cd: 2.1 } } ,
+        { name: 'THE HOUSE LIMIT', cost: 3200, s: { dmg: 1150, aoe: 95, ammo: 34, cd: 1.8 } } ] },
     b: { label: 'Scattershot', tiers: [
-        { name: 'Scattershot', cost: 265, s: { dmg: 55, aoe: 105, ammo: 9 } },
-        { name: 'It Rains Chips', cost: 620, s: { dmg: 80, aoe: 155, ammo: 11, cd: 2.2 } },
-        { name: 'MAKE IT RAIN', cost: 1380, s: { dmg: 110, aoe: 170, ammo: 14, cd: 1.9, storm: 5 } } ,
-        { name: 'THE CHIPSTORM', cost: 3000, s: { dmg: 240, aoe: 190, ammo: 20, cd: 1.5, storm: 8 } } ] }
+        { name: 'Scattershot', cost: 265, s: { dmg: 70, aoe: 105, ammo: 7 } },
+        { name: 'It Rains Chips', cost: 620, s: { dmg: 105, aoe: 155, ammo: 9, cd: 2.2 } },
+        { name: 'MAKE IT RAIN', cost: 1380, s: { dmg: 140, aoe: 170, ammo: 11, cd: 1.9, storm: 5 } } ,
+        { name: 'THE CHIPSTORM', cost: 3000, s: { dmg: 300, aoe: 190, ammo: 15, cd: 1.5, storm: 8 } } ] }
+  },
+  magic: {
+    // pure spectacle control: no damage, but the audience keeps disappearing
+    base: { vanish: 90, cd: 5, range: 150, targets: 1 },
+    a: { label: 'The Showstopper', tiers: [
+        { name: 'The Grand Reveal', cost: 260, s: { vanish: 145, cd: 4.2 } },
+        { name: 'ABRA CADABRA', cost: 620, s: { vanish: 190, cd: 3.6, rabbit: 1 } },
+        { name: 'THE PRESTIGE', cost: 1400, s: { vanish: 240, cd: 3, rabbit: 1, targets: 2 } },
+        { name: 'THE VANISHING ACT', cost: 3000, s: { vanish: 330, cd: 2.4, rabbit: 1, targets: 3 } } ] },
+    b: { label: 'Smoke & Mirrors', tiers: [
+        { name: 'Double Vision', cost: 250, s: { targets: 2, cd: 4.4 } },
+        { name: 'Smoke & Mirrors', cost: 600, s: { targets: 3, cd: 3.8, vanish: 110 } },
+        { name: 'MASS HYSTERIA', cost: 1350, s: { targets: 4, cd: 3.2, vanish: 130, rewind: 2 } },
+        { name: 'THE OTHER PLACE', cost: 2900, s: { targets: 6, cd: 2.6, vanish: 150, rewind: 3 } } ] }
   },
   security: {
     // the anti-boss table: one huge hit, and the guest gets WALKED back up the lane
@@ -3649,18 +3815,19 @@ const TSPEC = {
         { name: 'THE PANOPTICON', cost: 2900, s: { dmg: 340, cd: .8, targets: 6, range: 300 } } ] }
   }
 };
-const HIRECOST = { craps: 40, buffet: 45, waitress: 50, catapult: 60, security: 70 };
+const HIRECOST = { craps: 40, buffet: 45, waitress: 50, catapult: 60, security: 70, magic: 75 };
 const PATHCOST = {          // comps to open one branch of one table, for the whole campaign
   // floor 1 banks ~40 comps and grants no upgrades at all, so the Dealer's first path
   // has to be reachable the moment you step off it — that's the hook
   dealer: 35, rope: 40, roulette: 45, atm: 45, cage: 50,
-  buffet: 50, craps: 55, waitress: 55, catapult: 60, security: 55
+  buffet: 50, craps: 55, waitress: 55, catapult: 60, security: 55, magic: 60
 };
 const TROLE = {
   dealer:   'SINGLE TARGET · a fan of cards, each one pierces',
   roulette: 'BOUNCING SHOT · ricochets between guests',
   rope:     'SLOW FIELD · no damage · slow follows them out',
   security: 'SINGLE TARGET · huge hits that WALK the guest backward',
+  magic: 'CONTROL · no damage · guests VANISH and reappear far back',
   cage:     'INCOME · does not attack',
   atm:      'INCOME · skims guests walking past',
   craps:    'AREA KNOCKBACK · shoves the crowd back',
@@ -3733,6 +3900,12 @@ function statLine(key, path, lvl) {
       bits.push(`${S.dmg} splash`, `${S.aoe} radius`, `${S.ammo} chips/shot`);
       if (S.storm) bits.push(`shots SPLIT into ${S.storm} more`);
       break;
+    case 'magic':
+      bits.push(`sends them back ${S.vanish}`, `every ${S.cd}s`, `range ${S.range}`);
+      if (S.targets > 1) bits.push(`${S.targets} at once`);
+      if (S.rabbit) bits.push(`victims become RABBITS`);
+      if (S.rewind) bits.push(`the confused walk BACKWARD`);
+      break;
     case 'security':
       bits.push(`${S.dmg} dmg`, S.walk > 5000 ? 'ESCORTED TO THE DOOR' : `walked back ${S.walk}`,
                 `every ${S.cd}s`, `range ${S.range}`);
@@ -3762,7 +3935,9 @@ const FLAVOR = {
   catapult: { a: ['bigger payloads', 'ruinous payloads', 'one shot, one crater', 'bankruptcy, airborne'],
               b: ['a wider splash', 'the splash covers a table', 'every shot splits into five', 'a hurricane of chips'] },
   security: { a: ['hits harder, walks them further', 'much harder, much further', 'escorted all the way OUT', 'they were never here'],
-              b: ['works faster', 'handles two at once', 'four guests, no waiting', 'six guests, no waiting'] }
+              b: ['works faster', 'handles two at once', 'four guests, no waiting', 'six guests, no waiting'] },
+  magic:    { a: ['they vanish, further back', 'they come back as RABBITS', 'two disappear at once', 'nobody stays on stage'],
+              b: ['two vanish at once', 'three, in a puff of smoke', 'the confused walk backwards', 'the whole crowd loses the plot'] }
 };
 const pathOwned = (key, path) => !!((SAVE.paths || {})[key] || {})[path];
 const towerSpend = t => {
@@ -3772,7 +3947,7 @@ const towerSpend = t => {
 };
 
 /* footprint radius per tower type (for placement collision) */
-const TOWER_R = { dealer: 34, roulette: 36, rope: 30, cage: 32, atm: 28, craps: 36, buffet: 38, waitress: 30, catapult: 34, security: 32 };
+const TOWER_R = { dealer: 34, roulette: 36, rope: 30, cage: 32, atm: 28, craps: 36, buffet: 38, waitress: 30, catapult: 34, security: 32, magic: 34 };
 
 /* ══════════ CAMPAIGN ══════════ */
 const SAVE_KEY = 'holdem-save';
@@ -5324,6 +5499,18 @@ function artFor(g, type, path, lvl) {
       if (k >= 3) C(0, -16, 3.6, '#8a5f33', '#3b2415', 1.6);
     }
   }
+  if (type === 'magic') {
+    if (A) {                                       // Showstopper: the stage lights multiply
+      for (let i = 0; i < k + 1; i++)
+        C(-20 + i * (40 / Math.max(1, k)), -34, 1.8, '#ffe9a3');
+      if (k >= 2) P('M -14 26 L -20 34 M 14 26 L 20 34', 'none', 'rgba(255,233,163,.5)', 2.4);
+      if (k >= 3) { C(-30, -10, 2.6, '#f5ead1', '#3b2415', 1.2); C(30, -14, 2.6, '#f5ead1', '#3b2415', 1.2); }  // doves
+    } else {                                       // Smoke & Mirrors: the fog thickens
+      for (let i = 0; i < k; i++)
+        P(`M ${-18 + i * 12} 14 q 4 -8 0 -15 q -4 -7 0 -13`, 'none', `rgba(200,170,230,${.4 + k * .1})`, 2.2);
+      if (k >= 3) E(0, 10, 30, 8, 'rgba(160,120,200,.2)');
+    }
+  }
   if (type === 'security') {
     if (A) {                                       // Bouncer: the podium gets a velvet lane
       P('M -20 26 L 20 26', 'none', '#8f1e2e', 3 + k * 1.5);
@@ -6074,9 +6261,10 @@ function update(dt) {
     if (e.shieldEl && G.time - (e.compT || 0) > 1.2) { e.shieldEl.remove(); e.shieldEl = null; }
     const slowed = slow < 1;
     e.slowEl.setAttribute('opacity', slowed ? 1 : 0);
-    if (slowed && e.slowTxtVal !== (slow === 0)) {
-      e.slowTxtVal = slow === 0;
-      e.slowEl.querySelector('text').textContent = slow === 0 ? 'STOPPED' : 'QUEUE';
+    const tag = slow < 0 ? 'CONFUSED' : slow === 0 ? 'STOPPED' : 'QUEUE';
+    if (slowed && e.slowTag !== tag) {
+      e.slowTag = tag;
+      e.slowEl.querySelector('text').textContent = tag;
     }
     e.gaitG.style.animationDuration = slowed ? '1.7s' : '';
     e.dist += e.E.speed * e.pace * slow * boost * dt;
@@ -6454,6 +6642,46 @@ function update(dt) {
         }
         t.cool = st(t, 'cd');
       } else t.cool = .3;
+    } else if (t.type === 'magic') {
+      // no damage: the nearest guests simply VANISH and reappear far up the lane
+      const n = st(t, 'targets') || 1;
+      const rr = t.range() * t.range();
+      const cands = [];
+      for (const e of G.enemies) {
+        if (e.E.boss) continue;                       // bosses don't volunteer
+        const [x, y] = posAtE(e);
+        const dx = x - t.x, dy = y - t.y;
+        if (dx * dx + dy * dy > rr) continue;
+        cands.push([e.dist, e]);
+      }
+      cands.sort((a, b) => b[0] - a[0]);              // furthest along first
+      let any = false;
+      for (const [, e] of cands.slice(0, n)) {
+        const [x, y] = posAtE(e);
+        poof(x, y - 10); poof(x + 8, y - 22);
+        e.dist = Math.max(0, e.dist - st(t, 'vanish'));
+        if (st(t, 'rabbit') && !e.rabbit) {           // the classic: now it's a rabbit
+          e.rabbit = true;
+          const u = e.gaitG.querySelector('use');
+          if (u) u.setAttribute('href', '#sprRabbit');
+          e.pace *= .6;
+          e.hp = Math.min(e.hp, e.hpMax * .55);
+          float(x, y - 34, 'A RABBIT!', '#e8b0b8');
+        }
+        if (st(t, 'rewind')) {                        // walks the wrong way, confused
+          e.slowFac = -.6;
+          e.slowUntil = G.time + st(t, 'rewind');
+        }
+        const [nx, ny] = posAtE(e);
+        poof(nx, ny - 10);
+        any = true;
+      }
+      if (any) {
+        float(t.x, t.y - 44, 'PRESTO!', '#d8b4ff');
+        SFX.spin();
+        t.kick();
+        t.cool = st(t, 'cd');
+      } else t.cool = .4;
     } else if (t.type === 'security') {
       // pick the top N guests by this table's priority, walk each of them back
       const n = st(t, 'targets') || 1;
@@ -7324,6 +7552,27 @@ function slotInfo(msg) {
   $('spinBtn').style.opacity = can ? 1 : .4;
   $('spinBtn').textContent = SLOT.free > 0 ? 'SPIN · FREE' : 'SPIN · ' + SLOT.COST;
 }
+/* the free-games hit: rays past the cabinet, coins over everything, the card rumbles */
+function jackpotShow() {
+  const ov = $('slots');
+  ov.classList.remove('jackpot');
+  void ov.offsetWidth;
+  ov.classList.add('jackpot');
+  SFX.showtime();
+  setTimeout(() => SFX.slotWin(), 350);
+  setTimeout(() => SFX.slotWin(), 700);
+  for (let i = 0; i < 44; i++) {
+    const c = document.createElement('div');
+    c.className = 'jackCoin';
+    c.style.left = (3 + (i * 37) % 94) + 'vw';
+    c.style.animationDuration = (1.1 + (i % 7) * .22) + 's';
+    c.style.animationDelay = (i * .045) + 's';
+    if (i % 3) c.style.transform = 'scale(' + (.7 + (i % 4) * .18) + ')';
+    ov.appendChild(c);
+    setTimeout(() => c.remove(), 3400);
+  }
+  setTimeout(() => ov.classList.remove('jackpot'), 3200);
+}
 const starRating = () => Math.max(1, Math.min(5, Math.round(G.stars / maxStars() * 5)));
 function openSlots() {
   SLOT.spins = slotSpins();
@@ -7380,6 +7629,7 @@ $('spinBtn').addEventListener('pointerdown', ev => {
       if (stars >= 3) {
         SLOT.free += 10;
         msgs.push('10 FREE GAMES!');
+        jackpotShow();
       }
       if (win) msgs.push('+' + win);
       let msg = msgs.length ? msgs.join(' · ') : 'So close.';
@@ -7580,13 +7830,13 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http') && !loc
 document.addEventListener('gesturestart', e => e.preventDefault());
 document.addEventListener('dblclick', e => e.preventDefault());
 
-if (/gallery|autotest|ropetest|ropeshow|mechshow|slottest|shoptest|arttest|pausetest|sheettest|ridetest|depthtest|dragtest|dossier|twinfo|unlockall|room=/.test(location.search)) {
+if (/gallery|autotest|ropetest|ropeshow|mechshow|slottest|jackpottest|shoptest|arttest|dpstest|pausetest|sheettest|ridetest|depthtest|dragtest|dossier|twinfo|unlockall|room=/.test(location.search)) {
   $('title').style.display = 'none';
 }
 
 /* dev gallery: ?gallery renders every sprite large for visual review */
 if (location.search.includes('gallery')) {
-  const TW = ['twDealer','twRoulette','twRope','twCage','twATM','twCraps','twBuffet','twWaitress','twCatapult','twSecurity'];
+  const TW = ['twDealer','twRoulette','twRope','twCage','twATM','twCraps','twBuffet','twWaitress','twCatapult','twSecurity','twMagic'];
   const NPC = ['sprRetiree','sprClipper','sprCounter','sprRegular','sprGroom','sprBride','sprDrunk','sprMojito','sprElvis','sprGrandma'];
   const ids = /gallery=(npc|flair)/.test(location.search) ? NPC : location.search.includes('gallery=tw') ? TW : ['sprRetiree','sprTourist','sprElvis','sprGrandma','sprClipper','sprInfluencer',
                'sprDrunk','sprMojito','sprCounter','sprGroom','sprBride','sprRegular','sprWaitress','sprAuditor','sprLady','sprPitBoss','sprEntertainer','sprMagician','sprPhotog','sprInspector','sprRegulator','sprWhaleWife','sprWhale','sprShark',
@@ -7792,6 +8042,49 @@ if (mechParam) {
     `plagued=${G.enemies.filter(e => e.plague).length} ` +
     `alive=${G.enemies.length} live=` +
     G.projectiles.map(q => q.kind + (q.kind === 'die' ? '@' + Math.round(q.d) : '')).join(',');
+}
+
+/* dev: ?jackpottest — pops the free-games celebration on the slot screen */
+if (location.search.includes('jackpottest')) {
+  setTimeout(() => { initRoom(0); G.chips = 300; openSlots(); jackpotShow(); }, 300);
+}
+
+/* dev: ?dpstest=<type>[&lvl=N] — one table vs a standard stream; title reports the score */
+const dpsParam = location.search.match(/dpstest=(\w+)/);
+if (dpsParam && TTYPES[dpsParam[1]]) {
+  const key = dpsParam[1];
+  const lvl = +((location.search.match(/lvl=(\d)/) || [])[1] || 1);
+  $('modalBtn').dispatchEvent(new Event('click'));
+  const P0 = PATHS[0];
+  const mid = Math.round(P0.pts.length * .5);
+  const t = buildTower(key, P0.pts[mid][0] + (key === 'rope' ? 0 : 80), P0.pts[mid][1] - 20);
+  if (lvl > 1) { t.path = (location.search.includes('path=b') ? 'b' : 'a'); t.lvl = lvl; applyTowerLook(t); }
+  G.chips = 50000;
+  G.waveCount = 30;
+  G.running = true;
+  let kills0 = 0;
+  const K0 = () => G.enemies.length;
+  let spawned = 0, leaked = 0, killed = 0;
+  const origKill = killEnemy;
+  // count outcomes without touching engine code
+  window.killEnemy = function(e, lk) { if (lk) leaked++; else killed++; return origKill(e, lk); };
+  const spawnT = setInterval(() => {}, 1e9);
+  let acc = 0, t2 = 0;
+  const dt = 1 / 60;
+  const spent0 = 50000;
+  while (t2 < 90) {
+    acc += dt;
+    if (acc >= .8 && spawned < 80) {
+      acc = 0;
+      const e = spawnEnemy(['drunk', 'clipper', 'elvis', 'counter'][spawned % 4]);
+      e.pathI = 0; e.dist = 0;
+      spawned++;
+    }
+    update(dt);
+    t2 += dt;
+  }
+  document.title = `DPS ${key}@${lvl} kills=${killed} leaked=${leaked} spawned=${spawned} ` +
+    `ammoSpent=${Math.max(0, Math.round(spent0 - G.chips - 0))}`;
 }
 
 /* dev: ?arttest=<type> renders base + both branches x 3 tiers, large */

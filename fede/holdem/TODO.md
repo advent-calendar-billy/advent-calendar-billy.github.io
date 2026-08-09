@@ -167,6 +167,25 @@ Tracking every piece of playtest feedback. Checked = shipped & pushed.
       PERSONA NON GRATA, THE PANOPTICON... each with its own flavor line.
 - [x] **Halos removed** — the design change IS the upgrade indicator now. No rings, no glow.
 
+## Playtest feedback round 7 (Aug 8)
+- [x] **Tower balance, finally MEASURED** (`?dpstest=<type>`): one table vs a standard 80-guest
+      stream, kills counted. You were right about both suspects:
+      the buffet's lure budget starved it (it could eat ONE guest in some situations) and the
+      catapult's per-shot ammo tax made it the most expensive damage in the game. Buffed:
+      buffet lure .05→.08 base + dps up across the ladder; catapult damage up ~30% and ammo
+      cost down ~30% at every tier. After: catapult 10/45 kills (base/tier-III, was 6/37),
+      buffet from ~0 to real numbers plus its wave-stalling. Dealer's tier-III fire remains the
+      dense-crowd king by design; roulette is the elite-killer, not a crowd tower.
+- [x] **NEW TABLE: THE DOUBLE ACT** (your Penn & Teller idea) — two magicians, one salary; the
+      tall one works the wand, the short one says nothing. Pure control, no damage: guests
+      VANISH and reappear far back up the lane. Branch A "The Showstopper" (red curtain, star,
+      footlights): victims come back as RABBITS (slower, weaker, adorable). Branch B "Smoke &
+      Mirrors" (purple suits, fog, floating mirror): vanishes up to six at once and leaves them
+      CONFUSED — walking backward. 75 comps to hire.
+- [x] **Slot free-games JACKPOT moment** — golden rays sweep the whole screen far past the
+      cabinet, "10 FREE GAMES!" explodes over everything, coins rain across the viewport, the
+      cabinet rumbles, fanfare plays.
+
 ## Next playtest questions for Billy
 - With 20 lives, do floors 1–10 feel too easy now?
 - Does the rack actually scroll with your thumb on your phone? (can't test that headlessly)
