@@ -186,6 +186,10 @@ Tracking every piece of playtest feedback. Checked = shipped & pushed.
       cabinet, "10 FREE GAMES!" explodes over everything, coins rain across the viewport, the
       cabinet rumbles, fanfare plays.
 
+- [x] **Spend screen de-confused**: upgrade paths segmented under each table's name; every hire
+      and every path says what it does in 3-4 plain words ("shoves crowds back", "ice, slows
+      guests", "turns guests to rabbits")
+
 ## Next playtest questions for Billy
 - With 20 lives, do floors 1–10 feel too easy now?
 - Does the rack actually scroll with your thumb on your phone? (can't test that headlessly)

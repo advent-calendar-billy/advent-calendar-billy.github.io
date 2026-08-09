@@ -283,6 +283,11 @@
     padding: 6px 9px; cursor: pointer; min-width: 0;
   }
   .sgItem b { font-size: 11px; color: var(--cream); text-align: left; line-height: 1.15; }
+  .sgItem b small { display: block; font-size: 9px; font-weight: 400; color: #9c8757; }
+  .sgTower {
+    font-size: 10.5px; font-weight: 800; color: var(--cream); letter-spacing: .6px;
+    margin: 7px 0 3px; text-align: left; border-bottom: 1px solid #3a2f1c; padding-bottom: 2px;
+  }
   .sgItem i { font-style: normal; font-size: 10.5px; font-weight: 800; color: var(--gold); white-space: nowrap; }
   .sgItem.own { opacity: .45; cursor: default; }
   .sgItem.own i { color: #57c26e; }
@@ -3374,7 +3379,7 @@
 
 
 <!-- floating tower menu -->
-<div id="ver">v70</div>
+<div id="ver">v71</div>
 <div id="shopOv">
   <div id="shopCardOv">
     <div id="shopOvKind">BETWEEN FLOORS</div>
@@ -7668,6 +7673,25 @@ $('cashBtn').addEventListener('pointerdown', ev => {
   renderShopOv();
 });
 
+/* 3-4 words of WHAT IT DOES, for the spend screen */
+const HIREINFO = {
+  craps: 'shoves crowds back', buffet: 'lures + poisons guests', waitress: 'speeds nearby tables',
+  catapult: 'huge splash damage', security: 'huge single hits', magic: 'makes guests vanish'
+};
+const BRANCHINFO = {
+  dealer:   { a: 'fire, splash damage', b: 'ice, slows guests' },
+  roulette: { a: 'huge single hits', b: 'more bounces' },
+  rope:     { a: 'deeper slow, roars', b: 'longer, wider queue' },
+  cage:     { a: 'bigger dividends', b: 'pays per kill' },
+  atm:      { a: 'prints faster', b: 'covers more floor' },
+  craps:    { a: 'bigger shoves, stuns', b: 'damage + giant die' },
+  buffet:   { a: 'deadlier, spreading poison', b: 'seats more guests' },
+  waitress: { a: 'even faster service', b: 'wider reach, stuns' },
+  catapult: { a: 'bigger single blasts', b: 'wide, splitting shots' },
+  security: { a: 'harder, walks them far', b: 'faster, multi-target' },
+  magic:    { a: 'turns guests to rabbits', b: 'group vanish, confusion' }
+};
+
 /* the spend screen: shows up right after the slot pays out, nothing else between
    you and the next floor (Billy: purchases should appear after the machine) */
 function renderShopOv() {
@@ -7676,25 +7700,28 @@ function renderShopOv() {
   const next = Math.min(SAVE.unlocked - 1, ROOMS.length);
   $('nextFloorBtn').textContent = next >= ROOMS.length ? 'AFTER HOURS ▸' : `FLOOR ${next + 1} ▸`;
   let h = '';
-  const item = (id, name, price, owned, afford) =>
+  const item = (id, name, sub, price, owned, afford) =>
     `<div class="sgItem ${owned ? 'own' : afford ? '' : 'poor'}" data-buy="${owned || !afford ? '' : id}">
-       <b>${name}</b><i>${owned ? 'OWNED' : price + ' ◉'}</i></div>`;
-  h += '<div class="sgTitle">HIRE</div><div class="sgRow">';
+       <b>${name}<small>${sub}</small></b><i>${owned ? 'OWNED' : price + ' ◉'}</i></div>`;
+  h += '<div class="sgTitle">HIRE NEW TABLES</div><div class="sgRow">';
   for (const k in HIRECOST) {
     if (DISABLED.includes(k)) continue;
-    h += item('hire:' + k, TTYPES[k].name, HIRECOST[k], SAVE.owned.includes(k), SAVE.comps >= HIRECOST[k]);
+    h += item('hire:' + k, TTYPES[k].name, HIREINFO[k] || '', HIRECOST[k],
+              SAVE.owned.includes(k), SAVE.comps >= HIRECOST[k]);
   }
-  h += '</div><div class="sgTitle">UPGRADE PATHS · TIERS II & III</div><div class="sgRow">';
+  h += '</div><div class="sgTitle">UPGRADE PATHS · TIERS II+</div>';
   for (const k of SAVE.owned) {
     if (DISABLED.includes(k)) continue;
+    h += `<div class="sgTower">${TTYPES[k].name}</div><div class="sgRow">`;
     for (const pk of ['a', 'b']) {
-      h += item('path:' + k + ':' + pk, `${TTYPES[k].name} · ${TSPEC[k][pk].label}`,
+      h += item('path:' + k + ':' + pk, TSPEC[k][pk].label, BRANCHINFO[k][pk],
                 PATHCOST[k], pathOwned(k, pk), SAVE.comps >= PATHCOST[k]);
     }
+    h += '</div>';
   }
-  h += '</div><div class="sgTitle">THE HOUSE</div><div class="sgRow">';
-  h += item('perk:star', '25 reputation floors', 120, !!SAVE.perks.star, SAVE.comps >= 120);
-  h += item('perk:spins', '+2 slot spins', 35, (SAVE.perks.spins || 0) >= 3, SAVE.comps >= 35);
+  h += '<div class="sgTitle">THE HOUSE</div><div class="sgRow">';
+  h += item('perk:star', 'House Insurance', 'floors start at 25 rep', 120, !!SAVE.perks.star, SAVE.comps >= 120);
+  h += item('perk:spins', 'Comp Spins', '+2 slot spins', 35, (SAVE.perks.spins || 0) >= 3, SAVE.comps >= 35);
   h += '</div>';
   body.innerHTML = h;
   body.querySelectorAll('[data-buy]').forEach(el => {
