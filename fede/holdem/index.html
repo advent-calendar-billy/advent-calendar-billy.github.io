@@ -1019,8 +1019,11 @@
   #cabinet { width: min(300px, 60vw, 44vh); display: block; margin: 2px auto 4px; }
   .cabBulb { animation: cabBulbBlink 1.2s linear infinite; }
   @keyframes cabBulbBlink { 0%,55% { opacity: 1; } 70%,100% { opacity: .25; } }
-  #leverArm { transform-box: fill-box; transform-origin: 50% 4%; transition: transform .18s ease-out; }
-  #leverArm.pulled { transform: rotate(38deg); }
+  #leverArm {
+    transform-box: fill-box; transform-origin: 50% 97%;
+    transition: transform .3s cubic-bezier(.3,1.6,.5,1);
+  }
+  #leverArm.pulled { transform: rotate(44deg); transition: transform .12s ease-in; }
   #slotMsg { font-size: clamp(11px, 2.6vh, 13.5px); color: #d8cbb0; min-height: 16px; }
   #slotMsg.bigwin {
     font-size: 17px;
@@ -3379,7 +3382,7 @@
 
 
 <!-- floating tower menu -->
-<div id="ver">v71</div>
+<div id="ver">v72</div>
 <div id="shopOv">
   <div id="shopCardOv">
     <div id="shopOvKind">BETWEEN FLOORS</div>
@@ -8073,7 +8076,14 @@ if (mechParam) {
 
 /* dev: ?jackpottest — pops the free-games celebration on the slot screen */
 if (location.search.includes('jackpottest')) {
-  setTimeout(() => { initRoom(0); G.chips = 300; openSlots(); jackpotShow(); }, 300);
+  setTimeout(() => {
+    initRoom(0);
+    G.chips = 300;
+    openSlots();
+    SLOT.free += 10;                 // the win is real: spin the free games after the show
+    jackpotShow();
+    slotInfo('10 FREE GAMES!');
+  }, 300);
 }
 
 /* dev: ?dpstest=<type>[&lvl=N] — one table vs a standard stream; title reports the score */
