@@ -1,1 +1,298 @@
-hi guys this is billy
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>thebilly.dev</title>
+<script>
+  try {
+    var t = localStorage.getItem('tbd-theme');
+    if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+  } catch (e) {}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,700;1,6..72,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg: #16130f;
+    --ink: #e9e1d3;
+    --faint: #8d8272;
+    --accent: #e0a458;
+    --rule: #2c2620;
+    --codebg: #211c16;
+    --serif: 'Newsreader', Georgia, serif;
+    --mono: 'IBM Plex Mono', ui-monospace, monospace;
+  }
+  [data-theme="light"] {
+    --bg: #f7f2e9;
+    --ink: #221d15;
+    --faint: #877b68;
+    --accent: #9c5f14;
+    --rule: #e0d7c8;
+    --codebg: #eee7da;
+  }
+  * { box-sizing: border-box; }
+  html { scrollbar-gutter: stable; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 1.19rem;
+    line-height: 1.65;
+    transition: background .25s ease, color .25s ease;
+  }
+  .wrap {
+    max-width: 40.5rem;
+    margin: 0 auto;
+    padding: 3.2rem 1.4rem 4rem;
+  }
+  header.site {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 3.4rem;
+  }
+  .wordmark {
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: clamp(1.9rem, 6vw, 2.6rem);
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .wordmark small {
+    color: var(--accent);
+    font-size: 100%;
+    font-weight: 400;
+    font-style: italic;
+  }
+  #themeToggle {
+    font-family: var(--mono);
+    font-size: .78rem;
+    background: none;
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    color: var(--faint);
+    padding: .28rem .6rem;
+    cursor: pointer;
+  }
+  #themeToggle:hover { color: var(--accent); border-color: var(--accent); }
+  .about { margin-bottom: 3.4rem; }
+  .about p:first-child { margin-top: 0; }
+  h2.sect {
+    font-family: var(--mono);
+    font-weight: 400;
+    font-size: .78rem;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    color: var(--faint);
+    margin: 0 0 1.4rem;
+  }
+  ul.posts { list-style: none; margin: 0; padding: 0; }
+  ul.posts li {
+    display: flex;
+    gap: 1.3rem;
+    align-items: baseline;
+    padding: .55rem 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  ul.posts li:first-child { border-top: 1px solid var(--rule); }
+  ul.posts time {
+    font-family: var(--mono);
+    font-size: .78rem;
+    color: var(--faint);
+    white-space: nowrap;
+  }
+  ul.posts a {
+    color: var(--ink);
+    text-decoration: none;
+    font-size: 1.16rem;
+  }
+  ul.posts a:hover { color: var(--accent); }
+  .empty { color: var(--faint); font-style: italic; }
+  /* single post view */
+  .backlink {
+    font-family: var(--mono);
+    font-size: .78rem;
+    color: var(--faint);
+    text-decoration: none;
+  }
+  .backlink:hover { color: var(--accent); }
+  article h1 {
+    font-size: clamp(1.7rem, 5vw, 2.2rem);
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    line-height: 1.2;
+    margin: 1rem 0 .3rem;
+  }
+  article .pdate {
+    font-family: var(--mono);
+    font-size: .78rem;
+    color: var(--faint);
+    display: block;
+    margin-bottom: 2.2rem;
+  }
+  .prose a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+  .prose h1, .prose h2, .prose h3 { line-height: 1.25; letter-spacing: -0.01em; }
+  .prose img, .prose video {
+    max-width: 100%;
+    height: auto;
+    border-radius: 3px;
+    display: block;
+    margin: 1.5rem auto;
+  }
+  .prose blockquote {
+    margin: 1.5rem 0;
+    padding-left: 1.1rem;
+    border-left: 2px solid var(--accent);
+    color: var(--faint);
+    font-style: italic;
+  }
+  .prose code {
+    font-family: var(--mono);
+    font-size: .85em;
+    background: var(--codebg);
+    padding: .1em .35em;
+    border-radius: 3px;
+  }
+  .prose pre {
+    background: var(--codebg);
+    padding: 1rem 1.1rem;
+    border-radius: 4px;
+    overflow-x: auto;
+    line-height: 1.5;
+  }
+  .prose pre code { background: none; padding: 0; font-size: .82rem; }
+  .prose hr { border: none; border-top: 1px solid var(--rule); margin: 2.2rem 0; }
+  footer.site {
+    margin-top: 4.5rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--rule);
+    font-family: var(--mono);
+    font-size: .78rem;
+    color: var(--faint);
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  footer.site a { color: var(--faint); text-decoration: none; }
+  footer.site a:hover { color: var(--accent); }
+  .fade-in { animation: fadeIn .35s ease both; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .fade-in { animation: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="site">
+    <a class="wordmark" href="#/">thebilly<small>.dev</small></a>
+    <button id="themeToggle" aria-label="toggle color theme">light</button>
+  </header>
+  <main id="main" class="fade-in"></main>
+  <footer class="site">
+    <span>billy</span>
+    <a href="https://www.linkedin.com/in/gmosse" rel="me">linkedin</a>
+  </footer>
+</div>
+<script src="/assets/md.js"></script>
+<script>
+(function () {
+  var toggle = document.getElementById('themeToggle');
+  function paintToggle() {
+    toggle.textContent = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+  }
+  toggle.addEventListener('click', function () {
+    var next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('tbd-theme', next); } catch (e) {}
+    paintToggle();
+  });
+  paintToggle();
+
+  var main = document.getElementById('main');
+  var index = null;
+
+  function esc(s) {
+    return s.replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+
+  function replay(html) {
+    main.classList.remove('fade-in');
+    void main.offsetWidth;
+    main.innerHTML = html;
+    main.classList.add('fade-in');
+  }
+
+  function getIndex() {
+    if (index) return Promise.resolve(index);
+    return fetch('/posts/index.json', { cache: 'no-cache' })
+      .then(function (r) { return r.ok ? r.json() : { posts: [] }; })
+      .then(function (j) { index = j; return j; })
+      .catch(function () { return { posts: [] }; });
+  }
+
+  function showHome() {
+    Promise.all([
+      fetch('/about.md', { cache: 'no-cache' }).then(function (r) { return r.ok ? r.text() : ''; }).catch(function () { return ''; }),
+      getIndex()
+    ]).then(function (res) {
+      var about = res[0].trim();
+      var posts = (res[1].posts || []).slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; });
+      var h = '';
+      if (about && about.charAt(0) !== '(') {
+        h += '<section class="about prose">' + mdToHtml(about) + '</section>';
+      }
+      h += '<h2 class="sect">posts</h2>';
+      if (!posts.length) {
+        h += '<p class="empty">nothing here yet.</p>';
+      } else {
+        h += '<ul class="posts">' + posts.map(function (p) {
+          return '<li><time>' + esc(p.date) + '</time><a href="#/p/' + encodeURIComponent(p.slug) + '">' + esc(p.title) + '</a></li>';
+        }).join('') + '</ul>';
+      }
+      replay(h);
+      document.title = 'thebilly.dev';
+    });
+  }
+
+  function showPost(slug) {
+    Promise.all([
+      fetch('/posts/' + encodeURIComponent(slug) + '.md', { cache: 'no-cache' }),
+      getIndex()
+    ]).then(function (res) {
+      if (!res[0].ok) throw new Error('missing');
+      return Promise.all([res[0].text(), res[1]]);
+    }).then(function (res) {
+      var parsed = parseFrontMatter(res[0]);
+      var meta = (res[1].posts || []).find(function (p) { return p.slug === slug; }) || {};
+      var title = parsed.meta.title || meta.title || slug;
+      var date = parsed.meta.date || meta.date || '';
+      replay(
+        '<a class="backlink" href="#/">&larr; back</a>' +
+        '<article><h1>' + esc(title) + '</h1>' +
+        (date ? '<time class="pdate">' + esc(date) + '</time>' : '') +
+        '<div class="prose">' + mdToHtml(parsed.body) + '</div></article>'
+      );
+      document.title = title + ' · thebilly.dev';
+      window.scrollTo(0, 0);
+    }).catch(function () {
+      replay('<a class="backlink" href="#/">&larr; back</a><p class="empty">that post does not exist.</p>');
+    });
+  }
+
+  function route() {
+    var h = location.hash;
+    var m = h.match(/^#\/p\/(.+)$/);
+    if (m) showPost(decodeURIComponent(m[1]));
+    else showHome();
+  }
+  window.addEventListener('hashchange', route);
+  route();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>control panel · thebilly.dev</title>
+<meta name="robots" content="noindex">
+<script>
+  try {
+    var t = localStorage.getItem('tbd-theme');
+    if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+  } catch (e) {}
+</script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg: #16130f; --ink: #e9e1d3; --faint: #8d8272; --accent: #e0a458;
+    --rule: #2c2620; --codebg: #211c16; --danger: #c4674f;
+    --serif: 'Newsreader', Georgia, serif; --mono: 'IBM Plex Mono', ui-monospace, monospace;
+  }
+  [data-theme="light"] {
+    --bg: #f7f2e9; --ink: #221d15; --faint: #877b68; --accent: #9c5f14;
+    --rule: #e0d7c8; --codebg: #eee7da; --danger: #a33d25;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--mono); font-size: .88rem; line-height: 1.55; }
+  .wrap { max-width: 46rem; margin: 0 auto; padding: 2.5rem 1.4rem 4rem; }
+  h1 { font-family: var(--serif); font-size: 1.7rem; margin: 0 0 2rem; }
+  h1 a { color: var(--accent); text-decoration: none; }
+  h2 { font-size: .78rem; letter-spacing: .2em; text-transform: uppercase; color: var(--faint); font-weight: 400; margin: 2.6rem 0 .9rem; border-bottom: 1px solid var(--rule); padding-bottom: .4rem; }
+  input, textarea, select {
+    width: 100%; background: var(--codebg); border: 1px solid var(--rule); border-radius: 3px;
+    color: var(--ink); font-family: var(--mono); font-size: .88rem; padding: .5rem .6rem; margin: .2rem 0 .8rem;
+  }
+  textarea { min-height: 16rem; line-height: 1.55; resize: vertical; }
+  textarea.tall { min-height: 22rem; }
+  label { color: var(--faint); font-size: .78rem; }
+  button {
+    background: none; border: 1px solid var(--rule); border-radius: 3px; color: var(--ink);
+    font-family: var(--mono); font-size: .82rem; padding: .4rem .9rem; cursor: pointer; margin-right: .5rem;
+  }
+  button:hover { border-color: var(--accent); color: var(--accent); }
+  button.primary { border-color: var(--accent); color: var(--accent); }
+  button.danger:hover { border-color: var(--danger); color: var(--danger); }
+  button:disabled { opacity: .45; cursor: default; }
+  ul.plist { list-style: none; padding: 0; margin: 0; }
+  ul.plist li { display: flex; gap: 1rem; align-items: baseline; padding: .4rem 0; border-bottom: 1px solid var(--rule); }
+  ul.plist time { color: var(--faint); font-size: .78rem; white-space: nowrap; }
+  ul.plist .t { flex: 1; }
+  ul.plist button { font-size: .72rem; padding: .15rem .55rem; margin: 0 0 0 .4rem; }
+  #status { position: fixed; bottom: 0; left: 0; right: 0; padding: .55rem 1.4rem; font-size: .78rem; background: var(--codebg); border-top: 1px solid var(--rule); color: var(--faint); display: none; }
+  #status.err { color: var(--danger); }
+  #preview { border: 1px dashed var(--rule); border-radius: 3px; padding: 1rem 1.2rem; font-family: var(--serif); font-size: 1.1rem; display: none; }
+  #preview img, #preview video { max-width: 100%; }
+  .row { display: flex; gap: 1rem; }
+  .row > div { flex: 1; }
+  .hint { color: var(--faint); font-size: .74rem; margin: .2rem 0 1rem; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>control panel · <a href="/">thebilly.dev</a></h1>
+
+  <section id="tokenSec">
+    <h2>github token</h2>
+    <div id="tokenForm">
+      <label>fine-grained personal access token (repo: advent-calendar-billy.github.io, permission: Contents → read &amp; write)</label>
+      <input id="token" type="password" placeholder="github_pat_...">
+      <button class="primary" onclick="saveToken()">save token</button>
+      <p class="hint">stored only in this browser's localStorage. create one at github.com → settings → developer settings → fine-grained tokens.</p>
+    </div>
+    <div id="tokenOk" class="hidden">
+      token saved. <button onclick="clearToken()">forget token</button>
+    </div>
+  </section>
+
+  <section>
+    <h2>posts</h2>
+    <ul id="plist" class="plist"></ul>
+    <p><button class="primary" onclick="newPost()">+ new post</button></p>
+  </section>
+
+  <section id="editor" class="hidden">
+    <h2 id="edTitle">new post</h2>
+    <div class="row">
+      <div><label>title</label><input id="pTitle" placeholder="My post"></div>
+      <div style="max-width:11rem"><label>date</label><input id="pDate"></div>
+    </div>
+    <label>slug (filename, no spaces)</label>
+    <input id="pSlug" placeholder="my-post">
+    <label>body — markdown. images: ![alt](/media/pic.jpg) · video: &lt;video src="/media/clip.mp4" controls&gt;&lt;/video&gt;</label>
+    <textarea id="pBody" class="tall"></textarea>
+    <p>
+      <button class="primary" id="publishBtn" onclick="publish()">publish</button>
+      <button onclick="togglePreview()">preview</button>
+      <button onclick="closeEditor()">close</button>
+    </p>
+    <div id="preview"></div>
+  </section>
+
+  <section>
+    <h2>about me</h2>
+    <textarea id="aboutBody" placeholder="loading..."></textarea>
+    <p><button class="primary" onclick="saveAbout()">save about</button></p>
+    <p class="hint">if the text starts with "(" the section stays hidden on the blog.</p>
+  </section>
+
+  <section>
+    <h2>media</h2>
+    <input id="mediaFile" type="file">
+    <p><button class="primary" onclick="uploadMedia()">upload to /media/</button></p>
+    <p class="hint">keep files under ~40MB (github api limit). after upload the snippet to paste is shown below.</p>
+    <input id="mediaSnippet" readonly placeholder="snippet appears here" onclick="this.select()">
+  </section>
+</div>
+<div id="status"></div>
+<script src="/assets/md.js"></script>
+<script>
+var OWNER = 'advent-calendar-billy';
+var REPO = 'advent-calendar-billy.github.io';
+var API = 'https://api.github.com/repos/' + OWNER + '/' + REPO + '/contents/';
+var editingSlug = null; // slug currently being edited, null = new
+var indexSha = null, indexData = { posts: [] };
+
+function $(id) { return document.getElementById(id); }
+function status(msg, err) {
+  var el = $('status');
+  el.textContent = msg; el.className = err ? 'err' : ''; el.style.display = 'block';
+  if (!err) setTimeout(function () { el.style.display = 'none'; }, 4000);
+}
+function token() { return localStorage.getItem('tbd-token') || ''; }
+function saveToken() {
+  var t = $('token').value.trim();
+  if (!t) return;
+  localStorage.setItem('tbd-token', t);
+  paintToken(); loadAll();
+}
+function clearToken() { localStorage.removeItem('tbd-token'); paintToken(); }
+function paintToken() {
+  var has = !!token();
+  $('tokenForm').classList.toggle('hidden', has);
+  $('tokenOk').classList.toggle('hidden', !has);
+}
+
+function gh(path, opts) {
+  opts = opts || {};
+  opts.headers = {
+    'Authorization': 'Bearer ' + token(),
+    'Accept': 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28'
+  };
+  return fetch(API + path + (opts.method ? '' : '?t=' + Date.now()), opts).then(function (r) {
+    if (r.status === 404 && !opts.method) return null;
+    if (!r.ok) return r.json().catch(function(){return {};}).then(function (j) {
+      throw new Error(r.status + ' ' + (j.message || ''));
+    });
+    return r.json();
+  });
+}
+function b64encodeText(s) { return btoa(unescape(encodeURIComponent(s))); }
+function b64decodeText(s) { return decodeURIComponent(escape(atob(s.replace(/\n/g, '')))); }
+
+function putFile(path, base64content, message, sha) {
+  var body = { message: message, content: base64content, branch: 'main' };
+  if (sha) body.sha = sha;
+  return gh(path, { method: 'PUT', body: JSON.stringify(body) });
+}
+function getFile(path) { return gh(path); }
+
+function loadAll() {
+  if (!token()) { status('paste your github token first', true); return; }
+  getFile('posts/index.json').then(function (f) {
+    if (f) { indexSha = f.sha; indexData = JSON.parse(b64decodeText(f.content)); }
+    paintList();
+  }).catch(function (e) { status('could not load posts index: ' + e.message, true); });
+  getFile('about.md').then(function (f) {
+    if (f) { $('aboutBody').value = b64decodeText(f.content); $('aboutBody').dataset.sha = f.sha; }
+    else { $('aboutBody').placeholder = 'write something about yourself...'; }
+  }).catch(function (e) { status('could not load about.md: ' + e.message, true); });
+}
+
+function paintList() {
+  var ul = $('plist');
+  var posts = (indexData.posts || []).slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; });
+  ul.innerHTML = posts.length ? '' : '<li><span class="t" style="color:var(--faint)">no posts yet</span></li>';
+  posts.forEach(function (p) {
+    var li = document.createElement('li');
+    li.innerHTML = '<time>' + p.date + '</time><span class="t">' + p.title.replace(/</g, '&lt;') + '</span>';
+    var eb = document.createElement('button'); eb.textContent = 'edit';
+    eb.onclick = function () { editPost(p.slug); };
+    var db = document.createElement('button'); db.textContent = 'delete'; db.className = 'danger';
+    db.onclick = function () { if (confirm('delete "' + p.title + '"?')) deletePost(p.slug); };
+    li.appendChild(eb); li.appendChild(db);
+    ul.appendChild(li);
+  });
+}
+
+function today() {
+  var d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+function slugify(s) {
+  return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60);
+}
+
+function newPost() {
+  editingSlug = null;
+  $('edTitle').textContent = 'new post';
+  $('pTitle').value = ''; $('pSlug').value = ''; $('pDate').value = today(); $('pBody').value = '';
+  $('pBody').dataset.sha = '';
+  $('editor').classList.remove('hidden');
+  $('preview').style.display = 'none';
+  $('pTitle').focus();
+  $('editor').scrollIntoView({ behavior: 'smooth' });
+}
+$('pTitle') && null;
+document.addEventListener('input', function (e) {
+  if (e.target.id === 'pTitle' && !editingSlug) $('pSlug').value = slugify(e.target.value);
+});
+
+function editPost(slug) {
+  getFile('posts/' + slug + '.md').then(function (f) {
+    if (!f) { status('post file missing', true); return; }
+    var parsed = parseFrontMatter(b64decodeText(f.content));
+    editingSlug = slug;
+    $('edTitle').textContent = 'editing: ' + slug;
+    $('pTitle').value = parsed.meta.title || slug;
+    $('pDate').value = parsed.meta.date || today();
+    $('pSlug').value = slug;
+    $('pBody').value = parsed.body;
+    $('pBody').dataset.sha = f.sha;
+    $('editor').classList.remove('hidden');
+    $('preview').style.display = 'none';
+    $('editor').scrollIntoView({ behavior: 'smooth' });
+  }).catch(function (e) { status(e.message, true); });
+}
+
+function closeEditor() { $('editor').classList.add('hidden'); editingSlug = null; }
+
+function togglePreview() {
+  var pv = $('preview');
+  if (pv.style.display === 'block') { pv.style.display = 'none'; return; }
+  pv.innerHTML = mdToHtml($('pBody').value);
+  pv.style.display = 'block';
+}
+
+function saveIndex(message) {
+  return putFile('posts/index.json', b64encodeText(JSON.stringify(indexData, null, 2) + '\n'), message, indexSha)
+    .then(function (r) { indexSha = r.content.sha; });
+}
+
+function publish() {
+  var title = $('pTitle').value.trim();
+  var date = $('pDate').value.trim();
+  var slug = slugify($('pSlug').value.trim() || title);
+  if (!title || !slug || !/^\d{4}-\d{2}-\d{2}$/.test(date)) { status('need a title, slug, and date like 2026-09-15', true); return; }
+  $('publishBtn').disabled = true;
+  var content = '---\ntitle: ' + title + '\ndate: ' + date + '\n---\n\n' + $('pBody').value + '\n';
+  var sha = $('pBody').dataset.sha || undefined;
+  putFile('posts/' + slug + '.md', b64encodeText(content), 'blog: ' + (sha ? 'update' : 'add') + ' post ' + slug, sha)
+    .then(function (r) {
+      $('pBody').dataset.sha = r.content.sha;
+      indexData.posts = (indexData.posts || []).filter(function (p) { return p.slug !== slug && p.slug !== editingSlug; });
+      indexData.posts.push({ slug: slug, title: title, date: date });
+      editingSlug = slug;
+      $('edTitle').textContent = 'editing: ' + slug;
+      return saveIndex('blog: index for ' + slug);
+    })
+    .then(function () { paintList(); status('published. live on thebilly.dev in ~a minute.'); })
+    .catch(function (e) { status('publish failed: ' + e.message, true); })
+    .finally(function () { $('publishBtn').disabled = false; });
+}
+
+function deletePost(slug) {
+  getFile('posts/' + slug + '.md').then(function (f) {
+    if (!f) return null;
+    return gh('posts/' + slug + '.md', {
+      method: 'DELETE',
+      body: JSON.stringify({ message: 'blog: delete post ' + slug, sha: f.sha, branch: 'main' })
+    });
+  }).then(function () {
+    indexData.posts = (indexData.posts || []).filter(function (p) { return p.slug !== slug; });
+    return saveIndex('blog: remove ' + slug + ' from index');
+  }).then(function () { paintList(); status('deleted.'); if (editingSlug === slug) closeEditor(); })
+    .catch(function (e) { status('delete failed: ' + e.message, true); });
+}
+
+function saveAbout() {
+  var sha = $('aboutBody').dataset.sha || undefined;
+  putFile('about.md', b64encodeText($('aboutBody').value), 'blog: update about', sha)
+    .then(function (r) { $('aboutBody').dataset.sha = r.content.sha; status('about saved.'); })
+    .catch(function (e) { status('save failed: ' + e.message, true); });
+}
+
+function uploadMedia() {
+  var f = $('mediaFile').files[0];
+  if (!f) { status('pick a file first', true); return; }
+  var name = f.name.toLowerCase().replace(/[^a-z0-9._-]+/g, '-');
+  var reader = new FileReader();
+  reader.onload = function () {
+    var b64 = reader.result.split(',')[1];
+    getFile('media/' + name).then(function (existing) {
+      return putFile('media/' + name, b64, 'blog: upload media ' + name, existing && existing.sha);
+    }).then(function () {
+      var url = '/media/' + name;
+      var snippet = /\.(mp4|webm|mov)$/.test(name)
+        ? '<video src="' + url + '" controls></video>'
+        : '![](' + url + ')';
+      $('mediaSnippet').value = snippet;
+      status('uploaded. snippet ready below — click to select.');
+    }).catch(function (e) { status('upload failed: ' + e.message, true); });
+  };
+  reader.readAsDataURL(f);
+}
+
+paintToken();
+if (token()) loadAll();
+</script>
+</body>
+</html>

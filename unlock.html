@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>locked · thebilly.dev</title>
+<meta name="robots" content="noindex">
+<script>
+  try {
+    var t = localStorage.getItem('tbd-theme');
+    if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+  } catch (e) {}
+</script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg: #16130f; --ink: #e9e1d3; --faint: #8d8272; --accent: #e0a458;
+    --rule: #2c2620; --codebg: #211c16;
+    --serif: 'Newsreader', Georgia, serif; --mono: 'IBM Plex Mono', ui-monospace, monospace;
+  }
+  [data-theme="light"] {
+    --bg: #f7f2e9; --ink: #221d15; --faint: #877b68; --accent: #9c5f14;
+    --rule: #e0d7c8; --codebg: #eee7da;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--serif); font-size: 1.1rem; }
+  .wrap { max-width: 26rem; margin: 0 auto; padding: 22vh 1.4rem 3rem; text-align: center; }
+  h1 { font-size: 1.5rem; font-weight: 700; margin: 0 0 .4rem; }
+  p { color: var(--faint); margin: .3rem 0 1.6rem; }
+  .path { font-family: var(--mono); font-size: .78rem; word-break: break-all; }
+  input {
+    width: 100%; background: var(--codebg); border: 1px solid var(--rule); border-radius: 3px;
+    color: var(--ink); font-family: var(--mono); font-size: 1rem; padding: .6rem .8rem; text-align: center;
+  }
+  input:focus { outline: none; border-color: var(--accent); }
+  button {
+    margin-top: .9rem; width: 100%; background: none; border: 1px solid var(--accent); border-radius: 3px;
+    color: var(--accent); font-family: var(--mono); font-size: .9rem; padding: .55rem; cursor: pointer;
+  }
+  button:hover { background: var(--accent); color: var(--bg); }
+  #msg { min-height: 1.4rem; font-family: var(--mono); font-size: .78rem; color: var(--faint); margin-top: .8rem; }
+  #msg.err { color: #c4674f; }
+  a { color: var(--accent); }
+  ul.dir { list-style: none; padding: 0; margin: 1rem 0; text-align: left; }
+  ul.dir li { border-bottom: 1px solid var(--rule); }
+  ul.dir a { display: block; padding: .45rem .2rem; font-family: var(--mono); font-size: .85rem; text-decoration: none; }
+  ul.dir a:hover { color: var(--ink); }
+  .small { font-family: var(--mono); font-size: .72rem; }
+  .home { display: inline-block; margin-top: 2rem; font-family: var(--mono); font-size: .78rem; color: var(--faint); text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>locked</h1>
+  <p id="sub">this part of the site needs a key.<br><span id="target" class="path"></span></p>
+  <form id="form">
+    <input id="pass" type="password" placeholder="key" autofocus autocomplete="current-password">
+    <button type="submit">unlock</button>
+  </form>
+  <div id="msg"></div>
+  <div id="listing"></div>
+  <a class="home" href="/">&larr; thebilly.dev</a>
+</div>
+<script>
+(function () {
+  var IDB_NAME = 'tbd-vault', IDB_STORE = 'keys';
+  var params = new URLSearchParams(location.search);
+  var to = params.get('to') || '';
+  if (!/^\/[^/]/.test(to)) to = ''; // same-origin absolute paths only
+  if (to) document.getElementById('target').textContent = to;
+
+  var msg = document.getElementById('msg');
+  function say(t, err) { msg.textContent = t; msg.className = err ? 'err' : ''; }
+
+  function idb(mode, fn) {
+    return new Promise(function (resolve, reject) {
+      var open = indexedDB.open(IDB_NAME, 1);
+      open.onupgradeneeded = function () { open.result.createObjectStore(IDB_STORE); };
+      open.onerror = function () { reject(open.error); };
+      open.onsuccess = function () {
+        var db = open.result;
+        var tx = db.transaction(IDB_STORE, mode);
+        var req = fn(tx.objectStore(IDB_STORE));
+        req.onsuccess = function () { resolve(req.result); db.close(); };
+        req.onerror = function () { reject(req.error); db.close(); };
+      };
+    });
+  }
+
+  function deriveKey(pass, meta) {
+    var enc = new TextEncoder();
+    return crypto.subtle.importKey('raw', enc.encode(pass), 'PBKDF2', false, ['deriveKey'])
+      .then(function (base) {
+        return crypto.subtle.deriveKey(
+          { name: 'PBKDF2', hash: 'SHA-256', iterations: meta.iterations,
+            salt: Uint8Array.from(atob(meta.salt), function (c) { return c.charCodeAt(0); }) },
+          base, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
+      });
+  }
+
+  function tryManifest(key) {
+    return fetch('/vault/manifest.bin', { cache: 'no-cache' })
+      .then(function (r) { if (!r.ok) throw new Error('no vault'); return r.arrayBuffer(); })
+      .then(function (buf) {
+        var u8 = new Uint8Array(buf);
+        return crypto.subtle.decrypt({ name: 'AES-GCM', iv: u8.slice(0, 12) }, key, u8.slice(12));
+      })
+      .then(function (plain) { return JSON.parse(new TextDecoder().decode(plain)); });
+  }
+
+  function ensureSW() {
+    if (!('serviceWorker' in navigator)) return Promise.reject(new Error('this browser does not support service workers'));
+    return navigator.serviceWorker.register('/sw.js').then(function () {
+      return navigator.serviceWorker.ready;
+    }).then(function (reg) {
+      if (reg.active) reg.active.postMessage('vault-reset');
+      return reg;
+    });
+  }
+
+  function proceed(manifest) {
+    document.getElementById('form').style.display = 'none';
+    if (to) {
+      var p = to.split(/[?#]/)[0].replace(/^\/+/, '');
+      try { p = decodeURIComponent(p); } catch (e) {}
+      p = p.normalize('NFC');
+      var probe = p === '' || p.endsWith('/') ? p + 'index.html' : p;
+      if (manifest[probe] || manifest[p + '/index.html'] || manifest[p]) {
+        say('unlocked — taking you there');
+        location.replace(to);
+      } else {
+        say('unlocked, but nothing exists at ' + to, true);
+        showListing(manifest);
+      }
+    } else {
+      say('unlocked');
+      showListing(manifest);
+    }
+  }
+
+  function showListing(manifest) {
+    var tops = {};
+    Object.keys(manifest).forEach(function (k) {
+      var seg = k.split('/')[0];
+      if (k === seg && /\.html?$/.test(seg)) { tops['/' + seg] = true; return; }
+      if (manifest[seg + '/index.html']) { tops['/' + seg + '/'] = true; return; }
+      var two = k.split('/').slice(0, 2).join('/');
+      if (manifest[two + '/index.html']) tops['/' + two + '/'] = true;
+    });
+    var keys = Object.keys(tops).sort();
+    if (!keys.length) return;
+    document.getElementById('listing').innerHTML =
+      '<ul class="dir">' + keys.map(function (p) {
+        return '<li><a href="' + p + '">' + p + '</a></li>';
+      }).join('') + '</ul>' +
+      '<span class="small"><a href="#" id="lock">forget key on this device</a></span>';
+    document.getElementById('lock').onclick = function (e) {
+      e.preventDefault();
+      idb('readwrite', function (s) { return s.delete('aes'); }).then(function () {
+        if (navigator.serviceWorker.controller) navigator.serviceWorker.controller.postMessage('vault-reset');
+        location.reload();
+      });
+    };
+  }
+
+  // silent attempt with a remembered key
+  ensureSW().catch(function () {}).then(function () {
+    return idb('readonly', function (s) { return s.get('aes'); });
+  }).then(function (stored) {
+    if (!stored) return;
+    return tryManifest(stored).then(function (manifest) { proceed(manifest); }).catch(function () {});
+  }).catch(function () {});
+
+  document.getElementById('form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var pass = document.getElementById('pass').value;
+    if (!pass) return;
+    say('checking...');
+    fetch('/vault/meta.json', { cache: 'no-cache' })
+      .then(function (r) { if (!r.ok) throw new Error('vault metadata missing'); return r.json(); })
+      .then(function (meta) { return deriveKey(pass, meta); })
+      .then(function (key) {
+        return tryManifest(key).then(function (manifest) {
+          return idb('readwrite', function (s) { return s.put(key, 'aes'); })
+            .then(function () { return ensureSW(); })
+            .then(function () { proceed(manifest); });
+        });
+      })
+      .catch(function (err) {
+        if ((err && err.message || '').indexOf('service worker') !== -1) say(err.message, true);
+        else say('wrong key', true);
+      });
+  });
+})();
+</script>
+</body>
+</html>

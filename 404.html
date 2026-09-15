@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>thebilly.dev</title>
+<meta name="robots" content="noindex">
+<style>
+  body { margin: 0; background: #16130f; color: #8d8272; font-family: ui-monospace, monospace; }
+  .wrap { max-width: 26rem; margin: 0 auto; padding: 30vh 1.4rem; text-align: center; font-size: .85rem; }
+  a { color: #e0a458; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <noscript>this page is locked or does not exist. <a href="/">back to thebilly.dev</a></noscript>
+</div>
+<script>
+  // Anything not part of the blog lives in the encrypted vault; send the
+  // visitor to the unlock page, which either uses their remembered key or asks.
+  location.replace('/unlock.html?to=' + encodeURIComponent(location.pathname + location.search));
+</script>
+</body>
+</html>
