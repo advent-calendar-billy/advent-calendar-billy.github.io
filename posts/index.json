@@ -1,1 +1,5 @@
-{ "posts": [] }
+{
+  "posts": [
+    { "slug": "not-using-ai", "title": "For which tasks would you NOT use AI?", "date": "2026-09-15" }
+  ]
+}

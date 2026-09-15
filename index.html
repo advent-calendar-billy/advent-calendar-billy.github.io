@@ -220,6 +220,11 @@
     });
   }
 
+  function usDate(d) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(d || '');
+    return m ? m[2] + '/' + m[3] + '/' + m[1] : (d || '');
+  }
+
   function replay(html) {
     main.classList.remove('fade-in');
     void main.offsetWidth;
@@ -251,7 +256,7 @@
         h += '<p class="empty">nothing here yet.</p>';
       } else {
         h += '<ul class="posts">' + posts.map(function (p) {
-          return '<li><time>' + esc(p.date) + '</time><a href="#/p/' + encodeURIComponent(p.slug) + '">' + esc(p.title) + '</a></li>';
+          return '<li><time>' + esc(usDate(p.date)) + '</time><a href="#/p/' + encodeURIComponent(p.slug) + '">' + esc(p.title) + '</a></li>';
         }).join('') + '</ul>';
       }
       replay(h);
@@ -274,7 +279,7 @@
       replay(
         '<a class="backlink" href="#/">&larr; back</a>' +
         '<article><h1>' + esc(title) + '</h1>' +
-        (date ? '<time class="pdate">' + esc(date) + '</time>' : '') +
+        (date ? '<time class="pdate">' + esc(usDate(date)) + '</time>' : '') +
         '<div class="prose">' + mdToHtml(parsed.body) + '</div></article>'
       );
       document.title = title + ' · thebilly.dev';
